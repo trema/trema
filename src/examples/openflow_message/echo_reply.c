@@ -1,0 +1,70 @@
+/*
+ * Sends echo_reply messages to the specified datapath ID.
+ *
+ * Author: Shin-ya Zenke, Yasuhito Takamiya <yasuhito@gmail.com>
+ *
+ * Copyright (C) 2008-2011 NEC Corporation
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+#include <stdio.h>
+#include "trema.h"
+
+
+void
+usage() {
+  printf( "Usage: %s COUNT\n", get_executable_name() );
+}
+
+
+static void
+send_echo_replies( uint64_t datapath_id, void *count ) {
+  for ( int i = 0; i < ( int ) count; i++ ) {
+    buffer *echo_reply = create_echo_reply( get_transaction_id(), NULL );
+    bool ret = send_openflow_message( datapath_id, echo_reply );
+    if ( !ret ) {
+      error( "Failed to send an echo reply message to the switch with datapath ID = %#llx.", datapath_id );
+    }
+    free_buffer( echo_reply );
+  }
+  flush();
+  stop_trema();
+}
+
+
+int
+main( int argc, char *argv[] ) {
+  init_trema( &argc, &argv );
+
+  if ( argc < 2 ) {
+    usage();
+    return -1;
+  }
+
+  set_switch_ready_handler( send_echo_replies, ( void * ) atoi( argv[ 1 ] ) );
+
+  start_trema();
+
+  return 0;
+}
+
+
+/*
+ * Local variables:
+ * c-basic-offset: 2
+ * indent-tabs-mode: nil
+ * End:
+ */

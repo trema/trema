@@ -1,0 +1,4 @@
+*.o
+Makefile
+mkmf.log
+trema.so

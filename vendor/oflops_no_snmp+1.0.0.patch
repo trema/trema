@@ -1,0 +1,340 @@
+From 1db288a84c4e27d204d35f41fb54f268a50b6d95 Mon Sep 17 00:00:00 2001
+From: Shuji Ishii <shuji@ap.jp.nec.com>
+Date: Wed, 9 Mar 2011 12:40:04 +0900
+Subject: [PATCH] patch snmp-free
+
+---
+ Makefile.am                 |    7 +++----
+ cbench/fakeswitch.c         |   12 ++++++------
+ configure.ac                |   20 +-------------------
+ context.c                   |    2 ++
+ context.h                   |    2 ++
+ example_modules/Makefile.am |    2 +-
+ module_default.h            |    2 ++
+ module_run.c                |    8 ++++++++
+ oflops_snmp.h               |    2 ++
+ test_module.c               |    3 ++-
+ test_module.h               |    8 ++++++++
+ usage.c                     |    4 ++++
+ 12 files changed, 41 insertions(+), 31 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 8863be6..3b35f93 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -5,7 +5,7 @@ OFSRC=@openflowsrc@
+ CFLAGS+=-Wall -I$(OFSRC)/include -Wshadow 
+ LDFLAGS+=-L$(OFSRC)/lib 
+ 
+-LDADD=-ldl -lpcap -lnetsnmp -loflops_test 
++LDADD=-ldl -lpcap -loflops_test 
+ #LDADD+=-lefence
+ 
+ EXTRA_DIST=./doc
+@@ -16,10 +16,8 @@ lib_LTLIBRARIES=liboflops_test.la
+ liboflops_test_la_SOURCES= test_module.h  test_module.c \
+ 	msgbuf.c msgbuf.h \
+ 	pcap_track.c  pcap_track.h \
+-	oflops_snmp.c oflops_snmp.h \
+ 	utils.h utils.c \
+ 	wc_event.h wc_event.c 
+-liboflops_test_la_LIBADD=-lnetsnmp
+ 
+ oflops_SOURCES= \
+ 	channel_info.h channel_info.c \
+@@ -36,7 +34,8 @@ oflops_LDFLAGS=-static -Wl,-E
+ 
+ # lame; add "." before anything else to force dependencies
+ #	to be built right
+-SUBDIRS = . example_modules cbench doc
++#SUBDIRS = . example_modules cbench doc
++SUBDIRS = . example_modules cbench
+ 
+ docs: 
+ 	$(MAKE) -C doc docs
+diff --git a/cbench/fakeswitch.c b/cbench/fakeswitch.c
+index f2d762f..c19310e 100644
+--- a/cbench/fakeswitch.c
++++ b/cbench/fakeswitch.c
+@@ -99,17 +99,17 @@ static int              make_features_reply(int id, int xid, char * buf, int buf
+     const char fake[] =     // stolen from wireshark
+     {
+         0x97,0x06,0x00,0xe0,0x04,0x01,0x00,0x00,0x00,0x00,0x76,0xa9,
+-        0xd4,0x0d,0x25,0x48,0x00,0x00,0x01,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x1f,
+-        0x00,0x00,0x03,0xff,0x00,0x00,0x1a,0xc1,0x51,0xff,0xef,0x8a,0x76,0x65,0x74,0x68,
++        0xd4,0x0d,0x25,0x48,0x00,0x00,0x01,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
++        0x00,0x00,0x07,0xff,0x00,0x01,0x1a,0xc1,0x51,0xff,0xef,0x8a,0x76,0x65,0x74,0x68,
+         0x31,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+-        0x00,0x00,0x00,0x00,0x00,0x01,0xce,0x2f,0xa2,0x87,0xf6,0x70,0x76,0x65,0x74,0x68,
++        0x00,0x00,0x00,0x00,0x00,0x02,0xce,0x2f,0xa2,0x87,0xf6,0x70,0x76,0x65,0x74,0x68,
+         0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+-        0x00,0x00,0x00,0x00,0x00,0x02,0xca,0x8a,0x1e,0xf3,0x77,0xef,0x76,0x65,0x74,0x68,
++        0x00,0x00,0x00,0x00,0x00,0x03,0xca,0x8a,0x1e,0xf3,0x77,0xef,0x76,0x65,0x74,0x68,
+         0x35,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+-        0x00,0x00,0x00,0x00,0x00,0x03,0xfa,0xbc,0x77,0x8d,0x7e,0x0b,0x76,0x65,0x74,0x68,
++        0x00,0x00,0x00,0x00,0x00,0x04,0xfa,0xbc,0x77,0x8d,0x7e,0x0b,0x76,0x65,0x74,0x68,
+         0x37,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+         0x00,0x00,0x00,0x00
+@@ -144,7 +144,7 @@ static int make_packet_in(int switch_id, int buffer_id, char * buf, int buflen,
+     struct ether_header * eth;
+     const char fake[] = {
+                 0x97,0x0a,0x00,0x52,0x00,0x00,0x00,0x00,0x00,0x00,0x01,
+-                0x01,0x00,0x40,0x00,0x00,0x00,0x00,0x80,0x00,0x00,0x00,
++                0x01,0x00,0x40,0x00,0x01,0x00,0x00,0x80,0x00,0x00,0x00,
+                 0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x02,0x08,0x00,0x45,
+                 0x00,0x00,0x32,0x00,0x00,0x00,0x00,0x40,0xff,0xf7,0x2c,
+                 0xc0,0xa8,0x00,0x28,0xc0,0xa8,0x01,0x28,0x7a,0x18,0x58,
+diff --git a/configure.ac b/configure.ac
+index 240fbe7..9efee89 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -58,23 +58,6 @@ AC_PROG_DOXYGEN
+ # Checks for header files.
+ AC_CHECK_HEADERS([config.h net/bpf.h])
+ 
+-# Check for the SNMP headers
+-AC_CHECK_HEADERS([net-snmp/net-snmp-config.h], [],
+-	[AC_MSG_ERROR(
+-		[Could not find SNMP headers from net-snmp package -- please install]
+-		,[1])
+-	])
+-AC_CHECK_HEADERS([net-snmp/net-snmp-includes.h], [],
+-	[AC_MSG_ERROR(
+-		[Could not find SNMP headers from net-snmp package -- please install]
+-		,[1])
+-	],
+-	[
+-#ifdef HAVE_NET_SNMP_NET_SNMP_CONFIG_H
+-# include <net-snmp/net-snmp-config.h>
+-#endif
+-	])
+-
+ # Check whether we have ofp_flow_expired or ofp_flow_removed
+ AC_EGREP_HEADER(ofp_flow_expired, [$OPENFLOWSRC/include/openflow/openflow.h],
+ 		[AC_DEFINE([HAVE_OFP_FLOW_EXPIRED], [],
+@@ -111,8 +94,7 @@ AC_CONFIG_FILES([Makefile \
+ 		example_modules/Makefile \
+ 		example_modules/oflops_debug/Makefile \
+ 		example_modules/openflow_packet_in/Makefile \
+-		example_modules/openflow_port_status/Makefile \
+-		example_modules/snmp_cpu/Makefile
++		example_modules/openflow_port_status/Makefile
+ 		])
+ 
+ AC_OUTPUT
+diff --git a/context.c b/context.c
+index 18fa6a9..93f3fb3 100644
+--- a/context.c
++++ b/context.c
+@@ -30,9 +30,11 @@ oflops_context * oflops_default_context(void)
+ 
+     ctx->control_outgoing = msgbuf_new(4096);       // dynamically sized
+ 	
++#if 0
+ 	ctx->snmp_channel_info = malloc_and_check(sizeof(struct snmp_channel));
+ 	ctx->snmp_channel_info->hostname = NULL;
+ 	ctx->snmp_channel_info->community_string = NULL;
++#endif
+ 
+ 	ctx->channels[OFLOPS_CONTROL].raw_sock = -1;
+ 	// initalize other channels later
+diff --git a/context.h b/context.h
+index cab1288..b8e71d8 100644
+--- a/context.h
++++ b/context.h
+@@ -7,7 +7,9 @@ struct oflops_context;
+ #include "test_module.h"
+ #include "wc_event.h"
+ #include "channel_info.h"
++#if 0
+ #include "oflops_snmp.h"
++#endif
+ #include <pcap.h>
+ 
+ typedef struct oflops_context
+diff --git a/example_modules/Makefile.am b/example_modules/Makefile.am
+index 03818d5..c2d74d9 100644
+--- a/example_modules/Makefile.am
++++ b/example_modules/Makefile.am
+@@ -1,2 +1,2 @@
+-SUBDIRS = oflops_debug openflow_packet_in openflow_port_status snmp_cpu
++SUBDIRS = oflops_debug openflow_packet_in openflow_port_status
+ 
+diff --git a/module_default.h b/module_default.h
+index 16cd657..4aa4506 100644
+--- a/module_default.h
++++ b/module_default.h
+@@ -29,6 +29,8 @@ int default_module_of_event_echo_request(struct oflops_context *ctx, const struc
+ int default_module_of_event_port_status(struct oflops_context *ctx, const struct ofp_port_status * ofph);
+ int default_module_of_event_other(struct oflops_context *ctx, const struct ofp_header * ofph);
+ int default_module_handle_timer_event(struct oflops_context * ctx, struct timer_event * te);
++#if 0
+ int default_module_handle_snmp_event(struct oflops_context * ctx, struct snmp_event * se);
++#endif
+ 
+ #endif
+diff --git a/module_run.c b/module_run.c
+index 3b80055..d36b83a 100644
+--- a/module_run.c
++++ b/module_run.c
+@@ -35,7 +35,9 @@ int run_test_module(oflops_context *ctx, test_module * mod)
+ {
+ 	int i;
+ 	//Setup
++#if 0
+ 	setup_snmp_channel(ctx);
++#endif
+ 	for(i=0;i<ctx->n_channels;i++)
+ 		setup_channel( ctx, mod, i);
+ 
+@@ -44,7 +46,9 @@ int run_test_module(oflops_context *ctx, test_module * mod)
+ 	test_module_loop(ctx,mod);
+ 
+ 	//Teardown
++#if 0
+ 	teardown_snmp_channel(ctx);
++#endif
+ 	
+ 	return 0;
+ }
+@@ -98,6 +102,7 @@ static void test_module_loop(oflops_context *ctx, test_module *mod)
+ 		n_fds++;
+ 
+ 		//SNMP poll
++#if 0
+ 		FD_ZERO(&fdset);
+ 		timeout.tv_sec = 0;
+ 		timeout.tv_usec = 1;
+@@ -107,6 +112,7 @@ static void test_module_loop(oflops_context *ctx, test_module *mod)
+ 			snmp_read(&fdset);
+ 		else
+ 			snmp_timeout();
++#endif
+ 
+ 		//Timer poll
+ 		next_event = timer_get_next_event(ctx);
+@@ -342,7 +348,9 @@ int load_test_module(oflops_context *ctx, char * mod_filename, char * initstr)
+ 	symbol_fetch(of_event_port_status);
+ 	symbol_fetch(of_event_other);
+ 	symbol_fetch(handle_timer_event);
++#if 0
+ 	symbol_fetch(handle_snmp_event);
++#endif
+ #undef symbol_fetch
+ 	if(ctx->n_tests >= ctx->max_tests)
+ 	{
+diff --git a/oflops_snmp.h b/oflops_snmp.h
+index 9bd4cf1..f535b27 100644
+--- a/oflops_snmp.h
++++ b/oflops_snmp.h
+@@ -5,8 +5,10 @@ struct snmp_channel;
+ struct snmp_event;
+ 
+ #include "context.h"
++#if 0
+ #include <net-snmp/net-snmp-config.h>
+ #include <net-snmp/net-snmp-includes.h>
++#endif
+ 
+ /** Structure to hold SNMP reply.
+  *
+diff --git a/test_module.c b/test_module.c
+index 5bb4f98..9e07095 100644
+--- a/test_module.c
++++ b/test_module.c
+@@ -167,6 +167,7 @@ int oflops_get_timestamp(struct oflops_context * ctx, void * data, int len, stru
+ 	return ptrack_lookup(ch->timestamps,data,len,hdr);
+ }
+ 
++#if 0
+ int oflops_snmp_get(struct oflops_context * ctx, oid query[], size_t len)
+ {
+ 	struct snmp_channel* ch = ctx->snmp_channel_info;
+@@ -189,4 +190,4 @@ int oflops_snmp_get(struct oflops_context * ctx, oid query[], size_t len)
+ 
+ 	return 0;
+ }
+-
++#endif
+diff --git a/test_module.h b/test_module.h
+index fd30748..4244b08 100644
+--- a/test_module.h
++++ b/test_module.h
+@@ -4,8 +4,10 @@
+ #include <openflow/openflow.h>
+ #include "config.h"
+ #include <pcap.h>
++#if 0
+ #include <net-snmp/net-snmp-config.h>
+ #include <net-snmp/net-snmp-includes.h>
++#endif
+ 
+ struct test_module;
+ 	
+@@ -24,7 +26,9 @@ typedef enum oflops_channel_name {
+ #include "oflops.h"
+ #include "oflops_pcap.h"
+ #include "timer_event.h"
++#if 0
+ #include "oflops_snmp.h"
++#endif
+ 
+ /**  New test_module should implement these call backs.
+  * Unimplemeted callbacks fall back to a default behavior.
+@@ -130,7 +134,9 @@ typedef struct test_module
+ 	 * @param se struct to handle SNMP reply
+ 	 * @return 0 if success and -1 if error
+ 	 */
++#if 0
+ 	int (*handle_snmp_event)(struct oflops_context * ctx, struct snmp_event * se);
++#endif
+ 	
+ } test_module;
+ 
+@@ -201,7 +207,9 @@ int oflops_get_timestamp(struct oflops_context * ctx, void * data, int len, stru
+  * @param len length of oid
+  * @return 0 if success and 1 if session fails
+  */
++#if 0
+ int oflops_snmp_get(struct oflops_context * ctx, oid query[], size_t len);
++#endif
+ 
+ /** Tell the harness this test is over
+  * @param ctx	i		opaque pointer
+diff --git a/usage.c b/usage.c
+index ee88b78..3e87ce9 100644
+--- a/usage.c
++++ b/usage.c
+@@ -17,7 +17,9 @@
+ struct option oflops_options[] = {
+ // 	name	, has_arg,  *var, val
+ 	{"control-dev", required_argument, NULL, 'c'}, 		// --control-dev eth0
++#if 0
+ 	{"snmp-dev", optional_argument, NULL, 's'}, 		// --snmp-dev necsw.openflow.org
++#endif
+ 	{"data-dev", required_argument, NULL, 'd'}, 		// --data-dev eth1
+ 	{"port", required_argument, NULL, 'p'}, 		// --port 6633
+ 	{ 0 , 0 , 0, 0}
+@@ -61,6 +63,7 @@ int parse_args(oflops_context * ctx, int argc, char * argv[])
+ 				channel_info_init(&ctx->channels[OFLOPS_CONTROL],optarg);
+ 				fprintf(stderr,"Setting control channel to %s\n", optarg);
+ 				break;
++#if 0
+ 			case 's':
+ 				snmp_arg++;
+ 				assert(snmp_arg < 2);
+@@ -72,6 +75,7 @@ int parse_args(oflops_context * ctx, int argc, char * argv[])
+ 				fprintf(stderr,"Adding SNMP channel on %s with community string %s.\n", 
+ 					snmp_client, snmp_community);
+ 				break;
++#endif
+ 			case 'd':
+ 				if(ctx->n_channels >= ctx->max_channels)	// resize array if needed
+ 				{
+-- 
+1.7.1
+

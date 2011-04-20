@@ -1,0 +1,12 @@
+*.dependency
+*.o
+*~
+/tmp
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+TAGS
+a.out
+callgrind.out.*
+objects

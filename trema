@@ -1,0 +1,75 @@
+#! /usr/bin/env ruby
+#
+# Trema command-line tool.
+#
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
+# Copyright (C) 2008-2011 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+
+$LOAD_PATH.unshift( File.expand_path( File.join File.dirname( __FILE__ ), "ruby" ) )
+
+
+require "fileutils"
+require "trema"
+
+
+def method_for sub_command
+  case sub_command
+    when "run", "start"
+      return :run
+    when "killall", "kill", "stop"
+      return :killall
+    when "send_packets"
+      return :send_packets
+    when "show_stats"
+      return :show_stats
+    when "reset_stats"
+      return :reset_stats
+    when "dump_flows"
+      return :dump_flows
+    when "help", "-h", "--help", "/?", "-?"
+      return :usage
+    else
+      return nil
+  end
+end
+
+
+FileUtils.cd Trema.home do
+  unless FileTest.directory?( Trema.log_directory )
+    FileUtils.mkdir_p Trema.log_directory
+  end
+
+  sub_command = ARGV.shift
+  if sub_command.nil?
+    Trema::SubCommands.new.start_shell
+  elsif method_for( sub_command )
+    Trema::SubCommands.new.__send__ method_for( sub_command )
+  else
+    $stderr.puts "Unknown command: '#{ sub_command }'"
+    $stderr.puts "Type '#{ $0 } --help' for usage."
+    exit false
+  end
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

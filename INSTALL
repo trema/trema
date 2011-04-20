@@ -1,0 +1,82 @@
+Pre-requirements
+================
+
+Before installing Trema, please make sure that your development
+environment satisfies with the following requirements.
+
+- Operating system
+
+Trema has only tested with the following operating systems:
+
+  Ubuntu 10.10 (Intel x86, Desktop Edition)
+  Debian GNU/Linux 6.0 (squeeze) (i386)
+
+Trema may also run on other GNU/Linux distributions but not tested and
+NOT SUPPORTED at this moment.
+
+- Third-party software
+
+Trema relies on the following third-party software.
+
+  GCC
+  GNU Make
+  Ruby
+  RubyGems
+  Sudo
+  libpcap
+
+If you are using Ubuntu 10.10 Desktop Edition or Debian GNU/Linux 6.0
+(squeeze) you can simply install them as follows. Other packages than
+listed below should have been installed by default operating system
+installation or will be installed automatically due to install
+dependencies.
+
+  $ sudo apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev
+
+
+How to build and install
+========================
+
+  $ tar xzvf trema.tar.gz
+  $ cd trema
+  $ ./build.rb
+
+
+How to run a sample application
+===============================
+
+The following command allows you to run a sample application named
+"routing switch" that emulates a virtual layer 2 switch formed by
+multiple OpenFlow switches.
+
+  $ ./trema run -c ./src/examples/routing_switch/routing_switch_null.conf
+
+The command "trema" loads the specified configuration file
+(routing_switch_null.conf) and then runs required functional modules
+(processes) automatically.
+
+For detailed explanation on the command, please refer to QUICKSTART.
+
+
+(Optional) Automated build and test script
+==========================================
+
+The file "cruise.rb" in the top-level source tree is an automated
+build and test script. It builds Trema, then runs unit tests and
+system-level tests of sample applications with emulated OpenFlow
+networks.
+
+Before running the script, the following software packages are required.
+
+  Cucumber
+  RSpec
+  rcov
+
+If you are using Ubuntu 10.10 or Debian GNU/Linux 6.0 (squeeze), you
+can install them as follows:
+
+  $ sudo gem install cucumber rspec rcov --remote
+
+To execute the script, simply type as follows:
+
+  $ ./cruise.rb

@@ -1,0 +1,770 @@
+#
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
+# Copyright (C) 2008-2011 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
+
+require "trema/executables"
+require "trema/path"
+
+import "c/dependencies"
+import "directedrule"
+
+
+################################################################################
+# Main tasks
+################################################################################
+
+desc "Build trema."
+task :default => [
+  :libtrema,
+  :rubylib,
+  :switch_manager,
+  :switch,
+  :packetin_filter,
+  :tremashark,
+  :vendor,
+  :examples,
+]
+
+task :examples => [
+  "examples:cbench_switch",
+  "examples:dumper",
+  "examples:hello_trema",
+  "examples:learning_switch",
+  "examples:libtopology",
+  "examples:openflow_message",
+  "examples:packet_in",
+  "examples:routing_switch",
+  "examples:switch_info",
+  "examples:topology",
+  "examples:topology_discovery",
+]
+
+
+import "clean"
+
+desc "Cleanup generated files."
+gen Clean
+
+var[ :clean ] << Trema.objects
+var[ :clean ] << File.join( Trema.home, "unittests/objects" )
+
+
+desc "Cleanup everything."
+task :distclean => :clean
+
+
+desc "Generate build.rb."
+task :buildrb do
+  sys "rant-import --force --imports c/dependencies,directedrule,clean,sys/tgz build.rb"
+  sys "chmod +x build.rb"
+end
+
+
+################################################################################
+# Helpers
+################################################################################
+
+def objects path
+  File.join Trema.objects, path
+end
+
+
+def dependency_file name
+  ".#{ name }.dependency"
+end
+
+
+def trema_include
+  "#{ Trema.home }/src/lib"
+end
+
+
+def trema_lib
+  "#{ Trema.home }/objects/lib"
+end
+
+
+def openflow_include
+  "#{ Trema.home }/objects/openflow"
+end
+
+
+################################################################################
+# Global options
+################################################################################
+
+var :CFLAGS => "-g -std=c99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
+
+var :CFLAGS_UNITTEST => "-g -std=c99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
+
+
+################################################################################
+# Run cbench benchmarks.
+################################################################################
+
+def cbench_command
+  File.join Trema.objects, "oflops/bin/cbench"
+end
+
+
+def trema_cbench_command
+  "./trema run -c ./src/examples/cbench_switch/cbench_switch.conf -d"
+end
+
+
+def cbench options
+  begin
+    sys trema_cbench_command
+    sys "#{ cbench_command } #{ options }"
+  ensure
+    sys "./trema kill"
+  end
+end
+
+
+var[ :clean ].include sys[ "callgrind.out.*" ]
+
+def cbench_profile options
+  valgrind = "valgrind --tool=callgrind --trace-children=yes"
+  begin
+    sys "#{ valgrind } #{ trema_cbench_command }"
+    sys "#{ valgrind } #{ cbench_command } #{ options }"
+  ensure
+    sys "./trema kill"
+  end
+end
+
+
+desc "Run cbench openflow controller benchmarks."
+task :cbench => :default do
+  cbench "-s 1 -l 10 -D 1000"
+  cbench "-s 1 -l 10 -D 1000 -t"
+end
+
+
+desc "Run cbench with profiling enabled."
+task "cbench:profile" => :default do
+  cbench_profile "-s 1 -l 10 -D 1000"
+  cbench_profile "-s 1 -l 10 -D 1000 -t"
+end
+
+
+################################################################################
+# Build vendor/*
+################################################################################
+
+import "sys/tgz"
+
+
+task :vendor => [
+  "vendor:oflops",
+  "vendor:openflow",
+  "vendor:openvswitch",
+  "vendor:phost",
+]
+
+task :distclean => [
+  "vendor:cmockery:distclean",
+  "vendor:oflops:distclean",
+  "vendor:openflow:distclean",
+  "vendor:openvswitch:distclean",
+  "vendor:phost:distclean",
+]
+
+
+#
+# OpenFlow reference implementation
+#
+
+gen Directory, Trema.objects
+
+task "vendor:openflow" => Trema.openflow_h
+file Trema.openflow_h => Trema.objects do
+  sys.unpack_tgz "#{ Trema::Vendor.openflow }.tar.gz", :in => Trema::Vendor.path
+  sys.cp_r "#{ Trema::Vendor.openflow }/include/openflow", Trema.objects
+end
+
+task "vendor:openflow:distclean" do
+  sys.rm_rf Trema::Vendor.openflow
+end
+
+
+#
+# Open vSwitch
+#
+
+task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
+file Trema::Executables.ovs_openflowd do
+  sys.unpack_tgz "#{ Trema::Vendor.openvswitch }.tar.gz", :in => Trema::Vendor.path
+  sys.cd Trema::Vendor.openvswitch do
+    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.tmp }"
+    sys "make install"
+  end
+end
+
+task "vendor:openvswitch:distclean" do
+  sys.rm_rf Trema::Vendor.openvswitch
+end
+
+
+#
+# oflops
+#
+
+task "vendor:oflops" => cbench_command
+file cbench_command => Trema.openflow_h do
+  sys.unpack_tgz "#{ Trema::Vendor.oflops }.tar.gz", :in => Trema::Vendor.path
+  sys.cd Trema::Vendor.oflops do
+    sys "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema::Vendor.openflow }"
+    sys "make install"
+  end
+end
+
+task "vendor:oflops:distclean" do
+  sys.rm_rf Trema::Vendor.oflops
+end
+
+
+#
+# phost
+#
+
+def phost_src
+  File.join Trema::Vendor.phost, "src"
+end
+
+
+task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
+
+file Trema::Executables.phost do
+  sys.cd phost_src do
+    sys "make"
+  end
+  sys.mkdir_p File.dirname( Trema::Executables.phost )
+  sys.install File.join( phost_src, "phost" ), Trema::Executables.phost, :mode => 0755
+end
+
+file Trema::Executables.cli do
+  sys.cd phost_src do
+    sys "make"
+  end
+  sys.mkdir_p File.dirname( Trema::Executables.cli )
+  sys.install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
+end
+
+task "vendor:phost:distclean" do
+  begin
+    sys.cd phost_src do
+      sys "make clean"
+    end
+  rescue
+    # ignore.
+  end
+end
+
+
+#
+# cmockery
+#
+
+task "vendor:cmockery" => Trema.libcmockery_a
+file Trema.libcmockery_a do
+  sys.unpack_tgz "#{ Trema::Vendor.cmockery }.tar.gz", :in => Trema::Vendor.path
+  sys.cd Trema::Vendor.cmockery do
+    sys "./configure --prefix=#{ Trema.cmockery }"
+    sys "make install"
+  end
+end
+
+task "vendor:cmockery:distclean" do
+  sys.rm_rf Trema::Vendor.cmockery
+end
+
+
+################################################################################
+# Build libtrema.a
+################################################################################
+
+task dependency_file( "libtrema" ) => "vendor:openflow"
+gen C::Dependencies, dependency_file( "libtrema" ),
+  :search => [ trema_include, objects( "openflow" ) ],
+  :sources => sys[ "#{ trema_include }/*.c" ]
+
+gen Action do
+  source dependency_file( "libtrema" )
+end
+
+
+gen Directory, trema_lib
+
+libtrema = File.join( trema_lib, "libtrema.a" )
+libtrema_objects = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
+  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+desc "Build trema library."
+task :libtrema => libtrema
+file libtrema => libtrema_objects.candidates do | t |
+  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
+  sys "ranlib #{ t.name }"
+end
+
+
+################################################################################
+# Build trema.so (ruby library)
+################################################################################
+
+task :clean => "rubylib:clean"
+task :distclean => "rubylib:distclean"
+
+
+desc "Build ruby library."
+task :rubylib => [ :libtrema, "ruby/trema.so" ]
+file "ruby/trema.so" do
+  sys.cd "ruby" do
+    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
+    sys "make"
+  end
+end
+
+task "rubylib:clean" do
+  sys.cd "ruby" do
+    sys "make clean" rescue nil
+  end
+end
+
+task "rubylib:distclean" do
+  sys.rm_f "ruby/Makefile"
+end
+
+
+################################################################################
+# Build switch manager
+################################################################################
+
+switch_manager_objects_dir = objects( "switch_manager" )
+
+gen C::Dependencies, dependency_file( "switch_manager" ),
+  :search => [ "src/switch_manager", trema_include ], :sources => sys[ "src/switch_manager/*.c" ]
+
+gen Action do
+  source dependency_file( "switch_manager" )
+end
+
+
+gen Directory, switch_manager_objects_dir
+
+gen DirectedRule, switch_manager_objects_dir => [ "src/switch_manager" ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+switch_manager_objects = [
+  "dpid_table.o",
+  "switch_manager.o",
+  "secure_channel_listener.o"
+].collect do | each |
+  File.join switch_manager_objects_dir, each
+end
+
+desc "Build switch manager."
+task :switch_manager => Trema::Executables.switch_manager
+task Trema::Executables.switch_manager => :libtrema
+file Trema::Executables.switch_manager => switch_manager_objects do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+end
+
+
+switch_objects = [
+  "cookie_table.o",
+  "ofpmsg_recv.o",
+  "ofpmsg_send.o",
+  "secure_channel_receiver.o",
+  "secure_channel_sender.o",
+  "service_interface.o",
+  "switch.o",
+  "xid_table.o",
+].collect do | each |
+  File.join switch_manager_objects_dir, each
+end
+
+desc "Build switch."
+task :switch => Trema::Executables.switch
+task Trema::Executables.switch => :libtrema
+file Trema::Executables.switch => switch_objects do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+end
+
+
+################################################################################
+# Build packetin filter
+################################################################################
+
+gen C::Dependencies, dependency_file( "packetin_filter" ),
+  :search => [ "src/packetin_filter", trema_include ], :sources => sys[ "src/packetin_filter/*.c" ]
+
+gen Action do
+  source dependency_file( "packetin_filter" )
+end
+
+
+gen Directory, objects( "packetin_filter" )
+
+packetin_filter_objects = gen DirectedRule, objects( "packetin_filter" ) => [ "src/packetin_filter" ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+desc "Build packetin filter."
+task :packetin_filter => Trema::Executables.packetin_filter
+task Trema::Executables.packetin_filter => :libtrema
+file Trema::Executables.packetin_filter => packetin_filter_objects.candidates do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+end
+
+
+################################################################################
+# tremashark
+################################################################################
+
+gen C::Dependencies, dependency_file( "tremashark" ),
+  :search => [ "src/tremashark", trema_include ], :sources => sys[ "src/tremashark/*.c" ]
+
+gen Action do
+  source dependency_file( "tremashark" )
+end
+
+
+gen Directory, objects( "tremashark" )
+
+objects = gen DirectedRule, objects( "tremashark" ) => [ "src/tremashark" ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+desc "Build tremashark."
+task :tremashark => Trema::Executables.tremashark
+task Trema::Executables.tremashark => :libtrema
+file Trema::Executables.tremashark => objects.candidates do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+end
+
+
+################################################################################
+# Build topology
+################################################################################
+
+topology_objects_dir = objects( "examples/topology" )
+topology_source_dir = "src/examples/topology"
+
+
+gen C::Dependencies, dependency_file( "topology" ),
+  :search => [ topology_source_dir, trema_include ], :sources => sys[ "src/examples/topology/*.c" ]
+
+gen Action do
+  source dependency_file( "topology" )
+end
+
+
+gen Directory, topology_objects_dir
+
+gen DirectedRule, topology_objects_dir => [ topology_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+#
+# topology
+#
+
+topology = File.join( topology_objects_dir, "topology" )
+
+topology_objects = [
+  "service_management.o",
+  "subscriber_table.o",
+  "topology.o",
+  "topology_management.o",
+  "topology_table.o",
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build topology example."
+task "examples:topology" => topology
+task topology => :libtrema
+file topology => topology_objects do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+end
+
+
+#
+# topology discovery
+#
+
+topology_discovery = File.join( topology_objects_dir, "topology_discovery" )
+
+topology_discovery_objects = [
+  "lldp.o",
+  "probe_timer_table.o",
+  "topology_discovery.o",
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build topology discovery example."
+task "examples:topology_discovery" => topology_discovery
+task topology_discovery => [ :libtrema, "examples:libtopology" ]
+file topology_discovery => topology_discovery_objects do | t |
+  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
+end
+
+
+#
+# libtopology
+#
+
+libtopology = File.join( topology_objects_dir, "libtopology.a" )
+
+libtopology_objects = [
+  "libtopology.o",
+  "topology_service_interface_option_parser.o",
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build libtopology example."
+task "examples:libtopology" => libtopology
+file libtopology => libtopology_objects do | t |
+  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
+  sys "ranlib #{ t.name }"
+end
+
+
+################################################################################
+# Build routing switch
+################################################################################
+
+routing_switch_source_dir = "src/examples/routing_switch"
+routing_switch_objects_dir = objects( "examples/routing_switch" )
+routing_switch = objects( "examples/routing_switch/routing_switch" )
+
+
+gen C::Dependencies, dependency_file( "routing_switch" ),
+  :search => [ routing_switch_source_dir, trema_include ], :sources => sys[ "#{ routing_switch_source_dir }/*.c" ]
+
+gen Action do
+  source dependency_file( "routing_switch" )
+end
+
+
+gen Directory, routing_switch_objects_dir
+
+objects = gen DirectedRule, routing_switch_objects_dir => [ routing_switch_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ topology_source_dir } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+desc "Build routing switch example."
+task "examples:routing_switch" => routing_switch
+task routing_switch => [ :libtrema, "examples:libtopology" ]
+file routing_switch => objects.candidates do | t |
+  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
+end
+
+
+################################################################################
+# Build standalone examples
+################################################################################
+
+standalone_examples = [
+  "cbench_switch",
+  "dumper",
+  "hello_trema",
+  "learning_switch",
+  "packet_in",
+  "switch_info",
+]
+
+standalone_examples.each do | each |
+  objects_dir = objects( "examples/#{ each }" )
+  target = objects( "examples/#{ each }/#{ each }" )
+
+  gen C::Dependencies, dependency_file( each ),
+    :search => [ "src/examples/#{ each }", trema_include ], :sources => sys[ "src/examples/#{ each }/*.c" ]
+
+  gen Action do
+    source dependency_file( each )
+  end
+
+
+  gen Directory, objects_dir
+
+  objects = gen DirectedRule, objects_dir => [ "src/examples/#{ each }" ], :o => :c do | t |
+    sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  end
+
+
+  desc "Build #{ each } example."
+  task "examples:#{ each }" => target
+  task target => :libtrema
+  file target => objects.candidates do | t |
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  end
+end
+
+
+################################################################################
+# Build openflow messages
+################################################################################
+
+openflow_messages = [
+  "echo_reply",
+  "echo_request",
+  "features_request",
+  "hello",
+  "set_config",
+]
+
+openflow_message_source_dir = "src/examples/openflow_message"
+openflow_message_objects_dir = objects( "examples/openflow_message" )
+
+gen C::Dependencies, dependency_file( "openflow_message" ),
+  :search => [ trema_include ], :sources => sys[ "#{ openflow_message_source_dir }/*.c" ]
+
+gen Action do
+  source dependency_file( "openflow_message" )
+end
+
+gen Directory, openflow_message_objects_dir
+
+
+gen DirectedRule, openflow_message_objects_dir => [ openflow_message_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+openflow_messages.each do | each |
+  target = File.join( openflow_message_objects_dir, each )
+  task "examples:openflow_message" => target
+  task target => :libtrema
+  file target => File.join( openflow_message_objects_dir, "#{ each }.o" ) do | t |
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lrt"
+  end
+end
+
+
+################################################################################
+# Unit tests.
+################################################################################
+
+def libtrema_unit_tests
+  {
+    :arp_test => [ :buffer, :packet_info, :wrapper ],
+    :buffer_test => [ :wrapper ],
+    :byteorder_test => [ :log, :wrapper ],
+    :daemon_test => [],
+    :doubly_linked_list_test => [ :wrapper ],
+    :ether_test => [ :buffer, :packet_info, :wrapper ],
+    :hash_table_test => [ :linked_list, :utility, :wrapper ],
+    :ipv4_test => [ :arp, :buffer, :ether, :packet_info, :packet_parser, :wrapper ],
+    :linked_list_test => [ :wrapper ],
+    :log_test => [],
+    :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :utility, :wrapper ],
+    :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper ],
+    :packet_info_test => [ :buffer, :wrapper ],
+    :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :packet_info, :wrapper ],
+    :stat_test => [ :hash_table, :linked_list, :utility, :wrapper ],
+    :trema_test => [ :wrapper ],
+    :utility_test => [],
+    :wrapper_test => [],
+  }
+end
+
+
+def test_object_files test
+  names = [ test.to_s.gsub( /_test$/, "" ) ] + libtrema_unit_tests[ test ]
+  names.collect do | each |
+    if each == :log
+      [ "unittests/objects/log.o", "unittests/objects/log_stubs.o" ]
+    elsif each == :buffer
+      [ "unittests/objects/buffer.o", "unittests/objects/buffer_stubs.o" ]
+    else
+      "unittests/objects/#{ each }.o"
+    end
+  end.flatten
+end
+
+
+gen C::Dependencies, dependency_file( "unittests" ),
+  :search => [ trema_include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.c" ]
+
+gen Action do
+  source dependency_file( "unittests" )
+end
+
+
+gen Directory, "unittests/objects"
+
+gen DirectedRule, "unittests/objects" => [ "unittests", "unittests/lib", "src/lib" ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS_UNITTEST } -c -o #{ t.name } #{ t.source }"
+end
+
+
+libtrema_unit_tests.keys.each do | each |
+  target = "unittests/objects/#{ each }"
+
+  task :unittests => target
+  task target => "vendor:cmockery"
+  file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
+    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -lrt -lcmockery -lpthread --coverage --static"
+  end
+end
+
+
+desc "Run unittests"
+task :unittests do
+  sys[ "unittests/objects/*_test" ].each do | each |
+    puts "Running #{ each }..."
+    sys each
+  end
+end
+
+
+################################################################################
+# TODO, FIXME etc.
+################################################################################
+
+desc "Print list of notes."
+task :notes do
+  keywords = [ "TODO", "FIXME", "XXX" ]
+  keywords.each do | key |
+    system "find src unittests -name '*.c' | xargs grep -n #{ key }"
+    system "find ruby spec features -name '*.rb' | xargs grep -n #{ key }"
+  end
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

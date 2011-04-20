@@ -1,0 +1,6 @@
+/.deps
+/*.a
+/*.so
+/TAGS
+/tmp
+wireshark*
