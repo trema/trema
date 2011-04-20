@@ -20,7 +20,7 @@
 #
 
 
-require "dsl"
+require "trema/dsl"
 
 
 def run
