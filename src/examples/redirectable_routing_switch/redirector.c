@@ -341,7 +341,7 @@ recv_packet_from_tun() {
   uint16_t *type;
   buffer *frame;
   buffer *pout;
-  openflow_actions_t *actions;
+  openflow_actions *actions;
   size_t frame_length = ETH_ADDRLEN * 2 + 2 + ( size_t ) ret;
 
   frame = alloc_buffer_with_length( frame_length );

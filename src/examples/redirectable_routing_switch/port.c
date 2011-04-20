@@ -169,9 +169,9 @@ lookup_outbound_port( list_element *switches, uint64_t dpid, uint16_t port_no ) 
 int
 foreach_port( const list_element *ports,
               int ( *function )( port_info *port,
-                                 openflow_actions_t *actions,
+                                 openflow_actions *actions,
                                  uint64_t dpid, uint16_t in_port ),
-              openflow_actions_t *actions, uint64_t dpid, uint16_t port ) {
+              openflow_actions *actions, uint64_t dpid, uint16_t port ) {
   int r = 0;
   for ( const list_element *p = ports; p != NULL; p = p->next ) {
     r += ( *function )( p->data, actions, dpid, port );

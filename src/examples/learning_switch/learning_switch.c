@@ -184,7 +184,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   buffer *buffer;
   struct fdb_entry *entry;
   struct ofp_match match;
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   hash_table *fdb = user_data;
 
   debug( "packet_in received ( datapath_id = %#llx, transaction_id = %#lx, "

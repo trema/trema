@@ -38,11 +38,11 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
          datapath_id, transaction_id, buffer_id, total_len, in_port, reason, data->length );
 
   if ( datapath_id != cbench_datapath_id ) {
-    error( "packet_in message from unknown switch (dpid = %#llx).", datapath_id );
+    error( "packet_in from unknown switch (datapath_id = %#llx).", datapath_id );
     return;
   }
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, ( uint16_t ) ( in_port + 1 ), UINT16_MAX );
 
   struct ofp_match match;
@@ -69,11 +69,8 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
-
   set_packet_in_handler( handle_packet_in, NULL );
-
   start_trema();
-
   return 0;
 }
 

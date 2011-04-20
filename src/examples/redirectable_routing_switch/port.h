@@ -46,9 +46,9 @@ void delete_outbound_all_ports( list_element **switches );
 port_info *lookup_outbound_port( list_element *switches, uint64_t dpid, uint16_t port_no );
 int foreach_port( const list_element *ports,
                   int ( *function )( port_info *port,
-                                     openflow_actions_t *actions,
+                                     openflow_actions *actions,
                                      uint64_t dpid, uint16_t in_port ),
-                  openflow_actions_t *actions, uint64_t dpid, uint16_t port );
+                  openflow_actions *actions, uint64_t dpid, uint16_t port );
 void foreach_switch( const list_element *switches,
                      void ( *function )( switch_info *sw,
                                          buffer *packet,

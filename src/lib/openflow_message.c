@@ -456,7 +456,7 @@ create_port_status( const uint32_t transaction_id, const uint8_t reason,
 
 
 static uint16_t
-get_actions_length( const openflow_actions_t *actions ) {
+get_actions_length( const openflow_actions *actions ) {
   int actions_length = 0;
   struct ofp_action_header *action_header;
   list_element *action;
@@ -494,7 +494,7 @@ get_actions_length( const openflow_actions_t *actions ) {
 
 buffer *
 create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id, const uint16_t in_port,
-                   const openflow_actions_t *actions, const buffer *data ) {
+                   const openflow_actions *actions, const buffer *data ) {
   void *a, *d;
   uint16_t length;
   uint16_t data_length = 0;
@@ -564,7 +564,7 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
                  const uint16_t idle_timeout, const uint16_t hard_timeout,
                  const uint16_t priority, const uint32_t buffer_id,
                  const uint16_t out_port, const uint16_t flags,
-                 const openflow_actions_t *actions ) {
+                 const openflow_actions *actions ) {
   void *a;
   char match_str[ 1024 ];
   uint16_t length;
@@ -1279,13 +1279,13 @@ get_cookie( void ) {
 }
 
 
-openflow_actions_t *
+openflow_actions *
 create_actions() {
-  openflow_actions_t *actions;
+  openflow_actions *actions;
 
   debug( "Creating an empty actions list." );
 
-  actions = ( openflow_actions_t * ) xmalloc( sizeof( openflow_actions_t ) );
+  actions = ( openflow_actions * ) xmalloc( sizeof( openflow_actions ) );
 
   if ( create_list( &actions->list ) == false ) {
     assert( 0 );
@@ -1298,7 +1298,7 @@ create_actions() {
 
 
 bool
-delete_actions( openflow_actions_t *actions ) {
+delete_actions( openflow_actions *actions ) {
   list_element *element;
 
   debug( "Deleting an actions list." );
@@ -1321,7 +1321,7 @@ delete_actions( openflow_actions_t *actions ) {
 
 
 bool
-append_action_output( openflow_actions_t *actions, const uint16_t port, const uint16_t max_len ) {
+append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len ) {
   bool ret;
   struct ofp_action_output *action_output;
 
@@ -1345,7 +1345,7 @@ append_action_output( openflow_actions_t *actions, const uint16_t port, const ui
 
 
 bool
-append_action_set_vlan_vid( openflow_actions_t *actions, const uint16_t vlan_vid ) {
+append_action_set_vlan_vid( openflow_actions *actions, const uint16_t vlan_vid ) {
   bool ret;
   struct ofp_action_vlan_vid *action_vlan_vid;
 
@@ -1369,7 +1369,7 @@ append_action_set_vlan_vid( openflow_actions_t *actions, const uint16_t vlan_vid
 
 
 bool
-append_action_set_vlan_pcp( openflow_actions_t *actions, const uint8_t vlan_pcp ) {
+append_action_set_vlan_pcp( openflow_actions *actions, const uint8_t vlan_pcp ) {
   bool ret;
   struct ofp_action_vlan_pcp *action_vlan_pcp;
 
@@ -1393,7 +1393,7 @@ append_action_set_vlan_pcp( openflow_actions_t *actions, const uint8_t vlan_pcp 
 
 
 bool
-append_action_strip_vlan( openflow_actions_t *actions ) {
+append_action_strip_vlan( openflow_actions *actions ) {
   bool ret;
   struct ofp_action_header *action_strip_vlan;
 
@@ -1415,7 +1415,7 @@ append_action_strip_vlan( openflow_actions_t *actions ) {
 
 
 static bool
-append_action_set_dl_addr( openflow_actions_t *actions, const uint16_t type,
+append_action_set_dl_addr( openflow_actions *actions, const uint16_t type,
                            const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
   bool ret;
   struct ofp_action_dl_addr *action_dl_addr;
@@ -1440,7 +1440,7 @@ append_action_set_dl_addr( openflow_actions_t *actions, const uint16_t type,
 
 
 bool
-append_action_set_dl_src( openflow_actions_t *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
+append_action_set_dl_src( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
   debug( "Appending a set dl_src action ( hw_addr = %02x:%02x:%02x:%02x:%02x:%02x ).",
          hw_addr[ 0 ], hw_addr[ 1 ], hw_addr[ 2 ], hw_addr[ 3 ], hw_addr[ 4 ], hw_addr[ 5 ] );
 
@@ -1450,7 +1450,7 @@ append_action_set_dl_src( openflow_actions_t *actions, const uint8_t hw_addr[ OF
 
 
 bool
-append_action_set_dl_dst( openflow_actions_t *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
+append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
   debug( "Appending a set dl_dst action ( hw_addr = %02x:%02x:%02x:%02x:%02x:%02x ).",
          hw_addr[ 0 ], hw_addr[ 1 ], hw_addr[ 2 ], hw_addr[ 3 ], hw_addr[ 4 ], hw_addr[ 5 ] );
 
@@ -1460,7 +1460,7 @@ append_action_set_dl_dst( openflow_actions_t *actions, const uint8_t hw_addr[ OF
 
 
 static bool
-append_action_set_nw_addr( openflow_actions_t *actions, const uint16_t type, const uint32_t nw_addr ) {
+append_action_set_nw_addr( openflow_actions *actions, const uint16_t type, const uint32_t nw_addr ) {
   bool ret;
   char addr_str[ 16 ];
   struct in_addr addr;
@@ -1488,7 +1488,7 @@ append_action_set_nw_addr( openflow_actions_t *actions, const uint16_t type, con
 
 
 bool
-append_action_set_nw_src( openflow_actions_t *actions, const uint32_t nw_addr ) {
+append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr ) {
   char addr_str[ 16 ];
   struct in_addr addr;
 
@@ -1503,7 +1503,7 @@ append_action_set_nw_src( openflow_actions_t *actions, const uint32_t nw_addr ) 
 
 
 bool
-append_action_set_nw_dst( openflow_actions_t *actions, const uint32_t nw_addr ) {
+append_action_set_nw_dst( openflow_actions *actions, const uint32_t nw_addr ) {
   char addr_str[ 16 ];
   struct in_addr addr;
 
@@ -1518,7 +1518,7 @@ append_action_set_nw_dst( openflow_actions_t *actions, const uint32_t nw_addr ) 
 
 
 bool
-append_action_set_nw_tos( openflow_actions_t *actions, const uint8_t nw_tos ) {
+append_action_set_nw_tos( openflow_actions *actions, const uint8_t nw_tos ) {
   bool ret;
   struct ofp_action_nw_tos *action_nw_tos;
 
@@ -1542,7 +1542,7 @@ append_action_set_nw_tos( openflow_actions_t *actions, const uint8_t nw_tos ) {
 
 
 static bool
-append_action_set_tp_port( openflow_actions_t *actions, const uint16_t type, const uint16_t tp_port ) {
+append_action_set_tp_port( openflow_actions *actions, const uint16_t type, const uint16_t tp_port ) {
   bool ret;
   struct ofp_action_tp_port *action_tp_port;
 
@@ -1565,7 +1565,7 @@ append_action_set_tp_port( openflow_actions_t *actions, const uint16_t type, con
 
 
 bool
-append_action_set_tp_src( openflow_actions_t *actions, const uint16_t tp_port ) {
+append_action_set_tp_src( openflow_actions *actions, const uint16_t tp_port ) {
   debug( "Appending a set tp_src action ( tp_port = %u ).", tp_port );
 
   assert( actions != NULL );
@@ -1574,7 +1574,7 @@ append_action_set_tp_src( openflow_actions_t *actions, const uint16_t tp_port ) 
 
 
 bool
-append_action_set_tp_dst( openflow_actions_t *actions, const uint16_t tp_port ) {
+append_action_set_tp_dst( openflow_actions *actions, const uint16_t tp_port ) {
   debug( "Appending a set tp_dst action ( tp_port = %u ).", tp_port );
 
   assert( actions != NULL );
@@ -1583,7 +1583,7 @@ append_action_set_tp_dst( openflow_actions_t *actions, const uint16_t tp_port ) 
 
 
 bool
-append_action_enqueue( openflow_actions_t *actions, const uint16_t port, const uint32_t queue_id ) {
+append_action_enqueue( openflow_actions *actions, const uint16_t port, const uint32_t queue_id ) {
   bool ret;
   struct ofp_action_enqueue *action_enqueue;
 
@@ -1607,7 +1607,7 @@ append_action_enqueue( openflow_actions_t *actions, const uint16_t port, const u
 
 
 bool
-append_action_vendor( openflow_actions_t *actions, const uint32_t vendor, const buffer *body ) {
+append_action_vendor( openflow_actions *actions, const uint32_t vendor, const buffer *body ) {
   bool ret;
   uint16_t body_length = 0;
   struct ofp_action_vendor_header *action_vendor;

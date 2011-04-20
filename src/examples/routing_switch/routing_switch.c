@@ -52,13 +52,13 @@ void mock_free_hop_list( dlist_element *hops );
 #undef create_actions
 #endif
 #define create_actions mock_create_actions
-openflow_actions_t *mock_create_actions( void );
+openflow_actions *mock_create_actions( void );
 
 #ifdef append_action_output
 #undef append_action_output
 #endif
 #define append_action_output mock_append_action_output
-bool mock_append_action_output( openflow_actions_t *actions, const uint16_t port, const uint16_t max_len );
+bool mock_append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len );
 
 #ifdef get_transaction_id
 #undef get_transaction_id
@@ -73,14 +73,14 @@ uint32_t mock_get_transaction_id( void );
 buffer *mock_create_packet_out( const uint32_t transaction_id,
                                 const uint32_t buffer_id,
                                 const uint16_t in_port,
-                                const openflow_actions_t *actions,
+                                const openflow_actions *actions,
                                 const buffer *data );
 
 #ifdef delete_actions
 #undef delete_actions
 #endif
 #define delete_actions mock_delete_actions
-bool mock_delete_actions( openflow_actions_t *actions );
+bool mock_delete_actions( openflow_actions *actions );
 
 #ifdef set_match_from_packet
 #undef set_match_from_packet
@@ -111,7 +111,7 @@ buffer *mock_create_flow_mod( const uint32_t transaction_id,
                               const uint32_t buffer_id,
                               const uint16_t out_port,
                               const uint16_t flags,
-                              const openflow_actions_t *actions );
+                              const openflow_actions *actions );
 
 #ifdef time
 #undef time
@@ -290,9 +290,9 @@ list_element *mock_create_outbound_ports( list_element **switches );
 #define foreach_port mock_foreach_port
 int mock_foreach_port( const list_element *ports,
                        int ( *function )( port_info *port,
-                                          openflow_actions_t *actions,
+                                          openflow_actions *actions,
                                           uint64_t dpid, uint16_t in_port ),
-                       openflow_actions_t *actions, uint64_t dpid, uint16_t port );
+                       openflow_actions *actions, uint64_t dpid, uint16_t port );
 
 #ifdef foreach_switch
 #undef foreach_switch
@@ -335,7 +335,7 @@ modify_flow_entry( const pathresolver_hop *h, const buffer *original_packet, uin
   set_match_from_packet( &match, h->in_port_no, wildcards, original_packet );
 
   uint32_t transaction_id = get_transaction_id();
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   const uint16_t max_len = UINT16_MAX;
   append_action_output( actions, h->out_port_no, max_len );
 
@@ -356,7 +356,7 @@ modify_flow_entry( const pathresolver_hop *h, const buffer *original_packet, uin
 
 static void
 output_packet( buffer *packet, uint64_t dpid, uint16_t port_no ) {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   const uint16_t max_len = UINT16_MAX;
   append_action_output( actions, port_no, max_len );
 
@@ -514,7 +514,7 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
 
 
 static int
-build_packet_out_actions( port_info *port, openflow_actions_t *actions, uint64_t dpid, uint16_t in_port ) {
+build_packet_out_actions( port_info *port, openflow_actions *actions, uint64_t dpid, uint16_t in_port ) {
   const uint16_t max_len = UINT16_MAX;
   if ( port->dpid == dpid && port->port_no == in_port ) {
     // don't send to input port
@@ -528,7 +528,7 @@ build_packet_out_actions( port_info *port, openflow_actions_t *actions, uint64_t
 
 static void
 send_packet_out_for_each_switch( switch_info *sw, buffer *packet, uint64_t dpid, uint16_t in_port ) {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   int number_of_actions = foreach_port( sw->ports, build_packet_out_actions, actions, dpid, in_port );
 
   // check if no action is build

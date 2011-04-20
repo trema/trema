@@ -36,7 +36,7 @@
 typedef struct openflow_actions {
   int n_actions;
   list_element *list;
-} openflow_actions_t;
+} openflow_actions;
 
 
 // Initialization
@@ -71,14 +71,14 @@ buffer *create_flow_removed( const uint32_t transaction_id, const struct ofp_mat
 buffer *create_port_status( const uint32_t transaction_id, const uint8_t reason,
                             const struct ofp_phy_port desc);
 buffer *create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id,
-                           const uint16_t in_port, const openflow_actions_t *actions,
+                           const uint16_t in_port, const openflow_actions *actions,
                            const buffer *data );
 buffer *create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
                          const uint64_t cookie, const uint16_t command,
                          const uint16_t idle_timeout, const uint16_t hard_timeout,
                          const uint16_t priority, const uint32_t buffer_id,
                          const uint16_t out_port, const uint16_t flags,
-                         const openflow_actions_t *actions );
+                         const openflow_actions *actions );
 buffer *create_port_mod( const uint32_t transaction_id, const const uint16_t port_no,
                          const uint8_t hw_addr[ OFP_ETH_ALEN ], const uint32_t config,
                          const uint32_t mask, const uint32_t advertise );
@@ -123,22 +123,22 @@ buffer *create_queue_get_config_reply( const uint32_t transaction_id, const uint
                                        const list_element *queues );
 uint32_t get_transaction_id( void );
 uint64_t get_cookie( void );
-openflow_actions_t *create_actions( void );
-bool delete_actions( openflow_actions_t *actions );
-bool append_action_output( openflow_actions_t *actions, const uint16_t port, const uint16_t max_len );
-bool append_action_set_vlan_vid( openflow_actions_t *actions, const uint16_t vlan_vid );
-bool append_action_set_vlan_pcp( openflow_actions_t *actions, const uint8_t vlan_pcp );
-bool append_action_strip_vlan( openflow_actions_t *actions );
-bool append_action_set_dl_src( openflow_actions_t *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] );
-bool append_action_set_dl_dst( openflow_actions_t *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] );
-bool append_action_set_nw_src( openflow_actions_t *actions, const uint32_t nw_addr );
-bool append_action_set_nw_dst( openflow_actions_t *actions, const uint32_t nw_addr );
-bool append_action_set_nw_tos( openflow_actions_t *actions, const uint8_t nw_tos );
-bool append_action_set_tp_src( openflow_actions_t *actions, const uint16_t tp_port );
-bool append_action_set_tp_dst( openflow_actions_t *actions, const uint16_t tp_port );
-bool append_action_enqueue( openflow_actions_t *actions, const uint16_t port,
+openflow_actions *create_actions( void );
+bool delete_actions( openflow_actions *actions );
+bool append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len );
+bool append_action_set_vlan_vid( openflow_actions *actions, const uint16_t vlan_vid );
+bool append_action_set_vlan_pcp( openflow_actions *actions, const uint8_t vlan_pcp );
+bool append_action_strip_vlan( openflow_actions *actions );
+bool append_action_set_dl_src( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] );
+bool append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] );
+bool append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr );
+bool append_action_set_nw_dst( openflow_actions *actions, const uint32_t nw_addr );
+bool append_action_set_nw_tos( openflow_actions *actions, const uint8_t nw_tos );
+bool append_action_set_tp_src( openflow_actions *actions, const uint16_t tp_port );
+bool append_action_set_tp_dst( openflow_actions *actions, const uint16_t tp_port );
+bool append_action_enqueue( openflow_actions *actions, const uint16_t port,
                             const uint32_t queue_id );
-bool append_action_vendor( openflow_actions_t *actions, const uint32_t vendor,
+bool append_action_vendor( openflow_actions *actions, const uint32_t vendor,
                            const buffer *data );
 
 

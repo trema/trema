@@ -63,13 +63,13 @@ void mock_notice( const char *format, ... );
 #undef create_actions
 #endif
 #define create_actions mock_create_actions
-openflow_actions_t *mock_create_actions( void );
+openflow_actions *mock_create_actions( void );
 
 #ifdef append_action_output
 #undef append_action_output
 #endif
 #define append_action_output mock_append_action_output
-bool mock_append_action_output( openflow_actions_t *actions, const uint16_t port, const uint16_t max_len );
+bool mock_append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len );
 
 #ifdef get_transaction_id
 #undef get_transaction_id
@@ -84,7 +84,7 @@ uint32_t mock_get_transaction_id( void );
 buffer * create_packet_out( const uint32_t transaction_id,
                             const uint32_t buffer_id,
                             const uint16_t in_port,
-                            const openflow_actions_t *actions,
+                            const openflow_actions *actions,
                             const buffer *data );
 
 #ifdef send_openflow_message
@@ -134,7 +134,7 @@ send_lldp( probe_timer_entry *port ) {
 
   lldp = create_lldp_frame( port->mac, port->datapath_id, port->port_no );
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   if ( !append_action_output( actions, port->port_no, UINT16_MAX ) ) {
     free_buffer( lldp );
     die( "append_action_output" );

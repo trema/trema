@@ -69,7 +69,7 @@ buffer *mock_create_flow_mod( const uint32_t transaction_id, const struct ofp_ma
                               const uint16_t idle_timeout, const uint16_t hard_timeout,
                               const uint16_t priority, const uint32_t buffer_id,
                               const uint16_t out_port, const uint16_t flags,
-                              const openflow_actions_t *actions );
+                              const openflow_actions *actions );
 
 #ifdef send_openflow_message
 #undef send_openflow_message
