@@ -126,7 +126,17 @@ end
 
 
 def trema_cbench_command
-  "./trema run -c ./src/examples/cbench_switch/cbench_switch.conf -d"
+  "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
+end
+
+
+def cbench_latency_mode_options
+  "--switches 1 --loops 10 --delay 1000"
+end
+
+
+def cbench_throughput_mode_options
+  cbench_latency_mode_options + " --throughput"
 end
 
 
@@ -155,15 +165,15 @@ end
 
 desc "Run cbench openflow controller benchmarks."
 task :cbench => :default do
-  cbench "-s 1 -l 10 -D 1000"
-  cbench "-s 1 -l 10 -D 1000 -t"
+  cbench cbench_latency_mode_options
+  cbench cbench_throughput_mode_options
 end
 
 
 desc "Run cbench with profiling enabled."
 task "cbench:profile" => :default do
-  cbench_profile "-s 1 -l 10 -D 1000"
-  cbench_profile "-s 1 -l 10 -D 1000 -t"
+  cbench_profile cbench_latency_mode_options
+  cbench_profile cbench_throughput_mode_options
 end
 
 

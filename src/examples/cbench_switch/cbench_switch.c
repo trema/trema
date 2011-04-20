@@ -1,7 +1,7 @@
 /*
  * A simple application for "cbench" performance measurements.
  *
- * Author: Yasunobu Chiba
+ * Author: Yasunobu Chiba, Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -29,41 +29,22 @@
 #include "trema.h"
 
 
-static struct option long_options[] = {
-  { "datapath_id", required_argument, NULL, 'i' },
-  { NULL, 0, NULL, 0  },
-};
-
-static char short_options[] = "i:";
-
-
-void
-usage() {
-  printf(
-    "A simple application for \"cbench\" performance measurements.\n"
-    "Usage: %s [OPTION]...\n"
-    "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -i, --datapath_id=ID        datapath ID\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
-    , get_executable_name()
-  );
-}
+static const uint64_t cbench_datapath_id = 1;
 
 
 static void
 handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
                   uint32_t buffer_id, uint16_t total_len,
                   uint16_t in_port, uint8_t reason, const buffer *data,
-                  void *managed_datapath_id ) {
+                  void *user_data ) {
+  UNUSED( user_data );
+
   debug( "packet_in received (datapath_id = %#llx, transaction_id = %#lx, "
          "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, length = %u).",
          datapath_id, transaction_id, buffer_id, total_len, in_port, reason, data->length );
 
-  if ( datapath_id != *( ( uint64_t * ) managed_datapath_id ) ) {
-    error( "packet_in message from unmanaged switch (dpid = %#llx).", datapath_id );
+  if ( datapath_id != cbench_datapath_id ) {
+    error( "packet_in message from unknown switch (dpid = %#llx).", datapath_id );
     return;
   }
 
@@ -95,28 +76,7 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  char *datapath_id = NULL;
-  int c;
-
-  while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
-    switch ( c ) {
-      case 'i':
-        datapath_id = optarg;
-        break;
-      default:
-        usage();
-        exit( EXIT_FAILURE );
-    }
-  }
-  if ( datapath_id == NULL ) {
-    usage();
-    exit( EXIT_FAILURE );
-  }
-
-  uint64_t managed_datapath_id = 0;
-  string_to_datapath_id( datapath_id, &managed_datapath_id );
-
-  set_packet_in_handler( handle_packet_in, &managed_datapath_id );
+  set_packet_in_handler( handle_packet_in, NULL );
 
   start_trema();
 
