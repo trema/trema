@@ -290,22 +290,32 @@ EOL
       config = Trema::DSL::Parser.load( @config_file )
     elsif FileTest.exists?( "./trema.conf" )
       config = Trema::DSL::Parser.load( "./trema.conf" )
+    else
+      config = Trema::DSL::Context.new
     end
 
-    if ARGV[ 0 ] and FileTest.executable?( ARGV[ 0 ] )
-      stanza = Trema::DSL::App.new
-      stanza.path ARGV[ 0 ]
-      stanza.options ARGV[ 1..-1 ]
-      config.add_app App.new( stanza )
-    elsif ARGV[ 0 ]
-      require "trema"
-      Trema.module_eval IO.read( ARGV[ 0 ] )
-      $controllers.each do | each |
-        config.add_app each
+    if ARGV[ 0 ]
+      if c_controller?
+        stanza = Trema::DSL::App.new
+        stanza.path ARGV[ 0 ].split.first
+        stanza.options ARGV[ 0 ].split[ 1..-1 ]
+        config.add_app App.new( stanza )
+      else
+        # Ruby controller
+        require "trema"
+        Trema.module_eval IO.read( ARGV[ 0 ] )
+        $controllers.each do | each |
+          config.add_app each
+        end
       end
     end
 
     config
+  end
+
+
+  def c_controller?
+    /ELF/=~ `file #{ ARGV[ 0 ].split.first }`
   end
 end
 
