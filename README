@@ -22,8 +22,8 @@ controllers. Additionally, a simple but powerful framework that
 emulates an OpenFlow-based network and end-hosts is provided for
 testing your own controllers. For debugging, a wireshark plug-in to
 diagnosis internal communications, e.g. RPC, among functional modules
-is provided. Please refer to the quick start guide (QUICKSTART) for
-detailed explanation.
+is provided. Please refer to the quick start guide
+(https://github.com/trema/trema/wiki/Quick-start) for details.
 
 
 Known issues/limitations
