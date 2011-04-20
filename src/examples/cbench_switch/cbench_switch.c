@@ -29,10 +29,6 @@
 #include "trema.h"
 
 
-// Datapath ID that is controlled by this application
-static uint64_t managed_datapath_id = 0;
-
-// Commandline options
 static struct option long_options[] = {
   { "datapath_id", required_argument, NULL, 'i' },
   { NULL, 0, NULL, 0  },
@@ -61,39 +57,31 @@ static void
 handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
                   uint32_t buffer_id, uint16_t total_len,
                   uint16_t in_port, uint8_t reason, const buffer *data,
-                  void *user_data ) {
-  UNUSED( user_data );
+                  void *managed_datapath_id ) {
+  debug( "packet_in received (datapath_id = %#llx, transaction_id = %#lx, "
+         "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, length = %u).",
+         datapath_id, transaction_id, buffer_id, total_len, in_port, reason, data->length );
 
-  buffer *buffer;
-  struct ofp_match match;
-  openflow_actions_t *actions = NULL;
-
-  debug( "packet_in received ( datapath_id = %#llx, transaction_id = %#lx, "
-         "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, "
-         "length = %u ).", datapath_id, transaction_id, buffer_id,
-         total_len, in_port, reason, data->length );
-
-  if( datapath_id != managed_datapath_id ) {
-    error( "packet_in message from unmanaged switch ( dpid = %#llx ).",
-           datapath_id );
+  if ( datapath_id != *( ( uint64_t * ) managed_datapath_id ) ) {
+    error( "packet_in message from unmanaged switch (dpid = %#llx).", datapath_id );
     return;
   }
 
-  actions = create_actions();
+  openflow_actions_t *actions = create_actions();
   append_action_output( actions, ( uint16_t ) ( in_port + 1 ), UINT16_MAX );
 
+  struct ofp_match match;
   set_match_from_packet( &match, in_port, 0, data );
 
-  buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
-                            OFPFC_ADD, 0, 0, UINT16_MAX, buffer_id,
-                            OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
+  buffer *buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
+                                    OFPFC_ADD, 0, 0, UINT16_MAX, buffer_id,
+                                    OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
 
   if ( buffer_id == UINT32_MAX ) {
     send_openflow_message( datapath_id, buffer );
     free_buffer( buffer );
     
-    buffer = create_packet_out( get_transaction_id(),
-                                buffer_id, in_port, actions, data );
+    buffer = create_packet_out( get_transaction_id(), buffer_id, in_port, actions, data );
   }
 
   send_openflow_message( datapath_id, buffer );
@@ -103,25 +91,13 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 }
 
 
-static bool
-set_managed_switch( const char *datapath_id ) {
-  if ( datapath_id == NULL ) {
-    return false;
-  }
-
-  return string_to_datapath_id( datapath_id, &managed_datapath_id );
-}
-
-
 int
 main( int argc, char *argv[] ) {
+  init_trema( &argc, &argv );
+
   char *datapath_id = NULL;
   int c;
 
-  // Initialize the Trema world
-  init_trema( &argc, &argv );
-
-  // Parse command options
   while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
     switch ( c ) {
       case 'i':
@@ -137,13 +113,11 @@ main( int argc, char *argv[] ) {
     exit( EXIT_FAILURE );
   }
 
-  // Set managed switch that is controlled by this application
-  set_managed_switch( datapath_id );
+  uint64_t managed_datapath_id = 0;
+  string_to_datapath_id( datapath_id, &managed_datapath_id );
 
-  // Set an event handler for packet_in event
-  set_packet_in_handler( handle_packet_in, NULL );
+  set_packet_in_handler( handle_packet_in, &managed_datapath_id );
 
-  // Main loop
   start_trema();
 
   return 0;
