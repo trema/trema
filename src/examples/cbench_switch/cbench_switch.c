@@ -23,9 +23,6 @@
 #include "trema.h"
 
 
-static const uint64_t cbench_datapath_id = 1;
-
-
 static void
 handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
                   uint32_t buffer_id, uint16_t total_len,
@@ -37,11 +34,6 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
          "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, length = %u).",
          datapath_id, transaction_id, buffer_id, total_len, in_port, reason, data->length );
 
-  if ( datapath_id != cbench_datapath_id ) {
-    error( "packet_in from unknown switch (datapath_id = %#llx).", datapath_id );
-    return;
-  }
-
   openflow_actions *actions = create_actions();
   append_action_output( actions, ( uint16_t ) ( in_port + 1 ), UINT16_MAX );
 
@@ -51,14 +43,6 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   buffer *buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
                                     OFPFC_ADD, 0, 0, UINT16_MAX, buffer_id,
                                     OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
-
-  if ( buffer_id == UINT32_MAX ) {
-    send_openflow_message( datapath_id, buffer );
-    free_buffer( buffer );
-    
-    buffer = create_packet_out( get_transaction_id(), buffer_id, in_port, actions, data );
-  }
-
   send_openflow_message( datapath_id, buffer );
 
   free_buffer( buffer );
