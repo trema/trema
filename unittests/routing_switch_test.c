@@ -406,14 +406,14 @@ mock_free_hop_list( dlist_element *hops ) {
 }
 
 
-openflow_actions_t *
+openflow_actions *
 mock_create_actions() {
-  return ( openflow_actions_t * ) mock();
+  return ( openflow_actions * ) mock();
 }
 
 
 bool
-mock_append_action_output( openflow_actions_t *actions,
+mock_append_action_output( openflow_actions *actions,
                            /*const*/ uint16_t port16,
                            /*const*/ uint16_t max_len16 ) {
   check_expected( actions );
@@ -436,7 +436,7 @@ buffer *
 mock_create_packet_out( /*const*/ uint32_t transaction_id,
                         /*const*/ uint32_t buffer_id,
                         /*const*/ uint16_t in_port16,
-                        /*const*/ openflow_actions_t *actions,
+                        /*const*/ openflow_actions *actions,
                         /*const*/ buffer *data ) {
   check_expected( transaction_id );
   check_expected( buffer_id );
@@ -450,7 +450,7 @@ mock_create_packet_out( /*const*/ uint32_t transaction_id,
 
 
 bool
-mock_delete_actions( openflow_actions_t *actions ) {
+mock_delete_actions( openflow_actions *actions ) {
   check_expected( actions );
 
   return ( bool ) mock();
@@ -489,7 +489,7 @@ mock_create_flow_mod( /*const*/ uint32_t transaction_id,
                       /*const*/ uint32_t buffer_id,
                       /*const*/ uint16_t out_port16,
                       /*const*/ uint16_t flags16,
-                      /*const*/ openflow_actions_t *actions ) {
+                      /*const*/ openflow_actions *actions ) {
   check_expected( transaction_id );
   struct ofp_match *match = &match0;
   check_expected( match );
@@ -789,9 +789,9 @@ mock_create_outbound_ports( list_element **switches ) {
 int
 mock_foreach_port( const list_element *ports,
                    int ( *function )( port_info *port,
-                                      openflow_actions_t *actions,
+                                      openflow_actions *actions,
                                       uint64_t dpid, uint16_t in_port ),
-                   openflow_actions_t *actions, uint64_t dpid, uint16_t in_port ) {
+                   openflow_actions *actions, uint64_t dpid, uint16_t in_port ) {
   // call real foreach_port()
   return foreach_port( ports, function, actions, dpid, in_port );
 }
@@ -1482,7 +1482,7 @@ test_receive_packet_in_destination_host_is_located() {
   will_return( mock_set_match_from_packet, VOID_FUNCTION );
 
   // create_actions()
-  openflow_actions_t dummy_actions;
+  openflow_actions dummy_actions;
   will_return( mock_create_actions, &dummy_actions );
 
   // append_aciton_output()
@@ -1667,7 +1667,7 @@ test_receive_packet_in_destination_host_is_not_located() {
 
   // switch A
   // create_actions()
-  openflow_actions_t actions_for_switch_A;
+  openflow_actions actions_for_switch_A;
   will_return( mock_create_actions, &actions_for_switch_A );
   // host_a
   // append_action_output()
@@ -1703,7 +1703,7 @@ test_receive_packet_in_destination_host_is_not_located() {
 
   // switch B is skipped
   // create_actions()
-  openflow_actions_t actions_for_switch_B;
+  openflow_actions actions_for_switch_B;
   will_return( mock_create_actions, &actions_for_switch_B );
   // delete_actions()
   expect_value( mock_delete_actions, actions, &actions_for_switch_B );
@@ -1711,7 +1711,7 @@ test_receive_packet_in_destination_host_is_not_located() {
   
   // switch C
   // create_actions()
-  openflow_actions_t actions_for_switch_C;
+  openflow_actions actions_for_switch_C;
   will_return( mock_create_actions, &actions_for_switch_C );
   // host_c
   // append_action_output()

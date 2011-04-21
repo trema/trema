@@ -37,7 +37,7 @@
 #include "openflow_message.h"
 
 
-extern uint16_t get_actions_length( const openflow_actions_t *actions );
+extern uint16_t get_actions_length( const openflow_actions *actions );
 extern buffer * create_stats_request( const uint32_t transaction_id, const uint16_t type,
                                       const uint16_t length, const uint16_t flags );
 extern buffer * create_stats_reply( const uint32_t transaction_id, const uint16_t type,
@@ -811,7 +811,7 @@ test_create_port_mod() {
 
 static void
 test_create_and_delete_actions() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   bool ret;
 
   assert_true( actions != NULL );
@@ -831,7 +831,7 @@ test_create_and_delete_actions() {
 
 static void
 test_append_action_output() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint16_t port = 1;
   uint16_t max_len = 128;
   struct ofp_action_output *action_output;
@@ -863,7 +863,7 @@ test_append_action_output() {
 
 static void
 test_append_action_set_vlan_vid() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint16_t vlan_vid = 0x0001;
   struct ofp_action_vlan_vid *action_vlan_vid;
   bool ret;
@@ -898,7 +898,7 @@ test_append_action_set_vlan_vid() {
 
 static void
 test_append_action_set_vlan_pcp() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint8_t vlan_pcp = 0x1;
   struct ofp_action_vlan_pcp *action_vlan_pcp;
   bool ret;
@@ -933,7 +933,7 @@ test_append_action_set_vlan_pcp() {
 
 static void
 test_append_action_strip_vlan() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   struct ofp_action_header *action_strip_vlan;
   bool ret;
 
@@ -961,7 +961,7 @@ test_append_action_strip_vlan() {
 
 static void
 test_append_action_set_dl_src() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   struct ofp_action_dl_addr *action_dl_addr;
   bool ret;
 
@@ -990,7 +990,7 @@ test_append_action_set_dl_src() {
 
 static void
 test_append_action_set_dl_dst() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   struct ofp_action_dl_addr *action_dl_addr;
   bool ret;
 
@@ -1019,7 +1019,7 @@ test_append_action_set_dl_dst() {
 
 static void
 test_append_action_set_nw_src() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   struct ofp_action_nw_addr *action_nw_addr;
   bool ret;
 
@@ -1048,7 +1048,7 @@ test_append_action_set_nw_src() {
 
 static void
 test_append_action_set_nw_dst() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   struct ofp_action_nw_addr *action_nw_addr;
   bool ret;
 
@@ -1077,7 +1077,7 @@ test_append_action_set_nw_dst() {
 
 static void
 test_append_action_set_nw_tos() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint8_t nw_tos = 0x01;
   struct ofp_action_nw_tos *action_nw_tos;
   bool ret;
@@ -1112,7 +1112,7 @@ test_append_action_set_nw_tos() {
 
 static void
 test_append_action_set_tp_src() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint16_t tp_port = 1;
   struct ofp_action_tp_port *action_tp_port;
   bool ret;
@@ -1142,7 +1142,7 @@ test_append_action_set_tp_src() {
 
 static void
 test_append_action_set_tp_dst() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint16_t tp_port = 1;
   struct ofp_action_tp_port *action_tp_port;
   bool ret;
@@ -1172,7 +1172,7 @@ test_append_action_set_tp_dst() {
 
 static void
 test_append_action_enqueue() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint16_t port = 1;
   uint32_t queue_id = 10;
   struct ofp_action_enqueue *action_enqueue;
@@ -1204,7 +1204,7 @@ test_append_action_enqueue() {
 
 static void
 test_append_action_vendor() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint32_t vendor = 1;
   buffer *body;
   struct ofp_action_vendor_header *action_vendor;
@@ -1241,7 +1241,7 @@ test_append_action_vendor() {
 
 static void
 test_append_action_vendor_without_data() {
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   uint32_t vendor = 1;
   buffer *body = NULL;
   struct ofp_action_vendor_header *action_vendor;
@@ -1278,7 +1278,7 @@ test_create_packet_out() {
   uint16_t in_port = 2;
   uint16_t port = 1;
   uint16_t max_len = 128;
-  openflow_actions_t *actions;
+  openflow_actions *actions;
   buffer *expected_data;
   buffer *buffer;
   struct ofp_packet_out *packet_out;
@@ -1341,7 +1341,7 @@ test_create_packet_out() {
 static void
 test_create_packet_out_without_actions() {
   uint16_t in_port = 1;
-  openflow_actions_t *actions = NULL;
+  openflow_actions *actions = NULL;
   buffer *expected_data;
   buffer *buffer;
   struct ofp_packet_out *packet_out;
@@ -1387,7 +1387,7 @@ test_create_flow_mod() {
   uint32_t buffer_id = 10;
   uint16_t out_port = UINT16_MAX;
   uint16_t flags = OFPFF_CHECK_OVERLAP | OFPFF_SEND_FLOW_REM;
-  openflow_actions_t *actions;
+  openflow_actions *actions;
   uint16_t port = 1;
   uint16_t max_len = 128;
   buffer *buffer;
@@ -2703,7 +2703,7 @@ test_validate_port_status() {
 
 static void
 test_validate_packet_out() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, 1, 128 );
   buffer *data = create_dummy_data( LONG_DATA_LENGTH );
   buffer *packet_out = create_packet_out( MY_TRANSACTION_ID, UINT32_MAX, 1, actions, data );
@@ -2718,7 +2718,7 @@ test_validate_packet_out() {
 
 static void
 test_validate_packet_out_without_data() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, 1, 128 );
   buffer *packet_out = create_packet_out( MY_TRANSACTION_ID, BUFFER_ID, 1, actions, NULL );
 
@@ -2755,7 +2755,7 @@ test_validate_flow_mod() {
   uint16_t hard_timeout = 10;
   uint16_t idle_timeout = 5;
   uint16_t out_port = UINT16_MAX;
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, 1, 128 );
   buffer *flow_mod = create_flow_mod( MY_TRANSACTION_ID, MATCH, cookie, OFPFC_ADD, idle_timeout, hard_timeout, PRIORITY,
                                       BUFFER_ID, out_port, OFPFF_CHECK_OVERLAP | OFPFF_SEND_FLOW_REM, actions );
@@ -3685,7 +3685,7 @@ static void
 test_validate_action_output() {
   uint16_t port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, port, MAX_LENGTH_OF_SEND_PACKET );
   struct ofp_action_output action_output;
   hton_action_output( &action_output, ( struct ofp_action_output * ) ( actions->list->data ) );
@@ -3698,7 +3698,7 @@ test_validate_action_output() {
 
 static void
 test_validate_action_output_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_src( actions, HW_ADDR );
   struct ofp_action_dl_addr action_dl_addr;
   hton_action_dl_addr( &action_dl_addr, ( struct ofp_action_dl_addr * ) ( actions->list->data ) );
@@ -3713,7 +3713,7 @@ static void
 test_validate_action_output_fails_with_too_short_ofp_action_output() {
   uint16_t port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, port, MAX_LENGTH_OF_SEND_PACKET );
   uint16_t too_short_action_length = sizeof( struct ofp_action_output ) - 1;
   ( ( struct ofp_action_output * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -3730,7 +3730,7 @@ static void
 test_validate_action_output_fails_with_too_long_ofp_action_output() {
   uint16_t port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, port, MAX_LENGTH_OF_SEND_PACKET );
   uint16_t too_long_action_length = sizeof( struct ofp_action_output ) + 1;
   ( ( struct ofp_action_output * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -3747,7 +3747,7 @@ static void
 test_validate_action_output_fails_with_invalid_port_no() {
   uint16_t port = 0;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, port, MAX_LENGTH_OF_SEND_PACKET );
   struct ofp_action_output action_output;
   hton_action_output( &action_output, ( struct ofp_action_output * ) ( actions->list->data ) );
@@ -3764,7 +3764,7 @@ test_validate_action_output_fails_with_invalid_port_no() {
 
 static void
 test_validate_action_set_vlan_vid() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint16_t vlan_vid = 0x0001;
   append_action_set_vlan_vid( actions, vlan_vid );
   struct ofp_action_vlan_vid action_vlan_vid;
@@ -3778,7 +3778,7 @@ test_validate_action_set_vlan_vid() {
 
 static void
 test_validate_action_set_vlan_vid_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, actions->list->data );
@@ -3791,7 +3791,7 @@ test_validate_action_set_vlan_vid_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_vlan_vid_fails_with_invalid_vlan_vid() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint16_t vlan_vid = 0x0001;
   append_action_set_vlan_vid( actions, vlan_vid );
   uint16_t invalid_vlan_vid = 0x1000;
@@ -3807,7 +3807,7 @@ test_validate_action_set_vlan_vid_fails_with_invalid_vlan_vid() {
 
 static void
 test_validate_action_set_vlan_vid_fails_with_too_short_ofp_action_vlan_vid() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint16_t vlan_vid = 0x0001;
   append_action_set_vlan_vid( actions, vlan_vid );
   struct ofp_action_vlan_vid *too_short_action_length = ( struct ofp_action_vlan_vid * ) actions->list->data;
@@ -3823,7 +3823,7 @@ test_validate_action_set_vlan_vid_fails_with_too_short_ofp_action_vlan_vid() {
 
 static void
 test_validate_action_set_vlan_vid_fails_with_too_long_ofp_action_vlan_vid() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint16_t vlan_vid = 0x0001;
   append_action_set_vlan_vid( actions, vlan_vid );
   struct ofp_action_vlan_vid *too_long_action_length = ( struct ofp_action_vlan_vid * ) actions->list->data;
@@ -3843,7 +3843,7 @@ test_validate_action_set_vlan_vid_fails_with_too_long_ofp_action_vlan_vid() {
 
 static void
 test_validate_action_set_vlan_pcp() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint8_t vlan_pcp = 0x01;
   append_action_set_vlan_pcp( actions, vlan_pcp );
   struct ofp_action_vlan_pcp action_vlan_pcp;
@@ -3857,7 +3857,7 @@ test_validate_action_set_vlan_pcp() {
 
 static void
 test_validate_action_set_vlan_pcp_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, actions->list->data );
@@ -3870,7 +3870,7 @@ test_validate_action_set_vlan_pcp_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_vlan_pcp_fails_with_invalid_vlan_pcp() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint8_t vlan_pcp = 0x01;
   append_action_set_vlan_pcp( actions, vlan_pcp );
   uint8_t invalid_vlan_pcp = 0x08;
@@ -3886,7 +3886,7 @@ test_validate_action_set_vlan_pcp_fails_with_invalid_vlan_pcp() {
 
 static void
 test_validate_action_set_vlan_pcp_fails_with_too_short_ofp_action_vlan_pcp() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint8_t vlan_pcp = 0x01;
   append_action_set_vlan_pcp( actions, vlan_pcp );
   struct ofp_action_vlan_pcp *too_short_action_length = ( struct ofp_action_vlan_pcp * ) actions->list->data;
@@ -3902,7 +3902,7 @@ test_validate_action_set_vlan_pcp_fails_with_too_short_ofp_action_vlan_pcp() {
 
 static void
 test_validate_action_set_vlan_pcp_fails_with_too_long_ofp_action_vlan_pcp() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   uint8_t vlan_pcp = 0x01;
   append_action_set_vlan_pcp( actions, vlan_pcp );
   struct ofp_action_vlan_pcp *too_long_action_length = ( struct ofp_action_vlan_pcp * ) actions->list->data;
@@ -3922,7 +3922,7 @@ test_validate_action_set_vlan_pcp_fails_with_too_long_ofp_action_vlan_pcp() {
 
 static void
 test_validate_action_strip_vlan() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_strip_vlan( actions );
   struct ofp_action_header action_strip_vlan;
   hton_action_strip_vlan( &action_strip_vlan, actions->list->data );
@@ -3935,7 +3935,7 @@ test_validate_action_strip_vlan() {
 
 static void
 test_validate_action_strip_vlan_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, actions->list->data );
@@ -3948,7 +3948,7 @@ test_validate_action_strip_vlan_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_strip_vlan_fails_with_too_short_ofp_action_header() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_strip_vlan( actions );
   struct ofp_action_header *too_short_action_length = ( struct ofp_action_header * ) actions->list->data;
   too_short_action_length->len = ( uint16_t ) ( too_short_action_length->len - 1 );
@@ -3963,7 +3963,7 @@ test_validate_action_strip_vlan_fails_with_too_short_ofp_action_header() {
 
 static void
 test_validate_action_strip_vlan_fails_with_too_long_ofp_action_header() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_strip_vlan( actions );
   struct ofp_action_header *too_long_action_length = ( struct ofp_action_header * ) actions->list->data;
   too_long_action_length->len = ( uint16_t ) ( too_long_action_length->len + 1 );
@@ -3982,7 +3982,7 @@ test_validate_action_strip_vlan_fails_with_too_long_ofp_action_header() {
 
 static void
 test_validate_action_set_dl_src() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_src( actions, HW_ADDR );
   struct ofp_action_dl_addr action_dl_addr;
   hton_action_dl_addr( &action_dl_addr, ( struct ofp_action_dl_addr * ) ( actions->list->data ) );
@@ -3995,7 +3995,7 @@ test_validate_action_set_dl_src() {
 
 static void
 test_validate_action_set_dl_src_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_src( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, ( struct ofp_action_nw_addr * ) ( actions->list->data ) );
@@ -4008,7 +4008,7 @@ test_validate_action_set_dl_src_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_dl_src_fails_with_too_short_ofp_action_dl_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_src( actions, HW_ADDR );
   uint16_t too_short_action_length = sizeof( struct ofp_action_dl_addr ) - 1;
   ( ( struct ofp_action_dl_addr * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4023,7 +4023,7 @@ test_validate_action_set_dl_src_fails_with_too_short_ofp_action_dl_addr() {
 
 static void
 test_validate_action_set_dl_src_fails_with_too_long_ofp_action_dl_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_src( actions, HW_ADDR );
   uint16_t too_long_action_length = sizeof( struct ofp_action_dl_addr ) + 1;
   ( ( struct ofp_action_dl_addr * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4042,7 +4042,7 @@ test_validate_action_set_dl_src_fails_with_too_long_ofp_action_dl_addr() {
 
 static void
 test_validate_action_set_dl_dst() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_dst( actions, HW_ADDR );
   struct ofp_action_dl_addr action_dl_addr;
   hton_action_dl_addr( &action_dl_addr, ( struct ofp_action_dl_addr * ) ( actions->list->data ) );
@@ -4055,7 +4055,7 @@ test_validate_action_set_dl_dst() {
 
 static void
 test_validate_action_set_dl_dst_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_src( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, ( struct ofp_action_nw_addr * ) ( actions->list->data ) );
@@ -4068,7 +4068,7 @@ test_validate_action_set_dl_dst_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_dl_dst_fails_with_too_short_ofp_action_dl_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_dst( actions, HW_ADDR );
   uint16_t too_short_action_length = sizeof( struct ofp_action_dl_addr ) - 1;
   ( ( struct ofp_action_dl_addr * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4083,7 +4083,7 @@ test_validate_action_set_dl_dst_fails_with_too_short_ofp_action_dl_addr() {
 
 static void
 test_validate_action_set_dl_dst_fails_with_too_long_ofp_action_dl_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_dl_dst( actions, HW_ADDR );
   uint16_t too_long_action_length = sizeof( struct ofp_action_dl_addr ) + 1;
   ( ( struct ofp_action_dl_addr * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4102,7 +4102,7 @@ test_validate_action_set_dl_dst_fails_with_too_long_ofp_action_dl_addr() {
 
 static void
 test_validate_action_set_nw_src() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_src( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, ( struct ofp_action_nw_addr * ) ( actions->list->data ) );
@@ -4115,7 +4115,7 @@ test_validate_action_set_nw_src() {
 
 static void
 test_validate_action_set_nw_src_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_tos( actions, NW_TOS );
   struct ofp_action_nw_tos action_nw_tos;
   hton_action_nw_tos( &action_nw_tos, ( struct ofp_action_nw_tos * ) ( actions->list->data ) );
@@ -4128,7 +4128,7 @@ test_validate_action_set_nw_src_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_nw_src_fails_with_too_short_ofp_action_nw_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_src( actions, NW_ADDR );
   uint16_t too_short_action_length = sizeof( struct ofp_action_nw_addr ) - 1;
   ( ( struct ofp_action_nw_addr * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4143,7 +4143,7 @@ test_validate_action_set_nw_src_fails_with_too_short_ofp_action_nw_addr() {
 
 static void
 test_validate_action_set_nw_src_fails_with_too_long_ofp_action_nw_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_src( actions, NW_ADDR );
   uint16_t too_long_action_length = sizeof( struct ofp_action_nw_addr ) + 1;
   ( ( struct ofp_action_nw_addr * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4162,7 +4162,7 @@ test_validate_action_set_nw_src_fails_with_too_long_ofp_action_nw_addr() {
 
 static void
 test_validate_action_set_nw_dst() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   struct ofp_action_nw_addr action_nw_addr;
   hton_action_nw_addr( &action_nw_addr, ( struct ofp_action_nw_addr * ) ( actions->list->data ) );
@@ -4175,7 +4175,7 @@ test_validate_action_set_nw_dst() {
 
 static void
 test_validate_action_set_nw_dst_fails_with_invalid_action_type() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_tos( actions, NW_TOS );
   struct ofp_action_nw_tos action_nw_tos;
   hton_action_nw_tos( &action_nw_tos, ( struct ofp_action_nw_tos * ) ( actions->list->data ) );
@@ -4188,7 +4188,7 @@ test_validate_action_set_nw_dst_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_nw_dst_fails_with_too_short_ofp_action_nw_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   uint16_t too_short_action_length = sizeof( struct ofp_action_nw_addr ) - 1;
   ( ( struct ofp_action_nw_addr * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4203,7 +4203,7 @@ test_validate_action_set_nw_dst_fails_with_too_short_ofp_action_nw_addr() {
 
 static void
 test_validate_action_set_nw_dst_fails_with_too_long_ofp_action_nw_addr() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_dst( actions, NW_ADDR );
   uint16_t too_long_action_length = sizeof( struct ofp_action_nw_addr ) + 1;
   ( ( struct ofp_action_nw_addr * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4222,7 +4222,7 @@ test_validate_action_set_nw_dst_fails_with_too_long_ofp_action_nw_addr() {
 
 static void
 test_validate_action_set_nw_tos() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_tos( actions, NW_TOS );
   struct ofp_action_nw_tos action_nw_tos;
   hton_action_nw_tos( &action_nw_tos, ( struct ofp_action_nw_tos * ) ( actions->list->data ) );
@@ -4237,7 +4237,7 @@ static void
 test_validate_action_set_nw_tos_fails_with_invalid_action_type() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_src( actions, tp_port );
   struct ofp_action_tp_port action_tp_port;
   hton_action_tp_port( &action_tp_port, ( struct ofp_action_tp_port * ) ( actions->list->data ) );
@@ -4250,7 +4250,7 @@ test_validate_action_set_nw_tos_fails_with_invalid_action_type() {
 
 static void
 test_validate_action_set_nw_tos_fails_with_too_short_ofp_action_nw_tos() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_tos( actions, NW_TOS );
   uint16_t too_short_action_length = sizeof( struct ofp_action_nw_tos ) - 1;
   ( ( struct ofp_action_nw_tos * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4265,7 +4265,7 @@ test_validate_action_set_nw_tos_fails_with_too_short_ofp_action_nw_tos() {
 
 static void
 test_validate_action_set_nw_tos_fails_with_too_long_ofp_action_nw_tos() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_nw_tos( actions, NW_TOS );
   uint16_t too_long_action_length = sizeof( struct ofp_action_nw_tos ) + 1;
   ( ( struct ofp_action_nw_tos * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4286,7 +4286,7 @@ static void
 test_validate_action_set_tp_src() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_src( actions, tp_port );
   struct ofp_action_tp_port action_tp_port;
   hton_action_tp_port( &action_tp_port, ( struct ofp_action_tp_port * ) ( actions->list->data ) );
@@ -4302,7 +4302,7 @@ test_validate_action_set_tp_src_fails_with_invalid_action_type() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   struct ofp_action_enqueue action_enqueue;
   hton_action_enqueue( &action_enqueue, ( struct ofp_action_enqueue * ) ( actions->list->data ) );
@@ -4317,7 +4317,7 @@ static void
 test_validate_action_set_tp_src_fails_with_too_short_ofp_action_tp_port() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_src( actions, tp_port );
   uint16_t too_short_action_length = sizeof( struct ofp_action_tp_port ) - 1;
   ( ( struct ofp_action_tp_port * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4334,7 +4334,7 @@ static void
 test_validate_action_set_tp_src_fails_with_too_long_ofp_action_tp_port() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_src( actions, tp_port );
   uint16_t too_long_action_length = sizeof( struct ofp_action_tp_port ) + 1;
   ( ( struct ofp_action_tp_port * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4355,7 +4355,7 @@ static void
 test_validate_action_set_tp_dst() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_dst( actions, tp_port );
   struct ofp_action_tp_port action_tp_port;
   hton_action_tp_port( &action_tp_port, ( struct ofp_action_tp_port * ) ( actions->list->data ) );
@@ -4371,7 +4371,7 @@ test_validate_action_set_tp_dst_fails_with_invalid_action_type() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   struct ofp_action_enqueue action_enqueue;
   hton_action_enqueue( &action_enqueue, ( struct ofp_action_enqueue * ) ( actions->list->data ) );
@@ -4386,7 +4386,7 @@ static void
 test_validate_action_set_tp_dst_fails_with_too_short_ofp_action_tp_port() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_dst( actions, tp_port );
   uint16_t too_short_action_length = sizeof( struct ofp_action_tp_port ) - 1;
   ( ( struct ofp_action_tp_port * ) ( actions->list->data ) )->len = too_short_action_length;
@@ -4403,7 +4403,7 @@ static void
 test_validate_action_set_tp_dst_fails_with_too_long_ofp_action_tp_port() {
   uint16_t tp_port = 1;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_set_tp_dst( actions, tp_port );
   uint16_t too_long_action_length = sizeof( struct ofp_action_tp_port ) + 1;
   ( ( struct ofp_action_tp_port * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4425,7 +4425,7 @@ test_validate_action_enqueue() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   struct ofp_action_enqueue action_enqueue;
   hton_action_enqueue( &action_enqueue, ( struct ofp_action_enqueue * ) ( actions->list->data ) );
@@ -4439,7 +4439,7 @@ test_validate_action_enqueue() {
 static void
 test_validate_action_enqueue_fails_with_invalid_action_type() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
   struct ofp_action_vendor_header action_vendor;
   hton_action_vendor( &action_vendor, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
@@ -4456,7 +4456,7 @@ test_validate_action_enqueue_fails_with_too_short_ofp_action_enqueue() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   uint16_t too_short_action_length = sizeof( struct ofp_action_enqueue ) - 1;
   ( ( struct ofp_action_enqueue * )( actions->list->data ) )->len = too_short_action_length;
@@ -4474,7 +4474,7 @@ test_validate_action_enqueue_fails_with_too_long_ofp_action_enqueue() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   uint16_t too_long_action_length = sizeof( struct ofp_action_enqueue ) + 1;
   ( ( struct ofp_action_enqueue * ) ( actions->list->data ) )->len = too_long_action_length;
@@ -4494,7 +4494,7 @@ test_validate_action_enqueue_fails_with_too_long_ofp_action_enqueue() {
 static void
 test_validate_action_vendor() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
   struct ofp_action_vendor_header action_vendor_header;
   hton_action_vendor( &action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
@@ -4511,7 +4511,7 @@ test_validate_action_vendor_fails_with_invalid_action_type() {
   uint16_t port = 1;
   uint32_t queue_id = 10;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_enqueue( actions, port, queue_id );
   struct ofp_action_enqueue action_enqueue;
   hton_action_enqueue( &action_enqueue, ( struct ofp_action_enqueue * ) ( actions->list->data ) );
@@ -4525,7 +4525,7 @@ test_validate_action_vendor_fails_with_invalid_action_type() {
 static void
 test_validate_action_vendor_fails_with_too_short_ofp_action_vendor_header() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
   uint16_t too_short_action_length = sizeof( struct ofp_action_vendor_header ) - 1;
   ( ( struct ofp_action_vendor_header * )( actions->list->data ) )->len = too_short_action_length;
@@ -4535,7 +4535,7 @@ test_validate_action_vendor_fails_with_too_short_ofp_action_vendor_header() {
   assert_int_equal( validate_action_vendor( &too_short_action_vendor_header ), ERROR_TOO_SHORT_ACTION_VENDOR );
 
   free_buffer( body );
-  delete_actions( ( openflow_actions_t * ) actions );
+  delete_actions( ( openflow_actions * ) actions );
 }
 
 
@@ -4740,7 +4740,7 @@ test_validate_openflow_message_succeeds_with_valid_OFPT_PORT_STATUS_message() {
 
 static void
 test_validate_openflow_message_succeeds_with_valid_OFPT_PACKET_OUT_message() {
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, 1, 128 );
   buffer *dummy_data = create_dummy_data( LONG_DATA_LENGTH );
   buffer *packet_out = create_packet_out( MY_TRANSACTION_ID, BUFFER_ID, 1, actions, dummy_data );
@@ -4760,7 +4760,7 @@ test_validate_openflow_message_succeeds_with_valid_OFPT_FLOW_MOD_message() {
   uint16_t idle_timeout = 5;
   uint16_t out_port = UINT16_MAX;
 
-  openflow_actions_t *actions = create_actions();
+  openflow_actions *actions = create_actions();
   append_action_output( actions, 1, 128 );
   buffer *flow_mod = create_flow_mod( MY_TRANSACTION_ID, MATCH, cookie, OFPFC_ADD, idle_timeout, hard_timeout, PRIORITY,
                                       BUFFER_ID, out_port, OFPFF_CHECK_OVERLAP | OFPFF_SEND_FLOW_REM, actions );

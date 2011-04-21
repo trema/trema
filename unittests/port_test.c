@@ -53,7 +53,7 @@ static uint16_t port_no_bbb = 0x46;
 static uint64_t dpid_switch_C = 0xcafebabeULL;
 static uint16_t port_no_c = 0xdead;
 static buffer dummy_packet;
-static openflow_actions_t dummy_actions;
+static openflow_actions dummy_actions;
 
 
 static switch_info *
@@ -175,7 +175,7 @@ mock_foreach_switch_callback( switch_info *sw, buffer *packet, uint64_t dpid64, 
 
 
 static int
-mock_foreach_port_callback( port_info *port, openflow_actions_t *actions,
+mock_foreach_port_callback( port_info *port, openflow_actions *actions,
                             uint64_t dpid64, uint16_t in_port16 ) {
   check_expected( port );
   check_expected( actions );

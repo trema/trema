@@ -226,7 +226,7 @@ mock_create_flow_mod( /*const*/ uint32_t transaction_id, /*const*/ struct ofp_ma
                       /*const*/ uint16_t idle_timeout16, /*const*/ uint16_t hard_timeout16,
                       /*const*/ uint16_t priority16, /*const*/ uint32_t buffer_id,
                       /*const*/ uint16_t out_port16, /*const*/ uint16_t flags16,
-                      /*const*/ openflow_actions_t *actions ) {
+                      /*const*/ openflow_actions *actions ) {
   check_expected( transaction_id );
   struct ofp_match *match = &match0;
   check_expected( match );
