@@ -20,7 +20,6 @@
  */
 
 
-#include <inttypes.h>
 #include "trema.h"
 
 
