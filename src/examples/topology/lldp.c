@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -155,7 +156,7 @@ send_lldp( probe_timer_entry *port ) {
   free_buffer( lldp );
   free_buffer( packetout );
 
-  debug( "Sent LLDP frame(%#llx, %u)", port->datapath_id, port->port_no );
+  debug( "Sent LLDP frame(%#" PRIx64 ", %u)", port->datapath_id, port->port_no );
 }
 
 
@@ -279,7 +280,7 @@ create_lldp_frame( const uint8_t *mac, uint64_t dpid, uint16_t port_no ) {
   // Convert Chassis ID into string
   chassis_id_strlen =
     ( uint32_t )snprintf( dpid_str, ( LLDP_TLV_INFO_MAX_LEN - 1 ),
-                          "%#llx", dpid );
+                          "%#" PRIx64, dpid );
 
   assert ( chassis_id_strlen <= ( LLDP_TLV_INFO_MAX_LEN - 1 ) );
 
@@ -418,12 +419,12 @@ handle_packet_in( uint64_t dst_datapath_id,
     return;
   }
 
-  debug( "Receive LLDP Frame (%#llx, %u) from (%#llx, %u).",
+  debug( "Receive LLDP Frame (%#" PRIx64 ", %u) from (%#" PRIx64 ", %u).",
          dst_datapath_id, dst_port_no, src_datapath_id, src_port_no );
   probe_timer_entry *entry = delete_probe_timer_entry( &src_datapath_id,
                                                        src_port_no );
   if ( entry == NULL ) {
-    debug( "Not found dst datapath_id (%#llx, %u).", src_datapath_id,
+    debug( "Not found dst datapath_id (%#" PRIx64 ", %u).", src_datapath_id,
             src_port_no );
     return;
   }

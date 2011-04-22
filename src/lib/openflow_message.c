@@ -20,6 +20,7 @@
 
 #include <arpa/inet.h>
 #include <assert.h>
+#include <inttypes.h>
 #include <pthread.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -94,7 +95,7 @@ init_openflow_message( void ) {
   cookie = ( uint64_t ) pid << 48;
   pthread_mutex_unlock( &cookie_mutex );
 
-  debug( "transaction_id and cookie are initialized ( transaction_id = %#x, cookie = %#llx ).",
+  debug( "transaction_id and cookie are initialized ( transaction_id = %#x, cookie = %#" PRIx64 " ).",
          transaction_id, cookie );
 
   return true;
@@ -260,7 +261,7 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
   list_element *p, *port;
 
   debug( "Creating a features reply "
-         "( xid = %#x, datapath_id = %#llx, n_buffers = %u, n_tables = %u, capabilities = %#x, actions = %#x ).",
+         "( xid = %#x, datapath_id = %#" PRIx64 ", n_buffers = %u, n_tables = %u, capabilities = %#x, actions = %#x ).",
          transaction_id, datapath_id, n_buffers, n_tables, capabilities, actions );
 
   if ( ports != NULL ) {
@@ -403,9 +404,9 @@ create_flow_removed( const uint32_t transaction_id, const struct ofp_match match
   if ( get_logging_level() >= LOG_DEBUG ) {
     match_to_string( &m, match_str, sizeof( match_str ) );
     debug( "Creating a flow removed "
-           "( xid = %#x, match = [%s], cookie = %#llx, priority = %u, "
+           "( xid = %#x, match = [%s], cookie = %#" PRIx64 ", priority = %u, "
            "reason = %#x, duration_sec = %u, duration_nsec = %u, "
-           "idle_timeout = %u, packet_count = %llu, byte_count = %llu ).",
+           "idle_timeout = %u, packet_count = %" PRIu64 ", byte_count = %" PRIu64 " ).",
            transaction_id, match_str, cookie, priority,
            reason, duration_sec, duration_nsec,
            idle_timeout, packet_count, byte_count );
@@ -580,7 +581,7 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
   if ( get_logging_level() >= LOG_DEBUG ) {
     match_to_string( &m, match_str, sizeof( match_str ) );
     debug( "Creating a flow modification "
-           "( xid = %#x, match = [%s], cookie = %#llx, command = %#x, "
+           "( xid = %#x, match = [%s], cookie = %#" PRIx64 ", command = %#x, "
            "idle_timeout = %u, hard_timeout = %u, priority = %u, "
            "buffer_id = %#x, out_port = %u, flags = %#x ).",
            transaction_id, match_str, cookie, command,
@@ -955,7 +956,7 @@ create_aggregate_stats_reply( const uint32_t transaction_id, const uint16_t flag
   struct ofp_aggregate_stats_reply *aggregate_stats_reply;
 
   debug( "Creating an aggregate stats reply "
-         "( xid = %#x, flags = %#x, packet_count = %llu, byte_count = %llu, flow_count = %u ).",
+         "( xid = %#x, flags = %#x, packet_count = %" PRIu64 ", byte_count = %" PRIu64 ", flow_count = %u ).",
          transaction_id, flags, packet_count, byte_count, flow_count );
 
   length = ( uint16_t ) ( offsetof( struct ofp_stats_reply, body )
@@ -1273,7 +1274,7 @@ get_cookie( void ) {
 
   pthread_mutex_unlock( &cookie_mutex );
 
-  debug( "Cookie = %#llx.", cookie );
+  debug( "Cookie = %#" PRIx64 ".", cookie );
 
   return cookie;
 }
@@ -1616,7 +1617,7 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
     body_length = ( uint16_t ) body->length;
   }
 
-  debug( "Appending a vendor action ( vendor = %#llx, body length = %u ).", vendor, body_length );
+  debug( "Appending a vendor action ( vendor = %#" PRIx64 ", body length = %u ).", vendor, body_length );
 
   assert( actions != NULL );
 

@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include <openflow.h>
 #include <string.h>
 #include "cookie_table.h"
@@ -25,7 +26,7 @@
 
 
 static cookie_table_t cookie_table;
-static uint64_t cookie_dough = 0ULL;
+static uint64_t cookie_dough = 0;
 static uint64_t INVALID_COOKIE = UINT64_MAX;
 static const time_t COOKIE_ENTRY_LIFETIME = 86400 * 30;
 
@@ -134,7 +135,7 @@ uint64_t *
 insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t flags ) {
   cookie_entry_t *new_entry, *conflict_entry;
 
-  debug( "Inserting cookie entry ( original_cookie = %#llx, service_name = %s, flags = %#x ).",
+  debug( "Inserting cookie entry ( original_cookie = %#" PRIx64 ", service_name = %s, flags = %#x ).",
          original_cookie, service_name, flags );
 
   new_entry = lookup_cookie_entry_by_application( original_cookie, service_name );
@@ -149,13 +150,13 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
   new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
   conflict_entry = insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
   if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#llx ).", new_entry->cookie );
+    warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", new_entry->cookie );
     // TODO: delete conflicted cookie entry
   }
 
   conflict_entry = insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
   if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#llx, service_name = %s ).",
+    warn( "Conflicted cookie ( cookie = %#" PRIx64 ", service_name = %s ).",
           new_entry->application.cookie, new_entry->application.service_name );
     // TODO: delete conflicted cookie entry
   }
@@ -166,7 +167,7 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
 
 void
 delete_cookie_entry( cookie_entry_t *entry ) {
-  debug( "Deleting cookie entry ( cookie = %#llx, application = [ cookie = %#llx, service_name = %s, "
+  debug( "Deleting cookie entry ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
          "flags = %#x ], reference_count = %d, expire_at = %u ).",
          entry->cookie, entry->application.cookie, entry->application.service_name,
          entry->application.flags, entry->reference_count, entry->expire_at );
@@ -179,11 +180,11 @@ delete_cookie_entry( cookie_entry_t *entry ) {
 
   cookie_entry_t *delete_entry_global = delete_hash_entry( cookie_table.global, &entry->cookie );
   if ( delete_entry_global == NULL ) {
-    error( "No cookie entry found ( cookie = %#llx ).", entry->cookie );
+    error( "No cookie entry found ( cookie = %#" PRIx64 " ).", entry->cookie );
   }
   cookie_entry_t *delete_entry_application = delete_hash_entry( cookie_table.application, &entry->application );
   if ( delete_entry_application == NULL ) {
-    error( "No cookie entry found ( cookie = %#llx, service_name = %s ).",
+    error( "No cookie entry found ( cookie = %#" PRIx64 ", service_name = %s ).",
            entry->application.cookie, entry->application.service_name );
   }
 
@@ -229,7 +230,7 @@ static void
 age_cookie_entry( cookie_entry_t *entry ) {
   if ( entry->expire_at < time( NULL ) ) {
     // TODO: check if the target flow is still alive or not
-    warn( "Aging out cookie entry ( cookie = %#llx, application = [ cookie = %#llx, service_name = %s, "
+    warn( "Aging out cookie entry ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
           "flags = %#x ], reference_count = %d, expire_at = %u ).",
           entry->cookie, entry->application.cookie, entry->application.service_name,
           entry->application.flags, entry->reference_count, entry->expire_at );
@@ -257,7 +258,7 @@ age_cookie_table( void *user_data ) {
 
 static void
 dump_cookie_entry( cookie_entry_t *entry ) {
-  info( "cookie = %#llx, application = [ cookie = %#llx, service_name = %s, "
+  info( "cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
         "flags = %#x ], reference_count = %d, expire_at = %u",
         entry->cookie, entry->application.cookie, entry->application.service_name,
         entry->application.flags, entry->reference_count, entry->expire_at );

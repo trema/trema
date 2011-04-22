@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include "trema.h"
 
 
@@ -30,7 +31,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
                   void *user_data ) {
   UNUSED( user_data );
 
-  debug( "packet_in received (datapath_id = %#llx, transaction_id = %#lx, "
+  debug( "packet_in received (datapath_id = %#" PRIx64 ", transaction_id = %#lx, "
          "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, length = %u).",
          datapath_id, transaction_id, buffer_id, total_len, in_port, reason, data->length );
 

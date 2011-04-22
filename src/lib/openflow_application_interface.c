@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -520,8 +521,8 @@ handle_vendor( const uint64_t datapath_id, buffer *data ) {
   body_length = ( uint16_t ) ( ntohs( vendor_header->header.length )
                                - sizeof( struct ofp_vendor_header ) );
 
-  debug( "A vendor message is received from %#llx "
-         "( transaction_id = %#x, vendor = %#x, body length = %u ).",
+  debug( "A vendor message is received from %#" PRIx64
+         " ( transaction_id = %#x, vendor = %#x, body length = %u ).",
          datapath_id, transaction_id, vendor, body_length );
 
   if ( event_handlers.vendor_callback == NULL ) {
@@ -581,8 +582,8 @@ handle_features_reply( const uint64_t datapath_id, buffer *data ) {
 
   n_phy_ports = phy_ports_length / sizeof( struct ofp_phy_port );
 
-  debug( "A features reply message is received from %#llx "
-         "( transaction_id = %#x, n_buffers = %u, n_tables = %u, "
+  debug( "A features reply message is received from %#" PRIx64
+         " ( transaction_id = %#x, n_buffers = %u, n_tables = %u, "
          "capabilities = %#x, actions = %#x, # of phy ports = %u ).",
          datapath_id, transaction_id, n_buffers, n_tables,
          capabilities, actions, n_phy_ports );
@@ -656,8 +657,8 @@ handle_get_config_reply( const uint64_t datapath_id, buffer *data ) {
   flags = ntohs( switch_config->flags );
   miss_send_len = ntohs( switch_config->miss_send_len );
 
-  debug( "A get config reply message is received from %#llx "
-         "( transaction_id = %#x, flags = %#x, miss_send_len = %u ).",
+  debug( "A get config reply message is received from %#" PRIx64
+         " ( transaction_id = %#x, flags = %#x, miss_send_len = %u ).",
          datapath_id, transaction_id, flags, miss_send_len );
 
   if ( event_handlers.get_config_reply_callback == NULL ) {
@@ -701,8 +702,8 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   body_length = ( uint16_t ) ( ntohs( packet_in->header.length )
                                - offsetof( struct ofp_packet_in, data ) );
 
-  debug( "A packet_in message is received from %#llx "
-         "( transaction_id = %#x, buffer_id = %#x, total_len = %u, "
+  debug( "A packet_in message is received from %#" PRIx64
+         " ( transaction_id = %#x, buffer_id = %#x, total_len = %u, "
          "in_port = %u, reason = %#x, body length = %u ).",
          datapath_id, transaction_id, buffer_id, total_len,
          in_port, reason, body_length );
@@ -776,10 +777,10 @@ handle_flow_removed( const uint64_t datapath_id, buffer *data ) {
 
   match_to_string( &match, match_string, sizeof( match_string ) );
 
-  debug( "A flow removed message is received from %#llx "
-         "( transaction_id = %#x, match = [%s], cookie = %#llx, "
+  debug( "A flow removed message is received from %#" PRIx64
+         " ( transaction_id = %#x, match = [%s], cookie = %#" PRIx64 ", "
          "priority = %u, reason = %#x, duration_sec = %u, duration_nsec = %u, "
-         "idle_timeout = %u, packet_count = %llu, byte_count = %llu ).",
+         "idle_timeout = %u, packet_count = %" PRIu64 ", byte_count = %" PRIu64 " ).",
          datapath_id, transaction_id, match_string, cookie,
          priority, reason, duration_sec, duration_nsec,
          idle_timeout, packet_count, byte_count );
@@ -828,8 +829,8 @@ handle_port_status( const uint64_t datapath_id, buffer *data ) {
 
   phy_port_to_string( &phy_port, description, sizeof( description ) );
 
-  debug( "A port status message is received from %#llx "
-         "( transaction_id = %#x, reason = %#x, desc = [%s] ).",
+  debug( "A port status message is received from %#" PRIx64
+         " ( transaction_id = %#x, reason = %#x, desc = [%s] ).",
          datapath_id, transaction_id, reason, description );
 
   if ( event_handlers.port_status_callback == NULL ) {
@@ -870,8 +871,8 @@ handle_stats_reply( const uint64_t datapath_id, buffer *data ) {
   body_length = ( uint16_t ) ( ntohs( stats_reply->header.length )
                                - offsetof( struct ofp_stats_reply, body ) );
 
-  debug( "A stats reply message is received from %#llx "
-         "( transaction_id = %#x, type = %#x, flags = %#x, body length = %u ).",
+  debug( "A stats reply message is received from %#" PRIx64
+         " ( transaction_id = %#x, type = %#x, flags = %#x, body length = %u ).",
          datapath_id, transaction_id, type, flags, body_length );
 
   if ( event_handlers.stats_reply_callback == NULL ) {
@@ -1042,7 +1043,7 @@ handle_barrier_reply( const uint64_t datapath_id, buffer *data ) {
 
   transaction_id = ntohl( header->xid );
 
-  debug( "A barrier reply message is received from %#llx ( transaction_id = %#x ).",
+  debug( "A barrier reply message is received from %#" PRIx64 " ( transaction_id = %#x ).",
          datapath_id, transaction_id );
 
   if ( event_handlers.barrier_reply_callback == NULL ) {
@@ -1081,8 +1082,8 @@ handle_queue_get_config_reply( const uint64_t datapath_id, buffer *data ) {
   queues_length = ( uint16_t ) ( ntohs( queue_get_config_reply->header.length )
                   - offsetof( struct ofp_queue_get_config_reply, queues ) );
 
-  debug( "A queue get config reply message is received from %#llx "
-         "( transaction_id = %#x, port = %u, queues length = %u ).",
+  debug( "A queue get config reply message is received from %#" PRIx64
+         " ( transaction_id = %#x, port = %u, queues length = %u ).",
          datapath_id, transaction_id, port, queues_length );
 
   if ( event_handlers.queue_get_config_reply_callback == NULL ) {
@@ -1471,10 +1472,10 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
 
   memset( remote_service_name, '\0', sizeof( remote_service_name ) );
   snprintf( remote_service_name, sizeof( remote_service_name ),
-            "switch.%llx", datapath_id );
+            "switch.%" PRIx64, datapath_id );
 
-  debug( "Sending an OpenFlow message to %#llx "
-         "( service_name = %s, remote_service_name = %s, "
+  debug( "Sending an OpenFlow message to %#" PRIx64
+         " ( service_name = %s, remote_service_name = %s, "
          "ofp_header = [version = %#x, type = %#x, length = %u, transaction_id = %#x] ).",
          datapath_id, service_name, remote_service_name,
          ofp->version, ofp->type, ntohs( ofp->length ), ntohl( ofp->xid ) );

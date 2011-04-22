@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "trema.h"
 
@@ -36,7 +37,7 @@ send_hello( uint64_t datapath_id, void *count ) {
     buffer *hello = create_hello( get_transaction_id() );
     bool ret = send_openflow_message( datapath_id, hello );
     if ( !ret ) {
-      error( "Failed to send an hello message to the switch with datapath ID = %#llx.", datapath_id );
+      error( "Failed to send an hello message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     }
     free_buffer( hello );
   }

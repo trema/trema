@@ -24,6 +24,7 @@
 
 
 #include <assert.h>
+#include <inttypes.h>
 #include <sys/types.h>
 #include "trema.h"
 #include "fdb.h"
@@ -125,7 +126,7 @@ poison( uint64_t dpid, const uint8_t mac[ OFP_ETH_ALEN ] ) {
   send_openflow_message( dpid, flow_mod );
   free_buffer( flow_mod );
 
-  debug( "Poisoning all entries whose dl_src or dl_dst matches %02x:%02x:%02x:%02x:%02x:%02x at dpid %#llx", 
+  debug( "Poisoning all entries whose dl_src or dl_dst matches %02x:%02x:%02x:%02x:%02x:%02x at dpid %#" PRIx64, 
          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ], dpid );
 
 }
@@ -165,7 +166,7 @@ update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, u
 
   fdb_entry *entry = lookup_hash_entry( fdb, mac );
 
-  debug( "Updating fdb (mac: %02x:%02x:%02x:%02x:%02x:%02x, dpid = %#llx, port = %u)",
+  debug( "Updating fdb (mac: %02x:%02x:%02x:%02x:%02x:%02x, dpid = %#" PRIx64 ", port = %u)",
          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
          dpid, port );
 
@@ -228,7 +229,7 @@ lookup_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t *dpid, 
     *dpid = entry->dpid;
     *port = entry->port;
 
-    debug( "Found at dpid = %#llx, port = %u", *dpid, *port );
+    debug( "Found at dpid = %#" PRIx64 ", port = %u", *dpid, *port );
     return true;
   }
 

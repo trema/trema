@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "trema.h"
 
@@ -36,7 +37,7 @@ send_echo_replies( uint64_t datapath_id, void *count ) {
     buffer *echo_reply = create_echo_reply( get_transaction_id(), NULL );
     bool ret = send_openflow_message( datapath_id, echo_reply );
     if ( !ret ) {
-      error( "Failed to send an echo reply message to the switch with datapath ID = %#llx.", datapath_id );
+      error( "Failed to send an echo reply message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     }
     free_buffer( echo_reply );
   }

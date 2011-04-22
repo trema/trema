@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include <inttypes.h>
 #include <openflow.h>
 #include "openflow_message.h"
 #include "cookie_table.h"
@@ -46,7 +47,7 @@ static int ofpmsg_recv_queue_getconfigreply( struct switch_info *sw_info, buffer
 
 #define ofpmsg_debug( format, args... )                      \
   do {                                                       \
-    debug( format " state:%d, dpid:%#llx, fd:%d.",            \
+    debug( format " state:%d, dpid:%#" PRIx64 ", fd:%d.",    \
       ## args, sw_info->state, sw_info->datapath_id,         \
       sw_info->secure_channel_fd );                          \
   }                                                          \
@@ -141,7 +142,7 @@ ofpmsg_recv_error( struct switch_info *sw_info, buffer *buf ) {
             delete_cookie_entry( entry );
           }
           else {
-            error( "No cookie entry found ( cookie = %#llx ).", cookie );
+            error( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
           }
         }
         break;
@@ -270,11 +271,11 @@ ofpmsg_recv_flowremoved( struct switch_info *sw_info, buffer *buf ) {
 
   entry = lookup_cookie_entry_by_cookie( &cookie );
   if ( entry == NULL ) {
-    error( "No cookie entry found ( cookie = %#llx ).", cookie );
+    error( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
     free_buffer( buf );
     return 0;
   }
-  debug( "Cookie found ( cookie = %#llx, application = [ cookie = %#llx, service name = %s, flags = %#x ], "
+  debug( "Cookie found ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service name = %s, flags = %#x ], "
          "reference_count = %d, expire_at = %u ).",
          cookie, entry->application.cookie, entry->application.service_name, entry->application.flags,
          entry->reference_count, entry->expire_at );
@@ -321,12 +322,12 @@ ofpmsg_recv_statsreply( struct switch_info *sw_info, buffer *buf ) {
       uint64_t cookie = ntohll( flow_stats->cookie );
       cookie_entry_t *entry = lookup_cookie_entry_by_cookie( &cookie );
       if ( entry != NULL ) {
-        debug( "Cookie entry found ( cookie = %#llx, application = [ cookie = %#llx, service name = %s ] ).",
+        debug( "Cookie entry found ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service name = %s ] ).",
                cookie, entry->application.cookie, entry->application.service_name );
         flow_stats->cookie = htonll( entry->application.cookie );
       }
       else {
-        warn( "No cookie entry found ( cookie = %#llx ).", cookie );
+        warn( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
       }
 
       body_length = body_length - ntohs( flow_stats->length );

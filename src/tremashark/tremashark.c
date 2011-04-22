@@ -24,11 +24,11 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <linux/limits.h>
 #include <pcap.h>
 #include <signal.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/select.h>
@@ -437,7 +437,7 @@ main( int argc, char *argv[] ) {
   delete_queue();
 
   if ( lost > 0 ) {
-    error( "%llu/%llu messages lost.", lost, total );
+    error( "%" PRIu64 "/%" PRIu64 " messages lost.", lost, total );
   }
 
   return 0;

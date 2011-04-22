@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include "trema.h"
 
 
@@ -36,7 +37,7 @@ handle_packet_in(
 ) {
   UNUSED( user_data );
 
-  info( "datapath_id: %#llx", datapath_id );
+  info( "datapath_id: %#" PRIx64, datapath_id );
   info( "transaction_id: %#lx", transaction_id );
   info( "buffer_id: %#lx", buffer_id );
   info( "total_len: %u", total_len );

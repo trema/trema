@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -104,7 +105,7 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   buffer *buffer;
 
   dump( "[switch_ready]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
 
   buffer = create_features_request( get_transaction_id() );
 
@@ -119,7 +120,7 @@ handle_switch_disconnected( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   dump( "[switch_disconnected]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
 }
 
 
@@ -130,7 +131,7 @@ handle_error( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[error]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "type: %#x", type );
   dump( "code: %#x", code );
@@ -145,7 +146,7 @@ handle_vendor( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[vendor]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "vendor: %#lx", vendor );
   dump( "data:" );
@@ -164,7 +165,7 @@ handle_features_reply( uint64_t datapath_id, uint32_t transaction_id,
   struct ofp_phy_port *phy_port;
 
   dump( "[features_reply]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "n_buffers: %lu", n_buffers );
   dump( "n_tables: %u", n_tables );
@@ -194,7 +195,7 @@ handle_get_config_reply( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[get_config_reply]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "flags: %#x", flags );
   dump( "miss_send_len: %u", miss_send_len );
@@ -209,7 +210,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[packet_in]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "buffer_id: %#lx", buffer_id );
   dump( "total_len: %u", total_len );
@@ -230,7 +231,7 @@ handle_flow_removed( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[flow_removed]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
 
   dump( "match:" );
@@ -247,19 +248,19 @@ handle_flow_removed( uint64_t datapath_id, uint32_t transaction_id,
   dump( "  dl_type: %#x", match.dl_type );
   dump( "  nw_tos: %u", match.nw_tos );
   dump( "  nw_proto: %#x", match.nw_proto );
-  dump( "  nw_src: %#llx", match.nw_src );
-  dump( "  nw_dst: %#llx", match.nw_dst );
+  dump( "  nw_src: %#x", match.nw_src );
+  dump( "  nw_dst: %#x", match.nw_dst );
   dump( "  tp_src: %u", match.tp_src );
   dump( "  tp_dst: %u", match.tp_dst );
 
-  dump( "cookie: %#llx", cookie );
+  dump( "cookie: %#" PRIx64, cookie );
   dump( "priority: %u", priority );
   dump( "reason: %#x", reason );
   dump( "duration_sec: %lu", duration_sec );
   dump( "duration_nsec: %lu", duration_nsec );
   dump( "idle_timeout: %u", idle_timeout );
-  dump( "packet_count: %llu", packet_count );
-  dump( "byte_count: %llu", byte_count );
+  dump( "packet_count: %" PRIu64, packet_count );
+  dump( "byte_count: %" PRIu64, byte_count );
 }
 
 
@@ -270,7 +271,7 @@ handle_port_status( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[port_status]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "reason: %#x", reason );
   dump( "phy_port:" );
@@ -285,7 +286,7 @@ handle_stats_reply( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[stats_reply]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "type: %#x", type );
   dump( "flags: %#x", flags );
@@ -300,7 +301,7 @@ handle_barrier_reply( uint64_t datapath_id, uint32_t transaction_id,
   UNUSED( user_data );
 
   dump( "[barrier_reply]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
 }
 
@@ -315,7 +316,7 @@ handle_queue_get_config_reply( uint64_t datapath_id, uint32_t transaction_id,
   struct ofp_packet_queue *packet_queue;
 
   dump( "[queue_get_config_reply]" );
-  dump( "datapath_id: %#llx", datapath_id );
+  dump( "datapath_id: %#" PRIx64, datapath_id );
   dump( "transaction_id: %#lx", transaction_id );
   dump( "port: %u", port );
   dump( "queues:" );

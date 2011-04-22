@@ -19,8 +19,8 @@
 
 
 #include <assert.h>
+#include <inttypes.h>
 #include <pthread.h>
-#include <stdint.h>
 #include "bool.h"
 #include "hash_table.h"
 #include "log.h"
@@ -192,7 +192,7 @@ dump_stats() {
   init_hash_iterator( stats, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
     stat_entry *st = e->value;
-    info( "%s: %llu", st->key, st->value );
+    info( "%s: %" PRIu64, st->key, st->value );
     n_stats++;
   }
 

@@ -23,6 +23,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <sys/types.h>
 #include "trema.h"
 #include "fdb.h"
@@ -89,13 +90,13 @@ delete_outbound_port( list_element **switches, port_info *delete_port ) {
   assert( switches != NULL );
   assert( delete_port != NULL );
 
-  info( "Deleting a port: dpid = %#llx, port = %u",
+  info( "Deleting a port: dpid = %#" PRIx64 ", port = %u",
         delete_port->dpid, delete_port->port_no );
 
   // lookup switch
   switch_info *sw = lookup_switch( *switches, delete_port->dpid );
   if( sw == NULL ) {
-    debug( "No such port: dpid = %#llx, port = %u", delete_port->dpid, delete_port->port_no );
+    debug( "No such port: dpid = %#" PRIx64 ", port = %u", delete_port->dpid, delete_port->port_no );
     return;
   }
 
@@ -112,7 +113,7 @@ void
 add_outbound_port( list_element **switches, uint64_t dpid, uint16_t port_no ) {
   assert( port_no != 0 );
 
-  info( "Adding a port: dpid = %#llx, port = %u", dpid, port_no );
+  info( "Adding a port: dpid = %#" PRIx64 ", port = %u", dpid, port_no );
 
   // lookup switch
   switch_info *sw = lookup_switch( *switches, dpid );

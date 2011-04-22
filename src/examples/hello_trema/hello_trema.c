@@ -20,12 +20,13 @@
  */
 
 
+#include <inttypes.h>
 #include "trema.h"
 
 
 static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
-  info( "Hello %#llx from %s!", datapath_id, user_data );
+  info( "Hello %#" PRIx64 " from %s!", datapath_id, user_data );
   stop_trema();
 }
 

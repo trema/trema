@@ -19,6 +19,7 @@
 
 
 #include <openflow.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include "cookie_table.h"
@@ -55,7 +56,7 @@ ofpmsg_send_echoreply( struct switch_info *sw_info, uint32_t xid, buffer *body )
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
-    debug( "Send 'echo reply' to a switch %#llx.", sw_info->datapath_id );
+    debug( "Send 'echo reply' to a switch %#" PRIx64 ".", sw_info->datapath_id );
   }
 
   return ret;
@@ -88,7 +89,7 @@ ofpmsg_send_setconfig( struct switch_info *sw_info ) {
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
-    debug( "Send 'set config request' to a switch %#llx.", sw_info->datapath_id );
+    debug( "Send 'set config request' to a switch %#" PRIx64 ".", sw_info->datapath_id );
   }
 
   return ret;
@@ -109,7 +110,7 @@ ofpmsg_send_error_msg( struct switch_info *sw_info, uint16_t type, uint16_t code
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
-    debug( "Send 'error' to a switch %#llx.", sw_info->datapath_id );
+    debug( "Send 'error' to a switch %#" PRIx64 ".", sw_info->datapath_id );
   }
 
   return ret;
@@ -181,7 +182,7 @@ ofpmsg_send( struct switch_info *sw_info, buffer *buf, char *service_name ) {
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
-    debug( "Send an OpenFlow message %d to a switch %#llx.",
+    debug( "Send an OpenFlow message %d to a switch %#" PRIx64 ".",
       ofp_header->type, sw_info->datapath_id );
   }
 
@@ -203,7 +204,7 @@ ofpmsg_send_delete_all_flows( struct switch_info *sw_info ) {
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
-    debug( "Send 'flow mod (delete all)' to a switch %#llx.", sw_info->datapath_id );
+    debug( "Send 'flow mod (delete all)' to a switch %#" PRIx64 ".", sw_info->datapath_id );
   }
 
   return ret;
