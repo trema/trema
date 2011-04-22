@@ -81,13 +81,13 @@ mark_transaction( struct send_request_param *param, uint16_t message_type ) {
   gettimeofday( &param->called_at, NULL );
   param->transaction_id = get_request_transaction_id();
   param->message_type = message_type;
-  insert_hash_entry( transaction_table, ( void * ) param->transaction_id, param );
+  insert_hash_entry( transaction_table, &param->transaction_id, param );
 }
 
 
 static void
 unmark_transaction( struct send_request_param *param ) {
-  void *deleted = delete_hash_entry( transaction_table, ( void * ) param->transaction_id );
+  void *deleted = delete_hash_entry( transaction_table, &param->transaction_id );
   assert( deleted != NULL );
 }
 
@@ -384,7 +384,7 @@ init_libtopology( const char *service_name ) {
   add_message_replied_callback( libtopology_queue_name, recv_reply );
   add_message_received_callback( libtopology_queue_name, recv_status_notification );
 
-  transaction_table = create_hash( NULL, NULL );
+  transaction_table = create_hash( compare_uint32, hash_uint32 );
   add_periodic_event_callback( 60, check_transaction_table, transaction_table );
 
   return true;

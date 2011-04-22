@@ -25,6 +25,7 @@
 
 #include <arpa/inet.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -485,7 +486,7 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
 
   routing_switch *routing_switch = user_data;
 
-  debug( "Port status updated: dpid:%#llx, port:%u, %s, %s",
+  debug( "Port status updated: dpid:%#" PRIx64 ", port:%u, %s, %s",
          status->dpid, status->port_no,
          ( status->status == TD_PORT_UP ? "up" : "down" ),
          ( status->external == TD_PORT_EXTERNAL ? "external" : "internal or inactive" ) );
@@ -570,7 +571,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
   routing_switch *routing_switch = user_data;
 
-  debug( "packet_in received ( datapath_id = %#llx, transaction_id = %#lx, "
+  debug( "packet_in received ( datapath_id = %#" PRIx64 ", transaction_id = %#lx, "
          "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, "
          "data_len = %u ).", datapath_id, transaction_id, buffer_id,
          total_len, in_port, reason, data->length );

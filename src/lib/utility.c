@@ -20,7 +20,9 @@
 
 #include <arpa/inet.h>
 #include <assert.h>
+#include <limits.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,6 +98,18 @@ hash_mac( const void *mac ) {
   memcpy( &value, ( char * ) mac_copy + 2, sizeof( value ) );
 
   return value;
+}
+
+
+bool
+compare_uint32( const void *x, const void *y ) {
+  return *( ( const uint32_t * ) x ) == *( ( const uint32_t * ) y ) ? true : false;
+}
+
+
+unsigned int
+hash_uint32( const void *key ) {
+  return ( *( ( const uint32_t * ) key ) % UINT_MAX );
 }
 
 

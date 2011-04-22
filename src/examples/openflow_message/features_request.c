@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "trema.h"
 
@@ -37,7 +38,7 @@ handle_features_reply(
 ) {
   UNUSED( user_data );
 
-  info( "datapath_id: %#llx", datapath_id );
+  info( "datapath_id: %#" PRIx64, datapath_id );
   info( "transaction_id: %#lx", transaction_id );
   info( "n_buffers: %lu", n_buffers );
   info( "n_tables: %u", n_tables );
@@ -142,7 +143,7 @@ send_features_request( uint64_t datapath_id, void *user_data ) {
   buffer *features_request = create_features_request( get_transaction_id() );
   bool ret = send_openflow_message( datapath_id, features_request );
   if ( !ret ) {
-    error( "Failed to send a features request message to the switch with datapath ID = %#llx.", datapath_id );
+    error( "Failed to send a features request message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     stop_trema();
   }
   free_buffer( features_request );

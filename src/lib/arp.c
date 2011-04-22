@@ -43,7 +43,7 @@ valid_arp_packet( const buffer *buf ) {
   debug( "Validating an ARP packet." );
 
   arp_header_t *arp = packet_info( buf )->l3_data.arp;
-  unsigned int frame_len = ( buf->length - ( unsigned int ) ( ( char * ) ( packet_info( buf )->l3_data.l3 ) - ( ( char * ) buf->data ) ) );
+  size_t frame_len = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l3_data.l3 ) - ( ( char * ) buf->data ) );
   if ( frame_len < sizeof( arp_header_t ) ) {
     debug( "Frame length is shorter than the minimum length of ARP header ( length = %u ).", frame_len );
     return false;

@@ -21,6 +21,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -350,7 +351,7 @@ static void
 switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
-  debug( "Switch(%#llx) is connected.", datapath_id );
+  debug( "Switch (dpid = %#" PRIx64 ") is connected.", datapath_id );
   insert_dpid_entry( &datapath_id );
 }
 
@@ -359,7 +360,7 @@ static void
 switch_disconnected( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
-  debug( "Switch(%#llx) is disconnected.", datapath_id );
+  debug( "Switch (dpid = %#" PRIx64 ") is disconnected.", datapath_id );
   delete_dpid_entry( &datapath_id );
 }
 

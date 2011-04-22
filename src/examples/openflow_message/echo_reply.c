@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "trema.h"
 
@@ -32,11 +33,11 @@ usage() {
 
 static void
 send_echo_replies( uint64_t datapath_id, void *count ) {
-  for ( int i = 0; i < ( int ) count; i++ ) {
+  for ( int i = 0; i < *( ( int * ) count ); i++ ) {
     buffer *echo_reply = create_echo_reply( get_transaction_id(), NULL );
     bool ret = send_openflow_message( datapath_id, echo_reply );
     if ( !ret ) {
-      error( "Failed to send an echo reply message to the switch with datapath ID = %#llx.", datapath_id );
+      error( "Failed to send an echo reply message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     }
     free_buffer( echo_reply );
   }
@@ -54,7 +55,8 @@ main( int argc, char *argv[] ) {
     return -1;
   }
 
-  set_switch_ready_handler( send_echo_replies, ( void * ) atoi( argv[ 1 ] ) );
+  int count = atoi( argv[ 1 ] );
+  set_switch_ready_handler( send_echo_replies, &count );
 
   start_trema();
 

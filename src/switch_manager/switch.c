@@ -20,6 +20,7 @@
 
 #include <fcntl.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <openflow.h>
 #include <pthread.h>
@@ -190,7 +191,7 @@ switch_event_timeout_hello( void *user_data ) {
   // delete to hello_wait-timeout timer
   switch_unset_timeout( switch_event_timeout_hello );
 
-  error( "Hello timeout. state:%d, dpid:%#llx, fd:%d.",
+  error( "Hello timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
   switch_event_disconnected( &switch_info );
 }
@@ -206,7 +207,7 @@ switch_event_timeout_features_reply( void *user_data ) {
   // delete to features_reply_wait-timeout timer
   switch_unset_timeout( switch_event_timeout_features_reply );
 
-  error( "Features Reply timeout. state:%d, dpid:%#llx, fd:%d.",
+  error( "Features Reply timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
   switch_event_disconnected( &switch_info );
 }
@@ -273,7 +274,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
     new_service_name_len = SWITCH_MANAGER_PREFIX_STR_LEN + SWITCH_MANAGER_DPID_STR_LEN + 1;
     new_service_name = xmalloc( new_service_name_len );
-    snprintf( new_service_name, new_service_name_len, "%s%llx", SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
+    snprintf( new_service_name, new_service_name_len, "%s%" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
     // rename service_name of messenger
     rename_message_received_callback( get_trema_name(), new_service_name );
@@ -332,7 +333,7 @@ int
 switch_event_recv_openflow_message_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf ) {
 
   if ( *datapath_id != switch_info.datapath_id ) {
-    error( "Invalid datapath id %#llx.", datapath_id );
+    error( "Invalid datapath id %#" PRIx64 ".", datapath_id );
     free_buffer( buf );
 
     return -1;

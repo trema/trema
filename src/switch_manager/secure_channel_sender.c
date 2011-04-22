@@ -29,7 +29,7 @@
 
 int
 send_to_secure_channel( struct switch_info *sw_info, buffer *buf ) {
-  int ret;
+  ssize_t ret;
 
 retry:
   ret = write( sw_info->secure_channel_fd, buf->data, buf->length );

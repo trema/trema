@@ -19,6 +19,7 @@
 
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <netinet/ether.h>
 #include "trema.h"
@@ -34,7 +35,7 @@ usage() {
 
 static void
 print_port_status( const topology_port_status *s ) {
-  printf( "0x%-14llx %-5u %-12s %-17s %-4s %s\n",
+  printf( "0x%-14" PRIx64 " %-5u %-12s %-17s %-4s %s\n",
           s->dpid, s->port_no, s->name,
           ether_ntoa( ( const struct ether_addr * ) s->mac ),
           ( s->status == TD_PORT_UP ? "up" : "down" ),

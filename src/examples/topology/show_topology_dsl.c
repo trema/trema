@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "trema.h"
@@ -145,7 +146,7 @@ print_with_dsl_format( void *param, size_t entries, const topology_link_status *
     struct dpid_entry *de = e->value;
 
     printf( "switch {\n" );
-    printf( "  datapath_id \"%#llx\"\n", de->dpid );
+    printf( "  datapath_id \"%#" PRIx64 "\"\n", de->dpid );
     printf( "}\n\n" );
     xfree( de );
   }
@@ -155,7 +156,7 @@ print_with_dsl_format( void *param, size_t entries, const topology_link_status *
   init_hash_iterator( link_hash, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
     struct link_entry *le = e->value;
-    printf( "link \"%#llx\", \"%#llx\"\n", le->dpid0, le->dpid1 );
+    printf( "link \"%#" PRIx64 "\", \"%#" PRIx64 "\"\n", le->dpid0, le->dpid1 );
     xfree( le );
   }
 

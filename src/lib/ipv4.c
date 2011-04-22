@@ -42,7 +42,7 @@ void mock_debug( const char *format, ... );
 
 static bool
 valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
-  if ( packet_len < sizeof( ipv4_header_t ) ) {
+  if ( ( size_t ) packet_len < sizeof( ipv4_header_t ) ) {
     debug( "Too short IPv4 packet ( length = %u ).", packet_len );
     return false;
   }
@@ -53,14 +53,14 @@ valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
     return false;
   }
 
-  uint32_t hdr_len = ( uint32_t ) packet_info( buf )->l3_data.ipv4->ihl * 4;
+  size_t hdr_len = ( size_t ) packet_info( buf )->l3_data.ipv4->ihl * 4;
   if ( hdr_len < sizeof( ipv4_header_t ) ) {
     debug( "Too short IPv4 header length field value ( length = %u ).",
            hdr_len );
     return false;
   }
 
-  if ( verify_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, hdr_len ) != 0 ) {
+  if ( verify_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ) {
     debug( "Corrupted IPv4 header ( checksum verification error )." );
     return false;
   }
@@ -71,12 +71,12 @@ valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
 
 static bool
 valid_ipv4_packet_more_fragments( buffer *buf, uint32_t packet_len ) {
-  uint32_t ip_len = ntohs( packet_info( buf )->l3_data.ipv4->tot_len );
+  uint16_t ip_len = ntohs( packet_info( buf )->l3_data.ipv4->tot_len );
   uint32_t frag_offset = ntohs( packet_info( buf )->l3_data.ipv4->frag_off );
 
   frag_offset = ( frag_offset & IP_OFFMASK ) << 3;
 
-  if ( ( frag_offset > 0 ) && ( ip_len == sizeof( ipv4_header_t ) ) ) {
+  if ( ( frag_offset > 0 ) && ( ip_len == ( uint16_t ) sizeof( ipv4_header_t ) ) ) {
     debug( "Too short IPv4 fragment ( fragment offset = %u ).", frag_offset );
     return false;
   }
@@ -138,7 +138,7 @@ parse_ipv4( buffer *buf ) {
   assert( buf != NULL );
   assert( packet_info( buf )->l3_data.ipv4 != NULL );
 
-  uint32_t packet_len = buf->length - ( uint32_t ) ( ( char * ) ( packet_info( buf )->l3_data.l3 ) -  ( char * ) ( buf->data ) );
+  uint32_t packet_len = ( uint32_t ) buf->length - ( uint32_t ) ( ( char * ) ( packet_info( buf )->l3_data.l3 ) -  ( char * ) ( buf->data ) );
 
   if ( !valid_ipv4_packet_header( buf, packet_len ) ) {
     debug( "Invalid IPv4 header." );

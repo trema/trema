@@ -20,6 +20,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "trema.h"
 
@@ -32,11 +33,11 @@ usage() {
 
 static void
 send_set_config( uint64_t datapath_id, void *count ) {
-  for ( int i = 0; i < ( int ) count; i++ ) {
+  for ( int i = 0; i < *( ( int * ) count ); i++ ) {
     buffer *set_config = create_set_config( get_transaction_id(), OFPC_FRAG_NORMAL, OFP_DEFAULT_MISS_SEND_LEN );
     bool ret = send_openflow_message( datapath_id, set_config );
     if ( !ret ) {
-      error( "Failed to send set_config message to the switch with datapath ID = %#llx.", datapath_id );
+      error( "Failed to send set_config message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     }
     free_buffer( set_config );
   }
@@ -54,7 +55,8 @@ main( int argc, char *argv[] ) {
     return -1;
   }
 
-  set_switch_ready_handler( send_set_config, ( void * ) atoi( argv[ 1 ] ) );
+  int count = atoi( argv[ 1 ] );
+  set_switch_ready_handler( send_set_config, &count );
 
   start_trema();
 

@@ -52,9 +52,9 @@ parse_ether( buffer *buf ) {
   assert( buf != NULL );
   assert( packet_info( buf )->l2_data.eth != NULL );
 
-  uint32_t frame_length = ( buf->length - ( unsigned int ) ( ( char * ) ( packet_info( buf )->l2_data.l2 ) - ( char * ) buf->data ) - ETH_PREPADLEN );
+  size_t frame_length = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l2_data.l2 ) - ( char * ) buf->data ) - ETH_PREPADLEN;
   ether_header_t *eth = packet_info( buf )->l2_data.eth;
-  uint32_t ether_length = sizeof( *eth ) - ETH_PREPADLEN;
+  size_t ether_length = sizeof( *eth ) - ETH_PREPADLEN;
   if ( frame_length < ether_length ) {
     debug( "Frame length is shorter than the length of an Ethernet header ( frame length = %u ).", frame_length );
     return false;
@@ -95,7 +95,7 @@ parse_ether( buffer *buf ) {
       debug( "LLC without SNAP or too short SNAP frame ( frame length = %u ).", frame_length );
       return false;
     }
-    if ( frame_length < type ) {
+    if ( frame_length < ( size_t ) type ) {
       debug( "Frame length is shorter than the length header field value "
              "( frame length = %u, length field value = %u ).", frame_length, type );
       return false;

@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "trema.h"
@@ -33,7 +34,7 @@ usage() {
 
 static void
 print_switch_status( const topology_switch_status *s ) {
-  printf( "0x%-16llx\n", s->dpid );
+  printf( "0x%-16" PRIx64 "\n", s->dpid );
 }
 
 

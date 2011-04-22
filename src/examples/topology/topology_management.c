@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include <openflow.h>
 #include "trema.h"
 #include "topology_table.h"
@@ -147,7 +148,7 @@ send_features_request( sw_entry *sw ) {
   buffer *buf = create_features_request( id );
   send_openflow_message( sw->datapath_id, buf );
   free_buffer( buf );
-  debug( "Sent switch features request to %#llx.", sw->datapath_id );
+  debug( "Sent switch features request to %#" PRIx64 ".", sw->datapath_id );
 }
 
 
@@ -228,7 +229,7 @@ switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   sw_entry *sw = update_sw_entry( &datapath_id );
-  debug( "Switch(%#llx) is connected.", datapath_id );
+  debug( "Switch(%#" PRIx64 ") is connected.", datapath_id );
   send_features_request( sw );
 }
 
@@ -239,7 +240,7 @@ switch_disconnected( uint64_t datapath_id, void *user_data ) {
 
   sw_entry *sw = lookup_sw_entry( &datapath_id );
   if ( sw == NULL ) {
-    warn( "Received switch-disconnected event, but switch(%#llx) is not found.", datapath_id );
+    warn( "Received switch-disconnected event, but switch(%#" PRIx64 ") is not found.", datapath_id );
     return;
   }
   const list_element *list, *next;
@@ -248,7 +249,7 @@ switch_disconnected( uint64_t datapath_id, void *user_data ) {
     delete_notification( sw, list->data );
   }
   delete_sw_entry( sw );
-  debug( "Switch(%#llx) is disconnected.", datapath_id );
+  debug( "Switch(%#" PRIx64 ") is disconnected.", datapath_id );
 }
 
 
@@ -266,24 +267,24 @@ switch_features_reply( uint64_t datapath_id, uint32_t transaction_id,
 
   sw_entry *sw = lookup_sw_entry( &datapath_id );
   if ( sw == NULL ) {
-    warn( "Received features-reply from switch(%#llx), but the switch is not found.", datapath_id );
+    warn( "Received features-reply from switch(%#" PRIx64 "), but the switch is not found.", datapath_id );
     return;
   }
-  debug( "Received features-reply from switch(%#llx).", datapath_id );
+  debug( "Received features-reply from switch(%#" PRIx64 ").", datapath_id );
   sw->id = transaction_id;
 
   const list_element *list, *next;
   for ( list = phy_ports; list != NULL; list = list->next ) {
     const struct ofp_phy_port *phy_port = list->data;
     if ( phy_port->port_no > OFPP_MAX && phy_port->port_no != OFPP_LOCAL ) {
-      warn( "Ignore phy_port(port:%u) in features-reply from switch(%#llx).",
+      warn( "Ignore phy_port(port:%u) in features-reply from switch(%#" PRIx64 ").",
             phy_port->port_no, datapath_id );
       continue;
     }
     port_entry *port = update_port_entry( sw, phy_port->port_no, phy_port->name );
     port->id = transaction_id;
     update_notification( sw, port, phy_port );
-    debug( "Updated features-reply from switch(%#llx), port_no(%u).",
+    debug( "Updated features-reply from switch(%#" PRIx64 "), port_no(%u).",
            datapath_id, phy_port->port_no );
   }
   for ( list = sw->port_table; list != NULL; list = next ) {
@@ -293,7 +294,7 @@ switch_features_reply( uint64_t datapath_id, uint32_t transaction_id,
       continue;
     }
     delete_notification( sw, port );
-    debug( "Deleted port(%u) in switch(%#llx)", datapath_id, port->port_no );
+    debug( "Deleted port(%u) in switch(%#" PRIx64 ")", datapath_id, port->port_no );
   }
 }
 
@@ -306,14 +307,14 @@ port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason,
 
   sw_entry *sw = lookup_sw_entry( &datapath_id );
   if ( sw == NULL ) {
-    warn( "Received port-status, but switch(%#llx) is not found.", datapath_id );
+    warn( "Received port-status, but switch(%#" PRIx64 ") is not found.", datapath_id );
     return;
   }
   port_entry *port = lookup_port_entry( sw, phy_port.port_no, phy_port.name );
   switch ( reason ) {
     case OFPPR_ADD:
       if ( port != NULL ) {
-        warn( "Failed to add port(%u, `%s'), switch(%#llx).",
+        warn( "Failed to add port(%u, `%s'), switch(%#" PRIx64 ").",
               phy_port.port_no, phy_port.name, datapath_id );
         return;
       }
@@ -322,7 +323,7 @@ port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason,
 
     case OFPPR_DELETE:
       if ( port == NULL ) {
-        warn( "Failed to delete port(%u, `%s'), switch(%#llx).",
+        warn( "Failed to delete port(%u, `%s'), switch(%#" PRIx64 ").",
               phy_port.port_no, phy_port.name, datapath_id );
         return;
       }
@@ -331,7 +332,7 @@ port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason,
 
     case OFPPR_MODIFY:
       if ( port == NULL ) {
-        warn( "Failed to modify port(%u, `%s'), switch(%#llx).",
+        warn( "Failed to modify port(%u, `%s'), switch(%#" PRIx64 ").",
               phy_port.port_no, phy_port.name, datapath_id );
         return;
       }
@@ -343,7 +344,7 @@ port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason,
       }
       break;
     default:
-      warn( "Failed to handle port status: unknown reason(%u) from switch(%#llx).",
+      warn( "Failed to handle port status: unknown reason(%u) from switch(%#" PRIx64 ").",
             reason, datapath_id );
       return;
   }

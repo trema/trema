@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include "trema.h"
 #include "libtopology.h"
@@ -232,7 +233,7 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
   }
 
   if ( entry->state != old_state ) {
-    debug( "Update probe state: %d <= %d by event %d. dpid %llx %u.",
+    debug( "Update probe state: %d <= %d by event %d. dpid %" PRIx64 " %u.",
            entry->state, old_state, event,
            entry->datapath_id, entry->port_no );
   }

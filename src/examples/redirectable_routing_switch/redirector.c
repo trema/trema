@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <sys/socket.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
@@ -155,7 +156,7 @@ lookup_host( const uint32_t ip ) {
   time_t updated_at = entry->updated_at;
 
   debug( "A host entry found (mac = %02x:%02x:%02x:%02x:%02x:%02x, "
-         "ip = %s, dpid = %#llx, port = %u, updated_at = %u).",
+         "ip = %s, dpid = %#" PRIx64 ", port = %u, updated_at = %u).",
          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
          inet_ntoa( addr ), dpid, port, updated_at );
 
@@ -174,7 +175,7 @@ add_host( const uint8_t *mac, const uint32_t ip, const uint64_t dpid, const uint
 
   if ( entry != NULL ) {
     debug( "Updating a host entry (mac = %02x:%02x:%02x:%02x:%02x:%02x, "
-           "ip = %s, dpid = %#llx, port = %u).",
+           "ip = %s, dpid = %#" PRIx64 ", port = %u).",
            mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
            inet_ntoa( addr ), dpid, port );
 
@@ -187,7 +188,7 @@ add_host( const uint8_t *mac, const uint32_t ip, const uint64_t dpid, const uint
   }
 
   debug( "Adding a host entry (mac = %02x:%02x:%02x:%02x:%02x:%02x, "
-         "ip = %s, dpid = %#llx, port = %u).",
+         "ip = %s, dpid = %#" PRIx64 ", port = %u).",
          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
          inet_ntoa( addr ), dpid, port );
 
@@ -357,7 +358,7 @@ recv_packet_from_tun() {
   p = append_back_buffer( frame, ( size_t ) ret );
   memcpy( p, data, ( size_t ) ret );
 
-  debug( "Sending a packet-out to a switch (ip = %s, dpid = %#llx, port = %u).",
+  debug( "Sending a packet-out to a switch (ip = %s, dpid = %#" PRIx64 ", port = %u).",
          inet_ntoa( addr ), entry->dpid, entry->port );
 
   actions = create_actions();
@@ -468,7 +469,7 @@ finalize_redirector() {
 
 void
 redirect( uint64_t datapath_id, uint16_t in_port, const buffer *data ) {
-  debug( "A message received (dpid = %#llx, in_port = %u, length = %u).",
+  debug( "A message received (dpid = %#" PRIx64 ", in_port = %u, length = %u).",
          datapath_id, in_port, data->length );
 
   uint8_t *mac = packet_info( data )->l2_data.eth->macsa;

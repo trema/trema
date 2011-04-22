@@ -18,6 +18,7 @@
  */
 
 
+#include <inttypes.h>
 #include "trema.h"
 #include "topology_service_interface.h"
 #include "topology_table.h"
@@ -262,17 +263,17 @@ update_link_status( const messenger_context_handle *handle, void *data, size_t l
 
   sw_entry *sw = lookup_sw_entry( &link_status.from_dpid );
   if ( sw == NULL ) {
-    info( "Not found datapath_id %llx", link_status.from_dpid );
+    info( "Not found datapath_id %" PRIx64, link_status.from_dpid );
     goto send_response;
   }
   port_entry *port = lookup_port_entry( sw, link_status.from_portno, NULL );
   if ( port == NULL ) {
-    info( "Not found port no %u. datapath_id %llx", link_status.from_portno,
+    info( "Not found port no %u. datapath_id %" PRIx64, link_status.from_portno,
           link_status.from_dpid );
     goto send_response;
   }
   if ( !port->up ) {
-    info( "port %u is down. datapath_id %llx", link_status.from_portno,
+    info( "port %u is down. datapath_id %" PRIx64, link_status.from_portno,
           link_status.from_dpid );
     goto send_response;
   }
