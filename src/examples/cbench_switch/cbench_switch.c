@@ -1,7 +1,7 @@
 /*
- * A simple application for "cbench" performance measurements.
+ * A simple OpenFlow controller for "cbench" benchmark.
  *
- * Author: Yasunobu Chiba, Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
