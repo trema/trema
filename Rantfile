@@ -327,7 +327,7 @@ gen Directory, trema_lib
 
 libtrema = File.join( trema_lib, "libtrema.a" )
 libtrema_objects = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
-  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 
 
