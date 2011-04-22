@@ -30,7 +30,7 @@ create_openflow_application_message( uint64_t *datapath_id, buffer *data ) {
   openflow_service_header_t *message;
   buffer *buf;
   void *append;
-  unsigned int append_len = 0;
+  size_t append_len = 0;
 
   if ( data != NULL ) {
      append_len = data->length;

@@ -33,7 +33,7 @@ usage() {
 
 static void
 send_echo_requests( uint64_t datapath_id, void *count ) {
-  for ( int i = 0; i < ( int ) count; i++ ) {
+  for ( int i = 0; i < *( ( int * ) count ); i++ ) {
     buffer *echo_request = create_echo_request( get_transaction_id(), NULL );
     bool ret = send_openflow_message( datapath_id, echo_request );
     if ( !ret ) {
@@ -55,7 +55,8 @@ main( int argc, char *argv[] ) {
     return -1;
   }
 
-  set_switch_ready_handler( send_echo_requests, ( void * ) atoi( argv[ 1 ] ) );
+  int count = atoi( argv[ 1 ] );
+  set_switch_ready_handler( send_echo_requests, &count );
 
   start_trema();
 

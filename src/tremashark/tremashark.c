@@ -101,7 +101,7 @@ write_to_file( buffer *packet ) {
   assert( packet != NULL && packet->data != NULL && packet->length != 0 );
   assert( outfile_fd >= 0 );
 
-  int ret = write( outfile_fd, packet->data, packet->length );
+  ssize_t ret = write( outfile_fd, packet->data, packet->length );
   if ( ret < 0 ) {
     int err = errno;
     if ( err == EAGAIN || err == EWOULDBLOCK ) {
@@ -112,7 +112,7 @@ write_to_file( buffer *packet ) {
     return WRITE_ERROR;
   }
 
-  if ( ret != ( int ) packet->length ) {
+  if ( ret != ( ssize_t ) packet->length ) {
     packet->data = ( char * ) packet->data + ret;
     packet->length = packet->length - ( unsigned int ) ret;
     return WRITE_BUSY;
@@ -179,8 +179,8 @@ dump_message( uint16_t tag, void *data, size_t len ) {
 
   len -= dump_header_length;
 
-  pcap_header.caplen = pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len );
-  pcap_header.len = pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len );
+  pcap_header.caplen = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
+  pcap_header.len = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
 
   packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr ),
                                pcap_dump_hdr, pcap_dump_header_length,
@@ -256,12 +256,8 @@ set_timer_event() {
 
 static void
 init_pcap() {
-  int ret;
-  mode_t mode;
   struct pcap_file_header header;
-
   memset( &header, 0, sizeof( struct pcap_file_header ) );
-
   header.magic = 0xa1b2c3d4;
   header.version_major = PCAP_VERSION_MAJOR;
   header.version_minor = PCAP_VERSION_MINOR;
@@ -270,8 +266,7 @@ init_pcap() {
   header.snaplen = UINT16_MAX; // FIXME
   header.linktype = DLT_USER0; // FIXME
 
-  mode = ( S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
-
+  mode_t mode = ( S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
   if ( output_to_pcap_file ) {
     outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT, mode );
     if ( outfile_fd < 0 ) {
@@ -280,7 +275,7 @@ init_pcap() {
     }
   }
   else {
-    ret = mkfifo( fifo_pathname, mode );
+    int ret = mkfifo( fifo_pathname, mode );
     if ( ret < 0 ) {
       critical( "Failed to create a named pipe." );
       assert( 0 );
@@ -293,7 +288,7 @@ init_pcap() {
     }
   }
 
-  ret = write( outfile_fd, &header, sizeof( struct pcap_file_header ) );
+  ssize_t ret = write( outfile_fd, &header, sizeof( struct pcap_file_header ) );
 
   if ( ret != sizeof( struct pcap_file_header ) ) {
     critical( "Failed to write a pcap header." );

@@ -164,7 +164,7 @@ static int
 recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
   int ret;
   ether_header_t *lldp_frame;
-  uint32_t remain_len = 0;
+  size_t remain_len = 0;
   uint16_t *lldp_tlv;
   uint8_t *lldp_du;
   uint32_t type = 0;

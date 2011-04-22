@@ -57,21 +57,21 @@ compare_match_entry( const void *x, const void *y ) {
 static unsigned int
 hash_match_entry( const void *key ) {
   const struct ofp_match *ofp_match = key;
-  uint hash = 0;
+  unsigned int hash = 0;
 
   assert( ofp_match->wildcards == 0 );
 
-  hash ^= ( uint ) ( ofp_match->in_port << 16 );
-  hash ^= ( uint ) hash_mac( ofp_match->dl_src );
-  hash ^= ( uint ) hash_mac( ofp_match->dl_dst );
+  hash ^= ( unsigned int ) ( ofp_match->in_port << 16 );
+  hash ^= ( unsigned int ) hash_mac( ofp_match->dl_src );
+  hash ^= ( unsigned int ) hash_mac( ofp_match->dl_dst );
   hash ^= ofp_match->dl_vlan;
-  hash ^= ( uint ) ( ofp_match->dl_vlan_pcp << 24 );
-  hash ^= ( uint ) ( ofp_match->dl_type << 8 );
+  hash ^= ( unsigned int ) ( ofp_match->dl_vlan_pcp << 24 );
+  hash ^= ( unsigned int ) ( ofp_match->dl_type << 8 );
   hash ^= ofp_match->nw_tos;
-  hash ^= ( uint ) ( ofp_match->nw_proto << 24 );
+  hash ^= ( unsigned int ) ( ofp_match->nw_proto << 24 );
   hash ^= ofp_match->nw_src;
   hash ^= ofp_match->nw_dst;
-  hash ^= ( uint ) ( ofp_match->tp_src << 16 );
+  hash ^= ( unsigned int ) ( ofp_match->tp_src << 16 );
   hash ^= ofp_match->tp_dst;
 
   return hash;

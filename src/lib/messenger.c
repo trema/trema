@@ -239,7 +239,7 @@ _delete_context( void *key, void *value, void *user_data ) {
   debug( "Deleting a context ( transaction_id = %#x, life_count = %d, user_data = %p ).",
          context->transaction_id, context->life_count, context->user_data );
 
-  delete_hash_entry( context_db, ( void * ) context->transaction_id );
+  delete_hash_entry( context_db, &context->transaction_id );
   xfree( context );
 }
 
@@ -248,7 +248,7 @@ static void
 delete_context( messenger_context *context ) {
   assert( context != NULL );
 
-  _delete_context( ( void * ) context->transaction_id, context, NULL );
+  _delete_context( &context->transaction_id, context, NULL );
 }
 
 
@@ -290,7 +290,7 @@ init_messenger( const char *working_directory ) {
   receive_queues = create_hash( compare_string, hash_string );
   send_queues = create_hash( compare_string, hash_string );
   timer_callbacks = create_dlist();
-  context_db = create_hash( compare_atom, hash_atom );
+  context_db = create_hash( compare_uint32, hash_uint32 );
   add_periodic_event_callback( 10, age_context_db, NULL );
 
   initialized = true;
@@ -1064,7 +1064,7 @@ insert_context( void *user_data ) {
   debug( "Inserting a new context ( transaction_id = %#x, life_count = %d, user_data = %p ).",
          context->transaction_id, context->life_count, context->user_data );
 
-  insert_hash_entry( context_db, ( void * ) context->transaction_id, context );
+  insert_hash_entry( context_db, &context->transaction_id, context );
 
   return context;
 }
@@ -1329,7 +1329,7 @@ static messenger_context *
 get_context( uint32_t transaction_id ) {
   debug( "Looking up a context ( transaction_id = %#x ).", transaction_id );
 
-  return lookup_hash_entry( context_db, ( void * ) transaction_id );
+  return lookup_hash_entry( context_db, &transaction_id );
 }
 
 
