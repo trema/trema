@@ -453,7 +453,7 @@ init_lldp() {
   // set packet-in handler
   init_openflow_application_interface( get_trema_name() );
   debug( "lldp service name: %s", get_trema_name() );
-  (void)set_packet_in_handler( handle_packet_in, NULL );
+  set_packet_in_handler( handle_packet_in, NULL );
 
   return true;
 

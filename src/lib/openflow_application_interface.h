@@ -95,6 +95,19 @@ typedef void ( *get_config_reply_handler )(
 );
 
 
+typedef struct {
+  uint64_t datapath_id;
+  uint32_t transaction_id;
+  uint32_t buffer_id;
+  uint16_t total_len;
+  uint16_t in_port;
+  uint8_t reason;
+  const buffer *data;
+  void *user_data;
+} packet_in;
+
+typedef void ( *simple_packet_in_handler )( packet_in event );
+
 typedef void ( *packet_in_handler )(
   uint64_t datapath_id,
   uint32_t transaction_id,
@@ -177,7 +190,8 @@ typedef struct openflow_event_handlers {
   get_config_reply_handler get_config_reply_callback;
   void *get_config_reply_user_data;
 
-  packet_in_handler packet_in_callback;
+  bool simple_packet_in_callback;
+  void *packet_in_callback;
   void *packet_in_user_data;
 
   flow_removed_handler flow_removed_callback;
@@ -208,7 +222,16 @@ bool set_error_handler( error_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );
-bool set_packet_in_handler( packet_in_handler callback, void *user_data );
+#define set_packet_in_handler( callback, user_data )                    \
+  {                                                                     \
+    if ( __builtin_types_compatible_p( typeof( callback ), void ( packet_in ) ) ) { \
+      _set_packet_in_handler( true, callback, user_data );              \
+    }                                                                   \
+    else {                                                              \
+      _set_packet_in_handler( false, callback, user_data );             \
+    }                                                                   \
+  }
+bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
 bool set_flow_removed_handler( flow_removed_handler callback, void *user_data );
 bool set_port_status_handler( port_status_handler callback, void *user_data );
 bool set_stats_reply_handler( stats_reply_handler callback, void *user_data );

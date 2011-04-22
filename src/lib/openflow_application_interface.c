@@ -336,7 +336,7 @@ set_get_config_reply_handler( get_config_reply_handler callback, void *user_data
 
 
 bool
-set_packet_in_handler( packet_in_handler callback, void *user_data ) {
+_set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
     die( "Callback function ( packet_in_handler ) must not be NULL." );
   }
@@ -348,6 +348,7 @@ set_packet_in_handler( packet_in_handler callback, void *user_data ) {
   debug( "Setting a packet-in handler ( callback = %p, user_data = %p ).",
          callback, user_data );
 
+  event_handlers.simple_packet_in_callback = simple_callback;
   event_handlers.packet_in_callback = callback;
   event_handlers.packet_in_user_data = user_data;
 
@@ -683,22 +684,22 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   uint16_t body_length, total_len, in_port;
   uint32_t transaction_id, buffer_id;
   buffer *body = NULL;
-  struct ofp_packet_in *packet_in;
+  struct ofp_packet_in *_packet_in;
 
   if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
     critical( "An OpenFlow message must be filled before calling handle_packet_in()." );
     assert( 0 );
   }
 
-  packet_in = ( struct ofp_packet_in * ) data->data;
+  _packet_in = ( struct ofp_packet_in * ) data->data;
 
-  transaction_id = ntohl( packet_in->header.xid );
-  buffer_id = ntohl( packet_in->buffer_id );
-  total_len = ntohs( packet_in->total_len );
-  in_port = ntohs( packet_in->in_port );
-  reason = packet_in->reason;
+  transaction_id = ntohl( _packet_in->header.xid );
+  buffer_id = ntohl( _packet_in->buffer_id );
+  total_len = ntohs( _packet_in->total_len );
+  in_port = ntohs( _packet_in->in_port );
+  reason = _packet_in->reason;
 
-  body_length = ( uint16_t ) ( ntohs( packet_in->header.length )
+  body_length = ( uint16_t ) ( ntohs( _packet_in->header.length )
                                - offsetof( struct ofp_packet_in, data ) );
 
   debug( "A packet_in message is received from %#llx "
@@ -731,14 +732,31 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   debug( "Calling packet_in handler ( callback = %p, user_data = %p ).",
          event_handlers.packet_in_callback, event_handlers.packet_in_user_data );
 
-  event_handlers.packet_in_callback( datapath_id,
-                                     transaction_id,
-                                     buffer_id,
-                                     total_len,
-                                     in_port,
-                                     reason,
-                                     body,
-                                     event_handlers.packet_in_user_data );
+  if ( event_handlers.simple_packet_in_callback ) {
+    packet_in event = {
+      datapath_id,
+      transaction_id,
+      buffer_id,
+      total_len,
+      in_port,
+      reason,
+      body,
+      event_handlers.packet_in_user_data
+    };
+    ( ( simple_packet_in_handler ) event_handlers.packet_in_callback )( event );
+  }
+  else {
+    ( ( packet_in_handler ) event_handlers.packet_in_callback )(
+      datapath_id,
+      transaction_id,
+      buffer_id,
+      total_len,
+      in_port,
+      reason,
+      body,
+      event_handlers.packet_in_user_data
+    );
+  }
 
   if ( body != NULL ) {
     free_packet( body );

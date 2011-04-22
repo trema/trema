@@ -104,7 +104,7 @@ static openflow_event_handlers_t NULL_EVENT_HANDLERS = { ( void * ) 0, ( void * 
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
-                                                         ( void * ) 0, ( void * ) 0,
+                                                         false, ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
@@ -117,7 +117,7 @@ static openflow_event_handlers_t EVENT_HANDLERS = {
     VENDOR_HANDLER, VENDOR_USER_DATA,
     FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA,
     GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA,
-    PACKET_IN_HANDLER, PACKET_IN_USER_DATA,
+    false, PACKET_IN_HANDLER, PACKET_IN_USER_DATA,
     FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA,
     PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA,
     STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA,
@@ -716,14 +716,44 @@ test_set_get_config_reply_handler_if_handler_is_NULL() {
 
 
 /********************************************************************************
- * set_packet_in_handler() tests.
+ * set packet_in handlers.
  ********************************************************************************/
 
 static void
+mock_simple_packet_in_handler( packet_in event ) {
+  uint64_t datapath_id = event.datapath_id;
+  uint32_t transaction_id = event.transaction_id;
+  uint32_t buffer_id = event.buffer_id;
+  uint32_t total_len32 = event.total_len;
+  uint32_t in_port32 = event.in_port;
+  uint32_t reason32 = event.reason;
+  const buffer *data = event.data;
+  void *user_data = event.user_data;
+
+  check_expected( &datapath_id );
+  check_expected( transaction_id );
+  check_expected( buffer_id );
+  check_expected( total_len32 );
+  check_expected( in_port32 );
+  check_expected( reason32 );
+  check_expected( data->length );
+  check_expected( user_data );
+}
+
+
+static void
 test_set_packet_in_handler() {
-  assert_true( set_packet_in_handler( PACKET_IN_HANDLER, PACKET_IN_USER_DATA ) );
+  set_packet_in_handler( PACKET_IN_HANDLER, PACKET_IN_USER_DATA );
   assert_int_equal( ( int ) event_handlers.packet_in_callback, ( int ) PACKET_IN_HANDLER );
   assert_int_equal( ( int ) event_handlers.packet_in_user_data, ( int ) PACKET_IN_USER_DATA );
+}
+
+
+static void
+test_set_handler_for_packet_in() {
+  set_packet_in_handler( mock_simple_packet_in_handler, PACKET_IN_USER_DATA );
+  assert_true( event_handlers.packet_in_callback == mock_simple_packet_in_handler );
+  assert_true( event_handlers.packet_in_user_data == PACKET_IN_USER_DATA );
 }
 
 
@@ -1344,6 +1374,42 @@ test_handle_packet_in() {
   expect_memory( mock_packet_in_handler, user_data, USER_DATA, USER_DATA_LEN );
 
   set_packet_in_handler( mock_packet_in_handler, USER_DATA );
+  handle_packet_in( DATAPATH_ID, buffer );
+
+  free_packet( data );
+  free_buffer( buffer );
+}
+
+
+static void
+test_handle_packet_in_with_simple_handler() {
+  uint32_t buffer_id = 0x01020304;
+  uint16_t total_len;
+  uint16_t in_port = 1;
+  uint8_t reason =  OFPR_NO_MATCH;
+  buffer *data = alloc_buffer_with_length( 64 );
+  alloc_packet( data );
+  append_back_buffer( data, 64 );
+  memset( data->data, 0x01, 64 );
+
+  total_len = ( uint16_t ) data->length;
+
+  buffer *buffer = create_packet_in( TRANSACTION_ID, buffer_id, total_len, in_port, reason, data );
+
+  expect_value( mock_parse_packet, buf->length, data->length );
+  expect_memory( mock_parse_packet, buf->data, data->data, data->length );
+  will_return( mock_parse_packet, true );
+
+  expect_memory( mock_simple_packet_in_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
+  expect_value( mock_simple_packet_in_handler, transaction_id, TRANSACTION_ID );
+  expect_value( mock_simple_packet_in_handler, buffer_id, buffer_id );
+  expect_value( mock_simple_packet_in_handler, total_len32, ( uint32_t ) total_len );
+  expect_value( mock_simple_packet_in_handler, in_port32, ( uint32_t ) in_port );
+  expect_value( mock_simple_packet_in_handler, reason32, ( uint32_t ) reason );
+  expect_value( mock_simple_packet_in_handler, data->length, data->length );
+  expect_memory( mock_simple_packet_in_handler, user_data, USER_DATA, USER_DATA_LEN );
+
+  set_packet_in_handler( mock_simple_packet_in_handler, USER_DATA );
   handle_packet_in( DATAPATH_ID, buffer );
 
   free_packet( data );
@@ -3036,6 +3102,7 @@ main() {
     unit_test_setup_teardown( test_set_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
 
     unit_test_setup_teardown( test_set_packet_in_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_handler_for_packet_in, init, cleanup ),
     unit_test_setup_teardown( test_set_packet_in_handler_if_handler_is_NULL, init, cleanup ),
 
     unit_test_setup_teardown( test_set_flow_removed_handler, init, cleanup ),
@@ -3083,6 +3150,7 @@ main() {
     unit_test_setup_teardown( test_handle_get_config_reply_if_message_length_is_zero, init, cleanup ),
 
     unit_test_setup_teardown( test_handle_packet_in, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_with_simple_handler, init, cleanup ),
     unit_test_setup_teardown( test_handle_packet_in_with_malformed_packet, init, cleanup ),
     unit_test_setup_teardown( test_handle_packet_in_without_data, init, cleanup ),
     unit_test_setup_teardown( test_handle_packet_in_if_handler_is_not_registered, init, cleanup ),
