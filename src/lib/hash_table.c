@@ -48,7 +48,7 @@ compare_atom( const void *x, const void *y ) {
  */
 unsigned int
 hash_atom( const void *key ) {
-  return ( unsigned int ) key >> 2;
+  return ( unsigned int ) ( ( unsigned long ) key >> 2 );
 }
 
 
@@ -114,7 +114,7 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
 
   unsigned int i = get_bucket_index( table, key );
   if ( table->buckets[ i ] == NULL ) {
-    insert_in_front( &table->nonempty_bucket_index, ( void * ) i );
+    insert_in_front( &table->nonempty_bucket_index, ( void * ) ( unsigned long ) i );
   }
 
   list_element *old_elem = find_list_element_from_buckets( table, key );
@@ -169,7 +169,7 @@ delete_hash_entry( hash_table *table, const void *key ) {
     delete_element( &table->buckets[ i ], delete_me );
     xfree( delete_me );
     if ( table->buckets[ i ] == NULL ) {
-      delete_element( &table->nonempty_bucket_index, ( void * ) i );
+      delete_element( &table->nonempty_bucket_index, ( void * ) ( unsigned long ) i );
     }
     table->length--;
     pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
@@ -228,7 +228,7 @@ init_hash_iterator( hash_table *table, hash_iterator *iter ) {
   if ( table->nonempty_bucket_index ) {
     iter->bucket_index = table->nonempty_bucket_index;
     iter->next_bucket_index = table->nonempty_bucket_index->next;
-    iter->element = iter->buckets[ ( int ) iter->bucket_index->data ];
+    iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ];
   }
   else {
     iter->bucket_index = NULL;
@@ -251,7 +251,7 @@ iterate_hash_next( hash_iterator *iter ) {
       if ( iter->next_bucket_index != NULL ) {
         iter->bucket_index = iter->next_bucket_index;
         iter->next_bucket_index = iter->next_bucket_index->next;
-        iter->element = iter->buckets[ ( int ) iter->bucket_index->data ];
+        iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ];
       }
       else {
         return NULL;
