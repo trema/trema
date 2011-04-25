@@ -339,7 +339,7 @@ set_get_config_reply_handler( get_config_reply_handler callback, void *user_data
 bool
 _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
-    die( "Callback function ( packet_in_handler ) must not be NULL." );
+    die( "Invalid callback function for packet_in event." );
   }
   assert( callback != NULL );
 
@@ -744,10 +744,10 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
       body,
       event_handlers.packet_in_user_data
     };
-    ( ( simple_packet_in_handler ) event_handlers.packet_in_callback )( event );
+    ( ( simple_packet_in_handler * ) event_handlers.packet_in_callback )( event );
   }
   else {
-    ( ( packet_in_handler ) event_handlers.packet_in_callback )(
+    ( ( packet_in_handler * ) event_handlers.packet_in_callback )(
       datapath_id,
       transaction_id,
       buffer_id,

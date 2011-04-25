@@ -106,9 +106,9 @@ typedef struct {
   void *user_data;
 } packet_in;
 
-typedef void ( *simple_packet_in_handler )( packet_in event );
+typedef void ( simple_packet_in_handler )( packet_in event );
 
-typedef void ( *packet_in_handler )(
+typedef void ( packet_in_handler )(
   uint64_t datapath_id,
   uint32_t transaction_id,
   uint32_t buffer_id,
@@ -222,21 +222,26 @@ bool set_error_handler( error_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );
-#define set_packet_in_handler( callback, user_data )                    \
-  {                                                                     \
-    if ( __builtin_types_compatible_p( typeof( callback ), void ( packet_in ) ) ) { \
-      _set_packet_in_handler( true, callback, user_data );              \
-    }                                                                   \
-    else {                                                              \
-      _set_packet_in_handler( false, callback, user_data );             \
-    }                                                                   \
+#define set_packet_in_handler( callback, user_data )                                      \
+  {                                                                                       \
+    if ( __builtin_types_compatible_p( typeof( callback ), simple_packet_in_handler ) ) { \
+      _set_packet_in_handler( true, callback, user_data );                                \
+    }                                                                                     \
+    else if ( __builtin_types_compatible_p( typeof( callback ), packet_in_handler ) ) {   \
+      _set_packet_in_handler( false, callback, user_data );                               \
+    }                                                                                     \
+    else {                                                                                \
+      _set_packet_in_handler( false, NULL, user_data );                                   \
+    }                                                                                     \
   }
-bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
 bool set_flow_removed_handler( flow_removed_handler callback, void *user_data );
 bool set_port_status_handler( port_status_handler callback, void *user_data );
 bool set_stats_reply_handler( stats_reply_handler callback, void *user_data );
 bool set_barrier_reply_handler( barrier_reply_handler callback, void *user_data );
 bool set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, void *user_data );
+
+
+bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
 
 
 /********************************************************************************

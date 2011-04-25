@@ -771,7 +771,7 @@ test_set_simple_packet_in_handler() {
 
 static void
 test_set_packet_in_handler_should_die_if_handler_is_NULL() {
-  expect_string( mock_die, format, "Callback function ( packet_in_handler ) must not be NULL." );
+  expect_string( mock_die, format, "Invalid callback function for packet_in event." );
   expect_assert_failure( set_packet_in_handler( NULL, PACKET_IN_USER_DATA ) );
   assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
 }
