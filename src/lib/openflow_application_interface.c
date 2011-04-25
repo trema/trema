@@ -680,28 +680,20 @@ handle_get_config_reply( const uint64_t datapath_id, buffer *data ) {
 
 static void
 handle_packet_in( const uint64_t datapath_id, buffer *data ) {
-  bool ret;
-  uint8_t reason;
-  uint16_t body_length, total_len, in_port;
-  uint32_t transaction_id, buffer_id;
-  buffer *body = NULL;
-  struct ofp_packet_in *_packet_in;
-
   if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
     critical( "An OpenFlow message must be filled before calling handle_packet_in()." );
     assert( 0 );
   }
 
-  _packet_in = ( struct ofp_packet_in * ) data->data;
+  struct ofp_packet_in *_packet_in = ( struct ofp_packet_in * ) data->data;
 
-  transaction_id = ntohl( _packet_in->header.xid );
-  buffer_id = ntohl( _packet_in->buffer_id );
-  total_len = ntohs( _packet_in->total_len );
-  in_port = ntohs( _packet_in->in_port );
-  reason = _packet_in->reason;
+  uint32_t transaction_id = ntohl( _packet_in->header.xid );
+  uint32_t buffer_id = ntohl( _packet_in->buffer_id );
+  uint16_t total_len = ntohs( _packet_in->total_len );
+  uint16_t in_port = ntohs( _packet_in->in_port );
+  uint8_t reason = _packet_in->reason;
 
-  body_length = ( uint16_t ) ( ntohs( _packet_in->header.length )
-                               - offsetof( struct ofp_packet_in, data ) );
+  uint16_t body_length = ( uint16_t ) ( ntohs( _packet_in->header.length ) - offsetof( struct ofp_packet_in, data ) );
 
   debug( "A packet_in message is received from %#" PRIx64
          " ( transaction_id = %#x, buffer_id = %#x, total_len = %u, "
@@ -714,12 +706,12 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
     return;
   }
 
+  buffer *body = NULL;
   if ( body_length > 0 ) {
     body = duplicate_buffer( data );
     remove_front_buffer( body, offsetof( struct ofp_packet_in, data ) );
 
-    ret = parse_packet( body );
-
+    bool ret = parse_packet( body );
     if ( !ret ) {
       error( "Failed to parse a packet." );
       free_packet( body );
