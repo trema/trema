@@ -25,37 +25,23 @@
 
 
 static void
-handle_packet_in(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint32_t buffer_id,
-  uint16_t total_len,
-  uint16_t in_port,
-  uint8_t reason,
-  const buffer *data,
-  void *user_data
-) {
-  UNUSED( user_data );
-
-  info( "datapath_id: %#" PRIx64, datapath_id );
-  info( "transaction_id: %#lx", transaction_id );
-  info( "buffer_id: %#lx", buffer_id );
-  info( "total_len: %u", total_len );
-  info( "in_port: %u", in_port );
-  info( "reason: %#x", reason );
+handle_packet_in( packet_in event ) {
+  info( "datapath_id: %#" PRIx64, event.datapath_id );
+  info( "transaction_id: %#x", event.transaction_id );
+  info( "buffer_id: %#x", event.buffer_id );
+  info( "total_len: %u", event.total_len );
+  info( "in_port: %u", event.in_port );
+  info( "reason: %#x", event.reason );
   info( "data:" );
-  dump_buffer( data, info );
+  dump_buffer( event.data, info );
 }
 
 
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
-
   set_packet_in_handler( handle_packet_in, NULL );
-
   start_trema();
-
   return 0;
 }
 
