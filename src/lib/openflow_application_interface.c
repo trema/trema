@@ -678,28 +678,37 @@ handle_get_config_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+static bool
+empty( const buffer *data ) {
+  return ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) );
+}
+
+
 static void
 handle_packet_in( const uint64_t datapath_id, buffer *data ) {
-  if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
-    critical( "An OpenFlow message must be filled before calling handle_packet_in()." );
-    assert( 0 );
+  if ( empty( data ) ) {
+    die( "handle_packet_in(): packet_in message should not be empty." );
   }
 
   struct ofp_packet_in *_packet_in = ( struct ofp_packet_in * ) data->data;
-
   uint32_t transaction_id = ntohl( _packet_in->header.xid );
   uint32_t buffer_id = ntohl( _packet_in->buffer_id );
   uint16_t total_len = ntohs( _packet_in->total_len );
   uint16_t in_port = ntohs( _packet_in->in_port );
   uint8_t reason = _packet_in->reason;
-
   uint16_t body_length = ( uint16_t ) ( ntohs( _packet_in->header.length ) - offsetof( struct ofp_packet_in, data ) );
 
-  debug( "A packet_in message is received from %#" PRIx64
-         " ( transaction_id = %#x, buffer_id = %#x, total_len = %u, "
-         "in_port = %u, reason = %#x, body length = %u ).",
-         datapath_id, transaction_id, buffer_id, total_len,
-         in_port, reason, body_length );
+  debug(
+    "A packet_in message is received from %#" PRIx64
+    " (transaction_id = %#x, buffer_id = %#x, total_len = %u, in_port = %u, reason = %#x, body length = %u).",
+    datapath_id,
+    transaction_id,
+    buffer_id,
+    total_len,
+    in_port,
+    reason,
+    body_length
+  );
 
   if ( event_handlers.packet_in_callback == NULL ) {
     debug( "Callback function for packet_in events is not set." );
@@ -710,7 +719,6 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   if ( body_length > 0 ) {
     body = duplicate_buffer( data );
     remove_front_buffer( body, offsetof( struct ofp_packet_in, data ) );
-
     bool ret = parse_packet( body );
     if ( !ret ) {
       error( "Failed to parse a packet." );
@@ -722,7 +730,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
     body = NULL;
   }
 
-  debug( "Calling packet_in handler ( callback = %p, user_data = %p ).",
+  debug( "Calling packet_in handler (callback = %p, user_data = %p).",
          event_handlers.packet_in_callback, event_handlers.packet_in_user_data );
 
   if ( event_handlers.simple_packet_in_callback ) {

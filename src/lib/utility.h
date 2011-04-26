@@ -38,12 +38,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #define die( _fmt, ... )                         \
   do {                                           \
     fprintf( stderr, ( _fmt ), ## __VA_ARGS__ ); \
-    exit( EXIT_FAILURE );                        \
+    abort();                                     \
   }                                              \
   while ( 0 )
 

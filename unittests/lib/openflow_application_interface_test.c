@@ -914,6 +914,7 @@ test_handle_packet_in_without_handler() {
 
 static void
 test_handle_packet_in_should_die_if_message_is_NULL() {
+  expect_string( mock_die, format, "handle_packet_in(): packet_in message should not be empty." );
   set_packet_in_handler( mock_packet_in_handler, USER_DATA );
   expect_assert_failure( handle_packet_in( DATAPATH_ID, NULL ) );
 }
@@ -923,6 +924,7 @@ static void
 test_handle_packet_in_should_die_if_message_length_is_zero() {
   buffer *buffer = alloc_buffer_with_length( 32 );
 
+  expect_string( mock_die, format, "handle_packet_in(): packet_in message should not be empty." );
   set_packet_in_handler( mock_packet_in_handler, USER_DATA );
   expect_assert_failure( handle_packet_in( DATAPATH_ID, buffer ) );
 

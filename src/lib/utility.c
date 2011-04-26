@@ -47,7 +47,7 @@ die( const char *format, ... ) {
   va_end( args );
 
   critical( err );
-  exit( EXIT_FAILURE );
+  abort();
 }
 
 #endif // UNIT_TESTING
