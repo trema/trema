@@ -255,6 +255,12 @@ mock_send( int sockfd, const void *buf, size_t len, int flags ) {
 }
 
 
+int
+mock_setsockopt( int s, int level, int optname, const void *optval, socklen_t optlen ) {
+  return 0;
+}
+
+
 static bool fail_mock_clock_gettime = false;
 int
 mock_clock_gettime( clockid_t clk_id, struct timespec *tp ) {

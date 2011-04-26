@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include "doubly_linked_list.h"
@@ -92,6 +93,12 @@ extern ssize_t mock_recv( int sockfd, void *buf, size_t len, int flags );
 #endif
 #define send mock_send
 extern ssize_t mock_send( int sockfd, const void *buf, size_t len, int flags );
+
+#ifdef setsockopt
+#undef setsockopt
+#endif
+#define setsockopt mock_setsockopt
+extern int mock_setsockopt( int s, int level, int optname, const void *optval, socklen_t optlen );
 
 #ifdef clock_gettime
 #undef clock_gettime
@@ -581,7 +588,18 @@ create_receive_queue( const char *service_name ) {
   }
 
   unlink( rq->listen_addr.sun_path ); // FIXME: handle error correctly
-  int ret = bind( rq->listen_socket, ( struct sockaddr * ) &rq->listen_addr, sizeof( struct sockaddr_un ) );
+
+  int ret;
+  if ( geteuid() == 0 ) {
+    int rmem_size = 1048576;
+    ret = setsockopt( rq->listen_socket, SOL_SOCKET, SO_RCVBUFFORCE, ( const void * ) &rmem_size, ( socklen_t ) sizeof( rmem_size ) );
+    if ( ret < 0 ) {
+      error( "Failed to set SO_RCVBUFFORCE to %d ( %s [%d] ).", rmem_size, strerror( errno ), errno );
+      return NULL;
+    }
+  }
+
+  ret = bind( rq->listen_socket, ( struct sockaddr * ) &rq->listen_addr, sizeof( struct sockaddr_un ) );
   if ( ret == -1 ) {
     error( "Failed to bind (fd = %d, sun_path = %s, errno = %s [%d]).",
            rq->listen_socket, rq->listen_addr.sun_path, strerror( errno ), errno );
@@ -908,11 +926,24 @@ send_queue_connect( send_queue *sq ) {
     return -1;
   }
 
+  if ( geteuid() == 0 ) {
+    int wmem_size = 1048576;
+    int ret = setsockopt( sq->server_socket, SOL_SOCKET, SO_SNDBUFFORCE, ( const void * ) &wmem_size, ( socklen_t ) sizeof( wmem_size ) );
+    if ( ret < 0 ) {
+      error( "Failed to set SO_SNDBUFFORCE to %d ( %s [%d] ).", wmem_size, strerror( errno ), errno );
+      close( sq->server_socket );
+      sq->server_socket = -1;
+      return -1;
+    }
+  }
+
   if ( connect( sq->server_socket, ( struct sockaddr * ) &sq->server_addr, sizeof( struct sockaddr_un ) ) == -1 ) {
     struct timespec now;
 
     if ( clock_gettime( CLOCK_MONOTONIC, &now ) != 0 ) {
       error( "Failed to retrieve monotonic time ( %s [%d] ).", strerror( errno ), errno );
+      close( sq->server_socket );
+      sq->server_socket = -1;
       return -1;
     }
 
@@ -934,6 +965,8 @@ send_queue_connect( send_queue *sq ) {
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
 
   sq->refused_count = 0;
+  sq->reconnect_at.tv_sec = 0;
+  sq->reconnect_at.tv_nsec = 0;
 
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
 
@@ -972,10 +1005,10 @@ create_send_queue( const char *service_name ) {
   debug( "Set sun_path to %s.", sq->server_addr.sun_path );
 
   sq->refused_count = 0;
+  sq->reconnect_at.tv_sec = 0;
+  sq->reconnect_at.tv_nsec = 0;
 
   if ( send_queue_connect( sq ) == -1 ) {
-    close( sq->server_socket );
-    sq->server_socket = -1;
     xfree( sq );
     error( "Failed to create a send queue for %s.", service_name );
     return NULL;
@@ -1272,6 +1305,10 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
 static void
 truncate_message_buffer( message_buffer *buf, size_t len ) {
   assert( buf != NULL );
+
+  if ( len == 0 || buf->data_length == 0 ) {
+    return;
+  }
 
   if ( len > buf->data_length ) {
     len = buf->data_length;
@@ -1570,7 +1607,6 @@ set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
       break;
 
     case -1: // error
-
       return;
     }
   }
@@ -1585,17 +1621,41 @@ on_send( int fd, send_queue *sq ) {
   debug( "Sending data to remote ( fd = %d, service_name = %s, buffer = %p, data_length = %u ).",
          fd, sq->service_name, sq->buffer->buffer, sq->buffer->data_length );
 
+  if ( sq->buffer->data_length < sizeof( message_header ) ) {
+    return;
+  }
+
+  message_header *header;
+  size_t send_len;
   ssize_t sent_len;
+  size_t sent_total = 0;
+  int sent_count = 0;
 
-  sent_len = send( fd, sq->buffer->buffer, sq->buffer->data_length, 0 );
-
-  if ( sent_len == -1 ) {
-    error( "Failed to send ( fd = %d, errno = %s [%d] ).", fd, strerror( errno ), errno );
+  while ( ( ( sq->buffer->data_length - sent_total ) >= sizeof( message_header ) ) && ( sent_count < 128 ) ) {
+    header = ( message_header * ) ( ( char * ) sq->buffer->buffer + sent_total );
+    send_len = ( size_t ) header->message_length;
+    sent_len = send( fd, header, send_len, MSG_DONTWAIT );
+    if ( sent_len == -1 ) {
+      int err = errno;
+      if ( err != EAGAIN && err != EWOULDBLOCK ) {
+        error( "Failed to send ( fd = %d, errno = %s [%d] ).", fd, strerror( err ), err );
+        send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+        close( sq->server_socket );
+        sq->server_socket = -1;
+        sq->refused_count = 0;
+      }
+      truncate_message_buffer( sq->buffer, sent_total );
+      if ( err == EMSGSIZE || err == ENOBUFS || err == ENOMEM ) {
+        warn( "Dropping %u bytes data in send queue ( service_name = %s ).", sq->buffer->data_length, sq->service_name );
+        truncate_message_buffer( sq->buffer, sq->buffer->data_length );
+      }
+      return;
+    }
+    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, header, ( uint32_t ) sent_len );
+    sent_total += ( size_t ) sent_len;
+    sent_count++;
   }
-  else {
-    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, sq->buffer->buffer, ( uint32_t ) sent_len );
-    truncate_message_buffer( sq->buffer, ( size_t ) sent_len );
-  }
+  truncate_message_buffer( sq->buffer, sent_total );
 }
 
 
