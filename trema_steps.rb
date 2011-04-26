@@ -80,6 +80,14 @@ When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
 end
 
 
+When /^wait until "([^"]*)" is up$/ do | process |
+  loop do
+    break if FileTest.exists?( File.join( Trema.tmp, "#{ process }.pid" ) )
+    sleep 1
+  end
+end
+
+
 Then /^the output should be:$/ do | string |
   IO.read( @log ).chomp.should == string.chomp
 end
