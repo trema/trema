@@ -719,9 +719,10 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   if ( body_length > 0 ) {
     body = duplicate_buffer( data );
     remove_front_buffer( body, offsetof( struct ofp_packet_in, data ) );
-    bool ret = parse_packet( body );
-    if ( !ret ) {
+    bool parse_ok = parse_packet( body );
+    if ( !parse_ok ) {
       error( "Failed to parse a packet." );
+      // ???: Is it OK to drop malformed packets?
       free_packet( body );
       return;
     }
@@ -730,9 +731,11 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
     body = NULL;
   }
 
+  assert( event_handlers.packet_in_callback != NULL );
   debug( "Calling packet_in handler (callback = %p, user_data = %p).",
-         event_handlers.packet_in_callback, event_handlers.packet_in_user_data );
-
+         event_handlers.packet_in_callback,
+         event_handlers.packet_in_user_data
+  );
   if ( event_handlers.simple_packet_in_callback ) {
     packet_in event = {
       datapath_id,
