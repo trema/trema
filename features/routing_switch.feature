@@ -44,6 +44,7 @@ Feature: control multiple openflow switchies using routing_switch
       event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
+      And wait until "routing_switch" is up
       And *** sleep 10 ***
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2 --duration 10"
       And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"
@@ -122,6 +123,7 @@ Feature: control multiple openflow switchies using routing_switch
       event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
+      And wait until "routing_switch" is up
       And *** sleep 20 ***
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.4 --duration 10"
       And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"

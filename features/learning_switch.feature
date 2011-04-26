@@ -34,7 +34,7 @@ Feature: control one openflow switch using learning_switch
         options "-i", "0xe0"
       }
       """
-      And *** sleep 10 ***
+      And wait until "learning_switch" is up
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2"
       And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"
       And I try to run "./trema show_stats 192.168.0.2 --rx > ./tmp/log/rx.log"

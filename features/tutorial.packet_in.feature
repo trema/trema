@@ -27,7 +27,7 @@ Feature: Tutorial: Handling packet_in events example
         path "./objects/examples/packet_in/packet_in"
       }
       """
-      And *** sleep 10 ***
+      And wait until "packet_in" is up
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2"
       And I terminated all trema services
     Then the output of trema should include:

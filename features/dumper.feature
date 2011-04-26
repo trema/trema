@@ -34,7 +34,7 @@ Feature: dump openflow events with dumper
         path "./objects/examples/dumper/dumper"
       }
       """
-      And *** sleep 5 ***
+      And wait until "dumper" is up
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2 -v"
       And I terminated all trema services
     Then the output of trema should include:
