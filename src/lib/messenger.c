@@ -173,6 +173,7 @@ typedef struct message_buffer {
   void *buffer;
   size_t data_length;
   size_t size;
+  size_t head_offset;
 } message_buffer;
 
 typedef struct messenger_socket {
@@ -343,6 +344,12 @@ free_message_buffer( message_buffer *buf ) {
 
   xfree( buf->buffer );
   xfree( buf );
+}
+
+
+static void*
+get_message_buffer_head( message_buffer *buf ) {
+  return ( char * ) buf->buffer + buf->head_offset;
 }
 
 
@@ -553,6 +560,8 @@ create_message_buffer( size_t size ) {
   buf->buffer = xmalloc( size );
   buf->size = size;
   buf->data_length = 0;
+  buf->head_offset = 0;
+
   return buf;
 }
 
@@ -1029,7 +1038,15 @@ write_message_buffer( message_buffer *buf, const void *data, size_t len ) {
   if ( message_buffer_remain_bytes( buf ) < len ) {
     return false;
   }
-  memcpy( ( char * ) buf->buffer + buf->data_length, data, len );
+
+  if ( ( buf->head_offset + buf->data_length + len ) <= buf->size ) {
+    memcpy( ( char * ) get_message_buffer_head( buf ) + buf->data_length, data, len );
+  }
+  else {
+    memmove( buf->buffer, ( char * ) get_message_buffer_head( buf ), buf->data_length );
+    buf->head_offset = 0;
+    memcpy( ( char * ) buf->buffer + buf->data_length, data, len );
+  }
   buf->data_length += len;
 
   return true;
@@ -1313,7 +1330,14 @@ truncate_message_buffer( message_buffer *buf, size_t len ) {
   if ( len > buf->data_length ) {
     len = buf->data_length;
   }
-  memmove( buf->buffer, ( char * ) buf->buffer + len, buf->data_length - len );
+
+  if ( ( buf->head_offset + len ) <= buf->size ) {
+    buf->head_offset += len;
+  }
+  else {
+    memmove( buf->buffer, ( char * ) buf->buffer + buf->head_offset + len, buf->data_length - len );
+    buf->head_offset = 0;
+  }
   buf->data_length -= len;
 }
 
@@ -1339,7 +1363,7 @@ pull_from_recv_queue( receive_queue *rq, uint8_t *message_type, uint16_t *tag, v
     return 0;
   }
 
-  header = ( message_header * ) rq->buffer->buffer;
+  header = ( message_header * ) get_message_buffer_head( rq->buffer );
 
   assert( header->message_length != 0 );
   assert( header->message_length < messenger_recv_queue_length );
@@ -1619,7 +1643,7 @@ on_send( int fd, send_queue *sq ) {
   assert( fd >= 0 );
 
   debug( "Sending data to remote ( fd = %d, service_name = %s, buffer = %p, data_length = %u ).",
-         fd, sq->service_name, sq->buffer->buffer, sq->buffer->data_length );
+         fd, sq->service_name, get_message_buffer_head( sq->buffer ), sq->buffer->data_length );
 
   if ( sq->buffer->data_length < sizeof( message_header ) ) {
     return;
@@ -1632,7 +1656,7 @@ on_send( int fd, send_queue *sq ) {
   int sent_count = 0;
 
   while ( ( ( sq->buffer->data_length - sent_total ) >= sizeof( message_header ) ) && ( sent_count < 128 ) ) {
-    header = ( message_header * ) ( ( char * ) sq->buffer->buffer + sent_total );
+    header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + sent_total );
     send_len = ( size_t ) header->message_length;
     sent_len = send( fd, header, send_len, MSG_DONTWAIT );
     if ( sent_len == -1 ) {
