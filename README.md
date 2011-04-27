@@ -50,28 +50,30 @@ Authors of Trema OpenFlow Controller Platform
 
 Please keep the list sorted.
 
-Kazushi Sugyo
-Lei Sun
-Naoyoshi Tada
-Shin'ya Zenke
-Shuji Ishii
-Toshio Koide
-Yasuhito Takamiya <yasuhito@gmail.com>
-Yasunobu Chiba
-Yasunori Nakazawa
+* Kazushi Sugyo
+* Lei Sun
+* Naoyoshi Tada
+* Shin'ya Zenke
+* Shuji Ishii
+* Toshio Koide
+* Yasuhito Takamiya <yasuhito@gmail.com>
+* Yasunobu Chiba
+* Yasunori Nakazawa
 
 
-Thanks
-======
+Additonal contributors
+----------------------
 
-Initial Helios development team for implementing prototype versions.
+Thanks to:
 
-HIDEyuki Shimonishi for supporting developers by providing coffee,
-snacks, and christmas cakes.
+- Initial Helios development team for implementing prototype versions.
 
-Anonymous alpha/beta testers for finding potential issues.
+- HIDEyuki Shimonishi for supporting developers by providing coffee,
+  snacks, and christmas cakes.
 
-NEC Corporation for financially supporting this project.
+- Anonymous alpha/beta testers for finding potential issues.
+
+- NEC Corporation for financially supporting this project.
 
 
 Terms
