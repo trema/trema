@@ -40,12 +40,44 @@ Contact
 If you find any issues/bugs or if you have any question, please
 contact to the following email address:
 
-  trema-dev@googlegroups.com
+trema-dev@googlegroups.com
 
 
+Authors
+=======
+
+Authors of Trema OpenFlow Controller Platform
+
+Please keep the list sorted.
+
+Kazushi Sugyo
+Lei Sun
+Naoyoshi Tada
+Shin'ya Zenke
+Shuji Ishii
+Toshio Koide
+Yasuhito Takamiya <yasuhito@gmail.com>
+Yasunobu Chiba
+Yasunori Nakazawa
+
+
+Thanks
+======
+
+Initial Helios development team for implementing prototype versions.
+
+HIDEyuki Shimonishi for supporting developers by providing coffee,
+snacks, and christmas cakes.
+
+Anonymous alpha/beta testers for finding potential issues.
+
+NEC Corporation for financially supporting this project.
+
+
+Terms
+=====
 
 Terms of Contributing to Trema program ("Program")
-==================================================
 
 Please read the following terms before you submit to the Trema
 project ("Project") any original works of corrections, modifications,
