@@ -30,8 +30,9 @@ Meta
 ====
 
 * Bugs: https://github.com/trema/trema/issues
-* Twitter: http://twitter.com/trema_news
 * Mailing List: https://groups.google.com/group/trema-dev
+* Twitter: http://twitter.com/trema_news
+* Web Page: http://trema.github.com/trema/
 
 
 Authors
@@ -52,19 +53,16 @@ Please keep the list sorted.
 * Yasunori Nakazawa
 
 
-Additonal contributors
-----------------------
+Contributors
+------------
 
 Thanks to:
 
 - Initial Helios development team for implementing prototype versions.
 
-- HIDEyuki Shimonishi for supporting developers by providing coffee,
-  snacks, and christmas cakes.
+- HIDEyuki Shimonishi for providing much-needed coffee, snacks, and christmas cakes!
 
 - Anonymous alpha/beta testers for finding potential issues.
-
-- NEC Corporation for financially supporting this project.
 
 
 License & Terms
