@@ -26,21 +26,12 @@ is provided. Please refer to the quick start guide
 (https://github.com/trema/trema/wiki/Quick-start) for details.
 
 
-Known issues/limitations
-========================
+Meta
+====
 
-Trema is under development and please refer to issue tracker
-(https://github.com/trema/trema/issues) for known issues and future
-plans.
-
-
-Contact
-=======
-
-If you find any issues/bugs or if you have any question, please
-contact to the following email address:
-
-trema-dev@googlegroups.com
+* Bugs: https://github.com/trema/trema/issues
+* Twitter: http://twitter.com/trema_news
+* Mailing List: https://groups.google.com/group/trema-dev
 
 
 Authors
