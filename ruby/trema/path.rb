@@ -67,7 +67,11 @@ module Trema
 
 
   def self.tmp
-    File.join home, "tmp"
+    if ENV.key?( "TREMA_TMP" )
+      File.expand_path ENV[ "TREMA_TMP" ]
+    else
+      File.join home, "tmp"
+    end
   end
 
 

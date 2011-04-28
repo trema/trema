@@ -681,7 +681,7 @@ test_get_trema_home_falls_back_to_ROOT_if_TREMA_HOME_is_invalid() {
 
   errno = ENOENT;
   expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
-  expect_string( mock_notice, message, "Falling back to TREMA_HOME = \"/\"." );
+  expect_string( mock_notice, message, "Falling back TREMA_HOME to \"/\"." );
 
   assert_string_equal( "/", get_trema_home() );
 
@@ -690,7 +690,7 @@ test_get_trema_home_falls_back_to_ROOT_if_TREMA_HOME_is_invalid() {
 
 
 /********************************************************************************
- * get_trema_temp() tests.
+ * get_trema_tmp() tests.
  *******************************************************************************/
 
 static void
@@ -721,7 +721,7 @@ test_get_trema_tmp_falls_back_to_default_if_TREMA_HOME_is_invalid() {
 
   errno = ENOENT;
   expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
-  expect_string( mock_notice, message, "Falling back to TREMA_HOME = \"/\"." );
+  expect_string( mock_notice, message, "Falling back TREMA_HOME to \"/\"." );
 
   assert_string_equal( "/tmp", get_trema_tmp() );
 
@@ -735,6 +735,43 @@ test_get_trema_tmp_when_TREMA_HOME_is_NOT_set() {
   assert_string_equal( "/tmp", get_trema_tmp() );
 
   xfree( trema_home );
+  xfree( trema_tmp );
+}
+
+
+static void
+test_get_trema_tmp_when_TREMA_TMP_is_set() {
+  setenv( "TREMA_TMP", "/", 1 );
+
+  assert_string_equal( "/", get_trema_tmp() );
+
+  xfree( trema_tmp );
+}
+
+
+static void
+test_get_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set() {
+  setenv( "TREMA_HOME", "/var", 1 );
+  setenv( "TREMA_TMP", "/", 1 );
+
+  assert_string_equal( "/var", get_trema_home() );
+  assert_string_equal( "/", get_trema_tmp() );
+
+  xfree( trema_home );
+  xfree( trema_tmp );
+}
+
+
+static void
+test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid() {
+  setenv( "TREMA_TMP", "NO_SUCH_DIRECTORY", 1 );
+
+  errno = ENOENT;
+  expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
+  expect_string( mock_notice, message, "Falling back TREMA_TMP to \"/tmp\"." );
+
+  assert_string_equal( "/tmp", get_trema_tmp() );
+
   xfree( trema_tmp );
 }
 
@@ -805,8 +842,11 @@ main() {
     unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_is_ROOT, reset_trema, reset_trema ),
     unit_test_setup_teardown( test_get_trema_tmp_falls_back_to_default_if_TREMA_HOME_is_invalid, reset_trema, reset_trema ),
     unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_is_NOT_set, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_TMP_is_set, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid, reset_trema, reset_trema ),
 
-    // get_trema_tmp() tests.
+    // get_executable_name() test.
     unit_test_setup_teardown( test_get_executable_name, reset_trema, reset_trema ),
   };
   return run_tests( tests );

@@ -244,7 +244,7 @@ usage() {
 }
 
 
-static void
+static bool
 expand( const char *path, char *absolute_path ) {
   assert( path != NULL );
   assert( absolute_path != NULL );
@@ -253,9 +253,10 @@ expand( const char *path, char *absolute_path ) {
   char *result = realpath( path, absolute_path );
   if ( result == NULL ) {
     notice( "Could not get the absolute path of %s: %s.", path, strerror_r( errno, buf, sizeof( buf ) ) );
-    notice( "Falling back to TREMA_HOME = \"/\"." );
-    strncpy( absolute_path, "/", 2 );
+    return false;
   }
+
+  return true;
 }
 
 
@@ -269,7 +270,10 @@ set_trema_home() {
   }
   else {
     char absolute_path[ PATH_MAX ];
-    expand( getenv( TREMA_HOME ), absolute_path );
+    if ( !expand( getenv( TREMA_HOME ), absolute_path ) ) {
+      notice( "Falling back TREMA_HOME to \"/\"." );
+      strncpy( absolute_path, "/", 2 );
+    }
     setenv( TREMA_HOME, absolute_path, 1 );
     trema_home = xstrdup( absolute_path );
   }
@@ -296,14 +300,23 @@ set_trema_tmp() {
 
   char path[ PATH_MAX ];
 
-  const char *trema_home = get_trema_home();
-  if ( trema_home[ strlen( trema_home ) - 1 ] == '/' ) {
-    snprintf( path, PATH_MAX, "%stmp", trema_home );
+  if ( getenv( TREMA_TMP ) == NULL ) {
+    const char *trema_home = get_trema_home();
+    if ( trema_home[ strlen( trema_home ) - 1 ] == '/' ) {
+      snprintf( path, PATH_MAX, "%stmp", trema_home );
+    }
+    else {
+      snprintf( path, PATH_MAX, "%s/tmp", trema_home );
+    }
+    path[ PATH_MAX - 1 ] = '\0';
   }
   else {
-    snprintf( path, PATH_MAX, "%s/tmp", trema_home );
+    if ( !expand( getenv( TREMA_TMP ), path ) ) {
+      notice( "Falling back TREMA_TMP to \"/tmp\"." );
+      strncpy( path, "/tmp", 5 );
+    }
   }
-  path[ PATH_MAX - 1 ] = '\0';
+
   setenv( TREMA_TMP, path, 1 );
   trema_tmp = xstrdup( path );
 
