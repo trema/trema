@@ -42,13 +42,6 @@ void parse_argv( int *argc, char ***argv );
 
 
 /********************************************************************************
- * static data and types in trema.c
- ********************************************************************************/
-
-extern dlist_element *timer_callbacks;
-
-
-/********************************************************************************
  * Mock and stub functions.
  ********************************************************************************/
 
@@ -284,12 +277,15 @@ mock_dump_stats() {
 }
 
 
-int
-mock_clock_gettime( clockid_t clk_id, struct timespec *tp ) {
-  UNUSED( clk_id );
-  UNUSED( tp );
+bool
+mock_init_timer() {
+  // Do nothing.
+}
 
-  return ( int ) mock();
+
+bool
+mock_finalize_timer() {
+  // Do nothing.
 }
 
 
@@ -343,7 +339,6 @@ test_init_trema_initializes_submodules_in_right_order() {
   xfree( trema_tmp );
   xfree( trema_name );
   xfree( executable_name );
-  delete_timer_callbacks();
 }
 
 
@@ -814,135 +809,6 @@ test_get_executable_name() {
   xfree( trema_tmp );
   xfree( trema_name );
   xfree( executable_name );
-  delete_timer_callbacks();
-}
-
-
-/********************************************************************************
- * Timer event callback tests.
- *******************************************************************************/
-
-static timer_callback *
-find_timer_callback( void ( *callback )( void *user_data ) ) {
-  dlist_element *e;
-  timer_callback *cb;
-
-  cb = NULL;
-  for ( e = timer_callbacks->next; e; e = e->next ) {
-    cb = e->data;
-    if ( cb->function == callback ) {
-      return cb;
-    }
-  }
-  return NULL;
-}
-
-
-static void
-mock_timer_event_callback( void *user_data ) {
-  UNUSED( user_data );
-}
-
-
-static void
-test_timer_event_callback() {
-  will_return( mock_stat, 0 );
-  init_trema( &default_argc, &default_argv );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-
-  struct itimerspec interval;
-  interval.it_value.tv_sec = 1;
-  interval.it_value.tv_nsec = 1000;
-  interval.it_interval.tv_sec = 2;
-  interval.it_interval.tv_nsec = 2000;
-  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, "It's time!!!" ) );
-
-  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
-  assert_true( callback != NULL );
-  assert_true( callback->function == mock_timer_event_callback );
-  assert_string_equal( callback->user_data, "It's time!!!" );
-  assert_int_equal( callback->interval.tv_sec, 2 );
-  assert_int_equal( callback->interval.tv_nsec, 2000 );
-
-  delete_timer_event_callback( mock_timer_event_callback );
-  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-  xfree( trema_name );
-  xfree( executable_name );
-  delete_timer_callbacks();
-}
-
-
-static void
-test_periodic_event_callback() {
-  will_return( mock_stat, 0 );
-  init_trema( &default_argc, &default_argv );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, "It's time!!!" ) );
-
-  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
-  assert_true( callback != NULL );
-  assert_true( callback->function == mock_timer_event_callback );
-  assert_true( callback->user_data == "It's time!!!" );
-  assert_int_equal( callback->interval.tv_sec, 1 );
-  assert_int_equal( callback->interval.tv_nsec, 0 );
-
-  delete_periodic_event_callback( mock_timer_event_callback );
-  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-  xfree( trema_name );
-  xfree( executable_name );
-  delete_timer_callbacks();
-}
-
-
-static void
-test_add_timer_event_callback_fail_with_invalid_timespec() {
-  will_return( mock_stat, 0 );
-  init_trema( &default_argc, &default_argv );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-
-  struct itimerspec interval;
-  interval.it_value.tv_sec = 0;
-  interval.it_value.tv_nsec = 0;
-  interval.it_interval.tv_sec = 0;
-  interval.it_interval.tv_nsec = 0;
-  assert_false( add_timer_event_callback( &interval, mock_timer_event_callback, "USER_DATA" ) );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-  xfree( trema_name );
-  xfree( executable_name );
-  delete_timer_callbacks();
-}
-
-
-static void
-test_clock_gettime_fail_einval() {
-  will_return( mock_stat, 0 );
-  init_trema( &default_argc, &default_argv );
-
-  will_return_count( mock_clock_gettime, -1, -1 );
-  assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, "USER_DATA" ) );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-  xfree( trema_name );
-  xfree( executable_name );
-  delete_timer_callbacks();
-}
-
-
-static void
-test_nonexistent_timer_event_callback() {
-  assert_false( delete_timer_event_callback( mock_timer_event_callback ) );
 }
 
 
@@ -1000,13 +866,6 @@ main() {
 
     // get_executable_name() test.
     unit_test_setup_teardown( test_get_executable_name, reset_trema, reset_trema ),
-
-    // Timer event callback tests.
-    unit_test_setup_teardown( test_timer_event_callback, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_periodic_event_callback, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_add_timer_event_callback_fail_with_invalid_timespec, reset_trema, reset_trema  ),
-    unit_test_setup_teardown( test_nonexistent_timer_event_callback, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_clock_gettime_fail_einval, reset_trema, reset_trema ),
   };
   return run_tests( tests );
 }

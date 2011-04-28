@@ -38,6 +38,7 @@
 #include "doubly_linked_list.h"
 #include "hash_table.h"
 #include "messenger.h"
+#include "timer.h"
 #include "unittest.h"
 #include "wrapper.h"
 
@@ -106,7 +107,6 @@ static bool run_once( void );
 static void on_accept( int fd, receive_queue *queue );
 static void on_recv( int fd, receive_queue *queue );
 static void on_send( int fd, send_queue *queue );
-static void on_timer( timer_callback *callback );
 
 static receive_queue *create_receive_queue( const char *service_name );
 static void delete_all_receive_queues( void );

@@ -32,6 +32,7 @@
 #include "hash_table.h"
 #include "log.h"
 #include "messenger.h"
+#include "timer.h"
 #include "wrapper.h"
 
 
@@ -211,9 +212,6 @@ static void ( *external_fd_set )( fd_set *read_set, fd_set *write_set ) = NULL;
 static void ( *external_check_fd_isset )( fd_set *read_set, fd_set *write_set ) = NULL;
 static uint32_t last_transaction_id = 0;
 static void ( *external_callback )( void ) = NULL;
-
-// FIXME: Remove me
-void execute_timer_events( void );
 
 
 static void
