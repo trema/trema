@@ -74,7 +74,7 @@ class OpenVswitch < OpenflowSwitch
       "--inactivity-probe=180",
       "--rate-limit=40000",
       "--burst-limit=20000",
-      "--pidfile=#{ Trema.home }/tmp/openflowd.#{ @name }.pid",
+      "--pidfile=#{ Trema.tmp }/openflowd.#{ @name }.pid",
       "--verbose=ANY:file:dbg",
       "--verbose=ANY:console:err",
       "--log-file=#{ log_file }",
@@ -84,7 +84,7 @@ class OpenVswitch < OpenflowSwitch
 
 
   def log_file
-    "#{ Trema.home }/tmp/log/openflowd.#{ @name }.log"
+    "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
   end
 
 
