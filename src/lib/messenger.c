@@ -124,6 +124,18 @@ extern void mock_debug( const char *format, ... );
 #define warn mock_warn
 extern void mock_warn( const char *format, ... );
 
+#ifdef add_periodic_event_callback
+#undef add_periodic_event_callback
+#endif
+#define add_periodic_event_callback mock_add_periodic_event_callback
+extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
+
+#ifdef execute_timer_events
+#undef execute_timer_events
+#endif
+#define execute_timer_events mock_execute_timer_events
+extern void mock_execute_timer_events( void );
+
 #endif // UNIT_TESTING
 
 
@@ -137,19 +149,6 @@ extern void mock_warn( const char *format, ... );
     }                                                         \
   }                                                           \
   while ( 0 )
-
-
-#define SUB_TIMESPEC( _a, _b, _return )                       \
-  do {                                                        \
-    ( _return )->tv_sec = ( _a )->tv_sec - ( _b )->tv_sec;    \
-    ( _return )->tv_nsec = ( _a )->tv_nsec - ( _b )->tv_nsec; \
-    if ( ( _return )->tv_nsec < 0 ) {                         \
-      ( _return )->tv_sec--;                                  \
-      ( _return )->tv_nsec += 1000000000;                     \
-    }                                                         \
-  }                                                           \
-  while ( 0 )
-
 
 #define VALID_TIMESPEC( _a )                                  \
   ( ( ( _a )->tv_sec > 0 || ( _a )->tv_nsec > 0 ) ? 1 : 0 )
@@ -186,13 +185,6 @@ typedef struct messenger_context {
   void *user_data;
 } messenger_context;
 
-typedef struct timer_callback {
-  void ( *function )( void *user_data );
-  struct timespec expires_at;
-  struct timespec interval;
-  void *user_data;
-} timer_callback;
-
 typedef struct receive_queue_callback {
   void  *function;
   uint8_t message_type;
@@ -228,13 +220,15 @@ static bool finalized = false;
 static hash_table *receive_queues = NULL;
 static hash_table *send_queues = NULL;
 static hash_table *context_db = NULL;
-static dlist_element *timer_callbacks = NULL;
 static char *_dump_service_name = NULL;
 static char *_dump_app_name = NULL;
 static void ( *external_fd_set )( fd_set *read_set, fd_set *write_set ) = NULL;
 static void ( *external_check_fd_isset )( fd_set *read_set, fd_set *write_set ) = NULL;
 static uint32_t last_transaction_id = 0;
 static void ( *external_callback )( void ) = NULL;
+
+// FIXME: Remove me
+void execute_timer_events( void );
 
 
 static void
@@ -297,7 +291,6 @@ init_messenger( const char *working_directory ) {
 
   receive_queues = create_hash( compare_string, hash_string );
   send_queues = create_hash( compare_string, hash_string );
-  timer_callbacks = create_dlist();
   context_db = create_hash( compare_uint32, hash_uint32 );
 
   initialized = true;
@@ -313,25 +306,6 @@ delete_context_db( void ) {
     foreach_hash( context_db, _delete_context, NULL );
     delete_hash( context_db );
     context_db = NULL;
-  }
-}
-
-
-static void
-delete_timer_callbacks() {
-  dlist_element *e;
-
-  debug( "Deleting timer callbacks ( timer_callbacks = %p ).", timer_callbacks );
-
-  if ( timer_callbacks != NULL ) {
-    for ( e = timer_callbacks->next; e; e = e->next ) {
-      xfree( e->data );
-    }
-    delete_dlist( timer_callbacks );
-    timer_callbacks = NULL;
-  }
-  else {
-    error( "All timer callbacks are already deleted or not created yet." );
   }
 }
 
@@ -534,9 +508,6 @@ finalize_messenger() {
   if ( send_queues != NULL ) {
     delete_all_send_queues();
   }
-  if ( timer_callbacks != NULL ) {
-    delete_timer_callbacks();
-  }
   if ( context_db != NULL ) {
     delete_context_db();
   }
@@ -699,70 +670,6 @@ add_message_replied_callback( const char *service_name, void ( *callback )( uint
 }
 
 
-bool
-add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data ) {
-  assert( interval != NULL );
-  assert( callback != NULL );
-
-  debug( "Adding a timer event callback ( interval = %u.%09u, initial expiration = %u.%09u, callback = %p, user_data = %p ).",
-         interval->it_interval.tv_sec, interval->it_interval.tv_nsec,
-         interval->it_value.tv_sec, interval->it_value.tv_nsec, callback, user_data );
-
-  timer_callback *cb;
-  struct timespec now;
-
-  cb = xmalloc( sizeof( timer_callback ) );
-  memset( cb, 0, sizeof( timer_callback ) );
-  cb->function = callback;
-  cb->user_data = user_data;
-
-  if ( clock_gettime( CLOCK_MONOTONIC, &now ) != 0 ) {
-    error( "Failed to retrieve monotonic time ( %s [%d] ).", strerror( errno ), errno );
-    xfree( cb );
-    return false;
-  }
-
-  cb->interval = interval->it_interval;
-
-  if ( VALID_TIMESPEC( &interval->it_value ) ) {
-    ADD_TIMESPEC( &now, &interval->it_value, &cb->expires_at );
-  }
-  else if ( VALID_TIMESPEC( &interval->it_interval ) ) {
-    ADD_TIMESPEC( &now, &interval->it_interval, &cb->expires_at );
-  }
-  else {
-    error( "Timer must not be zero when a timer event is added." );
-    xfree( cb );
-    return false;
-  }
-
-  debug( "Set an initial expiration time to %u.%09u.", now.tv_sec, now.tv_nsec );
-
-  assert( timer_callbacks != NULL );
-  insert_after_dlist( timer_callbacks, cb );
-
-  return true;
-}
-
-
-bool
-add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
-  assert( callback != NULL );
-
-  debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
-         seconds, callback, user_data );
-
-  struct itimerspec interval;
-
-  interval.it_value.tv_sec = 0;
-  interval.it_value.tv_nsec = 0;
-  interval.it_interval.tv_sec = seconds;
-  interval.it_interval.tv_nsec = 0;
-
-  return add_timer_event_callback( &interval, callback, user_data );
-}
-
-
 static bool
 delete_message_callback( const char *service_name, uint8_t message_type, void ( *callback ) ) {
   assert( service_name != NULL );
@@ -836,45 +743,6 @@ delete_message_replied_callback( const char *service_name, void ( *callback )( u
          service_name, callback );
 
   return delete_message_callback( service_name, MESSAGE_TYPE_REPLY, callback );
-}
-
-
-bool
-delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
-  assert( callback != NULL );
-
-  debug( "Deleting a timer event callback ( callback = %p ).", callback );
-
-  dlist_element *e;
-
-  if ( timer_callbacks == NULL ) {
-    error( "All timer callbacks are already deleted or not created yet." );
-    return false;
-  }
-
-  for ( e = timer_callbacks->next; e; e = e->next ) {
-    timer_callback *cb = e->data;
-    if ( cb->function == callback ) {
-      debug( "Deleting a callback ( callback = %p ).", callback );
-      xfree( cb );
-      delete_dlist_element( e );
-      return true;
-    }
-  }
-
-  error( "No registered callback found." );
-
-  return false;
-}
-
-
-bool
-delete_periodic_event_callback( void ( *callback )( void *user_data ) ) {
-  assert( callback != NULL );
-
-  debug( "Deleting a periodic event callback ( callback = %p ).", callback );
-
-  return delete_timer_event_callback( callback );
 }
 
 
@@ -1536,55 +1404,6 @@ check_recv_queue_fd_isset( fd_set *read_set ) {
         on_recv( socket_item->fd, rq );
       }
       element = next_element;
-    }
-  }
-}
-
-
-static void
-on_timer( timer_callback *callback ) {
-  assert( callback != NULL );
-  assert( callback->function != NULL );
-
-  debug( "Executing a timer event ( function = %p, expires_at = %u.%09u, interval = %u.%09u, user_data = %p ).",
-         callback->function, callback->expires_at.tv_sec, callback->expires_at.tv_nsec,
-         callback->interval.tv_sec, callback->interval.tv_nsec, callback->user_data );
-
-  if ( VALID_TIMESPEC( &callback->expires_at ) ) {
-    callback->function( callback->user_data );
-    if ( VALID_TIMESPEC( &callback->interval ) ) {
-      ADD_TIMESPEC( &callback->expires_at, &callback->interval, &callback->expires_at );
-    }
-    else {
-      callback->expires_at.tv_sec = 0;
-      callback->expires_at.tv_nsec = 0;
-    }
-    debug( "Set expires_at value to %u.%09u.", callback->expires_at.tv_sec, callback->expires_at.tv_nsec );
-  }
-  else {
-    error( "Invalid expires_at value." );
-  }
-}
-
-
-static void
-execute_timer_events() {
-  struct timespec now;
-  timer_callback *callback;
-  dlist_element *element;
-
-  debug( "Executing timer events ( timer_callbacks = %p ).", timer_callbacks );
-
-  assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 );
-  assert( timer_callbacks != NULL );
-
-  // TODO: timer_callbacks should be a list which is sorted by expiry time
-  for ( element = timer_callbacks->next; element; element = element->next ) {
-    callback = element->data;
-    if ( ( callback->expires_at.tv_sec < now.tv_sec )
-       || ( ( callback->expires_at.tv_sec == now.tv_sec )
-          && ( callback->expires_at.tv_nsec <= now.tv_nsec ) ) ) {
-      on_timer( callback );
     }
   }
 }

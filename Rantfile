@@ -703,7 +703,7 @@ def libtrema_unit_tests
     :packet_info_test => [ :buffer, :wrapper ],
     :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :packet_info, :wrapper ],
     :stat_test => [ :hash_table, :linked_list, :utility, :wrapper ],
-    :trema_test => [ :wrapper ],
+    :trema_test => [ :wrapper, :doubly_linked_list ],
     :utility_test => [],
     :wrapper_test => [],
   }

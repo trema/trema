@@ -75,13 +75,6 @@ typedef struct messenger_context {
   void *user_data;
 } messenger_context;
 
-typedef struct timer_callback {
-  void ( *function )( void *user_data );
-  struct timespec expires_at;
-  struct timespec interval;
-  void *user_data;
-} timer_callback;
-
 typedef struct receive_queue_callback {
   void  *function;
   uint8_t message_type;
@@ -190,6 +183,19 @@ static int dump_scenario_count = 0;
 /********************************************************************************
  * Mocks.
  ********************************************************************************/
+
+void
+mock_execute_timer_events() {
+  // Do nothing.
+}
+
+
+bool
+mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
+  UNUSED( seconds );
+  UNUSED( callback );
+  UNUSED( user_data );
+}
 
 
 static bool fail_mock_socket = false;
@@ -424,22 +430,6 @@ message_replied_callback( uint16_t tag, void *data, size_t len, void *user_data 
  * Helpers.
  ********************************************************************************/
 
-static timer_callback*
-find_timer_callback( void ( *callback )( void *user_data ) ) {
-  dlist_element *e;
-  timer_callback *cb;
-
-  cb = NULL;
-  for ( e = timer_callbacks->next; e; e = e->next ) {
-    cb = e->data;
-    if ( cb->function == callback ) {
-      return cb;
-    }
-  }
-  return NULL;
-}
-
-
 static receive_queue_callback*
 find_message_callback( const char *service_name, uint8_t message_type, void *callback ) {
   dlist_element *e;
@@ -537,108 +527,6 @@ test_send_then_message_received_callback_is_called() {
 
   delete_message_received_callback( service_name, callback_hello );
   delete_send_queue( lookup_hash_entry( send_queues, service_name ) );
-
-  finalize_messenger();
-}
-
-
-/********************************************************************************
- * Timer callback tests.
- ********************************************************************************/
-
-static void
-mock_timer_event_callback( void *user_data ) {
-  UNUSED( user_data );
-
-  stop_messenger();
-}
-
-
-static void
-test_add_and_delete_timer_event_callback() {
-  init_messenger( "/tmp" );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-
-  struct itimerspec interval;
-  interval.it_value.tv_sec = 1;
-  interval.it_value.tv_nsec = 1000;
-  interval.it_interval.tv_sec = 2;
-  interval.it_interval.tv_nsec = 2000;
-  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, "It's time!!!" ) );
-
-  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
-  assert_true( callback != NULL );
-  assert_true( callback->function == mock_timer_event_callback );
-  assert_string_equal( callback->user_data, "It's time!!!" );
-  assert_int_equal( callback->interval.tv_sec, 2 );
-  assert_int_equal( callback->interval.tv_nsec, 2000 );
-
-  start_messenger();
-
-  delete_timer_event_callback( mock_timer_event_callback );
-  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
-
-  finalize_messenger();
-}
-
-
-static void
-test_add_and_delete_periodic_event_callback() {
-  init_messenger( "/tmp" );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, "It's time!!!" ) );
-
-  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
-  assert_true( callback != NULL );
-  assert_true( callback->function == mock_timer_event_callback );
-  assert_true( callback->user_data == "It's time!!!" );
-  assert_int_equal( callback->interval.tv_sec, 1 );
-  assert_int_equal( callback->interval.tv_nsec, 0 );
-
-  assert_true( start_messenger() );
-
-  delete_periodic_event_callback( mock_timer_event_callback );
-  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
-
-  finalize_messenger();
-}
-
-
-static void
-test_clock_gettime_fail_einval() {
-  init_messenger( "/tmp" );
-
-  will_return_count( mock_clock_gettime, -1, -1 );
-  assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, "USER_DATA" ) );
-
-  finalize_messenger();
-}
-
-
-static void
-test_add_timer_event_callback_fail_invalid_timespec() {
-  init_messenger( "/tmp" );
-
-  will_return_count( mock_clock_gettime, 0, -1 );
-
-  struct itimerspec interval;
-  interval.it_value.tv_sec = 0;
-  interval.it_value.tv_nsec = 0;
-  interval.it_interval.tv_sec = 0;
-  interval.it_interval.tv_nsec = 0;
-  assert_false( add_timer_event_callback( &interval, mock_timer_event_callback, "USER_DATA" ) );
-
-  finalize_messenger();
-}
-
-
-static void
-test_delete_timer_event_callback_for_nonexistent_service_name() {
-  init_messenger( "/tmp" );
-
-  assert_false( delete_timer_event_callback( mock_timer_event_callback ) );
 
   finalize_messenger();
 }
@@ -747,39 +635,6 @@ test_start_and_stop_messenger_via_messaging() {
   assert_true( send_message( SERVICE_NAME1, MESSAGE_TYPE1, MESSAGE1, strlen( MESSAGE1 ) + 1 ) );
   assert_true( start_messenger() );
   assert_false( running );
-  assert_true( finalize_messenger() );
-}
-
-
-static void
-test_start_and_stop_dump() {
-  struct itimerspec interval;
-  int count = 0;
-
-  assert_true( init_messenger( "/tmp" ) );
-
-  interval.it_value.tv_sec = 0;
-  interval.it_value.tv_nsec = 0;
-  interval.it_interval.tv_sec = 0;
-  interval.it_interval.tv_nsec = 100 * 1000 * 1000;
-  assert_true( add_timer_event_callback( &interval, timer_event_callback2, &count ) );
-
-  assert_true( add_message_received_callback( DUMP_SERVICE_NAME, dump_received_callback ) );
-  assert_true( add_message_received_callback( SERVICE_NAME1, message_received_callback1 ) );
-
-  start_messenger_dump( DUMP_APP_NAME, DUMP_SERVICE_NAME );
-  assert_string_equal( _dump_app_name, DUMP_APP_NAME );
-  assert_string_equal( _dump_service_name, DUMP_SERVICE_NAME );
-
-  //to change app_name and/or service_name, call start_messenger_dump() twice like this:
-  start_messenger_dump( DUMP_APP_NAME, DUMP_SERVICE_NAME );
-
-  assert_true( start_messenger() );
-
-  stop_messenger_dump();
-  assert_true( _dump_app_name == NULL );
-  assert_true( _dump_service_name == NULL );
-
   assert_true( finalize_messenger() );
 }
 
@@ -1087,28 +942,10 @@ main() {
                               reset_messenger,
                               reset_messenger ),
 
-    // Timer callback tests.
-    unit_test_setup_teardown( test_add_and_delete_timer_event_callback,
-                              reset_messenger,
-                              reset_messenger ),
-    unit_test_setup_teardown( test_add_and_delete_periodic_event_callback,
-                              reset_messenger,
-                              reset_messenger ),
-    unit_test_setup_teardown( test_clock_gettime_fail_einval,
-                              reset_messenger,
-                              reset_messenger ),
-    unit_test_setup_teardown( test_add_timer_event_callback_fail_invalid_timespec,
-                              reset_messenger,
-                              reset_messenger ),
-    unit_test_setup_teardown( test_delete_timer_event_callback_for_nonexistent_service_name,
-                              reset_messenger,
-                              reset_messenger ),
-
     /* unit_test_setup_teardown( test_add_and_delete_message_received_callback, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_rename_message_received_callback, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_start_and_stop_messenger_via_messaging, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_external_fd_send_and_receive, reset_messenger, reset_messenger ), */
-    /* unit_test_setup_teardown( test_start_and_stop_dump, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_add_and_delete_message_replied_callback, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_add_and_delete_message_requested_callback, reset_messenger, reset_messenger ), */
     /* unit_test_setup_teardown( test_request_reply, reset_messenger, reset_messenger ), */

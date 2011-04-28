@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include "trema.h"
 #include "daemon.h"
+#include "doubly_linked_list.h"
 #include "log.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
@@ -53,6 +54,12 @@ bool mock_init_log( const char *ident, bool run_as_daemon );
 #endif
 #define notice mock_notice
 void mock_notice( const char *format, ... );
+
+#ifdef error
+#undef error
+#endif
+#define error mock_error
+void mock_error( const char *format, ... );
 
 #ifdef set_logging_level
 #undef set_logging_level
@@ -193,6 +200,12 @@ bool mock_set_external_callback( void ( *callback ) ( void ) );
 #define dump_stats mock_dump_stats
 void mock_dump_stats();
 
+#ifdef clock_gettime
+#undef clock_gettime
+#endif
+#define clock_gettime mock_clock_gettime
+extern int mock_clock_gettime( clockid_t clk_id, struct timespec *tp );
+
 #define static
 
 #endif // UNIT_TESTING
@@ -222,6 +235,9 @@ static struct option long_options[] = {
   { NULL, 0, NULL, 0 },
 };
 static char short_options[] = "n:dl:h";
+
+
+static dlist_element *timer_callbacks = NULL;
 
 
 /**
@@ -353,6 +369,25 @@ die_unless_initialized() {
 
 
 static void
+delete_timer_callbacks() {
+  dlist_element *e;
+
+  debug( "Deleting timer callbacks ( timer_callbacks = %p ).", timer_callbacks );
+
+  if ( timer_callbacks != NULL ) {
+    for ( e = timer_callbacks->next; e; e = e->next ) {
+      xfree( e->data );
+    }
+    delete_dlist( timer_callbacks );
+    timer_callbacks = NULL;
+  }
+  else {
+    error( "All timer callbacks are already deleted or not created yet." );
+  }
+}
+
+
+static void
 finalize_trema() {
   die_unless_initialized();
 
@@ -370,6 +405,7 @@ finalize_trema() {
   trema_home = NULL;
   xfree( trema_tmp );
   trema_tmp = NULL;
+  delete_timer_callbacks();
 
   initialized = false;
 }
@@ -561,6 +597,8 @@ init_trema( int *argc, char ***argv ) {
   init_messenger( get_trema_tmp() );
   init_stat();
 
+  timer_callbacks = create_dlist();
+
   initialized = true;
 
   pthread_mutex_unlock( &mutex );
@@ -621,6 +659,174 @@ const char *
 get_executable_name() {
   assert( executable_name != NULL );
   return executable_name;
+}
+
+
+#define VALID_TIMESPEC( _a )                                    \
+  ( ( ( _a )->tv_sec > 0 || ( _a )->tv_nsec > 0 ) ? 1 : 0 )
+
+#define ADD_TIMESPEC( _a, _b, _return )                       \
+  do {                                                        \
+    ( _return )->tv_sec = ( _a )->tv_sec + ( _b )->tv_sec;    \
+    ( _return )->tv_nsec = ( _a )->tv_nsec + ( _b )->tv_nsec; \
+    if ( ( _return )->tv_nsec >= 1000000000 ) {               \
+      ( _return )->tv_sec++;                                  \
+      ( _return )->tv_nsec -= 1000000000;                     \
+    }                                                         \
+  }                                                           \
+  while ( 0 )
+
+
+bool
+add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data ) {
+  assert( interval != NULL );
+  assert( callback != NULL );
+
+  debug( "Adding a timer event callback ( interval = %u.%09u, initial expiration = %u.%09u, callback = %p, user_data = %p ).",
+         interval->it_interval.tv_sec, interval->it_interval.tv_nsec,
+         interval->it_value.tv_sec, interval->it_value.tv_nsec, callback, user_data );
+
+  timer_callback *cb;
+  struct timespec now;
+
+  cb = xmalloc( sizeof( timer_callback ) );
+  memset( cb, 0, sizeof( timer_callback ) );
+  cb->function = callback;
+  cb->user_data = user_data;
+
+  if ( clock_gettime( CLOCK_MONOTONIC, &now ) != 0 ) {
+    error( "Failed to retrieve monotonic time ( %s [%d] ).", strerror( errno ), errno );
+    xfree( cb );
+    return false;
+  }
+
+  cb->interval = interval->it_interval;
+
+  if ( VALID_TIMESPEC( &interval->it_value ) ) {
+    ADD_TIMESPEC( &now, &interval->it_value, &cb->expires_at );
+  }
+  else if ( VALID_TIMESPEC( &interval->it_interval ) ) {
+    ADD_TIMESPEC( &now, &interval->it_interval, &cb->expires_at );
+  }
+  else {
+    error( "Timer must not be zero when a timer event is added." );
+    xfree( cb );
+    return false;
+  }
+
+  debug( "Set an initial expiration time to %u.%09u.", now.tv_sec, now.tv_nsec );
+
+  assert( timer_callbacks != NULL );
+  insert_after_dlist( timer_callbacks, cb );
+
+  return true;
+}
+
+
+bool
+add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
+  assert( callback != NULL );
+
+  debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
+         seconds, callback, user_data );
+
+  struct itimerspec interval;
+
+  interval.it_value.tv_sec = 0;
+  interval.it_value.tv_nsec = 0;
+  interval.it_interval.tv_sec = seconds;
+  interval.it_interval.tv_nsec = 0;
+
+  return add_timer_event_callback( &interval, callback, user_data );
+}
+
+
+bool
+delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
+  assert( callback != NULL );
+
+  debug( "Deleting a timer event callback ( callback = %p ).", callback );
+
+  dlist_element *e;
+
+  if ( timer_callbacks == NULL ) {
+    error( "All timer callbacks are already deleted or not created yet." );
+    return false;
+  }
+
+  for ( e = timer_callbacks->next; e; e = e->next ) {
+    timer_callback *cb = e->data;
+    if ( cb->function == callback ) {
+      debug( "Deleting a callback ( callback = %p ).", callback );
+      xfree( cb );
+      delete_dlist_element( e );
+      return true;
+    }
+  }
+
+  error( "No registered callback found." );
+
+  return false;
+}
+
+
+bool
+delete_periodic_event_callback( void ( *callback )( void *user_data ) ) {
+  assert( callback != NULL );
+
+  debug( "Deleting a periodic event callback ( callback = %p ).", callback );
+
+  return delete_timer_event_callback( callback );
+}
+
+
+static void
+on_timer( timer_callback *callback ) {
+  assert( callback != NULL );
+  assert( callback->function != NULL );
+
+  debug( "Executing a timer event ( function = %p, expires_at = %u.%09u, interval = %u.%09u, user_data = %p ).",
+         callback->function, callback->expires_at.tv_sec, callback->expires_at.tv_nsec,
+         callback->interval.tv_sec, callback->interval.tv_nsec, callback->user_data );
+
+  if ( VALID_TIMESPEC( &callback->expires_at ) ) {
+    callback->function( callback->user_data );
+    if ( VALID_TIMESPEC( &callback->interval ) ) {
+      ADD_TIMESPEC( &callback->expires_at, &callback->interval, &callback->expires_at );
+    }
+    else {
+      callback->expires_at.tv_sec = 0;
+      callback->expires_at.tv_nsec = 0;
+    }
+    debug( "Set expires_at value to %u.%09u.", callback->expires_at.tv_sec, callback->expires_at.tv_nsec );
+  }
+  else {
+    error( "Invalid expires_at value." );
+  }
+}
+
+
+// FIXME: make me static
+void
+execute_timer_events() {
+  struct timespec now;
+  timer_callback *callback;
+  dlist_element *element;
+
+  debug( "Executing timer events ( timer_callbacks = %p ).", timer_callbacks );
+
+  assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 );
+  assert( timer_callbacks != NULL );
+
+  // TODO: timer_callbacks should be a list which is sorted by expiry time
+  for ( element = timer_callbacks->next; element; element = element->next ) {
+    callback = element->data;
+    if ( ( callback->expires_at.tv_sec < now.tv_sec )
+       || ( ( callback->expires_at.tv_sec == now.tv_sec )
+          && ( callback->expires_at.tv_nsec <= now.tv_nsec ) ) ) {
+      on_timer( callback );
+    }
+  }
 }
 
 

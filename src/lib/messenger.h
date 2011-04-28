@@ -74,6 +74,15 @@ enum {
 typedef void ( *callback_message_received )( uint16_t tag, void *data, size_t len );
 
 
+// FIXME: Move to trema.c
+typedef struct timer_callback {
+  void ( *function )( void *user_data );
+  struct timespec expires_at;
+  struct timespec interval;
+  void *user_data;
+} timer_callback;
+
+
 bool init_messenger( const char *working_directory );
 bool add_message_received_callback( const char *service_name, const callback_message_received function );
 bool add_message_requested_callback( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
