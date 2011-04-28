@@ -299,11 +299,9 @@ init_messenger( const char *working_directory ) {
   send_queues = create_hash( compare_string, hash_string );
   timer_callbacks = create_dlist();
   context_db = create_hash( compare_uint32, hash_uint32 );
-  add_periodic_event_callback( 10, age_context_db, NULL );
 
   initialized = true;
-
-  return true;
+  return initialized;
 }
 
 
@@ -1782,6 +1780,8 @@ flush_messenger() {
 bool
 start_messenger() {
   debug( "Starting messenger." );
+
+  add_periodic_event_callback( 10, age_context_db, NULL );
 
   running = true;
   while ( running ) {

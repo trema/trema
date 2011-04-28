@@ -476,8 +476,6 @@ reset_messenger() {
 
 static void
 test_init_and_finalize() {
-  will_return( mock_clock_gettime, 0 );
-
   assert_true( init_messenger( "/tmp" ) );
   assert_true( finalize_messenger() );
 }
@@ -485,8 +483,6 @@ test_init_and_finalize() {
 
 static void
 test_init_twice() {
-  will_return( mock_clock_gettime, 0 );
-
   assert_true( init_messenger( "/tmp" ) );
   assert_true( init_messenger( "/tmp" ) );
 
@@ -496,8 +492,6 @@ test_init_twice() {
 
 static void
 test_finalize_twice() {
-  will_return( mock_clock_gettime, 0 );
-
   init_messenger( "/tmp" );
 
   assert_true( finalize_messenger() );
@@ -527,9 +521,9 @@ callback_hello( uint16_t tag, void *data, size_t len ) {
 
 static void
 test_send_then_message_received_callback_is_called() {
-  will_return_count( mock_clock_gettime, 0, -1 );
-
   init_messenger( "/tmp" );
+
+  will_return_count( mock_clock_gettime, 0, -1 );
 
   const char service_name[] = "Say HELLO";
 
@@ -554,15 +548,17 @@ test_send_then_message_received_callback_is_called() {
 
 static void
 mock_timer_event_callback( void *user_data ) {
+  UNUSED( user_data );
+
   stop_messenger();
 }
 
 
 static void
 test_add_and_delete_timer_event_callback() {
-  will_return_count( mock_clock_gettime, 0, -1 );
-
   init_messenger( "/tmp" );
+
+  will_return_count( mock_clock_gettime, 0, -1 );
 
   struct itimerspec interval;
   interval.it_value.tv_sec = 1;
@@ -589,10 +585,9 @@ test_add_and_delete_timer_event_callback() {
 
 static void
 test_add_and_delete_periodic_event_callback() {
-  will_return_count( mock_clock_gettime, 0, -1 );
-
   init_messenger( "/tmp" );
 
+  will_return_count( mock_clock_gettime, 0, -1 );
   assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, "It's time!!!" ) );
 
   timer_callback *callback = find_timer_callback( mock_timer_event_callback );
@@ -613,11 +608,9 @@ test_add_and_delete_periodic_event_callback() {
 
 static void
 test_clock_gettime_fail_einval() {
-  will_return( mock_clock_gettime, 0 );
-  will_return( mock_clock_gettime, -1 );
-
   init_messenger( "/tmp" );
 
+  will_return_count( mock_clock_gettime, -1, -1 );
   assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, "USER_DATA" ) );
 
   finalize_messenger();
@@ -626,9 +619,9 @@ test_clock_gettime_fail_einval() {
 
 static void
 test_add_timer_event_callback_fail_invalid_timespec() {
-  will_return_count( mock_clock_gettime, 0, -1 );
-
   init_messenger( "/tmp" );
+
+  will_return_count( mock_clock_gettime, 0, -1 );
 
   struct itimerspec interval;
   interval.it_value.tv_sec = 0;
@@ -643,7 +636,6 @@ test_add_timer_event_callback_fail_invalid_timespec() {
 
 static void
 test_delete_timer_event_callback_for_nonexistent_service_name() {
-  will_return_count( mock_clock_gettime, 0, -1 );
   init_messenger( "/tmp" );
 
   assert_false( delete_timer_event_callback( mock_timer_event_callback ) );
