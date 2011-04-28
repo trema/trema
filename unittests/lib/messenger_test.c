@@ -548,14 +548,32 @@ test_add_and_delete_timer_event_callback() {
 
   timer_callback *callback = find_timer_callback( mock_timer_event_callback );
   assert_true( callback != NULL );
-  assert_true( callback->function == ( void * ) mock_timer_event_callback );
-  assert_true( callback->user_data == ( void * ) "It's time!!!" );
+  assert_true( callback->function == mock_timer_event_callback );
+  assert_string_equal( callback->user_data, "It's time!!!" );
   assert_int_equal( callback->interval.tv_sec, 2 );
   assert_int_equal( callback->interval.tv_nsec, 2000 );
 
   start_messenger();
 
   delete_timer_event_callback( mock_timer_event_callback );
+  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
+}
+
+
+static void
+test_add_and_delete_periodic_event_callback() {
+  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, "It's time!!!" ) );
+
+  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
+  assert_true( callback != NULL );
+  assert_true( callback->function == mock_timer_event_callback );
+  assert_true( callback->user_data == "It's time!!!" );
+  assert_int_equal( callback->interval.tv_sec, 1 );
+  assert_int_equal( callback->interval.tv_nsec, 0 );
+
+  assert_true( start_messenger() );
+
+  delete_periodic_event_callback( mock_timer_event_callback );
   assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
 }
 
@@ -603,30 +621,6 @@ test_add_and_delete_message_requested_callback() {
   assert_true( delete_message_requested_callback( SERVICE_NAME1, message_requested_callback ) );
   rq = lookup_hash_entry( receive_queues, SERVICE_NAME1 );
   assert_true( rq == NULL );
-
-  assert_true( finalize_messenger() );
-}
-
-
-static void
-test_add_and_delete_periodic_event_callback() {
-  timer_callback *cb;
-
-  assert_true( init_messenger( "/tmp" ) );
-
-  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, mock_timer_event_callback ) );
-
-  cb = find_timer_callback( mock_timer_event_callback );
-  assert_true( cb != NULL );
-  assert_true( cb->function == mock_timer_event_callback );
-  assert_true( cb->user_data == mock_timer_event_callback );
-  assert_int_equal( cb->interval.tv_sec, 1 );
-  assert_int_equal( cb->interval.tv_nsec, 0 );
-
-  assert_true( start_messenger() );
-
-  assert_true( delete_periodic_event_callback( mock_timer_event_callback ) );
-  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
 
   assert_true( finalize_messenger() );
 }
@@ -1084,14 +1078,17 @@ main() {
     unit_test_setup_teardown( test_finalize_without_init, reset_messenger, reset_messenger ),
 
     unit_test_setup_teardown( test_add_and_delete_message_received_callback, reset_messenger, reset_messenger ),
-    unit_test_setup_teardown( test_add_and_delete_periodic_event_callback, reset_messenger, reset_messenger ),
     unit_test_setup_teardown( test_rename_message_received_callback, reset_messenger, reset_messenger ),
 
     unit_test_setup_teardown( test_send_then_message_received_callback_is_called,
                               init_messenger_for_unit_test,
                               finalize_messenger_for_unit_test ),
 
+    // Timer callback tests.
     unit_test_setup_teardown( test_add_and_delete_timer_event_callback,
+                              init_messenger_for_unit_test,
+                              finalize_messenger_for_unit_test ),
+    unit_test_setup_teardown( test_add_and_delete_periodic_event_callback,
                               init_messenger_for_unit_test,
                               finalize_messenger_for_unit_test ),
 
