@@ -317,13 +317,6 @@ stop_messenger_callback( uint16_t tag, void *data, size_t len ) {
 
 
 static void
-timer_event_callback1( void *user_data ) {
-  assert_true( user_data == timer_event_callback1 );
-  assert_true( stop_messenger() );
-}
-
-
-static void
 timer_event_callback2( void *user_data ) {
   int *count = ( int * ) user_data;
 
@@ -534,32 +527,36 @@ test_add_and_delete_message_received_callback() {
 }
 
 
+/********************************************************************************
+ * Timer callback tests.
+ ********************************************************************************/
+
+static void
+mock_timer_event_callback( void *user_data ) {
+  stop_messenger();
+}
+
+
 static void
 test_add_and_delete_timer_event_callback() {
-  timer_callback *cb;
   struct itimerspec interval;
-
-  assert_true( init_messenger( "/tmp" ) );
-
   interval.it_value.tv_sec = 1;
   interval.it_value.tv_nsec = 1000;
   interval.it_interval.tv_sec = 2;
   interval.it_interval.tv_nsec = 2000;
-  assert_true( add_timer_event_callback( &interval, timer_event_callback1, timer_event_callback1 ) );
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, "It's time!!!" ) );
 
-  cb = find_timer_callback( timer_event_callback1 );
-  assert_true( cb != NULL );
-  assert_true( cb->function == ( void * ) timer_event_callback1 );
-  assert_true( cb->user_data == ( void * ) timer_event_callback1 );
-  assert_int_equal( cb->interval.tv_sec, 2 );
-  assert_int_equal( cb->interval.tv_nsec, 2000 );
+  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
+  assert_true( callback != NULL );
+  assert_true( callback->function == ( void * ) mock_timer_event_callback );
+  assert_true( callback->user_data == ( void * ) "It's time!!!" );
+  assert_int_equal( callback->interval.tv_sec, 2 );
+  assert_int_equal( callback->interval.tv_nsec, 2000 );
 
-  assert_true( start_messenger() );
+  start_messenger();
 
-  assert_true( delete_timer_event_callback( timer_event_callback1 ) );
-  assert_true( find_timer_callback( timer_event_callback1 ) == NULL );
-
-  assert_true( finalize_messenger() );
+  delete_timer_event_callback( mock_timer_event_callback );
+  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
 }
 
 
@@ -617,19 +614,19 @@ test_add_and_delete_periodic_event_callback() {
 
   assert_true( init_messenger( "/tmp" ) );
 
-  assert_true( add_periodic_event_callback( 1, timer_event_callback1, timer_event_callback1 ) );
+  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, mock_timer_event_callback ) );
 
-  cb = find_timer_callback( timer_event_callback1 );
+  cb = find_timer_callback( mock_timer_event_callback );
   assert_true( cb != NULL );
-  assert_true( cb->function == timer_event_callback1 );
-  assert_true( cb->user_data == timer_event_callback1 );
+  assert_true( cb->function == mock_timer_event_callback );
+  assert_true( cb->user_data == mock_timer_event_callback );
   assert_int_equal( cb->interval.tv_sec, 1 );
   assert_int_equal( cb->interval.tv_nsec, 0 );
 
   assert_true( start_messenger() );
 
-  assert_true( delete_periodic_event_callback( timer_event_callback1 ) );
-  assert_true( find_timer_callback( timer_event_callback1 ) == NULL );
+  assert_true( delete_periodic_event_callback( mock_timer_event_callback ) );
+  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
 
   assert_true( finalize_messenger() );
 }
@@ -839,7 +836,7 @@ test_clock_gettime_fail_einval() {
 
   fail_mock_clock_gettime = true;
   errno = EINVAL;
-  assert_false( add_periodic_event_callback( 1, timer_event_callback1, timer_event_callback1 ) );
+  assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, mock_timer_event_callback ) );
   fail_mock_clock_gettime = false;
 
   assert_true( finalize_messenger() );
@@ -856,7 +853,7 @@ test_add_timer_event_callback_fail_invailid_timespec() {
   interval.it_value.tv_nsec = 0;
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
-  assert_false( add_timer_event_callback( &interval, timer_event_callback1, timer_event_callback1 ) );
+  assert_false( add_timer_event_callback( &interval, mock_timer_event_callback, mock_timer_event_callback ) );
 
   assert_true( finalize_messenger() );
 }
@@ -873,7 +870,7 @@ test_delete_message_received_callback_for_nonexistent_service_name() {
 static void
 test_delete_timer_event_callback_for_nonexistent_service_name() {
   assert_true( init_messenger( "/tmp" ) );
-  assert_false( delete_timer_event_callback( timer_event_callback1 ) );
+  assert_false( delete_timer_event_callback( mock_timer_event_callback ) );
   assert_true( finalize_messenger() );
 }
 
@@ -907,7 +904,7 @@ test_select_fail_eintr() {
   interval.it_value.tv_nsec = 1000 * 1000;
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
-  assert_true( add_timer_event_callback( &interval, timer_event_callback1, timer_event_callback1 ) );
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, mock_timer_event_callback ) );
 
   errno = EINTR;
   fail_mock_select = true;
@@ -1088,10 +1085,13 @@ main() {
 
     unit_test_setup_teardown( test_add_and_delete_message_received_callback, reset_messenger, reset_messenger ),
     unit_test_setup_teardown( test_add_and_delete_periodic_event_callback, reset_messenger, reset_messenger ),
-    unit_test_setup_teardown( test_add_and_delete_timer_event_callback, reset_messenger, reset_messenger ),
     unit_test_setup_teardown( test_rename_message_received_callback, reset_messenger, reset_messenger ),
 
     unit_test_setup_teardown( test_send_then_message_received_callback_is_called,
+                              init_messenger_for_unit_test,
+                              finalize_messenger_for_unit_test ),
+
+    unit_test_setup_teardown( test_add_and_delete_timer_event_callback,
                               init_messenger_for_unit_test,
                               finalize_messenger_for_unit_test ),
 
