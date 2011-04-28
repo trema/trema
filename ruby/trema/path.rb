@@ -83,7 +83,7 @@ module Trema
 
 
     def self.cmockery
-      File.join path, "cmockery-0.1.2"
+      File.join path, "cmockery-20110428"
     end
 
 
