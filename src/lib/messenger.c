@@ -139,21 +139,6 @@ extern void mock_execute_timer_events( void );
 #endif // UNIT_TESTING
 
 
-#define ADD_TIMESPEC( _a, _b, _return )                       \
-  do {                                                        \
-    ( _return )->tv_sec = ( _a )->tv_sec + ( _b )->tv_sec;    \
-    ( _return )->tv_nsec = ( _a )->tv_nsec + ( _b )->tv_nsec; \
-    if ( ( _return )->tv_nsec >= 1000000000 ) {               \
-      ( _return )->tv_sec++;                                  \
-      ( _return )->tv_nsec -= 1000000000;                     \
-    }                                                         \
-  }                                                           \
-  while ( 0 )
-
-#define VALID_TIMESPEC( _a )                                  \
-  ( ( ( _a )->tv_sec > 0 || ( _a )->tv_nsec > 0 ) ? 1 : 0 )
-
-
 enum {
   MESSAGE_TYPE_NOTIFY,
   MESSAGE_TYPE_REQUEST,
