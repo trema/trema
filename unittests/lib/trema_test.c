@@ -280,12 +280,14 @@ mock_dump_stats() {
 bool
 mock_init_timer() {
   // Do nothing.
+  return true;
 }
 
 
 bool
 mock_finalize_timer() {
   // Do nothing.
+  return true;
 }
 
 

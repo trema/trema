@@ -98,7 +98,7 @@ extern void handle_message( uint16_t type, void *data, size_t length );
 
 static const pid_t PID = 12345;
 static char SERVICE_NAME[] = "learning switch application 0";
-static openflow_event_handlers_t NULL_EVENT_HANDLERS = { ( void * ) 0, ( void * ) 0,
+static openflow_event_handlers_t NULL_EVENT_HANDLERS = { false, ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
@@ -111,18 +111,19 @@ static openflow_event_handlers_t NULL_EVENT_HANDLERS = { ( void * ) 0, ( void * 
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0 };
 static openflow_event_handlers_t EVENT_HANDLERS = {
-    SWITCH_READY_HANDLER, SWITCH_READY_USER_DATA,
-    SWITCH_DISCONNECTED_HANDLER, SWITCH_DISCONNECTED_USER_DATA,
-    ERROR_HANDLER, ERROR_USER_DATA,
-    VENDOR_HANDLER, VENDOR_USER_DATA,
-    FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA,
-    GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA,
-    false, PACKET_IN_HANDLER, PACKET_IN_USER_DATA,
-    FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA,
-    PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA,
-    STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA,
-    BARRIER_REPLY_HANDLER, BARRIER_REPLY_USER_DATA,
-    QUEUE_GET_CONFIG_REPLY_HANDLER, QUEUE_GET_CONFIG_REPLY_USER_DATA };
+  false, SWITCH_READY_HANDLER, SWITCH_READY_USER_DATA,
+  SWITCH_DISCONNECTED_HANDLER, SWITCH_DISCONNECTED_USER_DATA,
+  ERROR_HANDLER, ERROR_USER_DATA,
+  VENDOR_HANDLER, VENDOR_USER_DATA,
+  FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA,
+  GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA,
+  false, PACKET_IN_HANDLER, PACKET_IN_USER_DATA,
+  FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA,
+  PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA,
+  STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA,
+  BARRIER_REPLY_HANDLER, BARRIER_REPLY_USER_DATA,
+  QUEUE_GET_CONFIG_REPLY_HANDLER, QUEUE_GET_CONFIG_REPLY_USER_DATA
+};
 static uint64_t DATAPATH_ID = 0x0102030405060708ULL;
 static char REMOTE_SERVICE_NAME[] = "switch.102030405060708";
 static const uint32_t TRANSACTION_ID = 0x04030201;
