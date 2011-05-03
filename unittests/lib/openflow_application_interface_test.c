@@ -208,13 +208,6 @@ mock_parse_packet( buffer *buf ) {
 
 
 static void
-mock_switch_ready_handler( uint64_t datapath_id, void *user_data ) {
-  check_expected( &datapath_id );
-  check_expected( user_data );
-}
-
-
-static void
 mock_switch_disconnected_handler( uint64_t datapath_id, void *user_data ) {
   check_expected( &datapath_id );
   check_expected( user_data );
@@ -571,14 +564,37 @@ test_set_openflow_event_handlers() {
 
 
 /********************************************************************************
- * set_switch_ready_handler() tests.
+ * Switch ready handler tests.
  ********************************************************************************/
 
 static void
+mock_switch_ready_handler( uint64_t datapath_id, void *user_data ) {
+  check_expected( &datapath_id );
+  check_expected( user_data );
+}
+
+
+static void
+mock_simple_switch_ready_handler( switch_ready event ) {
+  uint64_t datapath_id = event.datapath_id;
+  void *user_data = event.user_data;
+
+  check_expected( &datapath_id );
+  check_expected( user_data );
+}
+
+
+static void
 test_set_switch_ready_handler() {
-  assert_true( set_switch_ready_handler( SWITCH_READY_HANDLER, SWITCH_READY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.switch_ready_callback, ( int ) SWITCH_READY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.switch_ready_user_data, ( int ) SWITCH_READY_USER_DATA );
+  set_switch_ready_handler( mock_switch_ready_handler, SWITCH_READY_USER_DATA );
+  assert_true( event_handlers.switch_ready_callback == mock_switch_ready_handler );
+  assert_true( event_handlers.switch_ready_user_data == SWITCH_READY_USER_DATA );
+}
+
+
+static void
+test_set_simple_switch_ready_handler() {
+  set_switch_ready_handler( mock_simple_switch_ready_handler, SWITCH_READY_USER_DATA );
 }
 
 
@@ -3058,7 +3074,9 @@ main() {
 
     unit_test_setup_teardown( test_set_openflow_event_handlers, init, cleanup ),
 
+    // switch ready handler tests.
     unit_test_setup_teardown( test_set_switch_ready_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_simple_switch_ready_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_switch_ready_handler_if_handler_is_NULL, init, cleanup ),
 
     unit_test_setup_teardown( test_set_switch_disconnected_handler, init, cleanup ),

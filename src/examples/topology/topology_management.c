@@ -225,7 +225,7 @@ update_notification( sw_entry *sw, port_entry *port, const struct ofp_phy_port *
 
 
 static void
-switch_ready( uint64_t datapath_id, void *user_data ) {
+handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   sw_entry *sw = update_sw_entry( &datapath_id );
@@ -354,7 +354,7 @@ port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason,
 bool
 start_topology_management( void ) {
   init_openflow_application_interface( get_trema_name() );
-  set_switch_ready_handler( switch_ready, NULL );
+  set_switch_ready_handler( handle_switch_ready, NULL );
   set_switch_disconnected_handler( switch_disconnected, NULL );
   set_features_reply_handler( switch_features_reply, NULL );
   set_port_status_handler( port_status, NULL );

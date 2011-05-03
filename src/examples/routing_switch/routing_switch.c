@@ -467,7 +467,7 @@ receive_features_reply( uint64_t datapath_id, uint32_t transaction_id,
 
 
 static void
-switch_ready( uint64_t datapath_id, void *user_data ) {
+handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   uint32_t id = get_transaction_id();
@@ -649,7 +649,7 @@ init_last_stage( void *user_data, size_t n_entries, const topology_port_status *
   set_features_reply_handler( receive_features_reply, routing_switch );
 
   // (1) Set switch_ready handler
-  set_switch_ready_handler( switch_ready, routing_switch );
+  set_switch_ready_handler( handle_switch_ready, routing_switch );
 
   // (2) Set port status update callback
   add_callback_port_status_updated( port_status_updated, routing_switch );

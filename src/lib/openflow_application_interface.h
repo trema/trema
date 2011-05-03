@@ -43,7 +43,14 @@ bool openflow_application_interface_is_initialized( void );
  * Event handler definitions.
  ********************************************************************************/
 
-typedef void ( *switch_ready_handler )(
+typedef struct {
+  uint64_t datapath_id;
+  void *user_data;
+} switch_ready;
+
+typedef void ( simple_switch_ready_handler )( switch_ready event );
+
+typedef void ( switch_ready_handler )(
   uint64_t datapath_id,
   void *user_data
 );
@@ -172,7 +179,8 @@ typedef void ( *queue_get_config_reply_handler )(
 
 
 typedef struct openflow_event_handlers {
-  switch_ready_handler switch_ready_callback;
+  bool simple_switch_ready_callback;
+  void *switch_ready_callback;
   void *switch_ready_user_data;
 
   switch_disconnected_handler switch_disconnected_callback;
@@ -216,12 +224,27 @@ typedef struct openflow_event_handlers {
  ********************************************************************************/
 
 bool set_openflow_event_handlers( const openflow_event_handlers_t handlers );
-bool set_switch_ready_handler( switch_ready_handler handler, void *user_data );
+
+#define set_switch_ready_handler( callback, user_data )                                      \
+  {                                                                                          \
+    if ( __builtin_types_compatible_p( typeof( callback ), simple_switch_ready_handler ) ) { \
+      _set_switch_ready_handler( true, callback, user_data );                                \
+    }                                                                                        \
+    else if ( __builtin_types_compatible_p( typeof( callback ), switch_ready_handler ) ) {   \
+      _set_switch_ready_handler( false, callback, user_data );                               \
+    }                                                                                        \
+    else {                                                                                   \
+      _set_switch_ready_handler( false, NULL, NULL );                                        \
+    }                                                                                        \
+  }
+bool _set_switch_ready_handler( bool simple_callback, void *callback, void *user_data );
+
 bool set_switch_disconnected_handler( switch_disconnected_handler callback, void *user_data );
 bool set_error_handler( error_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );
+
 #define set_packet_in_handler( callback, user_data )                                      \
   {                                                                                       \
     if ( __builtin_types_compatible_p( typeof( callback ), simple_packet_in_handler ) ) { \
@@ -231,17 +254,16 @@ bool set_get_config_reply_handler( get_config_reply_handler callback, void *user
       _set_packet_in_handler( false, callback, user_data );                               \
     }                                                                                     \
     else {                                                                                \
-      _set_packet_in_handler( false, NULL, user_data );                                   \
+      _set_packet_in_handler( false, NULL, NULL );                                        \
     }                                                                                     \
   }
+bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
+
 bool set_flow_removed_handler( flow_removed_handler callback, void *user_data );
 bool set_port_status_handler( port_status_handler callback, void *user_data );
 bool set_stats_reply_handler( stats_reply_handler callback, void *user_data );
 bool set_barrier_reply_handler( barrier_reply_handler callback, void *user_data );
 bool set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, void *user_data );
-
-
-bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
 
 
 /********************************************************************************

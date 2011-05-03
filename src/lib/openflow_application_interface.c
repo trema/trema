@@ -217,7 +217,7 @@ set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
 
 
 bool
-set_switch_ready_handler( switch_ready_handler callback, void *user_data ) {
+_set_switch_ready_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
     die( "Callback function ( switch_ready_handler ) must not be NULL." );
   }
@@ -229,6 +229,7 @@ set_switch_ready_handler( switch_ready_handler callback, void *user_data ) {
   debug( "Setting a switch ready handler ( callback = %p, user_data = %p ).",
          callback, user_data );
 
+  event_handlers.simple_switch_ready_callback = simple_callback;
   event_handlers.switch_ready_callback = callback;
   event_handlers.switch_ready_user_data = user_data;
 
@@ -1220,14 +1221,19 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
     break;
   case MESSENGER_OPENFLOW_READY:
     if ( event_handlers.switch_ready_callback != NULL ) {
-      debug( "Calling switch ready handler ( callback = %p, user_data = %p ).",
-             event_handlers.switch_ready_callback, event_handlers.switch_ready_user_data );
-
-      event_handlers.switch_ready_callback( datapath_id,
-                                            event_handlers.switch_ready_user_data );
-    }
-    else {
-      debug( "Callback function for switch ready events is not set." );
+      if ( event_handlers.simple_switch_ready_callback ) {
+        switch_ready event = {
+          datapath_id,
+          event_handlers.switch_ready_user_data
+        };
+        ( ( simple_switch_ready_handler * ) event_handlers.switch_ready_callback )( event );
+      }
+      else {
+        ( ( switch_ready_handler * ) event_handlers.switch_ready_callback )(
+          datapath_id,
+          event_handlers.switch_ready_user_data
+        );
+      }
     }
     break;
   case MESSENGER_OPENFLOW_DISCONNECTED:

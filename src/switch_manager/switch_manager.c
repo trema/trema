@@ -348,7 +348,7 @@ catch_sigchild( void ) {
 
 
 static void
-switch_ready( uint64_t datapath_id, void *user_data ) {
+handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   debug( "Switch (dpid = %#" PRIx64 ") is connected.", datapath_id );
@@ -392,7 +392,7 @@ stop_service_management( void ) {
 static bool
 start_switch_management( void ) {
   init_openflow_application_interface( get_trema_name() );
-  set_switch_ready_handler( switch_ready, NULL );
+  set_switch_ready_handler( handle_switch_ready, NULL );
   set_switch_disconnected_handler( switch_disconnected, NULL );
 
   return true;
