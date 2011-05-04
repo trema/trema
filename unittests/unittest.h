@@ -1,4 +1,8 @@
 /*
+ * Common utility macros for unit tests.
+ *
+ * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ #
  * Copyright (C) 2008-2011 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,10 +31,10 @@
 #include "cmockery.h"
 
 
-/*
+/********************************************************************************
  * Relax cmockery's restrictions to avoid warnings.
- * See: http://stackoverflow.com/questions/4610892/how-do-i-tell-gcc-to-relax-its-restrictions-on-typecasting-when-calling-a-c-funct
- */
+ * See also: http://bit.ly/iw9ZbB
+ ********************************************************************************/
 
 #ifdef expect_string_count
 #undef expect_string_count
@@ -57,9 +61,9 @@
   }
 
 
-/*
- * Common utility macros used in unittests.
- */
+/********************************************************************************
+ * Misc common macros.
+ ********************************************************************************/
 
 #define ARRAY_SIZE( name ) ( sizeof( name ) / sizeof( name[ 0 ] ) )
 
