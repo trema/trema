@@ -1194,6 +1194,30 @@ update_switch_event_stats( uint16_t type, int send_receive, bool result ) {
 
 
 static void
+handle_switch_ready( uint64_t datapath_id ) {
+  if ( event_handlers.switch_ready_callback == NULL ) {
+    debug( "Callback function for switch_ready events is not set." );
+    return;
+  }
+
+  assert( event_handlers.switch_ready_callback != NULL );
+  if ( event_handlers.simple_switch_ready_callback ) {
+    switch_ready event = {
+      datapath_id,
+      event_handlers.switch_ready_user_data
+    };
+    ( ( simple_switch_ready_handler * ) event_handlers.switch_ready_callback )( event );
+  }
+  else {
+    ( ( switch_ready_handler * ) event_handlers.switch_ready_callback )(
+      datapath_id,
+      event_handlers.switch_ready_user_data
+    );
+  }
+}
+
+
+static void
 handle_switch_events( uint16_t type, void *data, size_t length ) {
   uint64_t datapath_id;
   openflow_service_header_t *message;
@@ -1211,21 +1235,7 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
   case MESSENGER_OPENFLOW_CONNECTED:
     break;
   case MESSENGER_OPENFLOW_READY:
-    if ( event_handlers.switch_ready_callback != NULL ) {
-      if ( event_handlers.simple_switch_ready_callback ) {
-        switch_ready event = {
-          datapath_id,
-          event_handlers.switch_ready_user_data
-        };
-        ( ( simple_switch_ready_handler * ) event_handlers.switch_ready_callback )( event );
-      }
-      else {
-        ( ( switch_ready_handler * ) event_handlers.switch_ready_callback )(
-          datapath_id,
-          event_handlers.switch_ready_user_data
-        );
-      }
-    }
+    handle_switch_ready( datapath_id );
     break;
   case MESSENGER_OPENFLOW_DISCONNECTED:
     if ( event_handlers.switch_disconnected_callback != NULL ) {
