@@ -26,6 +26,7 @@
 #include <string.h>
 #include "cmockery.h"
 #include "doubly_linked_list.h"
+#include "unittest.h"
 
 
 /********************************************************************************

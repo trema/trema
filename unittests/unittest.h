@@ -27,6 +27,40 @@
 #include "cmockery.h"
 
 
+/*
+ * Relax cmockery's restrictions to avoid warnings.
+ * See: http://stackoverflow.com/questions/4610892/how-do-i-tell-gcc-to-relax-its-restrictions-on-typecasting-when-calling-a-c-funct
+ */
+
+#ifdef expect_string_count
+#undef expect_string_count
+#endif
+#define expect_string_count( function, parameter, string, count )	     \
+  _expect_string( #function, #parameter, __FILE__, __LINE__, string, count )
+
+#ifdef expect_assert_failure
+#undef expect_assert_failure
+#endif
+#define expect_assert_failure(function_call)                                \
+  {                                                                         \
+    const char* expression = (const char*)setjmp(global_expect_assert_env); \
+    global_expecting_assert = 1;                                            \
+    if (expression) {                                                       \
+      print_message("Expected assertion %s occurred\n", expression);        \
+      global_expecting_assert = 0;                                          \
+    } else {                                                                \
+      function_call ;                                                       \
+      global_expecting_assert = 0;                                          \
+      print_error("Expected assert in %s\n", #function_call);               \
+      _fail(__FILE__, __LINE__);                                            \
+    }                                                                       \
+  }
+
+
+/*
+ * Common utility macros used in unittests.
+ */
+
 #define ARRAY_SIZE( name ) ( sizeof( name ) / sizeof( name[ 0 ] ) )
 
 #define will_return_void( f ) will_return( f, 0 )
@@ -38,16 +72,6 @@
       memcmp( ( s ), &zero_set, sizeof( fd_set ) ) == 0; \
     }                                                    \
   )
-
-/*
- * Relax cmockery's restrictions of expect_string() to avoid warnings.
- * See also: http://stackoverflow.com/questions/4610892/how-do-i-tell-gcc-to-relax-its-restrictions-on-typecasting-when-calling-a-c-funct
- */
-#ifdef expect_string_count
-#undef expect_string_count
-#endif
-#define expect_string_count( function, parameter, string, count )	\
-  _expect_string( #function, #parameter, __FILE__, __LINE__, string, count )
 
 
 #endif /* UNITTEST_H */

@@ -30,6 +30,7 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "cmockery.h"
+#include "unittest.h"
 
 
 void

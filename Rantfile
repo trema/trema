@@ -108,11 +108,10 @@ end
 
 
 ################################################################################
-# Global options
+# !!!!!! DO NOT MODIFY !!!!!!
 ################################################################################
 
 var :CFLAGS => "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
-var :CFLAGS_UNITTEST => "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -Wextra -Wformat=2 -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
 
 
 ################################################################################
@@ -735,7 +734,7 @@ end
 gen Directory, "unittests/objects"
 
 gen DirectedRule, "unittests/objects" => [ "unittests", "unittests/lib", "src/lib" ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS_UNITTEST } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 

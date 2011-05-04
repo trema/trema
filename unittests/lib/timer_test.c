@@ -114,12 +114,13 @@ test_timer_event_callback() {
 
   will_return_count( mock_clock_gettime, 0, -1 );
 
+  char user_data[] = "It's time!!!";
   struct itimerspec interval;
   interval.it_value.tv_sec = 1;
   interval.it_value.tv_nsec = 1000;
   interval.it_interval.tv_sec = 2;
   interval.it_interval.tv_nsec = 2000;
-  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, ( void * ) "It's time!!!" ) );
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, user_data ) );
 
   timer_callback *callback = find_timer_callback( mock_timer_event_callback );
   assert_true( callback != NULL );
@@ -139,8 +140,9 @@ static void
 test_periodic_event_callback() {
   init_timer();
 
+  char user_data[] = "It's time!!!";
   will_return_count( mock_clock_gettime, 0, -1 );
-  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, ( void * ) "It's time!!!" ) );
+  assert_true( add_periodic_event_callback( 1, mock_timer_event_callback, user_data ) );
 
   timer_callback *callback = find_timer_callback( mock_timer_event_callback );
   assert_true( callback != NULL );
@@ -162,12 +164,13 @@ test_add_timer_event_callback_fail_with_invalid_timespec() {
 
   will_return_count( mock_clock_gettime, 0, -1 );
 
+  char user_data[] = "It's time!!!";
   struct itimerspec interval;
   interval.it_value.tv_sec = 0;
   interval.it_value.tv_nsec = 0;
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
-  assert_false( add_timer_event_callback( &interval, mock_timer_event_callback, ( void * ) "USER_DATA" ) );
+  assert_false( add_timer_event_callback( &interval, mock_timer_event_callback, user_data ) );
 
   finalize_timer();
 }
@@ -183,8 +186,9 @@ static void
 test_clock_gettime_fail_einval() {
   init_timer();
 
+  char user_data[] = "It's time!!!";
   will_return_count( mock_clock_gettime, -1, -1 );
-  assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, ( void * ) "USER_DATA" ) );
+  assert_false( add_periodic_event_callback( 1, mock_timer_event_callback, user_data ) );
 
   finalize_timer();
 }

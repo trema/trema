@@ -28,6 +28,7 @@
 #include "checks.h"
 #include "cmockery.h"
 #include "packet_info.h"
+#include "unittest.h"
 
 
 /********************************************************************************

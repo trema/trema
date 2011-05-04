@@ -29,6 +29,7 @@
 #include "cmockery.h"
 #include "packet_info.h"
 #include "packet_parser.h"
+#include "unittest.h"
 
 
 /*

@@ -35,6 +35,7 @@
 #include "cmockery.h"
 #include "wrapper.h"
 #include "openflow_message.h"
+#include "unittest.h"
 
 
 extern uint16_t get_actions_length( const openflow_actions *actions );
