@@ -27,7 +27,6 @@
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <sys/select.h>
 #include "cmockery.h"
 
 
@@ -59,23 +58,6 @@
       _fail( __FILE__, __LINE__ );                                                \
     }                                                                             \
   }
-
-
-/********************************************************************************
- * Misc common macros.
- ********************************************************************************/
-
-#define ARRAY_SIZE( name ) ( sizeof( name ) / sizeof( name[ 0 ] ) )
-
-#define will_return_void( f ) will_return( f, 0 )
-
-#define FD_ISZERO( s )                                   \
-  ( {                                                    \
-      fd_set zero_set;                                   \
-      FD_ZERO( &zero_set );                              \
-      memcmp( ( s ), &zero_set, sizeof( fd_set ) ) == 0; \
-    }                                                    \
-  )
 
 
 #endif /* UNITTEST_H */
