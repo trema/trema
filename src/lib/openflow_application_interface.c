@@ -149,15 +149,6 @@ maybe_init_openflow_application_interface() {
 }
 
 
-static void
-assert_if_not_initialized() {
-  if ( !openflow_application_interface_is_initialized() ) {
-    critical( "OpenFlow Application Interface is not initialized yet." );
-    assert( 0 );
-  }
-}
-
-
 bool
 init_openflow_application_interface( const char *custom_service_name ) {
   assert( custom_service_name != NULL );
@@ -192,7 +183,7 @@ bool
 finalize_openflow_application_interface() {
   debug( "Finalizing OpenFlow Application Interface." );
 
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   delete_message_received_callback( service_name, handle_message );
 
@@ -208,7 +199,7 @@ finalize_openflow_application_interface() {
 bool
 set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   memcpy( &event_handlers, &handlers, sizeof( event_handlers ) );
 
@@ -219,12 +210,12 @@ set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
 bool
 _set_switch_ready_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
-    die( "Callback function ( switch_ready_handler ) must not be NULL." );
+    die( "Invalid callback function for switch_ready event." );
   }
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a switch ready handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -245,7 +236,7 @@ set_switch_disconnected_handler( switch_disconnected_handler callback, void *use
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a switch disconnected handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -265,7 +256,7 @@ set_error_handler( error_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting an error handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -285,7 +276,7 @@ set_vendor_handler( vendor_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a vendor handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -305,7 +296,7 @@ set_features_reply_handler( features_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a features reply handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -325,7 +316,7 @@ set_get_config_reply_handler( get_config_reply_handler callback, void *user_data
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a get config reply handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -345,7 +336,7 @@ _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) 
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a packet-in handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -366,7 +357,7 @@ set_flow_removed_handler( flow_removed_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a flow removed handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -386,7 +377,7 @@ set_port_status_handler( port_status_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a port status handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -406,7 +397,7 @@ set_stats_reply_handler( stats_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a stats reply handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -426,7 +417,7 @@ set_barrier_reply_handler( barrier_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a barrier reply handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -446,7 +437,7 @@ set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, voi
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   debug( "Setting a queue get config reply handler ( callback = %p, user_data = %p ).",
          callback, user_data );
@@ -1473,7 +1464,7 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
   openflow_service_header_t header;
 
   maybe_init_openflow_application_interface();
-  assert_if_not_initialized();
+  assert( openflow_application_interface_initialized );
 
   if ( ( message == NULL ) || ( ( message != NULL ) && ( message->length == 0 ) ) ) {
     critical( "An OpenFlow message must be passed to send_openflow_message()." );
