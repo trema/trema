@@ -629,6 +629,27 @@ test_handle_switch_ready() {
 }
 
 
+static void
+test_handle_switch_ready_with_simple_handler() {
+  char user_data[] = "Ready!";
+  buffer *data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
+  uint64_t *datapath_id = append_back_buffer( data, sizeof( openflow_service_header_t ) );
+  *datapath_id = htonll( DATAPATH_ID );
+
+  expect_memory( mock_simple_switch_ready_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
+  expect_string( mock_simple_switch_ready_handler, user_data, user_data );
+
+  set_switch_ready_handler( mock_simple_switch_ready_handler, user_data );
+  handle_message( MESSENGER_OPENFLOW_READY, data->data, data->length );
+
+  stat_entry *stat = lookup_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" );
+  assert_int_equal( ( int ) stat->value, 1 );
+
+  free_buffer( data );
+  free( delete_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" ) );
+}
+
+
 /********************************************************************************
  * set_switch_disconnected_handler() tests.
  ********************************************************************************/
@@ -3036,6 +3057,7 @@ main() {
     unit_test_setup_teardown( test_set_simple_switch_ready_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_switch_ready_handler_should_die_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_switch_ready, init, cleanup ),
+    unit_test_setup_teardown( test_handle_switch_ready_with_simple_handler, init, cleanup ),
 
     unit_test_setup_teardown( test_set_switch_disconnected_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_switch_disconnected_handler_if_handler_is_NULL, init, cleanup ),
