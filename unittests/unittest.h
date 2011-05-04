@@ -45,19 +45,19 @@
 #ifdef expect_assert_failure
 #undef expect_assert_failure
 #endif
-#define expect_assert_failure(function_call)                                \
-  {                                                                         \
-    const char* expression = (const char*)setjmp(global_expect_assert_env); \
-    global_expecting_assert = 1;                                            \
-    if (expression) {                                                       \
-      print_message("Expected assertion %s occurred\n", expression);        \
-      global_expecting_assert = 0;                                          \
-    } else {                                                                \
-      function_call ;                                                       \
-      global_expecting_assert = 0;                                          \
-      print_error("Expected assert in %s\n", #function_call);               \
-      _fail(__FILE__, __LINE__);                                            \
-    }                                                                       \
+#define expect_assert_failure( function_call )                                    \
+  {                                                                               \
+    const char *expression = ( const char * ) setjmp( global_expect_assert_env ); \
+    global_expecting_assert = 1;                                                  \
+    if ( expression ) {                                                           \
+      print_message( "Expected assertion %s occurred\n", expression );            \
+      global_expecting_assert = 0;                                                \
+    } else {                                                                      \
+      function_call ;                                                             \
+      global_expecting_assert = 0;                                                \
+      print_error( "Expected assert in %s\n", #function_call )    ;               \
+      _fail( __FILE__, __LINE__ );                                                \
+    }                                                                             \
   }
 
 
