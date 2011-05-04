@@ -3,7 +3,7 @@
  * All *_test.c in unittests/ must include this.
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- #
+ *
  * Copyright (C) 2008-2011 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
