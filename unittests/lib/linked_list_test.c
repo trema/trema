@@ -20,13 +20,9 @@
  */
 
 
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <string.h>
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "linked_list.h"
-#include "unittest.h"
 
 
 /********************************************************************************

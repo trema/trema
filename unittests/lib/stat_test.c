@@ -20,16 +20,12 @@
  */
 
 
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "trema.h"
-#include "cmockery.h"
-#include "unittest.h"
+#include "cmockery_trema.h"
 
 
 /********************************************************************************

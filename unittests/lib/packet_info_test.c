@@ -22,13 +22,9 @@
 
 #include <assert.h>
 #include <netinet/ip.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "packet_info.h"
-#include "unittest.h"
 
 
 /********************************************************************************

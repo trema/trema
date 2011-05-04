@@ -1,5 +1,6 @@
 /*
- * Common utility macros for unit tests.
+ * A common header file for Trema unit tests.
+ * All *_test.c in unittests/ must include this.
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  #
@@ -20,9 +21,13 @@
  */
 
 
-#ifndef UNITTEST_H
-#define UNITTEST_H
+#ifndef CMOCKERY_TREMA_H
+#define CMOCKERY_TREMA_H
 
+
+/********************************************************************************
+ * Load google's cmockery and its prerequisites.
+ ********************************************************************************/
 
 #include <setjmp.h>
 #include <stdarg.h>
@@ -60,4 +65,4 @@
   }
 
 
-#endif /* UNITTEST_H */
+#endif /* CMOCKERY_TREMA_H */

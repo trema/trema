@@ -21,14 +21,10 @@
 
 
 #include <assert.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include "buffer.h"
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "packet_info.h"
-#include "unittest.h"
 
 
 /*

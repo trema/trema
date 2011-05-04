@@ -21,18 +21,14 @@
 
 
 #include <pthread.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "buffer.h"
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "openflow.h"
 #include "packet_info.h"
-#include "unittest.h"
 
 
 typedef struct tea {

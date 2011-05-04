@@ -20,16 +20,12 @@
  */
 
 
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "log.h"
-#include "unittest.h"
 
 
 extern int level;

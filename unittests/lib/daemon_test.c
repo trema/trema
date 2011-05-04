@@ -22,18 +22,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "bool.h"
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "daemon.h"
-#include "unittest.h"
 
 
 /********************************************************************************

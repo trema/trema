@@ -20,15 +20,15 @@
  */
 
 
+#include <net/ethernet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <net/ethernet.h>
 #include "checks.h"
+#include "cmockery_trema.h"
 #include "ether.h"
 #include "log.h"
 #include "match_table.h"
-#include "unittest.h"
 
 
 typedef struct match_table {

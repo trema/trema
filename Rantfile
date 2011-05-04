@@ -88,6 +88,8 @@ end
 
 
 def dependency_file name
+  file = ".#{ name }.dependency"
+  var[ :clean ] << file
   ".#{ name }.dependency"
 end
 

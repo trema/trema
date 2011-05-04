@@ -22,15 +22,11 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include "cmockery_trema.h"
 #include "trema.h"
-#include "cmockery.h"
-#include "unittest.h"
 
 
 /********************************************************************************

@@ -21,22 +21,18 @@
 
 
 #include <openflow.h>
-#include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <string.h>
 #include "bool.h"
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "hash_table.h"
 #include "linked_list.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "stat.h"
-#include "unittest.h"
 
 
 /********************************************************************************

@@ -22,15 +22,11 @@
 
 #include <arpa/inet.h>
 #include <openflow.h>
-#include <setjmp.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <string.h>
 #include "byteorder.h"
 #include "checks.h"
-#include "cmockery.h"
-#include "unittest.h"
+#include "cmockery_trema.h"
 
 
 void
