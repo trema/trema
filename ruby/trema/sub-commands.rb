@@ -184,15 +184,15 @@ EOF
   def show_stats
     sanity_check
 
-    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
+    stats = nil
 
     @options.banner = "Usage: #{ $0 } show_stats [OPTIONS ...]"
 
     @options.on( "-t", "--tx" ) do
-      Cli.new.show_tx_stats( host )
+      stats = :tx
     end
     @options.on( "-r", "--rx" ) do
-      Cli.new.show_rx_stats( host )
+      stats = :rx
     end
 
     @options.separator ""
@@ -200,13 +200,21 @@ EOF
     add_verbose_option
 
     @options.parse! ARGV
+
+    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
+    case stats
+    when :tx
+      Cli.new.show_tx_stats( host )      
+    when :rx
+      Cli.new.show_rx_stats( host )      
+    else
+      raise "We should not reach here."      
+    end
   end
 
 
   def reset_stats
     sanity_check
-
-    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
 
     @options.banner = "Usage: #{ $0 } reset_stats [OPTIONS ...]"
 
@@ -215,6 +223,7 @@ EOF
 
     @options.parse! ARGV
 
+    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
     Cli.new.reset_stats( host )
   end
 

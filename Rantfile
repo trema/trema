@@ -51,6 +51,7 @@ task :examples => [
   "examples:libtopology",
   "examples:openflow_message",
   "examples:packet_in",
+  "examples:repeater_hub",                 
   "examples:routing_switch",
   "examples:switch_info",
   "examples:topology",
@@ -610,6 +611,7 @@ standalone_examples = [
   "hello_trema",
   "learning_switch",
   "packet_in",
+  "repeater_hub",
   "switch_info",
 ]
 

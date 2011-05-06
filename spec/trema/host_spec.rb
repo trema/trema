@@ -55,6 +55,7 @@ describe Host do
     host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
     host.should_receive( :sleep ).once.ordered.with( 1 )
     host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE set_host_addr --ip_addr 192.168.0.100 --ip_mask 255.255.255.0 --mac_addr 00:00:00:01:00:10$/ )
+    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE enable_promisc$/ )
 
     host.run
   end
