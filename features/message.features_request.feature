@@ -8,7 +8,7 @@ Feature: Send a features request message
     Given I terminated all trema services
 
   Scenario: Send a features request 
-    When I try trema run "./objects/examples/openflow_message/features_request" with following configuration:
+    When I try trema run "./objects/examples/openflow_message/features_request" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

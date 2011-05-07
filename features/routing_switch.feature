@@ -8,7 +8,7 @@ Feature: control multiple openflow switchies using routing_switch
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run "./objects/examples/routing_switch/routing_switch" with following configuration:
+    When I try trema run "./objects/examples/routing_switch/routing_switch" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xe0"
@@ -50,7 +50,7 @@ Feature: control multiple openflow switchies using routing_switch
 
 
   Scenario: One openflow switch, two servers
-    When I try trema run "./objects/examples/routing_switch/routing_switch pathresolver topology" with following configuration:
+    When I try trema run "./objects/examples/routing_switch/routing_switch pathresolver topology" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xe0"

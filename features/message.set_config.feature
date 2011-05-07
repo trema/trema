@@ -8,7 +8,7 @@ Feature: Send set config messages
     Given I terminated all trema services
 
   Scenario: set config x 10
-    When I try trema run "./objects/examples/openflow_message/set_config 10" with following configuration:
+    When I try trema run "./objects/examples/openflow_message/set_config 10" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

@@ -8,7 +8,7 @@ Feature: Send echo request messages
     Given I terminated all trema services
 
   Scenario: Send an echo request x 10
-    When I try trema run "./objects/examples/openflow_message/echo_request 10" with following configuration:
+    When I try trema run "./objects/examples/openflow_message/echo_request 10" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

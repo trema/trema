@@ -8,7 +8,7 @@ Feature: Control one openflow switch with repeater_hub controller
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run "./objects/examples/repeater_hub/repeater_hub" with following configuration:
+    When I try trema run "./objects/examples/repeater_hub/repeater_hub" with following configuration (backgrounded):
       """
       vswitch("repeater_hub") {
         datapath_id "0xabc"

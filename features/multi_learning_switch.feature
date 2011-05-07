@@ -8,7 +8,7 @@ Feature: control multiple openflow switches using multi_learning_switch
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run "./objects/examples/multi_learning_switch/multi_learning_switch" with following configuration:
+    When I try trema run "./objects/examples/multi_learning_switch/multi_learning_switch" with following configuration (backgrounded):
       """
       vswitch("mlsw1") {
         datapath_id "0x1"

@@ -8,7 +8,7 @@ Feature: Send echo reply messages
     Given I terminated all trema services
 
   Scenario: Send and echo reply x 10
-    When I try trema run "./objects/examples/openflow_message/echo_reply 10" with following configuration:
+    When I try trema run "./objects/examples/openflow_message/echo_reply 10" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

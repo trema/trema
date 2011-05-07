@@ -5,7 +5,7 @@ Feature: Tutorial: Handling packet_in events example
   So that I can handle unknown packets
 
   Scenario: Handle packet_in
-    When I try trema run "./objects/examples/packet_in/packet_in" with following configuration:
+    When I try trema run "./objects/examples/packet_in/packet_in" with following configuration (backgrounded):
       """
       vswitch("pktin") {
         dpid "0xabc"

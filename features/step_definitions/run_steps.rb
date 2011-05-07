@@ -18,7 +18,17 @@
 #
 
 
-When /^I try trema run "([^"]*)" with following configuration:$/ do | command, config |
+When /^I try to run "([^"]*)" with following configuration:$/ do | command, config |
+  @trema_log = `mktemp`.chomp
+  Tempfile.open( "trema.conf" ) do | conf |
+    conf.puts config
+    conf.flush
+    run "#{ command } -c #{ conf.path } > #{ @trema_log } 2>&1"
+  end
+end
+
+
+When /^I try trema run "([^"]*)" with following configuration \(backgrounded\):$/ do | command, config |
   @trema_log = `mktemp`.chomp
   Thread.start do
     Tempfile.open( "trema.conf" ) do | conf |

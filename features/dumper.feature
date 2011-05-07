@@ -9,7 +9,7 @@ Feature: Dump openflow events with dumper
 
 
   Scenario: One openflow switch and two servers
-    When I try trema run "./objects/examples/dumper/dumper" with following configuration:
+    When I try trema run "./objects/examples/dumper/dumper" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

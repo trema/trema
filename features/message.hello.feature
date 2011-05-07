@@ -8,7 +8,7 @@ Feature: Send hello messages
     Given I terminated all trema services
 
   Scenario: Hello trema
-    When I try trema run "./objects/examples/openflow_message/hello 10" with following configuration:
+    When I try trema run "./objects/examples/openflow_message/hello 10" with following configuration (backgrounded):
       """
       vswitch {
         datapath_id "0xabc"

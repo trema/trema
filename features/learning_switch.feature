@@ -8,7 +8,7 @@ Feature: control one openflow switch using learning_switch
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration:
+    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration (backgrounded):
       """
       vswitch("lsw") {
         datapath_id "0xabc"

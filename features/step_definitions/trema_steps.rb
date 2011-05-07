@@ -45,17 +45,6 @@ When /^I try to run "([^"]*)" \(log = "([^"]*)"\)$/ do | command, log_name |
 end
 
 
-When /^I try to run "([^"]*)" with following configuration:$/ do | command, config |
-  @trema_log = `mktemp`.chomp
-
-  Tempfile.open( "trema.conf" ) do | conf |
-    conf.puts config
-    conf.flush
-    run "#{ command } -c #{ conf.path } > #{ @trema_log } 2>&1"
-  end
-end
-
-
 When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
   sleep sec.to_i
 end
@@ -66,55 +55,6 @@ When /^wait until "([^"]*)" is up$/ do | process |
     break if FileTest.exists?( File.join( Trema.tmp, "#{ process }.pid" ) )
     sleep 1
   end
-end
-
-
-Then /^the output should be:$/ do | string |
-  IO.read( @log ).chomp.should == string.chomp
-end
-
-
-Then /^the output of trema should be:$/ do | string |
-  IO.read( @trema_log ).chomp.should == string.chomp
-end
-
-
-Then /^the output of trema should include:$/ do | string |
-  string.chomp.split( "\n" ).each do | each |
-    IO.read( @trema_log ).split( "\n" ).should include( each )
-  end
-end
-
-
-Then /^"([^"]*)" should be executed with option = "([^"]*)"$/ do | executable, options |
-  IO.read( @trema_log ).should match( Regexp.new "#{ executable } #{ options }" )
-end
-
-
-Then /^the log file "([^"]*)" should be:$/ do | log_name, string |
-  log = File.join( Trema.log_directory, log_name )
-  IO.read( log ).chomp.should == string.chomp
-end
-
-
-Then /^the log file "([^"]*)" should include:$/ do | log_name, string |
-  log = File.join( Trema.log_directory, log_name )
-  IO.read( log ).split( "\n" ).should include( string )
-end
-
-
-Then /^the log file "([^"]*)" should include "([^"]*)" x (\d+)$/ do | log, message, n |
-  IO.read( log ).split( "\n" ).inject( 0 ) do | matched, each |
-    matched += 1 if each.include?( message )
-    matched
-  end.should == n.to_i
-end
-
-
-Then /^the content of "([^"]*)" and "([^"]*)" should be identical$/ do | log1, log2 |
-  IO.read( log1 ).size.should > 0
-  IO.read( log2 ).size.should > 0
-  IO.read( log1 ).chomp.should == IO.read( log2 ).chomp
 end
 
 
@@ -157,3 +97,10 @@ Then /^the total number of rx packets should be:$/ do | table |
     end.should == n.to_i
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
