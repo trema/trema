@@ -24,19 +24,19 @@ end
 
 
 Then /^the output of trema should be:$/ do | string |
-  IO.read( @trema_log ).chomp.should == string.chomp
+  IO.read( @log ).chomp.should == string.chomp
 end
 
 
 Then /^the output of trema should include:$/ do | string |
   string.chomp.split( "\n" ).each do | each |
-    IO.read( @trema_log ).split( "\n" ).should include( each )
+    IO.read( @log ).split( "\n" ).should include( each )
   end
 end
 
 
 Then /^"([^"]*)" should be executed with option = "([^"]*)"$/ do | executable, options |
-  IO.read( @trema_log ).should match( Regexp.new "#{ executable } #{ options }" )
+  IO.read( @log ).should match( Regexp.new "#{ executable } #{ options }" )
 end
 
 
