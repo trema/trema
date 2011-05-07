@@ -59,9 +59,9 @@ end
 
 
 Then /^the content of "([^"]*)" and "([^"]*)" should be identical$/ do | log1, log2 |
-  IO.read( log1 ).size.should > 0
-  IO.read( log2 ).size.should > 0
-  IO.read( log1 ).chomp.should == IO.read( log2 ).chomp
+  IO.read( cucumber_log log1 ).size.should > 0
+  IO.read( cucumber_log log2 ).size.should > 0
+  IO.read( cucumber_log log1 ).chomp.should == IO.read( cucumber_log log2 ).chomp
 end
 
 
