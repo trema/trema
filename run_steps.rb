@@ -23,19 +23,33 @@ When /^I try trema run "([^"]*)" with following configuration:$/ do | command, c
   Tempfile.open( "trema.conf" ) do | conf |
     conf.puts config
     conf.flush
-    run "./trema run #{ command } -c #{ conf.path } -v > #{ @trema_log } 2>&1"
+    run "./trema run #{ command } -c #{ conf.path } > #{ @trema_log } 2>&1"
   end
 end
 
 
-When /^I try trema run "([^"]*)" with following configuration \(backgrounded\):$/ do | command, config |
-  @trema_log = `mktemp`.chomp
-  Thread.start do
+When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | command, options, config |
+  verbose = if /verbose/=~ options
+              "--verbose"
+            else
+              ""
+            end
+
+  trema_run = Proc.new do
     Tempfile.open( "trema.conf" ) do | conf |
       conf.puts config
       conf.flush
-      run "./trema run \"#{ command }\" -c #{ conf.path } -v > #{ @trema_log } 2>&1"
+      @trema_log = `mktemp`.chomp
+      run "./trema run \"#{ command }\" -c #{ conf.path } #{ verbose } > #{ @trema_log } 2>&1"
     end
+  end
+
+  if /background/=~ options
+    Thread.start do
+      trema_run.call
+    end
+  else
+    trema_run.call
   end
 end
 
