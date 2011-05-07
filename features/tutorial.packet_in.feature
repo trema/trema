@@ -29,7 +29,7 @@ Feature: Tutorial: Handling packet_in events example
       And wait until "packet_in" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I terminated all trema services
-    Then the output of trema should include:
+    Then the output should include:
       """
       000000010002000000010001080045000032000000004011ff67ffff0001ffff000200010001001e000000000000000000000000000000000000000000000000
       """

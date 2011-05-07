@@ -11,7 +11,7 @@ Feature: Hello trema sample application
         datapath_id "0xabc"
       }
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       Hello 0xabc from ./objects/examples/hello_trema/hello_trema!
       """
@@ -23,7 +23,7 @@ Feature: Hello trema sample application
         datapath_id "0xabc"
       }
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       Hello 0xabc from ./src/examples/hello_trema/hello_trema.rb!
       """

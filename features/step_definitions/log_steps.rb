@@ -23,12 +23,7 @@ Then /^the output should be:$/ do | string |
 end
 
 
-Then /^the output of trema should be:$/ do | string |
-  IO.read( @log ).chomp.should == string.chomp
-end
-
-
-Then /^the output of trema should include:$/ do | string |
+Then /^the output should include:$/ do | string |
   string.chomp.split( "\n" ).each do | each |
     IO.read( @log ).split( "\n" ).should include( each )
   end

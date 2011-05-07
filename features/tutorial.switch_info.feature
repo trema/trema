@@ -11,7 +11,7 @@ Feature: "Getting switch info" sample application
         datapath_id "0xabc"
       }
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       datapath_id: 0xabc
       #ports: 1
@@ -28,7 +28,7 @@ Feature: "Getting switch info" sample application
       }
       link "0xabc", "0xdef"
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       #ports: 2
       """
@@ -40,7 +40,7 @@ Feature: "Getting switch info" sample application
         datapath_id "0xabc"
       }
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       datapath_id: 0xabc
       ports: 65534
@@ -57,7 +57,7 @@ Feature: "Getting switch info" sample application
       }
       link "0xabc", "0xdef"
       """
-    Then the output of trema should include:
+    Then the output should include:
       """
       ports: 1, 65534
       """
