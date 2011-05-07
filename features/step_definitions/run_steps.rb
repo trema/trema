@@ -18,6 +18,23 @@
 #
 
 
+When /^I try to run "([^"]*)"$/ do | command |
+  if / > /=~ command
+    # redirected
+    run command
+  else
+    @log = `mktemp`.chomp
+    run "#{ command } > #{ @log }"
+  end
+end
+
+
+When /^I try to run "([^"]*)" \(log = "([^"]*)"\)$/ do | command, log_name |
+  log = File.join( Trema.log_directory, log_name )
+  run "#{ command } > #{ log }"
+end
+
+
 When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | args, options, config |
   verbose = if /verbose/=~ options
               "--verbose"
