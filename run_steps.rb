@@ -18,7 +18,7 @@
 #
 
 
-When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | app, options, config |
+When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | args, options, config |
   verbose = if /verbose/=~ options
               "--verbose"
             else
@@ -26,11 +26,11 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
             end
 
   trema_run = Proc.new do
-    Tempfile.open( "trema.conf" ) do | conf |
-      conf.puts config
-      conf.flush
+    Tempfile.open( "trema.conf" ) do | f |
+      f.puts config
+      f.flush
       @trema_log = `mktemp`.chomp
-      run "./trema run \"#{ app }\" -c #{ conf.path } #{ verbose } > #{ @trema_log } 2>&1"
+      run "./trema run \"#{ args }\" -c #{ f.path } #{ verbose } > #{ @trema_log } 2>&1"
     end
   end
 
@@ -44,8 +44,8 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
 end
 
 
-When /^I try trema run "([^"]*)" with following configuration:$/ do | app, config |
-  When "I try trema run \"#{ app }\" with following configuration (no options):", config
+When /^I try trema run "([^"]*)" with following configuration:$/ do | args, config |
+  When "I try trema run \"#{ args }\" with following configuration (no options):", config
 end
 
 
