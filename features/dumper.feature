@@ -9,7 +9,7 @@ Feature: Dump openflow events with dumper
 
 
   Scenario: One openflow switch and two servers
-    When I try trema run with following configuration (log = "dumper.log"):
+    When I try trema run "./objects/examples/dumper/dumper" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
@@ -29,15 +29,11 @@ Feature: Dump openflow events with dumper
 
       link "0xabc", "host1"
       link "0xabc", "host2"
-
-      app {
-        path "./objects/examples/dumper/dumper"
-      }
       """
       And wait until "dumper" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I terminate all trema services
-    Then the log file "dumper.log" should include:
+    Then the output of trema should include:
       """
       000000010002000000010001080045000032000000004011ff67ffff0001ffff000200010001001e000000000000000000000000000000000000000000000000
       """

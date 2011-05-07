@@ -30,18 +30,6 @@ When /^I try trema run "([^"]*)" with following configuration:$/ do | command, c
 end
 
 
-When /^I try trema run with following configuration \(log = "([^"]*)"\):$/ do | log_name, config |
-  Thread.start do
-    Tempfile.open( "trema.conf" ) do | trema_conf |
-      trema_conf.puts config
-      trema_conf.flush
-      log = File.join( Trema.log_directory, log_name )
-      system "./trema run -c #{ trema_conf.path } --verbose > #{ log } 2>&1"
-    end
-  end
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
