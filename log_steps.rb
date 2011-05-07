@@ -41,14 +41,12 @@ end
 
 
 Then /^the log file "([^"]*)" should be:$/ do | log_name, string |
-  log = File.join( Trema.log_directory, log_name )
-  IO.read( log ).chomp.should == string.chomp
+  IO.read( cucumber_log log_name ).chomp.should == string.chomp
 end
 
 
 Then /^the log file "([^"]*)" should include:$/ do | log_name, string |
-  log = File.join( Trema.log_directory, log_name )
-  IO.read( log ).split( "\n" ).should include( string )
+  IO.read( cucumber_log log_name ).split( "\n" ).should include( string )
 end
 
 
