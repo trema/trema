@@ -34,7 +34,7 @@ When /^I try trema run "([^"]*)" with following configuration \(backgrounded\):$
     Tempfile.open( "trema.conf" ) do | conf |
       conf.puts config
       conf.flush
-      system "./trema run \"#{ command }\" -c #{ conf.path } -v > #{ @trema_log } 2>&1"
+      run "./trema run \"#{ command }\" -c #{ conf.path } -v > #{ @trema_log } 2>&1"
     end
   end
 end
