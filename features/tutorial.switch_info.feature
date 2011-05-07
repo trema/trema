@@ -5,7 +5,7 @@ Feature: "Getting switch info" sample application
   So that I can learn how to acquire the information of openflow switches
 
   Scenario: Getting switch info in C
-    When I try to run "./trema run ./objects/examples/switch_info/switch_info" with following configuration:
+    When I try trema run "./objects/examples/switch_info/switch_info" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
@@ -18,7 +18,7 @@ Feature: "Getting switch info" sample application
       """
 
   Scenario: Getting switch info in C
-    When I try to run "./trema run ./objects/examples/switch_info/switch_info" with following configuration:
+    When I try trema run "./objects/examples/switch_info/switch_info" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
@@ -34,7 +34,7 @@ Feature: "Getting switch info" sample application
       """
 
   Scenario: Getting switch info in Ruby
-    When I try to run "./trema run src/examples/switch_info/switch_info.rb" with following configuration:
+    When I try trema run "./src/examples/switch_info/switch_info.rb" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
@@ -47,7 +47,7 @@ Feature: "Getting switch info" sample application
       """
 
   Scenario: Getting switch info in Ruby
-    When I try to run "./trema run src/examples/switch_info/switch_info.rb" with following configuration:
+    When I try trema run "./src/examples/switch_info/switch_info.rb" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
