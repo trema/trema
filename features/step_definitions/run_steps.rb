@@ -19,13 +19,8 @@
 
 
 When /^I try to run "([^"]*)"$/ do | command |
-  if / > /=~ command
-    # redirected
-    run command
-  else
-    @log = `mktemp`.chomp
-    run "#{ command } > #{ @log }"
-  end
+  @log = `mktemp`.chomp
+  run "#{ command } > #{ @log }"
 end
 
 

@@ -38,9 +38,9 @@ Feature: Control one openflow switch with repeater_hub controller
       """
       And wait until "repeater_hub" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
-      And I try to run "./trema show_stats host1 --tx > ./tmp/log/host1.repeater_hub.log"
-      And I try to run "./trema show_stats host2 --rx > ./tmp/log/host2.repeater_hub.log"
-      And I try to run "./trema show_stats host3 --rx > ./tmp/log/host3.repeater_hub.log"
+      And I try to run "./trema show_stats host1 --tx" (log = "host1.repeater_hub.log")
+      And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater_hub.log")
+      And I try to run "./trema show_stats host3 --rx" (log = "host3.repeater_hub.log")
       And I terminated all trema services
     Then the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host2.repeater_hub.log" should be identical
      And the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host3.repeater_hub.log" should be identical

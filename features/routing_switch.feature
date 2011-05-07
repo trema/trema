@@ -43,8 +43,8 @@ Feature: control multiple openflow switchies using routing_switch
       And wait until "routing_switch" is up
       And *** sleep 10 ***
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2 --duration 10"
-      And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"
-      And I try to run "./trema show_stats 192.168.0.2 --rx > ./tmp/log/rx.log"
+      And I try to run "./trema show_stats 192.168.0.1 --tx" (log = "tx.log")
+      And I try to run "./trema show_stats 192.168.0.2 --rx" (log = "rx.log")
       And I terminated all trema services
     Then the content of "./tmp/log/tx.log" and "./tmp/log/rx.log" should be identical
 
@@ -117,7 +117,7 @@ Feature: control multiple openflow switchies using routing_switch
       And wait until "routing_switch" is up
       And *** sleep 20 ***
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.4 --duration 10"
-      And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"
-      And I try to run "./trema show_stats 192.168.0.4 --rx > ./tmp/log/rx.log"
+      And I try to run "./trema show_stats 192.168.0.1 --tx" (log = "tx.log")
+      And I try to run "./trema show_stats 192.168.0.4 --rx" (log = "rx.log")
       And I terminated all trema services
     Then the content of "./tmp/log/tx.log" and "./tmp/log/rx.log" should be identical
