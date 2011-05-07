@@ -28,14 +28,6 @@ Given /^I terminate all trema services$/ do
 end
 
 
-Given /^I started switch_manager$/ do
-  ENV[ "TREMA_HOME" ] = Dir.getwd
-  run "#{ Trema::Executables.switch_manager } --daemonize -- port_status::foo packet_in::bar state_notify::baz"
-  sleep 1
-  @switch_manager_pid = IO.read( "./tmp/switch_manager.pid" ).to_i
-end
-
-
 When /^I try to run "([^"]*)"$/ do | command |
   if / > /=~ command
     # redirected
@@ -60,42 +52,6 @@ When /^I try to run "([^"]*)" with following configuration:$/ do | command, conf
     conf.puts config
     conf.flush
     run "#{ command } -c #{ conf.path } > #{ @trema_log } 2>&1"
-  end
-end
-
-
-When /^I try trema run "([^"]*)" with following configuration:$/ do | command, config |
-  @trema_log = `mktemp`.chomp
-
-  Tempfile.open( "trema.conf" ) do | conf |
-    conf.puts config
-    conf.flush
-    system "./trema run \"#{ command }\" -c #{ conf.path } > #{ @trema_log } 2>&1"
-  end
-end
-
-
-When /^I try trema run with following configuration:$/ do | config |
-  @trema_log = `mktemp`.chomp
-
-  Thread.start do
-    Tempfile.open( "trema.conf" ) do | conf |
-      conf.puts config
-      conf.flush
-      system "./trema run -c #{ conf.path } --verbose > #{ @trema_log } 2>&1"
-    end
-  end
-end
-
-
-When /^I try trema run with following configuration \(log = "([^"]*)"\):$/ do | log_name, config |
-  Thread.start do
-    Tempfile.open( "trema.conf" ) do | trema_conf |
-      trema_conf.puts config
-      trema_conf.flush
-      log = File.join( Trema.log_directory, log_name )
-      system "./trema run -c #{ trema_conf.path } --verbose > #{ log } 2>&1"
-    end
   end
 end
 
@@ -173,7 +129,7 @@ end
 
 
 Then /^switch_manager should be killed$/ do
-  IO.read( @trema_log ).should match( /^kill #{ @switch_manager_pid }/ )
+  IO.read( @trema_log ).should match( /^Terminating switch_manager/ )
 end
 
 
