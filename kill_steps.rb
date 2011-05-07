@@ -19,48 +19,12 @@
 
 
 Given /^I terminated all trema services$/ do
-  run "sudo ./trema kill"
+  run "./trema kill"
 end
 
 
 Given /^I terminate all trema services$/ do
   Given "I terminated all trema services"
-end
-
-
-When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
-  sleep sec.to_i
-end
-
-
-When /^wait until "([^"]*)" is up$/ do | process |
-  loop do
-    break if FileTest.exists?( File.join( Trema.tmp, "#{ process }.pid" ) )
-    sleep 1
-  end
-end
-
-
-When /^wait until trema session is closed$/ do
-  loop do
-    sleep 1    
-    break unless FileTest.exists?( File.join( Trema.tmp, ".context" ) )
-  end
-end
-
-
-Then /^([^\s]*) is terminated$/ do | name |
-  ps_entry_of( name ).should be_empty
-end
-
-
-Then /^([^\s]*) is started$/ do | name |
-  ps_entry_of( name ).should_not be_empty
-end
-
-
-Then /^switch_manager should be killed$/ do
-  IO.read( @log ).should match( /^Terminating switch_manager/ )
 end
 
 
