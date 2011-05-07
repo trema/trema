@@ -28,23 +28,6 @@ Given /^I terminate all trema services$/ do
 end
 
 
-When /^I try to run "([^"]*)"$/ do | command |
-  if / > /=~ command
-    # redirected
-    run command
-  else
-    @log = `mktemp`.chomp
-    run "#{ command } > #{ @log }"
-  end
-end
-
-
-When /^I try to run "([^"]*)" \(log = "([^"]*)"\)$/ do | command, log_name |
-  log = File.join( Trema.log_directory, log_name )
-  run "#{ command } > #{ log }"
-end
-
-
 When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
   sleep sec.to_i
 end
@@ -64,7 +47,6 @@ When /^wait until trema session is closed$/ do
     break unless FileTest.exists?( File.join( Trema.tmp, ".context" ) )
   end
 end
-
 
 
 Then /^([^\s]*) is terminated$/ do | name |
