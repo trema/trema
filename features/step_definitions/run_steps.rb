@@ -23,7 +23,7 @@ When /^I try trema run "([^"]*)" with following configuration:$/ do | command, c
   Tempfile.open( "trema.conf" ) do | conf |
     conf.puts config
     conf.flush
-    run "./trema run #{ command } -c #{ conf.path } > #{ @trema_log } 2>&1"
+    run "./trema run #{ command } -c #{ conf.path } -v > #{ @trema_log } 2>&1"
   end
 end
 
