@@ -41,8 +41,6 @@ send_echo_replies( uint64_t datapath_id, void *count ) {
     }
     free_buffer( echo_reply );
   }
-  flush();
-  stop_trema();
 }
 
 

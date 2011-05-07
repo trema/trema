@@ -6,17 +6,13 @@ Feature: kill all trema processes with `trema killall' command
 
   Scenario: trema killall
     Given I terminated all trema services
-      And I try trema run with following configuration:
+      And I try trema run "./objects/examples/dumper/dumper" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
       }
-
-      app {
-        path "./examples/dumper/dumper"
-      }
       """
-      And *** sleep 3 ***
+      And wait until "dumper" is up
     When I try to run "./trema killall"
     Then switch_manager is terminated
       And switch is terminated

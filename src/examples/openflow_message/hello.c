@@ -41,8 +41,6 @@ send_hello( uint64_t datapath_id, void *count ) {
     }
     free_buffer( hello );
   }
-  flush();
-  stop_trema();
 }
 
 

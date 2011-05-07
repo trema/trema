@@ -5,30 +5,29 @@ Feature: Tutorial: Handling packet_in events example
   So that I can handle unknown packets
 
   Scenario: Handle packet_in
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/packet_in/packet_in" with following configuration:
       """
-      vswitch { dpid "0xabc" }
+      vswitch("pktin") {
+        dpid "0xabc"
+      }
 
-      vhost {
+      vhost("host1") {
         ip "192.168.0.1"
         netmask "255.255.0.0"
         mac "00:00:00:01:00:01"
       }
-      vhost {
+
+      vhost("host2") {
         ip "192.168.0.2"
         netmask "255.255.0.0"
         mac "00:00:00:01:00:02"
       }
 
-      link "0xabc", "192.168.0.1"
-      link "0xabc", "192.168.0.2"
-
-      app {
-        path "./objects/examples/packet_in/packet_in"
-      }
+      link "pktin", "host1"
+      link "pktin", "host2"
       """
       And wait until "packet_in" is up
-      And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2"
+      And I try to run "./trema send_packets --source host1 --dest host2"
       And I terminated all trema services
     Then the output of trema should include:
       """

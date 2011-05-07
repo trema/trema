@@ -30,6 +30,7 @@ module Trema
     def initialize pid_file
       @pid_file = pid_file
       begin
+        @name = File.basename( @pid_file, "pid" )
         @pid = IO.read( @pid_file ).chomp.to_i
         @uid = File.stat( @pid_file ).uid
       rescue
@@ -41,6 +42,7 @@ module Trema
     def kill!
       return if @pid_file.nil?
       return if not alive?
+      puts "Terminating #{ @name }..." if $verbose
       if @uid == 0
         sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
       else

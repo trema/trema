@@ -41,8 +41,6 @@ send_set_config( uint64_t datapath_id, void *count ) {
     }
     free_buffer( set_config );
   }
-  flush();
-  stop_trema();
 }
 
 

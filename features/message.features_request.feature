@@ -14,6 +14,8 @@ Feature: Send a features request message
         datapath_id "0xabc"
       }
       """
+      And wait until "features_request" is up
+      And I terminated all trema services
     Then the output of trema should include:
     """
     datapath_id: 0xabc

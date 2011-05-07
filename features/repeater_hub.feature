@@ -8,7 +8,7 @@ Feature: Control one openflow switch with repeater_hub controller
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/repeater_hub/repeater_hub" with following configuration:
       """
       vswitch("repeater_hub") {
         datapath_id "0xabc"
@@ -35,10 +35,6 @@ Feature: Control one openflow switch with repeater_hub controller
       link "repeater_hub", "host1"
       link "repeater_hub", "host2"
       link "repeater_hub", "host3"
-
-      app {
-        path "./objects/examples/repeater_hub/repeater_hub"
-      }
       """
       And wait until "repeater_hub" is up
       And I try to run "./trema send_packets --source host1 --dest host2"

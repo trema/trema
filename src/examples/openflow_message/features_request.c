@@ -130,9 +130,6 @@ handle_features_reply(
     info( "  supported = %#lx", phy_port->supported );
     info( "  peer = %#lx", phy_port->peer );
   }
-
-  flush();
-  stop_trema();
 }
 
 

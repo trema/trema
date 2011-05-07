@@ -14,4 +14,6 @@ Feature: Send hello messages
         datapath_id "0xabc"
       }
       """
+      And wait until "hello" is up
+      And I terminated all trema services
     Then the log file "./tmp/log/openflowd.0xabc.log" should include "received: hello" x 11

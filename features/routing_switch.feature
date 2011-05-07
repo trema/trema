@@ -8,7 +8,7 @@ Feature: control multiple openflow switchies using routing_switch
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/routing_switch/routing_switch" with following configuration:
       """
       vswitch {
         datapath_id "0xe0"
@@ -37,10 +37,6 @@ Feature: control multiple openflow switchies using routing_switch
         path "./objects/examples/topology/topology_discovery"
       }
 
-      app {
-        path "./objects/examples/routing_switch/routing_switch"
-      }
-
       event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
@@ -54,7 +50,7 @@ Feature: control multiple openflow switchies using routing_switch
 
 
   Scenario: One openflow switch, two servers
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/routing_switch/routing_switch pathresolver topology" with following configuration:
       """
       vswitch {
         datapath_id "0xe0"
@@ -113,11 +109,6 @@ Feature: control multiple openflow switchies using routing_switch
 
       app {
         path "./objects/examples/topology/topology_discovery"
-      }
-
-      app {
-        path "./objects/examples/routing_switch/routing_switch"
-        options "pathresolver", "topology"
       }
 
       event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"

@@ -14,4 +14,6 @@ Feature: Send set config messages
         datapath_id "0xabc"
       }
       """
+      And wait until "set_config" is up
+      And I terminated all trema services
     Then the log file "./tmp/log/openflowd.0xabc.log" should include "received: set_config" x 11

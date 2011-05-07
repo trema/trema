@@ -41,8 +41,6 @@ send_echo_requests( uint64_t datapath_id, void *count ) {
     }
     free_buffer( echo_request );
   }
-  flush();
-  stop_trema();
 }
 
 

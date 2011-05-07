@@ -8,14 +8,10 @@ Feature: run trema application with `trema run' command
     Given I terminated all trema services
 
   Scenario: trema run learning_switch
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/dumper/dumper" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
-      }
-
-      app {
-        path "./objects/examples/dumper/dumper"
       }
       """
       And wait until "dumper" is up
@@ -23,8 +19,7 @@ Feature: run trema application with `trema run' command
       And dumper is started
 
   Scenario: `trema run' kills running process first
-    Given I started switch_manager
-    When I try trema run with following configuration:
+    When I try trema run "/bin/true" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
@@ -34,20 +29,15 @@ Feature: run trema application with `trema run' command
     Then switch_manager should be killed
     
   Scenario: trema run learning_switch --verbose
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration:
       """
       vswitch {
         datapath_id "0xabc"
       }
-
-      app {
-        path "./objects/examples/learning_switch/learning_switch"
-        options "--datapath_id", "0xabc"
-      }
       """
       And wait until "learning_switch" is up
     Then "switch_manager" should be executed with option = "--daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch"
-      And "learning_switch" should be executed with option = "--name learning_switch --datapath_id 0xabc"
+      And "learning_switch" should be executed with option = "--name learning_switch -i 0xabc"
 
   Scenario: trema help run
     When I try to run "./trema help run"

@@ -8,7 +8,7 @@ Feature: control one openflow switch using learning_switch
     Given I terminated all trema services
 
   Scenario: One openflow switch, two servers
-    When I try trema run with following configuration:
+    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration:
       """
       vswitch("lsw") {
         datapath_id "0xabc"
@@ -28,11 +28,6 @@ Feature: control one openflow switch using learning_switch
 
       link "lsw", "host1"
       link "lsw", "host2"
-
-      app {
-        path "./objects/examples/learning_switch/learning_switch"
-        options "-i", "0xabc"
-      }
       """
       And wait until "learning_switch" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
