@@ -60,7 +60,7 @@ end
 
 
 Then /^switch_manager should be killed$/ do
-  IO.read( @trema_log ).should match( /^Terminating switch_manager/ )
+  IO.read( @log ).should match( /^Terminating switch_manager/ )
 end
 
 
