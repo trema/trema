@@ -42,5 +42,5 @@ Feature: Control one openflow switch with repeater_hub controller
       And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater_hub.log")
       And I try to run "./trema show_stats host3 --rx" (log = "host3.repeater_hub.log")
       And I terminated all trema services
-    Then the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host2.repeater_hub.log" should be identical
-     And the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host3.repeater_hub.log" should be identical
+    Then the content of "host1.repeater_hub.log" and "host2.repeater_hub.log" should be identical
+     And the content of "host1.repeater_hub.log" and "host3.repeater_hub.log" should be identical

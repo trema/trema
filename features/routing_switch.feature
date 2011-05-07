@@ -46,7 +46,7 @@ Feature: control multiple openflow switchies using routing_switch
       And I try to run "./trema show_stats 192.168.0.1 --tx" (log = "tx.log")
       And I try to run "./trema show_stats 192.168.0.2 --rx" (log = "rx.log")
       And I terminated all trema services
-    Then the content of "./tmp/log/tx.log" and "./tmp/log/rx.log" should be identical
+    Then the content of "tx.log" and "rx.log" should be identical
 
 
   Scenario: One openflow switch, two servers
@@ -120,4 +120,4 @@ Feature: control multiple openflow switchies using routing_switch
       And I try to run "./trema show_stats 192.168.0.1 --tx" (log = "tx.log")
       And I try to run "./trema show_stats 192.168.0.4 --rx" (log = "rx.log")
       And I terminated all trema services
-    Then the content of "./tmp/log/tx.log" and "./tmp/log/rx.log" should be identical
+    Then the content of "tx.log" and "rx.log" should be identical

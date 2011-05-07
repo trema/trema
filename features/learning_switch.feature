@@ -34,4 +34,4 @@ Feature: control one openflow switch using learning_switch
       And I try to run "./trema show_stats host1 --tx" (log = "host1.learning_switch.log")
       And I try to run "./trema show_stats host2 --rx" (log = "host2.learning_switch.log")
       And I terminated all trema services
-    Then the content of "./tmp/log/host1.learning_switch.log" and "./tmp/log/host2.learning_switch.log" should be identical
+    Then the content of "host1.learning_switch.log" and "host2.learning_switch.log" should be identical
