@@ -64,32 +64,6 @@ Then /^switch_manager should be killed$/ do
 end
 
 
-Then /^the total number of tx packets should be:$/ do | table |
-  table.hashes[ 0 ].each_pair do | host, n |
-    stats = `./trema show_stats #{ host } --tx`
-    next if stats.split.size <= 1
-    `./trema show_stats #{ host } --tx`.split[ 1..-1 ].inject( 0 ) do | sum, each |
-      # ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
-      sum += each.split( "," )[ 4 ].to_i
-    end.should == n.to_i
-  end
-end
-
-
-Then /^the total number of rx packets should be:$/ do | table |
-  table.hashes[ 0 ].each_pair do | host, n |
-    stats = `./trema show_stats #{ host } --rx`
-    next if stats.split.size <= 1
-    stats.split[ 1..-1 ].inject( 0 ) do | sum, each |
-      if each.split( "," )[ 0 ].split( "." ).last == host.split( // ).last
-        sum += each.split( "," )[ 4 ].to_i
-      end
-      sum
-    end.should == n.to_i
-  end
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

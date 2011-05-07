@@ -18,35 +18,16 @@
 #
 
 
-$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" ) )
-
-
-require "rspec"
-require "tempfile"
-require "trema/executables"
-
-
-def run command
-  raise "Failed to execute #{ command }" unless system( command )
+Then /^the total number of tx packets should be:$/ do | table |
+  table.hashes[ 0 ].each_pair do | host, n |
+    count_packets( `./trema show_stats #{ host } --tx` ).should == n.to_i
+  end
 end
 
 
-def ps_entry_of name
-  `ps -ef | grep "#{ name } " | grep -v grep`
-end
-
-
-def cucumber_log name
-  File.join Trema.log_directory, name
-end
-
-
-# show_stats output format:
-# ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
-def count_packets stats
-  return 0 if stats.split.size <= 1
-  stats.split[ 1..-1 ].inject( 0 ) do | sum, each |
-    sum += each.split( "," )[ 4 ].to_i
+Then /^the total number of rx packets should be:$/ do | table |
+  table.hashes[ 0 ].each_pair do | host, n |
+    count_packets( `./trema show_stats #{ host } --rx` ).should == n.to_i
   end
 end
 
