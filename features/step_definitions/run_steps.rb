@@ -30,8 +30,7 @@ end
 
 
 When /^I try to run "([^"]*)" \(log = "([^"]*)"\)$/ do | command, log_name |
-  log = File.join( Trema.log_directory, log_name )
-  run "#{ command } > #{ log }"
+  run "#{ command } > #{ cucumber_log log_name }"
 end
 
 

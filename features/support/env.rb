@@ -34,3 +34,15 @@ end
 def ps_entry_of name
   `ps -ef | grep "#{ name } " | grep -v grep`
 end
+
+
+def cucumber_log name
+  File.join Trema.log_directory, name
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
