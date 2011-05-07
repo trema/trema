@@ -31,6 +31,7 @@ class Host
 
 
   def initialize stanza
+    @promisc = stanza[ :promisc ]
     @name = stanza[ :name ]
     @ip = stanza[ :ip ]
     @netmask = stanza[ :netmask ]
@@ -53,7 +54,7 @@ class Host
     sh "sudo #{ Trema::Executables.phost } -i #{ @interface } -D"
     sleep 1
     sh "sudo #{ Trema::Executables.cli } -i #{ @interface } set_host_addr --ip_addr #{ @ip } --ip_mask #{ @netmask } --mac_addr #{ @mac }"
-    sh "sudo #{ Trema::Executables.cli } -i #{ @interface } enable_promisc"
+    sh "sudo #{ Trema::Executables.cli } -i #{ @interface } enable_promisc" if @promisc
   end
 
 

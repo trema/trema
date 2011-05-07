@@ -26,6 +26,7 @@ require "trema/host"
 describe Host do
   before :each do
     @stanza = Trema::DSL::Vhost.new( "VIRTUAL HOST" )
+    @stanza.promisc "on"
     @stanza.ip "192.168.0.100"
     @stanza.netmask "255.255.255.0"
     @stanza.mac "00:00:00:01:00:10"

@@ -26,6 +26,18 @@ require "trema/dsl/stanza"
 module Trema
   module DSL
     class Vhost < Stanza
+      def promisc on_off
+        case on_off.to_s.downcase
+        when "on", "yes"
+          @promisc = true
+        when "off", "no"
+          @promisc = false
+        else
+          raise "Unknown option: promisc #{ on_off.to_s }"
+        end
+      end
+
+
       def ip str
         @ip = str
         if @name.nil?
