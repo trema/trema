@@ -19,7 +19,7 @@ Feature: run trema application with `trema run' command
       And dumper is started
 
   Scenario: `trema run' kills running process first
-    When I try trema run "/bin/true" with following configuration (backgrounded):
+    When I try trema run "/bin/true" with following configuration (backgrounded, verbose):
       """
       vswitch {
         datapath_id "0xabc"
@@ -29,7 +29,7 @@ Feature: run trema application with `trema run' command
     Then switch_manager should be killed
     
   Scenario: trema run learning_switch --verbose
-    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration (backgrounded):
+    When I try trema run "./objects/examples/learning_switch/learning_switch -i 0xabc" with following configuration (backgrounded, verbose):
       """
       vswitch {
         datapath_id "0xabc"
