@@ -114,6 +114,7 @@ controller_features_reply( VALUE self, VALUE message ) {
 
 
 // Override me if necessary.
+static VALUE
 controller_packet_in( VALUE self, VALUE packet_in ) {
   return self;
 }
