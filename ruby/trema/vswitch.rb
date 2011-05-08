@@ -19,7 +19,7 @@
 
 
 module Trema
-  class Vhost
+  class Vswitch
     @@list = {}
 
 
@@ -27,7 +27,7 @@ module Trema
       @@list
     end
     
-    
+
     def self.[] name
       @@list[ name ]
     end

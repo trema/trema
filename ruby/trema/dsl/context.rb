@@ -30,8 +30,9 @@ module Trema
       def initialize
         @tremashark = nil
         @port = 6633
-        @switches = {}
-        @hosts = Trema::Vhost.hosts
+        @switches = Trema::Vswitch.list
+        @switches.clear
+        @hosts = Trema::Vhost.list
         @hosts.clear
         @links = []
         @apps = []
