@@ -59,6 +59,11 @@ def trema_conf conf
 end
 
 
+def trema_kill
+  system "./trema kill"
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

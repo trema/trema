@@ -31,7 +31,7 @@ end
 
 describe RepeaterHub do
   before :each do
-    system "./trema kill"
+    trema_kill
   end
 
   
@@ -70,11 +70,12 @@ EOF
     Trema::Controller[ "RepeaterHub" ].should_receive( :send_flow_mod_add ).with( 0xabc ).at_least( 1 )
 
     Trema::Vhost[ "host1" ].send_packet :to => "host2"
+    trema_kill
   end
 
 
   after :each do
-    system "./trema kill"
+    trema_kill
   end
 end
 
