@@ -18,10 +18,11 @@
  */
 
 
-#include "trema.h"
 #include "controller.h"
 #include "features_reply.h"
+#include "openflow.h"
 #include "packet_in.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -57,7 +58,26 @@ controller_send_message( VALUE self, VALUE message, VALUE dpid ) {
 
 
 static VALUE
-controller_send_flow_mod( VALUE self, VALUE packet_in ) {
+controller_send_flow_mod( VALUE self, VALUE datapath_id, VALUE command ) {
+  struct ofp_match match;
+  match.wildcards = OFPFW_ALL;
+
+  buffer *flow_mod = create_flow_mod(
+    get_transaction_id(),
+    match,
+    get_cookie(),
+    OFPFC_ADD,
+    60,
+    0,
+    0,
+    UINT32_MAX,
+    OFPP_NONE,
+    0,
+    NULL
+  );
+  send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
+  free_buffer( flow_mod );
+
   return self;
 }
 
@@ -165,9 +185,11 @@ Init_controller() {
 
   cController = rb_define_class_under( mTrema, "Controller", rb_cObject );
 
+  rb_const_set( cController, rb_intern( "OFPFC_ADD" ), INT2FIX( OFPFC_ADD ) );
+
   rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_flow_mod", controller_send_flow_mod, 1 );
+  rb_define_method( cController, "send_flow_mod", controller_send_flow_mod, 2 );
   rb_define_method( cController, "run", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );
 
