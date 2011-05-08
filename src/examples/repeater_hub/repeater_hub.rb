@@ -18,63 +18,9 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "spec_helper" )
-require "trema"
-
-
 class RepeaterHub < Trema::Controller
   def packet_in _packet_in
     send_flow_mod_add _packet_in.datapath_id
-  end
-end
-
-
-describe RepeaterHub do
-  before :each do
-    system "./trema kill"
-  end
-
-  
-  it "should respond to packet_in" do
-    trema_conf <<-EOF
-vswitch("repeater_hub") {
-  datapath_id "0xabc"
-}
-
-vhost("host1") {
-  promisc "On"
-  ip "192.168.0.1"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:01"
-}
-
-vhost("host2") {
-  promisc "On"
-  ip "192.168.0.2"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:02"
-}
-
-vhost("host3") {
-  promisc "On"
-  ip "192.168.0.3"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:03"
-}
-
-link "repeater_hub", "host1"
-link "repeater_hub", "host2"
-link "repeater_hub", "host3"
-EOF
-
-    Trema::Controller[ "RepeaterHub" ].should_receive( :send_flow_mod_add ).with( 0xabc ).at_least( 1 )
-
-    Trema::Vhost[ "host1" ].send_packet :to => "host2"
-  end
-
-
-  after :each do
-    system "./trema kill"
   end
 end
 
@@ -84,3 +30,4 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
+

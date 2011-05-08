@@ -58,7 +58,7 @@ controller_send_message( VALUE self, VALUE message, VALUE dpid ) {
 
 
 static VALUE
-controller_send_flow_mod( VALUE self, VALUE datapath_id, VALUE command ) {
+controller_send_flow_mod_add( VALUE self, VALUE datapath_id ) {
   struct ofp_match match;
   match.wildcards = OFPFW_ALL;
 
@@ -185,11 +185,9 @@ Init_controller() {
 
   cController = rb_define_class_under( mTrema, "Controller", rb_cObject );
 
-  rb_const_set( cController, rb_intern( "OFPFC_ADD" ), INT2FIX( OFPFC_ADD ) );
-
   rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_flow_mod", controller_send_flow_mod, 2 );
+  rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, 1 );
   rb_define_method( cController, "run", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );
 
