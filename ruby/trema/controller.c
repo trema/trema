@@ -21,6 +21,7 @@
 #include "trema.h"
 #include "controller.h"
 #include "features_reply.h"
+#include "packet_in.h"
 
 
 extern VALUE mTrema;
@@ -51,6 +52,7 @@ controller_init( VALUE self ) {
 
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   set_features_reply_handler( handle_features_reply, ( void * ) self );
+  set_packet_in_handler( handle_packet_in, ( void * ) self );
 
   return self;
 }
@@ -107,6 +109,12 @@ controller_switch_ready( VALUE self, VALUE datapath_id ) {
 // Override me if necessary.
 static VALUE
 controller_features_reply( VALUE self, VALUE message ) {
+  return self;
+}
+
+
+// Override me if necessary.
+controller_packet_in( VALUE self, VALUE packet_in ) {
   return self;
 }
 
@@ -179,6 +187,7 @@ Init_controller() {
   rb_define_method( cController, "start", controller_start, 0 );
   rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
   rb_define_method( cController, "features_reply", controller_features_reply, 1 );
+  rb_define_method( cController, "packet_in", controller_packet_in, 1 );
 
   // Logging
   rb_define_method( cController, "critical", controller_critical, -1 );

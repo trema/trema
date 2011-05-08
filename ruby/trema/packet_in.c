@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -20,32 +18,25 @@
  */
 
 
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "packet_in.h"
-#include "hello.h"
-#include "port.h"
+#include <string.h>
+#include "trema.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
+VALUE cPacketIn;
 
 
 void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, false );
+Init_packet_in() {
+  cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
+}
 
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
 
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_packet_in();
-  Init_hello();
-  Init_port();
+void
+handle_packet_in( packet_in packet_in ) {
+  VALUE _packet_in = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
+  rb_funcall( ( VALUE ) packet_in.user_data, rb_intern( "packet_in" ), 1, _packet_in );
 }
 
 
@@ -55,3 +46,4 @@ Init_trema() {
  * indent-tabs-mode: nil
  * End:
  */
+
