@@ -25,46 +25,52 @@ require "trema/host"
 
 describe Host do
   before :each do
-    @stanza = Trema::DSL::Vhost.new( "VIRTUAL HOST" )
-    @stanza.promisc "on"
-    @stanza.ip "192.168.0.100"
-    @stanza.netmask "255.255.255.0"
-    @stanza.mac "00:00:00:01:00:10"
+    @cli = mock( "cli" )
+    Cli.stub!( :new ).and_return( @cli )    
+
+    stanza = {
+      :name => "VIRTUAL HOST",
+      :promisc => "on",
+      :ip => "192.168.0.100",
+      :netmask => "255.255.255.0",
+      :mac => "00:00:00:01:00:10",
+    }
+    
+    @host = Host.new( stanza )
   end
 
 
   it "should add arp entries" do
-    host = Host.new( @stanza )
-    host.interface = "INTERFACE"
+    @host.interface = "INTERFACE"
 
-    other_host1 = mock( "OTHER HOST 1", :ip => "192.168.0.1", :mac => "00:00:00:01:00:01" )
-    other_host2 = mock( "OTHER HOST 2", :ip => "192.168.0.2", :mac => "00:00:00:01:00:02" )
-    other_host3 = mock( "OTHER HOST 3", :ip => "192.168.0.3", :mac => "00:00:00:01:00:03" )
+    other_host1 = mock( "OTHER HOST 1" )
+    other_host2 = mock( "OTHER HOST 2" )
+    other_host3 = mock( "OTHER HOST 3" )
 
-    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE add_arp_entry --ip_addr 192.168.0.1 --mac_addr 00:00:00:01:00:01$/ )
-    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE add_arp_entry --ip_addr 192.168.0.2 --mac_addr 00:00:00:01:00:02$/ )
-    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE add_arp_entry --ip_addr 192.168.0.3 --mac_addr 00:00:00:01:00:03$/ )
+    @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host1 )
+    @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host2 )
+    @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host3 )
 
-    host.add_arp_entry [ other_host1, other_host2, other_host3 ]
+    @host.add_arp_entry [ other_host1, other_host2, other_host3 ]
   end
 
 
   it "should run phost and cli command with proper options" do
-    host = Host.new( @stanza )
-    host.interface = "INTERFACE"
+    FileTest.stub!( :exists? ).and_return( true )
 
-    host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
-    host.should_receive( :sleep ).once.ordered.with( 1 )
-    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE set_host_addr --ip_addr 192.168.0.100 --ip_mask 255.255.255.0 --mac_addr 00:00:00:01:00:10$/ )
-    host.should_receive( :sh ).once.ordered.with( /cli -i INTERFACE enable_promisc$/ )
+    @host.interface = "INTERFACE"
 
-    host.run
+    @host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
+    @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
+    @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
+
+    @host.run
   end
 
 
   it "should raise if interface is not added" do
     lambda do
-      Host.new( @stanza ).run
+      @host.run
     end.should raise_error( "The link(s) for vhost 'VIRTUAL HOST' is not defined." )
   end
 end

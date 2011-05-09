@@ -50,6 +50,21 @@ class Cli
   end
 
 
+  def add_arp_entry host, other
+    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } add_arp_entry --ip_addr #{ other.ip } --mac_addr #{ other.mac }"
+  end
+  
+
+  def set_host_addr host
+    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } set_host_addr --ip_addr #{ host.ip } --ip_mask #{ host.netmask } --mac_addr #{ host.mac }"
+  end
+
+
+  def enable_promisc host
+    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } enable_promisc"
+  end
+  
+
   ################################################################################
   private
   ################################################################################

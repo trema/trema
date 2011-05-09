@@ -20,6 +20,7 @@
 #
 
 
+require "trema/cli"
 require "trema/executables"
 
 
@@ -27,39 +28,40 @@ class Host
   attr_reader :name
   attr_reader :ip
   attr_reader :mac
+  attr_reader :netmask
   attr_accessor :interface
 
 
   def initialize stanza
-    @promisc = stanza[ :promisc ]
     @name = stanza[ :name ]
     @ip = stanza[ :ip ]
+    @mac = stanza[ :mac ]    
     @netmask = stanza[ :netmask ]
-    @mac = stanza[ :mac ]
+    @promisc = stanza[ :promisc ]
+
+    @cli = Cli.new
   end
 
 
   def add_arp_entry hosts
-    check_interface
-
     hosts.each do | each |
-      sh "sudo #{ Trema::Executables.cli } -i #{ @interface } add_arp_entry --ip_addr #{ each.ip } --mac_addr #{ each.mac }"
+      @cli.add_arp_entry self, each
     end
   end
 
 
   def run
-    check_interface
+    raise "The link(s) for vhost '#{ @name }' is not defined." if @interface.nil?
 
     sh "sudo #{ Trema::Executables.phost } -i #{ @interface } -D"
-    sleep 1
-    sh "sudo #{ Trema::Executables.cli } -i #{ @interface } set_host_addr --ip_addr #{ @ip } --ip_mask #{ @netmask } --mac_addr #{ @mac }"
-    sh "sudo #{ Trema::Executables.cli } -i #{ @interface } enable_promisc" if @promisc
+    wait_until_up
+    @cli.set_host_addr self
+    @cli.enable_promisc( self ) if @promisc
   end
 
 
   def send_packet options
-    Cli.new.send_packets self, Trema::Vhost[ options[ :to ] ]
+    @cli.send_packets self, Trema::Vhost[ options[ :to ] ]
   end
 
 
@@ -68,8 +70,16 @@ class Host
   ################################################################################
 
 
-  def check_interface
-    raise "The link(s) for vhost '#{ @name }' is not defined." if @interface.nil?
+  def wait_until_up
+    loop do
+      break if FileTest.exists?( pid_file )
+      sleep 0.1
+    end
+  end
+
+
+  def pid_file
+    File.join Trema.tmp, "phost.#{ @interface }.pid"
   end
 end
 
