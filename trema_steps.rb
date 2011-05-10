@@ -23,6 +23,11 @@ Given /^I terminated all trema services$/ do
 end
 
 
+Given /^I terminate all trema services$/ do
+  Given "I terminated all trema services"
+end
+
+
 Given /^I started switch_manager$/ do
   ENV[ "TREMA_HOME" ] = Dir.getwd
   run "#{ Trema::Executables.switch_manager } --daemonize -- port_status::foo packet_in::bar state_notify::baz"
@@ -77,6 +82,18 @@ When /^I try trema run with following configuration:$/ do | config |
 end
 
 
+When /^I try trema run with following configuration \(log = "([^"]*)"\):$/ do | log_name, config |
+  Thread.start do
+    Tempfile.open( "trema.conf" ) do | trema_conf |
+      trema_conf.puts config
+      trema_conf.flush
+      log = File.join( Trema.log_directory, log_name )
+      system "./trema run -c #{ trema_conf.path } --verbose > #{ log } 2>&1"
+    end
+  end
+end
+
+
 When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
   sleep sec.to_i
 end
@@ -109,6 +126,12 @@ end
 
 Then /^"([^"]*)" should be executed with option = "([^"]*)"$/ do | executable, options |
   IO.read( @trema_log ).should match( Regexp.new "#{ executable } #{ options }" )
+end
+
+
+Then /^the log file "([^"]*)" should include:$/ do | log_name, string |
+  log = File.join( Trema.log_directory, log_name )
+  IO.read( log ).split( "\n" ).should include( string )
 end
 
 
