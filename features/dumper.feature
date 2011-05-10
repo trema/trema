@@ -1,15 +1,15 @@
-Feature: dump openflow events with dumper
+Feature: Dump openflow events with dumper
 
   As a Trema user
-  I want to dump openflow events with dumper application
-  So that I can test basic features of trema framework
+  I want to dump OpenFlow events with dumper application
+  So that I can visualize OpenFlow messages
 
   Background:
     Given I terminated all trema services
 
 
-  Scenario: One openflow switch, two servers
-    When I try trema run with following configuration:
+  Scenario: One openflow switch and two servers
+    When I try trema run with following configuration (log = "dumper.log"):
       """
       vswitch {
         datapath_id "0xabc"
@@ -35,9 +35,9 @@ Feature: dump openflow events with dumper
       }
       """
       And wait until "dumper" is up
-      And I try to run "./trema send_packets --source host1 --dest host2 -v"
-      And I terminated all trema services
-    Then the output of trema should include:
+      And I try to run "./trema send_packets --source host1 --dest host2"
+      And I terminate all trema services
+    Then the log file "dumper.log" should include:
       """
       000000010002000000010001080045000032000000004011ff67ffff0001ffff000200010001001e000000000000000000000000000000000000000000000000
       """
