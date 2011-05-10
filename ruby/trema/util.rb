@@ -51,14 +51,17 @@ EOF
 
   def cleanup_current_session
     last_session = Trema::DSL::Parser.load_current
-    last_session.links.each do | each |
-      each.down!
+    last_session.apps.each do | each |
+      each.shutdown!
     end
     last_session.switches.each do | each |
       each.shutdown!
     end
     last_session.hosts.each do | each |
       each.shutdown!
+    end
+    last_session.links.each do | each |
+      each.down!
     end
     
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |

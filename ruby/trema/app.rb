@@ -20,46 +20,72 @@
 #
 
 
-class App
-  attr_reader :name
+module Trema
+  class App
+    @@list = []
 
 
-  def initialize stanza
-    @name = stanza[ :name ]
-    @stanza = stanza
-  end
-
-
-  def daemonize
-    if options
-      sh "#{ command } --name #{ name } -d #{ options.join ' ' }"
-    else
-      sh "#{ command } --name #{ name } -d"
+    def self.all
+      @@list
     end
-  end
 
 
-  def run
-    if options
-      sh "#{ command } --name #{ name } #{ options.join ' ' }"
-    else
-      sh "#{ command } --name #{ name }"
+    def self.add app
+      @@list << app
     end
-  end
 
 
-  ################################################################################
-  private
-  ################################################################################
+    attr_reader :name
+    
+
+    def initialize stanza
+      @name = stanza[ :name ]
+      @stanza = stanza
+      self.class.add self
+    end
 
 
-  def command
-    @stanza[ :path ]
-  end
+    def daemonize
+      if options
+        sh "#{ command } --name #{ name } -d #{ options.join ' ' }"
+      else
+        sh "#{ command } --name #{ name } -d"
+      end
+    end
 
 
-  def options
-    @stanza[ :options ]
+    def run
+      if options
+        sh "#{ command } --name #{ name } #{ options.join ' ' }"
+      else
+        sh "#{ command } --name #{ name }"
+      end
+    end
+
+
+    def shutdown!
+      Trema::Process.read( pid_file, @name ).kill!
+    end
+
+
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def pid_file
+      File.join Trema.tmp, "#{ @name }.pid"
+    end
+
+    
+    def command
+      @stanza[ :path ]
+    end
+
+
+    def options
+      @stanza[ :options ]
+    end
   end
 end
 

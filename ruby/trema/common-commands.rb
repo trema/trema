@@ -87,7 +87,7 @@ module Trema::CommonCommands
   def app name = nil, &block
     stanza = Trema::DSL::App.new( name )
     stanza.instance_eval( &block )
-    @context.add_app ::App.new( stanza )
+    Trema::App.new( stanza )
   end
 end
 

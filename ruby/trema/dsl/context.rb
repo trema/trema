@@ -38,7 +38,8 @@ module Trema
         @hosts.clear
         @links = Trema::Link.all
         @links.clear
-        @apps = []
+        @apps = Trema::App.all
+        @apps.clear
         @packetin_filter = nil
         @switch_manager = nil
       end
@@ -114,11 +115,6 @@ module Trema
 
       def set_switch_manager switch_manager
         @switch_manager = switch_manager
-      end
-
-
-      def add_app app
-        @apps << app
       end
     end
   end

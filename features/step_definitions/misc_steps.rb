@@ -24,8 +24,9 @@ end
 
 
 When /^wait until "([^"]*)" is up$/ do | process |
+  pid_file = File.join( Trema.tmp, "#{ process }.pid" )
   loop do
-    break if FileTest.exists?( File.join( Trema.tmp, "#{ process }.pid" ) )
+    break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
     sleep 1
   end
 end

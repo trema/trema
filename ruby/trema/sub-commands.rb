@@ -308,13 +308,13 @@ EOL
         stanza = Trema::DSL::App.new
         stanza.path ARGV[ 0 ].split.first
         stanza.options ARGV[ 0 ].split[ 1..-1 ]
-        config.add_app App.new( stanza )
+        Trema::App.new( stanza )
       else
         # Ruby controller
         require "trema"
         Trema.module_eval IO.read( ARGV[ 0 ] )
         Trema::Controller.each do | each |
-          config.add_app each
+          Trema::App.add each
         end
       end
     end

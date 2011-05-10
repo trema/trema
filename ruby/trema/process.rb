@@ -42,7 +42,7 @@ module Trema
 
     def kill!
       return if @pid_file.nil?
-      return if not alive?
+      return if dead?
       puts "Shutting down #{ @name }..." if $verbose
       if @uid == 0
         sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
@@ -50,7 +50,7 @@ module Trema
         sh "kill #{ @pid } 2>/dev/null" rescue nil
       end
       loop do
-        return unless FileTest.exists?( @pid_file )
+        return if ( not FileTest.exists?( @pid_file ) ) and dead?
       end
     end
 
@@ -60,8 +60,8 @@ module Trema
     ################################################################################
 
 
-    def alive?
-      not `ps ax | grep -E "^[[:blank:]]*#{ @pid }"`.empty?
+    def dead?
+      `ps ax | grep -E "^[[:blank:]]*#{ @pid }"`.empty?      
     end
   end
 end
