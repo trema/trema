@@ -1,12 +1,12 @@
-Feature: dumper help
+Feature: Dumper help
 
   As a Trema user
   I want to see the help message of dumper command
   So that I can learn how to use dumper
 
   Scenario: dumper --help
-    When I try to run "./objects/examples/dumper/dumper --help"
-    Then the output should be:
+    When I try to run "./objects/examples/dumper/dumper --help" (log = "dumper_help.log")
+    Then the log file "dumper_help.log" should be:
       """
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
@@ -18,8 +18,8 @@ Feature: dumper help
       """
 
   Scenario: dumper -h
-    When I try to run "./objects/examples/dumper/dumper -h"
-    Then the output should be:
+    When I try to run "./objects/examples/dumper/dumper -h" (log = "dumper_h.log")
+    Then the log file "dumper_h.log" should be:
       """
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
