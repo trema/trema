@@ -67,10 +67,12 @@ end
 When /^I try trema run with following configuration:$/ do | config |
   @trema_log = `mktemp`.chomp
 
-  Tempfile.open( "trema.conf" ) do | conf |
-    conf.puts config
-    conf.flush
-    system "./trema run -c #{ conf.path } --verbose > #{ @trema_log } 2>&1 &"
+  Thread.start do
+    Tempfile.open( "trema.conf" ) do | conf |
+      conf.puts config
+      conf.flush
+      system "./trema run -c #{ conf.path } --verbose > #{ @trema_log } 2>&1"
+    end
   end
 end
 
