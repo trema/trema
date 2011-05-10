@@ -684,10 +684,6 @@ int cli_parse_send_packets(int argc, char **argv)
               reply.hdr.status, ntohl(reply.n_pkts),
               ntohl(reply.duration_sec), ntohl(reply.duration_usec));
 
-    printf("n_pkts = %u, duration = %u.%06u\n",
-           ntohl(reply.n_pkts), ntohl(reply.duration_sec),
-           ntohl(reply.duration_usec));
-
     return ret;
 }
 
