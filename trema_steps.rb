@@ -47,6 +47,12 @@ When /^I try to run "([^"]*)"$/ do | command |
 end
 
 
+When /^I try to run "([^"]*)" \(log = "([^"]*)"\)$/ do | command, log_name |
+  log = File.join( Trema.log_directory, log_name )
+  run "#{ command } > #{ log }"
+end
+
+
 When /^I try to run "([^"]*)" with following configuration:$/ do | command, config |
   @trema_log = `mktemp`.chomp
 
@@ -126,6 +132,12 @@ end
 
 Then /^"([^"]*)" should be executed with option = "([^"]*)"$/ do | executable, options |
   IO.read( @trema_log ).should match( Regexp.new "#{ executable } #{ options }" )
+end
+
+
+Then /^the log file "([^"]*)" should be:$/ do | log_name, string |
+  log = File.join( Trema.log_directory, log_name )
+  IO.read( log ).chomp.should == string.chomp
 end
 
 
