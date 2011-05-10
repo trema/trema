@@ -22,43 +22,45 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema/app"
 
 
-describe App do
-  context "when options are specified" do
-    before :each do
-      stanza = { :path => "/usr/bin/tetris", :name => "NAME", :options => [ "OPTION0", "OPTION1" ] }
-      @app = App.new( stanza )
+module Trema
+  describe App do
+    context "when options are specified" do
+      before :each do
+        stanza = { :path => "/usr/bin/tetris", :name => "NAME", :options => [ "OPTION0", "OPTION1" ] }
+        @app = App.new( stanza )
+      end
+
+
+      it "should daemonize with options" do
+        @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d OPTION0 OPTION1" )
+        @app.daemonize
+      end
+
+
+      it "should run with options" do
+        @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME OPTION0 OPTION1" )
+        @app.run
+      end
     end
 
 
-    it "should daemonize with options" do
-      @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d OPTION0 OPTION1" )
-      @app.daemonize
-    end
+    context "when options are not specified" do
+      before :each do
+        stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
+        @app = App.new( stanza )
+      end
 
 
-    it "should run with options" do
-      @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME OPTION0 OPTION1" )
-      @app.run
-    end
-  end
+      it "should daemonize without options" do
+        @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d" )
+        @app.daemonize
+      end
 
 
-  context "when options are not specified" do
-    before :each do
-      stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
-      @app = App.new( stanza )
-    end
-
-
-    it "should daemonize without options" do
-      @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d" )
-      @app.daemonize
-    end
-
-
-    it "should run without options" do
-      @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME" )
-      @app.run
+      it "should run without options" do
+        @app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME" )
+        @app.run
+      end
     end
   end
 end

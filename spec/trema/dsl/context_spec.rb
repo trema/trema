@@ -72,9 +72,9 @@ module Trema
 
 
       it "should remember apps" do
-        @context.add_app mock( "app #0", :name => "app #0" )
-        @context.add_app mock( "app #1", :name => "app #1" )
-        @context.add_app mock( "app #2", :name => "app #2" )
+        Trema::App.add mock( "app #0", :name => "app #0" )
+        Trema::App.add mock( "app #1", :name => "app #1" )
+        Trema::App.add mock( "app #2", :name => "app #2" )
 
         @context.should have( 3 ).apps
       end
@@ -105,7 +105,7 @@ module Trema
 
 
       it "should route events to an app" do
-        @context.add_app mock( "app", :name => "App" )
+        Trema::App.add mock( "app", :name => "App" )
 
         switch_manager = @context.switch_manager
         switch_manager.rule[ :port_status ].should == "App"
@@ -115,8 +115,8 @@ module Trema
 
 
       it "should raise if no event routing is given" do
-        @context.add_app mock( "app #0", :name => "App #0" )
-        @context.add_app mock( "app #1", :name => "App #1" )
+        Trema::App.add mock( "app #0", :name => "App #0" )
+        Trema::App.add mock( "app #1", :name => "App #1" )
 
         lambda do
           @context.switch_manager

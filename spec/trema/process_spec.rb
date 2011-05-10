@@ -43,7 +43,7 @@ describe Trema::Process do
     File.stub!( :stat ).with( @pid_file ).and_return( stat )
 
     process = Trema::Process.read( @pid_file )
-    process.stub!( :` ).and_return( "ALIVE" )
+    process.stub!( :` ).and_return( "ALIVE", "" )
     process.should_receive( :sh ).with( "kill 1234 2>/dev/null" )
 
     process.kill!
@@ -56,7 +56,7 @@ describe Trema::Process do
     File.stub!( :stat ).with( @pid_file ).and_return( stat )
 
     process = Trema::Process.read( @pid_file )
-    process.stub!( :` ).and_return( "ALIVE" )
+    process.stub!( :` ).and_return( "ALIVE", "" )
     process.should_receive( :sh ).with( "sudo kill 1234 2>/dev/null" )
 
     process.kill!

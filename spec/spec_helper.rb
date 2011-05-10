@@ -66,7 +66,7 @@ end
 
 
 def kill_trema
-  sh "./trema kill"
+  system "./trema kill"
 end
 
 
