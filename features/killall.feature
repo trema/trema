@@ -1,7 +1,7 @@
 Feature: kill all trema processes with `trema killall' command
 
   As a Trema user
-  I want to kill all heilos processes with `trema kilall' command
+  I want to kill all heilos processes with `trema killall' command
   So that I can terminate trema session without investigating process table using ps command
 
   Scenario: trema killall
