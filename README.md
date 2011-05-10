@@ -38,8 +38,6 @@ Meta
 Authors
 =======
 
-Authors of Trema OpenFlow Controller Platform
-
 Please keep the list sorted.
 
 * Kazushi Sugyo
