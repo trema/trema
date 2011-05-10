@@ -282,6 +282,7 @@ main( int argc, char *argv[] ) {
     }
   }
   if ( datapath_id == NULL ) {
+    printf( "--datapath_id option is mandatory.\n" );
     usage();
     exit( EXIT_FAILURE );
   }
