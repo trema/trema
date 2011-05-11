@@ -1,7 +1,7 @@
 /*
- * OpenFlow Switch Manager
+ * Queue implementation
  *
- * Author: Kazusi Sugyo
+ * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,18 +20,28 @@
  */
 
 
-#ifndef SECURE_CHANNEL_RECEIVER_H
-#define SECURE_CHANNEL_RECEIVER_H
+#ifndef MESSAGE_QUEUE_H
+#define MESSAGE_QUEUE_H
 
 
-#include "switch.h"
+#include "trema.h"
 
 
-int recv_from_secure_channel( struct switch_info *sw_info );
-int handle_messages_from_secure_channel( struct switch_info *sw_info );
+typedef struct {
+  list_element *head;
+  list_element *tail;
+  int length;
+} message_queue;
 
 
-#endif // SECURE_CHANNEL_RECEIVER_H
+message_queue *create_message_queue( void );
+bool delete_message_queue( message_queue *queue );
+bool enqueue_message( message_queue *queue, buffer *message );
+buffer *dequeue_message( message_queue *queue );
+buffer *peek_message( message_queue *queue );
+
+
+#endif // MESSAGE_QUEUE_H
 
 
 /*
@@ -40,4 +50,3 @@ int handle_messages_from_secure_channel( struct switch_info *sw_info );
  * indent-tabs-mode: nil
  * End:
  */
-

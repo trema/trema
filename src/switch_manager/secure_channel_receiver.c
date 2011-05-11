@@ -24,97 +24,95 @@
 #include <string.h>
 #include <unistd.h>
 #include "trema.h"
+#include "message_queue.h"
 #include "ofpmsg_recv.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_receiver.h"
 
 
-#define MBUFALLOC_USERHEADROOM_LEN 128
+int
+recv_from_secure_channel( struct switch_info *sw_info ) {
+  assert( sw_info != NULL );
+  assert( sw_info->recv_queue != NULL );
+
+  // all queued messages should be processed before receiving new messages from remote
+  if ( sw_info->recv_queue->length > 0 ) {
+    return 0;
+  }
+
+  if ( sw_info->fragment_buf == NULL ) {
+    sw_info->fragment_buf = alloc_buffer_with_length( UINT16_MAX );
+  }
+
+  size_t remaining_length = UINT16_MAX - sw_info->fragment_buf->length;
+  char *recv_buf = ( char * ) sw_info->fragment_buf->data + sw_info->fragment_buf->length;
+  ssize_t recv_length = read( sw_info->secure_channel_fd, recv_buf, remaining_length );
+  if ( recv_length < 0 ) {
+    if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
+      return 0;
+    }
+    error( "Receive error:%s(%d)", strerror( errno ), errno );
+    return -1;
+  }
+  if ( recv_length == 0 ) {
+    debug( "Connection closed by peer." );
+    return -1;
+  }
+  sw_info->fragment_buf->length += ( size_t ) recv_length;
+
+  size_t read_total = 0;
+  while ( sw_info->fragment_buf->length >= sizeof( struct ofp_header ) ) {
+    struct ofp_header *header = sw_info->fragment_buf->data;
+    if ( header->version != OFP_VERSION ) {
+      error( "Receive error: invalid version (version %d)", header->version );
+      ofpmsg_send_error_msg( sw_info,
+                             OFPET_BAD_REQUEST, OFPBRC_BAD_VERSION, sw_info->fragment_buf );
+      return -1;
+    }
+    uint16_t message_length = ntohs( header->length );
+    if ( message_length > sw_info->fragment_buf->length ) {
+      break;
+    }
+    buffer *message = alloc_buffer_with_length( message_length );
+    char *p = append_back_buffer( message, message_length );
+    memcpy( p, sw_info->fragment_buf->data, message_length );
+    remove_front_buffer( sw_info->fragment_buf, message_length ); 
+    enqueue_message( sw_info->recv_queue, message );
+    read_total += message_length;
+  }
+
+  // remove headroom manually for next call
+  if ( read_total > 0 ) {
+    memmove( ( char * ) sw_info->fragment_buf->data - read_total,
+             sw_info->fragment_buf->data,
+             sw_info->fragment_buf->length );
+    sw_info->fragment_buf->data = ( char * ) sw_info->fragment_buf->data - read_total;
+  }
+
+  return 0;
+}
 
 
 int
-recv_from_secure_channel( struct switch_info *sw_info ) {
+handle_messages_from_secure_channel( struct switch_info *sw_info ) {
+  assert( sw_info != NULL );
+  assert( sw_info->recv_queue != NULL );
+
   int ret;
-  ssize_t recv_len;
-  char *recv_data;
-  size_t recv_remain;
-  uint16_t ofp_length;
-  struct ofp_header *ofp_header;
+  int errors = 0;
+  int received = 0;
+  buffer *message;
 
-  if ( sw_info->fragment_buf == NULL ) {
-    sw_info->fragment_buf = alloc_buffer_with_length( MBUFALLOC_USERHEADROOM_LEN + sizeof( struct ofp_header ) );
-    assert( sw_info->fragment_buf != NULL );
-  }
-  ofp_header = ( struct ofp_header * ) sw_info->fragment_buf->data;
-  if ( sw_info->fragment_buf->length < sizeof( struct ofp_header ) ) {
-    ofp_length = sizeof( struct ofp_header );
-  }
-  else {
-    ofp_length = ntohs( ofp_header->length );
-  }
-
-  while ( ( recv_remain = ofp_length - sw_info->fragment_buf->length ) > 0 ) {
-    recv_data = ( char * ) sw_info->fragment_buf->data + sw_info->fragment_buf->length;
-    recv_len = read( sw_info->secure_channel_fd, recv_data, recv_remain );
-    if ( recv_len < 0 ) {
-        if ( ( errno == EINTR ) || ( errno == EAGAIN ) ) {
-          // TODO: start fragmentation timer
-
-        return 0;
-      }
-      error( "Receive error: %s(%d)", strerror( errno ), errno );
-      goto closed;
+  while ( ( message = dequeue_message( sw_info->recv_queue ) ) != NULL && received < 64 ) { // FIXME: magic number
+    ret = ofpmsg_recv( sw_info, message );
+    if ( ret < 0 ) {
+      error( "Failed to handle message to application." );
+      errors++;
     }
-    if ( recv_len == 0 ) {
-      error( "Receive error: peer shutdown" );
-      goto closed;
-    }
-    sw_info->fragment_buf->length += ( uint ) recv_len;
-    if ( sw_info->fragment_buf->length == sizeof( struct ofp_header ) ) {
-      if ( ofp_header->version != OFP_VERSION ) {
-        error( "Receive error: invalid version (version %d)", ofp_header->version );
-        ofpmsg_send_error_msg( sw_info,
-          OFPET_BAD_REQUEST, OFPBRC_BAD_VERSION, sw_info->fragment_buf );
-
-        goto closed;
-      }
-      ofp_length = ntohs( ofp_header->length );
-      if ( ofp_length < sizeof( struct ofp_header ) ) {
-        error( "Receive error: invalid length (length %d)", ofp_length );
-        ofpmsg_send_error_msg( sw_info,
-          OFPET_BAD_REQUEST, OFPBRC_BAD_LEN, sw_info->fragment_buf );
-
-        goto closed;
-      }
-
-      if ( ofp_length > sizeof( struct ofp_header ) ) {
-        append_back_buffer( sw_info->fragment_buf, ofp_length - sizeof( ofp_header ) );
-        sw_info->fragment_buf->length = sizeof( struct ofp_header );
-      }
-    }
+    received++;
   }
 
-
-  ret = ofpmsg_recv( sw_info, sw_info->fragment_buf );
-  if ( ret < 0 ) {
-    error( "Failed to handle message to application." );
-    sw_info->fragment_buf = NULL;
-    goto closed;
-  }
-  sw_info->fragment_buf = NULL;
-
-  return 0;
-
-closed:
-  if ( sw_info->fragment_buf != NULL ) {
-    free_buffer( sw_info->fragment_buf );
-    sw_info->fragment_buf = NULL;
-  }
-
-  close( sw_info->secure_channel_fd );
-  sw_info->secure_channel_fd = -1;
-
-  return -1;
+  return errors == 0 ? 0 : -1;
 }
 
 

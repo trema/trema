@@ -406,6 +406,7 @@ end
 
 switch_objects = [
   "cookie_table.o",
+  "message_queue.o",
   "ofpmsg_recv.o",
   "ofpmsg_send.o",
   "secure_channel_receiver.o",

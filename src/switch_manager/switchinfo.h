@@ -22,6 +22,9 @@
 #define SWITCHINFO_H
 
 
+#include "message_queue.h"
+
+
 #define SWITCH_STATE_CONNECTED           0
 #define SWITCH_STATE_WAIT_HELLO          1
 #define SWITCH_STATE_WAIT_FEATURES_REPLY 2
@@ -47,11 +50,15 @@ struct switch_info {
   uint16_t miss_send_len;       /* Max bytes of new flow that datapath should
                                    send to the controller. */
 
-  buffer *fragment_buf;         // fragmentation buffer of openflow message
+  buffer *fragment_buf;         /* openflow message fragmentation buffer of
+                                   secure channel receiver */
+
+  message_queue *send_queue;
+  message_queue *recv_queue;
 };
 
 
-#endif // SWITCH_INFO_H
+#endif // SWITCHINFO_H
 
 
 /*

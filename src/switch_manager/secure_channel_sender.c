@@ -18,10 +18,12 @@
  */
 
 
+#include <assert.h>
 #include <errno.h>
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
+#include "message_queue.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_sender.h"
 #include "trema.h"
@@ -29,20 +31,44 @@
 
 int
 send_to_secure_channel( struct switch_info *sw_info, buffer *buf ) {
-  ssize_t ret;
+  assert( sw_info != NULL );
+  assert( buf != NULL );
+  assert( buf->length > 0 );
 
-retry:
-  ret = write( sw_info->secure_channel_fd, buf->data, buf->length );
-  if ( ret < 0 ) {
-    if ( errno == EINTR ) {
-      goto retry;
-    }
-    free_buffer( buf );
-    error( "Failed to send. %s", strerror( errno ) );
-
+  if ( sw_info->send_queue == NULL ) {
     return -1;
   }
-  free_buffer( buf );
+
+  return ( enqueue_message( sw_info->send_queue, buf ) == true ) ? 0 : -1;
+}
+
+
+int
+flush_secure_channel( struct switch_info *sw_info ) {
+  assert( sw_info != NULL );
+  assert( sw_info->send_queue != NULL );
+  assert( sw_info->secure_channel_fd >= 0 );
+
+  buffer *buf;
+  ssize_t write_length;
+
+  while ( ( buf = peek_message( sw_info->send_queue ) ) != NULL ) {
+    write_length = write( sw_info->secure_channel_fd, buf->data, buf->length );
+    if ( write_length < 0 ) {
+      if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
+        return 0;
+      }
+      error( "Failed to send a message to secure channel ( errno = %s [%d] ).",
+             strerror( errno ), errno );
+      return -1;
+    }
+    if ( ( size_t ) write_length < buf->length ) {
+      remove_front_buffer( buf, ( size_t ) write_length );
+      return 0;
+    }
+    buf = dequeue_message( sw_info->send_queue );
+    free_buffer( buf );
+  }
 
   return 0;
 }

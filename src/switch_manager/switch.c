@@ -31,6 +31,7 @@
 #include "trema.h"
 #include "cookie_table.h"
 #include "management_interface.h"
+#include "message_queue.h"
 #include "messenger.h"
 #include "ofpmsg_send.h"
 #include "openflow_service_interface.h"
@@ -137,26 +138,34 @@ service_send_state( struct switch_info *sw_info, uint64_t *dpid, uint16_t tag ) 
 
 static void
 secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
   if ( switch_info.secure_channel_fd < 0 ) {
     return;
   }
   FD_SET( switch_info.secure_channel_fd, read_set );
+  FD_SET( switch_info.secure_channel_fd, write_set );
 }
 
 
 static void
 secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
   if ( switch_info.secure_channel_fd < 0 ) {
     return;
   }
   if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
     if ( recv_from_secure_channel( &switch_info ) < 0 ) {
       switch_event_disconnected( &switch_info );
+      return;
     }
+  }
+  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
+    if ( flush_secure_channel( &switch_info ) < 0 ) {
+      switch_event_disconnected( &switch_info );
+      return;
+    }
+  }
+
+  if ( switch_info.recv_queue->length > 0 ) {
+    handle_messages_from_secure_channel( &switch_info );
   }
 }
 
@@ -217,7 +226,7 @@ int
 switch_event_connected( struct switch_info *sw_info ) {
   int ret;
 
-  // send secure channle disconnect-state to module-manager
+  // send secure channel disconnect state to application
   service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_CONNECTED );
   debug( "Send connected state" );
   ret = ofpmsg_send_hello( sw_info );
@@ -318,7 +327,27 @@ int
 switch_event_disconnected( struct switch_info *sw_info ) {
   sw_info->state = SWITCH_STATE_DISCONNECTED;
 
-  // send secure channle disconnect-state to module-manager
+  if ( sw_info->fragment_buf != NULL ) {
+    free_buffer( sw_info->fragment_buf );
+    sw_info->fragment_buf = NULL;
+  }
+
+  if ( sw_info->send_queue != NULL ) {
+    delete_message_queue( sw_info->send_queue );
+    sw_info->send_queue = NULL;
+  }
+
+  if ( sw_info->recv_queue != NULL ) {
+    delete_message_queue( sw_info->recv_queue );
+    sw_info->recv_queue = NULL;
+  }
+
+  if ( sw_info->secure_channel_fd >= 0 ) {
+    close( sw_info->secure_channel_fd );
+    sw_info->secure_channel_fd = -1;
+  }
+
+  // send secure channle disconnect state to application
   service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_DISCONNECTED );
   flush_messenger();
   debug( "send disconnected state" );
@@ -427,6 +456,10 @@ main( int argc, char *argv[] ) {
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;
   switch_info.miss_send_len = UINT16_MAX;
+
+  switch_info.fragment_buf = NULL;
+  switch_info.send_queue = create_message_queue();
+  switch_info.recv_queue = create_message_queue();
 
   init_xid_table();
   init_cookie_table();

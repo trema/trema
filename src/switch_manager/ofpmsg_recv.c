@@ -107,7 +107,7 @@ ofpmsg_recv_error( struct switch_info *sw_info, buffer *buf ) {
   uint16_t type = ntohs( error_msg->type );
   uint16_t code = ntohs( error_msg->code );
 
-  notice( "Receive 'error' from a switch. xid:%d, type:%d, code:%d.",
+  notice( "Receive 'error' from a switch. xid:%#x, type:%d, code:%d.",
           ntohl( error_msg->header.xid ), type, code );
 
   ret = switch_event_recv_error( sw_info );
@@ -426,7 +426,6 @@ ofpmsg_recv( struct switch_info *sw_info, buffer *buf ) {
   // Switch configuration messages.
   case OFPT_FEATURES_REPLY:
     ret = ofpmsg_recv_featuresreply( sw_info, buf );
-
     break;
 
   case OFPT_GET_CONFIG_REPLY:

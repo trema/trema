@@ -29,6 +29,7 @@
 
 
 int send_to_secure_channel( struct switch_info *sw_info, buffer *buf );
+int flush_secure_channel( struct switch_info *sw_info );
 
 
 #endif // SECURE_CHANNEL_SENDER_H
@@ -40,4 +41,3 @@ int send_to_secure_channel( struct switch_info *sw_info, buffer *buf );
  * indent-tabs-mode: nil
  * End:
  */
-
