@@ -56,7 +56,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
-  struct ofp_match *match;
+  struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
   uint32_t buffer_id;
   openflow_actions *actions = create_actions();
 
@@ -64,10 +64,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   VALUE rbuffer_id = Qnil;
   VALUE raction = Qnil;
 
-  if ( options == Qnil ) {
-    match->wildcards = OFPFW_ALL;
-  }
-  else {
+  if ( options != Qnil ) {
     rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
     rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     raction = rb_hash_aref( options, ID2SYM( rb_intern( "action" ) ) );
@@ -75,6 +72,10 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
   if ( rmatch != Qnil ) {
     Data_Get_Struct( rmatch, struct ofp_match, match );
+  }
+  else {
+    memset( match, 0, sizeof( struct ofp_match ) );
+    match->wildcards = OFPFW_ALL;
   }
 
   if ( rbuffer_id == Qnil ) {
@@ -102,8 +103,9 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     actions
   );
   send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
-  free_buffer( flow_mod );
 
+  free( match );
+  free_buffer( flow_mod );
   delete_actions( actions );
 
   return self;
