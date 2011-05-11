@@ -23,7 +23,9 @@ class RepeaterHub < Controller
     action = ActionOutput.new( OFPP_FLOOD )
     send_flow_mod_add(
       message.datapath_id,
-      :match => Match.from( message ), :buffer_id => message.buffer_id, :action => action
+      :match => Match.from( message ),
+      :buffer_id => message.buffer_id,
+      :action => action
     )
     unless message.buffered?
       send_packet_out(
