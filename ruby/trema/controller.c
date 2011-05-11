@@ -104,7 +104,6 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   );
   send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
 
-  free( match );
   free_buffer( flow_mod );
   delete_actions( actions );
 

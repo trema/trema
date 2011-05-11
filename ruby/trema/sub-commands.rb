@@ -240,7 +240,7 @@ EOF
 
     @options.parse! ARGV
 
-    Ofctl.new.dump_flows switch
+    puts Ofctl.new.dump_flows( switch )
   end
 
 

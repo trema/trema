@@ -22,6 +22,7 @@
 
 require "fileutils"
 require "trema/executables"
+require "trema/flow"
 require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
@@ -59,8 +60,10 @@ class OpenVswitch < OpenflowSwitch
   end
 
 
-  def dump_flows
-    Trema::Ofctl.new.dump_flows self
+  def flows
+    Trema::Ofctl.new.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
+      Trema::Flow.parse each
+    end
   end
   
 

@@ -20,6 +20,7 @@
 
 require File.join( File.dirname( __FILE__ ), "spec_helper" )
 require "trema"
+require "pp"
 
 
 include Trema
@@ -83,6 +84,10 @@ EOF
     Host[ "host1" ].send_packet Host[ "host2" ]
     sleep 5
 
+    Switch[ "repeater_hub" ].flows.each do | each |
+      pp each
+    end
+    
     Host[ "host1" ].show_tx_stats
     Host[ "host2" ].show_rx_stats
 

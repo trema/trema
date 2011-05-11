@@ -44,14 +44,16 @@ module Trema
       return if @pid_file.nil?
       return if dead?
       puts "Shutting down #{ @name }..." if $verbose
-      if @uid == 0
-        sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
-      else
-        sh "kill #{ @pid } 2>/dev/null" rescue nil
+      10.times do
+        if @uid == 0
+          sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
+        else
+          sh "kill #{ @pid } 2>/dev/null" rescue nil
+        end
+        sleep 1
+        return if dead? and (not FileTest.exists?( @pid_file ) )
       end
-      loop do
-        return if ( not FileTest.exists?( @pid_file ) ) and dead?
-      end
+      raise "Failed to shut down #{ @name }"
     end
 
 
