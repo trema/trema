@@ -22,6 +22,7 @@
 
 require "trema/cli"
 require "trema/phost"
+require "trema/network-component"
 
 
 module Trema
@@ -40,25 +41,7 @@ module Trema
   end
 
   
-  class Host
-    @@list = {}
-
-
-    def self.all
-      @@list
-    end
-
-
-    def self.[] name
-      @@list[ name ]
-    end
-
-
-    def self.add host
-      @@list[ host.name ] = host
-    end
-    
-    
+  class Host < NetworkComponent
     attr_accessor :interface
 
 

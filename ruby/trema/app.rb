@@ -20,21 +20,11 @@
 #
 
 
+require "trema/network-component"
+
+
 module Trema
-  class App
-    @@list = []
-
-
-    def self.all
-      @@list
-    end
-
-
-    def self.add app
-      @@list << app
-    end
-
-
+  class App < NetworkComponent
     attr_reader :name
     
 

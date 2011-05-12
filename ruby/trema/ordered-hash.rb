@@ -18,16 +18,42 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
-
-
 module Trema
-  describe Controller do
-    it "should respond to logging methods" do
-      [ :critical, :error, :warn, :notice, :info, :debug ].each do | each |
-        Controller.new.__send__( each, "%s message", each ).should == "#{ each } message"
+  class OrderedHash
+    def initialize
+      @keys = Array.new
+      @content = Hash.new
+    end
+
+
+    def size
+      @content.size
+    end
+
+
+    def [] key
+      @content[ key ]
+    end
+
+
+    def []= key, value
+      @content[ key ] = value
+      if not @keys.include?( key )
+        @keys << key
       end
+    end
+
+
+    def values
+      @keys.map do | each |
+        @content[ each ]
+      end
+    end
+
+
+    def clear
+      @keys.clear
+      @content.clear
     end
   end
 end
@@ -35,7 +61,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
-

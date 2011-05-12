@@ -33,9 +33,9 @@ module Trema
         @tremashark = nil
         @port = 6633
         @switches = Trema::Switch.instances
-        @hosts = Trema::Host.all
+        @hosts = Trema::Host.instances
         @links = Trema::Link.all
-        @apps = Trema::App.all
+        @apps = Trema::App.instances
         @packetin_filter = nil
         @switch_manager = nil
 
@@ -83,14 +83,19 @@ module Trema
       end
 
 
+      def apps
+        @apps.values
+      end
+
+
       def switch_manager
         if @switch_manager
           @switch_manager
-        elsif @apps.size == 0
+        elsif apps.size == 0
           rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
           SwitchManager.new( rule, @port )
-        elsif @apps.size == 1
-          app_name = @apps.last.name
+        elsif apps.size == 1
+          app_name = apps[ 0 ].name
           rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
           SwitchManager.new( rule, @port )
         else

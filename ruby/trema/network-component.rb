@@ -18,6 +18,9 @@
 #
 
 
+require "trema/ordered-hash"
+
+
 module Trema
   class NetworkComponent
     class << self
@@ -26,7 +29,7 @@ module Trema
 
 
     def self.inherited subclass
-      subclass.instances ||= {}
+      subclass.instances ||= OrderedHash.new
     end
 
     
