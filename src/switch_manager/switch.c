@@ -142,7 +142,9 @@ secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
     return;
   }
   FD_SET( switch_info.secure_channel_fd, read_set );
-  FD_SET( switch_info.secure_channel_fd, write_set );
+  if ( switch_info.send_queue != NULL && switch_info.send_queue->length > 0 ) {
+    FD_SET( switch_info.secure_channel_fd, write_set );
+  }
 }
 
 
