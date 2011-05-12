@@ -10,7 +10,7 @@ Feature: Control one openflow switch with repeater_hub controller
   Scenario: One openflow switch, two servers
     When I try trema run with following configuration:
       """
-      vswitch {
+      vswitch("repeater_hub") {
         datapath_id "0xabc"
       }
 
@@ -32,9 +32,9 @@ Feature: Control one openflow switch with repeater_hub controller
         mac "00:00:00:01:00:03"
       }
 
-      link "0xabc", "host1"
-      link "0xabc", "host2"
-      link "0xabc", "host3"
+      link "repeater_hub", "host1"
+      link "repeater_hub", "host2"
+      link "repeater_hub", "host3"
 
       app {
         path "./objects/examples/repeater_hub/repeater_hub"
@@ -42,9 +42,9 @@ Feature: Control one openflow switch with repeater_hub controller
       """
       And wait until "repeater_hub" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
-      And I try to run "./trema show_stats host1 --tx > ./tmp/log/host1_repeater_hub.log"
-      And I try to run "./trema show_stats host2 --rx > ./tmp/log/host2_repeater_hub.log"
-      And I try to run "./trema show_stats host3 --rx > ./tmp/log/host3_repeater_hub.log"
+      And I try to run "./trema show_stats host1 --tx > ./tmp/log/host1.repeater_hub.log"
+      And I try to run "./trema show_stats host2 --rx > ./tmp/log/host2.repeater_hub.log"
+      And I try to run "./trema show_stats host3 --rx > ./tmp/log/host3.repeater_hub.log"
       And I terminated all trema services
-    Then the content of "./tmp/log/host1_repeater_hub.log" and "./tmp/log/host2_repeater_hub.log" should be identical
-     And the content of "./tmp/log/host1_repeater_hub.log" and "./tmp/log/host3_repeater_hub.log" should be identical
+    Then the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host2.repeater_hub.log" should be identical
+     And the content of "./tmp/log/host1.repeater_hub.log" and "./tmp/log/host3.repeater_hub.log" should be identical
