@@ -47,15 +47,17 @@ handle_packet_in( packet_in packet_in ) {
   send_openflow_message( packet_in.datapath_id, flow_mod );
   free_buffer( flow_mod );
 
-  buffer *packet_out = create_packet_out(
-    get_transaction_id(),
-    packet_in.buffer_id,
-    packet_in.in_port,
-    actions,
-    packet_in.data
-  );
-  send_openflow_message( packet_in.datapath_id, packet_out );
-  free_buffer( packet_out );
+  if ( packet_in.buffer_id == UINT32_MAX ) {
+    buffer *packet_out = create_packet_out(
+      get_transaction_id(),
+      packet_in.buffer_id,
+      packet_in.in_port,
+      actions,
+      packet_in.data
+    );
+    send_openflow_message( packet_in.datapath_id, packet_out );
+    free_buffer( packet_out );
+  }
 
   delete_actions( actions );
 }
