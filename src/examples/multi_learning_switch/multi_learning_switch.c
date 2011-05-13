@@ -148,12 +148,40 @@ lookup_forwarding_db_entry( hash_table *forwarding_db, uint8_t *mac ) {
 
 
 static void
+do_flooding( packet_in packet_in ) {
+  openflow_actions *actions = create_actions();
+  append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
+
+  buffer *packet_out;
+  if ( packet_in.buffer_id == UINT32_MAX ) {
+    packet_out = create_packet_out(
+      get_transaction_id(),
+      packet_in.buffer_id,
+      packet_in.in_port,
+      actions,
+      packet_in.data
+    );
+  }
+  else {
+    packet_out = create_packet_out(
+      get_transaction_id(),
+      packet_in.buffer_id,
+      packet_in.in_port,
+      actions,
+      NULL
+    );
+  }
+  send_openflow_message( packet_in.datapath_id, packet_out );
+  free_buffer( packet_out );
+  delete_actions( actions );
+}
+
+
+static void
 handle_packet_in( packet_in packet_in ) {
   uint8_t *mac;
-  buffer *buffer;
   struct forwarding_db_entry *entry;
   struct ofp_match match;
-  openflow_actions *actions = NULL;
   hash_table *forwarding_db = packet_in.user_data;
 
   debug( "packet_in received ( datapath_id = %#" PRIx64 ", transaction_id = %#lx, "
@@ -169,18 +197,19 @@ handle_packet_in( packet_in packet_in ) {
   mac = packet_info( packet_in.data )->l2_data.eth->macda;
   entry = lookup_forwarding_db_entry( forwarding_db, mac );
 
-  // Create an empty actions list for flow_mod or packet_out
-  actions = create_actions();
-
-  if ( entry != NULL ) {
+  if ( entry == NULL ) {
+    do_flooding( packet_in );
+  }
+  else {
     // Send a packet to a single port
+    openflow_actions *actions = create_actions();
 
     append_action_output( actions, entry->port_no, UINT16_MAX );
     set_match_from_packet( &match, packet_in.in_port, 0, packet_in.data );
 
-    buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
-                              OFPFC_ADD, 60, 0, UINT16_MAX, packet_in.buffer_id,
-                              OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
+    buffer *buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
+                                      OFPFC_ADD, 60, 0, UINT16_MAX, packet_in.buffer_id,
+                                      OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
 
     if ( packet_in.buffer_id == UINT32_MAX ) {
       send_openflow_message( packet_in.datapath_id, buffer );
@@ -189,28 +218,10 @@ handle_packet_in( packet_in packet_in ) {
       buffer = create_packet_out( get_transaction_id(),
                                   packet_in.buffer_id, packet_in.in_port, actions, packet_in.data );
     }
+    send_openflow_message( packet_in.datapath_id, buffer );
+    free_buffer( buffer );
+    delete_actions( actions );
   }
-  else {
-    // Flooding
-
-    append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
-
-    if ( packet_in.buffer_id != UINT32_MAX ) {
-      // Send a packet with a valid buffer_id
-      buffer = create_packet_out( get_transaction_id(),
-                                  packet_in.buffer_id, packet_in.in_port, actions, NULL );
-    }
-    else {
-      // Send an entire packet
-      buffer = create_packet_out( get_transaction_id(),
-                                  packet_in.buffer_id, packet_in.in_port, actions, packet_in.data );
-    }
-  }
-
-  send_openflow_message( packet_in.datapath_id, buffer );
-
-  free_buffer( buffer );
-  delete_actions( actions );
 }
 
 
