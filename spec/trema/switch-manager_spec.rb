@@ -22,13 +22,15 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema/switch-manager"
 
 
-describe SwitchManager do
-  it "should run switch_manager command with proper options" do
-    switch_manager =
-      SwitchManager.new( :port_status => "PORT_STATUS_HANDLER", :packet_in => "PACKETIN_HANDLER", :state_notify => "STATENOTIFY_HANDLER" )
-    switch_manager.should_receive( :sh ).once.with( /switch_manager \-\-daemonize \-\- port_status::PORT_STATUS_HANDLER packet_in::PACKETIN_HANDLER state_notify::STATENOTIFY_HANDLER$/ )
+module Trema
+  describe SwitchManager do
+    it "should run switch_manager command with proper options" do
+      switch_manager =
+        SwitchManager.new( :port_status => "PORT_STATUS_HANDLER", :packet_in => "PACKETIN_HANDLER", :state_notify => "STATENOTIFY_HANDLER" )
+      switch_manager.should_receive( :sh ).once.with( /switch_manager \-\-daemonize \-\- port_status::PORT_STATUS_HANDLER packet_in::PACKETIN_HANDLER state_notify::STATENOTIFY_HANDLER$/ )
 
-    switch_manager.run
+      switch_manager.run
+    end
   end
 end
 
