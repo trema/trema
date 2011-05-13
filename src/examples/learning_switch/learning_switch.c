@@ -1,7 +1,7 @@
 /*
  * Simple learning switch application.
  *
- * Author: Yasunobu Chiba
+ * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -216,7 +216,7 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 static void
 handle_packet_in( packet_in packet_in ) {
   if ( packet_in.datapath_id != managed_datapath_id ) {
-    warn( "Unknown switch (datapath ID = %#" PRIx64 " ).", packet_in.datapath_id );
+    warn( "Unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
     return;
   }
 
