@@ -271,9 +271,9 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
 
 static void
 dispatch_packet_in_handler( packet_in packet_in ) {
-  switch_entry *entry = lookup_hash_entry( ( hash_table * ) packet_in.user_data, &packet_in.datapath_id );
+  switch_entry *entry = lookup_hash_entry( packet_in.user_data, &packet_in.datapath_id );
   if ( entry == NULL ) {
-    warn( "Packet_in from unregistered switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
+    warn( "Packet_in from unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
   }
   else {
     packet_in.user_data = entry->forwarding_db;
