@@ -49,6 +49,7 @@ task :examples => [
   "examples:hello_trema",
   "examples:learning_switch",
   "examples:libtopology",
+  "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",                 
@@ -157,7 +158,7 @@ def cbench_profile options
   valgrind = "valgrind --tool=callgrind --trace-children=yes"
   begin
     sys "#{ valgrind } #{ trema_cbench_command }"
-    sys "#{ valgrind } #{ cbench_command } #{ options }"
+    sys "#{ cbench_command } #{ options }"
   ensure
     sys "./trema kill"
   end
@@ -610,6 +611,7 @@ standalone_examples = [
   "dumper",
   "hello_trema",
   "learning_switch",
+  "multi_learning_switch",
   "packet_in",
   "repeater_hub",
   "switch_info",
