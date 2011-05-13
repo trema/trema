@@ -48,11 +48,10 @@ now() {
  ********************************************************************************/
 
 static known_switch *
-new_switch( uint64_t datapath_id, hash_table *switch_db ) {
+new_switch( uint64_t datapath_id ) {
   known_switch *sw = xmalloc( sizeof( known_switch ) );
   sw->datapath_id = datapath_id;
   sw->host_db = create_hash( compare_mac, hash_mac );
-  insert_hash_entry( switch_db, &sw->datapath_id, sw );
   return sw;
 }
 
@@ -108,7 +107,8 @@ static void
 handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
   known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
   if ( sw == NULL ) {
-    sw = new_switch( datapath_id, switch_db );
+    sw = new_switch( datapath_id );
+    insert_hash_entry( switch_db, &datapath_id, sw );
   }
   else {
     refresh( sw );
