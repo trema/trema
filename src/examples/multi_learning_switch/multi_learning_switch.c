@@ -235,24 +235,29 @@ typedef struct {
 } switch_entry;
 
 
+static switch_entry *
+new_switch_entry( uint64_t datapath_id, hash_table *switch_db ) {
+  switch_entry *entry = xmalloc( sizeof( switch_entry ) );
+  entry->datapath_id = datapath_id;
+  entry->forwarding_db = create_hash( compare_mac, hash_mac );
+  insert_hash_entry( switch_db, &entry->datapath_id, entry );
+  return entry;
+}
+
+
 static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   hash_table *switch_db = user_data;
 
   switch_entry *entry = lookup_hash_entry( switch_db, &datapath_id );
   if ( entry == NULL ) {
-    // Create new switch entry
-    entry = xmalloc( sizeof( switch_entry ) );
-    entry->datapath_id = datapath_id;
-    entry->forwarding_db = create_hash( compare_mac, hash_mac );
-    insert_hash_entry( switch_db, &entry->datapath_id, entry );
-    debug ( "Switch connected, DPID = %#" PRIx64 ", initialize FDB", datapath_id );
+    entry = new_switch_entry( datapath_id, switch_db );
   }
   else {
     // Refresh switch entry
     delete_forwarding_db( entry->forwarding_db );
     entry->forwarding_db = create_hash( compare_mac, hash_mac );
-    warn ( "Switch reconnected, DPID = %#" PRIx64 ", refresh FDB", datapath_id );
+    warn( "Switch reconnected, DPID = %#" PRIx64 ", refresh FDB", datapath_id );
   }
 
   // Set a timer event to update forwarding_db
