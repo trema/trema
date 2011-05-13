@@ -262,21 +262,6 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
 
 
 static void
-delete_switch_entry( void *key, void *value, void *user_data ) {
-  UNUSED( key );
-  UNUSED( user_data );
-
-  struct switch_entry *entry = value;
-
-  debug( "Delete switch entry, DPID = %#" PRIx64, entry->dpid );
-
-  delete_fdb( entry->fdb );
-  xfree( value );
-
-}
-
-
-static void
 dispatch_packet_in_handler( packet_in packet_in ) {
   struct switch_entry *entry = lookup_hash_entry( ( hash_table * ) packet_in.user_data, &packet_in.datapath_id );
   if ( entry == NULL ) {
@@ -291,26 +276,13 @@ dispatch_packet_in_handler( packet_in packet_in ) {
 
 int
 main( int argc, char *argv[] ) {
-  hash_table *switch_database;
-
-  // Initialize the Trema world
   init_trema( &argc, &argv );
 
-  // Create switch database
-  switch_database = create_hash( compare_dpid, hash_dpid );
-
-  // Set switch ready handler
+  hash_table *switch_database = create_hash( compare_dpid, hash_dpid );
   set_switch_ready_handler( handle_switch_ready, switch_database );
-
-  // Set an event handler for packet_in event
   set_packet_in_handler( dispatch_packet_in_handler, switch_database );
 
-  // Main loop
   start_trema();
-
-  // Cleanup
-  foreach_hash( switch_database, delete_switch_entry, NULL );
-  delete_hash( switch_database );
 
   return 0;
 }
