@@ -10,33 +10,33 @@ Feature: control one openflow switch using learning_switch
   Scenario: One openflow switch, two servers
     When I try trema run with following configuration:
       """
-      vswitch {
-        datapath_id "0xe0"
+      vswitch("lsw") {
+        datapath_id "0xabc"
       }
 
-      vhost {
+      vhost("host1") {
         ip "192.168.0.1"
         netmask "255.255.0.0"
         mac "00:00:00:01:00:01"
       }
 
-      vhost {
+      vhost("host2") {
         ip "192.168.0.2"
         netmask "255.255.0.0"
         mac "00:00:00:01:00:02"
       }
 
-      link "0xe0", "192.168.0.1"
-      link "0xe0", "192.168.0.2"
+      link "lsw", "host1"
+      link "lsw", "host2"
 
       app {
         path "./objects/examples/learning_switch/learning_switch"
-        options "-i", "0xe0"
+        options "-i", "0xabc"
       }
       """
       And wait until "learning_switch" is up
-      And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.2"
-      And I try to run "./trema show_stats 192.168.0.1 --tx > ./tmp/log/tx.log"
-      And I try to run "./trema show_stats 192.168.0.2 --rx > ./tmp/log/rx.log"
+      And I try to run "./trema send_packets --source host1 --dest host2"
+      And I try to run "./trema show_stats host1 --tx > ./tmp/log/host1.learning_switch.log"
+      And I try to run "./trema show_stats host2 --rx > ./tmp/log/host2.learning_switch.log"
       And I terminated all trema services
-    Then the content of "./tmp/log/tx.log" and "./tmp/log/rx.log" should be identical
+    Then the content of "./tmp/log/host1.learning_switch.log" and "./tmp/log/host2.learning_switch.log" should be identical
