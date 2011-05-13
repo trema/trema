@@ -1,6 +1,4 @@
 #
-# The current context of DSL.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -30,6 +28,9 @@ require "trema/switch-manager"
 
 module Trema
   module DSL
+    #
+    # The current context of Trema DSL.
+    #
     class Context
       attr_accessor :port  # @return [Number] the port number for switch manager to listen to
       attr_accessor :tremashark  # @return [Boolean] use tremashark?
@@ -41,7 +42,7 @@ module Trema
 
       def initialize
         @port = 6633
-        @tremashark = nil
+        @tremashark = false
         @apps = Trema::App.instances.clear
         @hosts = Trema::Host.instances.clear
         @links = Trema::Link.instances.clear
