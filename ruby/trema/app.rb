@@ -47,7 +47,7 @@ module Trema
     # Returns the name of application
     #
     # @example
-    #   app.name => "Trema Tetris"
+    #   app.name #=> "Trema Tetris"
     #
     # @return [String]
     #
@@ -62,18 +62,14 @@ module Trema
     # Runs as a daemon
     #
     # @example
-    #   app.daemonize! => self
+    #   app.daemonize! #=> self
     #
     # @return [App]
     #
     # @api public
     #
     def daemonize!
-      if options
-        sh "#{ command } -d #{ options }"
-      else
-        sh "#{ command } -d"
-      end
+      sh [ command, "-d", @stanza[ :options ] ].compact.join( " " )
       self
     end
 
@@ -82,18 +78,14 @@ module Trema
     # Runs an application process
     #
     # @example
-    #   app.run! => self
+    #   app.run! #=> self
     #
     # @return [App]
     #
     # @api public
     #
     def run!
-      if options
-        sh "#{ command } #{ options }"
-      else
-        sh command
-      end
+      sh [ command, @stanza[ :options ] ].compact.join( " " )
       self
     end
 
@@ -139,22 +131,6 @@ module Trema
     #
     def command
       "#{ @stanza[ :path ] } --name #{ name }"
-    end
-
-
-    #
-    # Returns a command line option string
-    #
-    # @return [String, nil]
-    #
-    # @api private
-    #
-    def options
-      if @stanza[ :options ]
-        @stanza[ :options ].join " "
-      else
-        nil
-      end
     end
   end
 end
