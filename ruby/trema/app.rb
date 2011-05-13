@@ -70,7 +70,7 @@ module Trema
     #
     def daemonize!
       if options
-        sh "#{ command } -d #{ options.join " " }"
+        sh "#{ command } -d #{ options }"
       else
         sh "#{ command } -d"
       end
@@ -90,7 +90,7 @@ module Trema
     #
     def run!
       if options
-        sh "#{ command } #{ options.join " " }"
+        sh "#{ command } #{ options }"
       else
         sh command
       end
@@ -143,14 +143,18 @@ module Trema
 
 
     #
-    # Returns command line options
+    # Returns a command line option string
     #
-    # @return [Array]
+    # @return [String, nil]
     #
     # @api private
     #
     def options
-      @stanza[ :options ]
+      if @stanza[ :options ]
+        @stanza[ :options ].join " "
+      else
+        nil
+      end
     end
   end
 end
