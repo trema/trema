@@ -31,10 +31,10 @@
 
 
 // Forwarding database
-static const int FDB_ENTRY_TIMEOUT = 300;
-static const int FDB_AGING_INTERVAL = 5;
+static const int FORWARDING_DB_ENTRY_TIMEOUT = 300;
+static const int FORWARDING_DB_AGING_INTERVAL = 5;
 
-struct fdb_entry {
+struct forwarding_db_entry {
   uint8_t mac[ OFP_ETH_ALEN ];
   uint16_t port_no;
   time_t updated_at;
@@ -42,11 +42,11 @@ struct fdb_entry {
 
 
 static void
-delete_fdb_entry( void *key, void *value, void *user_data ) {
+delete_forwarding_db_entry( void *key, void *value, void *user_data ) {
   UNUSED( key );
   UNUSED( user_data );
 
-  struct fdb_entry *entry = value;
+  struct forwarding_db_entry *entry = value;
 
   debug( "deleting a forwardning database entry ( mac = "
          "%02x:%02x:%02x:%02x:%02x:%02x, port_no = %u, "
@@ -60,39 +60,39 @@ delete_fdb_entry( void *key, void *value, void *user_data ) {
 
 
 static void
-delete_fdb( hash_table *fdb ) {
+delete_forwarding_db( hash_table *forwarding_db ) {
   debug( "deleting a forwarding database." );
 
-  foreach_hash( fdb, delete_fdb_entry, NULL );
-  delete_hash( fdb );
+  foreach_hash( forwarding_db, delete_forwarding_db_entry, NULL );
+  delete_hash( forwarding_db );
 }
 
 
 static void
-age_fdb_entry( void *key, void *value, void *user_data ) {
-  hash_table *fdb = user_data;
-  struct fdb_entry *entry = value;
+age_forwarding_db_entry( void *key, void *value, void *user_data ) {
+  hash_table *forwarding_db = user_data;
+  struct forwarding_db_entry *entry = value;
 
-  if ( entry->updated_at + FDB_ENTRY_TIMEOUT < time( NULL ) ) {
+  if ( entry->updated_at + FORWARDING_DB_ENTRY_TIMEOUT < time( NULL ) ) {
     debug( "age out." );
-    delete_hash_entry( fdb, key );
-    delete_fdb_entry( key, value, NULL );
+    delete_hash_entry( forwarding_db, key );
+    delete_forwarding_db_entry( key, value, NULL );
   }
 }
 
 
 static void
-update_fdb( void *user_data ) {
-  hash_table *fdb = user_data;
+update_forwarding_db( void *user_data ) {
+  hash_table *forwarding_db = user_data;
 
   debug( "start aging." );
 
-  foreach_hash( fdb, age_fdb_entry, fdb );
+  foreach_hash( forwarding_db, age_forwarding_db_entry, forwarding_db );
 }
 
 
 static void
-set_fdb_entry( struct fdb_entry *entry, const uint16_t port_no,
+set_forwarding_db_entry( struct forwarding_db_entry *entry, const uint16_t port_no,
                const uint8_t *mac, const time_t updated_at ) {
   debug( "setting a forwardning database entry ( mac = "
          "%02x:%02x:%02x:%02x:%02x:%02x, port_no = %u, "
@@ -107,34 +107,34 @@ set_fdb_entry( struct fdb_entry *entry, const uint16_t port_no,
 
 
 static void
-update_fdb_entry( hash_table *fdb, uint16_t port_no, uint8_t *mac ) {
+update_forwarding_db_entry( hash_table *forwarding_db, uint16_t port_no, uint8_t *mac ) {
   time_t now;
-  struct fdb_entry *entry;
+  struct forwarding_db_entry *entry;
 
   now = time( NULL );
 
-  entry = lookup_hash_entry( fdb, mac );
+  entry = lookup_hash_entry( forwarding_db, mac );
 
   if ( entry != NULL ) {
-    set_fdb_entry( entry, port_no, mac, now );
+    set_forwarding_db_entry( entry, port_no, mac, now );
   }
   else {
-    entry = xmalloc( sizeof( struct fdb_entry ) );
-    set_fdb_entry( entry, port_no, mac, now );
-    insert_hash_entry( fdb, entry->mac, entry );
+    entry = xmalloc( sizeof( struct forwarding_db_entry ) );
+    set_forwarding_db_entry( entry, port_no, mac, now );
+    insert_hash_entry( forwarding_db, entry->mac, entry );
   }
 }
 
 
-static struct fdb_entry *
-lookup_fdb_entry( hash_table *fdb, uint8_t *mac ) {
-  struct fdb_entry *entry;
+static struct forwarding_db_entry *
+lookup_forwarding_db_entry( hash_table *forwarding_db, uint8_t *mac ) {
+  struct forwarding_db_entry *entry;
 
   debug( "looking up forwardning database ( mac = "
          "%02x:%02x:%02x:%02x:%02x:%02x ).",
          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ] );
 
-  entry = lookup_hash_entry( fdb, mac );
+  entry = lookup_hash_entry( forwarding_db, mac );
 
   if ( entry != NULL ) {
     debug( "entry found ( port_no = %u, updated_at = %lu ).",
@@ -152,10 +152,10 @@ static void
 handle_packet_in( packet_in packet_in ) {
   uint8_t *mac;
   buffer *buffer;
-  struct fdb_entry *entry;
+  struct forwarding_db_entry *entry;
   struct ofp_match match;
   openflow_actions *actions = NULL;
-  hash_table *fdb = packet_in.user_data;
+  hash_table *forwarding_db = packet_in.user_data;
 
   debug( "packet_in received ( datapath_id = %#" PRIx64 ", transaction_id = %#lx, "
          "buffer_id = %#lx, total_len = %u, in_port = %u, reason = %#x, "
@@ -164,11 +164,11 @@ handle_packet_in( packet_in packet_in ) {
 
   // Learn an address
   mac = packet_info( packet_in.data )->l2_data.eth->macsa;
-  update_fdb_entry( fdb, packet_in.in_port, mac );
+  update_forwarding_db_entry( forwarding_db, packet_in.in_port, mac );
 
   // Lookup a destination port
   mac = packet_info( packet_in.data )->l2_data.eth->macda;
-  entry = lookup_fdb_entry( fdb, mac );
+  entry = lookup_forwarding_db_entry( forwarding_db, mac );
 
   // Create an empty actions list for flow_mod or packet_out
   actions = create_actions();
@@ -231,7 +231,7 @@ hash_datapath_id( const void *key ) {
 
 typedef struct {
   uint64_t datapath_id;
-  hash_table *fdb;
+  hash_table *forwarding_db;
 } switch_entry;
 
 
@@ -244,19 +244,19 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
     // Create new switch entry
     entry = xmalloc( sizeof( switch_entry ) );
     entry->datapath_id = datapath_id;
-    entry->fdb = create_hash( compare_mac, hash_mac );
+    entry->forwarding_db = create_hash( compare_mac, hash_mac );
     insert_hash_entry( switch_db, &entry->datapath_id, entry );
     debug ( "Switch connected, DPID = %#" PRIx64 ", initialize FDB", datapath_id );
   }
   else {
     // Refresh switch entry
-    delete_fdb( entry->fdb );
-    entry->fdb = create_hash( compare_mac, hash_mac );
+    delete_forwarding_db( entry->forwarding_db );
+    entry->forwarding_db = create_hash( compare_mac, hash_mac );
     warn ( "Switch reconnected, DPID = %#" PRIx64 ", refresh FDB", datapath_id );
   }
 
-  // Set a timer event to update fdb
-  add_periodic_event_callback( FDB_AGING_INTERVAL, update_fdb, entry->fdb );
+  // Set a timer event to update forwarding_db
+  add_periodic_event_callback( FORWARDING_DB_AGING_INTERVAL, update_forwarding_db, entry->forwarding_db );
 }
 
 
@@ -267,7 +267,7 @@ dispatch_packet_in_handler( packet_in packet_in ) {
     warn( "Packet_in from unregistered switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
   }
   else {
-    packet_in.user_data = entry->fdb;
+    packet_in.user_data = entry->forwarding_db;
     handle_packet_in( packet_in );
   }
 }
