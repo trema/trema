@@ -31,13 +31,12 @@ require "trema/switch-manager"
 module Trema
   module DSL
     class Context
-      attr_accessor :port
-      attr_accessor :tremashark
-
-      attr_reader :apps
-      attr_reader :hosts
-      attr_reader :links
-      attr_reader :switches
+      attr_accessor :port  # @return [Number] the port number for switch manager to listen to
+      attr_accessor :tremashark  # @return [Boolean] use tremashark?
+      attr_reader :apps  # @return [Hash] the hash of apps
+      attr_reader :hosts  # @return [Hash] the hash of hosts
+      attr_reader :links  # @return [Hash] the hash of links
+      attr_reader :switches  # @return [Hash] the hash of switches
 
 
       def initialize
@@ -52,16 +51,25 @@ module Trema
       end
 
 
+      #
+      # @return [PacketinFilter] a {PacketinFilter} object.
+      #
       def packetin_filter
         @packetin_filter.values.last
       end
 
 
+      #
+      # @return [SwitchManager] a {SwitchManager} object.
+      #
       def switch_manager
         @switch_manager.values.last
       end
 
 
+      #
+      # @return [Context] dump a {Context} object to <code>file_name</code>.
+      #
       def dump_to file_name
         File.open( file_name, "w" ) do | f |
           f.print Marshal.dump( self )
@@ -70,6 +78,9 @@ module Trema
       end
 
 
+      #
+      # @return [Context] load a {Context} object from <code>file_name</code>.
+      #
       def load_from file_name
         if FileTest.exists?( file_name )
           Marshal.load( IO.read file_name )
