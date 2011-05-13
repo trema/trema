@@ -65,7 +65,7 @@ module Trema
     # @example
     #   host.name  # delegated to @stanza[ :name ]
     #
-    # @return [Object]
+    # @return an attribute value
     #
     # @api public
     #
