@@ -30,7 +30,6 @@
 #include "trema.h"
 
 
-// Forwarding database
 static const int FORWARDING_DB_ENTRY_TIMEOUT = 300;
 static const int FORWARDING_DB_AGING_INTERVAL = 5;
 
@@ -253,9 +252,7 @@ refresh_switch_entry( switch_entry *entry ) {
 
 
 static void
-handle_switch_ready( uint64_t datapath_id, void *user_data ) {
-  hash_table *switch_db = user_data;
-
+handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
   switch_entry *entry = lookup_hash_entry( switch_db, &datapath_id );
   if ( entry == NULL ) {
     entry = new_switch_entry( datapath_id, switch_db );
@@ -264,8 +261,11 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
     refresh_switch_entry( entry );
   }
 
-  // Set a timer event to update forwarding_db
-  add_periodic_event_callback( FORWARDING_DB_AGING_INTERVAL, update_forwarding_db, entry->forwarding_db );
+  add_periodic_event_callback(
+    FORWARDING_DB_AGING_INTERVAL,
+    update_forwarding_db,
+    entry->forwarding_db
+  );
 }
 
 
