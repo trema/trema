@@ -1,0 +1,8 @@
+This directory includes a OpenFlow controller that controls multiple
+OpenFlow switches.
+
+# Howto Run
+
+  % ./trema run -c ./src/examples/multi_learning_switch/multi_learning_switch.conf
+
+Enjoy!
