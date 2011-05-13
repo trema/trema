@@ -61,6 +61,9 @@ unsigned int hash_mac( const void *mac );
 bool compare_uint32( const void *x, const void *y );
 unsigned int hash_uint32( const void *key );
 
+bool compare_datapath_id( const void *x, const void *y );
+unsigned int hash_datapath_id( const void *key );
+
 bool string_to_datapath_id( const char *str, uint64_t *datapath_id );
 
 bool match_to_string( const struct ofp_match *match, char *str, size_t size );

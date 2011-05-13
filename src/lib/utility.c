@@ -114,6 +114,19 @@ hash_uint32( const void *key ) {
 
 
 bool
+compare_datapath_id( const void *x, const void *y ) {
+  return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
+}
+
+
+unsigned int
+hash_datapath_id( const void *key ) {
+  const uint32_t *datapath_id = ( const uint32_t *) key;
+  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
+}
+
+
+bool
 string_to_datapath_id( const char *str, uint64_t *datapath_id ) {
   char *endp = NULL;
   *datapath_id = ( uint64_t ) strtoull( str, &endp, 0 );

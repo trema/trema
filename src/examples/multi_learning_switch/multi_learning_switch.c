@@ -21,11 +21,6 @@
 
 
 #include <inttypes.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include "trema.h"
 
 
@@ -45,21 +40,6 @@ typedef struct {
 time_t
 now() {
   return time( NULL );
-}
-
-
-// TODO: move to utility.c
-static bool
-compare_datapath_id( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
-}
-
-
-// TODO: move to utility.c
-static unsigned int
-hash_datapath_id( const void *key ) {
-  const uint32_t *datapath_id = ( const uint32_t *) key;
-  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
 }
 
 
@@ -94,11 +74,11 @@ refresh( known_switch *sw ) {
 }
 
 
-static const int AGING_TIMEOUT = 300;
+static const int MAX_AGE = 300;
 
 static bool
 aged_out( host *host ) {
-  if ( host->last_update + AGING_TIMEOUT < now() ) {
+  if ( host->last_update + MAX_AGE < now() ) {
     return true;
   }
   else {
@@ -228,9 +208,12 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 static void
 handle_packet_in( packet_in packet_in ) {
-  known_switch *sw = lookup_hash_entry( packet_in.user_data, &packet_in.datapath_id );
+  known_switch *sw = lookup_hash_entry(
+    packet_in.user_data,
+    &packet_in.datapath_id
+  );
   if ( sw == NULL ) {
-    warn( "Packet_in from unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
+    warn( "Unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
     return;
   }
 
@@ -249,9 +232,9 @@ handle_packet_in( packet_in packet_in ) {
 }
 
 
-/********************************************************************************/
-/********************************************************************************/
-/********************************************************************************/
+/********************************************************************************
+ * Start multi_learning_switch controller.
+ ********************************************************************************/
 
 int
 main( int argc, char *argv[] ) {
