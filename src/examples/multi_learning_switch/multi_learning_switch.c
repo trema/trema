@@ -178,10 +178,49 @@ do_flooding( packet_in packet_in ) {
 
 
 static void
+send_packet( uint16_t destination_port, packet_in packet_in ) {
+  openflow_actions *actions = create_actions();
+  append_action_output( actions, destination_port, UINT16_MAX );
+
+  struct ofp_match match;
+  set_match_from_packet( &match, packet_in.in_port, 0, packet_in.data );
+
+  buffer *flow_mod = create_flow_mod(
+    get_transaction_id(),
+    match,
+    get_cookie(),
+    OFPFC_ADD,
+    60,
+    0,
+    UINT16_MAX,
+    packet_in.buffer_id,
+    OFPP_NONE,
+    OFPFF_SEND_FLOW_REM,
+    actions
+  );
+  send_openflow_message( packet_in.datapath_id, flow_mod );
+  free_buffer( flow_mod );
+
+  if ( packet_in.buffer_id == UINT32_MAX ) {
+    buffer *packet_out = create_packet_out(
+      get_transaction_id(),
+      packet_in.buffer_id,
+      packet_in.in_port,
+      actions,
+      packet_in.data
+    );
+    send_openflow_message( packet_in.datapath_id, packet_out );
+    free_buffer( packet_out );
+  }
+
+  delete_actions( actions );
+}
+
+
+static void
 handle_packet_in( packet_in packet_in ) {
   uint8_t *mac;
   struct forwarding_db_entry *entry;
-  struct ofp_match match;
   hash_table *forwarding_db = packet_in.user_data;
 
   debug( "packet_in received ( datapath_id = %#" PRIx64 ", transaction_id = %#lx, "
@@ -201,29 +240,9 @@ handle_packet_in( packet_in packet_in ) {
     do_flooding( packet_in );
   }
   else {
-    // Send a packet to a single port
-    openflow_actions *actions = create_actions();
-
-    append_action_output( actions, entry->port_no, UINT16_MAX );
-    set_match_from_packet( &match, packet_in.in_port, 0, packet_in.data );
-
-    buffer *buffer = create_flow_mod( get_transaction_id(), match, get_cookie(),
-                                      OFPFC_ADD, 60, 0, UINT16_MAX, packet_in.buffer_id,
-                                      OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
-
-    if ( packet_in.buffer_id == UINT32_MAX ) {
-      send_openflow_message( packet_in.datapath_id, buffer );
-      free_buffer( buffer );
-
-      buffer = create_packet_out( get_transaction_id(),
-                                  packet_in.buffer_id, packet_in.in_port, actions, packet_in.data );
-    }
-    send_openflow_message( packet_in.datapath_id, buffer );
-    free_buffer( buffer );
-    delete_actions( actions );
+    send_packet( entry->port_no, packet_in );
   }
 }
-
 
 
 static bool
