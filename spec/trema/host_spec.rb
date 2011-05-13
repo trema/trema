@@ -27,10 +27,11 @@ module Trema
     before :each do
       @phost = mock( "phost" )
       Phost.stub!( :new ).and_return( @phost )
+      
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
 
-      @host = Host.new( :promisc => "on" )
+      @stanza = mock( "stanza", :[] => "HOST 0" )      
     end
 
 
@@ -38,11 +39,12 @@ module Trema
       host1 = mock( "HOST 1" )
       host2 = mock( "HOST 2" )
       host3 = mock( "HOST 3" )
+
       @cli.should_receive( :add_arp_entry ).once.with( host1 )
       @cli.should_receive( :add_arp_entry ).once.with( host2 )
       @cli.should_receive( :add_arp_entry ).once.with( host3 )
 
-      @host.add_arp_entry [ host1, host2, host3 ]
+      Host.new( @stanza ).add_arp_entry [ host1, host2, host3 ]
     end
 
 
@@ -51,15 +53,32 @@ module Trema
       @cli.should_receive( :set_ip_and_mac_address ).once.ordered
       @cli.should_receive( :enable_promisc ).once.ordered
 
-      @host.run
+      Host.new( :promisc => "on" ).run!
     end
 
 
     it "should send packets" do
       dest = mock( "dest" )
-      @cli.should_receive( :send_packets ).with( dest, anything )
+      options = mock( "options" )
+      @cli.should_receive( :send_packets ).with( dest, options )
 
-      @host.send_packet dest
+      Host.new( @stanza ).send_packet dest, options
+    end
+
+
+    it "should return tx stats" do
+      stats = mock( "stats" )
+      @cli.should_receive( :tx_stats ).and_return( stats )
+
+      Host.new( @stanza ).tx_stats.should == stats
+    end
+
+
+    it "should return rx stats" do
+      stats = mock( "stats" )
+      @cli.should_receive( :rx_stats ).and_return( stats )
+
+      Host.new( @stanza ).rx_stats.should == stats
     end
   end
 end

@@ -23,6 +23,28 @@
 require "trema/executables"
 
 
+module Trema
+  class Stats
+    attr_reader :ip_dst
+    attr_reader :tp_dst
+    attr_reader :ip_src
+    attr_reader :tp_src
+    attr_reader :n_pkts
+    attr_reader :n_octets
+
+    
+    def initialize ip_dst, tp_dst, ip_src, tp_src, n_pkts, n_octets
+      @ip_dst = ip_dst
+      @tp_dst = tp_dst.to_i
+      @ip_src = ip_src
+      @tp_src = tp_src.to_i
+      @n_pkts = n_pkts.to_i
+      @n_octets = n_octets.to_i
+    end
+  end
+end
+
+
 class Cli
   def initialize host
     @host = host
@@ -40,13 +62,33 @@ class Cli
   end
 
 
+  def show_tx_stats
+    puts stats( :tx )
+  end
+
+
+  def show_rx_stats
+    puts stats( :rx )
+  end
+  
+
   def tx_stats
-    stats :tx
+    stat = stats( :tx ).split( "\n" )[ 1 ]
+    if stat
+      Trema::Stats.new *stat.split( "," )        
+    else
+      nil
+    end
   end
 
 
   def rx_stats
-    stats :rx
+    stat = stats( :rx ).split( "\n" )[ 1 ]
+    if stat
+      Trema::Stats.new *stat.split( "," )        
+    else
+      nil
+    end
   end
 
 

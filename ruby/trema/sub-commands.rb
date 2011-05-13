@@ -205,9 +205,9 @@ EOF
     host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
     case stats
     when :tx
-      puts Cli.new( host ).tx_stats
+      Cli.new( host ).show_tx_stats
     when :rx
-      puts Cli.new( host ).rx_stats
+      Cli.new( host ).show_rx_stats
     else
       raise "We should not reach here."      
     end

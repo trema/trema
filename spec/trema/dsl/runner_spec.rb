@@ -126,13 +126,13 @@ module Trema
           host1 = mock( "host1" )
           host2 = mock( "host2" )
 
-          host0.should_receive( :run ).once.ordered
+          host0.should_receive( :run! ).once.ordered
           host0.should_receive( :add_arp_entry ).with( [ host1, host2 ] ).once.ordered
 
-          host1.should_receive( :run ).once.ordered
+          host1.should_receive( :run! ).once.ordered
           host1.should_receive( :add_arp_entry ).with( [ host0, host2 ] ).once.ordered
 
-          host2.should_receive( :run ).once.ordered
+          host2.should_receive( :run! ).once.ordered
           host2.should_receive( :add_arp_entry ).with( [ host0, host1 ] ).once.ordered
 
           context = mock(

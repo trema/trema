@@ -102,7 +102,7 @@ module Trema
 
       def maybe_run_hosts
         @context.hosts.each do | name, host |
-          host.run
+          host.run!
         end
       end
 
