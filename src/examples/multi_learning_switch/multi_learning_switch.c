@@ -229,21 +229,20 @@ hash_dpid( const void *key ) {
 }
 
 
-struct switch_entry {
+typedef struct {
   uint64_t dpid;
   hash_table *fdb;
-};
+} switch_entry;
 
 
 static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   hash_table *switch_db = user_data;
-  struct switch_entry *entry;
 
-  entry = lookup_hash_entry( switch_db, &datapath_id );
+  switch_entry *entry = lookup_hash_entry( switch_db, &datapath_id );
   if ( entry == NULL ) {
     // Create new switch entry
-    entry = xmalloc( sizeof( struct switch_entry ) );
+    entry = xmalloc( sizeof( switch_entry ) );
     entry->dpid = datapath_id;
     entry->fdb = create_hash( compare_mac, hash_mac );
     insert_hash_entry( switch_db, &entry->dpid, entry );
@@ -263,7 +262,7 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
 
 static void
 dispatch_packet_in_handler( packet_in packet_in ) {
-  struct switch_entry *entry = lookup_hash_entry( ( hash_table * ) packet_in.user_data, &packet_in.datapath_id );
+  switch_entry *entry = lookup_hash_entry( ( hash_table * ) packet_in.user_data, &packet_in.datapath_id );
   if ( entry == NULL ) {
     warn( "Packet_in from unregistered switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
   }
