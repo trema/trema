@@ -278,9 +278,9 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  hash_table *switch_database = create_hash( compare_dpid, hash_dpid );
-  set_switch_ready_handler( handle_switch_ready, switch_database );
-  set_packet_in_handler( dispatch_packet_in_handler, switch_database );
+  hash_table *switch_db = create_hash( compare_dpid, hash_dpid );
+  set_switch_ready_handler( handle_switch_ready, switch_db );
+  set_packet_in_handler( dispatch_packet_in_handler, switch_db );
 
   start_trema();
 
