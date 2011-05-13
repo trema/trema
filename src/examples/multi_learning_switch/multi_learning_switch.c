@@ -246,6 +246,13 @@ new_switch_entry( uint64_t datapath_id, hash_table *switch_db ) {
 
 
 static void
+refresh_switch_entry( switch_entry *entry ) {
+  delete_forwarding_db( entry->forwarding_db );
+  entry->forwarding_db = create_hash( compare_mac, hash_mac );
+}
+
+
+static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   hash_table *switch_db = user_data;
 
@@ -254,10 +261,7 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
     entry = new_switch_entry( datapath_id, switch_db );
   }
   else {
-    // Refresh switch entry
-    delete_forwarding_db( entry->forwarding_db );
-    entry->forwarding_db = create_hash( compare_mac, hash_mac );
-    warn( "Switch reconnected, DPID = %#" PRIx64 ", refresh FDB", datapath_id );
+    refresh_switch_entry( entry );
   }
 
   // Set a timer event to update forwarding_db
