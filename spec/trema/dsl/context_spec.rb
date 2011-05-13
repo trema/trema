@@ -71,36 +71,7 @@ module Trema
       it "should remember switch manager" do
         Trema::SwitchManager.add mock( "switch manager", :name => "switch manager" )
 
-        @context.switch_manager.name.should == "switch manager"
-      end
-
-
-      it "should return default switch manager" do
-        switch_manager = @context.switch_manager
-
-        switch_manager.rule[ :port_status ].should == "default"
-        switch_manager.rule[ :packet_in ].should == "default"
-        switch_manager.rule[ :state_notify ].should == "default"
-      end
-
-
-      it "should route events to an app" do
-        Trema::App.add mock( "app", :name => "App" )
-
-        switch_manager = @context.switch_manager
-        switch_manager.rule[ :port_status ].should == "App"
-        switch_manager.rule[ :packet_in ].should == "App"
-        switch_manager.rule[ :state_notify ].should == "App"
-      end
-
-
-      it "should raise if no event routing is given" do
-        Trema::App.add mock( "app #0", :name => "App #0" )
-        Trema::App.add mock( "app #1", :name => "App #1" )
-
-        lambda do
-          @context.switch_manager
-        end.should raise_error
+        @context.switch_manager[ "switch manager" ].name.should == "switch manager"
       end
     end
   end

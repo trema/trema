@@ -28,6 +28,7 @@ module Trema
       before :each do
         ::Process.stub!( :fork ).and_yield
         ::Process.stub!( :waitpid )
+        SwitchManager.stub!( :new ).and_return( mock( "switch manager", :run => nil ) )
       end
 
       
@@ -36,29 +37,30 @@ module Trema
           tremashark = mock
           tremashark.should_receive( :run ).once
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => tremashark,
-            :switch_manager => nil,
+            :switch_manager => {},
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => {}
+            :apps => {},
+            :port => 6633                        
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
         it "should run switch_manager" do
-          switch_manager = mock
+          switch_manager = mock( "switch manager" )
           switch_manager.should_receive( :run ).once
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => switch_manager,
+            :switch_manager => { "switch manager" => switch_manager },
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -66,7 +68,7 @@ module Trema
             :apps => {}
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -74,18 +76,19 @@ module Trema
           packetin_filter = mock
           packetin_filter.should_receive( :run ).once
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch_manager", :run => nil ) },
             :packetin_filter => packetin_filter,
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => {}
+            :apps => {},
+            :port => 6633
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -102,18 +105,19 @@ module Trema
           link2.should_receive( :down! ).once.ordered
           link2.should_receive( :up! ).once.ordered
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch manager", :run => nil ) },
             :packetin_filter => nil,
             :links => { "link0" => link0, "link1" => link1, "link2" => link2 },
             :hosts => {},
             :switches => {},
-            :apps => {}
+            :apps => {},
+            :port => 6633
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -131,18 +135,19 @@ module Trema
           host2.should_receive( :run ).once.ordered
           host2.should_receive( :add_arp_entry ).with( [ host0, host1 ] ).once.ordered
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch manager", :run => nil ) },
             :packetin_filter => nil,
             :links => {},
             :hosts => { "host0" => host0, "host1" => host1, "host2" => host2 },
             :switches => {},
-            :apps => {}
+            :apps => {},
+            :port => 6633
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -156,18 +161,19 @@ module Trema
           switch2 = mock( "switch2" )
           switch2.should_receive( :run ).once.ordered
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch manager", :run => nil ) },
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
             :switches => { "switch0" => switch0, "switch1" => switch1, "switch 2" => switch2 },
-            :apps => {}
+            :apps => {},
+            :port => 6633
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -181,10 +187,10 @@ module Trema
           app2 = mock( "app2" )
           app2.should_receive( :run ).once.ordered
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch manager", :run => nil ) },
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -192,7 +198,7 @@ module Trema
             :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
           )
 
-          Runner.new( config ).run
+          Runner.new( context ).run
         end
 
 
@@ -206,10 +212,10 @@ module Trema
           app2 = mock( "app2" )
           app2.should_receive( :daemonize ).once.ordered
 
-          config = mock(
-            "config",
+          context = mock(
+            "context",
             :tremashark => nil,
-            :switch_manager => nil,
+            :switch_manager => { "switch manager" => mock( "switch manager", :run => nil ) },
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -217,7 +223,7 @@ module Trema
             :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
           )
 
-          Runner.new( config ).daemonize
+          Runner.new( context ).daemonize
         end
       end
     end

@@ -37,6 +37,7 @@ module Trema
       attr_reader :apps
       attr_reader :hosts
       attr_reader :links
+      attr_reader :switch_manager
       attr_reader :switches
       
       
@@ -72,23 +73,6 @@ module Trema
       ################################################################################
       # Read current context.
       ################################################################################
-
-
-      def switch_manager
-        if @switch_manager.values[ 0 ]
-          @switch_manager.values[ 0 ]          
-        elsif apps.values.size == 0
-          rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
-          SwitchManager.new( rule, @port )
-        elsif apps.values.size == 1
-          app_name = apps.values[ 0 ].name
-          rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-          SwitchManager.new( rule, @port )
-        else
-          # two or more apps without switch_manager.
-          raise "No event routing configured. Use `event' directive to specify event routing."
-        end
-      end
 
 
       def packetin_filter

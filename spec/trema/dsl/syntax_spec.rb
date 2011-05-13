@@ -20,6 +20,7 @@
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
 require "trema/dsl/syntax"
+require "trema/packetin-filter"
 
 
 describe Trema::DSL::Syntax do
@@ -85,7 +86,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'filter' directive" do
-    Trema::PacketinFilter.should_receive( :add ).with( an_instance_of( PacketinFilter ) ).once
+    Trema::PacketinFilter.should_receive( :add ).with( an_instance_of( Trema::PacketinFilter ) ).once
 
     @syntax.instance_eval do
       filter :lldp => "LLDP RULE", :packet_in => "PACKET-IN RULE"
@@ -94,7 +95,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'event' directive" do
-    Trema::SwitchManager.should_receive( :add ).with( an_instance_of( SwitchManager ) ).once
+    Trema::SwitchManager.should_receive( :add ).with( an_instance_of( Trema::SwitchManager ) ).once
 
     @syntax.instance_eval do
       event "RULE"
