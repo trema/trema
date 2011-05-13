@@ -21,6 +21,7 @@
 
 
 #include <inttypes.h>
+#include <time.h>
 #include "trema.h"
 
 
