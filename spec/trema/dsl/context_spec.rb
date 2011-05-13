@@ -30,48 +30,118 @@ module Trema
       end
 
 
-      it "should remember hosts" do
-        Host.add mock( "host #0", :name => "host #0" )
-        Host.add mock( "host #1", :name => "host #1" )
-        Host.add mock( "host #2", :name => "host #2" )
+      context "when parsing trema configurations" do
+        it "should remember apps" do
+          @context.should have( 0 ).apps
 
-        @context.should have( 3 ).hosts
+          Trema::App.add mock( "app #0", :name => "app #0" )
+          Trema::App.add mock( "app #1", :name => "app #1" )
+          Trema::App.add mock( "app #2", :name => "app #2" )
 
-        @context.hosts[ "host #0" ].name.should == "host #0"
-        @context.hosts[ "host #1" ].name.should == "host #1"
-        @context.hosts[ "host #2" ].name.should == "host #2"
+          @context.should have( 3 ).apps
+
+          @context.apps[ "app #0" ].name.should == "app #0"
+          @context.apps[ "app #1" ].name.should == "app #1"
+          @context.apps[ "app #2" ].name.should == "app #2"
+        end
+
+
+        it "should remember hosts" do
+          @context.should have( 0 ).hosts
+          
+          Trema::Host.add mock( "host #0", :name => "host #0" )
+          Trema::Host.add mock( "host #1", :name => "host #1" )
+          Trema::Host.add mock( "host #2", :name => "host #2" )
+
+          @context.should have( 3 ).hosts
+
+          @context.hosts[ "host #0" ].name.should == "host #0"
+          @context.hosts[ "host #1" ].name.should == "host #1"
+          @context.hosts[ "host #2" ].name.should == "host #2"
+        end
+
+
+        it "should remember links" do
+          @context.should have( 0 ).links
+          
+          Trema::Link.add mock( "link #0", :name => "link #0" )
+          Trema::Link.add mock( "link #1", :name => "link #1" )
+          Trema::Link.add mock( "link #2", :name => "link #2" )
+
+          @context.should have( 3 ).links
+
+          @context.links[ "link #0" ].name.should == "link #0"
+          @context.links[ "link #1" ].name.should == "link #1"
+          @context.links[ "link #2" ].name.should == "link #2"
+        end
+        
+
+        it "should remember filter settings" do
+          @context.packetin_filter.should be_nil
+
+          packetin_filter = mock( "filter", :name => "filter" )
+          Trema::PacketinFilter.add packetin_filter
+
+          @context.packetin_filter.should == packetin_filter
+        end
+
+
+        it "should remember switch manager" do
+          @context.switch_manager.should be_nil
+
+          switch_manager = mock( "switch manager", :name => "switch manager" )
+          Trema::SwitchManager.add switch_manager
+
+          @context.switch_manager.should == switch_manager
+        end
+
+
+        it "should remember switches" do
+          @context.should have( 0 ).switches
+          
+          Trema::Switch.add mock( "switch #0", :name => "switch #0" )
+          Trema::Switch.add mock( "switch #1", :name => "switch #1" )
+          Trema::Switch.add mock( "switch #2", :name => "switch #2" )
+
+          @context.should have( 3 ).switches
+
+          @context.switches[ "switch #0" ].name.should == "switch #0"
+          @context.switches[ "switch #1" ].name.should == "switch #1"
+          @context.switches[ "switch #2" ].name.should == "switch #2"
+        end
       end
 
 
-      it "should remember switches" do
-        Trema::Switch.add mock( "switch #0", :name => "switch #0" )
-        Trema::Switch.add mock( "switch #1", :name => "switch #1" )
-        Trema::Switch.add mock( "switch #2", :name => "switch #2" )
+      context "when saving/loading sessions" do
+        it "should be dumped to a file" do
+          session_file = mock( "file" )
+          File.stub!( :open ).and_yield( session_file )
 
-        @context.should have( 3 ).switches
-      end
-
-
-      it "should remember apps" do
-        Trema::App.add mock( "app #0", :name => "app #0" )
-        Trema::App.add mock( "app #1", :name => "app #1" )
-        Trema::App.add mock( "app #2", :name => "app #2" )
-
-        @context.should have( 3 ).apps
-      end
+          session_file.should_receive( :print ).with( "DUMP DATA" )
+          Marshal.should_receive( :dump ).with( @context ).and_return( "DUMP DATA" )
+          
+          @context.dump_to( "SESSION FILE" ).should == @context
+        end
 
 
-      it "should remember filter settings" do
-        Trema::PacketinFilter.add mock( "filter", :name => "filter" )
+        it "should be loaded from a file" do
+          FileTest.stub!( :exists? ).and_return true
 
-        @context.packetin_filter[ "filter" ].name.should == "filter"
-      end
+          session_io = mock( "session file handler" )
+          IO.should_receive( :read ).with( "SESSION FILE" ).and_return( session_io )
+          Marshal.should_receive( :load ).with( session_io )
+          
+          @context.load_from "SESSION FILE"
+        end
 
 
-      it "should remember switch manager" do
-        Trema::SwitchManager.add mock( "switch manager", :name => "switch manager" )
+        it "should create a new session if session file does not exist" do
+          FileTest.stub!( :exists? ).and_return false
 
-        @context.switch_manager[ "switch manager" ].name.should == "switch manager"
+          Trema::DSL::Context.should_receive( :new )
+          
+          @context.load_from "SESSION FILE"
+        end
       end
     end
   end

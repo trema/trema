@@ -37,11 +37,10 @@ module Trema
       attr_reader :apps
       attr_reader :hosts
       attr_reader :links
-      attr_reader :packetin_filter
       attr_reader :switch_manager
       attr_reader :switches
-      
-      
+
+
       def initialize
         @port = 6633
         @tremashark = nil
@@ -52,7 +51,17 @@ module Trema
         @switch_manager = Trema::SwitchManager.instances.clear
         @switches = Trema::Switch.instances.clear
       end
-      
+
+
+      def packetin_filter
+        @packetin_filter.values.last
+      end
+
+
+      def switch_manager
+        @switch_manager.values.last
+      end
+
 
       def dump_to file_name
         File.open( file_name, "w" ) do | f |

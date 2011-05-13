@@ -62,8 +62,8 @@ module Trema
 
       def maybe_run_switch_manager
         switch_manager = 
-          if @context.switch_manager.values[ 0 ]
-            @context.switch_manager.values[ 0 ]
+          if @context.switch_manager
+            @context.switch_manager
           else
             if @context.apps.values.size == 0
               rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
@@ -81,8 +81,7 @@ module Trema
 
 
       def maybe_run_packetin_filter
-        packetin_filter = @context.packetin_filter.values[ 0 ]
-        packetin_filter.run if packetin_filter
+        @context.packetin_filter.run if @context.packetin_filter
       end
 
 
