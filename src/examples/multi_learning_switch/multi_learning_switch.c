@@ -217,20 +217,20 @@ handle_packet_in( packet_in packet_in ) {
 
 
 static bool
-compare_dpid( const void *x, const void *y ) {
+compare_datapath_id( const void *x, const void *y ) {
   return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
 }
 
 
 static unsigned int
-hash_dpid( const void *key ) {
-  const uint32_t *dpid = ( const uint32_t *) key;
-  return ( unsigned int ) dpid[ 0 ] ^ dpid[ 1 ];
+hash_datapath_id( const void *key ) {
+  const uint32_t *datapath_id = ( const uint32_t *) key;
+  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
 }
 
 
 typedef struct {
-  uint64_t dpid;
+  uint64_t datapath_id;
   hash_table *fdb;
 } switch_entry;
 
@@ -243,9 +243,9 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   if ( entry == NULL ) {
     // Create new switch entry
     entry = xmalloc( sizeof( switch_entry ) );
-    entry->dpid = datapath_id;
+    entry->datapath_id = datapath_id;
     entry->fdb = create_hash( compare_mac, hash_mac );
-    insert_hash_entry( switch_db, &entry->dpid, entry );
+    insert_hash_entry( switch_db, &entry->datapath_id, entry );
     debug ( "Switch connected, DPID = %#" PRIx64 ", initialize FDB", datapath_id );
   }
   else {
@@ -277,7 +277,7 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  hash_table *switch_db = create_hash( compare_dpid, hash_dpid );
+  hash_table *switch_db = create_hash( compare_datapath_id, hash_datapath_id );
   set_switch_ready_handler( handle_switch_ready, switch_db );
   set_packet_in_handler( dispatch_packet_in_handler, switch_db );
 
