@@ -32,22 +32,6 @@ struct dpid_entry {
 };
 
 
-static bool
-compare_dpid( const void *x, const void *y ) {
-  const struct dpid_entry *dx = x;
-  const struct dpid_entry *dy = y;
-
-  return ( dx->dpid == dy->dpid );
-}
-
-
-static unsigned int
-hash_dpid( const void *key ) {
-  const struct dpid_entry *d = key;
-  return ( unsigned int ) ( d->dpid >> 32 ^ d->dpid );
-}
-
-
 struct link_entry {
   uint64_t dpid0;
   uint64_t dpid1;
@@ -95,7 +79,7 @@ print_with_dsl_format( void *param, size_t entries, const topology_link_status *
 
   debug( "topology: entries %d", entries );
 
-  hash_table *dpid_hash = create_hash( compare_dpid, hash_dpid );
+  hash_table *dpid_hash = create_hash( compare_datapath_id, hash_datapath_id );
   hash_table *link_hash = create_hash( compare_link, hash_link );
 
   for ( i = 0; i < entries; i++ ) {

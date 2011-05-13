@@ -27,22 +27,9 @@
 static hash_table *dpid_table;
 
 
-static bool
-compare_dpid( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof( uint64_t ) ) == 0 ) ? true : false );
-}
-
-
-static unsigned int
-hash_dpid( const void *key ) {
-  const uint32_t *dpid = ( const uint32_t *) key;
-  return ( unsigned int ) dpid[ 0 ] ^ dpid[ 1 ];
-}
-
-
 void
 init_dpid_table( void ) {
-  dpid_table = create_hash( compare_dpid, hash_dpid );
+  dpid_table = create_hash( compare_datapath_id, hash_datapath_id );
 }
 
 
