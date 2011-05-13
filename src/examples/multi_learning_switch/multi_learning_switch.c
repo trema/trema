@@ -20,7 +20,6 @@
  */
 
 
-#include <getopt.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -30,70 +29,130 @@
 #include "trema.h"
 
 
-static const int FORWARDING_DB_ENTRY_TIMEOUT = 300;
-static const int FORWARDING_DB_AGING_INTERVAL = 5;
-
 typedef struct {
   uint8_t mac[ OFP_ETH_ALEN ];
   uint16_t port_no;
   time_t last_update;
-} destination;
+} host;
+
+
+typedef struct {
+  uint64_t datapath_id;
+  hash_table *host_db;
+} known_switch;
+
+
+time_t
+now() {
+  return time( NULL );
+}
+
+
+// TODO: move to utility.c
+static bool
+compare_datapath_id( const void *x, const void *y ) {
+  return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
+}
+
+
+// TODO: move to utility.c
+static unsigned int
+hash_datapath_id( const void *key ) {
+  const uint32_t *datapath_id = ( const uint32_t *) key;
+  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
+}
+
+
+/********************************************************************************
+ * switch_ready event handler
+ ********************************************************************************/
+
+static known_switch *
+new_switch( uint64_t datapath_id, hash_table *switch_db ) {
+  known_switch *sw = xmalloc( sizeof( known_switch ) );
+  sw->datapath_id = datapath_id;
+  sw->host_db = create_hash( compare_mac, hash_mac );
+  insert_hash_entry( switch_db, &sw->datapath_id, sw );
+  return sw;
+}
 
 
 static void
-set_forwarding_db_entry( destination *entry, const uint16_t port_no,
-               const uint8_t *mac, const time_t last_update ) {
-  debug( "setting a forwardning database entry ( mac = "
-         "%02x:%02x:%02x:%02x:%02x:%02x, port_no = %u, "
-         "last_update = %lu ).",
-         mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
-         port_no, last_update );
+delete_host( void *mac, void *host, void *user_data ) {
+  UNUSED( mac );
+  UNUSED( user_data );
 
-  memcpy( entry->mac, mac, sizeof( entry->mac ) );
+  xfree( host );
+}
+
+
+static void
+refresh( known_switch *sw ) {
+  foreach_hash( sw->host_db, delete_host, NULL );
+  delete_hash( sw->host_db );
+  sw->host_db = create_hash( compare_mac, hash_mac );
+}
+
+
+static const int AGING_TIMEOUT = 300;
+
+static bool
+aged_out( host *host ) {
+  if ( host->last_update + AGING_TIMEOUT < now() ) {
+    return true;
+  }
+  else {
+    return false;
+  };
+}
+
+
+static void
+age_host( void *mac, void *host, void *host_db ) {
+  if ( aged_out( host ) ) {
+    delete_hash_entry( host_db, mac );
+    xfree( host );
+  }
+}
+
+
+static void
+update_all_hosts( void *host_db ) {
+  foreach_hash( host_db, age_host, host_db );
+}
+
+
+static const int AGING_INTERVAL = 5;
+
+static void
+handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
+  known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
+  if ( sw == NULL ) {
+    sw = new_switch( datapath_id, switch_db );
+  }
+  else {
+    refresh( sw );
+  }
+
+  add_periodic_event_callback( AGING_INTERVAL, update_all_hosts, sw->host_db );
+}
+
+
+/********************************************************************************
+ * packet_in event handler
+ ********************************************************************************/
+
+static void
+learn( hash_table *host_db, uint16_t port_no, uint8_t *mac ) {
+  host *entry = lookup_hash_entry( host_db, mac );
+
+  if ( entry == NULL ) {
+    entry = xmalloc( sizeof( host ) );
+    memcpy( entry->mac, mac, sizeof( entry->mac ) );
+    insert_hash_entry( host_db, entry->mac, entry );
+  }
   entry->port_no = port_no;
-  entry->last_update = last_update;
-}
-
-
-static void
-learn( hash_table *forwarding_db, uint16_t port_no, uint8_t *mac ) {
-  time_t now;
-  destination *entry;
-
-  now = time( NULL );
-
-  entry = lookup_hash_entry( forwarding_db, mac );
-
-  if ( entry != NULL ) {
-    set_forwarding_db_entry( entry, port_no, mac, now );
-  }
-  else {
-    entry = xmalloc( sizeof( destination ) );
-    set_forwarding_db_entry( entry, port_no, mac, now );
-    insert_hash_entry( forwarding_db, entry->mac, entry );
-  }
-}
-
-
-static destination *
-lookup_destination( hash_table *forwarding_db, uint8_t *mac ) {
-  destination *entry;
-
-  debug( "looking up forwardning database ( mac = "
-         "%02x:%02x:%02x:%02x:%02x:%02x ).",
-         mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ] );
-
-  entry = lookup_hash_entry( forwarding_db, mac );
-
-  if ( entry != NULL ) {
-    debug( "entry found ( port_no = %u, last_update = %lu ).",
-           entry->port_no, entry->last_update );
-  }
-  else {
-    debug( "entry not found." );
-  }
-
-  return entry;
+  entry->last_update = now();
 }
 
 
@@ -167,117 +226,19 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 }
 
 
-static bool
-compare_datapath_id( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
-}
-
-
-static unsigned int
-hash_datapath_id( const void *key ) {
-  const uint32_t *datapath_id = ( const uint32_t *) key;
-  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
-}
-
-
-typedef struct {
-  uint64_t datapath_id;
-  hash_table *forwarding_db;
-} known_switch;
-
-
-/********************************************************************************
- * switch_ready event handler
- ********************************************************************************/
-
-static known_switch *
-new_switch( uint64_t datapath_id, hash_table *switch_db ) {
-  known_switch *sw = xmalloc( sizeof( known_switch ) );
-  sw->datapath_id = datapath_id;
-  sw->forwarding_db = create_hash( compare_mac, hash_mac );
-  insert_hash_entry( switch_db, &sw->datapath_id, sw );
-  return sw;
-}
-
-
-static void
-delete_destination( void *mac, void *destination, void *forwarding_db ) {
-  UNUSED( mac );
-  UNUSED( user_data );
-
-  xfree( destination );
-}
-
-
-static void
-refresh( known_switch *sw ) {
-  foreach_hash( sw->forwarding_db, delete_destination, NULL );
-  delete_hash( sw->forwarding_db );
-  sw->forwarding_db = create_hash( compare_mac, hash_mac );
-}
-
-
-static bool
-aged_out( destination *dest ) {
-  if ( dest->last_update + FORWARDING_DB_ENTRY_TIMEOUT < time( NULL ) ) {
-    return true;
-  }
-  else {
-    return false;
-  };
-}
-
-
-static void
-age_forwarding_db_entry( void *mac, void *destination, void *forwarding_db ) {
-  if ( aged_out( destination ) ) {
-    delete_hash_entry( forwarding_db, mac );
-    delete_destination( mac, destination, NULL );
-  }
-}
-
-
-static void
-update_forwarding_db( void *forwarding_db ) {
-  foreach_hash( forwarding_db, age_forwarding_db_entry, forwarding_db );
-}
-
-
-static void
-handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
-  known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
-  if ( sw == NULL ) {
-    sw = new_switch( datapath_id, switch_db );
-  }
-  else {
-    refresh( sw );
-  }
-
-  add_periodic_event_callback(
-    FORWARDING_DB_AGING_INTERVAL,
-    update_forwarding_db,
-    sw->forwarding_db
-  );
-}
-
-
-/********************************************************************************
- * packet_in event handler
- ********************************************************************************/
-
 static void
 handle_packet_in( packet_in packet_in ) {
-  known_switch *entry = lookup_hash_entry( packet_in.user_data, &packet_in.datapath_id );
-  if ( entry == NULL ) {
+  known_switch *sw = lookup_hash_entry( packet_in.user_data, &packet_in.datapath_id );
+  if ( sw == NULL ) {
     warn( "Packet_in from unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
     return;
   }
 
   uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
-  learn( entry->forwarding_db, packet_in.in_port, macsa );
+  learn( sw->host_db, packet_in.in_port, macsa );
 
   uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
-  destination *destination = lookup_destination( entry->forwarding_db, macda );
+  host *destination = lookup_hash_entry( sw->host_db, macda );
 
   if ( destination == NULL ) {
     do_flooding( packet_in );
