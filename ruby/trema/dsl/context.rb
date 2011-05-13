@@ -37,6 +37,7 @@ module Trema
       attr_reader :apps
       attr_reader :hosts
       attr_reader :links
+      attr_reader :packetin_filter
       attr_reader :switch_manager
       attr_reader :switches
       
@@ -67,16 +68,6 @@ module Trema
         else
           self.class.new
         end
-      end
-
-
-      ################################################################################
-      # Read current context.
-      ################################################################################
-
-
-      def packetin_filter
-        @packetin_filter.values[ 0 ]
       end
     end
   end
