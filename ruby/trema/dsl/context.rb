@@ -37,7 +37,6 @@ module Trema
       attr_reader :apps
       attr_reader :hosts
       attr_reader :links
-      attr_reader :switch_manager
       attr_reader :switches
 
 
