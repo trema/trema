@@ -54,9 +54,8 @@ module Trema
     #
     def initialize rule, port = nil
       @rule = rule
-      @options = [ "--daemonize" ]
-      @options << "--port=#{ port }" if port
-      self.class.add self
+      @port = port
+      SwitchManager.add self
     end
 
 
@@ -86,7 +85,7 @@ module Trema
     # @api public
     #
     def run!
-      sh "#{ Executables.switch_manager } #{ @options.join ' ' } -- #{ switch_options.join ' ' }"
+      sh "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"
     end
 
 
@@ -94,6 +93,20 @@ module Trema
     private
     ################################################################################
 
+
+    #
+    # Returns the command line options
+    #
+    # @return [Array]
+    #
+    # @api private
+    #
+    def options
+      opts = [ "--daemonize" ]
+      opts << "--port=#{ @port }" if @port
+      opts
+    end
+    
 
     #
     # Returns the command line options of switch daemon ({SwitchDaemon})
