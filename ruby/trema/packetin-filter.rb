@@ -40,7 +40,7 @@ module Trema
     def initialize queues
       check_mandatory_options queues
       @queues = queues
-      self.class.add self
+      PacketinFilter.add self
     end
 
 
