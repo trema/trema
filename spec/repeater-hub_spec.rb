@@ -47,20 +47,18 @@ end
 
 
 describe RepeaterHub do
-  before :each do
-    trema_conf do
-      vswitch("repeater_hub") {
-        datapath_id "0xabc"
-      }
+  before do
+    trema_conf {
+      vswitch("repeater_hub") { datapath_id "0xabc" }
 
-      vhost("host1") { promisc "On" }
-      vhost("host2") { promisc "On" }
-      vhost("host3") { promisc "On" }
+      vhost("host1") { promisc "on" }
+      vhost("host2") { promisc "on" }
+      vhost("host3") { promisc "on" }
 
       link "repeater_hub", "host1"
       link "repeater_hub", "host2"
       link "repeater_hub", "host3"
-    end
+    }
   end
 
 
