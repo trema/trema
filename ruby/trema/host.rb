@@ -94,6 +94,26 @@ module Trema
         stanza_ip
       end
     end
+
+
+    #
+    # Returns MAC address
+    #
+    # @example
+    #   host.mac #=> "00:00:00:00:00:01"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
+    def mac
+      stanza_mac = @stanza[ :mac ]
+      if stanza_mac.nil?
+        "00:00:00:00:00:#{ format "%02x", @index + 1 }"
+      else
+        stanza_mac
+      end
+    end
     
 
     #

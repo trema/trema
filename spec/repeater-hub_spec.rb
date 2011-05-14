@@ -53,20 +53,9 @@ describe RepeaterHub do
         datapath_id "0xabc"
       }
 
-      vhost("host1") {
-        promisc "On"
-        mac "00:00:00:01:00:01"
-      }
-
-      vhost("host2") {
-        promisc "On"
-        mac "00:00:00:01:00:02"
-      }
-
-      vhost("host3") {
-        promisc "On"
-        mac "00:00:00:01:00:03"
-      }
+      vhost("host1") { promisc "On" }
+      vhost("host2") { promisc "On" }
+      vhost("host3") { promisc "On" }
 
       link "repeater_hub", "host1"
       link "repeater_hub", "host2"

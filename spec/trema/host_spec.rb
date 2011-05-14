@@ -38,7 +38,7 @@ module Trema
 
 
     describe :ip do
-      context "when IP address empty" do
+      context "when ip is omitted" do
         before { @stanza = {} }
 
         subject { Host.new( @stanza ).ip }
@@ -47,7 +47,7 @@ module Trema
       end
 
 
-      context "when IP address not empty" do
+      context "when ip \"192.168.100.100\"" do
         before { @stanza = { :ip => "192.168.100.100" } }
 
         subject { Host.new( @stanza ).ip }
@@ -56,6 +56,26 @@ module Trema
       end
     end
         
+
+    describe :mac do
+      context "when mac is omitted" do
+        before { @stanza = {} }
+
+        subject { Host.new( @stanza ).mac }
+
+        it { should == "00:00:00:00:00:01" }
+      end
+
+
+      context "when mac \"00:00:00:aa:bb:cc\"" do
+        before { @stanza = { :mac => "00:00:00:aa:bb:cc" } }
+
+        subject { Host.new( @stanza ).mac }
+
+        it { should == "00:00:00:aa:bb:cc" }
+      end
+    end
+    
 
     it "should add arp entries" do
       host1 = mock( "HOST 1" )
