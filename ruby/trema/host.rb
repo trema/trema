@@ -55,6 +55,7 @@ module Trema
       @stanza = stanza
       @phost = Phost.new( self )
       @cli = Cli.new( self )
+      @index = Host.instances.size
       Host.add self
     end
 
@@ -73,6 +74,27 @@ module Trema
       @stanza.__send__ :[], message
     end
 
+
+    #
+    # Returns IP address
+    #
+    # @example
+    #   host.ip #=> "192.168.0.1"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
+    def ip
+      stanza_ip = @stanza[ :ip ]
+      if stanza_ip.nil?
+        # FIXME: Find unused addresses        
+        "192.168.0.#{ @index + 1 }"
+      else
+        stanza_pi
+      end
+    end
+    
 
     #
     # Runs a host process

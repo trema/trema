@@ -25,6 +25,8 @@ require "trema/host"
 module Trema
   describe Host do
     before :each do
+      Host.instances.clear
+      
       @phost = mock( "phost" )
       Phost.stub!( :new ).and_return( @phost )
       
@@ -34,6 +36,15 @@ module Trema
       @stanza = mock( "stanza", :[] => "HOST 0" )      
     end
 
+
+    context "when IP address empty" do
+      before { @stanza = {} }
+
+      subject { Host.new( @stanza ).ip }
+
+      it { should == "192.168.0.1" }
+    end
+    
 
     it "should add arp entries" do
       host1 = mock( "HOST 1" )

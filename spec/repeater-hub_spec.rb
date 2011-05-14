@@ -55,19 +55,16 @@ describe RepeaterHub do
 
       vhost("host1") {
         promisc "On"
-        ip "192.168.0.1"
         mac "00:00:00:01:00:01"
       }
 
       vhost("host2") {
         promisc "On"
-        ip "192.168.0.2"
         mac "00:00:00:01:00:02"
       }
 
       vhost("host3") {
         promisc "On"
-        ip "192.168.0.3"
         mac "00:00:00:01:00:03"
       }
 
