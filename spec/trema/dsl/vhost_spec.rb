@@ -25,56 +25,115 @@ require "trema/dsl/vhost"
 module Trema
   module DSL
     describe Vhost do
-      before :each do
-        @vhost = Vhost.new
+      describe :name do
+        context "when name empty" do
+          before { @vhost = Vhost.new }
+
+          subject { @vhost[ :name ] }
+          
+          context "and IP address empty" do
+            it { should be_nil }
+          end
+
+          context "and IP address is 192.168.100.100" do
+            before { @vhost.ip "192.168.100.100" }
+
+            specify { should == "192.168.100.100" }
+          end
+        end
+
+
+        context "when name is \"Yutaro's host\"" do
+          before { @vhost = Vhost.new( "Yutaro's host" ) }
+
+          subject { @vhost[ :name ] }
+
+          context "and ip address empty" do
+            it { should == "Yutaro's host" }
+          end
+
+          context "and ip address 192.168.100.100" do
+            before { @vhost.ip "192.168.100.100" }
+
+            it { should == "Yutaro's host" }
+          end
+        end
       end
 
 
-      context %[when parsing "vhost { ... }"] do
-        it %[recognizes "ip IP_ADDRESS" directive] do
-          lambda do
-            @vhost.ip "192.168.0.1"
-          end.should_not raise_error
+      describe :promisc do
+        before { @vhost = Vhost.new( "Yutaro's host" ) }
+
+        subject { @vhost[ :promisc ] }
+        
+        context "when promisc off" do
+          before { @vhost.promisc "off" }
+
+          it { should be_false }
         end
 
 
-        it %[recognizes "netmask NETMASK" directive] do
-          lambda do
-            @vhost.netmask "255.255.255.0"
-          end.should_not raise_error
+        context "when promisc no" do
+          before { @vhost.promisc "no" }
+
+          it { should be_false }
+        end
+        
+
+        context "when promisc on" do
+          before { @vhost.promisc "on" }
+
+          it { should be_true }
         end
 
 
-        it %[recognizes "mac MAC_ADDRESS" directive] do
-          lambda do
-            @vhost.mac "00:00:00:01:00:01"
-          end.should_not raise_error
+        context "when promisc yes" do
+          before { @vhost.promisc "yes" }
+
+          it { should be_true }
+        end
+
+
+        context "when promisc INVALID_VALUE" do
+          specify do
+            lambda do
+              @vhost.promisc "INVALID_VALUE"
+            end.should raise_error( Trema::DSL::SyntaxError )
+          end
         end
       end
+      
+      
+      describe :netmask do
+        before { @vhost = Vhost.new( "Yutaro's host" ) }
 
-
-      context "when getting the attributes of a vhost" do
-        it "returns its name" do
-          @vhost.ip "192.168.0.1"
-          @vhost[ :name ].should == "192.168.0.1"
+        subject { @vhost[ :netmask ] }
+        
+        context "when netmask empty" do
+          it { should == "255.255.255.255" }
         end
 
+        context "when netmask is 255.255.255.0" do
+          before { @vhost.netmask "255.255.255.0" }
 
-        it "returns its IP address" do
-          @vhost.ip "192.168.0.1"
-          @vhost[ :ip ].should == "192.168.0.1"
+          it { should == "255.255.255.0" }
+        end
+      end
+      
+      
+      describe :mac do
+        before { @vhost = Vhost.new( "Yutaro's host" ) }
+
+        subject { @vhost[ :mac ] }
+
+        context "when mac empty" do
+          it { should be_nil }
         end
 
+        context "when mac is 00:00:00:01:00:01" do
+          before { @vhost.mac "00:00:00:01:00:01" }
 
-        it "returns its netmask address" do
-          @vhost.netmask "255.255.255.0"
-          @vhost[ :netmask ].should == "255.255.255.0"
-        end
-
-
-        it "returns its MAC address" do
-          @vhost.mac "00:00:00:01:00:01"
-          @vhost[ :mac ].should == "00:00:00:01:00:01"
+          it { should == "00:00:00:01:00:01" }
         end
       end
     end

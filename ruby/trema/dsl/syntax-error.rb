@@ -1,6 +1,4 @@
 #
-# The syntax definition of vhost { ... } stanza in Trema DSL.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,47 +18,9 @@
 #
 
 
-require "trema/dsl/stanza"
-require "trema/dsl/syntax-error"
-
-
 module Trema
   module DSL
-    class Vhost < Stanza
-      def initialize name = nil
-        super name
-        @netmask = "255.255.255.255"
-      end
-
-      
-      def promisc on_off
-        case on_off.to_s.downcase
-        when "on", "yes"
-          @promisc = true
-        when "off", "no"
-          @promisc = false
-        else
-          raise SyntaxError, "Unknown option: promisc #{ on_off.to_s }"
-        end
-      end
-
-
-      def ip str
-        @ip = str
-        if @name.nil?
-          @name = @ip
-        end
-      end
-
-
-      def netmask str
-        @netmask = str
-      end
-
-
-      def mac str
-        @mac = str
-      end
+    class SyntaxError < StandardError
     end
   end
 end
