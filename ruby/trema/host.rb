@@ -91,7 +91,7 @@ module Trema
         # FIXME: Find unused addresses        
         "192.168.0.#{ @index + 1 }"
       else
-        stanza_pi
+        stanza_ip
       end
     end
     

@@ -37,14 +37,25 @@ module Trema
     end
 
 
-    context "when IP address empty" do
-      before { @stanza = {} }
+    describe :ip do
+      context "when IP address empty" do
+        before { @stanza = {} }
 
-      subject { Host.new( @stanza ).ip }
+        subject { Host.new( @stanza ).ip }
 
-      it { should == "192.168.0.1" }
+        it { should == "192.168.0.1" }
+      end
+
+
+      context "when IP address not empty" do
+        before { @stanza = { :ip => "192.168.100.100" } }
+
+        subject { Host.new( @stanza ).ip }
+
+        it { should == "192.168.100.100" }
+      end
     end
-    
+        
 
     it "should add arp entries" do
       host1 = mock( "HOST 1" )
