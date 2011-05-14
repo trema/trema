@@ -30,17 +30,6 @@ module Trema
     end
 
 
-    it "returns two network interfaces for each peer" do
-      link = Link.new( @stanza )
-      link.interfaces[ 0 ].should == "trema0-0"
-      link.interfaces[ 1 ].should == "trema0-1"
-
-      link = Link.new( @stanza )
-      link.interfaces[ 0 ].should == "trema1-0"
-      link.interfaces[ 1 ].should == "trema1-1"
-    end
-
-
     context "when creating/deleting a link" do
       before :each do
         @link = Link.new( @stanza )
@@ -57,8 +46,6 @@ module Trema
 
 
       it "executes ip and ifconfig command" do
-        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-0 down 2>/dev/null" )
-        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-1 down 2>/dev/null" )
         @link.should_receive( :sh ).once.with( "sudo ip link delete trema0-0 2>/dev/null" )
 
         @link.down!

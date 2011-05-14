@@ -27,7 +27,33 @@ module Trema
   #
   class Link < NetworkComponent
     #
-    # Returns a pair of link peers
+    # Returns the name of link interface
+    #
+    # @example
+    #   link.name => "trema3-0"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
+    attr_reader :name
+
+
+    #
+    # Returns the name of link peer interface
+    #
+    # @example
+    #   link.name => "trema3-1"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
+    attr_reader :name_peer
+    
+
+    #
+    # Returns the configuration names of link peers
     #
     # @example
     #   link.peers => [ "host 0", "switch 1" ]
@@ -50,39 +76,11 @@ module Trema
     # @api public
     #
     def initialize stanza
-      @link_id = self.class.instances.size
+      @link_id = Link.instances.size
+      @name = "trema#{ @link_id }-0"
+      @name_peer = "trema#{ @link_id }-1"
       @peers = stanza.peers
-      self.class.add self
-    end
-
-
-    #
-    # Returns the name of link
-    #
-    # @example
-    #   link.name => "trema1"
-    #
-    # @return [String]
-    #
-    # @api public
-    #
-    def name
-      "trema#{ @link_id }"
-    end
-
-
-    #
-    # Returns a pair of network interface name
-    #
-    # @example
-    #   link.interfaces => [ "trema0-0", "trema0-1" ]
-    #
-    # @return [Array]
-    #
-    # @api public
-    #
-    def interfaces
-      [ "trema#{ @link_id }-0", "trema#{ @link_id }-1" ]
+      Link.add self
     end
 
 
@@ -97,9 +95,9 @@ module Trema
     # @api public
     #
     def up!
-      sh "sudo ip link add name #{ interfaces[ 0 ] } type veth peer name #{ interfaces[ 1 ] }"
-      sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } up"
-      sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } up"
+      sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
+      sh "sudo /sbin/ifconfig #{ @name } up"
+      sh "sudo /sbin/ifconfig #{ @name_peer } up"
     end
 
 
@@ -114,9 +112,7 @@ module Trema
     # @api public
     #
     def down!
-      sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } down 2>/dev/null" rescue nil
-      sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } down 2>/dev/null" rescue nil
-      sh "sudo ip link delete #{ interfaces[ 0 ] } 2>/dev/null" rescue nil
+      sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
     end
   end
 end

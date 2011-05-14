@@ -55,7 +55,7 @@ module Trema
       @stanza = stanza
       @phost = Phost.new( self )
       @cli = Cli.new( self )
-      self.class.add self
+      Host.add self
     end
 
 

@@ -39,7 +39,7 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      self.class.add self
+      App.add self
     end
 
 
