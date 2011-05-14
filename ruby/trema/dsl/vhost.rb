@@ -1,6 +1,4 @@
 #
-# The syntax definition of vhost { ... } stanza in Trema DSL.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -26,13 +24,36 @@ require "trema/dsl/syntax-error"
 
 module Trema
   module DSL
+    #
+    # The syntax definition of vhost { ... } stanza in Trema DSL.
+    #
     class Vhost < Stanza
+      #
+      # Creates a new vhost stanza
+      #
+      # @example
+      #   stanza = Trema::DSL::Vhost.new( "Yutaro's host" )
+      #
+      # @return [Vhost]
+      #
+      # @api public
+      #
       def initialize name = nil
         super name
         @netmask = "255.255.255.255"
       end
 
-      
+
+      #
+      # Set promisc mode on/off
+      #
+      # @example
+      #   stanza.promisc "on"
+      #
+      # @return [undefined]
+      #
+      # @api public
+      #
       def promisc on_off
         case on_off.to_s.downcase
         when "on", "yes"
@@ -40,11 +61,21 @@ module Trema
         when "off", "no"
           @promisc = false
         else
-          raise SyntaxError, "Unknown option: promisc #{ on_off.to_s }"
+          raise SyntaxError, "Unknown option: promisc #{ on_off }"
         end
       end
 
 
+      #
+      # Set IP address
+      #
+      # @example
+      #   stanza.ip "192.168.100.1"
+      #
+      # @return [undefined]
+      #
+      # @api public
+      #
       def ip str
         @ip = str
         if @name.nil?
@@ -53,11 +84,31 @@ module Trema
       end
 
 
+      #
+      # Set netmask
+      #
+      # @example
+      #   stanza.netmask "255.255.0.0"
+      #
+      # @return [undefined]
+      #
+      # @api public
+      #
       def netmask str
         @netmask = str
       end
 
 
+      #
+      # Set MAC address
+      #
+      # @example
+      #   stanza.mac "00:00:00:01:00:01"
+      #
+      # @return [undefined]
+      #
+      # @api public
+      #
       def mac str
         @mac = str
       end
