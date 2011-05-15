@@ -198,9 +198,23 @@ controller_stop( VALUE self ) {
 }
 
 
+static void
+thread_pass( void *user_data ) {
+  rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
+}
+
+
 static VALUE
 controller_start_trema( VALUE self ) {
+  struct itimerspec interval;
+  interval.it_interval.tv_sec = 0;
+  interval.it_interval.tv_nsec = 1;
+  interval.it_value.tv_sec = 0;
+  interval.it_value.tv_nsec = 0;
+  add_timer_event_callback( &interval, thread_pass, NULL );
+
   start_trema();
+
   return self;
 }
 

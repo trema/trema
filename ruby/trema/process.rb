@@ -50,8 +50,8 @@ module Trema
         else
           sh "kill #{ @pid } 2>/dev/null" rescue nil
         end
-        sleep 1
-        return if dead? and (not FileTest.exists?( @pid_file ) )
+        return
+        # return if dead?
       end
       raise "Failed to shut down #{ @name }"
     end
@@ -63,7 +63,7 @@ module Trema
 
 
     def dead?
-      `ps ax | grep -E "^[[:blank:]]*#{ @pid }"`.empty?      
+      `ps ax | grep -E "^[[:blank:]]*#{ @pid }"`.empty?
     end
   end
 end

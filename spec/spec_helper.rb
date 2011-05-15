@@ -55,13 +55,12 @@ def trema_session controller_class
       host.add_arp_entry @context.hosts.values - [ host ]
     end
 
-    pid = Process.fork do
+    @controller_thread = Thread.start do
       controller.run!
     end
-    Process.detach pid
     sleep 3  # FIXME
     
-    yield
+    yield controller
 
     sleep 5
   ensure
@@ -71,6 +70,9 @@ end
 
 
 def kill_trema
+  if @controller_thread
+    @controller_thread.kill
+  end
   return if @context.nil?
 
   @context.links.each do | name, link |
