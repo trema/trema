@@ -131,7 +131,6 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
  * switch_disconnected event handler
  ********************************************************************************/
 
-
 static void
 delete_switch( known_switch *sw ) {
   foreach_hash( sw->forwarding_db, delete_forwarding_entry, NULL );
