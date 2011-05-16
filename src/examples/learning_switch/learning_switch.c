@@ -20,7 +20,6 @@
  */
 
 
-#include <getopt.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <time.h>
@@ -29,70 +28,15 @@
 
 typedef struct {
   uint8_t mac[ OFP_ETH_ALEN ];
+  uint64_t datapath_id;
   uint16_t port_no;
   time_t last_update;
-} host;
+} forwarding_entry;
 
 
 time_t
 now() {
   return time( NULL );
-}
-
-
-/********************************************************************************
- * parse commandline options
- ********************************************************************************/
-
-static struct option long_options[] = {
-  { "datapath_id", required_argument, NULL, 'i' },
-  { NULL, 0, NULL, 0  },
-};
-
-static char short_options[] = "i:";
-
-void
-usage() {
-  printf(
-    "The Implementation of Learning Switch.\n"
-    "Usage: %s [OPTION]...\n"
-    "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -i, --datapath_id=ID        datapath ID\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
-    , get_executable_name()
-  );
-}
-
-
-static uint64_t managed_datapath_id = 0;
-
-static void
-set_managed_datapath_id( int argc, char **argv ) {
-  char *datapath_id = NULL;
-  for ( ;; ) {
-    int c = getopt_long( argc, argv, short_options, long_options, NULL );
-    if ( c == -1 ) {
-      break;
-    }
-    switch ( c ) {
-      case 'i':
-        datapath_id = optarg;
-        break;
-      default:
-        usage();
-        exit( EXIT_FAILURE );
-    }
-  }
-  if ( datapath_id == NULL ) {
-    printf( "--datapath_id option is mandatory.\n" );
-    usage();
-    exit( EXIT_FAILURE );
-  }
-
-  string_to_datapath_id( datapath_id, &managed_datapath_id );
 }
 
 
@@ -104,8 +48,8 @@ static const int MAX_AGE = 300;
 
 
 static bool
-aged_out( host *host ) {
-  if ( host->last_update + MAX_AGE < now() ) {
+aged_out( forwarding_entry *entry ) {
+  if ( entry->last_update + MAX_AGE < now() ) {
     return true;
   }
   else {
@@ -115,28 +59,29 @@ aged_out( host *host ) {
 
 
 static void
-age_host( void *mac, void *host, void *host_db ) {
-  if ( aged_out( host ) ) {
-    delete_hash_entry( host_db, mac );
-    xfree( host );
+age_forwarding_db( void *mac, void *forwarding_entry, void *forwarding_db ) {
+  if ( aged_out( forwarding_entry ) ) {
+    delete_hash_entry( forwarding_db, mac );
+    xfree( forwarding_entry );
   }
 }
 
 
 static void
-update_fdb( void *host_db ) {
-  foreach_hash( host_db, age_host, host_db );
+update_forwarding_db( void *forwarding_db ) {
+  foreach_hash( forwarding_db, age_forwarding_db, forwarding_db );
 }
 
 
 static void
-learn( hash_table *host_db, uint16_t port_no, uint8_t *mac ) {
-  host *entry = lookup_hash_entry( host_db, mac );
+learn( hash_table *forwarding_db, uint8_t *mac, uint64_t datapath_id, uint16_t port_no ) {
+  forwarding_entry *entry = lookup_hash_entry( forwarding_db, mac );
 
   if ( entry == NULL ) {
-    entry = xmalloc( sizeof( host ) );
+    entry = xmalloc( sizeof( forwarding_entry ) );
     memcpy( entry->mac, mac, sizeof( entry->mac ) );
-    insert_hash_entry( host_db, entry->mac, entry );
+    entry->datapath_id = datapath_id;
+    insert_hash_entry( forwarding_db, entry->mac, entry );
   }
   entry->port_no = port_no;
   entry->last_update = now();
@@ -215,17 +160,12 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 static void
 handle_packet_in( packet_in packet_in ) {
-  if ( packet_in.datapath_id != managed_datapath_id ) {
-    warn( "Unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
-    return;
-  }
-
-  hash_table *host_db = packet_in.user_data;
+  hash_table *forwarding_db = packet_in.user_data;
   uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
-  learn( host_db, packet_in.in_port, macsa );
+  learn( forwarding_db, macsa, packet_in.datapath_id, packet_in.in_port );
 
   uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
-  host *destination = lookup_hash_entry( host_db, macda );
+  forwarding_entry *destination = lookup_hash_entry( forwarding_db, macda );
 
   if ( destination == NULL ) {
     do_flooding( packet_in );
@@ -243,14 +183,21 @@ handle_packet_in( packet_in packet_in ) {
 static const int AGING_INTERVAL = 5;
 
 
+bool
+compare_forwarding_entry( const void *x, const void *y ) {
+  const forwarding_entry *ex = x;
+  const forwarding_entry *ey = y;
+  return ( memcmp( ex->mac, ey->mac, OFP_ETH_ALEN ) ) && ( ex->datapath_id == ey->datapath_id );
+}
+
+
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  set_managed_datapath_id( argc, argv );
-  hash_table *host_db = create_hash( compare_mac, hash_mac );
-  add_periodic_event_callback( AGING_INTERVAL, update_fdb, host_db );
-  set_packet_in_handler( handle_packet_in, host_db );
+  hash_table *forwarding_db = create_hash( compare_forwarding_entry, hash_mac );
+  add_periodic_event_callback( AGING_INTERVAL, update_forwarding_db, forwarding_db );
+  set_packet_in_handler( handle_packet_in, forwarding_db );
 
   start_trema();
 
