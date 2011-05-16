@@ -20,8 +20,6 @@
  */
 
 
-#include <inttypes.h>
-#include <stdio.h>
 #include <time.h>
 #include "trema.h"
 
