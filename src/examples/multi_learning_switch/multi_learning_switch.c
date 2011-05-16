@@ -128,6 +128,28 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
 
 
 /********************************************************************************
+ * switch_disconnected event handler
+ ********************************************************************************/
+
+
+static void
+delete_switch( known_switch *sw ) {
+  foreach_hash( sw->forwarding_db, delete_forwarding_entry, NULL );
+  delete_hash( sw->forwarding_db );
+  free( sw );
+}
+
+
+static void
+handle_switch_disconnected( uint64_t datapath_id, void *switch_db ) {
+  known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
+  if ( sw != NULL ) {
+    delete_switch( sw );
+  }
+}
+
+
+/********************************************************************************
  * packet_in event handler
  ********************************************************************************/
 
@@ -252,6 +274,7 @@ main( int argc, char *argv[] ) {
   hash_table *switch_db = create_hash( compare_datapath_id, hash_datapath_id );
   add_periodic_event_callback( AGING_INTERVAL, update_all_switches, switch_db );
   set_switch_ready_handler( handle_switch_ready, switch_db );
+  set_switch_disconnected_handler( handle_switch_disconnected, switch_db );
   set_packet_in_handler( handle_packet_in, switch_db );
 
   start_trema();
