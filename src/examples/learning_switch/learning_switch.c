@@ -27,8 +27,10 @@
 
 
 typedef struct {
-  uint8_t mac[ OFP_ETH_ALEN ];
-  uint64_t datapath_id;
+  struct key {
+    uint8_t mac[ OFP_ETH_ALEN ];
+    uint64_t datapath_id;
+  } key;
   uint16_t port_no;
   time_t last_update;
 } forwarding_entry;
@@ -79,9 +81,9 @@ learn( hash_table *forwarding_db, uint8_t *mac, uint64_t datapath_id, uint16_t p
 
   if ( entry == NULL ) {
     entry = xmalloc( sizeof( forwarding_entry ) );
-    memcpy( entry->mac, mac, sizeof( entry->mac ) );
-    entry->datapath_id = datapath_id;
-    insert_hash_entry( forwarding_db, entry->mac, entry );
+    memcpy( entry->key.mac, mac, sizeof( entry->key.mac ) );
+    entry->key.datapath_id = datapath_id;
+    insert_hash_entry( forwarding_db, &entry->key, entry );
   }
   entry->port_no = port_no;
   entry->last_update = now();
@@ -183,11 +185,18 @@ handle_packet_in( packet_in packet_in ) {
 static const int AGING_INTERVAL = 5;
 
 
+unsigned int
+hash_forwarding_entry( const void *key ) {
+  return hash_mac( ( ( const struct key * ) key )->mac );
+}
+
+
 bool
 compare_forwarding_entry( const void *x, const void *y ) {
   const forwarding_entry *ex = x;
   const forwarding_entry *ey = y;
-  return ( memcmp( ex->mac, ey->mac, OFP_ETH_ALEN ) ) && ( ex->datapath_id == ey->datapath_id );
+  return memcmp( ex->key.mac, ey->key.mac, OFP_ETH_ALEN )
+           && ( ex->key.datapath_id == ey->key.datapath_id );
 }
 
 
@@ -195,7 +204,7 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  hash_table *forwarding_db = create_hash( compare_forwarding_entry, hash_mac );
+  hash_table *forwarding_db = create_hash( compare_forwarding_entry, hash_forwarding_entry );
   add_periodic_event_callback( AGING_INTERVAL, update_forwarding_db, forwarding_db );
   set_packet_in_handler( handle_packet_in, forwarding_db );
 
