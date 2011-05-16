@@ -29,12 +29,12 @@ typedef struct {
   uint8_t mac[ OFP_ETH_ALEN ];
   uint16_t port_no;
   time_t last_update;
-} host;
+} forwarding_entry;
 
 
 typedef struct {
   uint64_t datapath_id;
-  hash_table *host_db;
+  hash_table *forwarding_db;
 } known_switch;
 
 
@@ -52,33 +52,33 @@ static known_switch *
 new_switch( uint64_t datapath_id ) {
   known_switch *sw = xmalloc( sizeof( known_switch ) );
   sw->datapath_id = datapath_id;
-  sw->host_db = create_hash( compare_mac, hash_mac );
+  sw->forwarding_db = create_hash( compare_mac, hash_mac );
   return sw;
 }
 
 
 static void
-delete_host( void *mac, void *host, void *user_data ) {
+delete_forwarding_entry( void *mac, void *entry, void *user_data ) {
   UNUSED( mac );
   UNUSED( user_data );
 
-  xfree( host );
+  xfree( entry );
 }
 
 
 static void
 refresh( known_switch *sw ) {
-  foreach_hash( sw->host_db, delete_host, NULL );
-  delete_hash( sw->host_db );
-  sw->host_db = create_hash( compare_mac, hash_mac );
+  foreach_hash( sw->forwarding_db, delete_forwarding_entry, NULL );
+  delete_hash( sw->forwarding_db );
+  sw->forwarding_db = create_hash( compare_mac, hash_mac );
 }
 
 
 static const int MAX_AGE = 300;
 
 static bool
-aged_out( host *host ) {
-  if ( host->last_update + MAX_AGE < now() ) {
+aged_out( forwarding_entry *entry ) {
+  if ( entry->last_update + MAX_AGE < now() ) {
     return true;
   }
   else {
@@ -88,17 +88,27 @@ aged_out( host *host ) {
 
 
 static void
-age_host( void *mac, void *host, void *host_db ) {
-  if ( aged_out( host ) ) {
-    delete_hash_entry( host_db, mac );
-    xfree( host );
+age_forwarding_db( void *mac, void *entry, void *forwarding_db ) {
+  if ( aged_out( entry ) ) {
+    delete_hash_entry( forwarding_db, mac );
+    xfree( entry );
   }
 }
 
 
 static void
-update_all_hosts( void *host_db ) {
-  foreach_hash( host_db, age_host, host_db );
+update_all_entries( void *datapath_id, void *sw, void *user_data ) {
+  UNUSED( datapath_id );
+  UNUSED( user_data );
+
+  hash_table *forwarding_db = ( ( known_switch * ) sw )->forwarding_db;
+  foreach_hash( forwarding_db, age_forwarding_db, forwarding_db );
+}
+
+
+static void
+update_all_switches( void *switch_db ) {
+  foreach_hash( switch_db, update_all_entries, NULL );
 }
 
 
@@ -114,8 +124,6 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
   else {
     refresh( sw );
   }
-
-  add_periodic_event_callback( AGING_INTERVAL, update_all_hosts, sw->host_db );
 }
 
 
@@ -124,13 +132,13 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
  ********************************************************************************/
 
 static void
-learn( hash_table *host_db, uint16_t port_no, uint8_t *mac ) {
-  host *entry = lookup_hash_entry( host_db, mac );
+learn( hash_table *forwarding_db, uint16_t port_no, uint8_t *mac ) {
+  forwarding_entry *entry = lookup_hash_entry( forwarding_db, mac );
 
   if ( entry == NULL ) {
-    entry = xmalloc( sizeof( host ) );
+    entry = xmalloc( sizeof( forwarding_entry ) );
     memcpy( entry->mac, mac, sizeof( entry->mac ) );
-    insert_hash_entry( host_db, entry->mac, entry );
+    insert_hash_entry( forwarding_db, entry->mac, entry );
   }
   entry->port_no = port_no;
   entry->last_update = now();
@@ -219,10 +227,10 @@ handle_packet_in( packet_in packet_in ) {
   }
 
   uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
-  learn( sw->host_db, packet_in.in_port, macsa );
+  learn( sw->forwarding_db, packet_in.in_port, macsa );
 
   uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
-  host *destination = lookup_hash_entry( sw->host_db, macda );
+  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, macda );
 
   if ( destination == NULL ) {
     do_flooding( packet_in );
@@ -242,6 +250,7 @@ main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
   hash_table *switch_db = create_hash( compare_datapath_id, hash_datapath_id );
+  add_periodic_event_callback( AGING_INTERVAL, update_all_switches, switch_db );
   set_switch_ready_handler( handle_switch_ready, switch_db );
   set_packet_in_handler( handle_packet_in, switch_db );
 
