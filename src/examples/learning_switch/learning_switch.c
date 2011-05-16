@@ -59,9 +59,9 @@ aged_out( forwarding_entry *entry ) {
 
 
 static void
-age_forwarding_db( void *mac, void *forwarding_entry, void *forwarding_db ) {
+age_forwarding_db( void *key, void *forwarding_entry, void *forwarding_db ) {
   if ( aged_out( forwarding_entry ) ) {
-    delete_hash_entry( forwarding_db, mac );
+    delete_hash_entry( forwarding_db, key );
     xfree( forwarding_entry );
   }
 }
@@ -74,13 +74,13 @@ update_forwarding_db( void *forwarding_db ) {
 
 
 static void
-learn( hash_table *forwarding_db, uint8_t *mac, uint64_t datapath_id, uint16_t port_no ) {
-  forwarding_entry *entry = lookup_hash_entry( forwarding_db, mac );
+learn( hash_table *forwarding_db, struct key new_key, uint16_t port_no ) {
+  forwarding_entry *entry = lookup_hash_entry( forwarding_db, &new_key );
 
   if ( entry == NULL ) {
     entry = xmalloc( sizeof( forwarding_entry ) );
-    memcpy( entry->key.mac, mac, sizeof( entry->key.mac ) );
-    entry->key.datapath_id = datapath_id;
+    memcpy( entry->key.mac, new_key.mac, sizeof( OFP_ETH_ALEN ) );
+    entry->key.datapath_id = new_key.datapath_id;
     insert_hash_entry( forwarding_db, &entry->key, entry );
   }
   entry->port_no = port_no;
@@ -160,12 +160,16 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 static void
 handle_packet_in( packet_in packet_in ) {
+  struct key new_key;
+  memcpy( new_key.mac, packet_info( packet_in.data )->l2_data.eth->macsa, OFP_ETH_ALEN );
+  new_key.datapath_id = packet_in.datapath_id;
   hash_table *forwarding_db = packet_in.user_data;
-  uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
-  learn( forwarding_db, macsa, packet_in.datapath_id, packet_in.in_port );
+  learn( forwarding_db, new_key, packet_in.in_port );
 
-  uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
-  forwarding_entry *destination = lookup_hash_entry( forwarding_db, macda );
+  struct key search_key;
+  memcpy( search_key.mac, packet_info( packet_in.data )->l2_data.eth->macda, OFP_ETH_ALEN );
+  search_key.datapath_id = packet_in.datapath_id;
+  forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 
   if ( destination == NULL ) {
     do_flooding( packet_in );
