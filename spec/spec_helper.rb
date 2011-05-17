@@ -22,7 +22,37 @@ $LOAD_PATH << File.join( File.dirname( __FILE__ ), "/../ruby" )
 
 
 require "rubygems"
+
 require "rspec"
+require "trema/dsl/context"
+
+
+def trema_conf conf
+  context = Trema::DSL::Context.new
+  Trema::DSL::Syntax.new( context ).instance_eval conf
+
+  Trema::Controller.each do | each |
+    context.add_app each
+  end
+  
+  context.switch_manager.run
+  context.links.each do | each |
+    each.up!
+  end
+  context.hosts.each do | each |
+    each.run
+  end
+  context.switches.each do | each |
+    each.run
+  end
+  context.hosts.each do | each |
+    each.add_arp_entry context.hosts - [ each ]
+  end
+
+  Thread.start do
+    context.apps.last.run
+  end
+end
 
 
 ### Local variables:

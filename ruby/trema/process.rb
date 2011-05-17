@@ -30,7 +30,7 @@ module Trema
     def initialize pid_file
       @pid_file = pid_file
       begin
-        @name = File.basename( @pid_file, "pid" )
+        @name = File.basename( @pid_file, ".pid" )
         @pid = IO.read( @pid_file ).chomp.to_i
         @uid = File.stat( @pid_file ).uid
       rescue

@@ -351,7 +351,7 @@ task :distclean => "rubylib:distclean"
 
 desc "Build ruby library."
 task :rubylib => [ :libtrema, "ruby/trema.so" ]
-file "ruby/trema.so" do
+file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h" ] do
   sys.cd "ruby" do
     sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
     sys "make"

@@ -21,6 +21,7 @@
 
 
 require "trema/switch-manager"
+require "trema/vhost"
 
 
 module Trema
@@ -30,7 +31,8 @@ module Trema
         @tremashark = nil
         @port = 6633
         @switches = {}
-        @hosts = {}
+        @hosts = Trema::Vhost.hosts
+        @hosts.clear
         @links = []
         @apps = []
         @packetin_filter = nil

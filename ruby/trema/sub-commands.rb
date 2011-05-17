@@ -313,7 +313,7 @@ EOL
         # Ruby controller
         require "trema"
         Trema.module_eval IO.read( ARGV[ 0 ] )
-        $controllers.each do | each |
+        Trema::Controller.each do | each |
           config.add_app each
         end
       end

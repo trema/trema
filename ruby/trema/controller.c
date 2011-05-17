@@ -29,22 +29,11 @@ VALUE cController;
 
 
 static VALUE
-controller_inherited( VALUE self, VALUE klass ) {
-  VALUE controller = rb_funcall( klass, rb_intern( "new" ), 0 );
-  rb_funcall( rb_gv_get( "$controllers" ), rb_intern( "<<" ), 1, controller );
-  return self;
-}
-
-
-static VALUE
 controller_init( VALUE self ) {
-  int i;
-  int argc = NUM2INT( rb_funcall( rb_gv_get( "$*" ), rb_intern( "size" ), 0 ) );
-  char **argv = malloc( sizeof( char * ) * ( argc + 1 ) );
-  for ( i = 0; i < argc; i++ ) {
-    argv[ i ] = STR2CSTR( rb_funcall( rb_gv_get( "$*" ), rb_intern( "[]" ), 1, INT2FIX( i ) ) );
-  }
-  argv[ argc ] = NULL;
+  int argc = 1;
+  char **argv = malloc( sizeof( char * ) * 2 );
+  argv[ 0 ] = STR2CSTR( rb_funcall( self, rb_intern( "name" ), 0 ) );
+  argv[ 1 ] = NULL;
 
   setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
 
@@ -55,12 +44,6 @@ controller_init( VALUE self ) {
   set_packet_in_handler( handle_packet_in, ( void * ) self );
 
   return self;
-}
-
-
-static VALUE
-controller_name( VALUE self ) {
-  return rb_str_new2( get_trema_name() );
 }
 
 
@@ -172,14 +155,11 @@ controller_debug( int argc, VALUE *argv, VALUE self ) {
 
 void
 Init_controller() {
-  VALUE controllers = rb_ary_new();
-  rb_gv_set( "$controllers", controllers );
+  rb_require( "trema/controller" );
 
   cController = rb_define_class_under( mTrema, "Controller", rb_cObject );
 
-  rb_define_singleton_method( cController, "inherited", controller_inherited, 1 );
   rb_define_method( cController, "initialize", controller_init, 0 );
-  rb_define_method( cController, "name", controller_name, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "run", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );

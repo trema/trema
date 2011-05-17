@@ -18,35 +18,37 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+module Trema
+  class Vhost
+    @@hosts = {}
 
 
-describe Trema::Controller do
-  it "should send hello messages to switches" do
-    Trema::Controller.new.send_message Trema::Hello.new( 1 ), 0xabc
-  end
-
-
-  it "should call start() on startup" do
-    class MyController < Trema::Controller
-      def start
-        raise "started"
-      end
+    def self.hosts
+      @@hosts
+    end
+    
+    
+    def self.clear
+      @@hosts = {}      
     end
 
-    lambda do
-      MyController.new.run
-    end.should raise_error( "started" )
-  end
+
+    def self.[] name
+      @@hosts[ name ]
+    end
 
 
-  it "should respond to logging methods" do
-    [ :critical, :error, :warn, :notice, :info, :debug ].each do | each |
-      Trema::Controller.new.should respond_to( each )
+    def self.[]= name, vhost
+      @@hosts[ name ] = vhost
+    end
+
+
+    def self.list
+      @@hosts.values
     end
   end
 end
+
 
 
 ### Local variables:
@@ -54,4 +56,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-

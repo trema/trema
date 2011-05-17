@@ -39,6 +39,7 @@ Init_trema() {
 
   rb_require( "trema/path" );
   rb_require( "trema/sub-commands" );
+  rb_require( "trema/vhost" );
 
   Init_controller();
   Init_features_reply();
