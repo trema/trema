@@ -24,6 +24,7 @@ require "trema"
 
 class RepeaterHub < Trema::Controller
   def packet_in event
+    send_flow_mod event.datapath_id
   end
 end
 
@@ -66,7 +67,8 @@ link "repeater_hub", "host2"
 link "repeater_hub", "host3"
 EOF
 
-    Trema::Controller[ "RepeaterHub" ].should_receive( :packet_in ).at_least( 1 )
+    Trema::Controller[ "RepeaterHub" ].should_receive( :send_flow_mod ).with( 0xabc ).at_least( 1 )
+
     Trema::Vhost[ "host1" ].send_packet :to => "host2"
   end
 
