@@ -19,7 +19,7 @@
 
 
 When /^I try to run "([^"]*)"$/ do | command |
-  @log ||= `mktemp`.chomp
+  @log ||= new_tmp_log
   run "#{ command } >> #{ @log }"
 end
 
@@ -35,18 +35,18 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
             else
               ""
             end
-
+  @log ||= new_tmp_log
+  
   trema_run = Proc.new do
     Tempfile.open( "trema.conf" ) do | f |
       f.puts config
       f.flush
-      @log ||= `mktemp`.chomp
       run "./trema run \"#{ args }\" -c #{ f.path } #{ verbose } >> #{ @log } 2>&1"
     end
   end
 
   if /background/=~ options
-    Thread.start do
+    Process.fork do
       trema_run.call
     end
   else
