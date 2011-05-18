@@ -25,6 +25,12 @@ require "trema/dsl/runner"
 module Trema
   module DSL
     describe Runner do
+      before :each do
+        ::Process.stub!( :fork ).and_yield
+        ::Process.stub!( :waitpid )
+      end
+
+      
       context "when running" do
         it "should run tremashark" do
           tremashark = mock

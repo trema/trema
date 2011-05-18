@@ -67,10 +67,7 @@ link "repeater_hub", "host2"
 link "repeater_hub", "host3"
 EOF
 
-    Trema::Controller[ "RepeaterHub" ].should_receive( :send_flow_mod_add ).with( 0xabc ).at_least( 1 )
-
     Trema::Vhost[ "host1" ].send_packet :to => "host2"
-    trema_kill
   end
 
 

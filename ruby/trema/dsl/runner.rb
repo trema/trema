@@ -114,7 +114,14 @@ module Trema
         @config.apps[ 0..-2 ].each do | each |
           each.daemonize
         end
-        @config.apps.last.run
+        trap( "SIGINT" ) do
+          print( "\nterminated\n" )
+          exit(0)
+        end
+        pid = ::Process.fork do
+          @config.apps.last.run
+        end
+        ::Process.waitpid pid
       end
 
 

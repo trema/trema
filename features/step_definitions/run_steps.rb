@@ -46,7 +46,7 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
   end
 
   if /background/=~ options
-    Process.fork do
+    Thread.start do
       trema_run.call
     end
   else

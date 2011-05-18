@@ -29,21 +29,12 @@ extern VALUE mTrema;
 VALUE cController;
 
 
+static VALUE name;
+
+
 static VALUE
 controller_init( VALUE self ) {
-  int argc = 1;
-  char **argv = malloc( sizeof( char * ) * 2 );
-  argv[ 0 ] = STR2CSTR( rb_funcall( self, rb_intern( "name" ), 0 ) );
-  argv[ 1 ] = NULL;
-
-  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
-
-  init_trema( &argc, &argv );
-
-  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
-  set_features_reply_handler( handle_features_reply, ( void * ) self );
-  set_packet_in_handler( handle_packet_in, ( void * ) self );
-
+  // Do nothing.
   return self;
 }
 
@@ -84,6 +75,24 @@ controller_send_flow_mod_add( VALUE self, VALUE datapath_id ) {
 
 static VALUE
 controller_run( VALUE self ) {
+  name = rb_funcall( self, rb_intern( "name" ), 0 );
+  rb_gv_set( "$0", name );
+
+  int argc = 3;
+  char **argv = malloc( sizeof( char * ) * ( argc + 1 ) );
+  argv[ 0 ] = STR2CSTR( name );
+  argv[ 1 ] = "--name";
+  argv[ 2 ] = STR2CSTR( name );
+  argv[ 3 ] = NULL;
+
+  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+
+  init_trema( &argc, &argv );
+
+  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
+  set_features_reply_handler( handle_features_reply, ( void * ) self );
+  set_packet_in_handler( handle_packet_in, ( void * ) self );
+
   rb_funcall( self, rb_intern( "start" ), 0 );
   start_trema();
   return self;

@@ -27,9 +27,6 @@ require "rspec"
 require "trema/dsl/context"
 
 
-Thread.abort_on_exception = true
-
-
 def trema_conf conf
   context = Trema::DSL::Context.new
   Trema::DSL::Syntax.new( context ).instance_eval conf
@@ -52,8 +49,7 @@ def trema_conf conf
     each.add_arp_entry context.hosts - [ each ]
   end
 
-  Thread.start do
-    Thread.pass
+  Process.fork do
     context.apps.last.run
   end
 end
