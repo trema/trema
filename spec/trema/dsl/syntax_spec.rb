@@ -76,7 +76,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'vhost' directive" do
-    @config.should_receive( :add_host ).with( an_instance_of( Host ) ).once
+    @config.should_receive( :add_host ).with( an_instance_of( Trema::Host ) ).once
 
     @syntax.instance_eval do
       vhost { }

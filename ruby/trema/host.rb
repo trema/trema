@@ -24,65 +24,66 @@ require "trema/cli"
 require "trema/executables"
 
 
-class Host
-  attr_reader :name
-  attr_reader :ip
-  attr_reader :mac
-  attr_reader :netmask
-  attr_accessor :interface
+module Trema
+  class Host
+    attr_reader :name
+    attr_reader :ip
+    attr_reader :mac
+    attr_reader :netmask
+    attr_accessor :interface
 
 
-  def initialize stanza
-    @name = stanza[ :name ]
-    @ip = stanza[ :ip ]
-    @mac = stanza[ :mac ]    
-    @netmask = stanza[ :netmask ]
-    @promisc = stanza[ :promisc ]
+    def initialize stanza
+      @name = stanza[ :name ]
+      @ip = stanza[ :ip ]
+      @mac = stanza[ :mac ]
+      @netmask = stanza[ :netmask ]
+      @promisc = stanza[ :promisc ]
 
-    @cli = Cli.new
-  end
-
-
-  def add_arp_entry hosts
-    hosts.each do | each |
-      @cli.add_arp_entry self, each
+      @cli = Cli.new
     end
-  end
 
 
-  def run
-    raise "The link(s) for vhost '#{ @name }' is not defined." if @interface.nil?
-
-    sh "sudo #{ Trema::Executables.phost } -i #{ @interface } -D"
-    wait_until_up
-    @cli.set_host_addr self
-    @cli.enable_promisc( self ) if @promisc
-  end
-
-
-  def send_packet options
-    @cli.send_packets self, Trema::Vhost[ options[ :to ] ]
-  end
-
-
-  ################################################################################
-  private
-  ################################################################################
-
-
-  def wait_until_up
-    loop do
-      break if FileTest.exists?( pid_file )
-      sleep 0.1
+    def add_arp_entry hosts
+      hosts.each do | each |
+        @cli.add_arp_entry self, each
+      end
     end
-  end
 
 
-  def pid_file
-    File.join Trema.tmp, "phost.#{ @interface }.pid"
+    def run
+      raise "The link(s) for vhost '#{ @name }' is not defined." if @interface.nil?
+
+      sh "sudo #{ Trema::Executables.phost } -i #{ @interface } -D"
+      wait_until_up
+      @cli.set_host_addr self
+      @cli.enable_promisc( self ) if @promisc
+    end
+
+
+    def send_packet options
+      @cli.send_packets self, Trema::Vhost[ options[ :to ] ]
+    end
+
+
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def wait_until_up
+      loop do
+        break if FileTest.exists?( pid_file )
+        sleep 0.1
+      end
+    end
+
+
+    def pid_file
+      File.join Trema.tmp, "phost.#{ @interface }.pid"
+    end
   end
 end
-
 
 
 ### Local variables:
