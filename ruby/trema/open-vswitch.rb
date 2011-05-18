@@ -47,6 +47,12 @@ class OpenVswitch < OpenflowSwitch
   def run
     FileUtils.rm_f log_file
     sh "sudo #{ Trema::Executables.ovs_openflowd } #{ options } netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
+    start_watch_log
+  end
+
+
+  def shutdown
+    sleep 5 # FIXME
   end
 
 
@@ -54,6 +60,27 @@ class OpenVswitch < OpenflowSwitch
   private
   ################################################################################
 
+
+  def flow_mod_add line
+  end
+  
+
+  def start_watch_log
+    Thread.start do
+      File.open( log_file, "r" ) do | f |
+        loop do
+          if l = f.gets
+            if /received: flow_mod \(xid=.+\): ADD/=~ l
+              flow_mod_add l
+            end
+          else
+            sleep 0.1
+          end
+        end
+      end
+    end
+  end
+  
 
   def ip
     @stanza[ :ip ]
