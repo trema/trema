@@ -49,7 +49,7 @@ def trema_conf conf
     each.add_arp_entry context.hosts - [ each ]
   end
 
-  Thread.start do
+  Process.fork do
     context.apps.last.run
   end
 end
