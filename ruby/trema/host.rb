@@ -26,21 +26,18 @@ require "trema/executables"
 
 module Trema
   class Host
-    attr_reader :name
-    attr_reader :ip
-    attr_reader :mac
-    attr_reader :netmask
     attr_accessor :interface
 
 
     def initialize stanza
-      @name = stanza[ :name ]
-      @ip = stanza[ :ip ]
-      @mac = stanza[ :mac ]
-      @netmask = stanza[ :netmask ]
-      @promisc = stanza[ :promisc ]
-
+      @stanza = stanza
       @cli = Cli.new
+    end
+
+
+    # host attributes
+    def method_missing message, *args
+      @stanza.__send__ :[], message.to_sym
     end
 
 
@@ -52,12 +49,12 @@ module Trema
 
 
     def run
-      raise "The link(s) for vhost '#{ @name }' is not defined." if @interface.nil?
+      raise "The link(s) for vhost '#{ name }' is not defined." if @interface.nil?
 
       sh "sudo #{ Trema::Executables.phost } -i #{ @interface } -D"
       wait_until_up
       @cli.set_host_addr self
-      @cli.enable_promisc( self ) if @promisc
+      @cli.enable_promisc( self ) if promisc
     end
 
 
