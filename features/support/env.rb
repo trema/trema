@@ -41,6 +41,11 @@ def cucumber_log name
 end
 
 
+def new_tmp_log
+  `mktemp --tmpdir=#{ Trema.log_directory }`.chomp  
+end
+
+
 # show_stats output format:
 # ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
 def count_packets stats
