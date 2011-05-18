@@ -19,61 +19,60 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/vhost"
 require "trema/host"
 
 
 module Trema
   describe Host do
+    
     before :each do
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
 
       stanza = {
-        :name => "VIRTUAL HOST",
+        :name => "MY HOST",
         :promisc => "on",
         :ip => "192.168.0.100",
         :netmask => "255.255.255.0",
         :mac => "00:00:00:01:00:10",
       }
-
       @host = Host.new( stanza )
     end
 
 
     it "should add arp entries" do
-      @host.interface = "INTERFACE"
+      host1 = mock( "HOST 1" )
+      host2 = mock( "HOST 2" )
+      host3 = mock( "HOST 3" )
+      @cli.should_receive( :add_arp_entry ).once.with( @host, host1 )
+      @cli.should_receive( :add_arp_entry ).once.with( @host, host2 )
+      @cli.should_receive( :add_arp_entry ).once.with( @host, host3 )
 
-      other_host1 = mock( "OTHER HOST 1" )
-      other_host2 = mock( "OTHER HOST 2" )
-      other_host3 = mock( "OTHER HOST 3" )
-
-      @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host1 )
-      @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host2 )
-      @cli.should_receive( :add_arp_entry ).once.ordered.with( @host, other_host3 )
-
-      @host.add_arp_entry [ other_host1, other_host2, other_host3 ]
+      @host.add_arp_entry [ host1, host2, host3 ]
     end
 
 
-    it "should run phost and cli command with proper options" do
-      FileTest.stub!( :exists? ).and_return( true )
+    context "when running a host" do
+      it "should run phost and cli command with proper options" do
+        @host.interface = "INTERFACE"
 
-      @host.interface = "INTERFACE"
+        FileTest.stub!( :exists? ).with( @host.__send__ :pid_file ).and_return( true )
 
-      @host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
-      @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
-      @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
+        @host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
+        @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
+        @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
 
-      @host.run
-    end
-
-
-    it "should raise if interface is not added" do
-      lambda do
         @host.run
-      end.should raise_error( "The link(s) for vhost 'VIRTUAL HOST' is not defined." )
+      end
+
+
+      it "should raise if interface is not added" do
+        lambda do
+          @host.run
+        end.should raise_error( "The link(s) for vhost 'MY HOST' is not defined." )
+      end
     end
+    
   end
 end
 

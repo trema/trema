@@ -41,13 +41,6 @@ module Trema
     end
 
 
-    def add_arp_entry hosts
-      hosts.each do | each |
-        @cli.add_arp_entry self, each
-      end
-    end
-
-
     def run
       raise "The link(s) for vhost '#{ name }' is not defined." if @interface.nil?
 
@@ -55,6 +48,13 @@ module Trema
       wait_until_up
       @cli.set_host_addr self
       @cli.enable_promisc( self ) if promisc
+    end
+
+
+    def add_arp_entry hosts
+      hosts.each do | each |
+        @cli.add_arp_entry self, each
+      end
     end
 
 
@@ -70,8 +70,8 @@ module Trema
 
     def wait_until_up
       loop do
-        break if FileTest.exists?( pid_file )
         sleep 0.1
+        break if FileTest.exists?( pid_file )
       end
     end
 
