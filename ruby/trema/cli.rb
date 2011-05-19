@@ -60,7 +60,7 @@ class Cli
   end
   
 
-  def set_host_addr
+  def set_ip_and_mac_address
     sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } set_host_addr --ip_addr #{ @host.ip } --ip_mask #{ @host.netmask } --mac_addr #{ @host.mac }"
   end
 

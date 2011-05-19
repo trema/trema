@@ -22,6 +22,7 @@
 
 require "trema/cli"
 require "trema/phost"
+require "trema/vhost"
 
 
 module Trema
@@ -45,8 +46,8 @@ module Trema
 
     def run
       @phost.run
-      @cli.set_host_addr
-      @cli.enable_promisc if promisc
+      @cli.set_ip_and_mac_address
+      @cli.enable_promisc if @stanza[ :promisc ]
     end
 
 

@@ -56,7 +56,7 @@ module Trema
 
     it "should run phost and cli command with proper options" do
       @phost.should_receive( :run ).once.ordered
-      @cli.should_receive( :set_host_addr ).once.ordered
+      @cli.should_receive( :set_ip_and_mac_address ).once.ordered
       @cli.should_receive( :enable_promisc ).once.ordered
 
       @host.run
