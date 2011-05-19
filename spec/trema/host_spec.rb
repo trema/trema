@@ -46,9 +46,9 @@ module Trema
       host1 = mock( "HOST 1" )
       host2 = mock( "HOST 2" )
       host3 = mock( "HOST 3" )
-      @cli.should_receive( :add_arp_entry ).once.with( @host, host1 )
-      @cli.should_receive( :add_arp_entry ).once.with( @host, host2 )
-      @cli.should_receive( :add_arp_entry ).once.with( @host, host3 )
+      @cli.should_receive( :add_arp_entry ).once.with( host1 )
+      @cli.should_receive( :add_arp_entry ).once.with( host2 )
+      @cli.should_receive( :add_arp_entry ).once.with( host3 )
 
       @host.add_arp_entry [ host1, host2, host3 ]
     end
@@ -56,8 +56,8 @@ module Trema
 
     it "should run phost and cli command with proper options" do
       @phost.should_receive( :run ).once.ordered
-      @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
-      @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
+      @cli.should_receive( :set_host_addr ).once.ordered
+      @cli.should_receive( :enable_promisc ).once.ordered
 
       @host.run
     end

@@ -24,44 +24,49 @@ require "trema/executables"
 
 
 class Cli
-  def send_packets source, dest, options = {}
+  def initialize host
+    @host = host
+  end
+  
+  
+  def send_packets dest, options = {}
     if options[ :duration ] and options[ :n_pkts ]
       raise "--duration and --n_pkts are exclusive."
     end
 
-    sh( "#{ Trema::Executables.cli } -i #{ source.interface } send_packets " +
-        "--ip_src #{ source.ip } --ip_dst #{ dest.ip } " + 
+    sh( "#{ Trema::Executables.cli } -i #{ @host.interface } send_packets " +
+        "--ip_src #{ @host.ip } --ip_dst #{ dest.ip } " + 
         send_packets_options( options ) )
   end
 
 
-  def show_tx_stats host
-    show_stats host, :tx
+  def show_tx_stats
+    show_stats :tx
   end
 
 
-  def show_rx_stats host
-    show_stats host, :rx
+  def show_rx_stats
+    show_stats :rx
   end
 
 
-  def reset_stats host
-    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } reset_stats"
+  def reset_stats
+    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } reset_stats"
   end
 
 
-  def add_arp_entry host, other
-    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } add_arp_entry --ip_addr #{ other.ip } --mac_addr #{ other.mac }"
+  def add_arp_entry other
+    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } add_arp_entry --ip_addr #{ other.ip } --mac_addr #{ other.mac }"
   end
   
 
-  def set_host_addr host
-    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } set_host_addr --ip_addr #{ host.ip } --ip_mask #{ host.netmask } --mac_addr #{ host.mac }"
+  def set_host_addr
+    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } set_host_addr --ip_addr #{ @host.ip } --ip_mask #{ @host.netmask } --mac_addr #{ @host.mac }"
   end
 
 
-  def enable_promisc host
-    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } enable_promisc"
+  def enable_promisc
+    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } enable_promisc"
   end
   
 
@@ -193,8 +198,8 @@ class Cli
   end
 
 
-  def show_stats host, type
-    sh "sudo #{ Trema::Executables.cli } -i #{ host.interface } show_stats --#{ type }"
+  def show_stats type
+    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } show_stats --#{ type }"
   end
 end
 

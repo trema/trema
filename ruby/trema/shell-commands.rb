@@ -58,7 +58,7 @@ def send_packets options
   source = @config.hosts[ options[ :source ] ]
   dest = @config.hosts[ options[ :dest ] ]
 
-  Cli.new.send_packets( source, dest, options )
+  Cli.new( source ).send_packets( dest, options )
 end
 
 
@@ -69,9 +69,9 @@ def show_stats host_name, option
   raise "Host '#{ host_name }' is not connected to any link." if @config.hosts[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    Cli.new.show_tx_stats( @config.hosts[ host_name ] )
+    Cli.new( @config.hosts[ host_name ] ).show_tx_stats
   else
-    Cli.new.show_rx_stats( @config.hosts[ host_name ] )
+    Cli.new( @config.hosts[ host_name ] ).show_rx_stats
   end
 end
 
@@ -81,7 +81,7 @@ def reset_stats host_name
 
   raise "Host '#{ host_name }' is not defined." if @config.hosts[ host_name ].nil?
 
-  Cli.new.reset_stats( @config.hosts[ host_name ] )
+  Cli.new( @config.hosts[ host_name ] ).reset_stats
 end
 
 

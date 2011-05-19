@@ -176,7 +176,7 @@ EOF
 
     @options.parse! ARGV
 
-    Cli.new.send_packets( source, dest, cli_options )
+    Cli.new( source ).send_packets( dest, cli_options )
     sleep 1
   end
 
@@ -204,9 +204,9 @@ EOF
     host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
     case stats
     when :tx
-      Cli.new.show_tx_stats( host )      
+      Cli.new( host ).show_tx_stats
     when :rx
-      Cli.new.show_rx_stats( host )      
+      Cli.new( host ).show_rx_stats
     else
       raise "We should not reach here."      
     end
@@ -224,7 +224,7 @@ EOF
     @options.parse! ARGV
 
     host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
-    Cli.new.reset_stats( host )
+    Cli.new( host ).reset_stats
   end
 
 

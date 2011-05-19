@@ -32,33 +32,33 @@ module Trema
     def initialize stanza
       @stanza = stanza
       @phost = Phost.new( self )
-      @cli = Cli.new
+      @cli = Cli.new( self )
     end
 
 
     # Define host attribute accessors.
     # e.g., host.name is delegated to @stanza[ :name ]
     def method_missing message, *args
-      @stanza.__send__ :[], message.to_sym
+      @stanza.__send__ :[], message
     end
 
 
     def run
       @phost.run
-      @cli.set_host_addr self
-      @cli.enable_promisc( self ) if promisc
+      @cli.set_host_addr
+      @cli.enable_promisc if promisc
     end
 
 
     def add_arp_entry hosts
       hosts.each do | each |
-        @cli.add_arp_entry self, each
+        @cli.add_arp_entry each
       end
     end
 
 
     def send_packet options
-      @cli.send_packets self, Vhost[ options[ :to ] ]
+      @cli.send_packets Vhost[ options[ :to ] ]
     end
   end
 end
