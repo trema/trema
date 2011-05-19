@@ -70,7 +70,6 @@ EOF
     Trema::Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
     
     Trema::Host[ "host1" ].send_packet Trema::Host[ "host2" ]
-    Trema::Switch[ "repeater_hub" ].shutdown  # FIXME: Use trema_kill
   end
 
 

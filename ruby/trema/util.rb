@@ -54,6 +54,9 @@ EOF
     last_session.links.each do | each |
       each.down!
     end
+    last_session.switches.each do | each |
+      each.shutdown!
+    end
     
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!

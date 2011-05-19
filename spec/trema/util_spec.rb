@@ -48,10 +48,16 @@ describe Trema::Util do
     links.each do | each |
       each.should_receive( :down! )
     end
-    
+
+    switches = [ mock( "switch 1" ), mock( "switch 2" ), mock( "switch 1" ) ]
+    switches.each do | each |
+      each.should_receive( :shutdown! )
+    end
+
     last_session = mock( "last session" )
     Trema::DSL::Parser.stub!( :load_current ).and_return( last_session )
     last_session.stub!( :links ).and_return( links )
+    last_session.stub!( :switches ).and_return( switches )
 
     pid_files = [ mock( "PID file #0" ), mock( "PID file #1" ), mock( "PID file #2" ) ]
     Dir.stub!( :glob ).and_return( pid_files )

@@ -24,6 +24,7 @@ require "fileutils"
 require "trema/executables"
 require "trema/openflow-switch"
 require "trema/path"
+require "trema/process"
 require "trema/switch"
 
 
@@ -52,8 +53,8 @@ class OpenVswitch < OpenflowSwitch
   end
 
 
-  def shutdown
-    sleep 5 # FIXME
+  def shutdown!
+    Trema::Process.read( pid_file ).kill!
   end
 
 
@@ -102,7 +103,7 @@ class OpenVswitch < OpenflowSwitch
       "--inactivity-probe=180",
       "--rate-limit=40000",
       "--burst-limit=20000",
-      "--pidfile=#{ Trema.tmp }/openflowd.#{ @name }.pid",
+      "--pidfile=#{ pid_file }",
       "--verbose=ANY:file:dbg",
       "--verbose=ANY:console:err",
       "--log-file=#{ log_file }",
@@ -110,6 +111,11 @@ class OpenVswitch < OpenflowSwitch
     ]
   end
 
+
+  def pid_file
+    File.join Trema.tmp, "openflowd.#{ @name }.pid"
+  end
+  
 
   def log_file
     "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
