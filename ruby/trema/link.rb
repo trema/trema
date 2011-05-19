@@ -20,32 +20,60 @@
 #
 
 
-class Link
-  attr_reader :peers
+require "trema/host"
+require "trema/switch"
 
 
-  def initialize stanza, link_id
-    @link_id = link_id
-    @peers = stanza.peers
-  end
+module Trema
+  class Link
+    @@list = []
 
 
-  def interfaces
-    [ "trema#{ @link_id }-0", "trema#{ @link_id }-1" ]
-  end
+    def self.all
+      @@list
+    end
 
 
-  def up!
-    sh "sudo ip link add name #{ interfaces[ 0 ] } type veth peer name #{ interfaces[ 1 ] }"
-    sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } up"
-    sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } up"
-  end
+    def self.add link
+      peers = link.peers
+
+      Host[ peers[ 0 ] ].interface = link.interfaces[ 0 ] if Host[ peers[ 0 ] ]
+      Host[ peers[ 1 ] ].interface = link.interfaces[ 1 ] if Host[ peers[ 1 ] ]
+
+      Switch[ peers[ 0 ] ].add_interface link.interfaces[ 0 ] if Switch[ peers[ 0 ] ]
+      Switch[ peers[ 1 ] ].add_interface link.interfaces[ 1 ] if Switch[ peers[ 1 ] ]
+      
+      @@list << link
+    end
 
 
-  def down!
-    sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } down 2>/dev/null" rescue nil
-    sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } down 2>/dev/null" rescue nil
-    sh "sudo ip link delete #{ interfaces[ 0 ] } 2>/dev/null" rescue nil
+    attr_reader :peers
+
+
+    def initialize stanza, link_id
+      @link_id = link_id
+      @peers = stanza.peers
+      self.class.add self
+    end
+
+
+    def interfaces
+      [ "trema#{ @link_id }-0", "trema#{ @link_id }-1" ]
+    end
+
+
+    def up!
+      sh "sudo ip link add name #{ interfaces[ 0 ] } type veth peer name #{ interfaces[ 1 ] }"
+      sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } up"
+      sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } up"
+    end
+
+
+    def down!
+      sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } down 2>/dev/null" rescue nil
+      sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } down 2>/dev/null" rescue nil
+      sh "sudo ip link delete #{ interfaces[ 0 ] } 2>/dev/null" rescue nil
+    end
   end
 end
 

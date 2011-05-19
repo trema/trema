@@ -49,7 +49,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'link' directive" do
-    @config.should_receive( :add_link ).with( an_instance_of( ::Link ) ).once
+    Trema::Link.should_receive( :add ).with( an_instance_of( Trema::Link ) ).once
 
     @syntax.instance_eval do
       link "PEER0", "PEER1"

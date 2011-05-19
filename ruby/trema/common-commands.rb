@@ -48,7 +48,7 @@ module Trema::CommonCommands
 
   def link peer0, peer1
     stanza = Trema::DSL::Link.new( peer0, peer1 )
-    @context.add_link ::Link.new( stanza, @context.link_index )
+    Trema::Link.new( stanza, @context.link_index )
   end
 
 

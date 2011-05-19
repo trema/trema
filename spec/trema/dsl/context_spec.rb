@@ -44,7 +44,7 @@ module Trema
         switch.should_receive( :add_interface ).with( "if0" )
         host.should_receive( :interface= ).with( "if1" )
 
-        @context.add_link link
+        Trema::Link.add link
         @context.link_index.should == 1
       end
 

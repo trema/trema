@@ -21,6 +21,7 @@
 
 
 require "trema/host"
+require "trema/link"
 require "trema/switch"
 require "trema/switch-manager"
 
@@ -35,7 +36,8 @@ module Trema
         @switches.clear
         @hosts = Trema::Host.all
         @hosts.clear
-        @links = []
+        @links = Trema::Link.all
+        @links.clear
         @apps = []
         @packetin_filter = nil
         @switch_manager = nil
@@ -103,19 +105,6 @@ module Trema
 
       attr_writer :tremashark
       attr_writer :port
-
-
-      def add_link link
-        peers = link.peers
-
-        @hosts[ peers[ 0 ] ].interface = link.interfaces[ 0 ] if @hosts[ peers[ 0 ] ]
-        @hosts[ peers[ 1 ] ].interface = link.interfaces[ 1 ] if @hosts[ peers[ 1 ] ]
-
-        @switches[ peers[ 0 ] ].add_interface link.interfaces[ 0 ] if @switches[ peers[ 0 ] ]
-        @switches[ peers[ 1 ] ].add_interface link.interfaces[ 1 ] if @switches[ peers[ 1 ] ]
-
-        @links << link
-      end
 
 
       def set_filter filter

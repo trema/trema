@@ -23,44 +23,46 @@ require "trema/dsl/link"
 require "trema/link"
 
 
-describe Link do
-  before :each do
-    @stanza = Trema::DSL::Link.new( "Virtual Host", "Virtual Switch" )
-  end
-
-
-  it "returns two network interfaces for each peer" do
-    link = Link.new( @stanza, 0 )
-    link.interfaces[ 0 ].should == "trema0-0"
-    link.interfaces[ 1 ].should == "trema0-1"
-
-    link = Link.new( @stanza, 1 )
-    link.interfaces[ 0 ].should == "trema1-0"
-    link.interfaces[ 1 ].should == "trema1-1"
-  end
-
-
-  context "when creating/deleting a link" do
+module Trema
+  describe Link do
     before :each do
-      @link = Link.new( @stanza, 0 )
+      @stanza = Trema::DSL::Link.new( "Virtual Host", "Virtual Switch" )
     end
 
 
-    it "executes ip and ifconfig command" do
-      @link.should_receive( :sh ).once.ordered.with( "sudo ip link add name trema0-0 type veth peer name trema0-1" )
-      @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-0 up" )
-      @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-1 up" )
+    it "returns two network interfaces for each peer" do
+      link = Link.new( @stanza, 0 )
+      link.interfaces[ 0 ].should == "trema0-0"
+      link.interfaces[ 1 ].should == "trema0-1"
 
-      @link.up!
+      link = Link.new( @stanza, 1 )
+      link.interfaces[ 0 ].should == "trema1-0"
+      link.interfaces[ 1 ].should == "trema1-1"
     end
 
 
-    it "executes ip and ifconfig command" do
-      @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-0 down 2>/dev/null" )
-      @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-1 down 2>/dev/null" )
-      @link.should_receive( :sh ).once.with( "sudo ip link delete trema0-0 2>/dev/null" )
+    context "when creating/deleting a link" do
+      before :each do
+        @link = Link.new( @stanza, 0 )
+      end
 
-      @link.down!
+
+      it "executes ip and ifconfig command" do
+        @link.should_receive( :sh ).once.ordered.with( "sudo ip link add name trema0-0 type veth peer name trema0-1" )
+        @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-0 up" )
+        @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-1 up" )
+
+        @link.up!
+      end
+
+
+      it "executes ip and ifconfig command" do
+        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-0 down 2>/dev/null" )
+        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-1 down 2>/dev/null" )
+        @link.should_receive( :sh ).once.with( "sudo ip link delete trema0-0 2>/dev/null" )
+
+        @link.down!
+      end
     end
   end
 end
