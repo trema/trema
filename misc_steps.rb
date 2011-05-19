@@ -50,7 +50,7 @@ end
 
 
 Then /^switch_manager should be killed$/ do
-  IO.read( @log ).should match( /^Terminating switch_manager/ )
+  IO.read( @log ).should match( /^Shutting down switch_manager/ )
 end
 
 

@@ -20,6 +20,7 @@
 
 Given /^I terminated all trema services$/ do
   run "./trema kill"
+  sleep 3  # FIXME
 end
 
 
