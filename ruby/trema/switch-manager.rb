@@ -21,7 +21,7 @@
 
 
 require "trema/executables"
-require "trema/switch"
+require "trema/switch-daemon"
 
 
 class SwitchManager
@@ -46,7 +46,7 @@ class SwitchManager
 
 
   def switch_options
-    Switch.new( @rule ).options
+    SwitchDaemon.new( @rule ).options
   end
 end
 

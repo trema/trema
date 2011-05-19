@@ -1,5 +1,5 @@
 #
-# The controller class of switch.
+# The controller class of switch daemon.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,7 +20,7 @@
 #
 
 
-class Switch
+class SwitchDaemon
   def initialize queues
     check_mandatory_options queues
     @queues = queues
