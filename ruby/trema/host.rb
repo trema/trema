@@ -22,7 +22,6 @@
 
 require "trema/cli"
 require "trema/phost"
-require "trema/vhost"
 
 
 module Trema
@@ -59,7 +58,7 @@ module Trema
 
 
     def send_packet options
-      @cli.send_packets Vhost[ options[ :to ] ]
+      @cli.send_packets options[ :to ]
     end
   end
 end
