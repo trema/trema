@@ -24,6 +24,7 @@ require "fileutils"
 require "trema/executables"
 require "trema/openflow-switch"
 require "trema/path"
+require "trema/switch"
 
 
 class OpenVswitch < OpenflowSwitch

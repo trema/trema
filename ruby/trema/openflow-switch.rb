@@ -20,6 +20,7 @@
 #
 
 
+require "trema/switch"
 require "trema/dsl/switch"
 
 
@@ -30,6 +31,7 @@ class OpenflowSwitch
   def initialize stanza
     @name = stanza.name
     @stanza = stanza
+    Trema::Switch.add self
   end
 
 

@@ -118,11 +118,6 @@ module Trema
       end
 
 
-      def add_switch switch
-        @switches[ switch.name ] = switch
-      end
-
-
       def set_filter filter
         @packetin_filter = filter
       end

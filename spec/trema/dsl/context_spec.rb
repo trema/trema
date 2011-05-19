@@ -34,7 +34,7 @@ module Trema
         switch = mock( "switch", :name => "switch" )
         host = mock( "host", :name => "host" )
 
-        @context.add_switch switch
+        Trema::Switch.add switch
         Host.add host
 
         link = mock( "link" )
@@ -63,9 +63,9 @@ module Trema
 
 
       it "should remember switches" do
-        @context.add_switch mock( "switch #0", :name => "switch #0" )
-        @context.add_switch mock( "switch #1", :name => "switch #1" )
-        @context.add_switch mock( "switch #2", :name => "switch #2" )
+        Trema::Switch.add mock( "switch #0", :name => "switch #0" )
+        Trema::Switch.add mock( "switch #1", :name => "switch #1" )
+        Trema::Switch.add mock( "switch #2", :name => "switch #2" )
 
         @context.should have( 3 ).switches
       end

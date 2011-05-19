@@ -58,7 +58,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'switch' directive" do
-    @config.should_receive( :add_switch ).with( an_instance_of( OpenflowSwitch ) ).once
+    Trema::Switch.should_receive( :add ).with( an_instance_of( OpenflowSwitch ) ).once
 
     @syntax.instance_eval do
       switch { }
@@ -67,7 +67,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'vswitch' directive" do
-    @config.should_receive( :add_switch ).with( an_instance_of( OpenVswitch ) ).once
+    Trema::Switch.should_receive( :add ).with( an_instance_of( OpenVswitch ) ).once
 
     @syntax.instance_eval do
       vswitch { }

@@ -31,6 +31,11 @@ module Trema
     def self.[] name
       @@list[ name ]
     end
+
+
+    def self.add switch
+      @@list[ switch.name ] = switch
+    end
   end
 end
 
