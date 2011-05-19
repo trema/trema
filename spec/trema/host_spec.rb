@@ -24,8 +24,10 @@ require "trema/host"
 
 module Trema
   describe Host do
-    
     before :each do
+      @phost = mock( "phost" )
+      Phost.stub!( :new ).and_return( @phost )
+
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
 
@@ -52,27 +54,13 @@ module Trema
     end
 
 
-    context "when running a host" do
-      it "should run phost and cli command with proper options" do
-        @host.interface = "INTERFACE"
+    it "should run phost and cli command with proper options" do
+      @phost.should_receive( :run ).once.ordered
+      @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
+      @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
 
-        FileTest.stub!( :exists? ).with( @host.__send__ :pid_file ).and_return( true )
-
-        @host.should_receive( :sh ).once.ordered.with( /phost \-i INTERFACE \-D$/ )
-        @cli.should_receive( :set_host_addr ).once.ordered.with( @host )
-        @cli.should_receive( :enable_promisc ).once.ordered.with( @host )
-
-        @host.run
-      end
-
-
-      it "should raise if interface is not added" do
-        lambda do
-          @host.run
-        end.should raise_error( "The link(s) for vhost 'MY HOST' is not defined." )
-      end
+      @host.run
     end
-    
   end
 end
 

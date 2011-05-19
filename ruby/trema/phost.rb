@@ -1,5 +1,5 @@
 #
-# The controller class of host.
+# The controller class of phost.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,45 +20,38 @@
 #
 
 
-require "trema/cli"
-require "trema/phost"
+require "trema/executables"
 
 
 module Trema
-  class Host
-    attr_accessor :interface
-
-
-    def initialize stanza
-      @stanza = stanza
-      @phost = Phost.new( self )
-      @cli = Cli.new
+  class Phost
+    def initialize host
+      @host = host
     end
 
-
-    # Define host attribute accessors.
-    # e.g., host.name is delegated to @stanza[ :name ]
-    def method_missing message, *args
-      @stanza.__send__ :[], message.to_sym
-    end
-
-
+    
     def run
-      @phost.run
-      @cli.set_host_addr self
-      @cli.enable_promisc( self ) if promisc
+      raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
+      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
+      wait_until_up
     end
 
 
-    def add_arp_entry hosts
-      hosts.each do | each |
-        @cli.add_arp_entry self, each
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def pid_file
+      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
+    end
+
+
+    def wait_until_up
+      loop do
+        sleep 0.1
+        break if FileTest.exists?( pid_file )
       end
-    end
-
-
-    def send_packet options
-      @cli.send_packets self, Vhost[ options[ :to ] ]
     end
   end
 end
@@ -69,3 +62,4 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
+
