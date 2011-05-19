@@ -35,7 +35,7 @@ module Trema
         host = mock( "host", :name => "host" )
 
         @context.add_switch switch
-        @context.add_host host
+        Host.add host
 
         link = mock( "link" )
         link.stub!( :peers ).and_return( [ switch.name, host.name ] )
@@ -50,9 +50,9 @@ module Trema
 
 
       it "should remember hosts" do
-        @context.add_host mock( "host #0", :name => "host #0" )
-        @context.add_host mock( "host #1", :name => "host #1" )
-        @context.add_host mock( "host #2", :name => "host #2" )
+        Host.add mock( "host #0", :name => "host #0" )
+        Host.add mock( "host #1", :name => "host #1" )
+        Host.add mock( "host #2", :name => "host #2" )
 
         @context.should have( 3 ).hosts
 

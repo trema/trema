@@ -69,7 +69,7 @@ module Trema::CommonCommands
   def vhost name = nil, &block
     stanza = Trema::DSL::Vhost.new( name )
     stanza.instance_eval( &block )
-    @context.add_host Trema::Host.new( stanza )
+    Trema::Host.new( stanza )
   end
 
 

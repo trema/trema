@@ -37,6 +37,11 @@ module Trema
     def self.[] name
       @@list[ name ]
     end
+
+
+    def self.add host
+      @@list[ host.name ] = host
+    end
     
     
     attr_accessor :interface
@@ -46,6 +51,7 @@ module Trema
       @stanza = stanza
       @phost = Phost.new( self )
       @cli = Cli.new( self )
+      self.class.add self
     end
 
 

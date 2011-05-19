@@ -122,11 +122,6 @@ module Trema
       end
 
 
-      def add_host host
-        @hosts[ host.name ] = host
-      end
-
-
       def set_filter filter
         @packetin_filter = filter
       end
