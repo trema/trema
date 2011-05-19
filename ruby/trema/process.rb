@@ -22,15 +22,16 @@
 
 module Trema
   class Process
-    def self.read pid_file
-      return new( pid_file )
+    def self.read pid_file, name = nil
+      name = File.basename( pid_file, ".pid" ) if name.nil?
+      return new( pid_file, name )
     end
 
 
-    def initialize pid_file
+    def initialize pid_file, name
+      @name = name
       @pid_file = pid_file
       begin
-        @name = File.basename( @pid_file, ".pid" )
         @pid = IO.read( @pid_file ).chomp.to_i
         @uid = File.stat( @pid_file ).uid
       rescue
@@ -42,7 +43,7 @@ module Trema
     def kill!
       return if @pid_file.nil?
       return if not alive?
-      puts "Terminating #{ @name }..." if $verbose
+      puts "Shutting down #{ @name }..." if $verbose
       if @uid == 0
         sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
       else

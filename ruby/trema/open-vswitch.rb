@@ -54,7 +54,7 @@ class OpenVswitch < OpenflowSwitch
 
 
   def shutdown!
-    Trema::Process.read( pid_file ).kill!
+    Trema::Process.read( pid_file, @name ).kill!
   end
 
 
