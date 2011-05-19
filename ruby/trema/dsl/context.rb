@@ -21,6 +21,7 @@
 
 
 require "trema/host"
+require "trema/switch"
 require "trema/switch-manager"
 
 
@@ -30,7 +31,7 @@ module Trema
       def initialize
         @tremashark = nil
         @port = 6633
-        @switches = Trema::Vswitch.list
+        @switches = Trema::Switch.all
         @switches.clear
         @hosts = Trema::Host.all
         @hosts.clear

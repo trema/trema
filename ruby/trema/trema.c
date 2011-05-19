@@ -37,10 +37,10 @@ Init_trema() {
   mTrema = rb_define_module( "Trema" );
   init_log( NULL, false );
 
+  rb_require( "trema/host" );
   rb_require( "trema/path" );
   rb_require( "trema/sub-commands" );
-  rb_require( "trema/host" );
-  rb_require( "trema/vswitch" );
+  rb_require( "trema/switch" );
 
   Init_controller();
   Init_features_reply();

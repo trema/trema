@@ -19,11 +19,11 @@
 
 
 module Trema
-  class Vswitch
+  class Switch
     @@list = {}
 
 
-    def self.list
+    def self.all
       @@list
     end
     
