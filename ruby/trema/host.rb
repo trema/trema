@@ -69,6 +69,11 @@ module Trema
     end
 
 
+    def shutdown!
+      @phost.shutdown!
+    end
+
+
     def add_arp_entry hosts
       hosts.each do | each |
         @cli.add_arp_entry each

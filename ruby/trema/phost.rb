@@ -21,6 +21,7 @@
 
 
 require "trema/executables"
+require "trema/process"
 
 
 module Trema
@@ -36,6 +37,11 @@ module Trema
       wait_until_up
     end
 
+
+    def shutdown!
+      Trema::Process.read( pid_file ).kill!
+    end
+    
 
     ################################################################################
     private
