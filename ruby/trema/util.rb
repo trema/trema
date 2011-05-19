@@ -50,10 +50,14 @@ EOF
 
 
   def cleanup_current_session
+    last_session = Trema::DSL::Parser.load_current
+    last_session.links.each do | each |
+      each.down!
+    end
+    
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
-    Trema::DSL::Runner.new( Trema::DSL::Parser.load_current ).tear_down
     FileUtils.rm_f Trema::DSL::Parser::CURRENT_CONTEXT
   end
 end

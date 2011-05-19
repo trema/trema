@@ -220,33 +220,6 @@ module Trema
           Runner.new( config ).daemonize
         end
       end
-
-
-      context "on tear-down" do
-        it "should delete links" do
-          link0 = mock( "link0" )
-          link0.should_receive( :down! ).once.ordered
-
-          link1 = mock( "link1" )
-          link1.should_receive( :down! ).once.ordered
-
-          link2 = mock( "link2" )
-          link2.should_receive( :down! ).once.ordered
-
-          config = mock(
-            "config",
-            :tremashark => nil,
-            :switch_manager => nil,
-            :packetin_filter => nil,
-            :links => [ link0, link1, link2 ],
-            :hosts => [],
-            :switches => [],
-            :apps => []
-          )
-
-          Runner.new( config ).tear_down
-        end
-      end
     end
   end
 end

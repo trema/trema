@@ -44,7 +44,14 @@ describe Trema::Util do
 
 
   it "should cleanup current session" do
-    Trema::DSL::Parser.stub!( :load_current ).and_return( Trema::DSL::Context.new )
+    links = [ mock( "link 1" ), mock( "link 2" ), mock( "link 1" ) ]
+    links.each do | each |
+      each.should_receive( :down! )
+    end
+    
+    last_session = mock( "last session" )
+    Trema::DSL::Parser.stub!( :load_current ).and_return( last_session )
+    last_session.stub!( :links ).and_return( links )
 
     pid_files = [ mock( "PID file #0" ), mock( "PID file #1" ), mock( "PID file #2" ) ]
     Dir.stub!( :glob ).and_return( pid_files )
@@ -54,10 +61,6 @@ describe Trema::Util do
     Trema::Process.should_receive( :read ).with( pid_files[ 0 ] ).once.ordered.and_return( process )
     Trema::Process.should_receive( :read ).with( pid_files[ 1 ] ).once.ordered.and_return( process )
     Trema::Process.should_receive( :read ).with( pid_files[ 2 ] ).once.ordered.and_return( process )
-
-    runner = mock( "runner" )
-    runner.should_receive( :tear_down )
-    Trema::DSL::Runner.should_receive( :new ).and_return( runner )
 
     cleanup_current_session
   end
