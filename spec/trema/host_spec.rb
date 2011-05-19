@@ -27,18 +27,10 @@ module Trema
     before :each do
       @phost = mock( "phost" )
       Phost.stub!( :new ).and_return( @phost )
-
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
 
-      stanza = {
-        :name => "MY HOST",
-        :promisc => "on",
-        :ip => "192.168.0.100",
-        :netmask => "255.255.255.0",
-        :mac => "00:00:00:01:00:10",
-      }
-      @host = Host.new( stanza )
+      @host = Host.new( :promisc => "on" )
     end
 
 
@@ -54,12 +46,20 @@ module Trema
     end
 
 
-    it "should run phost and cli command with proper options" do
+    it "should run phost and set network options" do
       @phost.should_receive( :run ).once.ordered
       @cli.should_receive( :set_ip_and_mac_address ).once.ordered
       @cli.should_receive( :enable_promisc ).once.ordered
 
       @host.run
+    end
+
+
+    it "should send packets" do
+      dest = mock( "dest" )
+      @cli.should_receive( :send_packets ).with( dest )
+
+      @host.send_packet :to => dest
     end
   end
 end
