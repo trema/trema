@@ -76,8 +76,8 @@ module Trema
     end
 
 
-    def send_packet options
-      @cli.send_packets options[ :to ]
+    def send_packet dest
+      @cli.send_packets dest
     end
   end
 end

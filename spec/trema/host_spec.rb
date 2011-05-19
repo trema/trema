@@ -59,7 +59,7 @@ module Trema
       dest = mock( "dest" )
       @cli.should_receive( :send_packets ).with( dest )
 
-      @host.send_packet :to => dest
+      @host.send_packet dest
     end
   end
 end
