@@ -26,6 +26,19 @@ require "trema/phost"
 
 module Trema
   class Host
+    @@list = {}
+
+
+    def self.all
+      @@list
+    end
+
+
+    def self.[] name
+      @@list[ name ]
+    end
+    
+    
     attr_accessor :interface
 
 
