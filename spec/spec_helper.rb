@@ -27,7 +27,16 @@ require "rspec"
 require "trema/dsl/context"
 
 
+RSpec.configure do | config |
+  config.after :all do
+    kill_trema
+  end
+end
+
+
 def trema_conf conf
+  kill_trema
+  
   context = Trema::DSL::Context.new
   Trema::DSL::Syntax.new( context ).instance_eval conf
 
@@ -49,14 +58,15 @@ def trema_conf conf
     each.add_arp_entry context.hosts - [ each ]
   end
 
-  Process.fork do
+  pid = fork do
     context.apps.last.run
   end
+  Process.detach pid
 end
 
 
-def trema_kill
-  system "./trema kill"
+def kill_trema
+  sh "./trema kill"
 end
 
 

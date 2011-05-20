@@ -30,11 +30,6 @@ end
 
 
 describe RepeaterHub do
-  before :each do
-    trema_kill
-  end
-
-  
   it "should respond to packet_in" do
     trema_conf <<-EOF
 vswitch("repeater_hub") {
@@ -70,12 +65,6 @@ EOF
     Trema::Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
     
     Trema::Host[ "host1" ].send_packet Trema::Host[ "host2" ]
-    sleep 5 # FIXME
-  end
-
-
-  after :each do
-    trema_kill
   end
 end
 
