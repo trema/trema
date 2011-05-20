@@ -28,30 +28,54 @@ VALUE cPacketIn;
 
 
 static VALUE
-packet_in_init( VALUE self, VALUE datapath_id ) {
-  rb_iv_set( self, "@datapath_id", datapath_id );
-  return self;
+packet_in_alloc( VALUE klass ) {
+  packet_in *_packet_in = malloc( sizeof( packet_in ) );
+  return Data_Wrap_Struct( klass, 0, free, _packet_in );
 }
 
 
 static VALUE
 packet_in_datapath_id( VALUE self ) {
-  return rb_iv_get( self, "@datapath_id" );
+  packet_in *cpacket;
+
+  Data_Get_Struct( self, packet_in, cpacket );
+
+  return ULL2NUM( cpacket->datapath_id );
+}
+
+
+static VALUE
+packet_in_is_buffered( VALUE self ) {
+  packet_in *cpacket_in;
+  Data_Get_Struct( self, packet_in, cpacket_in );
+  if ( cpacket_in->buffer_id == UINT32_MAX ) {
+    return Qfalse;
+  }
+  else {
+    return Qtrue;
+  }
 }
 
 
 void
 Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
-  rb_define_method( cPacketIn, "initialize", packet_in_init, 1 );
+  rb_define_alloc_func( cPacketIn, packet_in_alloc );
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
+  rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
 }
 
 
 void
-handle_packet_in( packet_in packet_in ) {
-  VALUE _packet_in = rb_funcall( cPacketIn, rb_intern( "new" ), 1, ULL2NUM( packet_in.datapath_id ) );
-  rb_funcall( ( VALUE ) packet_in.user_data, rb_intern( "packet_in" ), 1, _packet_in );
+handle_packet_in( packet_in orig_packet ) {
+  packet_in *new_packet;
+
+  VALUE rpacket = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
+  Data_Get_Struct( rpacket, packet_in, new_packet );
+  memcpy( new_packet, &orig_packet, sizeof( packet_in ) );
+
+  VALUE controller = ( VALUE ) orig_packet.user_data;
+  rb_funcall( controller, rb_intern( "packet_in" ), 1, rpacket );
 }
 
 

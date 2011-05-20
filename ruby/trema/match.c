@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -20,35 +18,42 @@
  */
 
 
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "packet_in.h"
-#include "hello.h"
-#include "port.h"
+#include <string.h>
+#include "trema.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
+VALUE cMatch;
+
+
+static VALUE
+match_alloc( VALUE klass ) {
+  struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
+  return Data_Wrap_Struct( klass, NULL, free, match );
+}
+
+
+static VALUE
+match_from( VALUE klass, VALUE rpacket ) {
+  VALUE obj;
+  struct ofp_match *match;
+  packet_in *packet;
+
+  obj = rb_funcall( klass, rb_intern( "new" ), 0 );
+  Data_Get_Struct( obj, struct ofp_match, match );
+  Data_Get_Struct( rpacket, packet_in, packet );
+  set_match_from_packet( match, packet->in_port, 0, packet->data );
+
+  return obj;
+}
 
 
 void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, false );
-
-  rb_require( "trema/host" );
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
-  rb_require( "trema/switch" );
-
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_hello();
-  Init_match();
-  Init_packet_in();
-  Init_port();
+Init_match() {
+  cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );
+  rb_define_alloc_func( cMatch, match_alloc );
+  rb_define_singleton_method( cMatch, "from", match_from, 1 );
 }
 
 
@@ -58,3 +63,4 @@ Init_trema() {
  * indent-tabs-mode: nil
  * End:
  */
+

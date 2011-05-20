@@ -85,6 +85,18 @@ module Trema
       @cli.send_packets dest
       sleep 2 # ensure that the last packet is sent.
     end
+
+
+    def show_tx_stats
+      puts "*** TX ***"
+      @cli.show_tx_stats
+    end
+
+
+    def show_rx_stats
+      puts "*** RX ***"
+      @cli.show_rx_stats
+    end
   end
 end
 

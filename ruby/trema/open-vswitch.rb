@@ -22,6 +22,7 @@
 
 require "fileutils"
 require "trema/executables"
+require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
 require "trema/process"
@@ -57,6 +58,11 @@ class OpenVswitch < OpenflowSwitch
     Trema::Process.read( pid_file, @name ).kill!
   end
 
+
+  def dump_flows
+    Trema::Ofctl.new.dump_flows self
+  end
+  
 
   ################################################################################
   private

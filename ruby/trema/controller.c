@@ -40,16 +40,19 @@ controller_init( VALUE self ) {
 
 
 static VALUE
-controller_send_message( VALUE self, VALUE message, VALUE dpid ) {
+controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
   buffer *buf;
   Data_Get_Struct( message, buffer, buf );
-  send_openflow_message( NUM2ULONG( dpid ), buf );
+  send_openflow_message( NUM2ULL( datapath_id ), buf );
   return self;
 }
 
 
 static VALUE
 controller_send_flow_mod_add( VALUE self, VALUE datapath_id ) {
+  openflow_actions *actions = create_actions();
+  append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
+
   struct ofp_match match;
   match.wildcards = OFPFW_ALL;
 
@@ -64,10 +67,12 @@ controller_send_flow_mod_add( VALUE self, VALUE datapath_id ) {
     UINT32_MAX,
     OFPP_NONE,
     0,
-    NULL
+    actions
   );
   send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
   free_buffer( flow_mod );
+
+  delete_actions( actions );
 
   return self;
 }

@@ -22,9 +22,16 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 require "trema"
 
 
-class RepeaterHub < Trema::Controller
-  def packet_in _packet_in
-    send_flow_mod_add _packet_in.datapath_id
+include Trema
+
+
+class RepeaterHub < Controller
+  def packet_in packet
+    # match = Match.from( packet )
+    send_flow_mod_add packet.datapath_id
+    if not packet.buffered?
+      p "packet_out"  # TODO: Implement packet_out
+    end
   end
 end
 
@@ -62,9 +69,12 @@ link "repeater_hub", "host2"
 link "repeater_hub", "host3"
 EOF
 
-    Trema::Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
+    Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
+    Switch[ "repeater_hub" ].dump_flows
     
-    Trema::Host[ "host1" ].send_packet Trema::Host[ "host2" ]
+    Host[ "host1" ].send_packet Host[ "host2" ]
+    Host[ "host1" ].show_tx_stats
+    Host[ "host2" ].show_rx_stats
   end
 end
 
