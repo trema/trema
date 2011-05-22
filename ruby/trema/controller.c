@@ -18,6 +18,7 @@
  */
 
 
+#include "buffer.h"
 #include "controller.h"
 #include "features_reply.h"
 #include "openflow.h"
@@ -105,6 +106,30 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
   delete_actions( actions );
 
+  return self;
+}
+
+
+static VALUE
+controller_send_packet_out( VALUE self, VALUE datapath_id, VALUE buffer_id, VALUE in_port, VALUE action, VALUE data ) {
+  openflow_actions *actions = create_actions();
+  append_action_output( actions, rb_funcall( action, rb_intern( "port" ), 0 ), UINT16_MAX );
+
+  buffer *cbuffer;
+  Data_Get_Struct( data, buffer, cbuffer );
+
+  buffer *packet_out = create_packet_out(
+    get_transaction_id(),
+    NUM2ULONG( buffer_id ),
+    NUM2INT( in_port ),
+    actions,
+    cbuffer
+  );
+  send_openflow_message( NUM2ULL( datapath_id ), packet_out );
+  free_buffer( packet_out );
+
+  delete_actions( actions );
+  
   return self;
 }
 
@@ -235,6 +260,8 @@ Init_controller() {
   rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
+  rb_define_method( cController, "send_packet_out", controller_send_packet_out, 5 );
+
   rb_define_method( cController, "run", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );
 

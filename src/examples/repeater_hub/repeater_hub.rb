@@ -18,9 +18,22 @@
 #
 
 
-class RepeaterHub < Trema::Controller
-  def packet_in _packet_in
-    send_flow_mod_add _packet_in.datapath_id
+class RepeaterHub < Controller
+  def packet_in message
+    action = ActionOutput.new( OFPP_FLOOD )
+    send_flow_mod_add(
+      message.datapath_id,
+      :match => Match.from( message ), :buffer_id => message.buffer_id, :action => action
+    )
+    unless message.buffered?
+      send_packet_out(
+        message.datapath_id,
+        message.buffer_id,
+        message.in_port,
+        action,
+        message.data
+      )
+    end
   end
 end
 

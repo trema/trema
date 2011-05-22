@@ -19,8 +19,10 @@
 
 
 #include <string.h>
-#include "trema.h"
+#include "buffer.h"
+#include "rbuffer.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -65,6 +67,28 @@ packet_in_is_buffered( VALUE self ) {
 }
 
 
+static VALUE
+packet_in_in_port( VALUE self ) {
+  packet_in *cpacket_in;
+  Data_Get_Struct( self, packet_in, cpacket_in );
+  return INT2NUM( cpacket_in->in_port );
+}
+
+
+static VALUE
+packet_in_data( VALUE self ) {
+  packet_in *from;
+  buffer *to;
+
+  VALUE rbuffer = rb_funcall( cBuffer, rb_intern( "new" ), 0 );
+  Data_Get_Struct( rbuffer, buffer, to );
+  Data_Get_Struct( self, packet_in, from );
+  memcpy( to, from->data, sizeof( buffer ) );
+
+  return rbuffer;
+}
+
+
 void
 Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
@@ -72,6 +96,8 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
+  rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
+  rb_define_method( cPacketIn, "data", packet_in_data, 0 );
 }
 
 

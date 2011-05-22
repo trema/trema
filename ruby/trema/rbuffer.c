@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -20,39 +18,25 @@
  */
 
 
-#include "action_output.h"
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "hello.h"
-#include "packet_in.h"
-#include "port.h"
-#include "rbuffer.h"
+#include "trema.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
+VALUE cBuffer;
+
+
+static VALUE
+buffer_alloc( VALUE klass ) {
+  buffer *buf = alloc_buffer();
+  return Data_Wrap_Struct( klass, NULL, free_buffer, buf );
+}
 
 
 void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, false );
-
-  rb_require( "trema/host" );
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
-  rb_require( "trema/switch" );
-
-  Init_action_output();
-  Init_buffer();
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_hello();
-  Init_match();
-  Init_packet_in();
-  Init_port();
+Init_buffer() {
+  cBuffer = rb_define_class_under( mTrema, "Buffer", rb_cObject );
+  rb_define_alloc_func( cBuffer, buffer_alloc );
 }
 
 
