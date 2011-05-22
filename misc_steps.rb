@@ -27,14 +27,14 @@ When /^wait until "([^"]*)" is up$/ do | process |
   pid_file = File.join( Trema.tmp, "#{ process }.pid" )
   loop do
     break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
-    sleep 1
+    sleep 0.1
   end
 end
 
 
 When /^wait until trema session is closed$/ do
   loop do
-    sleep 1    
+    sleep 0.1   
     break unless FileTest.exists?( File.join( Trema.tmp, ".context" ) )
   end
 end
