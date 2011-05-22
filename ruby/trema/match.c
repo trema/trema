@@ -35,14 +35,14 @@ match_alloc( VALUE klass ) {
 
 
 static VALUE
-match_from( VALUE klass, VALUE rpacket ) {
+match_from( VALUE klass, VALUE message ) {
   VALUE obj;
   struct ofp_match *match;
   packet_in *packet;
 
   obj = rb_funcall( klass, rb_intern( "new" ), 0 );
   Data_Get_Struct( obj, struct ofp_match, match );
-  Data_Get_Struct( rpacket, packet_in, packet );
+  Data_Get_Struct( message, packet_in, packet );
   set_match_from_packet( match, packet->in_port, 0, packet->data );
 
   return obj;

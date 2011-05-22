@@ -37,36 +37,51 @@ end
 def trema_conf conf
   kill_trema
   
-  context = Trema::DSL::Context.new
-  Trema::DSL::Syntax.new( context ).instance_eval conf
+  @context = Trema::DSL::Context.new
+  Trema::DSL::Syntax.new( @context ).instance_eval conf
 
   Trema::Controller.each do | each |
-    context.add_app each
+    Trema::App.add each
   end
   
-  context.switch_manager.run
-  context.links.each do | each |
+  @context.switch_manager.run
+  @context.links.each do | each |
     each.up!
   end
-  context.hosts.each do | each |
+  @context.hosts.each do | each |
     each.run
   end
-  context.switches.each do | each |
+  @context.switches.each do | each |
     each.run
   end
-  context.hosts.each do | each |
-    each.add_arp_entry context.hosts - [ each ]
+  @context.hosts.each do | each |
+    each.add_arp_entry @context.hosts - [ each ]
   end
 
-  pid = fork do
-    context.apps.last.run
+  pid = Process.fork do
+    @context.apps.last.run
   end
   Process.detach pid
+  sleep 5  # FIXME
 end
 
 
 def kill_trema
-  system "./trema kill"
+  return if @context.nil?
+  
+  @context.links.each do | each |
+    each.down!
+  end
+  @context.switches.each do | each |
+    each.shutdown!
+  end
+  @context.hosts.each do | each |
+    each.shutdown!
+  end
+    
+  Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
+    Trema::Process.read( each ).kill!
+  end
 end
 
 

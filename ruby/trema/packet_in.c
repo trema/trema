@@ -45,6 +45,14 @@ packet_in_datapath_id( VALUE self ) {
 
 
 static VALUE
+packet_in_buffer_id( VALUE self ) {
+  packet_in *cpacket_in;
+  Data_Get_Struct( self, packet_in, cpacket_in );
+  return ULONG2NUM( cpacket_in->buffer_id );
+}
+
+
+static VALUE
 packet_in_is_buffered( VALUE self ) {
   packet_in *cpacket_in;
   Data_Get_Struct( self, packet_in, cpacket_in );
@@ -62,6 +70,7 @@ Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
+  rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
 }
 

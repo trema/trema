@@ -49,22 +49,46 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
 
 
 static VALUE
-controller_send_flow_mod_add( VALUE self, VALUE datapath_id ) {
+controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+
+  struct ofp_match *match;
+  VALUE rmatch = Qnil;
+  uint32_t buffer_id;
+
+  if ( options == Qnil ) {
+    match->wildcards = OFPFW_ALL;
+  }
+  else {
+    rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
+    VALUE rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
+    if ( rbuffer_id == Qnil ) {
+      buffer_id = UINT32_MAX;
+    }
+    else {
+      buffer_id = NUM2ULONG( rbuffer_id );
+    }
+  }
+
+  if ( rmatch != Qnil ) {
+    Data_Get_Struct( rmatch, struct ofp_match, match );
+  }
+
   openflow_actions *actions = create_actions();
   append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
 
-  struct ofp_match match;
-  match.wildcards = OFPFW_ALL;
-
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
-    match,
+    *match,
     get_cookie(),
     OFPFC_ADD,
     60,
     0,
-    0,
-    UINT32_MAX,
+    UINT16_MAX,
+    buffer_id,
     OFPP_NONE,
     0,
     actions
@@ -201,7 +225,7 @@ Init_controller() {
 
   rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, 1 );
+  rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "run", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );
 

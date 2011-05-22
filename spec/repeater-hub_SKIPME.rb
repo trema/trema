@@ -26,10 +26,9 @@ include Trema
 
 
 class RepeaterHub < Controller
-  def packet_in packet
-    # match = Match.from( packet )
-    send_flow_mod_add packet.datapath_id
-    if not packet.buffered?
+  def packet_in message
+    send_flow_mod_add message.datapath_id, :match => Match.from( message ), :buffer_id => message.buffer_id
+    if not message.buffered?
       p "packet_out"  # TODO: Implement packet_out
     end
   end
@@ -70,11 +69,14 @@ link "repeater_hub", "host3"
 EOF
 
     Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
-    Switch[ "repeater_hub" ].dump_flows
     
     Host[ "host1" ].send_packet Host[ "host2" ]
+    sleep 5
+
     Host[ "host1" ].show_tx_stats
     Host[ "host2" ].show_rx_stats
+
+    kill_trema
   end
 end
 

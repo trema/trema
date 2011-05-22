@@ -83,7 +83,6 @@ module Trema
 
     def send_packet dest
       @cli.send_packets dest
-      sleep 2 # ensure that the last packet is sent.
     end
 
 
