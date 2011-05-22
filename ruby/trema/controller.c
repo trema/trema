@@ -56,29 +56,36 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
   struct ofp_match *match;
-  VALUE rmatch = Qnil;
   uint32_t buffer_id;
+  openflow_actions *actions = create_actions();
+
+  VALUE rmatch = Qnil;
+  VALUE rbuffer_id = Qnil;
+  VALUE raction = Qnil;
 
   if ( options == Qnil ) {
     match->wildcards = OFPFW_ALL;
   }
   else {
     rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
-    VALUE rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-    if ( rbuffer_id == Qnil ) {
-      buffer_id = UINT32_MAX;
-    }
-    else {
-      buffer_id = NUM2ULONG( rbuffer_id );
-    }
+    rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
+    raction = rb_hash_aref( options, ID2SYM( rb_intern( "action" ) ) );
   }
 
   if ( rmatch != Qnil ) {
     Data_Get_Struct( rmatch, struct ofp_match, match );
   }
 
-  openflow_actions *actions = create_actions();
-  append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
+  if ( rbuffer_id == Qnil ) {
+    buffer_id = UINT32_MAX;
+  }
+  else {
+    buffer_id = NUM2ULONG( rbuffer_id );
+  }
+
+  if ( raction != Qnil ) {
+    append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
+  }
 
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
@@ -222,6 +229,8 @@ Init_controller() {
   rb_require( "trema/controller" );
 
   cController = rb_define_class_under( mTrema, "Controller", rb_cObject );
+
+  rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );

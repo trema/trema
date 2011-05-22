@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -20,37 +18,32 @@
  */
 
 
-#include "action_output.h"
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "hello.h"
-#include "packet_in.h"
-#include "port.h"
+#include "trema.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
+VALUE cActionOutput;
+
+
+static VALUE
+action_output_init( VALUE self, VALUE port ) {
+  rb_iv_set( self, "@port", port );
+  return self;
+}
+
+
+static VALUE
+action_output_port( VALUE self ) {
+  return NUM2INT( rb_iv_get( self, "@port" ) );
+}
 
 
 void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, false );
-
-  rb_require( "trema/host" );
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
-  rb_require( "trema/switch" );
-
-  Init_action_output();
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_hello();
-  Init_match();
-  Init_packet_in();
-  Init_port();
+Init_action_output() {
+  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
+  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
+  rb_define_method( cActionOutput, "port", action_output_port, 0 );
 }
 
 

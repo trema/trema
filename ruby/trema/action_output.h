@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -20,38 +18,13 @@
  */
 
 
-#include "action_output.h"
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "hello.h"
-#include "packet_in.h"
-#include "port.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE cActionOutput;
 
 
-void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, false );
-
-  rb_require( "trema/host" );
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
-  rb_require( "trema/switch" );
-
-  Init_action_output();
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_hello();
-  Init_match();
-  Init_packet_in();
-  Init_port();
-}
+void Init_action_output( void );
 
 
 /*
