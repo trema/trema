@@ -1,4 +1,6 @@
 #
+# Repeater hub controller.
+#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
