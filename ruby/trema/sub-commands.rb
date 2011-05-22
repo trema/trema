@@ -177,7 +177,7 @@ EOF
     @options.parse! ARGV
 
     Cli.new( source ).send_packets( dest, cli_options )
-    sleep 1
+    sleep 5 # ensure that last packet is sent.
   end
 
 
