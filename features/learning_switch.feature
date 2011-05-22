@@ -30,6 +30,7 @@ Feature: control one openflow switch using learning_switch
       link "lsw", "host2"
       """
       And wait until "learning_switch" is up
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I try to run "./trema show_stats host1 --tx" (log = "host1.learning_switch.log")
       And I try to run "./trema show_stats host2 --rx" (log = "host2.learning_switch.log")
