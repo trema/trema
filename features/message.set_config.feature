@@ -15,5 +15,6 @@ Feature: Send set config messages
       }
       """
       And wait until "set_config" is up
+      And *** sleep 5 ***
       And I terminated all trema services
     Then the log file "./tmp/log/openflowd.0xabc.log" should include "received: set_config" x 11

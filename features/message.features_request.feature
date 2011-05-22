@@ -15,6 +15,7 @@ Feature: Send a features request message
       }
       """
       And wait until "features_request" is up
+      And *** sleep 5 ***
       And I terminated all trema services
     Then the output should include:
     """

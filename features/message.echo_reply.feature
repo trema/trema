@@ -15,5 +15,6 @@ Feature: Send echo reply messages
       }
       """
       And wait until "echo_reply" is up
+      And *** sleep 5 ***
       And I terminated all trema services
     Then the log file "./tmp/log/openflowd.0xabc.log" should include "received: echo_reply" x 10
