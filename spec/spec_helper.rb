@@ -27,25 +27,17 @@ require "rspec"
 require "trema/dsl/context"
 
 
-RSpec.configure do | config |
-  config.after :all do
-    kill_trema
-  end
-end
-
-
 def trema_conf &block
   @context = Trema::DSL::Context.new
   Trema::DSL::Syntax.new( @context ).instance_eval &block
-
-  Trema::Controller.each do | each |
-    Trema::App.add each
-  end
 end
 
 
-def trema_session
+def trema_session controller_class
   begin
+    controller = controller_class.new
+    Trema::App.add controller
+    
     @context.switch_manager.run
     @context.links.each do | each |
       each.up!
@@ -61,7 +53,7 @@ def trema_session
     end
 
     pid = Process.fork do
-      @context.apps.last.run
+      controller.run
     end
     Process.detach pid
     sleep 5  # FIXME
@@ -75,7 +67,7 @@ end
 
 def kill_trema
   return if @context.nil?
-  
+
   @context.links.each do | each |
     each.down!
   end
@@ -85,7 +77,7 @@ def kill_trema
   @context.hosts.each do | each |
     each.shutdown!
   end
-    
+
   Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
     Trema::Process.read( each ).kill!
   end

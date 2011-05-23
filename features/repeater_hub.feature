@@ -40,6 +40,7 @@ Feature: Control one openflow switch with repeater_hub controller
       link "repeater_hub", "host3"
       """
       And wait until "repeater_hub" is up
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I try to run "./trema show_stats host1 --tx" (log = "host1.repeater_hub.log")
       And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater_hub.log")
@@ -81,6 +82,7 @@ Feature: Control one openflow switch with repeater_hub controller
       link "repeater_hub", "host3"
       """
       And wait until "RepeaterHub" is up
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I try to run "./trema show_stats host1 --tx" (log = "host1.repeater-hub.rb.log")
       And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater-hub.rb.log")

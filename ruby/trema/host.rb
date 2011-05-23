@@ -81,8 +81,8 @@ module Trema
     end
 
 
-    def send_packet dest
-      @cli.send_packets dest
+    def send_packet dest, options = {}
+      @cli.send_packets dest, options
     end
 
 

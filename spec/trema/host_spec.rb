@@ -57,7 +57,7 @@ module Trema
 
     it "should send packets" do
       dest = mock( "dest" )
-      @cli.should_receive( :send_packets ).with( dest )
+      @cli.should_receive( :send_packets ).with( dest, anything )
 
       @host.send_packet dest
     end

@@ -28,17 +28,18 @@ include Trema
 
 class RepeaterHub < Controller
   def packet_in message
-    action = ActionOutput.new( OFPP_FLOOD )
     send_flow_mod_add(
       message.datapath_id,
-      :match => Match.from( message ), :buffer_id => message.buffer_id, :action => action
+      :match => Match.from( message ),
+      :buffer_id => message.buffer_id,
+      :action => ActionOutput.new( OFPP_FLOOD )
     )
     unless message.buffered?
       send_packet_out(
         message.datapath_id,
         message.buffer_id,
         message.in_port,
-        action,
+        ActionOutput.new( OFPP_FLOOD ),
         message.data
       )
     end
@@ -79,16 +80,15 @@ describe RepeaterHub do
       link "repeater_hub", "host3"
     end
 
-    trema_session do
+    trema_session( RepeaterHub ) do
       Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
-    
-      Host[ "host1" ].send_packet Host[ "host2" ]
-      sleep 5
+
+      Host[ "host1" ].send_packet Host[ "host2" ], :pps => 500
 
       Switch[ "repeater_hub" ].flows.each do | each |
-        pp each
+        # pp each
       end
-    
+
       Host[ "host1" ].show_tx_stats
       Host[ "host2" ].show_rx_stats
     end
