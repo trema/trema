@@ -48,7 +48,7 @@ end
 
 
 describe RepeaterHub do
-  it "should respond to packet_in" do
+  before :each do
     trema_conf do
       vswitch("repeater_hub") {
         datapath_id "0xabc"
@@ -79,10 +79,18 @@ describe RepeaterHub do
       link "repeater_hub", "host2"
       link "repeater_hub", "host3"
     end
+  end
 
+
+  it "should send flow_mod messages" do
     trema_session( RepeaterHub ) do
       Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
-
+    end    
+  end
+  
+  
+  it "should respond to packet_in" do
+    trema_session( RepeaterHub ) do
       Host[ "host1" ].send_packet Host[ "host2" ], :pps => 500
 
       Switch[ "repeater_hub" ].flows.each do | each |
