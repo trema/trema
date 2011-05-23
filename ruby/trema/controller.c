@@ -67,7 +67,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   if ( options != Qnil ) {
     rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
     rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-    raction = rb_hash_aref( options, ID2SYM( rb_intern( "action" ) ) );
+    raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
   }
 
   if ( rmatch != Qnil ) {

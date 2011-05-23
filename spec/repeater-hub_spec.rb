@@ -31,7 +31,7 @@ class RepeaterHub < Controller
       message.datapath_id,
       :match => Match.from( message ),
       :buffer_id => message.buffer_id,
-      :action => ActionOutput.new( OFPP_FLOOD )
+      :actions => ActionOutput.new( OFPP_FLOOD )
     )
   end
 end
