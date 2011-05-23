@@ -34,35 +34,42 @@ RSpec.configure do | config |
 end
 
 
-def trema_conf conf
-  kill_trema
-  
+def trema_conf &block
   @context = Trema::DSL::Context.new
-  Trema::DSL::Syntax.new( @context ).instance_eval conf
+  Trema::DSL::Syntax.new( @context ).instance_eval &block
 
   Trema::Controller.each do | each |
     Trema::App.add each
   end
-  
-  @context.switch_manager.run
-  @context.links.each do | each |
-    each.up!
-  end
-  @context.hosts.each do | each |
-    each.run
-  end
-  @context.switches.each do | each |
-    each.run
-  end
-  @context.hosts.each do | each |
-    each.add_arp_entry @context.hosts - [ each ]
-  end
+end
 
-  pid = Process.fork do
-    @context.apps.last.run
+
+def trema_session
+  begin
+    @context.switch_manager.run
+    @context.links.each do | each |
+      each.up!
+    end
+    @context.hosts.each do | each |
+      each.run
+    end
+    @context.switches.each do | each |
+      each.run
+    end
+    @context.hosts.each do | each |
+      each.add_arp_entry @context.hosts - [ each ]
+    end
+
+    pid = Process.fork do
+      @context.apps.last.run
+    end
+    Process.detach pid
+    sleep 5  # FIXME
+    
+    yield
+  ensure
+    kill_trema
   end
-  Process.detach pid
-  sleep 5  # FIXME
 end
 
 

@@ -48,50 +48,50 @@ end
 
 describe RepeaterHub do
   it "should respond to packet_in" do
-    trema_conf <<-EOF
-vswitch("repeater_hub") {
-  datapath_id "0xabc"
-}
+    trema_conf do
+      vswitch("repeater_hub") {
+        datapath_id "0xabc"
+      }
 
-vhost("host1") {
-  promisc "On"
-  ip "192.168.0.1"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:01"
-}
+      vhost("host1") {
+        promisc "On"
+        ip "192.168.0.1"
+        netmask "255.255.0.0"
+        mac "00:00:00:01:00:01"
+      }
 
-vhost("host2") {
-  promisc "On"
-  ip "192.168.0.2"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:02"
-}
+      vhost("host2") {
+        promisc "On"
+        ip "192.168.0.2"
+        netmask "255.255.0.0"
+        mac "00:00:00:01:00:02"
+      }
 
-vhost("host3") {
-  promisc "On"
-  ip "192.168.0.3"
-  netmask "255.255.0.0"
-  mac "00:00:00:01:00:03"
-}
+      vhost("host3") {
+        promisc "On"
+        ip "192.168.0.3"
+        netmask "255.255.0.0"
+        mac "00:00:00:01:00:03"
+      }
 
-link "repeater_hub", "host1"
-link "repeater_hub", "host2"
-link "repeater_hub", "host3"
-EOF
-
-    Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
-    
-    Host[ "host1" ].send_packet Host[ "host2" ]
-    sleep 5
-
-    Switch[ "repeater_hub" ].flows.each do | each |
-      pp each
+      link "repeater_hub", "host1"
+      link "repeater_hub", "host2"
+      link "repeater_hub", "host3"
     end
-    
-    Host[ "host1" ].show_tx_stats
-    Host[ "host2" ].show_rx_stats
 
-    kill_trema
+    trema_session do
+      Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).at_least( 1 )
+    
+      Host[ "host1" ].send_packet Host[ "host2" ]
+      sleep 5
+
+      Switch[ "repeater_hub" ].flows.each do | each |
+        pp each
+      end
+    
+      Host[ "host1" ].show_tx_stats
+      Host[ "host2" ].show_rx_stats
+    end
   end
 end
 
