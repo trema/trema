@@ -68,7 +68,7 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  * Options:
  *
  * <code>match</code>::
- *   A Match object describing the fields of the
+ *   A {Match} object describing the fields of the
  *   flow. <em>(default=all fields are wildcarded)</em>
  *
  * <code>buffer_id</code>::
@@ -77,8 +77,8 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *   applied the flow actions. <em>(default=0xffffffff)</em>
  * 
  * <code>actions</code>::
- *   The sequence of action objects specifying the actions to perform
- *   on the flow's packets. <em>(default=[])</em>
+ *   The sequence of actions specifying the actions to perform on the
+ *   flow's packets. <em>(default=[])</em>
  */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
@@ -224,7 +224,12 @@ controller_features_reply( VALUE self, VALUE message ) {
 }
 
 
-// Override me if necessary.
+/*
+ * call-seq:
+ *   packet_in(message)
+ *
+ * Handle the reception of a {PacketIn} message.
+ */
 static VALUE
 controller_packet_in( VALUE self, VALUE packet_in ) {
   return self;
