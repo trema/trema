@@ -35,6 +35,7 @@ class OpenVswitch < OpenflowSwitch
     super stanza
     @port = port
     @interfaces = []
+    @ofctl = Trema::Ofctl.new
   end
 
 
@@ -54,14 +55,25 @@ class OpenVswitch < OpenflowSwitch
   end
 
 
+  def run_rspec
+    run
+    @ofctl.drop_ipv6 self
+    @log = File.open( log_file, "r" )
+    @log.read  # read all to skip the last flow_mod
+  end
+
+
   def shutdown!
-    examine_log
+    if @log
+      examine_log
+      @log.close
+    end
     Trema::Process.read( pid_file, @name ).kill!
   end
 
 
   def flows
-    Trema::Ofctl.new.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
+    @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
       Trema::Flow.parse each
     end
   end
@@ -77,11 +89,9 @@ class OpenVswitch < OpenflowSwitch
   
 
   def examine_log
-    File.open( log_file, "r" ) do | f |
-      while l = f.gets
-        if /received: flow_mod \(xid=.+\):.* ADD:/=~ l
-          flow_mod_add l
-        end
+    while l = @log.gets
+      if /received: flow_mod \(xid=.+\):.* ADD:/=~ l
+        flow_mod_add l
       end
     end
   end
