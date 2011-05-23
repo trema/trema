@@ -141,20 +141,6 @@ describe Cli do
   end
 
 
-  context "when showing stats" do
-    it "should show_stats of tx" do
-      @cli.should_receive( :sh ).with( /cli -i trema-0 show_stats --tx$/ )
-      @cli.show_tx_stats
-    end
-
-
-    it "should show_stats of rx" do
-      @cli.should_receive( :sh ).with( /cli -i trema-0 show_stats --rx$/ )
-      @cli.show_rx_stats
-    end
-  end
-
-
   context "when resetting stats" do
     it "should reset_stats" do
       @cli.should_receive( :sh ).with( /cli -i trema-0 reset_stats$/ )

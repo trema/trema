@@ -25,6 +25,21 @@ require "trema/phost"
 
 
 module Trema
+  class Stats
+    attr_reader :n_pkts
+
+    
+    def initialize ip_dst, tp_dst, ip_src, tp_src, n_pkts, n_octets
+      @ip_dst = ip_dst
+      @tp_dst = tp_dst
+      @ip_src = ip_src
+      @tp_src = tp_src
+      @n_pkts = n_pkts.to_i
+      @n_octets = n_octets.to_i
+    end
+  end
+
+  
   class Host
     @@list = {}
 
@@ -86,15 +101,13 @@ module Trema
     end
 
 
-    def show_tx_stats
-      puts "*** TX ***"
-      @cli.show_tx_stats
+    def tx_stats
+      Stats.new *@cli.tx_stats.split( "\n" )[ 1 ].split( "," )
     end
 
 
-    def show_rx_stats
-      puts "*** RX ***"
-      @cli.show_rx_stats
+    def rx_stats
+      Stats.new *@cli.rx_stats.split( "\n" )[ 1 ].split( "," )
     end
   end
 end

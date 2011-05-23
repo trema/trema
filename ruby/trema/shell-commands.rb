@@ -69,9 +69,9 @@ def show_stats host_name, option
   raise "Host '#{ host_name }' is not connected to any link." if @config.hosts[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    Cli.new( @config.hosts[ host_name ] ).show_tx_stats
+    puts Cli.new( @config.hosts[ host_name ] ).tx_stats
   else
-    Cli.new( @config.hosts[ host_name ] ).show_rx_stats
+    puts Cli.new( @config.hosts[ host_name ] ).rx_stats
   end
 end
 

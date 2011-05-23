@@ -20,7 +20,6 @@
 
 require File.join( File.dirname( __FILE__ ), "spec_helper" )
 require "trema"
-require "pp"
 
 
 include Trema
@@ -90,16 +89,22 @@ describe RepeaterHub do
   end
   
   
-  it "should respond to packet_in" do
+  it "should add a flow entry with actions = FLOOD" do
     trema_session( RepeaterHub ) do
       Host[ "host1" ].send_packet Host[ "host2" ]
 
-      Switch[ "repeater_hub" ].flows.each do | each |
-        # pp each
-      end
+      Switch[ "repeater_hub" ].flows.size.should == 1
+      Switch[ "repeater_hub" ].flows[ 0 ].actions.should == "FLOOD"
+    end
+  end
 
-      Host[ "host1" ].show_tx_stats
-      Host[ "host2" ].show_rx_stats
+
+  it "should repeat packet_in to host2 and host3" do
+    trema_session( RepeaterHub ) do
+      Host[ "host1" ].send_packet Host[ "host2" ]
+      
+      Host[ "host2" ].rx_stats.n_pkts.should == 1
+      Host[ "host3" ].rx_stats.n_pkts.should == 1
     end
   end
 end

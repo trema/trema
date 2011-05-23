@@ -204,9 +204,9 @@ EOF
     host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
     case stats
     when :tx
-      Cli.new( host ).show_tx_stats
+      puts Cli.new( host ).tx_stats
     when :rx
-      Cli.new( host ).show_rx_stats
+      puts Cli.new( host ).rx_stats
     else
       raise "We should not reach here."      
     end

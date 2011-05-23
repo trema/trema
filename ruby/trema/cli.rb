@@ -40,13 +40,13 @@ class Cli
   end
 
 
-  def show_tx_stats
-    show_stats :tx
+  def tx_stats
+    stats :tx
   end
 
 
-  def show_rx_stats
-    show_stats :rx
+  def rx_stats
+    stats :rx
   end
 
 
@@ -198,8 +198,8 @@ class Cli
   end
 
 
-  def show_stats type
-    sh "sudo #{ Trema::Executables.cli } -i #{ @host.interface } show_stats --#{ type }"
+  def stats type
+    `sudo #{ Trema::Executables.cli } -i #{ @host.interface } show_stats --#{ type }`
   end
 end
 

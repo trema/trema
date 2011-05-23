@@ -75,7 +75,7 @@ class OpenVswitch < OpenflowSwitch
   def flows
     @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
       Trema::Flow.parse each
-    end
+    end[ 1..-1 ]
   end
   
 
