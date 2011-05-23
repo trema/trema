@@ -26,7 +26,7 @@
 #include "trema.h"
 
 
-extern VALUE mTrema;
+VALUE mTrema;
 VALUE cController;
 
 
@@ -49,6 +49,37 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
 }
 
 
+/*
+ * call-seq:
+ *   send_flow_mod_add(datapath_id, options={})
+ *
+ * Sends a flow_mod message to add a flow into the datapath.
+ *
+ *  # packet_in handler
+ *  def packet_in message
+ *    send_flow_mod_add(
+ *      datapath_id,
+ *      :match => Match.from(message),
+ *      :buffer_id => message.buffer_id,
+ *      :actions => ActionOutput.new( OFPP_FLOOD )
+ *    )
+ *  end
+ *
+ * Options:
+ *
+ * <code>match</code>::
+ *   A Match object describing the fields of the
+ *   flow. <em>(default=all fields are wildcarded)</em>
+ *
+ * <code>buffer_id</code>::
+ *   The buffer ID assigned by the datapath of a buffered packet to
+ *   apply the flow to. If 0xffffffff, no buffered packet is to be
+ *   applied the flow actions. <em>(default=0xffffffff)</em>
+ * 
+ * <code>actions</code>::
+ *   The sequence of action objects specifying the actions to perform
+ *   on the flow's packets. <em>(default=[])</em>
+ */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
@@ -252,6 +283,8 @@ controller_debug( int argc, VALUE *argv, VALUE self ) {
 
 void
 Init_controller() {
+  mTrema = rb_define_module( "Trema" );
+
   rb_require( "trema/controller" );
 
   cController = rb_define_class_under( mTrema, "Controller", rb_cObject );

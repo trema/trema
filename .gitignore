@@ -1,6 +1,7 @@
 *.dependency
 *.o
 *~
+.yardoc
 /tmp
 GPATH
 GRTAGS
@@ -9,4 +10,5 @@ GTAGS
 TAGS
 a.out
 callgrind.out.*
+doc
 objects
