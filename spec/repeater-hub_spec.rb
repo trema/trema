@@ -72,7 +72,7 @@ describe RepeaterHub do
   end
 
 
-  it "should send a flow_mod message if a packet arrives" do
+  it "should send a flow_mod message" do
     trema_session( RepeaterHub ) do
       Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).once
       Host[ "host1" ].send_packet Host[ "host2" ]
@@ -90,12 +90,12 @@ describe RepeaterHub do
   end
 
 
-  it "should repeat packet_in to host2 and host3" do
+  it "should repeat packets to host2 and host3" do
     trema_session( RepeaterHub ) do
-      Host[ "host1" ].send_packet Host[ "host2" ]
+      Host[ "host1" ].send_packet Host[ "host2" ], :pps => 100
       
-      Host[ "host2" ].rx_stats.n_pkts.should == 1
-      Host[ "host3" ].rx_stats.n_pkts.should == 1
+      Host[ "host2" ].rx_stats.n_pkts.should == 100
+      Host[ "host3" ].rx_stats.n_pkts.should == 100
     end
   end
 end
