@@ -102,12 +102,22 @@ module Trema
 
 
     def tx_stats
-      Stats.new *@cli.tx_stats.split( "\n" )[ 1 ].split( "," )
+      stat = @cli.tx_stats.split( "\n" )[ 1 ]
+      if stat
+        Stats.new *stat.split( "," )        
+      else
+        Stats.new 0, 0, 0, 0, 0, 0
+      end
     end
 
 
     def rx_stats
-      Stats.new *@cli.rx_stats.split( "\n" )[ 1 ].split( "," )
+      stat = @cli.rx_stats.split( "\n" )[ 1 ]
+      if stat
+        Stats.new *stat.split( "," )        
+      else
+        Stats.new 0, 0, 0, 0, 0, 0
+      end
     end
   end
 end
