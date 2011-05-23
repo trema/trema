@@ -29,6 +29,7 @@ is provided. Please refer to the quick start guide
 Meta
 ====
 
+* Ruby API documents: http://rubydoc.info/github/trema/trema/master/frames
 * Bugs: https://github.com/trema/trema/issues
 * Mailing List: https://groups.google.com/group/trema-dev
 * Twitter: http://twitter.com/trema_news
