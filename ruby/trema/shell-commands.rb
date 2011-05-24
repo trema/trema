@@ -57,8 +57,8 @@ end
 def send_packets options
   sanity_check
 
-  source = @context.hosts[ options[ :source ] ]
-  dest = @context.hosts[ options[ :dest ] ]
+  source = Host[ options[ :source ] ]
+  dest = Host[ options[ :dest ] ]
 
   Cli.new( source ).send_packets( dest, options )
 end
@@ -67,13 +67,13 @@ end
 def show_stats host_name, option
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
-  raise "Host '#{ host_name }' is not connected to any link." if @context.hosts[ host_name ].interface.nil?
+  raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
+  raise "Host '#{ host_name }' is not connected to any link." if Host[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    puts Cli.new( @context.hosts[ host_name ] ).tx_stats
+    puts Cli.new( Host[ host_name ] ).tx_stats
   else
-    puts Cli.new( @context.hosts[ host_name ] ).rx_stats
+    puts Cli.new( Host[ host_name ] ).rx_stats
   end
 end
 
@@ -81,9 +81,9 @@ end
 def reset_stats host_name
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
+  raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
 
-  Cli.new( @context.hosts[ host_name ] ).reset_stats
+  Cli.new( Host[ host_name ] ).reset_stats
 end
 
 
