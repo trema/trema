@@ -56,9 +56,11 @@ def trema_session controller_class
       controller.run
     end
     Process.detach pid
-    sleep 5  # FIXME
+    sleep 3  # FIXME
     
     yield
+
+    sleep 5
   ensure
     kill_trema
   end

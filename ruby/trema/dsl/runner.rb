@@ -23,8 +23,8 @@
 module Trema
   module DSL
     class Runner
-      def initialize config
-        @config = config
+      def initialize context
+        @context = context
       end
 
 
@@ -56,57 +56,57 @@ module Trema
 
 
       def maybe_run_tremashark
-        @config.tremashark.run if @config.tremashark
+        @context.tremashark.run if @context.tremashark
       end
 
 
       def maybe_run_switch_manager
-        @config.switch_manager.run if @config.switch_manager
+        @context.switch_manager.run if @context.switch_manager
       end
 
 
       def maybe_run_packetin_filter
-        @config.packetin_filter.run if @config.packetin_filter
+        @context.packetin_filter.run if @context.packetin_filter
       end
 
 
       def maybe_create_links
         maybe_delete_links # Fool proof
-        @config.links.each do | each |
+        @context.links.each do | each |
           each.up!
         end
       end
 
 
       def maybe_delete_links
-        @config.links.each do | each |
+        @context.links.each do | each |
           each.down!
         end
       end
 
 
       def maybe_run_hosts
-        @config.hosts.each do | each |
+        @context.hosts.each do | each |
           each.run
         end
       end
 
 
       def maybe_run_switches
-        @config.switches.each do | each |
+        @context.switches.each do | each |
           each.run
         end
 
-        @config.hosts.each do | each |
-          each.add_arp_entry @config.hosts - [ each ]
+        @context.hosts.each do | each |
+          each.add_arp_entry @context.hosts - [ each ]
         end
       end
 
 
       def maybe_run_apps
-        return if @config.apps.empty?
+        return if @context.apps.empty?
 
-        @config.apps[ 0..-2 ].each do | each |
+        @context.apps[ 0..-2 ].each do | each |
           each.daemonize
         end
         trap( "SIGINT" ) do
@@ -114,14 +114,14 @@ module Trema
           exit(0)
         end
         pid = ::Process.fork do
-          @config.apps.last.run
+          @context.apps.last.run
         end
         ::Process.waitpid pid
       end
 
 
       def maybe_daemonize_apps
-        @config.apps.each do | each |
+        @context.apps.each do | each |
           each.daemonize
         end
       end

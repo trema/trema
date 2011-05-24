@@ -20,13 +20,16 @@
 
 module Trema
   class Flow
+    attr_reader :dl_type
+    
+
     def self.parse line
       flow = self.new
       line.strip.split( /,\s*/ ).each do | each |
         next unless /(.+)=(.+)/=~ each
         name, value = $1, $2
-        attr_reader name.to_sym
-        if ( /\A\d+\Z/=~ value ) or ( /\A0x\d+\Z/=~ value )
+        attr_reader name.to_sym        
+        if ( /\A\d+\Z/=~ value ) or ( /\A0x.+\Z/=~ value )
           flow.instance_eval "@#{ name }=#{ value }"
         else
           flow.instance_eval "@#{ name }='#{ value }'"

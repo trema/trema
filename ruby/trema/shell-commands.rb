@@ -23,15 +23,18 @@
 require "trema/dsl"
 
 
+include Trema
+
+
 def run
   sanity_check
 
   begin
     cleanup_current_session
     if $run_as_daemon
-      DSL::Runner.new( @config ).daemonize
+      DSL::Runner.new( @context ).daemonize
     else
-      DSL::Runner.new( @config ).run
+      DSL::Runner.new( @context ).run
     end
   ensure
     cleanup_current_session
@@ -42,8 +45,7 @@ end
 def drun
   sanity_check
 
-  cleanup_current_session
-  DSL::Runner.new( @config ).daemonize
+  DSL::Runner.new( @context ).daemonize
 end
 
 
@@ -55,8 +57,8 @@ end
 def send_packets options
   sanity_check
 
-  source = @config.hosts[ options[ :source ] ]
-  dest = @config.hosts[ options[ :dest ] ]
+  source = @context.hosts[ options[ :source ] ]
+  dest = @context.hosts[ options[ :dest ] ]
 
   Cli.new( source ).send_packets( dest, options )
 end
@@ -65,13 +67,13 @@ end
 def show_stats host_name, option
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @config.hosts[ host_name ].nil?
-  raise "Host '#{ host_name }' is not connected to any link." if @config.hosts[ host_name ].interface.nil?
+  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
+  raise "Host '#{ host_name }' is not connected to any link." if @context.hosts[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    puts Cli.new( @config.hosts[ host_name ] ).tx_stats
+    puts Cli.new( @context.hosts[ host_name ] ).tx_stats
   else
-    puts Cli.new( @config.hosts[ host_name ] ).rx_stats
+    puts Cli.new( @context.hosts[ host_name ] ).rx_stats
   end
 end
 
@@ -79,9 +81,9 @@ end
 def reset_stats host_name
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @config.hosts[ host_name ].nil?
+  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
 
-  Cli.new( @config.hosts[ host_name ] ).reset_stats
+  Cli.new( @context.hosts[ host_name ] ).reset_stats
 end
 
 

@@ -72,10 +72,20 @@ class OpenVswitch < OpenflowSwitch
   end
 
 
+  def dump_flows
+    puts @ofctl.dump_flows( self )
+  end
+  
+
   def flows
     @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
-      Trema::Flow.parse each
-    end[ 1..-1 ]
+      flow = Trema::Flow.parse( each )
+      if flow.dl_type == 0x86dd
+        nil
+      else
+        flow
+      end
+    end.compact
   end
   
 
