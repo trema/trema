@@ -240,45 +240,127 @@ controller_packet_in( VALUE self, VALUE packet_in ) {
  * Logging methods.
  ********************************************************************************/
 
+/*
+ * call-seq:
+ *   critical(format ...)
+ *
+ * Outputs a message representing that "the system is completely
+ * unusable" to log file.
+ *
+ * @example
+ *   critical "Trema blue screen. Memory dump = %s", memory
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_critical( int argc, VALUE *argv, VALUE self ) {
-  critical( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  critical( STR2CSTR( message ) );
+  return message;
 }
 
 
+/*
+ * call-seq:
+ *   error(format ...)
+ *
+ * Outputs a message representing that "something went wrong" to log
+ * file.
+ *
+ * @example
+ *   error "Failed to accept %s", app_socket
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_error( int argc, VALUE *argv, VALUE self ) {
-  error( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  error( STR2CSTR( message ) );
+  return message;
 }
 
 
+/*
+ * call-seq:
+ *   warn(format ...)
+ *
+ * Outputs a message representing that "something in the system was
+ * not as expected" to log file.
+ *
+ * @example
+ *   warn "%s: trema is already initialized", app_name
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_warn( int argc, VALUE *argv, VALUE self ) {
-  warn( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  warn( STR2CSTR( message ) );
+  return message;
 }
 
 
+/*
+ * call-seq:
+ *   notice(format ...)
+ *
+ * Outputs a message representing that "normal but significant
+ * condition occurred" to log file.
+ *
+ * @example
+ *   notice "The switch %s disconnected its secure channel connection", datapath_id
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_notice( int argc, VALUE *argv, VALUE self ) {
-  notice( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  notice( STR2CSTR( message ) );
+  return message;
 }
 
 
+/*
+ * call-seq:
+ *   info(format ...)
+ *
+ * Outputs an informational massage to log file.
+ *
+ * @example
+ *   info "Hello world from %s!", datapath_id
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_info( int argc, VALUE *argv, VALUE self ) {
-  info( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  info( STR2CSTR( message ) );
+  return message;
 }
 
 
+/*
+ * call-seq:
+ *   debug(format ...)
+ *
+ * Outputs a debug-level massage to log file.
+ *
+ * @example
+ *   debug "Setting a packet_in handler: %s", method
+ *
+ * @return [String] the string resulting from applying format to any
+ *   additional arguments.
+ */
 static VALUE
 controller_debug( int argc, VALUE *argv, VALUE self ) {
-  debug( STR2CSTR( rb_f_sprintf( argc, argv ) ) );
-  return self;
+  VALUE message = rb_f_sprintf( argc, argv );
+  debug( STR2CSTR( message ) );
+  return message;
 }
 
 
