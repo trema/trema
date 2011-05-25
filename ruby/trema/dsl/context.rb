@@ -32,18 +32,19 @@ module Trema
       def initialize
         @tremashark = nil
         @port = 6633
-        @switches = Trema::Switch.all
-        @switches.clear
+        @switches = Trema::Switch.instances
         @hosts = Trema::Host.all
-        @hosts.clear
         @links = Trema::Link.all
-        @links.clear
         @apps = Trema::App.all
-        @apps.clear
         @packetin_filter = nil
         @switch_manager = nil
-      end
 
+        @switches.clear
+        @hosts.clear
+        @links.clear
+        @apps.clear
+      end
+      
 
       ################################################################################
       # Read current context.

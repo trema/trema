@@ -18,27 +18,13 @@
 #
 
 
+require "trema/network-component"
+
+
 module Trema
-  class Switch
-    @@list = {}
-
-
-    def self.all
-      @@list
-    end
-    
-
-    def self.[] name
-      @@list[ name ]
-    end
-
-
-    def self.add switch
-      @@list[ switch.name ] = switch
-    end
+  class Switch < NetworkComponent
   end
 end
-
 
 
 ### Local variables:

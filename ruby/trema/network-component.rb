@@ -18,32 +18,41 @@
 #
 
 
-require "trema/network-component"
-
-
 module Trema
-  #
-  # The base class of Trema controller.
-  #
-  class Controller < NetworkComponent
-    #
-    # Callback invoked whenever a subclass of this class is created.
-    # This adds the created object to the DB of controllers.
-    #
+  class NetworkComponent
+    class << self
+      attr_accessor :instances
+    end
+
+
     def self.inherited subclass
-      controller = subclass.new
-      Controller.instances ||= {}
-      Controller.instances[ controller.name ] = controller
+      subclass.instances ||= {}
+    end
+
+    
+    #
+    # Iterates over the list of instances.
+    #
+    def self.each &block
+      instances.values.each do | each |
+        block.call each
+      end
     end
 
 
     #
-    # Name of the controller.
+    # Looks up a instance DB by its name.
     #
-    # @return [String]
+    def self.[] name
+      instances[ name ]
+    end
+
+
     #
-    def name
-      self.class.to_s.split( "::" ).last
+    # Inserts a object to instance DB.
+    #
+    def self.add object
+      instances[ object.name ] = object
     end
   end
 end

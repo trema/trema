@@ -380,8 +380,7 @@ Init_controller() {
 
   rb_require( "trema/controller" );
 
-  cController = rb_define_class_under( mTrema, "Controller", rb_cObject );
-
+  cController = rb_eval_string( "Trema::Controller" );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
