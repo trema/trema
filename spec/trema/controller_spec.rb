@@ -24,6 +24,30 @@ require "trema"
 
 module Trema
   describe Controller do
+    class YutaroHub < Controller
+    end
+
+    
+    context "when running" do
+      before :each do
+        @yutaro_hub = YutaroHub.new
+        @yutaro_hub.stub!( :start_trema )
+      end
+      
+
+      it "should change its $PROGRAM_NAME" do
+        @yutaro_hub.run
+        $PROGRAM_NAME.should == "YutaroHub"
+      end
+
+
+      it "should call start callback" do
+        @yutaro_hub.should_receive( :start )
+        @yutaro_hub.run
+      end
+    end
+
+    
     it "should respond to logging methods" do
       [ :critical, :error, :warn, :notice, :info, :debug ].each do | each |
         Controller.new.__send__( each, "%s message", each ).should == "#{ each } message"

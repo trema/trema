@@ -30,16 +30,6 @@ VALUE mTrema;
 VALUE cController;
 
 
-static VALUE name;
-
-
-static VALUE
-controller_init( VALUE self ) {
-  // Do nothing.
-  return self;
-}
-
-
 static VALUE
 controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
   buffer *buf;
@@ -166,10 +156,20 @@ controller_send_packet_out( VALUE self, VALUE datapath_id, VALUE buffer_id, VALU
 }
 
 
+/*
+ * call-seq:
+ *   run()  => self
+ *
+ * Starts this controller. Usually you do not need to invoke
+ * explicitly, because this is called implicitly by "trema run"
+ * command.
+ */
 static VALUE
 controller_run( VALUE self ) {
-  name = rb_funcall( self, rb_intern( "name" ), 0 );
-  rb_gv_set( "$0", name );
+  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+
+  VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
+  rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
   char **argv = malloc( sizeof( char * ) * ( argc + 1 ) );
@@ -177,9 +177,6 @@ controller_run( VALUE self ) {
   argv[ 1 ] = "--name";
   argv[ 2 ] = STR2CSTR( name );
   argv[ 3 ] = NULL;
-
-  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
-
   init_trema( &argc, &argv );
 
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
@@ -187,7 +184,9 @@ controller_run( VALUE self ) {
   set_packet_in_handler( handle_packet_in, ( void * ) self );
 
   rb_funcall( self, rb_intern( "start" ), 0 );
-  start_trema();
+
+  rb_funcall( self, rb_intern( "start_trema" ), 0 );
+
   return self;
 }
 
@@ -195,6 +194,13 @@ controller_run( VALUE self ) {
 static VALUE
 controller_stop( VALUE self ) {
   stop_trema();
+  return self;
+}
+
+
+static VALUE
+controller_start_trema( VALUE self ) {
+  start_trema();
   return self;
 }
 
@@ -378,7 +384,6 @@ Init_controller() {
 
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
-  rb_define_method( cController, "initialize", controller_init, 0 );
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_packet_out", controller_send_packet_out, 5 );
@@ -399,6 +404,9 @@ Init_controller() {
   rb_define_method( cController, "notice", controller_notice, -1 );
   rb_define_method( cController, "info", controller_info, -1 );
   rb_define_method( cController, "debug", controller_debug, -1 );
+
+  // Private
+  rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
 }
 
 
