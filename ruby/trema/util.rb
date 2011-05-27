@@ -50,7 +50,7 @@ EOF
 
 
   def cleanup_current_session
-    last_session = Trema::DSL::Parser.load_current
+    last_session = Trema::DSL::Parser.new.load_current
     last_session.apps.each do | each |
       each.shutdown!
     end

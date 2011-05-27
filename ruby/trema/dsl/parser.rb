@@ -31,40 +31,7 @@ module Trema
       CURRENT_CONTEXT = File.join( Trema.tmp, ".context" )
 
 
-      def self.load_current
-        Context.load_from CURRENT_CONTEXT
-      end
-
-
-      def self.eval &block
-        context = Context.new
-        Syntax.new( context ).instance_eval &block
-        Trema::Link.each do | each |
-          peers = each.peers
-          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
-          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
-          Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
-          Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
-        end
-        context.dump_to CURRENT_CONTEXT
-      end
-      
-
-      def self.load file
-        context = Context.new
-        Syntax.new( context ).instance_eval IO.read( file ), file
-        Trema::Link.each do | each |
-          peers = each.peers
-          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
-          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
-          Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
-          Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
-        end
-        context.dump_to CURRENT_CONTEXT
-      end
-
-
-      def self.dump_after method
+      def self.dump method
         Syntax.module_eval do
           original = instance_method( method )
           define_method( method ) do | *args, &block |
@@ -77,17 +44,54 @@ module Trema
           end
         end
       end
+      
+
+      dump :app
+      dump :event
+      dump :filter
+      dump :link
+      dump :port
+      dump :switch
+      dump :use_tremashark
+      dump :vhost
+      dump :vswitch
 
 
-      dump_after :use_tremashark
-      dump_after :port
-      dump_after :link
-      dump_after :switch
-      dump_after :vswitch
-      dump_after :vhost
-      dump_after :filter
-      dump_after :event
-      dump_after :app
+      def load_current
+        Context.load_from CURRENT_CONTEXT
+      end
+
+
+      def load file_name
+        context = Context.new
+        Syntax.new( context ).instance_eval IO.read( file_name ), file_name
+        set_interfaces
+        context.dump_to CURRENT_CONTEXT
+      end
+
+
+      def eval &block
+        context = Context.new
+        Syntax.new( context ).instance_eval &block
+        set_interfaces
+        context.dump_to CURRENT_CONTEXT
+      end
+
+
+      ################################################################################
+      private
+      ################################################################################
+
+
+      def set_interfaces
+        Trema::Link.each do | each |
+          peers = each.peers
+          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
+          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
+          Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
+          Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
+        end
+      end
     end
   end
 end

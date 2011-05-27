@@ -38,6 +38,7 @@ $run_as_daemon = false
 
 class Trema::SubCommands
   def initialize
+    @dsl_parser = Trema::DSL::Parser.new
     @options = OptionParser.new
   end
 
@@ -111,7 +112,7 @@ EOF
     @options.banner = "Usage: #{ $0 } send_packets [OPTIONS ...]"
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
-      source = Trema::DSL::Parser.load_current.find_host( v )
+      source = @dsl_parser.load_current.find_host( v )
     end
     @options.on( "--inc_ip_src [NUMBER]" ) do | v |
       if v
@@ -121,7 +122,7 @@ EOF
       end
     end
     @options.on( "-d", "--dest HOSTNAME" ) do | v |
-      dest = Trema::DSL::Parser.load_current.find_host( v )
+      dest = @dsl_parser.load_current.find_host( v )
     end
     @options.on( "--inc_ip_dst [NUMBER]" ) do | v |
       if v
@@ -201,7 +202,7 @@ EOF
 
     @options.parse! ARGV
 
-    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
+    host = @dsl_parser.load_current.find_host( ARGV[ 0 ] )
     case stats
     when :tx
       puts Cli.new( host ).tx_stats
@@ -223,7 +224,7 @@ EOF
 
     @options.parse! ARGV
 
-    host = Trema::DSL::Parser.load_current.find_host( ARGV[ 0 ] )
+    host = @dsl_parser.load_current.find_host( ARGV[ 0 ] )
     Cli.new( host ).reset_stats
   end
 
@@ -231,7 +232,7 @@ EOF
   def dump_flows
     sanity_check
 
-    switch = Trema::DSL::Parser.load_current.find_switch( ARGV[ 0 ] )
+    switch = @dsl_parser.load_current.find_switch( ARGV[ 0 ] )
 
     @options.banner = "Usage: #{ $0 } dump_flows SWITCH [OPTIONS ...]"
 
@@ -296,9 +297,9 @@ EOL
     config = nil
 
     if @config_file
-      config = Trema::DSL::Parser.load( @config_file )
+      config = @dsl_parser.load( @config_file )
     elsif FileTest.exists?( "./trema.conf" )
-      config = Trema::DSL::Parser.load( "./trema.conf" )
+      config = @dsl_parser.load( "./trema.conf" )
     else
       config = Trema::DSL::Context.new
     end
