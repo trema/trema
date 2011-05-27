@@ -297,9 +297,9 @@ EOL
     config = nil
 
     if @config_file
-      config = @dsl_parser.load( @config_file )
+      config = @dsl_parser.parse( @config_file )
     elsif FileTest.exists?( "./trema.conf" )
-      config = @dsl_parser.load( "./trema.conf" )
+      config = @dsl_parser.parse( "./trema.conf" )
     else
       config = Trema::DSL::Context.new
     end

@@ -44,7 +44,7 @@ module Trema
           end
         end
       end
-      
+
 
       dump :app
       dump :event
@@ -62,19 +62,17 @@ module Trema
       end
 
 
-      def load file_name
-        context = Context.new
-        Syntax.new( context ).instance_eval IO.read( file_name ), file_name
-        set_interfaces
-        context.dump_to CURRENT_CONTEXT
+      def parse file_name
+        new_context do | context |
+          Syntax.new( context ).instance_eval IO.read( file_name ), file_name
+        end
       end
 
 
       def eval &block
-        context = Context.new
-        Syntax.new( context ).instance_eval &block
-        set_interfaces
-        context.dump_to CURRENT_CONTEXT
+        new_context do | context |
+          Syntax.new( context ).instance_eval &block
+        end
       end
 
 
@@ -83,7 +81,9 @@ module Trema
       ################################################################################
 
 
-      def set_interfaces
+      def new_context &block
+        context = Context.new
+        block.call context
         Trema::Link.each do | each |
           peers = each.peers
           Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
@@ -91,6 +91,7 @@ module Trema
           Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
           Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
         end
+        context.dump_to CURRENT_CONTEXT
       end
     end
   end
