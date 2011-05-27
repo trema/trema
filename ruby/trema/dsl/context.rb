@@ -35,19 +35,12 @@ module Trema
         @tremashark = nil
         @port = 6633
 
-        @apps = Trema::App.instances
-        @hosts = Trema::Host.instances
-        @links = Trema::Link.instances
-        @packetin_filter = Trema::PacketinFilter.instances
-        @switch_manager = Trema::SwitchManager.instances
-        @switches = Trema::Switch.instances
-
-        @apps.clear
-        @hosts.clear
-        @links.clear
-        @packetin_filter.clear
-        @switch_manager.clear
-        @switches.clear
+        @apps = Trema::App.instances.clear
+        @hosts = Trema::Host.instances.clear
+        @links = Trema::Link.instances.clear
+        @packetin_filter = Trema::PacketinFilter.instances.clear
+        @switch_manager = Trema::SwitchManager.instances.clear
+        @switches = Trema::Switch.instances.clear
       end
       
 
