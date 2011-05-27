@@ -31,6 +31,15 @@ require "trema/switch-manager"
 module Trema
   module DSL
     class Context
+      def self.load_from file_name
+        if FileTest.exists?( file_name )
+          Marshal.load( IO.read file_name )
+        else
+          new
+        end
+      end
+      
+      
       def initialize
         @tremashark = nil
         @port = 6633
@@ -44,10 +53,17 @@ module Trema
       end
       
 
+      def dump_to file_name
+        File.open( file_name, "w" ) do | f |
+          f.print Marshal.dump( self )
+        end
+        self
+      end
+      
+
       ################################################################################
       # Read current context.
       ################################################################################
-
 
       attr_accessor :tremashark
       attr_accessor :port

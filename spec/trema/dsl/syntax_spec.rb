@@ -24,14 +24,13 @@ require "trema/dsl/syntax"
 
 describe Trema::DSL::Syntax do
   before( :each ) do
-    Trema::DSL::Parser.stub!( :dump )
-    @config = mock( :port => 6633, :link_index => 0 )
-    @syntax = Trema::DSL::Syntax.new( @config )
+    @context = mock( "context", :port => 6633, :link_index => 0, :dump_to => nil )
+    @syntax = Trema::DSL::Syntax.new( @context )
   end
 
 
   it "should recognize 'use_tremashark' directive" do
-    @config.should_receive( :tremashark= ).with( an_instance_of( Tremashark ) ).once
+    @context.should_receive( :tremashark= ).with( an_instance_of( Tremashark ) ).once
 
     @syntax.instance_eval do
       use_tremashark
@@ -40,7 +39,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'port' directive" do
-    @config.should_receive( :port= ).with( 1234 ).once
+    @context.should_receive( :port= ).with( 1234 ).once
 
     @syntax.instance_eval do
       port 1234

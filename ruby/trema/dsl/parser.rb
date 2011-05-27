@@ -31,10 +31,8 @@ module Trema
       CURRENT_CONTEXT = File.join( Trema.tmp, ".context" )
 
 
-      def self.dump context
-        File.open( CURRENT_CONTEXT, "w" ) do | f |
-          f.print Marshal.dump( context )
-        end
+      def self.load_current
+        Context.load_from CURRENT_CONTEXT
       end
 
 
@@ -48,8 +46,7 @@ module Trema
           Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
           Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
         end
-        dump context
-        context
+        context.dump_to CURRENT_CONTEXT
       end
       
 
@@ -63,17 +60,7 @@ module Trema
           Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
           Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
         end
-        dump context
-        context
-      end
-
-
-      def self.load_current
-        context = Context.new
-        if FileTest.exists?( CURRENT_CONTEXT )
-          context = Marshal.load( IO.read CURRENT_CONTEXT )
-        end
-        context
+        context.dump_to CURRENT_CONTEXT
       end
 
 
@@ -86,7 +73,7 @@ module Trema
             else
               original.bind( self ).call( *args )
             end
-            Parser.dump instance_variable_get( :@context )
+            instance_variable_get( :@context ).dump_to CURRENT_CONTEXT
           end
         end
       end
