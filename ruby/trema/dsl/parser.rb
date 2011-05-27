@@ -58,7 +58,7 @@ module Trema
 
 
       def load_current
-        Context.load_from CURRENT_CONTEXT
+        Context.new.load_from CURRENT_CONTEXT
       end
 
 

@@ -31,15 +31,6 @@ require "trema/switch-manager"
 module Trema
   module DSL
     class Context
-      def self.load_from file_name
-        if FileTest.exists?( file_name )
-          Marshal.load( IO.read file_name )
-        else
-          new
-        end
-      end
-
-
       attr_accessor :port
       attr_accessor :tremashark
 
@@ -66,6 +57,15 @@ module Trema
           f.print Marshal.dump( self )
         end
         self
+      end
+
+
+      def load_from file_name
+        if FileTest.exists?( file_name )
+          Marshal.load( IO.read file_name )
+        else
+          self.class.new
+        end
       end
 
 

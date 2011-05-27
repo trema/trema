@@ -70,7 +70,10 @@ describe Trema::Util do
     last_session.stub!( :switches ).and_return( switches )
     last_session.stub!( :hosts ).and_return( hosts )
     last_session.stub!( :links ).and_return( links )
-    Trema::DSL::Context.stub!( :load_from ).and_return( last_session )
+
+    context = mock( "context" )
+    context.stub!( :load_from ).and_return( last_session )
+    Trema::DSL::Context.stub!( :new ).and_return( context )
     
     pid_files = [ mock( "PID file #0" ), mock( "PID file #1" ), mock( "PID file #2" ) ]
     Dir.stub!( :glob ).and_return( pid_files )
