@@ -41,14 +41,14 @@ def trema_session controller_class
     @context.links.each do | each |
       each.up!
     end
-    @context.hosts.each do | each |
-      each.run
+    @context.hosts.each do | name, host |
+      host.run
     end
     @context.switches.each do | each |
       each.run_rspec
     end
-    @context.hosts.each do | each |
-      each.add_arp_entry @context.hosts - [ each ]
+    @context.hosts.each do | name, host |
+      host.add_arp_entry @context.hosts.values - [ host ]
     end
 
     pid = Process.fork do
@@ -75,8 +75,8 @@ def kill_trema
   @context.switches.each do | each |
     each.shutdown!
   end
-  @context.hosts.each do | each |
-    each.shutdown!
+  @context.hosts.each do | name, host |
+    host.shutdown!
   end
 
   Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |

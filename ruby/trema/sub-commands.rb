@@ -112,7 +112,7 @@ EOF
     @options.banner = "Usage: #{ $0 } send_packets [OPTIONS ...]"
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
-      source = @dsl_parser.load_current.find_host( v )
+      source = @dsl_parser.load_current.hosts[ v ]
     end
     @options.on( "--inc_ip_src [NUMBER]" ) do | v |
       if v
@@ -122,7 +122,7 @@ EOF
       end
     end
     @options.on( "-d", "--dest HOSTNAME" ) do | v |
-      dest = @dsl_parser.load_current.find_host( v )
+      dest = @dsl_parser.load_current.hosts[ v ]
     end
     @options.on( "--inc_ip_dst [NUMBER]" ) do | v |
       if v
@@ -202,7 +202,7 @@ EOF
 
     @options.parse! ARGV
 
-    host = @dsl_parser.load_current.find_host( ARGV[ 0 ] )
+    host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
     case stats
     when :tx
       puts Cli.new( host ).tx_stats
@@ -224,7 +224,7 @@ EOF
 
     @options.parse! ARGV
 
-    host = @dsl_parser.load_current.find_host( ARGV[ 0 ] )
+    host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
     Cli.new( host ).reset_stats
   end
 

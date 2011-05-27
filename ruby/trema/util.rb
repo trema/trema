@@ -57,8 +57,8 @@ EOF
     last_session.switches.each do | each |
       each.shutdown!
     end
-    last_session.hosts.each do | each |
-      each.shutdown!
+    last_session.hosts.each do | name, host |
+      host.shutdown!
     end
     last_session.links.each do | each |
       each.down!

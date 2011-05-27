@@ -86,8 +86,8 @@ module Trema
         block.call context
         Trema::Link.each do | each |
           peers = each.peers
-          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
-          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
+          context.hosts[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if context.hosts[ peers[ 0 ] ]
+          context.hosts[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if context.hosts[ peers[ 1 ] ]
           Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
           Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
         end

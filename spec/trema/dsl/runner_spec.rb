@@ -137,7 +137,7 @@ module Trema
             :switch_manager => nil,
             :packetin_filter => nil,
             :links => [],
-            :hosts => [ host0, host1, host2 ],
+            :hosts => { "host0" => host0, "host1" => host1, "host2" => host2 },
             :switches => [],
             :apps => []
           )

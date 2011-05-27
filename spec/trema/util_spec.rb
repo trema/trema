@@ -45,22 +45,22 @@ describe Trema::Util do
 
 
   it "should cleanup current session" do
-    apps = [ mock( "app 1" ), mock( "app 2" ), mock( "app 1" ) ]
+    apps = [ mock( "app 1" ), mock( "app 2" ), mock( "app 3" ) ]
     apps.each do | each |
       each.should_receive( :shutdown! )
     end
     
-    switches = [ mock( "switch 1" ), mock( "switch 2" ), mock( "switch 1" ) ]
+    switches = [ mock( "switch 1" ), mock( "switch 2" ), mock( "switch 3" ) ]
     switches.each do | each |
       each.should_receive( :shutdown! )
     end
 
-    hosts = [ mock( "switch 1" ), mock( "switch 2" ), mock( "switch 1" ) ]
-    hosts.each do | each |
-      each.should_receive( :shutdown! )
+    hosts = [ "host 1" => mock( "host 1" ), "host 2" => mock( "host 2" ), "host 3" => mock( "host 3" ) ]
+    hosts.each do | name, host |
+      host.should_receive( :shutdown! )
     end
     
-    links = [ mock( "link 1" ), mock( "link 2" ), mock( "link 1" ) ]
+    links = [ mock( "link 1" ), mock( "link 2" ), mock( "link 3" ) ]
     links.each do | each |
       each.should_receive( :down! )
     end

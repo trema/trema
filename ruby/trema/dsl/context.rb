@@ -38,6 +38,12 @@ module Trema
           new
         end
       end
+
+
+      attr_accessor :port
+      attr_accessor :tremashark
+
+      attr_reader :hosts
       
       
       def initialize
@@ -64,19 +70,6 @@ module Trema
       ################################################################################
       # Read current context.
       ################################################################################
-
-      attr_accessor :tremashark
-      attr_accessor :port
-
-
-      def hosts
-        @hosts.values
-      end
-
-
-      def find_host name
-        @hosts[ name ]
-      end
 
 
       def switches

@@ -86,8 +86,8 @@ module Trema
 
 
       def maybe_run_hosts
-        @context.hosts.each do | each |
-          each.run
+        @context.hosts.each do | name, host |
+          host.run
         end
       end
 
@@ -97,8 +97,8 @@ module Trema
           each.run
         end
 
-        @context.hosts.each do | each |
-          each.add_arp_entry @context.hosts - [ each ]
+        @context.hosts.each do | name, host |
+          host.add_arp_entry @context.hosts.values - [ host ]
         end
       end
 

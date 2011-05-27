@@ -53,9 +53,9 @@ module Trema
 
         @context.should have( 3 ).hosts
 
-        @context.find_host( "host #0" ).name.should == "host #0"
-        @context.find_host( "host #1" ).name.should == "host #1"
-        @context.find_host( "host #2" ).name.should == "host #2"
+        @context.hosts[ "host #0" ].name.should == "host #0"
+        @context.hosts[ "host #1" ].name.should == "host #1"
+        @context.hosts[ "host #2" ].name.should == "host #2"
       end
 
 
