@@ -20,6 +20,7 @@
 #
 
 
+require "trema/app"
 require "trema/host"
 require "trema/link"
 require "trema/switch"
@@ -34,7 +35,7 @@ module Trema
         @port = 6633
         @switches = Trema::Switch.instances
         @hosts = Trema::Host.instances
-        @links = Trema::Link.all
+        @links = Trema::Link.instances
         @apps = Trema::App.instances
         @packetin_filter = nil
         @switch_manager = nil
@@ -53,8 +54,6 @@ module Trema
 
       attr_reader :tremashark
       attr_reader :port
-      attr_reader :apps
-      attr_reader :links
       attr_reader :packetin_filter
 
 
@@ -78,6 +77,11 @@ module Trema
       end
 
 
+      def links
+        @links.values
+      end
+      
+      
       def link_index
         @links.size
       end

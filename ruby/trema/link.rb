@@ -21,32 +21,12 @@
 
 
 require "trema/host"
+require "trema/network-component"
 require "trema/switch"
 
 
 module Trema
-  class Link
-    @@list = []
-
-
-    def self.all
-      @@list
-    end
-
-
-    def self.add link
-      peers = link.peers
-
-      Host[ peers[ 0 ] ].interface = link.interfaces[ 0 ] if Host[ peers[ 0 ] ]
-      Host[ peers[ 1 ] ].interface = link.interfaces[ 1 ] if Host[ peers[ 1 ] ]
-
-      Switch[ peers[ 0 ] ].add_interface link.interfaces[ 0 ] if Switch[ peers[ 0 ] ]
-      Switch[ peers[ 1 ] ].add_interface link.interfaces[ 1 ] if Switch[ peers[ 1 ] ]
-      
-      @@list << link
-    end
-
-
+  class Link < NetworkComponent
     attr_reader :peers
 
 
@@ -57,6 +37,11 @@ module Trema
     end
 
 
+    def name
+      "trema#{ @link_id }"
+    end
+
+    
     def interfaces
       [ "trema#{ @link_id }-0", "trema#{ @link_id }-1" ]
     end

@@ -37,12 +37,9 @@ module Trema
         Trema::Switch.add switch
         Host.add host
 
-        link = mock( "link" )
+        link = mock( "link", :name => "link" )
         link.stub!( :peers ).and_return( [ switch.name, host.name ] )
         link.stub!( :interfaces ).and_return( [ "if0", "if1" ] )
-
-        switch.should_receive( :add_interface ).with( "if0" )
-        host.should_receive( :interface= ).with( "if1" )
 
         Trema::Link.add link
         @context.link_index.should == 1

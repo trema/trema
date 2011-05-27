@@ -28,8 +28,7 @@ require "trema/dsl/context"
 
 
 def trema_conf &block
-  @context = Trema::DSL::Context.new
-  Trema::DSL::Syntax.new( @context ).instance_eval &block
+  @context = Trema::DSL::Parser.eval &block
 end
 
 

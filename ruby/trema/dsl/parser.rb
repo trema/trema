@@ -38,9 +38,31 @@ module Trema
       end
 
 
+      def self.eval &block
+        context = Context.new
+        Syntax.new( context ).instance_eval &block
+        Trema::Link.each do | each |
+          peers = each.peers
+          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
+          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
+          Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
+          Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
+        end
+        dump context
+        context
+      end
+      
+
       def self.load file
         context = Context.new
         Syntax.new( context ).instance_eval IO.read( file ), file
+        Trema::Link.each do | each |
+          peers = each.peers
+          Trema::Host[ peers[ 0 ] ].interface = each.interfaces[ 0 ] if Trema::Host[ peers[ 0 ] ]
+          Trema::Host[ peers[ 1 ] ].interface = each.interfaces[ 1 ] if Trema::Host[ peers[ 1 ] ]
+          Trema::Switch[ peers[ 0 ] ].add_interface each.interfaces[ 0 ] if Trema::Switch[ peers[ 0 ] ]
+          Trema::Switch[ peers[ 1 ] ].add_interface each.interfaces[ 1 ] if Trema::Switch[ peers[ 1 ] ]
+        end
         dump context
         context
       end
