@@ -32,6 +32,11 @@ module Trema
       subclass.instances ||= OrderedHash.new
     end
 
+
+    def self.instance
+      instances.values[ 0 ]
+    end
+    
     
     #
     # Iterates over the list of instances.

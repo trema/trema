@@ -21,14 +21,21 @@
 
 
 require "trema/executables"
+require "trema/network-component"
 
 
-class PacketinFilter
+class PacketinFilter < Trema::NetworkComponent
   def initialize queues
     check_mandatory_options queues
     @queues = queues
+    self.class.add self
   end
 
+
+  def name
+    "packet-in filter"
+  end
+  
 
   def run
     sh "#{ Trema::Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"

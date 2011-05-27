@@ -54,7 +54,6 @@ module Trema
 
       attr_reader :tremashark
       attr_reader :port
-      attr_reader :packetin_filter
 
 
       def hosts
@@ -109,6 +108,11 @@ module Trema
       end
 
 
+      def packetin_filter
+        @packetin_filter ||= PacketinFilter.instance
+      end
+      
+      
       ################################################################################
       # Update current context.
       ################################################################################
