@@ -43,15 +43,15 @@ module Trema
       attr_accessor :port
       attr_accessor :tremashark
 
+      attr_reader :apps
       attr_reader :hosts
-      attr_reader :switches
       attr_reader :links
+      attr_reader :switches
       
       
       def initialize
-        @tremashark = nil
         @port = 6633
-
+        @tremashark = nil
         @apps = Trema::App.instances.clear
         @hosts = Trema::Host.instances.clear
         @links = Trema::Link.instances.clear
@@ -74,19 +74,14 @@ module Trema
       ################################################################################
 
 
-      def apps
-        @apps.values
-      end
-
-
       def switch_manager
         if @switch_manager.values[ 0 ]
           @switch_manager.values[ 0 ]          
-        elsif apps.size == 0
+        elsif apps.values.size == 0
           rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
           SwitchManager.new( rule, @port )
-        elsif apps.size == 1
-          app_name = apps[ 0 ].name
+        elsif apps.values.size == 1
+          app_name = apps.values[ 0 ].name
           rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
           SwitchManager.new( rule, @port )
         else

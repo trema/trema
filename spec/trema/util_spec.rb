@@ -45,9 +45,9 @@ describe Trema::Util do
 
 
   it "should cleanup current session" do
-    apps = [ mock( "app 1" ), mock( "app 2" ), mock( "app 3" ) ]
-    apps.each do | each |
-      each.should_receive( :shutdown! )
+    apps = { "app 1" => mock( "app 1" ), "app 2" => mock( "app 2" ), "app 3" => mock( "app 3" ) }
+    apps.each do | name, app |
+      app.should_receive( :shutdown! )
     end
     
     switches = { "switch 1" => mock( "switch 1" ), "switch 2" => mock( "switch 2" ), "switch 3" => mock( "switch 3" ) }

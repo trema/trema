@@ -44,7 +44,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -63,7 +63,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -82,7 +82,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -110,7 +110,7 @@ module Trema
             :links => { "link0" => link0, "link1" => link1, "link2" => link2 },
             :hosts => {},
             :switches => {},
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -139,7 +139,7 @@ module Trema
             :links => {},
             :hosts => { "host0" => host0, "host1" => host1, "host2" => host2 },
             :switches => {},
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -164,7 +164,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => { "switch0" => switch0, "switch1" => switch1, "switch 2" => switch2 },
-            :apps => []
+            :apps => {}
           )
 
           Runner.new( config ).run
@@ -189,7 +189,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => [ app0, app1, app2 ]
+            :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
           )
 
           Runner.new( config ).run
@@ -214,7 +214,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => [ app0, app1, app2 ]
+            :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
           )
 
           Runner.new( config ).daemonize

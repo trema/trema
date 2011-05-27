@@ -51,8 +51,8 @@ EOF
 
   def cleanup_current_session
     last_session = Trema::DSL::Parser.new.load_current
-    last_session.apps.each do | each |
-      each.shutdown!
+    last_session.apps.each do | name, app |
+      app.shutdown!
     end
     last_session.switches.each do | name, switch |
       switch.shutdown!
