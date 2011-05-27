@@ -21,32 +21,41 @@
 
 
 require "trema/executables"
+require "trema/network-component"
 require "trema/switch-daemon"
 
 
-class SwitchManager
-  attr_reader :rule
+module Trema
+  class SwitchManager < NetworkComponent
+    attr_reader :rule
 
 
-  def initialize rule, port = nil
-    @rule = rule
-    @options = [ "--daemonize" ]
-    @options << "--port=#{ port }" if port
-  end
+    def initialize rule, port = nil
+      @rule = rule
+      @options = [ "--daemonize" ]
+      @options << "--port=#{ port }" if port
+      self.class.add self
+    end
 
 
-  def run
-    sh "#{ Trema::Executables.switch_manager } #{ @options.join ' ' } -- #{ switch_options.join ' ' }"
-  end
+    def name
+      "switch manager"
+    end
+    
+
+    def run
+      sh "#{ Executables.switch_manager } #{ @options.join ' ' } -- #{ switch_options.join ' ' }"
+    end
 
 
-  ################################################################################
-  private
-  ################################################################################
+    ################################################################################
+    private
+    ################################################################################
 
 
-  def switch_options
-    SwitchDaemon.new( @rule ).options
+    def switch_options
+      SwitchDaemon.new( @rule ).options
+    end
   end
 end
 

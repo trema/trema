@@ -94,7 +94,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'event' directive" do
-    @config.should_receive( :set_switch_manager ).with( an_instance_of( SwitchManager ) ).once
+    Trema::SwitchManager.should_receive( :add ).with( an_instance_of( SwitchManager ) ).once
 
     @syntax.instance_eval do
       event "RULE"

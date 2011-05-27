@@ -79,8 +79,7 @@ module Trema::CommonCommands
 
 
   def event rule
-    switch_manager = SwitchManager.new( rule, @context.port )
-    @context.set_switch_manager switch_manager
+    Trema::SwitchManager.new( rule, @context.port )
   end
 
 

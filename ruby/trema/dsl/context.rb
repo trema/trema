@@ -39,13 +39,14 @@ module Trema
         @hosts = Trema::Host.instances
         @links = Trema::Link.instances
         @packetin_filter = Trema::PacketinFilter.instances
-        @switch_manager = nil
+        @switch_manager = Trema::SwitchManager.instances
         @switches = Trema::Switch.instances
 
         @apps.clear
         @hosts.clear
         @links.clear
         @packetin_filter.clear
+        @switch_manager.clear
         @switches.clear
       end
       
@@ -95,8 +96,8 @@ module Trema
 
 
       def switch_manager
-        if @switch_manager
-          @switch_manager
+        if @switch_manager.values[ 0 ]
+          @switch_manager.values[ 0 ]          
         elsif apps.size == 0
           rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
           SwitchManager.new( rule, @port )
@@ -113,16 +114,6 @@ module Trema
 
       def packetin_filter
         @packetin_filter.values[ 0 ]
-      end
-      
-      
-      ################################################################################
-      # Update current context.
-      ################################################################################
-
-
-      def set_switch_manager switch_manager
-        @switch_manager = switch_manager
       end
     end
   end

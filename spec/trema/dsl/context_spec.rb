@@ -85,10 +85,9 @@ module Trema
 
 
       it "should remember switch manager" do
-        switch_manager = mock( "switch manager" )
+        Trema::SwitchManager.add mock( "switch manager", :name => "switch manager" )
 
-        @context.set_switch_manager switch_manager
-        @context.switch_manager.should == switch_manager
+        @context.switch_manager.name.should == "switch manager"
       end
 
 
