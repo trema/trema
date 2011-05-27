@@ -60,9 +60,9 @@ describe Trema::Util do
       host.should_receive( :shutdown! )
     end
     
-    links = [ mock( "link 1" ), mock( "link 2" ), mock( "link 3" ) ]
-    links.each do | each |
-      each.should_receive( :down! )
+    links = { "link 1" => mock( "link 1" ), "link 2" => mock( "link 2" ), "link 3" => mock( "link 3" ) }
+    links.each do | name, link |
+      link.should_receive( :down! )
     end
 
     last_session = mock( "last session" )

@@ -24,7 +24,7 @@ require "trema/dsl/syntax"
 
 describe Trema::DSL::Syntax do
   before( :each ) do
-    @context = mock( "context", :port => 6633, :link_index => 0, :dump_to => nil )
+    @context = mock( "context", :port => 6633, :dump_to => nil )
     @syntax = Trema::DSL::Syntax.new( @context )
   end
 
@@ -48,6 +48,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'link' directive" do
+    @context.stub!( :links ).and_return( [ mock( "link" ) ] )
     Trema::Link.should_receive( :add ).with( an_instance_of( Trema::Link ) ).once
 
     @syntax.instance_eval do

@@ -72,15 +72,15 @@ module Trema
 
       def maybe_create_links
         maybe_delete_links # Fool proof
-        @context.links.each do | each |
-          each.up!
+        @context.links.each do | name, link |
+          link.up!
         end
       end
 
 
       def maybe_delete_links
-        @context.links.each do | each |
-          each.down!
+        @context.links.each do | name, link |
+          link.down!
         end
       end
 

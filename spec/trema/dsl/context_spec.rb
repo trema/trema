@@ -30,22 +30,6 @@ module Trema
       end
 
 
-      it "should create a link between switches and hosts" do
-        switch = mock( "switch", :name => "switch" )
-        host = mock( "host", :name => "host" )
-
-        Trema::Switch.add switch
-        Host.add host
-
-        link = mock( "link", :name => "link" )
-        link.stub!( :peers ).and_return( [ switch.name, host.name ] )
-        link.stub!( :interfaces ).and_return( [ "if0", "if1" ] )
-
-        Trema::Link.add link
-        @context.link_index.should == 1
-      end
-
-
       it "should remember hosts" do
         Host.add mock( "host #0", :name => "host #0" )
         Host.add mock( "host #1", :name => "host #1" )

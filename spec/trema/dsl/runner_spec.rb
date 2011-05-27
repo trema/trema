@@ -41,7 +41,7 @@ module Trema
             :tremashark => tremashark,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => {},
             :apps => []
@@ -60,7 +60,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => switch_manager,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => {},
             :apps => []
@@ -79,7 +79,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => packetin_filter,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => {},
             :apps => []
@@ -107,7 +107,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [ link0, link1, link2 ],
+            :links => { "link0" => link0, "link1" => link1, "link2" => link2 },
             :hosts => {},
             :switches => {},
             :apps => []
@@ -136,7 +136,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => { "host0" => host0, "host1" => host1, "host2" => host2 },
             :switches => {},
             :apps => []
@@ -161,7 +161,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => { "switch0" => switch0, "switch1" => switch1, "switch 2" => switch2 },
             :apps => []
@@ -186,7 +186,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => {},
             :apps => [ app0, app1, app2 ]
@@ -211,7 +211,7 @@ module Trema
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,
-            :links => [],
+            :links => {},
             :hosts => {},
             :switches => {},
             :apps => [ app0, app1, app2 ]

@@ -45,6 +45,7 @@ module Trema
 
       attr_reader :hosts
       attr_reader :switches
+      attr_reader :links
       
       
       def initialize
@@ -66,21 +67,11 @@ module Trema
         end
         self
       end
-      
+
 
       ################################################################################
       # Read current context.
       ################################################################################
-
-
-      def links
-        @links.values
-      end
-      
-      
-      def link_index
-        @links.size
-      end
 
 
       def apps

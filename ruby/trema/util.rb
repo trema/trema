@@ -60,8 +60,8 @@ EOF
     last_session.hosts.each do | name, host |
       host.shutdown!
     end
-    last_session.links.each do | each |
-      each.down!
+    last_session.links.each do | name, link |
+      link.down!
     end
     
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |

@@ -38,8 +38,8 @@ def trema_session controller_class
     Trema::App.add controller
     
     @context.switch_manager.run
-    @context.links.each do | each |
-      each.up!
+    @context.links.each do | name, link |
+      link.up!
     end
     @context.hosts.each do | name, host |
       host.run
@@ -69,8 +69,8 @@ end
 def kill_trema
   return if @context.nil?
 
-  @context.links.each do | each |
-    each.down!
+  @context.links.each do | name, link |
+    link.down!
   end
   @context.switches.each do | name, switch |
     switch.shutdown!
