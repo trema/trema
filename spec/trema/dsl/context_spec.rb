@@ -78,9 +78,9 @@ module Trema
 
 
       it "should remember filter settings" do
-        filter = mock( "filter" )
-        @context.set_filter filter
-        @context.packetin_filter.should == filter
+        Trema::PacketinFilter.add mock( "filter", :name => "filter" )
+
+        @context.packetin_filter.name.should == "filter"
       end
 
 

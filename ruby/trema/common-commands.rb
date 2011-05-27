@@ -74,7 +74,7 @@ module Trema::CommonCommands
 
 
   def filter rule
-    @context.set_filter PacketinFilter.new( rule )
+    Trema::PacketinFilter.new( rule )
   end
 
 

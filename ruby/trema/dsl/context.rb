@@ -23,6 +23,7 @@
 require "trema/app"
 require "trema/host"
 require "trema/link"
+require "trema/packetin-filter"
 require "trema/switch"
 require "trema/switch-manager"
 
@@ -33,17 +34,19 @@ module Trema
       def initialize
         @tremashark = nil
         @port = 6633
-        @switches = Trema::Switch.instances
+
+        @apps = Trema::App.instances
         @hosts = Trema::Host.instances
         @links = Trema::Link.instances
-        @apps = Trema::App.instances
-        @packetin_filter = nil
+        @packetin_filter = Trema::PacketinFilter.instances
         @switch_manager = nil
+        @switches = Trema::Switch.instances
 
-        @switches.clear
+        @apps.clear
         @hosts.clear
         @links.clear
-        @apps.clear
+        @packetin_filter.clear
+        @switches.clear
       end
       
 
@@ -52,8 +55,8 @@ module Trema
       ################################################################################
 
 
-      attr_reader :tremashark
-      attr_reader :port
+      attr_accessor :tremashark
+      attr_accessor :port
 
 
       def hosts
@@ -109,22 +112,13 @@ module Trema
 
 
       def packetin_filter
-        @packetin_filter ||= PacketinFilter.instance
+        @packetin_filter.values[ 0 ]
       end
       
       
       ################################################################################
       # Update current context.
       ################################################################################
-
-
-      attr_writer :tremashark
-      attr_writer :port
-
-
-      def set_filter filter
-        @packetin_filter = filter
-      end
 
 
       def set_switch_manager switch_manager

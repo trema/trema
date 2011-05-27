@@ -85,7 +85,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'filter' directive" do
-    @config.should_receive( :set_filter ).with( an_instance_of( PacketinFilter ) ).once
+    Trema::PacketinFilter.should_receive( :add ).with( an_instance_of( PacketinFilter ) ).once
 
     @syntax.instance_eval do
       filter :lldp => "LLDP RULE", :packet_in => "PACKET-IN RULE"

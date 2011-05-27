@@ -24,43 +24,45 @@ require "trema/executables"
 require "trema/network-component"
 
 
-class PacketinFilter < Trema::NetworkComponent
-  def initialize queues
-    check_mandatory_options queues
-    @queues = queues
-    self.class.add self
-  end
-
-
-  def name
-    "packet-in filter"
-  end
-  
-
-  def run
-    sh "#{ Trema::Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"
-  end
-
-
-  ################################################################################
-  private
-  ################################################################################
-
-
-  def check_mandatory_options queues
-    [ :lldp, :packet_in ].each do | each |
-      raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+module Trema
+  class PacketinFilter < NetworkComponent
+    def initialize queues
+      check_mandatory_options queues
+      @queues = queues
+      self.class.add self
     end
-  end
 
 
-  def lldp_queue
-    "lldp::#{ @queues[ :lldp ] }"
-  end
+    def name
+      "packet-in filter"
+    end
+    
+
+    def run
+      sh "#{ Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"
+    end
 
 
-  def packetin_queue
-    "packet_in::#{ @queues[ :packet_in ] }"
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def check_mandatory_options queues
+      [ :lldp, :packet_in ].each do | each |
+        raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+      end
+    end
+
+
+    def lldp_queue
+      "lldp::#{ @queues[ :lldp ] }"
+    end
+
+
+    def packetin_queue
+      "packet_in::#{ @queues[ :packet_in ] }"
+    end
   end
 end
 
