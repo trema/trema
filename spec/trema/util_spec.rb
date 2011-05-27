@@ -50,12 +50,12 @@ describe Trema::Util do
       each.should_receive( :shutdown! )
     end
     
-    switches = [ mock( "switch 1" ), mock( "switch 2" ), mock( "switch 3" ) ]
-    switches.each do | each |
-      each.should_receive( :shutdown! )
+    switches = { "switch 1" => mock( "switch 1" ), "switch 2" => mock( "switch 2" ), "switch 3" => mock( "switch 3" ) }
+    switches.each do | name, switch |
+      switch.should_receive( :shutdown! )
     end
 
-    hosts = [ "host 1" => mock( "host 1" ), "host 2" => mock( "host 2" ), "host 3" => mock( "host 3" ) ]
+    hosts = { "host 1" => mock( "host 1" ), "host 2" => mock( "host 2" ), "host 3" => mock( "host 3" ) }
     hosts.each do | name, host |
       host.should_receive( :shutdown! )
     end

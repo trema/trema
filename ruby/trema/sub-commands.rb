@@ -232,7 +232,7 @@ EOF
   def dump_flows
     sanity_check
 
-    switch = @dsl_parser.load_current.find_switch( ARGV[ 0 ] )
+    switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
 
     @options.banner = "Usage: #{ $0 } dump_flows SWITCH [OPTIONS ...]"
 

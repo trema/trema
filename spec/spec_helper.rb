@@ -44,8 +44,8 @@ def trema_session controller_class
     @context.hosts.each do | name, host |
       host.run
     end
-    @context.switches.each do | each |
-      each.run_rspec
+    @context.switches.each do | name, switch |
+      switch.run_rspec
     end
     @context.hosts.each do | name, host |
       host.add_arp_entry @context.hosts.values - [ host ]
@@ -72,8 +72,8 @@ def kill_trema
   @context.links.each do | each |
     each.down!
   end
-  @context.switches.each do | each |
-    each.shutdown!
+  @context.switches.each do | name, switch |
+    switch.shutdown!
   end
   @context.hosts.each do | name, host |
     host.shutdown!

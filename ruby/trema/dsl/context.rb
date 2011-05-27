@@ -44,6 +44,7 @@ module Trema
       attr_accessor :tremashark
 
       attr_reader :hosts
+      attr_reader :switches
       
       
       def initialize
@@ -70,16 +71,6 @@ module Trema
       ################################################################################
       # Read current context.
       ################################################################################
-
-
-      def switches
-        @switches.values
-      end
-
-
-      def find_switch name
-        @switches[ name ]
-      end
 
 
       def links
