@@ -22,19 +22,59 @@ require "trema/ordered-hash"
 
 
 module Trema
+  #
+  # The base class of objects appears in the Trema DSL. e.g., host,
+  # switch, link etc.
+  #
   class NetworkComponent
     class << self
+      #
+      # Returns the `name' => object hash DB of instances
+      #
+      # @example
+      #   p App.instances
+      #   #=> {"trema tetris"=>#<App:0xb73c9328>, ...}
+      #
+      # @return [Array] the {OrderedHash} of instances
+      #
+      # @api public
+      #
       attr_accessor :instances
     end
 
 
+    #
+    # Called implicitly when inherited
+    #
+    # @example
+    #   #
+    #   # The following calls inherited() implicitly
+    #   # then creates an instance DB of App object.
+    #   #
+    #   class App < Trmea::NetworkComponent
+    #     attr_accessor :name
+    #   end
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def self.inherited subclass
       subclass.instances ||= OrderedHash.new
     end
 
 
     #
-    # Iterates over the list of instances.
+    # Iterates over the list of instances
+    #
+    # @example
+    #   App.each do | each |
+    #     p each.name
+    #   end
+    #
+    # @return [Array] the list of instances
+    #
+    # @api public
     #
     def self.each &block
       instances.values.each do | each |
@@ -44,7 +84,19 @@ module Trema
 
 
     #
-    # Looks up a instance DB by its name.
+    # Looks up a instance DB by its name
+    #
+    # @example
+    #   ttetris = TremaTetris.new
+    #   ttetris.name = "trema tetris"
+    #
+    #   App.add ttetris
+    #
+    #   App[ "trema tetris" ] => ttetris
+    #
+    # @return [Object] the associated object
+    #
+    # @api public
     #
     def self.[] name
       instances[ name ]
@@ -52,7 +104,19 @@ module Trema
 
 
     #
-    # Inserts a object to instance DB.
+    # Inserts a object to instance DB
+    #
+    # @example
+    #   ttetris = TremaTetris.new
+    #   ttetris.name = "trema tetris"
+    #
+    #   App.add ttetris
+    #
+    # @param [Object, #name] an object that responds to #name
+    #
+    # @return [Object] the added object
+    #
+    # @api public
     #
     def self.add object
       instances[ object.name ] = object
