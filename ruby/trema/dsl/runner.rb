@@ -122,14 +122,14 @@ module Trema
         return if @context.apps.values.empty?
 
         @context.apps.values[ 0..-2 ].each do | each |
-          each.daemonize
+          each.daemonize!
         end
         trap( "SIGINT" ) do
           print( "\nterminated\n" )
           exit(0)
         end
         pid = ::Process.fork do
-          @context.apps.values.last.run
+          @context.apps.values.last.run!
         end
         ::Process.waitpid pid
       end
@@ -137,7 +137,7 @@ module Trema
 
       def maybe_daemonize_apps
         @context.apps.each do | name, app |
-          app.daemonize
+          app.daemonize!
         end
       end
     end

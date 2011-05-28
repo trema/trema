@@ -387,7 +387,7 @@ Init_controller() {
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_packet_out", controller_send_packet_out, 5 );
 
-  rb_define_method( cController, "run", controller_run, 0 );
+  rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "stop", controller_stop, 0 );
 
   // Handlers

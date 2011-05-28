@@ -179,13 +179,13 @@ module Trema
 
         it "should run apps" do
           app0 = mock( "app0" )
-          app0.should_receive( :daemonize ).once.ordered
+          app0.should_receive( :daemonize! ).once.ordered
 
           app1 = mock( "app1" )
-          app1.should_receive( :daemonize ).once.ordered
+          app1.should_receive( :daemonize! ).once.ordered
 
           app2 = mock( "app2" )
-          app2.should_receive( :run ).once.ordered
+          app2.should_receive( :run! ).once.ordered
 
           context = mock(
             "context",
@@ -204,13 +204,13 @@ module Trema
 
         it "should daemonize apps" do
           app0 = mock( "app0" )
-          app0.should_receive( :daemonize ).once.ordered
+          app0.should_receive( :daemonize! ).once.ordered
 
           app1 = mock( "app1" )
-          app1.should_receive( :daemonize ).once.ordered
+          app1.should_receive( :daemonize! ).once.ordered
 
           app2 = mock( "app2" )
-          app2.should_receive( :daemonize ).once.ordered
+          app2.should_receive( :daemonize! ).once.ordered
 
           context = mock(
             "context",

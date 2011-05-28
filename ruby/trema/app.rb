@@ -21,34 +21,36 @@
 
 
 require "trema/network-component"
+require "trema/process"
 
 
 module Trema
   class App < NetworkComponent
-    attr_reader :name
-    
-
     def initialize stanza
-      @name = stanza[ :name ]
       @stanza = stanza
       self.class.add self
     end
 
 
-    def daemonize
+    def name
+      @stanza[ :name ]
+    end
+
+
+    def daemonize!
       if options
-        sh "#{ command } --name #{ name } -d #{ options.join ' ' }"
+        sh "#{ command } -d #{ options.join " " }"
       else
-        sh "#{ command } --name #{ name } -d"
+        sh "#{ command } -d"
       end
     end
 
 
-    def run
+    def run!
       if options
-        sh "#{ command } --name #{ name } #{ options.join ' ' }"
+        sh "#{ command } #{ options.join " " }"
       else
-        sh "#{ command } --name #{ name }"
+        sh command
       end
     end
 
@@ -67,9 +69,9 @@ module Trema
       File.join Trema.tmp, "#{ @name }.pid"
     end
 
-    
+
     def command
-      @stanza[ :path ]
+      "#{ @stanza[ :path ] } --name #{ name }"
     end
 
 

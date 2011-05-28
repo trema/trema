@@ -55,7 +55,7 @@ def trema_session controller_class
     end
 
     pid = Process.fork do
-      controller.run
+      controller.run!
     end
     Process.detach pid
     sleep 3  # FIXME
