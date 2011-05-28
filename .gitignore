@@ -10,5 +10,6 @@ GTAGS
 TAGS
 a.out
 callgrind.out.*
+coverage
 doc
 objects
