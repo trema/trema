@@ -19,29 +19,32 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
+require "trema/dsl/switch"
 require "trema/openflow-switch"
 
 
-describe OpenflowSwitch, %[dpid = "0xabc"] do
-  before :each do
-    stanza = Trema::DSL::Switch.new
-    stanza.dpid "0xabc"
-    @switch = OpenflowSwitch.new( stanza )
-  end
+module Trema
+  describe OpenflowSwitch, %[dpid = "0xabc"] do
+    before :each do
+      stanza = DSL::Switch.new
+      stanza.dpid "0xabc"
+      @switch = OpenflowSwitch.new( stanza )
+    end
 
 
-  it "should return its name" do
-    @switch.name.should == "0xabc"
-  end
+    it "should return its name" do
+      @switch.name.should == "0xabc"
+    end
 
 
-  it "should return dpid in long format" do
-    @switch.dpid_long.should == "0000000000000abc"
-  end
+    it "should return dpid in long format" do
+      @switch.dpid_long.should == "0000000000000abc"
+    end
 
 
-  it "should return dpid in short format" do
-    @switch.dpid_short.should == "0xabc"
+    it "should return dpid in short format" do
+      @switch.dpid_short.should == "0xabc"
+    end
   end
 end
 

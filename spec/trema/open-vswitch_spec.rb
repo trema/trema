@@ -23,35 +23,37 @@ require "trema/dsl/vswitch"
 require "trema/open-vswitch"
 
 
-describe OpenVswitch, %[dpid = "0xabc"] do
-  before :each do
-    stanza = Trema::DSL::Vswitch.new
-    stanza.dpid "0xabc"
-    @vswitch = OpenVswitch.new( stanza, 1234 )
-  end
+module Trema
+  describe OpenVswitch, %[dpid = "0xabc"] do
+    before :each do
+      stanza = DSL::Vswitch.new
+      stanza.dpid "0xabc"
+      @vswitch = OpenVswitch.new( stanza, 1234 )
+    end
 
 
-  it "should return its name" do
-    @vswitch.name.should == "0xabc"
-  end
+    it "should return its name" do
+      @vswitch.name.should == "0xabc"
+    end
 
 
-  it "should return dpid in long format" do
-    @vswitch.dpid_long.should == "0000000000000abc"
-  end
+    it "should return dpid in long format" do
+      @vswitch.dpid_long.should == "0000000000000abc"
+    end
 
 
-  it "should return dpid in short format" do
-    @vswitch.dpid_short.should == "0xabc"
-  end
+    it "should return dpid in short format" do
+      @vswitch.dpid_short.should == "0xabc"
+    end
 
 
-  it "should execute ovs openflowd" do
-    @vswitch.should_receive( :sh ).once
+    it "should execute ovs openflowd" do
+      @vswitch.should_receive( :sh ).once
 
-    @vswitch.add_interface "trema0-0"
-    @vswitch.add_interface "trema0-1"
-    @vswitch.run
+      @vswitch.add_interface "trema0-0"
+      @vswitch.add_interface "trema0-1"
+      @vswitch.run
+    end
   end
 end
 
