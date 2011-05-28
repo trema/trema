@@ -32,14 +32,93 @@ module Trema
     # The current context of Trema DSL.
     #
     class Context
-      attr_accessor :port  # @return [Number] the port number for switch manager to listen to
-      attr_accessor :tremashark  # @return [Boolean] use tremashark?
-      attr_reader :apps  # @return [Hash] the hash of apps
-      attr_reader :hosts  # @return [Hash] the hash of hosts
-      attr_reader :links  # @return [Hash] the hash of links
-      attr_reader :switches  # @return [Hash] the hash of switches
+      #
+      # set/get the port number for switch manager to listen to
+      #
+      # @example
+      #   context.port = 5432
+      #
+      # @return [Number]
+      #
+      # @api public
+      #
+      attr_accessor :port
+
+      #
+      # use tremashark?
+      #
+      # @example
+      #   context.tremashark = true
+      #
+      # @return [Boolean]
+      #
+      # @api public
+      #
+      attr_accessor :tremashark
+
+      #
+      # the hash of {App}
+      #
+      # @example
+      #   p context.apps
+      #   #=> {"trema tetris"=>#<Trema::App:0xb73c9328>, ...}
+      #
+      # @return [Hash]
+      #
+      # @api public
+      #
+      attr_reader :apps
+
+      #
+      # the hash of {Host}
+      #
+      # @example
+      #   p context.hosts
+      #   #=> {"host #0"=>#<Trema::Host:0xb73c9328>, ...}
+      #
+      # @return [Hash]
+      #
+      # @api public
+      #
+      attr_reader :hosts
+
+      #
+      # the hash of {Link}
+      #
+      # @example
+      #   p context.links
+      #   #=> {"link #0"=>#<Trema::Link:0xb73c9328>, ...}
+      #
+      # @return [Hash]
+      #
+      # @api public
+      #
+      attr_reader :links
+
+      #
+      # the hash of {Switch}
+      #
+      # @example
+      #   p context.switches
+      #   #=> {"switch #0"=>#<Trema::Switch:0xb73c9328>, ...}
+      #
+      # @return [Hash]
+      #
+      # @api public
+      #
+      attr_reader :switches
 
 
+      #
+      # Creates a new Trema DSL context
+      #
+      # @example
+      #   context = Trema::DSL::Context.new
+      #
+      # @return [Context]
+      #
+      # @api public
+      #
       def initialize
         @port = 6633
         @tremashark = false
@@ -53,7 +132,14 @@ module Trema
 
 
       #
+      # Returns {PacketinFilter} configuration
+      #
+      # @example
+      #   context.packetin_filter => #<Trema::PacketinFilter:0xb73c9328>
+      #
       # @return [PacketinFilter]
+      #
+      # @api public
       #
       def packetin_filter
         @packetin_filter.values.last
@@ -61,7 +147,14 @@ module Trema
 
 
       #
+      # Returns {SwitchManager} configuration
+      #
+      # @example
+      #   context.switch_manager => #<Trema::SwitchManager:0xb73c9328>
+      #
       # @return [SwitchManager]
+      #
+      # @api public
       #
       def switch_manager
         @switch_manager.values.last
@@ -69,7 +162,14 @@ module Trema
 
 
       #
-      # @return [Context] dump a {Context} object to <code>file_name</code>.
+      # Dumps a {Context} object to <code>file_name</code>
+      #
+      # @example
+      #   context.dump_to "/tmp/.trema_session.dump"
+      #
+      # @return [Context]
+      #
+      # @api public
       #
       def dump_to file_name
         File.open( file_name, "w" ) do | f |
@@ -80,7 +180,14 @@ module Trema
 
 
       #
-      # @return [Context] load a {Context} object from <code>file_name</code>.
+      # Loads a {Context} object from <code>file_name</code>
+      #
+      # @example
+      #   context.load_from "/tmp/.trema_session.dump"
+      #
+      # @return [Context]
+      #
+      # @api public
       #
       def load_from file_name
         if FileTest.exists?( file_name )
