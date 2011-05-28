@@ -28,7 +28,7 @@ module Trema
       before :each do
         ::Process.stub!( :fork ).and_yield
         ::Process.stub!( :waitpid )
-        SwitchManager.stub!( :new ).and_return( mock( "switch manager", :run => nil ) )
+        SwitchManager.stub!( :new ).and_return( mock( "switch manager", :run! => nil ) )
       end
 
       
@@ -55,7 +55,7 @@ module Trema
 
         it "should run switch_manager" do
           switch_manager = mock( "switch manager" )
-          switch_manager.should_receive( :run ).once
+          switch_manager.should_receive( :run! ).once
 
           context = mock(
             "context",
@@ -79,7 +79,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch_manager", :run => nil ),
+            :switch_manager => mock( "switch_manager", :run! => nil ),
             :packetin_filter => packetin_filter,
             :links => {},
             :hosts => {},
@@ -108,7 +108,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil ),
             :packetin_filter => nil,
             :links => { "link0" => link0, "link1" => link1, "link2" => link2 },
             :hosts => {},
@@ -138,7 +138,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil ),
             :packetin_filter => nil,
             :links => {},
             :hosts => { "host0" => host0, "host1" => host1, "host2" => host2 },
@@ -164,7 +164,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil ),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -190,7 +190,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil ),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -215,7 +215,7 @@ module Trema
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil ),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},

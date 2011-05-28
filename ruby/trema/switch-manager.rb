@@ -1,6 +1,4 @@
 #
-# The controller class of switch_manager.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -26,10 +24,34 @@ require "trema/switch-daemon"
 
 
 module Trema
+  #
+  # The controller class of switch_manager
+  #
   class SwitchManager < NetworkComponent
+    #
+    # Event forwarding rule
+    #
+    # @example
+    #   switch_manager.rule => { :port_status => "topology manager", :packet_in => "controller", :state_notify => "topology manager" }
+    #
+    # @return [Hash]
+    #
+    # @api public
+    #
     attr_reader :rule
 
 
+    #
+    # Creates a switch manager controller
+    #
+    # @example
+    #   rule = { :port_status => "topology manager", :packet_in => "controller", :state_notify => "topology manager" }
+    #   switch_manager = Trema::SwitchManager.new( rule )
+    #
+    # @return [SwitchManager]
+    #
+    # @api public
+    #
     def initialize rule, port = nil
       @rule = rule
       @options = [ "--daemonize" ]
@@ -38,12 +60,32 @@ module Trema
     end
 
 
+    #
+    # Returns the name of switch manager
+    #
+    # @example
+    #   switch_maanger.name => "switch manager"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def name
       "switch manager"
     end
     
 
-    def run
+    #
+    # Runs an switch manager process
+    #
+    # @example
+    #   switch_manager.run!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def run!
       sh "#{ Executables.switch_manager } #{ @options.join ' ' } -- #{ switch_options.join ' ' }"
     end
 
@@ -53,6 +95,13 @@ module Trema
     ################################################################################
 
 
+    #
+    # Returns the command line options of switch daemon ({SwitchDaemon})
+    #
+    # @return [Array]
+    #
+    # @api private
+    #
     def switch_options
       SwitchDaemon.new( @rule ).options
     end

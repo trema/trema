@@ -39,7 +39,7 @@ def trema_session controller_class
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-    SwitchManager.new( rule, @context.port ).run
+    SwitchManager.new( rule, @context.port ).run!
     
     @context.links.each do | name, link |
       link.up!

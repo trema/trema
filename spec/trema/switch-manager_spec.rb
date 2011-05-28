@@ -25,11 +25,12 @@ require "trema/switch-manager"
 module Trema
   describe SwitchManager do
     it "should run switch_manager command with proper options" do
-      switch_manager =
-        SwitchManager.new( :port_status => "PORT_STATUS_HANDLER", :packet_in => "PACKETIN_HANDLER", :state_notify => "STATENOTIFY_HANDLER" )
-      switch_manager.should_receive( :sh ).once.with( /switch_manager \-\-daemonize \-\- port_status::PORT_STATUS_HANDLER packet_in::PACKETIN_HANDLER state_notify::STATENOTIFY_HANDLER$/ )
+      rule = { :port_status => "topology", :packet_in => "controller", :state_notify => "topology" }
+      switch_manager = SwitchManager.new( rule )
 
-      switch_manager.run
+      switch_manager.should_receive( :sh ).once.with( /port_status::topology packet_in::controller state_notify::topology$/ )
+
+      switch_manager.run!
     end
   end
 end

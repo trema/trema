@@ -76,7 +76,7 @@ module Trema
             end
             SwitchManager.new( rule, @context.port )
           end
-        switch_manager.run
+        switch_manager.run!
       end
 
 
