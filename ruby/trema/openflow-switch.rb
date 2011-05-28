@@ -21,32 +21,33 @@
 
 
 require "trema/switch"
-require "trema/dsl/switch"
 
 
-class OpenflowSwitch
-  attr_reader :name
+module Trema
+  class OpenflowSwitch
+    attr_reader :name
 
 
-  def initialize stanza
-    @name = stanza.name
-    @stanza = stanza
-    Trema::Switch.add self
-  end
+    def initialize stanza
+      @name = stanza.name
+      @stanza = stanza
+      Switch.add self
+    end
 
 
-  def dpid_long
-    @stanza[ :dpid_long ]
-  end
+    def dpid_long
+      @stanza[ :dpid_long ]
+    end
 
 
-  def dpid_short
-    @stanza[ :dpid_short ]
-  end
+    def dpid_short
+      @stanza[ :dpid_short ]
+    end
 
 
-  def run
-    # do nothing
+    def run
+      # do nothing
+    end
   end
 end
 

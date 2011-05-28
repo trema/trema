@@ -22,6 +22,9 @@ require "trema/network-component"
 
 
 module Trema
+  #
+  # Keeps a list of {OpenflowSwitch} and {OpenVswitch}
+  #
   class Switch < NetworkComponent
   end
 end

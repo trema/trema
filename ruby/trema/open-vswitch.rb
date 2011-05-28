@@ -30,123 +30,125 @@ require "trema/process"
 require "trema/switch"
 
 
-class OpenVswitch < OpenflowSwitch
-  def initialize stanza, port
-    super stanza
-    @port = port
-    @interfaces = []
-    @ofctl = Trema::Ofctl.new
-  end
-
-
-  def add_interface name
-    @interfaces << name
-  end
-
-
-  def datapath
-    "vsw_#{ @name }"
-  end
-
-
-  def run
-    FileUtils.rm_f log_file
-    sh "sudo #{ Trema::Executables.ovs_openflowd } #{ options } netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
-  end
-
-
-  def run_rspec
-    run
-    @ofctl.drop_ipv6 self
-    @log = File.open( log_file, "r" )
-    @log.read  # read all to skip the last flow_mod
-  end
-
-
-  def shutdown!
-    if @log
-      examine_log
-      @log.close
+module Trema
+  class OpenVswitch < OpenflowSwitch
+    def initialize stanza, port
+      super stanza
+      @port = port
+      @interfaces = []
+      @ofctl = Trema::Ofctl.new
     end
-    Trema::Process.read( pid_file, @name ).kill!
-  end
 
 
-  def dump_flows
-    puts @ofctl.dump_flows( self )
-  end
-  
+    def add_interface name
+      @interfaces << name
+    end
 
-  def flows
-    @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
-      flow = Trema::Flow.parse( each )
-      if flow.dl_type == 0x86dd
-        nil
-      else
-        flow
+
+    def datapath
+      "vsw_#{ @name }"
+    end
+
+
+    def run
+      FileUtils.rm_f log_file
+      sh "sudo #{ Trema::Executables.ovs_openflowd } #{ options } netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
+    end
+
+
+    def run_rspec
+      run
+      @ofctl.drop_ipv6 self
+      @log = File.open( log_file, "r" )
+      @log.read  # read all to skip the last flow_mod
+    end
+
+
+    def shutdown!
+      if @log
+        examine_log
+        @log.close
       end
-    end.compact
-  end
-  
-
-  ################################################################################
-  private
-  ################################################################################
+      Trema::Process.read( pid_file, @name ).kill!
+    end
 
 
-  def flow_mod_add line
-  end
-  
+    def dump_flows
+      puts @ofctl.dump_flows( self )
+    end
+    
 
-  def examine_log
-    while l = @log.gets
-      if /received: flow_mod \(xid=.+\):.* ADD:/=~ l
-        flow_mod_add l
+    def flows
+      @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
+        flow = Trema::Flow.parse( each )
+        if flow.dl_type == 0x86dd
+          nil
+        else
+          flow
+        end
+      end.compact
+    end
+    
+
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def flow_mod_add line
+    end
+    
+
+    def examine_log
+      while l = @log.gets
+        if /received: flow_mod \(xid=.+\):.* ADD:/=~ l
+          flow_mod_add l
+        end
       end
     end
-  end
-  
+    
 
-  def ip
-    @stanza[ :ip ]
-  end
-
-
-  def options
-    ( default_options + ports_option ).join( " " )
-  end
+    def ip
+      @stanza[ :ip ]
+    end
 
 
-  def default_options
-    [
-      "--detach",
-      "--out-of-band",
-      "--no-resolv-conf",
-      "--fail=closed",
-      "--inactivity-probe=180",
-      "--rate-limit=40000",
-      "--burst-limit=20000",
-      "--pidfile=#{ pid_file }",
-      "--verbose=ANY:file:dbg",
-      "--verbose=ANY:console:err",
-      "--log-file=#{ log_file }",
-      "--datapath-id=#{ dpid_long }",
-    ]
-  end
+    def options
+      ( default_options + ports_option ).join( " " )
+    end
 
 
-  def pid_file
-    File.join Trema.tmp, "openflowd.#{ @name }.pid"
-  end
-  
+    def default_options
+      [
+       "--detach",
+       "--out-of-band",
+       "--no-resolv-conf",
+       "--fail=closed",
+       "--inactivity-probe=180",
+       "--rate-limit=40000",
+       "--burst-limit=20000",
+       "--pidfile=#{ pid_file }",
+       "--verbose=ANY:file:dbg",
+       "--verbose=ANY:console:err",
+       "--log-file=#{ log_file }",
+       "--datapath-id=#{ dpid_long }",
+      ]
+    end
 
-  def log_file
-    "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
-  end
+
+    def pid_file
+      File.join Trema.tmp, "openflowd.#{ @name }.pid"
+    end
+    
+
+    def log_file
+      "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
+    end
 
 
-  def ports_option
-    @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+    def ports_option
+      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+    end
   end
 end
 

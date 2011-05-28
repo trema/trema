@@ -55,14 +55,14 @@ module Trema::CommonCommands
   def switch name = nil, &block
     stanza = Trema::DSL::Switch.new( name )
     stanza.instance_eval( &block )
-    OpenflowSwitch.new( stanza )
+    Trema::OpenflowSwitch.new( stanza )
   end
 
 
   def vswitch name = nil, &block
     stanza = Trema::DSL::Vswitch.new( name )
     stanza.instance_eval( &block )
-    OpenVswitch.new( stanza, @context.port )
+    Trema::OpenVswitch.new( stanza, @context.port )
   end
 
 
