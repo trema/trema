@@ -53,7 +53,7 @@ module Trema
 
 
       #
-      # @return [PacketinFilter] a {PacketinFilter} object.
+      # @return [PacketinFilter]
       #
       def packetin_filter
         @packetin_filter.values.last
@@ -61,7 +61,7 @@ module Trema
 
 
       #
-      # @return [SwitchManager] a {SwitchManager} object.
+      # @return [SwitchManager]
       #
       def switch_manager
         @switch_manager.values.last
