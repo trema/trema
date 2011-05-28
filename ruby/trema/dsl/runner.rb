@@ -81,7 +81,7 @@ module Trema
 
 
       def maybe_run_packetin_filter
-        @context.packetin_filter.run if @context.packetin_filter
+        @context.packetin_filter.run! if @context.packetin_filter
       end
 
 

@@ -74,7 +74,7 @@ module Trema
 
         it "should run packetin_filter" do
           packetin_filter = mock
-          packetin_filter.should_receive( :run ).once
+          packetin_filter.should_receive( :run! ).once
 
           context = mock(
             "context",

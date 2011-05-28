@@ -1,6 +1,4 @@
 #
-# The controller class of packetin_filter.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -25,7 +23,20 @@ require "trema/network-component"
 
 
 module Trema
+  #
+  # The controller class of packetin_filter.
+  #
   class PacketinFilter < NetworkComponent
+    #
+    # Creates a PacketinFilter controller
+    #
+    # @example
+    #   Trema::PacketinFilter.new( :lldp => "topology manager", :packet_in => "OpenFlow ping-pong" )
+    #
+    # @return [PacketinFilter]
+    #
+    # @api public
+    #
     def initialize queues
       check_mandatory_options queues
       @queues = queues
@@ -33,12 +44,32 @@ module Trema
     end
 
 
+    #
+    # Returns the name of packetin filter
+    #
+    # @example
+    #   packetin_filter.name => "packet-in filter"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def name
       "packet-in filter"
     end
     
 
-    def run
+    #
+    # Starts a packetin filter process
+    #
+    # @example
+    #   packetin_filter.run!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def run!
       sh "#{ Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"
     end
 
@@ -48,6 +79,13 @@ module Trema
     ################################################################################
 
 
+    #
+    # Checks mandatory options for packetin_filter command
+    #
+    # @return [undefined]
+    #
+    # @api private
+    #
     def check_mandatory_options queues
       [ :lldp, :packet_in ].each do | each |
         raise ":#{ each } is a mandatory option" if queues[ each ].nil?
@@ -55,11 +93,25 @@ module Trema
     end
 
 
+    #
+    # The lldp option of packetin_filter command
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def lldp_queue
       "lldp::#{ @queues[ :lldp ] }"
     end
 
 
+    #
+    # The packetin option of packetin_filter command
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def packetin_queue
       "packet_in::#{ @queues[ :packet_in ] }"
     end
