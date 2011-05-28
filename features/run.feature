@@ -15,6 +15,7 @@ Feature: run trema application with `trema run' command
       }
       """
       And wait until "dumper" is up
+      And *** sleep 5 ***
     Then switch_manager is started
       And dumper is started
 
@@ -26,6 +27,7 @@ Feature: run trema application with `trema run' command
       }
       """
       And wait until "learning_switch" is up
+      And *** sleep 5 ***
     Then "switch_manager" should be executed with option = "--daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch"
       And "learning_switch" should be executed with option = "--name learning_switch -i 0xabc"
 
