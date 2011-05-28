@@ -19,23 +19,23 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/link"
 require "trema/link"
 
 
 module Trema
   describe Link do
     before :each do
-      @stanza = Trema::DSL::Link.new( "Virtual Host", "Virtual Switch" )
+      Trema::Link.instances.clear
+      @stanza = mock( "link stanza", :peers => [ "Virtual Host", "Virtual Switch" ] )
     end
 
 
     it "returns two network interfaces for each peer" do
-      link = Link.new( @stanza, 0 )
+      link = Link.new( @stanza )
       link.interfaces[ 0 ].should == "trema0-0"
       link.interfaces[ 1 ].should == "trema0-1"
 
-      link = Link.new( @stanza, 1 )
+      link = Link.new( @stanza )
       link.interfaces[ 0 ].should == "trema1-0"
       link.interfaces[ 1 ].should == "trema1-1"
     end
@@ -43,7 +43,7 @@ module Trema
 
     context "when creating/deleting a link" do
       before :each do
-        @link = Link.new( @stanza, 0 )
+        @link = Link.new( @stanza )
       end
 
 

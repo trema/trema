@@ -1,6 +1,4 @@
 #
-# Network link between hosts and switches.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,33 +18,84 @@
 #
 
 
-require "trema/host"
 require "trema/network-component"
-require "trema/switch"
 
 
 module Trema
+  #
+  # Network link between hosts and switches.
+  #
   class Link < NetworkComponent
+    #
+    # Returns a pair of link peers
+    #
+    # @example
+    #   link.peers => [ "host 0", "switch 1" ]
+    #
+    # @return [Array]
+    #
+    # @api public
+    #
     attr_reader :peers
 
 
-    def initialize stanza, link_id
-      @link_id = link_id
+    #
+    # Creates a new Trema link from {DSL::Link}
+    #
+    # @example
+    #   link = Trema::Link.new( stanza )
+    #
+    # @return [Link]
+    #
+    # @api public
+    #
+    def initialize stanza
+      @link_id = self.class.instances.size
       @peers = stanza.peers
       self.class.add self
     end
 
 
+    #
+    # Returns the name of link
+    #
+    # @example
+    #   link.name => "trema1"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def name
       "trema#{ @link_id }"
     end
 
-    
+
+    #
+    # Returns a pair of network interface name
+    #
+    # @example
+    #   link.interfaces => [ "trema0-0", "trema0-1" ]
+    #
+    # @return [Array]
+    #
+    # @api public
+    #
     def interfaces
       [ "trema#{ @link_id }-0", "trema#{ @link_id }-1" ]
     end
 
 
+    #
+    # Enables network interfaces
+    #
+    # @example
+    #   link.up!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def up!
       sh "sudo ip link add name #{ interfaces[ 0 ] } type veth peer name #{ interfaces[ 1 ] }"
       sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } up"
@@ -54,6 +103,16 @@ module Trema
     end
 
 
+    #
+    # Disables network interfaces
+    #
+    # @example
+    #   link.down!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def down!
       sh "sudo /sbin/ifconfig #{ interfaces[ 0 ] } down 2>/dev/null" rescue nil
       sh "sudo /sbin/ifconfig #{ interfaces[ 1 ] } down 2>/dev/null" rescue nil

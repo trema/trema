@@ -48,8 +48,7 @@ module Trema::CommonCommands
 
   def link peer0, peer1
     stanza = Trema::DSL::Link.new( peer0, peer1 )
-    link_index = @context.links.size
-    Trema::Link.new( stanza, link_index )
+    Trema::Link.new( stanza )
   end
 
 
