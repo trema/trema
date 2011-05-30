@@ -112,6 +112,7 @@ module Trema
     # @api public
     #
     def down!
+      # FIXME: do not rescue nil
       sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
     end
   end
