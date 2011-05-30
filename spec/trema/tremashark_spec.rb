@@ -22,12 +22,14 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema/tremashark"
 
 
-describe Tremashark do
-  it "should run tremashark command with proper options" do
-    tremashark = Tremashark.new
-    tremashark.should_receive( :sh ).once.with( /tremashark \-\-daemonize$/ )
+module Trema
+  describe Tremashark do
+    it "should run tremashark command with proper options" do
+      tremashark = Tremashark.new
+      tremashark.should_receive( :sh ).once.with( /tremashark \-\-daemonize$/ )
 
-    tremashark.run
+      tremashark.run
+    end
   end
 end
 

@@ -37,7 +37,7 @@ require "trema/tremashark"
 
 module Trema::CommonCommands
   def use_tremashark
-    @context.tremashark = Tremashark.new
+    @context.tremashark = Trema::Tremashark.new
   end
 
 

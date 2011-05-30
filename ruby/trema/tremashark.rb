@@ -23,9 +23,11 @@
 require "trema/executables"
 
 
-class Tremashark
-  def run
-    sh "#{ Trema::Executables.tremashark } --daemonize"
+module Trema
+  class Tremashark
+    def run
+      sh "#{ Executables.tremashark } --daemonize"
+    end
   end
 end
 
