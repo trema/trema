@@ -1,6 +1,4 @@
 #
-# The controller class of Open vSwitch.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -35,6 +33,16 @@ module Trema
   # Open vSwitch http://openvswitch.org/
   #
   class OpenVswitch < OpenflowSwitch
+    #
+    # Creates a new Open vSwitch from {DSL::Vswitch}
+    #
+    # @example
+    #   switch = Trema::OpenVswitch.new( stanza, 6633 )
+    #
+    # @return [OpenVswitch]
+    #
+    # @api public
+    #
     def initialize stanza, port
       super stanza
       @port = port
@@ -43,22 +51,62 @@ module Trema
     end
 
 
+    #
+    # Add a network interface used for a virtual port
+    #
+    # @example
+    #   switch.add_interface "trema3-0"
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def add_interface name
       @interfaces << name
     end
 
 
+    #
+    # Returns the unique name that identifies an Open vSwitch instance
+    #
+    # @example
+    #   switch.datapath_id
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def datapath
       "vsw_#{ @name }"
     end
 
 
+    #
+    # Runs an Open vSwitch process
+    #
+    # @example
+    #   switch.run!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def run!
       FileUtils.rm_f log_file
       sh "sudo #{ Executables.ovs_openflowd } #{ options }"
     end
 
 
+    #
+    # Runs an Open vSwitch process in rspec mode
+    #
+    # @example
+    #   switch.run_rspec!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def run_rspec!
       run!
       drop_packets_from_unknown_hosts
@@ -66,6 +114,16 @@ module Trema
     end
 
 
+    #
+    # Kills running Open vSwitch process
+    #
+    # @example
+    #   switch.shutdown!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
     def shutdown!
       if @log
         examine_log
@@ -73,17 +131,39 @@ module Trema
       end
       Trema::Process.read( pid_file, @name ).kill!
     end
-
-
-    def dump_flows
-      puts @ofctl.dump_flows( self )
-    end
     
 
+    #
+    # Returns flow entries
+    #
+    # @example
+    #   switch.flows
+    #
+    # @return [Array]
+    #
+    # @api public
+    #
     def flows
       @ofctl.flows( self ).select do | each |
         not each.rspec_flow?
       end
+    end
+    
+
+    #
+    # A stub handler when flow_mod_add is called
+    #
+    # @example
+    #   def switch.flow_mod_add line
+    #     p "New flow_mod!: #{ line }"
+    #   end
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def flow_mod_add line
+      # Do nothing
     end
     
 
@@ -92,6 +172,13 @@ module Trema
     ################################################################################
 
 
+    #
+    # Add flow entries to drop packets from unkown (not appear in DSL) hosts
+    #
+    # @return [undefined]
+    #
+    # @api private
+    #
     def drop_packets_from_unknown_hosts
       @ofctl.add_flow self, :priority => 0, :actions => "drop"
       Trema::Host.each do | each |
@@ -100,6 +187,13 @@ module Trema
     end
 
 
+    #
+    # Proceed the file pointer to EOF
+    #
+    # @return [IO]
+    #
+    # @api private
+    #
     def read_log_all
       log = File.open( log_file, "r" )
       log.read
@@ -107,10 +201,13 @@ module Trema
     end
     
 
-    def flow_mod_add line
-    end
-    
-
+    #
+    # Examine log to execute rspec's expectations
+    #
+    # @return [undefined]
+    #
+    # @api private
+    #
     def examine_log
       while @log.gets
         if /received: flow_mod \(xid=.+\):.* ADD:/=~ $_
@@ -120,16 +217,37 @@ module Trema
     end
     
 
+    #
+    # The IP address
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def ip
       @stanza[ :ip ]
     end
 
 
+    #
+    # Command-line options
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def options
       default_options.join( " " ) + " netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
     end
 
 
+    #
+    # The list of --xyz= command-line options
+    #
+    # @return [Array]
+    #
+    # @api private
+    #
     def default_options
       [
        "--detach",
@@ -148,18 +266,39 @@ module Trema
     end
 
 
+    #
+    # --ports= option
+    #
+    # @return [Array]
+    #
+    # @api private
+    #
+    def ports_option
+      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+    end
+
+
+    #
+    # The path of pid file
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def pid_file
       File.join Trema.tmp, "openflowd.#{ @name }.pid"
     end
     
 
+    #
+    # The path of log file
+    #
+    # @return [String]
+    #
+    # @api private
+    #
     def log_file
       "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
-    end
-
-
-    def ports_option
-      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
     end
   end
 end
