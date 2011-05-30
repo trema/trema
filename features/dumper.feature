@@ -31,6 +31,7 @@ Feature: Dump openflow events with dumper
       link "0xabc", "host2"
       """
       And wait until "dumper" is up
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host2"
       And I terminate all trema services
     Then the output should include:
