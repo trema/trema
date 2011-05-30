@@ -31,6 +31,9 @@ require "trema/switch"
 
 
 module Trema
+  #
+  # Open vSwitch http://openvswitch.org/
+  #
   class OpenVswitch < OpenflowSwitch
     def initialize stanza, port
       super stanza
@@ -58,9 +61,9 @@ module Trema
 
     def run_rspec!
       run!
-      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ datapath } priority=0,actions=drop 2>/dev/null"
+      @ofctl.add_flow self, :priority => 0, :actions => "drop"
       Trema::Host.each do | each |
-        sh "sudo #{ Executables.ovs_ofctl } add-flow #{ datapath } dl_type=0x0800,nw_src=#{ each.ip },priority=1,actions=controller 2>/dev/null"
+        @ofctl.add_flow self, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
       end
       @log = File.open( log_file, "r" )
       @log.read  # read all to skip the last flow_mod
@@ -84,7 +87,7 @@ module Trema
     def flows
       @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
         flow = Trema::Flow.parse( each )
-        if ( flow.actions == "drop" and flow.priority == 0 ) or flow.actions == "CONTROLLER:65535"
+        if flow.rspec_flow?
           nil
         else
           flow
@@ -103,9 +106,9 @@ module Trema
     
 
     def examine_log
-      while l = @log.gets
-        if /received: flow_mod \(xid=.+\):.* ADD:/=~ l
-          flow_mod_add l
+      while @log.gets
+        if /received: flow_mod \(xid=.+\):.* ADD:/=~ $_
+          flow_mod_add $_
         end
       end
     end

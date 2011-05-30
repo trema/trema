@@ -37,6 +37,11 @@ module Trema
       end
       flow
     end
+
+
+    def rspec_flow?
+      ( @actions == "drop" and @priority == 0 ) or @actions == "CONTROLLER:65535"
+    end
   end
 end
 

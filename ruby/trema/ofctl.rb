@@ -25,6 +25,16 @@ require "trema/executables"
 
 module Trema
   class Ofctl
+    def add_flow switch, options
+      actions = options[ :actions ]
+      options.delete :actions
+      option_string = options.collect do | k, v |
+        "#{ k }=#{ v }"
+      end.join( "," )
+      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.datapath } #{ option_string },actions=#{ actions } 2>/dev/null"
+    end
+    
+    
     def dump_flows switch
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.datapath } 2>&1`
     end
