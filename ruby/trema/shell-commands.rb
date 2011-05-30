@@ -26,6 +26,16 @@ require "trema/dsl"
 include Trema
 
 
+def switch name
+  Trema::Switch[ name ]
+end
+
+
+def host name
+  Trema::Host[ name ]
+end
+
+
 def run
   sanity_check
 
@@ -54,13 +64,10 @@ def killall
 end
 
 
-def send_packets options
+def send_packets source, dest, options = {}
   sanity_check
 
-  source = Host[ options[ :source ] ]
-  dest = Host[ options[ :dest ] ]
-
-  Trema::Cli.new( source ).send_packets( dest, options )
+  Trema::Cli.new( host( source ) ).send_packets( host( dest ), options )
 end
 
 

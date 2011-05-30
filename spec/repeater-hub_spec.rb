@@ -83,29 +83,29 @@ describe RepeaterHub do
 
   it "should send a flow_mod message" do
     trema_session( RepeaterHub ) do
-      Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).once
+      switch( "repeater_hub" ).should_receive( :flow_mod_add ).once
 
-      send_packets :source => "host1", :dest => "host2"
+      send_packets "host1", "host2"
     end    
   end
   
   
   it "should add a flow entry with actions = FLOOD" do
     trema_session( RepeaterHub ) do
-      send_packets :source => "host1", :dest => "host2"
+      send_packets "host1", "host2"
 
-      Switch[ "repeater_hub" ].flows.size.should == 1
-      Switch[ "repeater_hub" ].flows[ 0 ].actions.should == "FLOOD"
+      switch( "repeater_hub" ).flows.size.should == 1
+      switch( "repeater_hub" ).flows[ 0 ].actions.should == "FLOOD"
     end
   end
 
 
   it "should repeat packets to host2 and host3" do
     trema_session( RepeaterHub ) do
-      send_packets :source => "host1", :dest => "host2", :pps => 100
+      send_packets "host1", "host2", :pps => 100
       
-      Host[ "host2" ].rx_stats.n_pkts.should == 100
-      Host[ "host3" ].rx_stats.n_pkts.should == 100
+      host( "host2" ).rx_stats.n_pkts.should == 100
+      host( "host3" ).rx_stats.n_pkts.should == 100
     end
   end
 end
