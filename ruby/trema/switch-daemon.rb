@@ -20,42 +20,44 @@
 #
 
 
-class SwitchDaemon
-  def initialize queues
-    check_mandatory_options queues
-    @queues = queues
-  end
-
-
-  def options
-    [ portstatus_queue, packetin_queue, statenotify_queue ]
-  end
-
-
-  ################################################################################
-  private
-  ################################################################################
-
-
-  def check_mandatory_options queues
-    [ :port_status, :packet_in, :state_notify ].each do | each |
-      raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+module Trema
+  class SwitchDaemon
+    def initialize queues
+      check_mandatory_options queues
+      @queues = queues
     end
-  end
 
 
-  def portstatus_queue
-    "port_status::#{ @queues[ :port_status ] }"
-  end
-
-  
-  def packetin_queue
-    "packet_in::#{ @queues[ :packet_in ] }"
-  end
+    def options
+      [ portstatus_queue, packetin_queue, statenotify_queue ]
+    end
 
 
-  def statenotify_queue
-    "state_notify::#{ @queues[ :state_notify ] }"
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def check_mandatory_options queues
+      [ :port_status, :packet_in, :state_notify ].each do | each |
+        raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+      end
+    end
+
+
+    def portstatus_queue
+      "port_status::#{ @queues[ :port_status ] }"
+    end
+
+    
+    def packetin_queue
+      "packet_in::#{ @queues[ :packet_in ] }"
+    end
+
+
+    def statenotify_queue
+      "state_notify::#{ @queues[ :state_notify ] }"
+    end
   end
 end
 
