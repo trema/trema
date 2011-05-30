@@ -25,11 +25,6 @@ require "trema/executables"
 
 module Trema
   class Ofctl
-    def drop_ipv6 switch
-      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.datapath } dl_type=0x86dd,actions=drop 2>/dev/null"
-    end
-
-    
     def dump_flows switch
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.datapath } 2>&1`
     end

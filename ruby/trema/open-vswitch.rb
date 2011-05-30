@@ -58,7 +58,10 @@ module Trema
 
     def run_rspec!
       run!
-      @ofctl.drop_ipv6 self
+      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ datapath } priority=0,actions=drop 2>/dev/null"
+      Trema::Host.each do | each |
+        sh "sudo #{ Executables.ovs_ofctl } add-flow #{ datapath } dl_type=0x0800,nw_src=#{ each.ip },priority=1,actions=controller 2>/dev/null"
+      end
       @log = File.open( log_file, "r" )
       @log.read  # read all to skip the last flow_mod
     end
@@ -81,7 +84,7 @@ module Trema
     def flows
       @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
         flow = Trema::Flow.parse( each )
-        if flow.dl_type == 0x86dd
+        if ( flow.actions == "drop" and flow.priority == 0 ) or flow.actions == "CONTROLLER:65535"
           nil
         else
           flow

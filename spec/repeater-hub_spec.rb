@@ -33,6 +33,15 @@ class RepeaterHub < Controller
       :buffer_id => message.buffer_id,
       :actions => ActionOutput.new( OFPP_FLOOD )
     )
+    if not message.buffered?
+      send_packet_out(
+        message.datapath_id,
+        message.buffer_id,
+        message.in_port,
+        ActionOutput.new( OFPP_FLOOD ),
+        message.data
+      )
+    end
   end
 end
 
@@ -75,14 +84,15 @@ describe RepeaterHub do
   it "should send a flow_mod message" do
     trema_session( RepeaterHub ) do
       Switch[ "repeater_hub" ].should_receive( :flow_mod_add ).once
-      Host[ "host1" ].send_packet Host[ "host2" ]
+
+      send_packets :source => "host1", :dest => "host2"
     end    
   end
   
   
   it "should add a flow entry with actions = FLOOD" do
     trema_session( RepeaterHub ) do
-      Host[ "host1" ].send_packet Host[ "host2" ]
+      send_packets :source => "host1", :dest => "host2"
 
       Switch[ "repeater_hub" ].flows.size.should == 1
       Switch[ "repeater_hub" ].flows[ 0 ].actions.should == "FLOOD"
@@ -92,7 +102,7 @@ describe RepeaterHub do
 
   it "should repeat packets to host2 and host3" do
     trema_session( RepeaterHub ) do
-      Host[ "host1" ].send_packet Host[ "host2" ], :pps => 100
+      send_packets :source => "host1", :dest => "host2", :pps => 100
       
       Host[ "host2" ].rx_stats.n_pkts.should == 100
       Host[ "host3" ].rx_stats.n_pkts.should == 100

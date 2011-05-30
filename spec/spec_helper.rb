@@ -25,6 +25,7 @@ require "rubygems"
 
 require "rspec"
 require "trema/dsl/context"
+require "trema/shell-commands"
 
 
 def trema_conf &block
