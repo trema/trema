@@ -1,6 +1,4 @@
 #
-# Hardware switch supporting OpenFlow.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -24,10 +22,33 @@ require "trema/switch"
 
 
 module Trema
+  #
+  # Hardware switch that supports OpenFlow protocol.
+  #
   class OpenflowSwitch
+    #
+    # The name of this switch
+    #
+    # @example
+    #   switch.name #=> "My expensive OpenFlow switch"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     attr_reader :name
 
 
+    #
+    # Creates a new OpenflowSwitch from {DSL::Switch}
+    #
+    # @example
+    #   switch = Trema::OpenflowSwitch.new( stanza )
+    #
+    # @return [OpenflowSwitch]
+    #
+    # @api public
+    #
     def initialize stanza
       @name = stanza.name
       @stanza = stanza
@@ -35,17 +56,47 @@ module Trema
     end
 
 
+    #
+    # Returns datapath id in long format
+    #
+    # @example
+    #   switch.dpid_long #=> "0000000000000abc"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def dpid_long
       @stanza[ :dpid_long ]
     end
 
 
+    #
+    # Returns datapath id prefixed with "0x"
+    #
+    # @example
+    #   switch.dpid_short #=> "0xabc"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
     def dpid_short
       @stanza[ :dpid_short ]
     end
 
 
-    def run
+    # 
+    # Just a placeholder, do nothing
+    #
+    # @example
+    #   switch.run!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def run!
       # do nothing
     end
   end

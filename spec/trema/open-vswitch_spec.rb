@@ -52,7 +52,7 @@ module Trema
 
       @vswitch.add_interface "trema0-0"
       @vswitch.add_interface "trema0-1"
-      @vswitch.run
+      @vswitch.run!
     end
   end
 end

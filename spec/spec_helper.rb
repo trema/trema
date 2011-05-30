@@ -48,7 +48,7 @@ def trema_session controller_class
       host.run!
     end
     @context.switches.each do | name, switch |
-      switch.run_rspec
+      switch.run_rspec!
     end
     @context.hosts.each do | name, host |
       host.add_arp_entry @context.hosts.values - [ host ]

@@ -109,7 +109,7 @@ module Trema
 
       def maybe_run_switches
         @context.switches.each do | name, switch |
-          switch.run
+          switch.run!
         end
 
         @context.hosts.each do | name, host |

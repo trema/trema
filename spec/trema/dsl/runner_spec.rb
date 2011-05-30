@@ -153,13 +153,13 @@ module Trema
 
         it "should run switches" do
           switch0 = mock( "switch0" )
-          switch0.should_receive( :run ).once.ordered
+          switch0.should_receive( :run! ).once.ordered
 
           switch1 = mock( "switch1" )
-          switch1.should_receive( :run ).once.ordered
+          switch1.should_receive( :run! ).once.ordered
 
           switch2 = mock( "switch2" )
-          switch2.should_receive( :run ).once.ordered
+          switch2.should_receive( :run! ).once.ordered
 
           context = mock(
             "context",

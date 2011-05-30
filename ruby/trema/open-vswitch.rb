@@ -50,14 +50,14 @@ module Trema
     end
 
 
-    def run
+    def run!
       FileUtils.rm_f log_file
       sh "sudo #{ Trema::Executables.ovs_openflowd } #{ options } netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
     end
 
 
-    def run_rspec
-      run
+    def run_rspec!
+      run!
       @ofctl.drop_ipv6 self
       @log = File.open( log_file, "r" )
       @log.read  # read all to skip the last flow_mod
