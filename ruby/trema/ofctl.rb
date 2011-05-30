@@ -33,6 +33,13 @@ module Trema
       end.join( "," )
       sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.datapath } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
+
+
+    def flows switch
+      dump_flows( switch ).split( "\n" )[ 2..-1 ].collect do | each |
+        Trema::Flow.parse( each )
+      end.compact
+    end
     
     
     def dump_flows switch

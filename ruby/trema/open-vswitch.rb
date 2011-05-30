@@ -55,18 +55,14 @@ module Trema
 
     def run!
       FileUtils.rm_f log_file
-      sh "sudo #{ Trema::Executables.ovs_openflowd } #{ options } netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
+      sh "sudo #{ Executables.ovs_openflowd } #{ options }"
     end
 
 
     def run_rspec!
       run!
-      @ofctl.add_flow self, :priority => 0, :actions => "drop"
-      Trema::Host.each do | each |
-        @ofctl.add_flow self, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
-      end
-      @log = File.open( log_file, "r" )
-      @log.read  # read all to skip the last flow_mod
+      drop_packets_from_unknown_hosts
+      @log = read_log_all
     end
 
 
@@ -85,14 +81,9 @@ module Trema
     
 
     def flows
-      @ofctl.dump_flows( self ).split( "\n" )[ 2..-1 ].collect do | each |
-        flow = Trema::Flow.parse( each )
-        if flow.rspec_flow?
-          nil
-        else
-          flow
-        end
-      end.compact
+      @ofctl.flows( self ).select do | each |
+        not each.rspec_flow?
+      end
     end
     
 
@@ -100,6 +91,21 @@ module Trema
     private
     ################################################################################
 
+
+    def drop_packets_from_unknown_hosts
+      @ofctl.add_flow self, :priority => 0, :actions => "drop"
+      Trema::Host.each do | each |
+        @ofctl.add_flow self, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
+      end
+    end
+
+
+    def read_log_all
+      log = File.open( log_file, "r" )
+      log.read
+      log
+    end
+    
 
     def flow_mod_add line
     end
@@ -120,7 +126,7 @@ module Trema
 
 
     def options
-      ( default_options + ports_option ).join( " " )
+      default_options.join( " " ) + " netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
     end
 
 
@@ -138,7 +144,7 @@ module Trema
        "--verbose=ANY:console:err",
        "--log-file=#{ log_file }",
        "--datapath-id=#{ dpid_long }",
-      ]
+      ] + ports_option
     end
 
 
