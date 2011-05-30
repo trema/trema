@@ -60,7 +60,7 @@ def send_packets options
   source = Host[ options[ :source ] ]
   dest = Host[ options[ :dest ] ]
 
-  Cli.new( source ).send_packets( dest, options )
+  Trema::Cli.new( source ).send_packets( dest, options )
 end
 
 
@@ -71,9 +71,9 @@ def show_stats host_name, option
   raise "Host '#{ host_name }' is not connected to any link." if Host[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    puts Cli.new( Host[ host_name ] ).tx_stats
+    puts Trema::Cli.new( Host[ host_name ] ).tx_stats
   else
-    puts Cli.new( Host[ host_name ] ).rx_stats
+    puts Trema::Cli.new( Host[ host_name ] ).rx_stats
   end
 end
 
@@ -83,7 +83,7 @@ def reset_stats host_name
 
   raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
 
-  Cli.new( Host[ host_name ] ).reset_stats
+  Trema::Cli.new( Host[ host_name ] ).reset_stats
 end
 
 
