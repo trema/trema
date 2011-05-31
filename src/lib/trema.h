@@ -30,6 +30,7 @@
 #include "checks.h"
 #include "doubly_linked_list.h"
 #include "hash_table.h"
+#include "linked_list.h"
 #include "log.h"
 #include "match.h"
 #include "match_table.h"
