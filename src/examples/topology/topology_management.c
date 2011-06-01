@@ -142,6 +142,60 @@ bool mock_set_port_status_handler( port_status_handler callback, void *user_data
 #endif  // UNIT_TESTING
 
 
+static const uint16_t INITIAL_DISCOVERY_PERIOD = 5;
+
+
+static void
+send_flow_mod_receiving_lldp( sw_entry *sw, uint16_t hard_timeout, uint16_t priority ) {
+  struct ofp_match match;
+  memset( &match, 0, sizeof( struct ofp_match ) );
+  match.wildcards = ( OFPFW_ALL & ~OFPFW_DL_TYPE );
+  match.dl_type = ETH_ETHTYPE_LLDP;
+
+  openflow_actions *actions = create_actions();
+  const uint16_t max_len = UINT16_MAX;
+  append_action_output( actions, OFPP_CONTROLLER, max_len );
+
+  const uint16_t idle_timeout = 0;
+  const uint32_t buffer_id = UINT32_MAX;
+  const uint16_t flags = 0;
+  buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
+                                      OFPFC_ADD, idle_timeout, hard_timeout,
+                                      priority, buffer_id,
+                                      OFPP_NONE, flags, actions );
+  send_openflow_message( sw->datapath_id, flow_mod );
+  delete_actions( actions );
+  free_buffer( flow_mod );
+  debug( "Sent a flow_mod for receiving LLDP frames from %#" PRIx64 ".", sw->datapath_id );
+}
+
+
+static void
+send_flow_mod_discarding_all_packets( sw_entry *sw, uint16_t hard_timeout, uint16_t priority ) {
+  struct ofp_match match;
+  memset( &match, 0, sizeof( struct ofp_match ) );
+  match.wildcards = OFPFW_ALL;
+
+  const uint16_t idle_timeout = 0;
+  const uint32_t buffer_id = UINT32_MAX;
+  const uint16_t flags = 0;
+  buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
+                                      OFPFC_ADD, idle_timeout, hard_timeout,
+                                      priority, buffer_id,
+                                      OFPP_NONE, flags, NULL );
+  send_openflow_message( sw->datapath_id, flow_mod );
+  free_buffer( flow_mod );
+  debug( "Sent a flow_mod for discarding all packets received on %#" PRIx64 ".", sw->datapath_id );
+}
+
+
+static void
+start_initial_discovery( sw_entry *sw ) {
+  send_flow_mod_receiving_lldp( sw, INITIAL_DISCOVERY_PERIOD, UINT16_MAX );
+  send_flow_mod_discarding_all_packets( sw, INITIAL_DISCOVERY_PERIOD, UINT16_MAX - 1 );
+}
+
+
 static void
 send_features_request( sw_entry *sw ) {
   uint32_t id = get_transaction_id();
@@ -230,6 +284,7 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
 
   sw_entry *sw = update_sw_entry( &datapath_id );
   debug( "Switch(%#" PRIx64 ") is connected.", datapath_id );
+  start_initial_discovery( sw );
   send_features_request( sw );
 }
 
@@ -255,9 +310,9 @@ switch_disconnected( uint64_t datapath_id, void *user_data ) {
 
 static void
 switch_features_reply( uint64_t datapath_id, uint32_t transaction_id,
-  uint32_t n_buffers, uint8_t n_tables,
-  uint32_t capabilities, uint32_t actions,
-  const list_element *phy_ports, void *user_data ) {
+                       uint32_t n_buffers, uint8_t n_tables,
+                       uint32_t capabilities, uint32_t actions,
+                       const list_element *phy_ports, void *user_data ) {
 
   UNUSED( n_buffers );
   UNUSED( n_tables );

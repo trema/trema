@@ -115,7 +115,7 @@ Feature: control multiple openflow switchies using routing_switch
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
       And wait until "routing_switch" is up
-      And *** sleep 20 ***
+      And *** sleep 30 ***
       And I try to run "./trema send_packets --source 192.168.0.1 --dest 192.168.0.4 --duration 10"
       And I try to run "./trema show_stats 192.168.0.1 --tx" (log = "tx.log")
       And I try to run "./trema show_stats 192.168.0.4 --rx" (log = "rx.log")

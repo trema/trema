@@ -39,6 +39,7 @@
 
 
 static const uint16_t FLOW_TIMER = 60;
+static const uint16_t PACKET_IN_DISCARD_DURATION = 1;
 
 
 #ifdef UNIT_TESTING
@@ -325,6 +326,8 @@ typedef struct routing_switch {
 
 typedef struct resolve_path_replied_params {
   routing_switch *routing_switch;
+  uint64_t in_datapath_id;
+  uint16_t in_port;
   buffer *original_packet;
 } resolve_path_replied_params;
 
@@ -393,15 +396,41 @@ count_hops( const dlist_element *hops ) {
 
 
 static void
+discard_packet_in( uint64_t datapath_id, uint16_t in_port, buffer *original_packet ) {
+  const uint32_t wildcards = 0;
+  struct ofp_match match;
+  set_match_from_packet( &match, in_port, wildcards, original_packet );
+
+  const uint16_t idle_timeout = 0;
+  const uint16_t hard_timeout = PACKET_IN_DISCARD_DURATION;
+  const uint16_t priority = UINT16_MAX;
+  const uint32_t buffer_id = UINT32_MAX;
+  const uint16_t flags = 0;
+  buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
+                                      OFPFC_ADD, idle_timeout, hard_timeout,
+                                      priority, buffer_id,
+                                      OFPP_NONE, flags, NULL );
+
+  send_openflow_message( datapath_id, flow_mod );
+  free_buffer( flow_mod );
+}
+
+
+static void
 resolve_path_replied( void *user_data, dlist_element *hops ) {
   assert( user_data != NULL );
 
   resolve_path_replied_params *param = user_data;
   routing_switch *routing_switch = param->routing_switch;
+  uint64_t datapath_id = param->in_datapath_id;
+  uint16_t in_port = param->in_port;
   buffer *original_packet = param->original_packet;
 
   if ( hops == NULL ) {
     warn( "No available path found." );
+    warn( "Discarding subsequent Packet-In messages for a certain period ( %u [sec] ).",
+          PACKET_IN_DISCARD_DURATION );
+    discard_packet_in( datapath_id, in_port, original_packet );
     free_buffer( original_packet );
     xfree( param );
     return;
@@ -409,7 +438,7 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
 
   original_packet->user_data = NULL;
   if ( !parse_packet( original_packet ) ) {
-    warn( "Received unsupported packet" );
+    warn( "Received unsupported packet." );
     free_packet( original_packet );
     free_hop_list( hops );
     xfree( param );
@@ -581,7 +610,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
   if ( in_port <= OFPP_MAX || in_port == OFPP_LOCAL ) {
     if ( port == NULL && !lookup_fdb( routing_switch->fdb, src, &datapath_id, &in_port ) ) {
-      debug( "Ignoring Packet-In from switch-to-switch link" );
+      debug( "Ignoring Packet-In from switch-to-switch link." );
       return;
     }
   }
@@ -610,6 +639,8 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
     // resolve_path_replied() will be called later
     resolve_path_replied_params *param = xmalloc( sizeof( *param ) );
     param->routing_switch = routing_switch;
+    param->in_datapath_id = datapath_id;
+    param->in_port = in_port;
     param->original_packet = original_packet;
 
     resolve_path( datapath_id, in_port, out_datapath_id, out_port,
@@ -680,7 +711,7 @@ create_routing_switch( const char *topology_service, const routing_switch_option
   routing_switch->switches = NULL;
   routing_switch->fdb = NULL;
 
-  info( "idle_timeout is set to %u", routing_switch->idle_timeout );
+  info( "idle_timeout is set to %u [sec].", routing_switch->idle_timeout );
 
   // Create forwarding database
   routing_switch->fdb = create_fdb();
@@ -758,7 +789,7 @@ init_routing_switch_options( routing_switch_options *options, int *argc, char **
       case 'i':
         idle_timeout = ( uint32_t ) atoi( optarg );
         if ( idle_timeout == 0 || idle_timeout > UINT16_MAX ) {
-          printf( "Invalid idle_timeout value\n" );
+          printf( "Invalid idle_timeout value.\n" );
           usage();
           finalize_topology_service_interface_options();
           exit( EXIT_SUCCESS );
