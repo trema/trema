@@ -117,6 +117,26 @@ module Trema
     
 
     #
+    # Returns netmask
+    #
+    # @example
+    #   host.netmask #=> "255.255.0.0"
+    #
+    # @return [String]
+    #
+    # @api public
+    #
+    def netmask
+      stanza_netmask = @stanza[ :netmask ]
+      if stanza_netmask.nil?
+        "255.255.255.255"
+      else
+        stanza_netmask
+      end
+    end      
+
+
+    #
     # Runs a host process
     #
     # @example

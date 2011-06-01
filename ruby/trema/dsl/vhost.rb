@@ -29,22 +29,6 @@ module Trema
     #
     class Vhost < Stanza
       #
-      # Creates a new vhost stanza
-      #
-      # @example
-      #   stanza = Trema::DSL::Vhost.new( "Yutaro's host" )
-      #
-      # @return [Vhost]
-      #
-      # @api public
-      #
-      def initialize name = nil
-        super name
-        @netmask = "255.255.255.255"
-      end
-
-
-      #
       # Set promisc mode on/off
       #
       # @example

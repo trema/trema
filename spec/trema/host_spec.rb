@@ -24,17 +24,12 @@ require "trema/host"
 
 module Trema
   describe Host do
-    before :each do
+    before {
       Host.instances.clear
-      
-      @phost = mock( "phost" )
-      Phost.stub!( :new ).and_return( @phost )
       
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
-
-      @stanza = mock( "stanza", :[] => "HOST 0" )      
-    end
+    }
 
 
     describe :ip do
@@ -75,52 +70,117 @@ module Trema
         it { should == "00:00:00:aa:bb:cc" }
       end
     end
+
+
+    describe :netmask do
+      context "when netmask is omitted" do
+        before { @stanza = {} }
+
+        subject { Host.new( @stanza ).netmask }
+
+        it { should == "255.255.255.255" }
+      end
+
+
+      context "when netmask \"255.255.0.0\"" do
+        before { @stanza = { :netmask => "255.255.0.0" } }
+
+        subject { Host.new( @stanza ).netmask }
+
+        it { should == "255.255.0.0" }
+      end
+    end
     
 
-    it "should add arp entries" do
-      host1 = mock( "HOST 1" )
-      host2 = mock( "HOST 2" )
-      host3 = mock( "HOST 3" )
+    context "when #add_arp_entries" do
+      describe :cli do
+        before {
+          @host0 = Host.new( :name => "HOST 0" )
+          @host1 = mock( "HOST 1" )
+          @host2 = mock( "HOST 2" )
+          @host3 = mock( "HOST 3" )
+        }
+        
+        it "should add arp entries" do
+          @cli.should_receive( :add_arp_entry ).with( @host1 )
+          @cli.should_receive( :add_arp_entry ).with( @host2 )
+          @cli.should_receive( :add_arp_entry ).with( @host3 )
 
-      @cli.should_receive( :add_arp_entry ).once.with( host1 )
-      @cli.should_receive( :add_arp_entry ).once.with( host2 )
-      @cli.should_receive( :add_arp_entry ).once.with( host3 )
-
-      Host.new( @stanza ).add_arp_entry [ host1, host2, host3 ]
+          @host0.add_arp_entry [ @host1, @host2, @host3 ]
+        end
+      end
     end
 
 
-    it "should run phost and set network options" do
-      @phost.should_receive( :run ).once.ordered
-      @cli.should_receive( :set_ip_and_mac_address ).once.ordered
-      @cli.should_receive( :enable_promisc ).once.ordered
+    context "when #run!" do
+      describe :cli do
+        before {
+          Phost.stub!( :new ).and_return( mock( "phost" ).as_null_object )
+        }
+        
+        it "should set IP and MAC address" do
+          @cli.should_receive( :set_ip_and_mac_address )
 
-      Host.new( :promisc => "on" ).run!
+          Host.new( :name => "Yutaro's host" ).run!
+        end
+
+
+        context "when promisc on" do
+          before { @cli.stub!( :set_ip_and_mac_address ) }
+
+          it "should enable promisc" do
+            @cli.should_receive( :enable_promisc )
+          
+            Host.new( :name => "Yutaro's host", :promisc => true ).run!
+          end
+        end
+      end
     end
 
 
-    it "should send packets" do
-      dest = mock( "dest" )
-      options = mock( "options" )
-      @cli.should_receive( :send_packets ).with( dest, options )
+    context "when #send_packets" do
+      describe :cli do
+        before {
+          @dest = mock( "dest" )
+          @options = mock( "options" )
+        }
 
-      Host.new( @stanza ).send_packet dest, options
+        it "should send_packets" do
+          @cli.should_receive( :send_packets ).with( @dest, @options )
+
+          Host.new( :name => "Yutaro's host" ).send_packet @dest, @options
+        end
+      end
     end
 
 
-    it "should return tx stats" do
-      stats = mock( "stats" )
-      @cli.should_receive( :tx_stats ).and_return( stats )
+    context "when getting stats" do
+      before {
+        @stats = mock( "stats" )
+        @host = Host.new( :name => "Yutaro's host" )
+      }
+      
 
-      Host.new( @stanza ).tx_stats.should == stats
-    end
+      context "when #tx_stats" do      
+        describe :cli do
+          it "shoud get tx stats" do
+            @cli.should_receive( :tx_stats ).and_return( @stats )
 
+            @host.tx_stats.should == @stats
+          end
+        end
+      end
 
-    it "should return rx stats" do
-      stats = mock( "stats" )
-      @cli.should_receive( :rx_stats ).and_return( stats )
+      
+      context "when #rx_stats" do
+        describe :cli do
+          it "should get rx stats" do
+            @cli.should_receive( :rx_stats ).and_return( @stats )
 
-      Host.new( @stanza ).rx_stats.should == stats
+            @host.rx_stats.should == @stats
+          end
+        end
+      end
     end
   end
 end

@@ -110,7 +110,7 @@ module Trema
         subject { @vhost[ :netmask ] }
         
         context "when netmask empty" do
-          it { should == "255.255.255.255" }
+          it { should be_nil }
         end
 
         context "when netmask is 255.255.255.0" do
