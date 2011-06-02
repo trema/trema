@@ -26,37 +26,41 @@ require "rubygems"
 require "rspec"
 require "trema/dsl/context"
 require "trema/shell-commands"
+require "trema/util"
+
+
+include Trema::Util
 
 
 def trema_run controller_class, &block
-  system "./trema kill"
+  trema_kill
 
-  @context = Trema::DSL::Parser.new.eval &block
+  context = Trema::DSL::Parser.new.eval &block
   
   controller = controller_class.new
   Trema::App.add controller
 
   app_name = controller.name
   rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-  SwitchManager.new( rule, @context.port ).run!
+  SwitchManager.new( rule, context.port ).run!
   
-  @context.links.each do | name, link |
+  context.links.each do | name, link |
     link.add!
   end
-  @context.hosts.each do | name, host |
+  context.hosts.each do | name, host |
     host.run!
   end
-  @context.switches.each do | name, switch |
+  context.switches.each do | name, switch |
     switch.run_rspec!
   end
-  @context.links.each do | name, link |
+  context.links.each do | name, link |
     link.up!
   end
-  @context.hosts.each do | name, host |
-    host.add_arp_entry @context.hosts.values - [ host ]
+  context.hosts.each do | name, host |
+    host.add_arp_entry context.hosts.values - [ host ]
   end
 
-  @controller_thread = Thread.start do
+  Thread.start do
     controller.run!
   end
   sleep 3  # FIXME
@@ -64,27 +68,7 @@ end
 
 
 def trema_kill
-  if @controller_thread
-    Trema::App.each do | each |
-      each.shutdown!
-    end
-    @controller_thread.join
-  end
-  return if @context.nil?
-
-  @context.links.each do | name, link |
-    link.delete!
-  end
-  @context.switches.each do | name, switch |
-    switch.shutdown!
-  end
-  @context.hosts.each do | name, host |
-    host.shutdown!
-  end
-
-  Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
-    Trema::Process.read( each ).kill!
-  end
+  cleanup_current_session
 end
 
 
