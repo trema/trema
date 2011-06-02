@@ -74,7 +74,7 @@ describe RepeaterHub do
     end
 
 
-    it "should #flow_mod_add" do
+    it "should #send_flow_mod_add" do
       controller( "RepeaterHub" ).should_receive( :send_flow_mod_add )
 
       send_packets "host1", "host2"
@@ -92,6 +92,74 @@ describe RepeaterHub do
         subject { switch( "switch" ).flows[ 0 ].actions }
 
         it { should == "FLOOD" }
+      end
+    end
+
+
+    describe "host2" do
+      before { send_packets "host1", "host2" }
+      
+      it "should receive one packet" do
+        host( "host2" ).rx_stats.n_pkts.should == 1
+      end
+    end
+
+
+    describe "host3" do
+      before { send_packets "host1", "host2" }
+      
+      it "should receive one packet" do
+        host( "host3" ).rx_stats.n_pkts.should == 1
+      end
+    end
+  end    
+
+
+  context "when host1 sends one more packet after the first packet" do
+    before { send_packets "host1", "host2" }
+
+    it "should not #packet_in" do
+      controller( "RepeaterHub" ).should_not_receive( :packet_in )
+
+      send_packets "host1", "host2"
+    end
+
+    it "should not #send_flow_mod_add" do
+      controller( "RepeaterHub" ).should_not_receive( :send_flow_mod_add )
+      
+      send_packets "host1", "host2"
+    end
+
+
+    describe "switch" do
+      before { send_packets "host1", "host2" }
+      
+      subject { switch( "switch" ) }
+
+      it { should have( 1 ).flows }
+
+      describe "its flow actions" do
+        subject { switch( "switch" ).flows[ 0 ].actions }
+
+        it { should == "FLOOD" }
+      end
+    end
+
+
+    describe "host2" do
+      before { send_packets "host1", "host2" }
+      
+      it "should receive two packets" do
+        host( "host2" ).rx_stats.n_pkts.should == 2
+      end
+    end
+
+
+    describe "host3" do
+      before { send_packets "host1", "host2" }
+      
+      it "should receive two packets" do
+        host( "host3" ).rx_stats.n_pkts.should == 2
       end
     end
   end
