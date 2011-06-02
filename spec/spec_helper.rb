@@ -49,6 +49,7 @@ def trema_run controller_class, &block
   
   controller = controller_class.new
   Trema::App.add controller
+  @context.dump_to Trema::DSL::Parser::CURRENT_CONTEXT
 
   app_name = controller.name
   rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
@@ -74,7 +75,7 @@ def trema_run controller_class, &block
   Thread.start do
     controller.run!
   end
-  sleep 3  # FIXME
+  sleep 2  # FIXME: wait until controller.up?
 end
 
 
