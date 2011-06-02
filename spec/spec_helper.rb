@@ -63,6 +63,10 @@ def trema_run controller_class, &block
   end
   @context.switches.each do | name, each |
     each.run!
+    loop do
+      break if each.ready?
+      sleep 0.1
+    end
     drop_packets_from_unknown_hosts each
   end
   @context.links.each do | name, each |
