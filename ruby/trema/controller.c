@@ -208,7 +208,7 @@ static VALUE
 controller_start_trema( VALUE self ) {
   struct itimerspec interval;
   interval.it_interval.tv_sec = 0;
-  interval.it_interval.tv_nsec = 1;
+  interval.it_interval.tv_nsec = 1000000;
   interval.it_value.tv_sec = 0;
   interval.it_value.tv_nsec = 0;
   add_timer_event_callback( &interval, thread_pass, NULL );
