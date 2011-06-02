@@ -25,6 +25,7 @@ require "rubygems"
 
 require "rspec"
 require "trema/dsl/context"
+require "trema/ofctl"
 require "trema/shell-commands"
 require "trema/util"
 
@@ -32,32 +33,42 @@ require "trema/util"
 include Trema::Util
 
 
+def drop_packets_from_unknown_hosts switch
+  ofctl = Trema::Ofctl.new
+  ofctl.add_flow switch, :priority => 0, :actions => "drop"
+  @context.hosts.each do | name, each |
+    ofctl.add_flow switch, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
+  end
+end
+
+
 def trema_run controller_class, &block
   trema_kill
 
-  context = Trema::DSL::Parser.new.eval &block
+  @context = Trema::DSL::Parser.new.eval &block
   
   controller = controller_class.new
   Trema::App.add controller
 
   app_name = controller.name
   rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-  SwitchManager.new( rule, context.port ).run!
+  SwitchManager.new( rule, @context.port ).run!
   
-  context.links.each do | name, link |
-    link.add!
+  @context.links.each do | name, each |
+    each.add!
   end
-  context.hosts.each do | name, host |
-    host.run!
+  @context.hosts.each do | name, each |
+    each.run!
   end
-  context.switches.each do | name, switch |
-    switch.run_rspec!
+  @context.switches.each do | name, each |
+    each.run!
+    drop_packets_from_unknown_hosts each
   end
-  context.links.each do | name, link |
-    link.up!
+  @context.links.each do | name, each |
+    each.up!
   end
-  context.hosts.each do | name, host |
-    host.add_arp_entry context.hosts.values - [ host ]
+  @context.hosts.each do | name, each |
+    each.add_arp_entry @context.hosts.values - [ each ]
   end
 
   Thread.start do

@@ -98,23 +98,6 @@ module Trema
 
 
     #
-    # Runs an Open vSwitch process in rspec mode
-    #
-    # @example
-    #   switch.run_rspec!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def run_rspec!
-      run!
-      drop_packets_from_unknown_hosts
-      @log = read_log_all
-    end
-
-
-    #
     # Kills running Open vSwitch process
     #
     # @example
@@ -125,10 +108,6 @@ module Trema
     # @api public
     #
     def shutdown!
-      if @log
-        examine_log
-        @log.close
-      end
       Trema::Process.read( pid_file, @name ).kill!
     end
     
@@ -171,51 +150,6 @@ module Trema
     private
     ################################################################################
 
-
-    #
-    # Add flow entries to drop packets from unkown (not appear in DSL) hosts
-    #
-    # @return [undefined]
-    #
-    # @api private
-    #
-    def drop_packets_from_unknown_hosts
-      @ofctl.add_flow self, :priority => 0, :actions => "drop"
-      Trema::Host.each do | each |
-        @ofctl.add_flow self, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
-      end
-    end
-
-
-    #
-    # Proceed the file pointer to EOF
-    #
-    # @return [IO]
-    #
-    # @api private
-    #
-    def read_log_all
-      log = File.open( log_file, "r" )
-      log.read
-      log
-    end
-    
-
-    #
-    # Examine log to execute rspec's expectations
-    #
-    # @return [undefined]
-    #
-    # @api private
-    #
-    def examine_log
-      while @log.gets
-        if /received: flow_mod \(xid=.+\):.* ADD:/=~ $_
-          flow_mod_add $_
-        end
-      end
-    end
-    
 
     #
     # The IP address

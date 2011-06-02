@@ -27,17 +27,17 @@ include Trema
 
 
 def controller name
-  Trema::App[ name ]
+  @context.apps[ name ]
 end
 
 
 def switch name
-  Trema::Switch[ name ]
+  @context.switches[ name ]
 end
 
 
 def host name
-  Trema::Host[ name ]
+  @context.hosts[ name ]
 end
 
 
