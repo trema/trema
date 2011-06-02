@@ -33,49 +33,44 @@ def trema_conf &block
 end
 
 
-def trema_session controller_class
+def trema_run controller_class
   system "./trema kill"
-  begin
-    controller = controller_class.new
-    Trema::App.add controller
 
-    app_name = controller.name
-    rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-    SwitchManager.new( rule, @context.port ).run!
-    
-    @context.links.each do | name, link |
-      link.add!
-    end
-    @context.hosts.each do | name, host |
-      host.run!
-    end
-    @context.switches.each do | name, switch |
-      switch.run_rspec!
-    end
-    @context.links.each do | name, link |
-      link.up!
-    end
-    @context.hosts.each do | name, host |
-      host.add_arp_entry @context.hosts.values - [ host ]
-    end
+  controller = controller_class.new
+  Trema::App.add controller
 
-    @controller_thread = Thread.start do
-      controller.run!
-    end
-    sleep 3  # FIXME
-    
-    yield controller
-
-    sleep 5
-  ensure
-    kill_trema controller
+  app_name = controller.name
+  rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
+  SwitchManager.new( rule, @context.port ).run!
+  
+  @context.links.each do | name, link |
+    link.add!
   end
+  @context.hosts.each do | name, host |
+    host.run!
+  end
+  @context.switches.each do | name, switch |
+    switch.run_rspec!
+  end
+  @context.links.each do | name, link |
+    link.up!
+  end
+  @context.hosts.each do | name, host |
+    host.add_arp_entry @context.hosts.values - [ host ]
+  end
+
+  @controller_thread = Thread.start do
+    controller.run!
+  end
+  sleep 3  # FIXME
 end
 
 
-def kill_trema controller
+def trema_kill
   if @controller_thread
-    controller.stop
+    Trema::App.each do | each |
+      each.stop
+    end
     @controller_thread.join
   end
   return if @context.nil?

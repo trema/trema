@@ -47,7 +47,7 @@ end
 
 
 describe RepeaterHub do
-  before do
+  around do | example |
     trema_conf {
       vswitch("repeater_hub") { datapath_id "0xabc" }
 
@@ -59,54 +59,58 @@ describe RepeaterHub do
       link "repeater_hub", "host2"
       link "repeater_hub", "host3"
     }
+    trema_run RepeaterHub
+
+    example.run
+
+    trema_kill
   end
+  
 
-
-  it "should receive packet_in" do
-    trema_session( RepeaterHub ) do | controller |
-      controller.should_receive( :packet_in )
+  context "when host1 sends one packet to host2" do
+    it "should receive #packet_in" do
+      controller( "RepeaterHub" ).should_receive( :packet_in )
 
       send_packets "host1", "host2"
     end
-  end
 
 
-  it "should send flow_mod_add" do
-    trema_session( RepeaterHub ) do | controller |
-      controller.should_receive( :send_flow_mod_add )
+    it "should send #flow_mod_add" do
+      controller( "RepeaterHub" ).should_receive( :send_flow_mod_add )
 
       send_packets "host1", "host2"
     end
-  end
 
 
-  describe "repeater_hub switch" do
-    it "should send a flow_mod message" do
-      trema_session( RepeaterHub ) do
-        switch( "repeater_hub" ).should_receive( :flow_mod_add ).once
+    describe "repeater_hub switch" do
+      before { send_packets "host1", "host2" }
 
-        send_packets "host1", "host2"
+      subject { switch( "repeater_hub" ) }
+
+      it { should have( 1 ).flows }
+
+      describe "its flow actions" do
+        subject { switch( "repeater_hub" ).flows[ 0 ].actions }
+
+        it { should == "FLOOD" }
       end
     end
   end
 
-  
-  it "should add a flow entry with actions = FLOOD" do
-    trema_session( RepeaterHub ) do
-      send_packets "host1", "host2"
 
-      switch( "repeater_hub" ).flows.size.should == 1
-      switch( "repeater_hub" ).flows[ 0 ].actions.should == "FLOOD"
+  context "when host1 sends 100 packets to host2" do
+    before { send_packets "host1", "host2", :pps => 100 }
+
+    describe "host2" do
+      it "should receive 100 packets" do
+        host( "host2" ).rx_stats.n_pkts.should == 100
+      end
     end
-  end
 
-
-  it "should repeat packets to host2 and host3" do
-    trema_session( RepeaterHub ) do
-      send_packets "host1", "host2", :pps => 100
-      
-      host( "host2" ).rx_stats.n_pkts.should == 100
-      host( "host3" ).rx_stats.n_pkts.should == 100
+    describe "host3" do
+      it "should receive 100 packets" do
+        host( "host3" ).rx_stats.n_pkts.should == 100
+      end
     end
   end
 end

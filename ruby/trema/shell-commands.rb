@@ -26,6 +26,11 @@ require "trema/dsl"
 include Trema
 
 
+def controller name
+  Trema::App[ name ]
+end
+
+
 def switch name
   Trema::Switch[ name ]
 end
