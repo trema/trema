@@ -85,7 +85,22 @@ module Trema
 
 
     #
-    # Enables network interfaces
+    # Adds a virtual link
+    #
+    # @example
+    #   link.add!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def add!
+      sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
+    end
+
+
+    #
+    # Ups the peer interfaces of a virtual link
     #
     # @example
     #   link.up!
@@ -95,23 +110,38 @@ module Trema
     # @api public
     #
     def up!
-      sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
       sh "sudo /sbin/ifconfig #{ @name } up"
       sh "sudo /sbin/ifconfig #{ @name_peer } up"
     end
 
 
     #
-    # Disables network interfaces
+    # Creates and enables a virtual link
     #
     # @example
-    #   link.down!
+    #   link.enable!
     #
     # @return [undefined]
     #
     # @api public
     #
-    def down!
+    def enable!
+      add!
+      up!
+    end
+
+
+    #
+    # Deletes a virtual link
+    #
+    # @example
+    #   link.delete!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def delete!
       # FIXME: do not rescue nil
       sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
     end

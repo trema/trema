@@ -359,7 +359,7 @@ test_finalize_twice() {
   init_messenger( "/tmp" );
 
   assert_true( finalize_messenger() );
-  assert_true( finalize_messenger() );
+  assert_false( finalize_messenger() );
 }
 
 

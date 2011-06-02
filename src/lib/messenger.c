@@ -277,6 +277,8 @@ init_messenger( const char *working_directory ) {
   context_db = create_hash( compare_uint32, hash_uint32 );
 
   initialized = true;
+  finalized = false;
+
   return initialized;
 }
 
@@ -499,6 +501,7 @@ finalize_messenger() {
   set_check_fd_isset_callback( NULL );
 
   running = false;
+  initialized = false;
   finalized = true;
 
   return true;

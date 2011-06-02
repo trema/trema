@@ -41,14 +41,14 @@ module Trema
         @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-0 up" )
         @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-1 up" )
 
-        @link.up!
+        @link.enable!
       end
 
 
       it "executes ip and ifconfig command" do
         @link.should_receive( :sh ).once.with( "sudo ip link delete trema0-0 2>/dev/null" )
 
-        @link.down!
+        @link.delete!
       end
     end
   end

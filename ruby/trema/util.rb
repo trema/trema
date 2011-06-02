@@ -61,7 +61,7 @@ EOF
       host.shutdown!
     end
     last_session.links.each do | name, link |
-      link.down!
+      link.delete!
     end
     
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |

@@ -34,6 +34,7 @@ end
 
 
 def trema_session controller_class
+  system "./trema kill"
   begin
     controller = controller_class.new
     Trema::App.add controller
@@ -43,13 +44,16 @@ def trema_session controller_class
     SwitchManager.new( rule, @context.port ).run!
     
     @context.links.each do | name, link |
-      link.up!
+      link.add!
     end
     @context.hosts.each do | name, host |
       host.run!
     end
     @context.switches.each do | name, switch |
       switch.run_rspec!
+    end
+    @context.links.each do | name, link |
+      link.up!
     end
     @context.hosts.each do | name, host |
       host.add_arp_entry @context.hosts.values - [ host ]
@@ -64,19 +68,20 @@ def trema_session controller_class
 
     sleep 5
   ensure
-    kill_trema
+    kill_trema controller
   end
 end
 
 
-def kill_trema
+def kill_trema controller
   if @controller_thread
-    @controller_thread.kill
+    controller.stop
+    @controller_thread.join
   end
   return if @context.nil?
 
   @context.links.each do | name, link |
-    link.down!
+    link.delete!
   end
   @context.switches.each do | name, switch |
     switch.shutdown!

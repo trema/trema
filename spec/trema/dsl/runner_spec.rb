@@ -94,16 +94,16 @@ module Trema
 
         it "should create links" do
           link0 = mock( "link0" )
-          link0.should_receive( :down! ).once.ordered
-          link0.should_receive( :up! ).once.ordered
+          link0.should_receive( :delete! ).once.ordered
+          link0.should_receive( :enable! ).once.ordered
 
           link1 = mock( "link1" )
-          link1.should_receive( :down! ).once.ordered
-          link1.should_receive( :up! ).once.ordered
+          link1.should_receive( :delete! ).once.ordered
+          link1.should_receive( :enable! ).once.ordered
 
           link2 = mock( "link2" )
-          link2.should_receive( :down! ).once.ordered
-          link2.should_receive( :up! ).once.ordered
+          link2.should_receive( :delete! ).once.ordered
+          link2.should_receive( :enable! ).once.ordered
 
           context = mock(
             "context",
