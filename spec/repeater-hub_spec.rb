@@ -48,18 +48,17 @@ end
 
 describe RepeaterHub do
   around do | example |
-    trema_conf {
-      vswitch("repeater_hub") { datapath_id "0xabc" }
+    trema_run( RepeaterHub ) {
+      vswitch("switch") { datapath_id "0xabc" }
 
       vhost("host1") { promisc "on" }
       vhost("host2") { promisc "on" }
       vhost("host3") { promisc "on" }
 
-      link "repeater_hub", "host1"
-      link "repeater_hub", "host2"
-      link "repeater_hub", "host3"
+      link "switch", "host1"
+      link "switch", "host2"
+      link "switch", "host3"
     }
-    trema_run RepeaterHub
 
     example.run
 
@@ -68,29 +67,29 @@ describe RepeaterHub do
   
 
   context "when host1 sends one packet to host2" do
-    it "should receive #packet_in" do
+    it "should #packet_in" do
       controller( "RepeaterHub" ).should_receive( :packet_in )
 
       send_packets "host1", "host2"
     end
 
 
-    it "should send #flow_mod_add" do
+    it "should #flow_mod_add" do
       controller( "RepeaterHub" ).should_receive( :send_flow_mod_add )
 
       send_packets "host1", "host2"
     end
 
 
-    describe "repeater_hub switch" do
+    describe "switch" do
       before { send_packets "host1", "host2" }
 
-      subject { switch( "repeater_hub" ) }
+      subject { switch( "switch" ) }
 
       it { should have( 1 ).flows }
 
       describe "its flow actions" do
-        subject { switch( "repeater_hub" ).flows[ 0 ].actions }
+        subject { switch( "switch" ).flows[ 0 ].actions }
 
         it { should == "FLOOD" }
       end

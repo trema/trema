@@ -28,14 +28,11 @@ require "trema/dsl/context"
 require "trema/shell-commands"
 
 
-def trema_conf &block
-  @context = Trema::DSL::Parser.new.eval &block
-end
-
-
-def trema_run controller_class
+def trema_run controller_class, &block
   system "./trema kill"
 
+  @context = Trema::DSL::Parser.new.eval &block
+  
   controller = controller_class.new
   Trema::App.add controller
 
