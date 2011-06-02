@@ -192,7 +192,7 @@ controller_run( VALUE self ) {
 
 
 static VALUE
-controller_stop( VALUE self ) {
+controller_shutdown( VALUE self ) {
   stop_trema();
   return self;
 }
@@ -402,7 +402,7 @@ Init_controller() {
   rb_define_method( cController, "send_packet_out", controller_send_packet_out, 5 );
 
   rb_define_method( cController, "run!", controller_run, 0 );
-  rb_define_method( cController, "stop", controller_stop, 0 );
+  rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
 
   // Handlers
   rb_define_method( cController, "start", controller_start, 0 );

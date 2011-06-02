@@ -66,7 +66,7 @@ end
 def trema_kill
   if @controller_thread
     Trema::App.each do | each |
-      each.stop
+      each.shutdown!
     end
     @controller_thread.join
   end
