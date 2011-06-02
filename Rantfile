@@ -336,6 +336,7 @@ end
 desc "Build trema library."
 task :libtrema => libtrema
 file libtrema => libtrema_objects.candidates do | t |
+  sys "rm -f #{ t.name }"
   sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
   sys "ranlib #{ t.name }"
 end
