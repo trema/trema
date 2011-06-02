@@ -87,29 +87,23 @@ describe RepeaterHub do
       subject { switch( "switch" ) }
 
       it { should have( 1 ).flows }
-
-      describe "its flow actions" do
-        subject { switch( "switch" ).flows[ 0 ].actions }
-
-        it { should == "FLOOD" }
-      end
+      its( "flows.first.actions" ) { should == "FLOOD" }
     end
 
 
-    describe "host2" do
+    describe "host" do
       before { send_packets "host1", "host2" }
-      
-      it "should receive one packet" do
-        host( "host2" ).rx_stats.n_pkts.should == 1
+
+      subject { host( host_name ) }
+
+      context "RX stats of host2" do
+        let( :host_name ) { "host2" }
+        its( "rx_stats.n_pkts" ) { should == 1 }
       end
-    end
 
-
-    describe "host3" do
-      before { send_packets "host1", "host2" }
-      
-      it "should receive one packet" do
-        host( "host3" ).rx_stats.n_pkts.should == 1
+      context "RX stats of host3" do
+        let( :host_name ) { "host3" }
+        its( "rx_stats.n_pkts" ) { should == 1 }
       end
     end
   end    
@@ -137,46 +131,42 @@ describe RepeaterHub do
       subject { switch( "switch" ) }
 
       it { should have( 1 ).flows }
-
-      describe "its flow actions" do
-        subject { switch( "switch" ).flows[ 0 ].actions }
-
-        it { should == "FLOOD" }
-      end
+      its( "flows.first.actions" ) { should == "FLOOD" }
     end
 
 
-    describe "host2" do
+    describe "host" do
       before { send_packets "host1", "host2" }
-      
-      it "should receive two packets" do
-        host( "host2" ).rx_stats.n_pkts.should == 2
+
+      subject { host( host_name ) }
+
+      context "RX stats of host2" do
+        let( :host_name ) { "host2" }
+        its( "rx_stats.n_pkts" ) { should == 2 }
       end
-    end
 
-
-    describe "host3" do
-      before { send_packets "host1", "host2" }
-      
-      it "should receive two packets" do
-        host( "host3" ).rx_stats.n_pkts.should == 2
+      context "RX stats of host3" do
+        let( :host_name ) { "host3" }
+        its( "rx_stats.n_pkts" ) { should == 2 }
       end
     end
   end
 
 
   context "when host1 sends 100 packets to host2" do
-    before { send_packets "host1", "host2", :pps => 100 }
+    describe "host" do
+      before { send_packets "host1", "host2", :pps => 100 }
 
-    describe "host2" do
-      it "should receive 100 packets" do
-        host( "host2" ).rx_stats.n_pkts.should == 100
+      subject { host( host_name ) }
+
+      context "RX stats of host2" do
+        let( :host_name ) { "host2" }
+        its( "rx_stats.n_pkts" ) { should == 100 }
       end
-    end
 
-    describe "host3" do
-      it "should receive 100 packets" do
-        host( "host3" ).rx_stats.n_pkts.should == 100
+      context "RX stats of host3" do
+        let( :host_name ) { "host3" }
+        its( "rx_stats.n_pkts" ) { should == 100 }
       end
     end
   end
