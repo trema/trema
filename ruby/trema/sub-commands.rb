@@ -241,7 +241,7 @@ EOF
 
     @options.parse! ARGV
 
-    puts Ofctl.new.dump_flows( switch )
+    puts Trema::Ofctl.new.dump_flows( switch )
   end
 
 
