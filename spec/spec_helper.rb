@@ -43,7 +43,7 @@ end
 
 
 def trema_run controller_class, &block
-  trema_kill
+  cleanup_current_session
 
   @context = Trema::DSL::Parser.new.eval &block
   
@@ -76,7 +76,7 @@ def trema_run controller_class, &block
     each.add_arp_entry @context.hosts.values - [ each ]
   end
 
-  Thread.start do
+  @th_controller = Thread.start do
     controller.run!
   end
   sleep 2  # FIXME: wait until controller.up?
@@ -85,6 +85,7 @@ end
 
 def trema_kill
   cleanup_current_session
+  @th_controller.join
 end
 
 
