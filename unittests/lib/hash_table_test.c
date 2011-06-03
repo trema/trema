@@ -237,7 +237,7 @@ test_iterator() {
   hash_entry *e;
   init_hash_iterator( table, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    sum += ( int ) e->value;
+    sum += ( int ) ( uintptr_t ) e->value;
     delete_hash_entry( table, e->key );
   }
   assert_true( sum == 55 );
@@ -262,7 +262,7 @@ test_multiple_inserts_and_deletes_then_iterate() {
   hash_entry *e;
   init_hash_iterator( table, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    sum += ( int ) e->value;
+    sum += ( int ) ( uintptr_t ) e->value;
     delete_hash_entry( table, e->key );
   }
   assert_true( sum == 1 );

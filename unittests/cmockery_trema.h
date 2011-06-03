@@ -32,6 +32,7 @@
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "cmockery.h"
 
 
@@ -46,23 +47,31 @@
 #define expect_string_count( function, parameter, string, count )	     \
   _expect_string( #function, #parameter, __FILE__, __LINE__, string, count )
 
+
 #ifdef expect_assert_failure
 #undef expect_assert_failure
 #endif
-#define expect_assert_failure( function_call )                                    \
-  {                                                                               \
-    const char *expression = ( const char * ) setjmp( global_expect_assert_env ); \
-    global_expecting_assert = 1;                                                  \
-    if ( expression ) {                                                           \
-      print_message( "Expected assertion %s occurred\n", expression );            \
-      global_expecting_assert = 0;                                                \
-    } else {                                                                      \
-      function_call ;                                                             \
-      global_expecting_assert = 0;                                                \
-      print_error( "Expected assert in %s\n", #function_call )    ;               \
-      _fail( __FILE__, __LINE__ );                                                \
-    }                                                                             \
+#define expect_assert_failure( function_call )                                    		\
+  {                                                                               		\
+    const char *expression = ( const char * ) ( uintptr_t ) setjmp( global_expect_assert_env ); \
+    global_expecting_assert = 1;                                                  		\
+    if ( expression ) {                                                           		\
+      print_message( "Expected assertion %s occurred\n", expression );            		\
+      global_expecting_assert = 0;                                                		\
+    } else {                                                                      		\
+      function_call ;                                                             		\
+      global_expecting_assert = 0;                                                		\
+      print_error( "Expected assert in %s\n", #function_call )    ;               		\
+      _fail( __FILE__, __LINE__ );                                                		\
+    }                                                                             		\
   }
+
+
+#ifdef cast_to_largest_integral_type
+#undef cast_to_largest_integral_type
+#endif
+#define cast_to_largest_integral_type( value ) \
+    ( ( LargestIntegralType ) ( ( uintptr_t ) ( value ) ) )
 
 
 #endif /* CMOCKERY_TREMA_H */

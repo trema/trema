@@ -4992,7 +4992,7 @@ const size_t ipv4_length = sizeof( ether_header_t ) + sizeof( ipv4_header_t );
 
 static buffer *
 setup_ether_packet( size_t length, uint16_t type ) {
-  uint32_t l2_length = sizeof( ether_header_t );
+  size_t l2_length = sizeof( ether_header_t );
   if ( type == ETH_ETHTYPE_TPID ) {
     length += sizeof( vlantag_header_t );
     l2_length += sizeof( vlantag_header_t );

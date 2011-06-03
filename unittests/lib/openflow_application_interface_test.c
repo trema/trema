@@ -657,8 +657,8 @@ test_handle_switch_ready_with_simple_handler() {
 static void
 test_set_switch_disconnected_handler() {
   assert_true( set_switch_disconnected_handler( SWITCH_DISCONNECTED_HANDLER, SWITCH_DISCONNECTED_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.switch_disconnected_callback, ( int ) SWITCH_DISCONNECTED_HANDLER );
-  assert_int_equal( ( int ) event_handlers.switch_disconnected_user_data, ( int ) SWITCH_DISCONNECTED_USER_DATA );
+  assert_int_equal( event_handlers.switch_disconnected_callback, SWITCH_DISCONNECTED_HANDLER );
+  assert_int_equal( event_handlers.switch_disconnected_user_data, SWITCH_DISCONNECTED_USER_DATA );
 }
 
 
@@ -677,8 +677,8 @@ test_set_switch_disconnected_handler_if_handler_is_NULL() {
 static void
 test_set_error_handler() {
   assert_true( set_error_handler( ERROR_HANDLER, ERROR_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.error_callback, ( int ) ERROR_HANDLER );
-  assert_int_equal( ( int ) event_handlers.error_user_data, ( int ) ERROR_USER_DATA );
+  assert_int_equal( event_handlers.error_callback, ERROR_HANDLER );
+  assert_int_equal( event_handlers.error_user_data, ERROR_USER_DATA );
 }
 
 
@@ -697,8 +697,8 @@ test_set_error_handler_if_handler_is_NULL() {
 static void
 test_set_vendor_handler() {
   assert_true( set_vendor_handler( VENDOR_HANDLER, VENDOR_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.vendor_callback, ( int ) VENDOR_HANDLER );
-  assert_int_equal( ( int ) event_handlers.vendor_user_data, ( int ) VENDOR_USER_DATA );
+  assert_int_equal( event_handlers.vendor_callback, VENDOR_HANDLER );
+  assert_int_equal( event_handlers.vendor_user_data, VENDOR_USER_DATA );
 }
 
 
@@ -717,8 +717,8 @@ test_set_vendor_handler_if_handler_is_NULL() {
 static void
 test_set_features_reply_handler() {
   assert_true( set_features_reply_handler( FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.features_reply_callback, ( int ) FEATURES_REPLY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.features_reply_user_data, ( int ) FEATURES_REPLY_USER_DATA );
+  assert_int_equal( event_handlers.features_reply_callback, FEATURES_REPLY_HANDLER );
+  assert_int_equal( event_handlers.features_reply_user_data, FEATURES_REPLY_USER_DATA );
 }
 
 
@@ -737,8 +737,8 @@ test_set_features_reply_handler_if_handler_is_NULL() {
 static void
 test_set_get_config_reply_handler() {
   assert_true( set_get_config_reply_handler( GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.get_config_reply_callback, ( int ) GET_CONFIG_REPLY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.get_config_reply_user_data, ( int ) GET_CONFIG_REPLY_USER_DATA );
+  assert_int_equal( event_handlers.get_config_reply_callback, GET_CONFIG_REPLY_HANDLER );
+  assert_int_equal( event_handlers.get_config_reply_user_data, GET_CONFIG_REPLY_USER_DATA );
 }
 
 
@@ -999,8 +999,8 @@ test_handle_packet_in_should_die_if_message_length_is_zero() {
 static void
 test_set_flow_removed_handler() {
   assert_true( set_flow_removed_handler( FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.flow_removed_callback, ( int ) FLOW_REMOVED_HANDLER );
-  assert_int_equal( ( int ) event_handlers.flow_removed_user_data, ( int ) FLOW_REMOVED_USER_DATA );
+  assert_int_equal( event_handlers.flow_removed_callback, FLOW_REMOVED_HANDLER );
+  assert_int_equal( event_handlers.flow_removed_user_data, FLOW_REMOVED_USER_DATA );
 }
 
 
@@ -1019,8 +1019,8 @@ test_set_flow_removed_handler_if_handler_is_NULL() {
 static void
 test_set_port_status_handler() {
   assert_true( set_port_status_handler( PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.port_status_callback, ( int ) PORT_STATUS_HANDLER );
-  assert_int_equal( ( int ) event_handlers.port_status_user_data, ( int ) PORT_STATUS_USER_DATA );
+  assert_int_equal( event_handlers.port_status_callback, PORT_STATUS_HANDLER );
+  assert_int_equal( event_handlers.port_status_user_data, PORT_STATUS_USER_DATA );
 }
 
 
@@ -1039,8 +1039,8 @@ test_set_port_status_handler_if_handler_is_NULL() {
 static void
 test_set_stats_reply_handler() {
   assert_true( set_stats_reply_handler( STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.stats_reply_callback, ( int ) STATS_REPLY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.stats_reply_user_data, ( int ) STATS_REPLY_USER_DATA );
+  assert_int_equal( event_handlers.stats_reply_callback, STATS_REPLY_HANDLER );
+  assert_int_equal( event_handlers.stats_reply_user_data, STATS_REPLY_USER_DATA );
 }
 
 
@@ -1059,8 +1059,8 @@ test_set_stats_reply_handler_if_handler_is_NULL() {
 static void
 test_set_barrier_reply_handler() {
   assert_true( set_barrier_reply_handler( BARRIER_REPLY_HANDLER, BARRIER_REPLY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.barrier_reply_callback, ( int ) BARRIER_REPLY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.barrier_reply_user_data, ( int ) BARRIER_REPLY_USER_DATA );
+  assert_int_equal( event_handlers.barrier_reply_callback, BARRIER_REPLY_HANDLER );
+  assert_int_equal( event_handlers.barrier_reply_user_data, BARRIER_REPLY_USER_DATA );
 }
 
 
@@ -1079,8 +1079,8 @@ test_set_barrier_reply_handler_if_handler_is_NULL() {
 static void
 test_set_queue_get_config_reply_handler() {
   assert_true( set_queue_get_config_reply_handler( QUEUE_GET_CONFIG_REPLY_HANDLER, QUEUE_GET_CONFIG_REPLY_USER_DATA ) );
-  assert_int_equal( ( int ) event_handlers.queue_get_config_reply_callback, ( int ) QUEUE_GET_CONFIG_REPLY_HANDLER );
-  assert_int_equal( ( int ) event_handlers.queue_get_config_reply_user_data, ( int ) QUEUE_GET_CONFIG_REPLY_USER_DATA );
+  assert_int_equal( event_handlers.queue_get_config_reply_callback, QUEUE_GET_CONFIG_REPLY_HANDLER );
+  assert_int_equal( event_handlers.queue_get_config_reply_user_data, QUEUE_GET_CONFIG_REPLY_USER_DATA );
 }
 
 
