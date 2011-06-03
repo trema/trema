@@ -60,6 +60,14 @@ Then /^the content of "([^"]*)" and "([^"]*)" should be identical$/ do | log1, l
 end
 
 
+Then /^"([^"]*)" should contain some flow entries$/ do | log |
+  IO.read( cucumber_log log ).size.should > 0
+  IO.read( cucumber_log log ).split( "\n" )[ 2..-1 ].each do | each |
+    each.should match( /actions=FLOOD/ )
+  end
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
