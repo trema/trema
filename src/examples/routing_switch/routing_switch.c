@@ -328,6 +328,8 @@ typedef struct resolve_path_replied_params {
   routing_switch *routing_switch;
   uint64_t in_datapath_id;
   uint16_t in_port;
+  uint64_t out_datapath_id;
+  uint16_t out_port;
   buffer *original_packet;
 } resolve_path_replied_params;
 
@@ -396,16 +398,22 @@ count_hops( const dlist_element *hops ) {
 
 
 static void
-discard_packet_in( uint64_t datapath_id, uint16_t in_port, buffer *original_packet ) {
+discard_packet_in( uint64_t datapath_id, uint16_t in_port, const buffer *packet ) {
   const uint32_t wildcards = 0;
   struct ofp_match match;
-  set_match_from_packet( &match, in_port, wildcards, original_packet );
+  set_match_from_packet( &match, in_port, wildcards, packet );
+  char match_str[ 1024 ];
+  match_to_string( &match, match_str, sizeof( match_str ) );
 
   const uint16_t idle_timeout = 0;
   const uint16_t hard_timeout = PACKET_IN_DISCARD_DURATION;
   const uint16_t priority = UINT16_MAX;
   const uint32_t buffer_id = UINT32_MAX;
   const uint16_t flags = 0;
+
+  info( "Discarding packets for a certain period ( datapath_id = %#" PRIx64
+        ", match = [%s], duration = %u [sec] ).", datapath_id, match_str, hard_timeout );
+
   buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
                                       OFPFC_ADD, idle_timeout, hard_timeout,
                                       priority, buffer_id,
@@ -422,25 +430,26 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
 
   resolve_path_replied_params *param = user_data;
   routing_switch *routing_switch = param->routing_switch;
-  uint64_t datapath_id = param->in_datapath_id;
+  uint64_t in_datapath_id = param->in_datapath_id;
   uint16_t in_port = param->in_port;
+  uint64_t out_datapath_id = param->out_datapath_id;
+  uint16_t out_port = param->out_port;
   buffer *original_packet = param->original_packet;
-
-  if ( hops == NULL ) {
-    warn( "No available path found." );
-    warn( "Discarding subsequent Packet-In messages for a certain period ( %u [sec] ).",
-          PACKET_IN_DISCARD_DURATION );
-    discard_packet_in( datapath_id, in_port, original_packet );
-    free_buffer( original_packet );
-    xfree( param );
-    return;
-  }
 
   original_packet->user_data = NULL;
   if ( !parse_packet( original_packet ) ) {
     warn( "Received unsupported packet." );
     free_packet( original_packet );
     free_hop_list( hops );
+    xfree( param );
+    return;
+  }
+
+  if ( hops == NULL ) {
+    warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
+          in_datapath_id, in_port, out_datapath_id, out_port );
+    discard_packet_in( in_datapath_id, in_port, original_packet );
+    free_packet( original_packet );
     xfree( param );
     return;
   }
@@ -524,6 +533,8 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
   }
 
   port_info *p = lookup_outbound_port( routing_switch->switches, status->dpid, status->port_no );
+
+  delete_fdb_entries( routing_switch->fdb, status->dpid, status->port_no );
 
   if ( status->status == TD_PORT_UP
        && status->external == TD_PORT_EXTERNAL ) {
@@ -641,6 +652,8 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
     param->routing_switch = routing_switch;
     param->in_datapath_id = datapath_id;
     param->in_port = in_port;
+    param->out_datapath_id = out_datapath_id;
+    param->out_port = out_port;
     param->original_packet = original_packet;
 
     resolve_path( datapath_id, in_port, out_datapath_id, out_port,
