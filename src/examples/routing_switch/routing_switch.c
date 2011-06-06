@@ -398,16 +398,22 @@ count_hops( const dlist_element *hops ) {
 
 
 static void
-discard_packet_in( uint64_t datapath_id, uint16_t in_port, buffer *original_packet ) {
+discard_packet_in( uint64_t datapath_id, uint16_t in_port, const buffer *packet ) {
   const uint32_t wildcards = 0;
   struct ofp_match match;
-  set_match_from_packet( &match, in_port, wildcards, original_packet );
+  set_match_from_packet( &match, in_port, wildcards, packet );
+  char match_str[ 1024 ];
+  match_to_string( &match, match_str, sizeof( match_str ) );
 
   const uint16_t idle_timeout = 0;
   const uint16_t hard_timeout = PACKET_IN_DISCARD_DURATION;
   const uint16_t priority = UINT16_MAX;
   const uint32_t buffer_id = UINT32_MAX;
   const uint16_t flags = 0;
+
+  info( "Discarding packets for a certain period ( datapath_id = %#" PRIx64
+        ", match = [%s], duration = %u [sec] ).", datapath_id, match_str, hard_timeout );
+
   buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
                                       OFPFC_ADD, idle_timeout, hard_timeout,
                                       priority, buffer_id,
@@ -430,22 +436,20 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
   uint16_t out_port = param->out_port;
   buffer *original_packet = param->original_packet;
 
-  if ( hops == NULL ) {
-    warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
-          in_datapath_id, in_port, out_datapath_id, out_port );
-    warn( "Discarding subsequent packets for a certain period ( %u [sec] ).",
-          PACKET_IN_DISCARD_DURATION );
-    discard_packet_in( in_datapath_id, in_port, original_packet );
-    free_buffer( original_packet );
-    xfree( param );
-    return;
-  }
-
   original_packet->user_data = NULL;
   if ( !parse_packet( original_packet ) ) {
     warn( "Received unsupported packet." );
     free_packet( original_packet );
     free_hop_list( hops );
+    xfree( param );
+    return;
+  }
+
+  if ( hops == NULL ) {
+    warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
+          in_datapath_id, in_port, out_datapath_id, out_port );
+    discard_packet_in( in_datapath_id, in_port, original_packet );
+    free_packet( original_packet );
     xfree( param );
     return;
   }
