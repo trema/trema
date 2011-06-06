@@ -328,6 +328,8 @@ typedef struct resolve_path_replied_params {
   routing_switch *routing_switch;
   uint64_t in_datapath_id;
   uint16_t in_port;
+  uint64_t out_datapath_id;
+  uint16_t out_port;
   buffer *original_packet;
 } resolve_path_replied_params;
 
@@ -422,15 +424,18 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
 
   resolve_path_replied_params *param = user_data;
   routing_switch *routing_switch = param->routing_switch;
-  uint64_t datapath_id = param->in_datapath_id;
+  uint64_t in_datapath_id = param->in_datapath_id;
   uint16_t in_port = param->in_port;
+  uint64_t out_datapath_id = param->out_datapath_id;
+  uint16_t out_port = param->out_port;
   buffer *original_packet = param->original_packet;
 
   if ( hops == NULL ) {
-    warn( "No available path found." );
-    warn( "Discarding subsequent Packet-In messages for a certain period ( %u [sec] ).",
+    warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
+          in_datapath_id, in_port, out_datapath_id, out_port );
+    warn( "Discarding subsequent packets for a certain period ( %u [sec] ).",
           PACKET_IN_DISCARD_DURATION );
-    discard_packet_in( datapath_id, in_port, original_packet );
+    discard_packet_in( in_datapath_id, in_port, original_packet );
     free_buffer( original_packet );
     xfree( param );
     return;
@@ -524,6 +529,8 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
   }
 
   port_info *p = lookup_outbound_port( routing_switch->switches, status->dpid, status->port_no );
+
+  delete_fdb_entries( routing_switch->fdb, status->dpid, status->port_no );
 
   if ( status->status == TD_PORT_UP
        && status->external == TD_PORT_EXTERNAL ) {
@@ -641,6 +648,8 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
     param->routing_switch = routing_switch;
     param->in_datapath_id = datapath_id;
     param->in_port = in_port;
+    param->out_datapath_id = out_datapath_id;
+    param->out_port = out_port;
     param->original_packet = original_packet;
 
     resolve_path( datapath_id, in_port, out_datapath_id, out_port,

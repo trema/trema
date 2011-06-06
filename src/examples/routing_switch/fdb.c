@@ -238,6 +238,31 @@ lookup_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t *dpid, 
 }
 
 
+void
+delete_fdb_entries( hash_table *fdb, uint64_t dpid, uint16_t port ) {
+  if ( fdb == NULL ) {
+    return;
+  }
+
+  debug( "Deleting fdb entries ( dpid = %#" PRIx64 ", port = %u ).", dpid, port );
+
+  fdb_entry *entry = NULL;
+  hash_iterator iter;
+  hash_entry *e;
+  init_hash_iterator( fdb, &iter );
+  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
+    if ( e->value == NULL ) {
+      continue;
+    }
+    entry = e->value;
+    if ( entry->dpid == dpid && entry->port == port ) {
+      delete_hash_entry( fdb, entry->mac );
+      xfree( entry );
+    }
+  }
+}
+
+
 static void
 age_fdb_entry( void *key, void *value, void *user_data ) {
   hash_table *fdb = user_data;
