@@ -24,6 +24,7 @@ $LOAD_PATH << File.join( File.dirname( __FILE__ ), "/../ruby" )
 require "rubygems"
 
 require "rspec"
+require "trema"
 require "trema/dsl/context"
 require "trema/ofctl"
 require "trema/shell-commands"
@@ -43,12 +44,13 @@ end
 
 
 def trema_run controller_class, &block
-  cleanup_current_session
-
   @context = Trema::DSL::Parser.new.eval &block
   
-  controller = controller_class.new
-  Trema::App.add controller
+  controller = Controller.instances[ controller_class.to_s ]
+  if controller.nil?
+    raise "#{ controller_class } is not a subclass of Trema::Controller"
+  end
+  
   @context.dump_to Trema::DSL::Parser::CURRENT_CONTEXT
 
   app_name = controller.name
@@ -85,7 +87,7 @@ end
 
 def trema_kill
   cleanup_current_session
-  @th_controller.join
+  @th_controller.join if @th_controller
 end
 
 

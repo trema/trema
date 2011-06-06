@@ -88,7 +88,7 @@ module Trema
       if stat
         Trema::Stats.new *stat.split( "," )        
       else
-        nil
+        Trema::Stats.new nil, nil, nil, nil, 0, 0
       end
     end
 

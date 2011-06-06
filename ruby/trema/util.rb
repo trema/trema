@@ -67,6 +67,7 @@ EOF
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
+    
     FileUtils.rm_f Trema::DSL::Parser::CURRENT_CONTEXT
   end
 end

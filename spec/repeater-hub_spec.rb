@@ -33,15 +33,13 @@ class RepeaterHub < Controller
       :buffer_id => message.buffer_id,
       :actions => ActionOutput.new( OFPP_FLOOD )
     )
-    if not message.buffered?
-      send_packet_out(
-        message.datapath_id,
-        message.buffer_id,
-        message.in_port,
-        ActionOutput.new( OFPP_FLOOD ),
-        message.data
-      )
-    end
+    send_packet_out(
+      message.datapath_id,
+      message.buffer_id,
+      message.in_port,
+      ActionOutput.new( OFPP_FLOOD ),
+      message.buffered? ? nil : message.data
+    )
   end
 end
 
