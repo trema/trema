@@ -4,10 +4,8 @@ Feature: control multiple openflow switches using multi_learning_switch
   I want to control multiple openflow switches using multi_learning_switch
   So that I can send and receive packets
 
-  Background:
-    Given I terminated all trema services
 
-  Scenario: One openflow switch, two servers
+  Scenario: Send and receive packets
     When I try trema run "./objects/examples/multi_learning_switch/multi_learning_switch" with following configuration (backgrounded):
       """
       vswitch("mlsw1") {
@@ -99,5 +97,3 @@ Feature: control multiple openflow switches using multi_learning_switch
      And the total number of rx packets should be:
       | host1 | host2 | host3 | host4 |
       |     2 |     2 |     4 |     4 |
-
-   And I terminated all trema services

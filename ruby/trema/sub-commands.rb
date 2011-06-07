@@ -178,7 +178,7 @@ EOF
     @options.parse! ARGV
 
     Trema::Cli.new( source ).send_packets( dest, cli_options )
-    sleep 5 # ensure that last packet is sent.
+    sleep 1  # ensure that last packet is sent.
   end
 
 
