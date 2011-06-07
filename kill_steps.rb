@@ -20,12 +20,6 @@
 
 Given /^I terminated all trema services$/ do
   run "./trema kill"
-  sleep 3  # FIXME
-end
-
-
-Given /^I terminate all trema services$/ do
-  Given "I terminated all trema services"
 end
 
 
