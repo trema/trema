@@ -44,6 +44,8 @@ end
 
 
 def trema_run controller_class, &block
+  cleanup_current_session
+  
   @context = Trema::DSL::Parser.new.eval &block
   
   controller = Controller.instances[ controller_class.to_s ]

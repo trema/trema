@@ -137,16 +137,29 @@ controller_send_packet_out( VALUE self, VALUE datapath_id, VALUE buffer_id, VALU
   openflow_actions *actions = create_actions();
   append_action_output( actions, rb_funcall( action, rb_intern( "port" ), 0 ), UINT16_MAX );
 
-  buffer *cbuffer;
-  Data_Get_Struct( data, buffer, cbuffer );
+  buffer *packet_out;
+  if ( data == Qnil ) {
+    packet_out = create_packet_out(
+      get_transaction_id(),
+      NUM2ULONG( buffer_id ),
+      NUM2INT( in_port ),
+      actions,
+      NULL
+   );
+  }
+  else {
+    buffer *cbuffer;
+    Data_Get_Struct( data, buffer, cbuffer );
 
-  buffer *packet_out = create_packet_out(
-    get_transaction_id(),
-    NUM2ULONG( buffer_id ),
-    NUM2INT( in_port ),
-    actions,
-    cbuffer
-  );
+    packet_out = create_packet_out(
+      get_transaction_id(),
+      NUM2ULONG( buffer_id ),
+      NUM2INT( in_port ),
+      actions,
+      cbuffer
+   );
+  }
+
   send_openflow_message( NUM2ULL( datapath_id ), packet_out );
   free_buffer( packet_out );
 
