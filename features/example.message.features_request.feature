@@ -4,6 +4,7 @@ Feature: Send a features request message
   I want to send a features request message to openflow switches
   So that I can get the list of switch features
 
+
   Scenario: Send a features request 
     When I try trema run "./objects/examples/openflow_message/features_request" with following configuration (backgrounded):
       """
