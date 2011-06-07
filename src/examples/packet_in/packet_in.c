@@ -26,6 +26,7 @@
 
 static void
 handle_packet_in( packet_in event ) {
+  info( "received a packet_in" );
   info( "datapath_id: %#" PRIx64, event.datapath_id );
   info( "transaction_id: %#x", event.transaction_id );
   info( "buffer_id: %#x", event.buffer_id );
