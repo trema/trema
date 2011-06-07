@@ -24,12 +24,12 @@
 
 
 static void
-handle_packet_in( packet_in packet_in ) {
+handle_packet_in( packet_in message ) {
   openflow_actions *actions = create_actions();
   append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
 
   struct ofp_match match;
-  set_match_from_packet( &match, packet_in.in_port, 0, packet_in.data );
+  set_match_from_packet( &match, message.in_port, 0, message.data );
 
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
@@ -39,25 +39,27 @@ handle_packet_in( packet_in packet_in ) {
     60,
     0,
     UINT16_MAX,
-    packet_in.buffer_id,
+    message.buffer_id,
     OFPP_NONE,
     OFPFF_SEND_FLOW_REM,
     actions
   );
-  send_openflow_message( packet_in.datapath_id, flow_mod );
+  send_openflow_message( message.datapath_id, flow_mod );
   free_buffer( flow_mod );
 
-  if ( packet_in.buffer_id == UINT32_MAX ) {
-    buffer *packet_out = create_packet_out(
-      get_transaction_id(),
-      packet_in.buffer_id,
-      packet_in.in_port,
-      actions,
-      packet_in.data
-    );
-    send_openflow_message( packet_in.datapath_id, packet_out );
-    free_buffer( packet_out );
+  buffer *packet_out_data = NULL;
+  if ( message.buffer_id == UINT32_MAX ) {
+    memcpy( packet_out_data, message.data, sizeof( buffer ) );
   }
+  buffer *packet_out = create_packet_out(
+    get_transaction_id(),
+    message.buffer_id,
+    message.in_port,
+    actions,
+    packet_out_data
+  );
+  send_openflow_message( message.datapath_id, packet_out );
+  free_buffer( packet_out );
 
   delete_actions( actions );
 }
