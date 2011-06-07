@@ -27,7 +27,7 @@ include Trema
 
 
 def controller name
-  Trema::Controller.instances[ name ]
+  @context.apps[ name ]
 end
 
 

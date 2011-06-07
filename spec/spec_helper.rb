@@ -48,8 +48,8 @@ def trema_run controller_class, &block
   
   @context = Trema::DSL::Parser.new.eval &block
   
-  controller = Controller.instances[ controller_class.to_s ]
-  if controller.nil?
+  controller = controller_class.new
+  if not controller.is_a?( Trema::Controller )
     raise "#{ controller_class } is not a subclass of Trema::Controller"
   end
   

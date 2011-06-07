@@ -18,14 +18,14 @@
 #
 
 
-require "trema/network-component"
+require "trema/app"
 
 
 module Trema
   #
   # The base class of Trema controller.
   #
-  class Controller < NetworkComponent
+  class Controller < App
     #
     # Callback invoked whenever a subclass of this class is created.
     # This adds the created object to the DB of controllers.
@@ -34,6 +34,11 @@ module Trema
       controller = subclass.new
       Controller.instances ||= {}
       Controller.instances[ controller.name ] = controller
+    end
+
+
+    def initialize
+      App.add self
     end
 
 

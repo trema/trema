@@ -314,9 +314,6 @@ EOL
         # Ruby controller
         require "trema"
         Trema.module_eval IO.read( ARGV[ 0 ] )
-        Trema::Controller.each do | each |
-          Trema::App.add each
-        end
       end
     end
 
