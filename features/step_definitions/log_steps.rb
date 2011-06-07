@@ -23,6 +23,11 @@ Then /^the output should be:$/ do | string |
 end
 
 
+Then /^I should not get errors$/ do
+  Then "the output should be:", ""
+end
+
+
 Then /^the output should include:$/ do | string |
   string.chomp.split( "\n" ).each do | each |
     IO.read( @log ).split( "\n" ).should include( each )

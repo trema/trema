@@ -1,5 +1,4 @@
 *.dependency
-*.o
 *~
 .yardoc
 /tmp
@@ -8,7 +7,6 @@ GRTAGS
 GSYMS
 GTAGS
 TAGS
-a.out
 callgrind.out.*
 coverage
 doc
