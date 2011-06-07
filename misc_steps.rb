@@ -33,14 +33,6 @@ When /^wait until "([^"]*)" is up$/ do | process |
 end
 
 
-When /^wait until trema session is closed$/ do
-  loop do
-    sleep 0.1   
-    break unless FileTest.exists?( File.join( Trema.tmp, ".context" ) )
-  end
-end
-
-
 Then /^([^\s]*) is terminated$/ do | name |
   ps_entry_of( name ).should be_empty
 end
