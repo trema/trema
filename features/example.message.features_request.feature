@@ -2,20 +2,14 @@ Feature: Send a features request message
 
   As a Trema user
   I want to send a features request message to openflow switches
-  So that I can investigate the features of switches
-
-  Background:
-    Given I terminated all trema services
+  So that I can get the list of switch features
 
   Scenario: Send a features request 
     When I try trema run "./objects/examples/openflow_message/features_request" with following configuration (backgrounded):
       """
-      vswitch {
-        datapath_id "0xabc"
-      }
+      vswitch("features_request") { datapath_id "0xabc" }
       """
       And wait until "features_request" is up
-      And *** sleep 5 ***
       And I terminated all trema services
     Then the output should include:
     """
