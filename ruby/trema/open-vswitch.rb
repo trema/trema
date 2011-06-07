@@ -77,7 +77,7 @@ module Trema
     # @api public
     #
     def datapath
-      "vsw_#{ @name }"
+      "vsw_#{ @stanza[ :dpid_short ] }"
     end
 
 

@@ -29,6 +29,7 @@ When /^wait until "([^"]*)" is up$/ do | process |
     break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
     sleep 0.1
   end
+  sleep 1  # FIXME
 end
 
 
