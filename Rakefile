@@ -32,6 +32,8 @@ require "rspec/core/rake_task"
 
 desc "Run all examples with RCov"
 RSpec::Core::RakeTask.new do | t |
+  t.pattern = [ "spec/**/*_spec.rb", "src/examples/**/*_spec.rb" ]
+  t.rspec_opts = "--color --format documentation --profile"
   t.rcov = true
   t.rcov_opts = %[--exclude "gems/*"]
 end

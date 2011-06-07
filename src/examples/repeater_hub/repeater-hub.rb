@@ -20,6 +20,9 @@
 #
 
 
+include Trema
+
+
 class RepeaterHub < Controller
   def packet_in message
     send_flow_mod_add(
@@ -34,7 +37,7 @@ class RepeaterHub < Controller
         message.buffer_id,
         message.in_port,
         ActionOutput.new( OFPP_FLOOD ),
-        message.data
+        message.buffered? ? nil : message.data
       )
     end
   end

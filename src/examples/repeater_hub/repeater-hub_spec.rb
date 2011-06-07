@@ -18,30 +18,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "spec_helper" )
-require "trema"
-
-
-include Trema
-
-
-class RepeaterHub < Controller
-  def packet_in message
-    send_flow_mod_add(
-      message.datapath_id,
-      :match => Match.from( message ),
-      :buffer_id => message.buffer_id,
-      :actions => ActionOutput.new( OFPP_FLOOD )
-    )
-    send_packet_out(
-      message.datapath_id,
-      message.buffer_id,
-      message.in_port,
-      ActionOutput.new( OFPP_FLOOD ),
-      message.buffered? ? nil : message.data
-    )
-  end
-end
+require File.join( File.dirname( __FILE__ ), "..", "..", "..", "spec", "spec_helper" )
+require File.join( File.dirname( __FILE__ ), "repeater-hub" )
 
 
 describe RepeaterHub do

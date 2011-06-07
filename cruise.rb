@@ -232,7 +232,7 @@ def run_unit_test
   test "Running unit tests ..." do
     sh "./build.rb"
     sh "./build.rb unittests"
-    sh "rspec --color --format documentation spec"
+    sh "rake spec"
   end
   measure_coverage
 end
