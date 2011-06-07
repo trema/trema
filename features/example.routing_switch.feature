@@ -23,11 +23,10 @@ Feature: control multiple openflow switchies using routing_switch
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
       And wait until "routing_switch" is up
-      And *** sleep 10 ***
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host2 --duration 10"
       And I try to run "./trema show_stats host1 --tx" (log = "tx.host1.log")
       And I try to run "./trema show_stats host2 --rx" (log = "rx.host2.log")
-      And I terminated all trema services
     Then the content of "tx.host1.log" and "rx.host2.log" should be identical
 
 
@@ -62,11 +61,10 @@ Feature: control multiple openflow switchies using routing_switch
       filter :lldp => "topology_discovery", :packet_in => "routing_switch"
       """
       And wait until "routing_switch" is up
-      And *** sleep 10 ***
+      And *** sleep 5 ***
       And I try to run "./trema send_packets --source host1 --dest host4 --duration 10"
       And I try to run "./trema show_stats host1 --tx" (log = "tx.host1.log")
       And I try to run "./trema show_stats host4 --rx" (log = "rx.host4.log")
-      And I terminated all trema services
     Then the content of "tx.host1.log" and "rx.host4.log" should be identical
 
 
