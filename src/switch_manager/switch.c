@@ -42,12 +42,18 @@
 #include "xid_table.h"
 
 
+enum long_options_val {
+  NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
+};
+
 static struct option long_options[] = {
   { "socket", 1, NULL, 's' },
+  { "no-flow-cleanup", 0, NULL, NO_FLOW_CLEANUP_LONG_OPTION_VALUE },
   { NULL, 0, NULL, 0  },
 };
 
 static char short_options[] = "s:";
+
 
 struct switch_info switch_info;
 
@@ -59,26 +65,27 @@ static bool age_cookie_table_enabled = false;
 void
 usage() {
   printf(
-         "OpenFlow Switch Manager.\n"
-         "Usage: %s [OPTION]... [DESTINATION-RULE]...\n"
-         "\n"
-         "  -s, --socket=fd             secure channnel socket\n"
-         "  -n, --name=SERVICE_NAME     service name\n"
-         "  -l, --logging_level=LEVEL   set logging level\n"
-         "  -h, --help                  display this help and exit\n"
-         "\n"
-         "DESTINATION-RULE:\n"
-         "  openflow-message-type::destination-service-name\n"
-         "\n"
-         "openflow-message-type:\n"
-         "  packet_in                   packet-in openflow message type\n"
-         "  port_status                 port-status openflow message type\n"
-         "  vendor                      vendor openflow message type\n"
-         "  state_notify                connection status\n"
-         "\n"
-         "destination-service-name      destination service name\n"
-         , get_executable_name()
-         );
+    "OpenFlow Switch Manager.\n"
+    "Usage: %s [OPTION]... [DESTINATION-RULE]...\n"
+    "\n"
+    "  -s, --socket=fd             secure channnel socket\n"
+    "  -n, --name=SERVICE_NAME     service name\n"
+    "  -l, --logging_level=LEVEL   set logging level\n"
+    "      --no-flow-cleanup       do not cleanup flows on start\n"
+    "  -h, --help                  display this help and exit\n"
+    "\n"
+    "DESTINATION-RULE:\n"
+    "  openflow-message-type::destination-service-name\n"
+    "\n"
+    "openflow-message-type:\n"
+    "  packet_in                   packet-in openflow message type\n"
+    "  port_status                 port-status openflow message type\n"
+    "  vendor                      vendor openflow message type\n"
+    "  state_notify                connection status\n"
+    "\n"
+    "destination-service-name      destination service name\n"
+    , get_executable_name()
+  );
 }
 
 
@@ -101,10 +108,15 @@ option_parser( int argc, char *argv[] ) {
   int c;
 
   switch_info.secure_channel_fd = 0; // stdin
+  switch_info.flow_cleanup = true;
   while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
     switch ( c ) {
       case 's':
         switch_info.secure_channel_fd = strtofd( optarg );
+        break;
+
+      case NO_FLOW_CLEANUP_LONG_OPTION_VALUE:
+        switch_info.flow_cleanup = false;
         break;
 
       default:
@@ -304,9 +316,11 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     if ( ret < 0 ) {
       return ret;
     }
-    ret = ofpmsg_send_delete_all_flows( sw_info );
-    if ( ret < 0 ) {
-      return ret;
+    if ( switch_info.flow_cleanup ) {
+      ret = ofpmsg_send_delete_all_flows( sw_info );
+      if ( ret < 0 ) {
+        return ret;
+      }
     }
     break;
 

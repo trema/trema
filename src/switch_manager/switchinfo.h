@@ -42,6 +42,7 @@ struct switch_info {
   struct notify_info *notify_info;
 
   int secure_channel_fd;        // socket file descriptor of secure channel
+  bool flow_cleanup;
 
   int state;                    // state of switch secure channel
   uint64_t datapath_id;
