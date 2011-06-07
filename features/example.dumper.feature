@@ -18,6 +18,7 @@ Feature: Dump openflow events with dumper
       """
       And wait until "dumper" is up
     When I try to run "./trema send_packets --source host1 --dest host2"
+      And I terminated all trema services
     Then the output should include:
       """
       [packet_in]
