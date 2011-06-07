@@ -84,8 +84,8 @@ module Trema
     #
     # @api public
     #
-    def run!
-      sh "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"
+    def run! switch_options = []
+      sh "#{ Executables.switch_manager } #{ options.join " " } -- #{ ( switch_options + default_switch_options ).join " " }"
     end
 
 
@@ -115,7 +115,7 @@ module Trema
     #
     # @api private
     #
-    def switch_options
+    def default_switch_options
       SwitchDaemon.new( @rule ).options
     end
   end

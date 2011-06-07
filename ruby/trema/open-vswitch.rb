@@ -52,29 +52,6 @@ module Trema
 
 
     #
-    # Returns if switch is initialized by switch daemon
-    #
-    # @example
-    #   switch.ready?
-    #
-    # @return [boolean]
-    #
-    # @api public
-    #
-    def ready?
-      begin
-        @log ||= File.open( log_file, "r" )
-        while @log.gets
-          return false if $_.nil?
-          return true if /flow_mod \(xid=.+\): DEL: cookie:0x0 idle:0 hard:0 pri:0 buf:0 flags:0 actions=drop/=~ $_
-        end
-      rescue
-        false
-      end
-    end
-    
-
-    #
     # Add a network interface used for a virtual port
     #
     # @example

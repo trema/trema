@@ -57,7 +57,7 @@ def trema_run controller_class, &block
 
   app_name = controller.name
   rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-  SwitchManager.new( rule, @context.port ).run!
+  SwitchManager.new( rule, @context.port ).run! [ "--no-flow-cleanup" ]
   
   @context.links.each do | name, each |
     each.add!
@@ -67,10 +67,6 @@ def trema_run controller_class, &block
   end
   @context.switches.each do | name, each |
     each.run!
-    loop do
-      break if each.ready?
-      sleep 0.1
-    end
     drop_packets_from_unknown_hosts each
   end
   @context.links.each do | name, each |
