@@ -54,6 +54,14 @@ module Trema
     def clear
       @keys.clear
       @content.clear
+      self
+    end
+
+
+    def each &block
+      @keys.each do | each |
+        block.call each, @content[ each ]
+      end
     end
   end
 end
