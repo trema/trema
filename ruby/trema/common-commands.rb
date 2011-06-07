@@ -68,7 +68,7 @@ module Trema::CommonCommands
 
   def vhost name = nil, &block
     stanza = Trema::DSL::Vhost.new( name )
-    stanza.instance_eval( &block )
+    stanza.instance_eval( &block ) if block
     Trema::Host.new( stanza )
   end
 

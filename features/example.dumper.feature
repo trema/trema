@@ -1,8 +1,29 @@
-Feature: Dumper help
+Feature: Dump openflow events with dumper
 
   As a Trema user
-  I want to see the help message of dumper command
-  So that I can learn how to use dumper
+  I want to dump OpenFlow events with dumper example application
+  So that I can visualize OpenFlow messages
+
+
+  Scenario: Dump packet_in events
+    Given I try trema run "./objects/examples/dumper/dumper" with following configuration (backgrounded):
+      """
+      vswitch("dumper") { datapath_id "0xabc" }
+
+      vhost("host1")
+      vhost("host2")
+
+      link "dumper", "host1"
+      link "dumper", "host2"
+      """
+      And wait until "dumper" is up
+    When I try to run "./trema send_packets --source host1 --dest host2"
+    Then the output should include:
+      """
+      [packet_in]
+      datapath_id: 0xabc
+      """
+
 
   Scenario: dumper --help
     When I try to run "./objects/examples/dumper/dumper --help" (log = "dumper_help.log")
@@ -16,6 +37,7 @@ Feature: Dumper help
         -l, --logging_level=LEVEL   set logging level
         -h, --help                  display this help and exit
       """
+
 
   Scenario: dumper -h
     When I try to run "./objects/examples/dumper/dumper -h" (log = "dumper_h.log")
