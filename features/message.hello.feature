@@ -17,4 +17,4 @@ Feature: Send hello messages
       And wait until "hello" is up
       And *** sleep 5 ***
       And I terminated all trema services
-    Then the log file "./tmp/log/openflowd.0xabc.log" should include "received: hello" x 11
+    Then the log file "openflowd.0xabc.log" should include "received: hello" x 11
