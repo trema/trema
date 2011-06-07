@@ -46,7 +46,7 @@ end
 
 
 Then /^the log file "([^"]*)" should include "([^"]*)" x (\d+)$/ do | log, message, n |
-  IO.read( log ).split( "\n" ).inject( 0 ) do | matched, each |
+  IO.read( cucumber_log log ).split( "\n" ).inject( 0 ) do | matched, each |
     matched += 1 if each.include?( message )
     matched
   end.should == n.to_i
