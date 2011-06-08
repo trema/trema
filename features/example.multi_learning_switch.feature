@@ -6,59 +6,29 @@ Feature: control multiple openflow switches using multi_learning_switch
 
 
   Scenario: Send and receive packets
-    When I try trema run "./objects/examples/multi_learning_switch/multi_learning_switch" with following configuration (backgrounded):
+    Given I try trema run "./objects/examples/multi_learning_switch/multi_learning_switch" with following configuration (backgrounded):
       """
-      vswitch("mlsw1") {
-        datapath_id "0x1"
-      }
+      vswitch("multi_learning1") { datapath_id "0x1" }
+      vswitch("multi_learning2") { datapath_id "0x2" }
+      vswitch("multi_learning3") { datapath_id "0x3" }
+      vswitch("multi_learning4") { datapath_id "0x4" }
 
-      vswitch("mlsw2") {
-        datapath_id "0x2"
-      }
+      vhost("host1")
+      vhost("host2")
+      vhost("host3")
+      vhost("host4")
 
-      vswitch("mlsw3") {
-        datapath_id "0x3"
-      }
-
-      vswitch("mlsw4") {
-        datapath_id "0x4"
-      }
-
-      vhost ("host1") {
-        ip "192.168.0.1"
-        netmask "255.255.0.0"
-        mac "00:00:00:01:00:01"
-      }
-
-      vhost ("host2") {
-        ip "192.168.0.2"
-        netmask "255.255.0.0"
-        mac "00:00:00:01:00:02"
-      }
-
-      vhost ("host3") {
-        ip "192.168.0.3"
-        netmask "255.255.0.0"
-        mac "00:00:00:01:00:03"
-      }
-
-      vhost ("host4") {
-        ip "192.168.0.4"
-        netmask "255.255.0.0"
-        mac "00:00:00:01:00:04"
-      }
-
-      link "mlsw1", "host1"
-      link "mlsw2", "host2"
-      link "mlsw3", "host3"
-      link "mlsw4", "host4"
-      link "mlsw1", "mlsw2"
-      link "mlsw2", "mlsw3"
-      link "mlsw3", "mlsw4"
+      link "multi_learning1", "host1"
+      link "multi_learning2", "host2"
+      link "multi_learning3", "host3"
+      link "multi_learning4", "host4"
+      link "multi_learning1", "multi_learning2"
+      link "multi_learning2", "multi_learning3"
+      link "multi_learning3", "multi_learning4"
       """
       And wait until "multi_learning_switch" is up
 
-    When I try to run "./trema send_packets --source host1 --dest host2 --n_pkts 2"
+    When I send 2 packets from host1 to host2
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
       |     2 |     0 |     0 |     0 |
@@ -66,7 +36,7 @@ Feature: control multiple openflow switches using multi_learning_switch
       | host1 | host2 | host3 | host4 |
       |     0 |     2 |     0 |     0 |
 
-    When I try to run "./trema send_packets --source host3 --dest host4 --n_pkts 3"
+    When I send 3 packets from host3 to host4
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
       |     2 |     0 |     3 |     0 |
@@ -74,7 +44,7 @@ Feature: control multiple openflow switches using multi_learning_switch
       | host1 | host2 | host3 | host4 |
       |     0 |     2 |     0 |     3 |
 
-    And I try to run "./trema send_packets --source host4 --dest host1 --n_pkts 2"
+    When I send 2 packets from host4 to host1
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
       |     2 |     0 |     3 |     2 |
@@ -82,7 +52,7 @@ Feature: control multiple openflow switches using multi_learning_switch
       | host1 | host2 | host3 | host4 |
       |     2 |     2 |     0 |     3 |
 
-    And I try to run "./trema send_packets --source host2 --dest host3 --n_pkts 4"
+    When I send 4 packets from host2 to host3
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
       |     2 |     4 |     3 |     2 |
@@ -90,7 +60,7 @@ Feature: control multiple openflow switches using multi_learning_switch
       | host1 | host2 | host3 | host4 |
       |     2 |     2 |     4 |     3 |
 
-    And I try to run "./trema send_packets --source host1 --dest host4 --n_pkts 1"
+    When I send 1 packets from host1 to host4
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
       |     3 |     4 |     3 |     2 |
