@@ -26,7 +26,7 @@ end
 
 When /^I send packets from (.+) to (.+) \(duration = (\d+)\)$/ do | host_a, host_b, duration |
   run "./trema send_packets --source #{ host_a } --dest #{ host_b } --duration #{ duration }"
-  sleep 2  # ensure that all packets are sent
+  sleep 5  # ensure that all packets are sent
 end
 
 
