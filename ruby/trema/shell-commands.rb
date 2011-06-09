@@ -39,6 +39,7 @@ end
 def host name
   @context.hosts[ name ]
 end
+alias :vhost :host
 
 
 def run

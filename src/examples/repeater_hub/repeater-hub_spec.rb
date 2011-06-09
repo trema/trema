@@ -24,21 +24,23 @@ require File.join( File.dirname( __FILE__ ), "repeater-hub" )
 
 describe RepeaterHub do
   around do | example |
-    trema_run( RepeaterHub ) {
-      vswitch("switch") { datapath_id "0xabc" }
+    begin
+      trema_run( RepeaterHub ) {
+        vswitch("switch") { datapath_id "0xabc" }
 
-      vhost("host1") { promisc "on" }
-      vhost("host2") { promisc "on" }
-      vhost("host3") { promisc "on" }
+        vhost("host1") { promisc "on" }
+        vhost("host2") { promisc "on" }
+        vhost("host3") { promisc "on" }
 
-      link "switch", "host1"
-      link "switch", "host2"
-      link "switch", "host3"
-    }
+        link "switch", "host1"
+        link "switch", "host2"
+        link "switch", "host3"
+      }
 
-    example.run
-
-    trema_kill
+      example.run
+    ensure
+      trema_kill
+    end
   end
   
 

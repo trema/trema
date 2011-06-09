@@ -25,6 +25,10 @@ require "trema/executables"
 
 module Trema
   class Stats
+    class Packet
+    end
+
+    
     attr_reader :ip_dst
     attr_reader :tp_dst
     attr_reader :ip_src
@@ -40,6 +44,15 @@ module Trema
       @tp_src = tp_src.to_i
       @n_pkts = n_pkts.to_i
       @n_octets = n_octets.to_i
+    end
+
+
+    def packets
+      list = []
+      @n_pkts.times do
+        list << Packet.new
+      end
+      list
     end
   end
 end

@@ -201,6 +201,18 @@ module Trema
     end
 
 
+    def stats type
+      case type
+      when :tx
+        @cli.tx_stats
+      when :rx
+        @cli.rx_stats
+      else
+        raise
+      end
+    end
+    
+
     #
     # Returns tx stats
     #
