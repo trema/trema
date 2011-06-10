@@ -1,0 +1,26 @@
+This directory includes sample implementations of topology management
+components:
+
+- Topology daemon is a service that provides topology information for
+  trema apps.
+
+- Topology discovery collects the topology information of OpenFlow
+  switches. Topology discovery uses Link Layer Discovery Protocol
+  (LLDP) to obtain topology information.
+
+
+             packet out
+         .---------------------------------------.
+         v                                       |
++----------+           +-----------+           +-------+          +----------+
+|  switch  |  *    1   | packet in |  1    *   | trema |  *   1   | topology |
+|  daemon  | --------> |  filter   | --------> | apps  | <------> | daemon   |
++----------+ packet in +-----------+ packet in +-------+ topology +----------+
+  ^ 1    ^                       |                                  ^ 1
+  |      |                       |                                  | topology
+  |      `-------.               |                                  |
+  v 1            |               |                                  v 1
++----------+     |               |   packet in(LLDP)              +-----------+
+| openflow |     |               `------------------------------->| topology  |
+|  switch  |     `------------------------------------------------| discovery |
++----------+                         packet out(LLDP)             +-----------+

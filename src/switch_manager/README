@@ -1,0 +1,20 @@
+This directory includes OpenFlow switch management components:
+
+- Switch manager accepts connections from OpenFlow switches, then
+  delegates the accepted connections to a switch daemon.
+
+- Switch daemon starts a new secure channel with a OpenFlow switch.
+
+
+    connect
+  .-------------------------------------------.
+  v                                           |
++---------+           +--------+            +----------+
+| switch  |  1    *   | switch |  1      1  | openflow |
+| manager | --------> | daemon | <--------> |  switch  |
++---------+ fork and  +--------+  openflow  +----------+
+            exec          ^       messages
+                          |
+                          | packet in, etc.
+                          v
+                     trema apps
