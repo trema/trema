@@ -127,6 +127,51 @@ mock_unlink( char *pathname ) {
 }
 
 
+int
+mock_access( char *pathname, int mode) {
+  check_expected( pathname );
+  check_expected( mode );
+  return ( int ) mock();
+}
+
+
+static size_t read_length = 0;
+static char *read_buffer = NULL;
+
+ssize_t
+mock_read( int fd, void *buf, size_t count ) {
+  check_expected( fd );
+  check_expected( buf );
+  check_expected( count );
+  if ( read_length > 0 ) {
+    memcpy( buf, read_buffer, read_length );
+  }
+  return ( int ) mock();
+}
+
+
+int
+mock_kill( pid_t pid, int sig ) {
+  check_expected( pid );
+  check_expected( sig );
+  return ( int ) mock();
+}
+
+
+int
+mock_rename( char *oldpath, char *newpath ) {
+  check_expected( oldpath );
+  check_expected( newpath );
+  return ( int ) mock();
+}
+
+
+void
+mock_warn( const char *format, ... ) {
+  UNUSED( format );
+}
+
+
 /********************************************************************************
  * Test functions.
  ********************************************************************************/
@@ -278,6 +323,298 @@ test_unlink_pid_fail_if_unlink_fail() {
 }
 
 
+static void
+test_read_pid_successed() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  char valid_pid_string[] = "123\n";
+  pid_t valid_pid = 123;
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
+
+  // Test if correctly read.
+  expect_value( mock_kill, pid, valid_pid );
+  expect_value( mock_kill, sig, 0 );
+  will_return( mock_kill, 0 );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == valid_pid );
+}
+
+
+static void
+test_read_pid_fail_if_access_fail() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, -1 );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_open_fail() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, -1 );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_read_fail() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  read_length = 0;
+  will_return( mock_read, -1 );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_pid_is_invalid() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  char INVALID_pid_string[] = "not number\n";
+  read_buffer = INVALID_pid_string;
+  read_length = strlen( INVALID_pid_string );
+  will_return( mock_read, read_length );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_pid_is_zero() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  char ZERO_pid_string[] = "0\n";
+  read_buffer = ZERO_pid_string;
+  read_length = strlen( ZERO_pid_string );
+  will_return( mock_read, read_length );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_kill_fail_with_ESRCH() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  char valid_pid_string[] = "123\n";
+  pid_t valid_pid = 123;
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
+
+  // Test if correctly read.
+  expect_value( mock_kill, pid, valid_pid );
+  expect_value( mock_kill, sig, 0 );
+  errno = ESRCH;
+  will_return( mock_kill, -1 );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Test if correctly unlink.
+  expect_string( mock_unlink, pathname, path );
+  will_return( mock_unlink, 0 );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_read_pid_fail_if_kill_fail_with_EPERM() {
+  // Test if correctly access.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  expect_string( mock_access, pathname, path );
+  expect_value( mock_access, mode, R_OK );
+  will_return( mock_access, 0 );
+
+  // Test if correctly opened.
+  int pid_file_fd = 111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDONLY );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly read.
+  expect_value( mock_read, fd, pid_file_fd );
+  expect_not_value( mock_read, buf, NULL );
+  expect_value( mock_read, count, 10 - 1 );
+  char valid_pid_string[] = "123\n";
+  pid_t valid_pid = 123;
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
+
+  // Test if correctly read.
+  expect_value( mock_kill, pid, valid_pid );
+  expect_value( mock_kill, sig, 0 );
+  errno = EPERM;
+  will_return( mock_kill, -1 );
+
+  // Test if correctly close.
+  expect_value( mock_close, fd, pid_file_fd );
+
+  // Go
+  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
+  assert_true( pid == -1 );
+}
+
+
+static void
+test_rename_pid_successed() {
+  // Test if correctly unlink.
+  expect_string( mock_unlink, pathname, "/home/yasuhito/trema/tmp/hello.pid" );
+  errno = ENOENT;
+  will_return( mock_unlink, -1 );
+  // Test if correctly rename.
+  expect_string( mock_rename, oldpath, "/home/yasuhito/trema/tmp/bye.pid" );
+  expect_string( mock_rename, newpath, "/home/yasuhito/trema/tmp/hello.pid" );
+  will_return( mock_rename, 0 );
+
+  // Go
+  rename_pid( "/home/yasuhito/trema/tmp", "bye", "hello" );
+}
+
+
+static void
+test_rename_pid_fail_if_rename_fail() {
+  // Test if correctly unlink.
+  expect_string( mock_unlink, pathname, "/home/yasuhito/trema/tmp/hello.pid" );
+  errno = ENOENT;
+  will_return( mock_unlink, -1 );
+  // Test if correctly rename.
+  expect_string( mock_rename, oldpath, "/home/yasuhito/trema/tmp/bye.pid" );
+  expect_string( mock_rename, newpath, "/home/yasuhito/trema/tmp/hello.pid" );
+  errno = ENOENT;
+  will_return( mock_rename, -1 );
+
+  expect_string( mock_die, message, "Could not rename a PID file from "
+                                    "/home/yasuhito/trema/tmp/bye.pid"
+                                    " to "
+                                    "/home/yasuhito/trema/tmp/hello.pid." );
+
+  // Go
+  expect_assert_failure( rename_pid( "/home/yasuhito/trema/tmp", "bye", "hello" ) );
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -299,6 +636,21 @@ main() {
     // unlink_pid() tsets.
     unit_test( test_unlink_pid_succeed ),
     unit_test( test_unlink_pid_fail_if_unlink_fail ),
+
+    // read_pid() tests.
+    unit_test( test_read_pid_successed ),
+    unit_test( test_read_pid_fail_if_access_fail ),
+    unit_test( test_read_pid_fail_if_open_fail ),
+    unit_test( test_read_pid_fail_if_read_fail ),
+    unit_test( test_read_pid_fail_if_pid_is_invalid ),
+    unit_test( test_read_pid_fail_if_pid_is_zero ),
+    unit_test( test_read_pid_fail_if_kill_fail_with_ESRCH ),
+    unit_test( test_read_pid_fail_if_kill_fail_with_EPERM ),
+
+    // rename_pid() tests.
+    unit_test( test_rename_pid_successed ),
+    unit_test( test_rename_pid_fail_if_rename_fail ),
+
   };
   return run_tests( tests );
 }

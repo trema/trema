@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -42,6 +43,7 @@ void parse_argv( int *argc, char ***argv );
  ********************************************************************************/
 
 extern bool initialized;
+extern bool started_trema;
 extern char *trema_home;
 extern char *trema_tmp;
 extern char *trema_name;
@@ -124,6 +126,39 @@ void
 mock_unlink_pid( char *directory, char *name ) {
   UNUSED( directory );
   UNUSED( name );
+}
+
+
+void
+mock_rename_pid( char *directory, char *old, char *new ) {
+  check_expected( directory );
+  check_expected( old );
+  check_expected( new );
+}
+
+
+pid_t
+mock_read_pid( char *directory, char *name ) {
+  check_expected( directory );
+  check_expected( name );
+
+  return ( pid_t ) mock();
+}
+
+
+int
+mock_kill( pid_t pid, int sig ) {
+  check_expected( pid );
+  check_expected( sig );
+
+  return ( int ) mock();
+}
+
+
+unsigned int
+mock_sleep( unsigned int seconds ) {
+  check_expected( seconds );
+  return ( unsigned int ) mock();
 }
 
 
@@ -793,6 +828,59 @@ test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid() {
 
 
 /********************************************************************************
+ * set_trema_name() tests.
+ *******************************************************************************/
+
+static void
+test_set_trema_name_when_first_call() {
+  char NAME[] = "test_name";
+  trema_name = NULL;
+  started_trema = false;
+
+  // Go
+  set_trema_name( NAME );
+  assert_string_equal ( NAME, get_trema_name() );
+
+  xfree( trema_name );
+}
+
+
+static void
+test_set_trema_name_when_called_befor_write_pid() {
+  char NAME[] = "new_name";
+  trema_name = xstrdup( "old_name" );
+  started_trema = false;
+
+  // Go
+  set_trema_name( NAME );
+  assert_string_equal ( NAME, get_trema_name() );
+
+  xfree( trema_name );
+}
+
+
+static void
+test_set_trema_name_when_called_after_write_pid() {
+  char OLD_NAME[] = "old_name";
+  char NEW_NAME[] = "new_name";
+  trema_name = xstrdup( "old_name" );
+  started_trema = true;
+  char TEMP_DIRECTORY[] = "/tmp";
+  setenv( "TREMA_TMP", TEMP_DIRECTORY, 1 );
+  expect_string( mock_rename_pid, directory, TEMP_DIRECTORY );
+  expect_string( mock_rename_pid, old, OLD_NAME );
+  expect_string( mock_rename_pid, new, NEW_NAME );
+
+  // Go
+  set_trema_name( NEW_NAME );
+  assert_string_equal ( NEW_NAME, get_trema_name() );
+
+  xfree( trema_name );
+  xfree( trema_tmp );
+}
+
+
+/********************************************************************************
  * get_executable_name() tests.
  *******************************************************************************/
 
@@ -807,6 +895,118 @@ test_get_executable_name() {
   xfree( trema_tmp );
   xfree( trema_name );
   xfree( executable_name );
+}
+
+
+/********************************************************************************
+ * get_trema_process_from_name() tests.
+ *******************************************************************************/
+
+static void
+test_get_trema_process_from_name() {
+  char NAME[] = "test_name";
+  char TEMP_DIRECTORY[] = "/tmp";
+  int PID = 123;
+  setenv( "TREMA_TMP", TEMP_DIRECTORY, 1 );
+  expect_string( mock_read_pid, directory, TEMP_DIRECTORY );
+  expect_string( mock_read_pid, name, NAME );
+  will_return( mock_read_pid, PID );
+
+  // Go
+  pid_t pid = get_trema_process_from_name( NAME );
+  assert_true( pid == PID );
+  xfree( trema_tmp );
+}
+
+
+/********************************************************************************
+ * terminate_trema_process() tests.
+ *******************************************************************************/
+
+static void
+test_terminate_trema_process_when_was_found() {
+  int PID = 123;
+  expect_value_count( mock_kill, pid, PID, 2 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  expect_value_count( mock_kill, sig, 0, 1 );
+  will_return_count( mock_kill, 0, 1 );
+  will_return_count( mock_kill, -1, 1 );
+
+  // Go
+  assert_true( terminate_trema_process( PID ) );
+}
+
+
+static void
+test_terminate_trema_process_when_was_not_found() {
+  int PID = 123;
+  errno = ESRCH;
+  expect_value_count( mock_kill, pid, PID, 1 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  will_return_count( mock_kill, -1, 1 );
+
+  // Go
+  assert_true( terminate_trema_process( PID ) );
+}
+
+
+static void
+test_terminate_trema_process_when_does_not_have_permissio_to_kill() {
+  int PID = 123;
+  errno = EPERM;
+  expect_value_count( mock_kill, pid, PID, 1 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  will_return_count( mock_kill, -1, 1 );
+
+  // Go
+  assert_true( !terminate_trema_process( PID ) );
+}
+
+
+static void
+test_terminate_trema_process_when_retry_count_1() {
+  int PID = 123;
+  expect_value_count( mock_kill, pid, PID, 3 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  expect_value_count( mock_kill, sig, 0, 2 );
+  will_return_count( mock_kill, 0, 2 );
+  will_return_count( mock_kill, -1, 1 );
+  expect_value_count( mock_sleep, seconds, 1, 1 );
+  will_return_count( mock_sleep, 0, 1 );
+
+  // Go
+  assert_true( terminate_trema_process( PID ) );
+}
+
+
+static void
+test_terminate_trema_process_when_retry_count_10() {
+  int PID = 123;
+  expect_value_count( mock_kill, pid, PID, 12 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  expect_value_count( mock_kill, sig, 0, 11 );
+  will_return_count( mock_kill, 0, 11 );
+  will_return_count( mock_kill, -1, 1 );
+  expect_value_count( mock_sleep, seconds, 1, 10 );
+  will_return_count( mock_sleep, 0, 10 );
+
+  // Go
+  assert_true( terminate_trema_process( PID ) );
+}
+
+
+static void
+test_terminate_trema_process_when_over_max_retry_count() {
+  int PID = 123;
+  expect_value_count( mock_kill, pid, PID, 12 );
+  expect_value_count( mock_kill, sig, SIGTERM, 1 );
+  expect_value_count( mock_kill, sig, 0, 11 );
+  will_return_count( mock_kill, 0, 12 );
+  expect_value_count( mock_sleep, seconds, 1, 10 );
+  will_return_count( mock_sleep, 0, 10 );
+
+  // Go
+  assert_true( !terminate_trema_process( PID ) );
 }
 
 
@@ -862,8 +1062,24 @@ main() {
     unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set, reset_trema, reset_trema ),
     unit_test_setup_teardown( test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid, reset_trema, reset_trema ),
 
+    // set_trema_name() test.
+    unit_test_setup_teardown( test_set_trema_name_when_first_call, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_set_trema_name_when_called_befor_write_pid, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_set_trema_name_when_called_after_write_pid, reset_trema, reset_trema ),
+
     // get_executable_name() test.
     unit_test_setup_teardown( test_get_executable_name, reset_trema, reset_trema ),
+
+    // get_trema_process_from_name() test.
+    unit_test_setup_teardown( test_get_trema_process_from_name, reset_trema, reset_trema ),
+
+    // terminate_trema_process() test.
+    unit_test_setup_teardown( test_terminate_trema_process_when_was_found, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_terminate_trema_process_when_was_not_found, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_terminate_trema_process_when_does_not_have_permissio_to_kill, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_terminate_trema_process_when_retry_count_1, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_terminate_trema_process_when_retry_count_10, reset_trema, reset_trema ),
+    unit_test_setup_teardown( test_terminate_trema_process_when_over_max_retry_count, reset_trema, reset_trema ),
   };
   return run_tests( tests );
 }

@@ -86,6 +86,30 @@ void mock_write_pid( const char *directory, const char *name );
 #define unlink_pid mock_unlink_pid
 void mock_unlink_pid( const char *directory, const char *name );
 
+#ifdef rename_pid
+#undef rename_pid
+#endif
+#define rename_pid mock_rename_pid
+void mock_rename_pid( const char *directory, const char *old, const char *new );
+
+#ifdef read_pid
+#undef read_pid
+#endif
+#define read_pid mock_read_pid
+pid_t mock_read_pid( const char *directory, const char *name );
+
+#ifdef kill
+#undef kill
+#endif
+#define kill mock_kill
+int mock_kill( pid_t pid, int sig );
+
+#ifdef sleep
+#undef sleep
+#endif
+#define sleep mock_sleep
+unsigned int mock_sleep( unsigned int seconds );
+
 #ifdef init_messenger
 #undef init_messenger
 #endif
@@ -226,6 +250,7 @@ void mock_dump_stats();
 static const char TREMA_HOME[] = "TREMA_HOME";
 static const char TREMA_TMP[] = "TREMA_TMP";
 static bool initialized = false;
+static bool started_trema = false;
 static bool run_as_daemon = false;
 static char *trema_name = NULL;
 static char *executable_name = NULL;
@@ -382,6 +407,7 @@ finalize_trema() {
   finalize_messenger();
   finalize_stat();
   finalize_timer();
+  started_trema = false;
   unlink_pid( get_trema_tmp(), get_trema_name() );
   xfree( trema_name );
   trema_name = NULL;
@@ -423,8 +449,8 @@ parse_argv( int *argc, char ***argv ) {
 
   run_as_daemon = false;
 
-  trema_name = xstrdup( basename( ( *argv )[ 0 ] ) );
-  executable_name = xstrdup( trema_name );
+  set_trema_name( basename( ( *argv )[ 0 ] ) );
+  executable_name = xstrdup( get_trema_name() );
 
   for ( int i = 0; i <= *argc; ++i ) {
     new_argv[ i ] = ( *argv )[ i ];
@@ -440,8 +466,7 @@ parse_argv( int *argc, char ***argv ) {
 
     switch ( c ) {
       case 'n':
-        xfree( trema_name );
-        trema_name = xstrdup( optarg );
+        set_trema_name( optarg );
         break;
       case 'd':
         run_as_daemon = true;
@@ -568,6 +593,7 @@ init_trema( int *argc, char ***argv ) {
   trema_name = NULL;
   executable_name = NULL;
   initialized = false;
+  started_trema = false;
   run_as_daemon = false;
 
   parse_argv( argc, argv );
@@ -602,6 +628,7 @@ start_trema() {
 
   maybe_daemonize();
   write_pid( get_trema_tmp(), get_trema_name() );
+  started_trema = true;
   start_messenger();
 
   finalize_trema();
@@ -625,6 +652,19 @@ stop_trema() {
 }
 
 
+void
+set_trema_name( const char *name ) {
+  assert( name != NULL );
+  if ( trema_name != NULL ) {
+    if ( started_trema ) {
+      rename_pid( get_trema_tmp(), trema_name, name );
+    }
+    xfree( trema_name );
+  }
+  trema_name = xstrdup( name );
+}
+
+
 /**
  * Returns the ID of your Trema application.
  */
@@ -643,6 +683,37 @@ const char *
 get_executable_name() {
   assert( executable_name != NULL );
   return executable_name;
+}
+
+
+pid_t
+get_trema_process_from_name( const char *name ) {
+  return read_pid( get_trema_tmp(), name );
+}
+
+
+bool
+terminate_trema_process( pid_t pid ) {
+  assert( pid > 0 );
+  int res = kill( pid, SIGTERM );
+  if ( res < 0 ) {
+    if ( errno == ESRCH ) {
+      return true;
+    }
+    error( "Failed to kill %d ( %s [%d] ).", pid, strerror( errno ), errno );
+    return false;
+  }
+
+  int try = 0;
+  const int max_try = 10;
+  while ( kill( pid, 0 ) == 0 && ++try <= max_try ) {
+    sleep( 1 );
+  }
+  if ( try > max_try ) {
+    error( "Failed to terminate %d.", pid );
+    return false;
+  }
+  return true;
 }
 
 

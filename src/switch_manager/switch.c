@@ -280,8 +280,8 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
 int
 switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
   int ret;
-  uint16_t new_service_name_len;
-  char *new_service_name;
+  char new_service_name[ SWITCH_MANAGER_PREFIX_STR_LEN + SWITCH_MANAGER_DPID_STR_LEN + 1 ];
+  const uint16_t new_service_name_len = SWITCH_MANAGER_PREFIX_STR_LEN + SWITCH_MANAGER_DPID_STR_LEN + 1;
 
   switch ( sw_info->state ) {
   case SWITCH_STATE_WAIT_FEATURES_REPLY:
@@ -292,21 +292,26 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     // cancel to features_reply_wait-timeout timer
     switch_unset_timeout( switch_event_timeout_features_reply );
 
-    // TODO: change process name
     // TODO: set keepalive-timeout
-
-    new_service_name_len = SWITCH_MANAGER_PREFIX_STR_LEN + SWITCH_MANAGER_DPID_STR_LEN + 1;
-    new_service_name = xmalloc( new_service_name_len );
     snprintf( new_service_name, new_service_name_len, "%s%" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
+    // checking duplicate service
+    pid_t pid = get_trema_process_from_name( new_service_name );
+    if ( pid > 0 ) {
+      // duplicated
+      if ( !terminate_trema_process( pid ) ) {
+        return -1;
+      }
+    }
     // rename service_name of messenger
     rename_message_received_callback( get_trema_name(), new_service_name );
-    debug( "Rename service name to %s from %s.", new_service_name, get_trema_name() );
 
+    debug( "Rename service name from %s to %s.", get_trema_name(), new_service_name );
     if ( messenger_dump_enabled() ) {
       stop_messenger_dump();
       start_messenger_dump( new_service_name, DEFAULT_DUMP_SERVICE_NAME );
     }
+    set_trema_name( new_service_name );
 
     // notify state and datapath_id
     service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );

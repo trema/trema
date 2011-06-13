@@ -27,6 +27,8 @@
 void daemonize( const char *home );
 void write_pid( const char *directory, const char *name );
 void unlink_pid( const char *directory, const char *name );
+pid_t read_pid( const char *directory, const char *name );
+void rename_pid( const char *directory, const char *old, const char *new );
 
 
 #endif // DAEMON_H
