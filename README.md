@@ -79,8 +79,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 
 
+Terms
+-----
+
 Terms of Contributing to Trema program ("Program")
---------------------------------------------------
 
 Please read the following terms before you submit to the Trema project
 ("Project") any original works of corrections, modifications,
