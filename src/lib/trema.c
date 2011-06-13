@@ -50,6 +50,12 @@
 #define init_log mock_init_log
 bool mock_init_log( const char *ident, bool run_as_daemon );
 
+#ifdef logging_started
+#undef logging_started
+#endif
+#define logging_started mock_logging_started
+bool mock_logging_started( void );
+
 #ifdef notice
 #undef notice
 #endif
@@ -662,6 +668,10 @@ set_trema_name( const char *name ) {
     xfree( trema_name );
   }
   trema_name = xstrdup( name );
+
+  if ( logging_started() ) {
+    init_log( trema_name, run_as_daemon );
+  }
 }
 
 

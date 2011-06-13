@@ -34,6 +34,7 @@
 bool init_log( const char *ident, bool run_as_daemon );
 bool set_logging_level( const char *level );
 int get_logging_level( void );
+bool logging_started( void );
 void critical( const char *format, ... );
 void error( const char *format, ... );
 void warn( const char *format, ... );

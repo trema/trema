@@ -29,9 +29,11 @@
 
 
 extern int level;
+extern void ( *do_log )( int priority, const char *format, va_list ap );
 
 
 int logging_level_from( const char *name );
+
 
 
 /********************************************************************************
@@ -102,6 +104,12 @@ reset_times_syslog_called() {
 }
 
 
+void
+reset_do_log() {
+  do_log = NULL;
+}
+
+
 /********************************************************************************
  * Initialization tests.
  ********************************************************************************/
@@ -111,6 +119,23 @@ test_init_log_reads_LOGING_LEVEL_environment_variable() {
   setenv( "LOGGING_LEVEL", "CRITICAL", 1 );
   assert_true( init_log( "tetris", true ) );
   assert_int_equal( level, LOG_CRIT );
+}
+
+
+/********************************************************************************
+ * logging_started() tests.
+ ********************************************************************************/
+
+void
+test_logging_started_returns_false_if_logger_is_not_initialized() {
+  assert_false( logging_started() );
+}
+
+
+void
+test_logging_started_returns_true_if_logger_is_initialized() {
+  assert_true( init_log( "tetris", true ) );
+  assert_true( logging_started() );
 }
 
 
@@ -426,65 +451,70 @@ int
 main() {
   const UnitTest tests[] = {
     unit_test_setup_teardown( test_default_logging_level_is_INFO,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
     unit_test_setup_teardown( test_set_logging_level_succeed,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
     unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
     unit_test_setup_teardown( test_get_logging_level_succeed,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
 
     unit_test_setup_teardown( test_init_log_reads_LOGING_LEVEL_environment_variable,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
+
+    unit_test_setup_teardown( test_logging_started_returns_false_if_logger_is_not_initialized,
+                              reset_do_log, reset_do_log ),
+    unit_test_setup_teardown( test_logging_started_returns_true_if_logger_is_initialized,
+                              reset_do_log, reset_times_syslog_called ),
 
     unit_test( test_logging_level_from_NULL_fail ),
     unit_test_setup_teardown( test_logging_level_from,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
     unit_test_setup_teardown( test_logging_level_from_fail_with_invalid_logging_level,
-			      reset_logging_level, reset_logging_level ),
+                              reset_logging_level, reset_logging_level ),
 
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_CRITICAL,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_ERROR,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_critical_fail_if_NULL ),
 
     unit_test_setup_teardown( test_error_donothing_if_logging_level_is_CRITICAL,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_error_logs_if_logging_level_is_ERROR,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_error_logs_if_logging_level_is_WARNING,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_error_fail_if_NULL ),
 
     unit_test_setup_teardown( test_warn_donothing_if_logging_level_is_ERROR,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_warn_logs_if_logging_level_is_WARNING,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_warn_logs_if_logging_level_is_NOTICE,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_warn_fail_if_NULL ),
 
     unit_test_setup_teardown( test_notice_donothing_if_logging_level_is_WARNING,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_notice_logs_if_logging_level_is_NOTICE,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_notice_logs_if_logging_level_is_INFO,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_notice_fail_if_NULL ),
 
     unit_test_setup_teardown( test_info_logs_if_logging_level_is_DEBUG,
         		      reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_info_logs_if_logging_level_is_INFO,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_info_donothing_if_logging_level_is_NOTICE,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_info_fail_if_NULL ),
 
     unit_test_setup_teardown( test_DEBUG_donothing_if_logging_level_is_INFO,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test_setup_teardown( test_DEBUG_logs_if_logging_level_is_DEBUG,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+                              reset_times_syslog_called, reset_times_syslog_called ),
     unit_test( test_debug_fail_if_NULL ),
 
     unit_test( test_output_to_stdout ),

@@ -19,11 +19,13 @@
 
 
 #include <assert.h>
+#include <linux/limits.h>
 #include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "bool.h"
 #include "checks.h"
 #include "log.h"
 #include "wrapper.h"
@@ -76,6 +78,7 @@ static int level = LOG_INFO;
 static const int level_min = LOG_CRIT;
 static const int level_max = LOG_DEBUG;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static char ident[ PATH_MAX ];
 
 
 #ifndef _DOXYGEN
@@ -138,10 +141,13 @@ logging_level_from( const char *name ) {
 
 
 bool
-init_log( const char *ident, bool run_as_daemon ) {
+init_log( const char *custom_ident, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
   if ( run_as_daemon ) {
     do_log = vsyslog;
+    // we need to copy custom_ident since it might be freed.
+    strncpy( ident, custom_ident, sizeof( ident ) );
+    ident[ sizeof( ident ) - 1 ] = '\0';
     openlog( ident, LOG_PID, LOG_DAEMON );
   }
   else {
@@ -174,6 +180,12 @@ set_logging_level( const char *name ) {
 int
 get_logging_level( void ) {
   return level;
+}
+
+
+bool
+logging_started( void ) {
+  return do_log != NULL ? true : false;
 }
 
 

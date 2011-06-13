@@ -78,6 +78,12 @@ mock_init_log() {
 }
 
 
+bool
+mock_logging_started() {
+  return ( bool ) mock();
+}
+
+
 void
 mock_notice( const char *format, ... ) {
   va_list args;
@@ -358,6 +364,7 @@ reset_trema() {
 static void
 test_init_trema_initializes_submodules_in_right_order() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
 
   init_trema( &default_argc, &default_argv );
 
@@ -378,6 +385,7 @@ test_init_trema_initializes_submodules_in_right_order() {
 static void
 test_init_trema_dies_if_trema_tmp_does_not_exist() {
   will_return( mock_stat, -1 );
+  will_return( mock_logging_started, false );
 
   expect_string( mock_die, message, "Trema temporary directory does not exist: /tmp" );
 
@@ -402,6 +410,7 @@ test_start_trema_daemonizes_if_d_option_is_ON() {
   char **argv = args;
 
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &argc, &argv );
 
   start_trema();
@@ -417,6 +426,7 @@ test_start_trema_donot_daemonize_if_d_option_is_OFF() {
   char **argv = args;
 
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &argc, &argv );
 
   start_trema();
@@ -428,6 +438,7 @@ test_start_trema_donot_daemonize_if_d_option_is_OFF() {
 static void
 test_start_trema_creates_pid_file() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &default_argc, &default_argv );
 
   start_trema();
@@ -439,6 +450,7 @@ test_start_trema_creates_pid_file() {
 static void
 test_start_trema_runs_messenger() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &default_argc, &default_argv );
 
   start_trema();
@@ -463,6 +475,7 @@ test_start_trema_dies_if_not_initialized() {
 static void
 test_stop_trema_stops_messenger() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &default_argc, &default_argv );
   start_trema();
 
@@ -478,6 +491,7 @@ test_stop_trema_stops_messenger() {
 static void
 test_finalize_trema_finalizes_submodules_in_right_order() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &default_argc, &default_argv );
 
   finalize_trema();
@@ -514,6 +528,9 @@ test_parse_argv_rewrites_argc_argv() {
   char *args[] = { trema_app, arg, opt_d, opt_n, name, unknown_opt, NULL };
   char **argv = args;
 
+  will_return( mock_logging_started, false );
+  will_return( mock_logging_started, false );
+
   parse_argv( &argc, &argv );
 
   assert_int_equal( argc, 3 );
@@ -534,6 +551,9 @@ test_parse_name_option() {
   char *args[] = { trema_app, opt_name, name, NULL };
   char **argv = args;
 
+  will_return( mock_logging_started, false );
+  will_return( mock_logging_started, false );
+
   parse_argv( &argc, &argv );
 
   assert_string_equal( "trema", get_trema_name() );
@@ -549,6 +569,9 @@ test_parse_name_equal_option() {
   int argc = 2;
   char *args[] = { trema_app, opt_name, NULL };
   char **argv = args;
+
+  will_return( mock_logging_started, false );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 
@@ -567,6 +590,9 @@ test_parse_n_option() {
   char *args[] = { trema_app, opt_n, name, NULL };
   char **argv = args;
 
+  will_return( mock_logging_started, false );
+  will_return( mock_logging_started, false );
+
   parse_argv( &argc, &argv );
 
   assert_string_equal( "trema", get_trema_name() );
@@ -583,6 +609,8 @@ test_parse_daemonize_option() {
   char *args[] = { trema_app, opt_daemonize, NULL };
   char **argv = args;
 
+  will_return( mock_logging_started, false );
+
   parse_argv( &argc, &argv );
 
   assert_true( run_as_daemon );
@@ -598,6 +626,8 @@ test_parse_d_option() {
   int argc = 2;
   char *args[] = { trema_app, opt_d, NULL };
   char **argv = args;
+
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 
@@ -617,6 +647,7 @@ test_parse_logging_level_option() {
   char **argv = args;
 
   expect_string( mock_set_logging_level, level, "notice" );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 
@@ -633,6 +664,7 @@ test_parse_logging_level_equal_option() {
   char **argv = args;
 
   expect_string( mock_set_logging_level, level, "notice" );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 
@@ -650,6 +682,7 @@ test_parse_l_option() {
   char **argv = args;
 
   expect_string( mock_set_logging_level, level, "notice" );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 
@@ -676,6 +709,7 @@ test_parse_help_option() {
     "  -h, --help                  display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 }
@@ -699,6 +733,7 @@ test_parse_h_option() {
     "  -h, --help                  display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );
+  will_return( mock_logging_started, false );
 
   parse_argv( &argc, &argv );
 }
@@ -837,9 +872,13 @@ test_set_trema_name_when_first_call() {
   trema_name = NULL;
   started_trema = false;
 
+  will_return( mock_logging_started, false );
+
   // Go
   set_trema_name( NAME );
-  assert_string_equal ( NAME, get_trema_name() );
+
+  assert_string_equal( NAME, get_trema_name() );
+  assert_false( logger_initialized );
 
   xfree( trema_name );
 }
@@ -851,9 +890,12 @@ test_set_trema_name_when_called_befor_write_pid() {
   trema_name = xstrdup( "old_name" );
   started_trema = false;
 
+  will_return( mock_logging_started, false );
+
   // Go
   set_trema_name( NAME );
-  assert_string_equal ( NAME, get_trema_name() );
+  assert_string_equal( NAME, get_trema_name() );
+  assert_false( logger_initialized );
 
   xfree( trema_name );
 }
@@ -870,10 +912,12 @@ test_set_trema_name_when_called_after_write_pid() {
   expect_string( mock_rename_pid, directory, TEMP_DIRECTORY );
   expect_string( mock_rename_pid, old, OLD_NAME );
   expect_string( mock_rename_pid, new, NEW_NAME );
+  will_return( mock_logging_started, true );
 
   // Go
   set_trema_name( NEW_NAME );
-  assert_string_equal ( NEW_NAME, get_trema_name() );
+  assert_string_equal( NEW_NAME, get_trema_name() );
+  assert_true( logger_initialized );
 
   xfree( trema_name );
   xfree( trema_tmp );
@@ -887,6 +931,7 @@ test_set_trema_name_when_called_after_write_pid() {
 static void
 test_get_executable_name() {
   will_return( mock_stat, 0 );
+  will_return( mock_logging_started, false );
   init_trema( &default_argc, &default_argv );
 
   assert_string_equal( "trema_cat", get_executable_name() );
