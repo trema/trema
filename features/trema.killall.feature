@@ -12,6 +12,7 @@ Feature: kill all trema processes with `trema killall' command
       """
       And wait until "dumper" is up
     When I try to run "./trema killall"
+      And *** sleep 1 ***
     Then switch_manager is terminated
       And switch is terminated
       And ovs-openflowd is terminated
