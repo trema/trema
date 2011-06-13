@@ -115,7 +115,7 @@ hash_uint32( const void *key ) {
 
 bool
 compare_datapath_id( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof ( uint64_t ) ) == 0 ) ? true : false );
+  return *( ( const uint64_t * ) x ) == *( ( const uint64_t * ) y ) ? true : false;
 }
 
 

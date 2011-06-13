@@ -119,7 +119,7 @@ handle_switch_ready( uint64_t datapath_id, void *switch_db ) {
   known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
   if ( sw == NULL ) {
     sw = new_switch( datapath_id );
-    insert_hash_entry( switch_db, &datapath_id, sw );
+    insert_hash_entry( switch_db, &sw->datapath_id, sw );
   }
   else {
     refresh( sw );
