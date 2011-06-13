@@ -179,7 +179,10 @@ secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
   }
 
   if ( switch_info.recv_queue->length > 0 ) {
-    handle_messages_from_secure_channel( &switch_info );
+    int ret = handle_messages_from_secure_channel( &switch_info );
+    if ( ret < 0 ) {
+      stop_messenger();
+    }
   }
 }
 
