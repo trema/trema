@@ -259,13 +259,6 @@ timespec_sub( const struct timespec *a, const struct timespec *b,
 static void interval_timer_event( void *user_data );
 
 
-static void
-unset_interval_timer( void ) {
-  delete_timer_event_callback( interval_timer_event );
-  debug( "unset interval timer" );
-}
-
-
 #if 1
 static void
 set_interval_timer( void ) {
@@ -280,6 +273,13 @@ set_interval_timer( void ) {
   debug( "set interval timer" );
 }
 #else
+static void
+unset_interval_timer( void ) {
+  delete_timer_event_callback( interval_timer_event );
+  debug( "unset interval timer" );
+}
+
+
 static void
 set_interval_timer( void ) {
   unset_interval_timer();
@@ -351,8 +351,6 @@ init_probe_timer_table( void ) {
 
 void
 finalize_probe_timer_table( void ) {
-  unset_interval_timer();
-
   dlist_element *dlist;
   for ( dlist = probe_timer_table->next; dlist != NULL; dlist = dlist->next ) {
     xfree( dlist->data );
