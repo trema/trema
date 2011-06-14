@@ -1,5 +1,5 @@
 /*
- * Link log_stubs.o against test executables that uses logging
+ * Link log_stubs.o against test executables that use logging
  * functions. This file defines some stub (null) functions that
  * bypasses actual logging.
  *
