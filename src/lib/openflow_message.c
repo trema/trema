@@ -627,7 +627,7 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
 
 
 buffer *
-create_port_mod( const uint32_t transaction_id, const const uint16_t port_no,
+create_port_mod( const uint32_t transaction_id, const uint16_t port_no,
                  const uint8_t hw_addr[ OFP_ETH_ALEN ], const uint32_t config,
                  const uint32_t mask, const uint32_t advertise ) {
   buffer *buffer;
