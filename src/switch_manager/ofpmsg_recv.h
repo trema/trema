@@ -1,7 +1,7 @@
 /*
  * OpenFlow Switch Manager
  *
- * Author: Kazusi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *

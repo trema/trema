@@ -1,7 +1,7 @@
 /*
  * OpenFlow Switch Listener
  *
- * Author: Kazushi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
