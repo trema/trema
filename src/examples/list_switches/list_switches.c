@@ -36,8 +36,8 @@ recv_reply( uint16_t tag, void *data, size_t len, void *user_data ) {
   info( "[%s]", time_string );
 
   uint64_t *dpid = ( uint64_t * ) data;
-  uint count = len / sizeof( uint64_t );
-  uint i;
+  unsigned int count = len / sizeof( uint64_t );
+  unsigned int i;
   for ( i = 0; i < count; i++ ) {
     info( "%#" PRIx64, ntohll( dpid[ i ] ) );
   }
