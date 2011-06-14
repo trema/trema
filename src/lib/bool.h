@@ -23,9 +23,10 @@
 #ifndef BOOL_H
 #define BOOL_H
 
-#ifndef __cplusplus
 
-#if defined __STDC__ && defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#ifdef __cplusplus
+// use C++ built-in bool type
+#elif defined __STDC__ && defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 // have a C99 compiler
 #include <stdbool.h>
 #else
@@ -34,9 +35,7 @@ typedef enum bool {
   false = 0,
   true,
 } bool;
-#endif // C99 compiler?
-
-#endif // not C++ compiler?
+#endif
 
 
 #endif // BOOL_H
