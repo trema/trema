@@ -21,6 +21,9 @@
 require "mkmf"
 
 
+$LDFLAGS = "-Wl,-Bsymbolic-functions"
+
+
 dir_config "trema"
 dir_config "openflow"
 
