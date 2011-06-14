@@ -185,6 +185,11 @@ EOF
 end
 
 
+def delta_coverage_threshold
+  0.1
+end
+
+
 def show_summary
   puts <<-EOF
 
@@ -199,11 +204,11 @@ def show_summary
 
 EOF
 
-  if coverage < $coverage_threshold
+  if coverage < $coverage_threshold - delta_coverage_threshold
     puts coverage_threshold_error
     puts; puts
     exit -1
-  elsif coverage > $coverage_threshold
+  elsif coverage > $coverage_threshold + delta_coverage_threshold
     puts update_coverage_threshold_message
     puts; puts
     exit -1
