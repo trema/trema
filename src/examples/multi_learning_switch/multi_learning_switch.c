@@ -135,13 +135,13 @@ static void
 delete_switch( known_switch *sw ) {
   foreach_hash( sw->forwarding_db, delete_forwarding_entry, NULL );
   delete_hash( sw->forwarding_db );
-  free( sw );
+  xfree( sw );
 }
 
 
 static void
 handle_switch_disconnected( uint64_t datapath_id, void *switch_db ) {
-  known_switch *sw = lookup_hash_entry( switch_db, &datapath_id );
+  known_switch *sw = delete_hash_entry( switch_db, &datapath_id );
   if ( sw != NULL ) {
     delete_switch( sw );
   }
