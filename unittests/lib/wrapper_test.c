@@ -30,6 +30,19 @@
 
 
 /********************************************************************************
+ * Mock function.
+ ********************************************************************************/
+
+int
+mock_vasprintf( char **strp, const char *fmt, va_list ap ) {
+  const size_t buffer_length = 1024;
+  *strp = xmalloc( buffer_length );
+  memset( *strp, '\0', buffer_length );
+  return vsprintf( *strp, fmt, ap );
+}
+
+
+/********************************************************************************
  * Tests.
  ********************************************************************************/
 
@@ -57,6 +70,15 @@ test_xstrdup() {
 }
 
 
+static void
+test_xasprintf() {
+  char hello[] = "Hello";
+  char *printed_hello = xasprintf( "%s", hello );
+  assert_string_equal( hello, printed_hello );
+  xfree( printed_hello );
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -67,6 +89,7 @@ main() {
     unit_test( test_xmalloc_and_xfree ),
     unit_test( test_xcalloc_and_xfree ),
     unit_test( test_xstrdup ),
+    unit_test( test_xasprintf ),
   };
   return run_tests( tests );
 }

@@ -19,6 +19,7 @@
 
 
 #include <string.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include "wrapper.h"
 
@@ -33,6 +34,12 @@
 #endif // free
 #define free( ptr ) _test_free( ptr, __FILE__, __LINE__ )
 extern void _test_free( void *const ptr, const char *file, const int line );
+
+#ifdef vasprintf
+#undef vasprintf
+#endif // vasprintf
+#define vasprintf mock_vasprintf
+extern int mock_vasprintf( char **strp, const char *fmt, va_list ap );
 
 #else // UNIT_TESTING
 
@@ -77,6 +84,21 @@ xstrdup( const char *s ) {
 
   memcpy( ret, s, len );
   return ret;
+}
+
+
+char *
+xasprintf( const char *format, ... ) {
+  char *str;
+
+  va_list args;
+  va_start( args, format );
+  if ( vasprintf( &str, format, args ) < 0 ) {
+    die( "Out of memory, vasprintf failed" );
+  }
+  va_end( args );
+
+  return str;
 }
 
 

@@ -84,6 +84,7 @@ void *xcalloc( size_t nmemb, size_t size );
 
 void xfree( void *ptr );
 char *xstrdup( const char *s );
+char *xasprintf( const char *format, ... );
 
 
 #endif // WRAPPER_H

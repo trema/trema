@@ -724,6 +724,8 @@ def test_object_files test
       [ "unittests/objects/log.o", "unittests/objects/log_stubs.o" ]
     elsif each == :buffer
       [ "unittests/objects/buffer.o", "unittests/objects/buffer_stubs.o" ]
+    elsif each == :wrapper
+      [ "unittests/objects/wrapper.o", "unittests/objects/wrapper_stubs.o" ]
     else
       "unittests/objects/#{ each }.o"
     end
