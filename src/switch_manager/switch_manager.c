@@ -1,5 +1,5 @@
 /*
- * Author: Kazushi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -272,7 +272,7 @@ absolute_path( const char *dir, const char *file ) {
 static void
 init_listener_info( struct listener_info *listener_info ) {
   memset( listener_info, 0, sizeof( struct listener_info ) );
-  listener_info->switch_manager = xconcatenate_path( get_trema_home(), SWITCH_MANAGER_PATH );
+  listener_info->switch_daemon = xconcatenate_path( get_trema_home(), SWITCH_MANAGER_PATH );
   listener_info->listen_port = OFP_TCP_PORT;
   listener_info->listen_fd = -1;
 }
@@ -280,9 +280,9 @@ init_listener_info( struct listener_info *listener_info ) {
 
 static void
 finalize_listener_info(  struct listener_info *listener_info ) {
-  if ( listener_info->switch_manager != NULL ) {
-    xfree( (void *)( uintptr_t )listener_info->switch_manager );
-    listener_info->switch_manager = NULL;
+  if ( listener_info->switch_daemon != NULL ) {
+    xfree( (void *)( uintptr_t )listener_info->switch_daemon );
+    listener_info->switch_daemon = NULL;
   }
   if ( listener_info->listen_fd >= 0 ) {
     close( listener_info->listen_fd );
@@ -318,8 +318,8 @@ parse_argument( struct listener_info *listener_info, int argc, char *argv[] ) {
         }
         break;
       case 's':
-        xfree( (void *)( uintptr_t )listener_info->switch_manager );
-        listener_info->switch_manager = xstrdup( optarg );
+        xfree( (void *)( uintptr_t )listener_info->switch_daemon );
+        listener_info->switch_daemon = xstrdup( optarg );
         break;
       default:
         usage();
@@ -329,8 +329,8 @@ parse_argument( struct listener_info *listener_info, int argc, char *argv[] ) {
     }
   }
 
-  listener_info->switch_manager_argc = argc - optind;
-  listener_info->switch_manager_argv = &argv[ optind ];
+  listener_info->switch_daemon_argc = argc - optind;
+  listener_info->switch_daemon_argv = &argv[ optind ];
 
   return true;
 }
@@ -357,7 +357,7 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
 
 
 static void
-switch_disconnected( uint64_t datapath_id, void *user_data ) {
+handle_switch_disconnected( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   debug( "Switch (dpid = %#" PRIx64 ") is disconnected.", datapath_id );
@@ -393,7 +393,7 @@ static bool
 start_switch_management( void ) {
   init_openflow_application_interface( get_trema_name() );
   set_switch_ready_handler( handle_switch_ready, NULL );
-  set_switch_disconnected_handler( switch_disconnected, NULL );
+  set_switch_disconnected_handler( handle_switch_disconnected, NULL );
 
   return true;
 }
@@ -408,7 +408,7 @@ stop_switch_management( void ) {
 int
 main( int argc, char *argv[] ) {
   bool ret;
-  const char *switch_manager = NULL;
+  const char *switch_daemon = NULL;
   char *startup_dir;
 
   // get startup directory using absolute_path()
@@ -430,9 +430,9 @@ main( int argc, char *argv[] ) {
   start_service_management();
   start_switch_management();
 
-  switch_manager = listener_info.switch_manager;
-  listener_info.switch_manager = absolute_path( startup_dir, switch_manager );
-  xfree( ( void * )( uintptr_t )switch_manager );
+  switch_daemon = listener_info.switch_daemon;
+  listener_info.switch_daemon = absolute_path( startup_dir, switch_daemon );
+  xfree( ( void * )( uintptr_t )switch_daemon );
   // free returned buffer of get_current_dir_name()
   free( startup_dir );
 

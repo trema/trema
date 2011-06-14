@@ -1,7 +1,7 @@
 /*
  * OpenFlow Switch Manager
  *
- * Author: Kazusi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -39,12 +39,12 @@
 #define SWITCH_MANAGER_PREFIX_STR_LEN sizeof( SWITCH_MANAGER_PREFIX )
 #define SWITCH_MANAGER_DPID_STR_LEN sizeof( "1234567812345678" )
 
-
 int switch_event_connected( struct switch_info *switch_info );
 int switch_event_disconnected( struct switch_info *switch_info );
 int switch_event_recv_hello( struct switch_info *switch_info );
 int switch_event_recv_featuresreply( struct switch_info *switch_info, uint64_t *datapath_id );
-int switch_event_recv_openflow_message_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf );
+int switch_event_recv_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf );
+int switch_event_disconnect_request( uint64_t *datapath_id );
 int switch_event_recv_error( struct switch_info *sw_info );
 
 

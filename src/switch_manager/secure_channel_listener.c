@@ -1,5 +1,5 @@
 /*
- * Author: Kazushi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -24,6 +24,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -146,7 +147,7 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
   ret = bind( listen_fd, ( struct sockaddr * ) &addr, sizeof( struct sockaddr_in ) );
   if ( ret < 0 ) {
     error( "%s: Failed to bind socket.: %s(%d)",
-      inet_ntoa( addr.sin_addr ), strerror( errno ), errno );
+           inet_ntoa( addr.sin_addr ), strerror( errno ), errno );
     close( listen_fd );
     return false;
   }
@@ -165,6 +166,48 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
 }
 
 
+static char **
+make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in *addr, int accept_fd ) {
+  int argc = SWITCH_MANAGER_DEFAULT_ARGC + listener_info->switch_daemon_argc + 1;
+  char **argv = xcalloc( ( size_t ) argc, sizeof( char * ) );
+  char *command_name = xasprintf( "%s%s:%u", SWITCH_MANAGER_COMMAND_PREFIX,
+                                  inet_ntoa( addr->sin_addr ),
+                                   ntohs( addr->sin_port ) );
+  char *service_name = xasprintf( "%s%s%s:%u", SWITCH_MANAGER_NAME_OPTION,
+                                  SWITCH_MANAGER_PREFIX,
+                                  inet_ntoa( addr->sin_addr ),
+                                  ntohs( addr->sin_port ) );
+  char *socket_opt = xasprintf( "%s%d", SWITCH_MANAGER_SOCKET_OPTION,
+                                accept_fd );
+  char *daemonize_opt = xstrdup( SWITCH_MANAGER_DAEMONIZE_OPTION );
+  char *notify_opt = xasprintf( "%s%s", SWITCH_MANAGER_STATE_PREFIX,
+                                get_trema_name() );
+
+  int i = 0;
+  argv[ i++ ] = command_name;
+  argv[ i++ ] = service_name;
+  argv[ i++ ] = socket_opt;
+  argv[ i++ ] = daemonize_opt;
+  argv[ i++ ] = notify_opt;
+  int j;
+  for ( j = 0; j < listener_info->switch_daemon_argc; i++, j++ ) {
+    argv[ i ] = xstrdup( listener_info->switch_daemon_argv[ j ] );
+  }
+
+  return argv;
+}
+
+
+static void
+free_switch_daemon_args( char **argv ) {
+  int i;
+  for ( i = 0; argv[ i ] != NULL; i++ ) {
+    free( argv[ i ] );
+  }
+  free( argv );
+}
+
+
 static const int ACCEPT_FD = 3;
 
 
@@ -174,16 +217,6 @@ secure_channel_accept( struct listener_info *listener_info ) {
   socklen_t addr_len;
   int accept_fd;
   int pid;
-  uint command_name_len;
-  char *command_name;
-  uint service_name_len;
-  char *service_name;
-  uint socket_opt_len;
-  char *socket_opt;
-  char *daemonize_opt;
-  int argc;
-  char **argv;
-  int i, j;
 
   addr_len = sizeof( struct sockaddr_in );
   accept_fd = accept( listener_info->listen_fd, ( struct sockaddr * ) &addr, &addr_len );
@@ -205,41 +238,7 @@ secure_channel_accept( struct listener_info *listener_info ) {
       accept_fd = ACCEPT_FD;
     }
 
-    argc = SWITCH_MANAGER_DEFAULT_ARGC + listener_info->switch_manager_argc + 1;
-    argv = xcalloc( ( size_t ) argc, sizeof( char * ) );
-
-    command_name_len = SWITCH_MANAGER_COMMAND_PREFIX_STR_LEN
-                       + SWITCH_MANAGER_ADDR_STR_LEN;
-    command_name = xmalloc( command_name_len );
-    snprintf( command_name, command_name_len, "%s%s:%u",
-      SWITCH_MANAGER_COMMAND_PREFIX,
-      inet_ntoa( addr.sin_addr ), ntohs( addr.sin_port ) );
-
-    service_name_len = SWITCH_MANAGER_NAME_OPTION_STR_LEN
-                       + SWITCH_MANAGER_PREFIX_STR_LEN
-                       + SWITCH_MANAGER_ADDR_STR_LEN;
-    service_name = xmalloc( service_name_len );
-    snprintf( service_name, service_name_len, "%s%s%s:%u",
-              SWITCH_MANAGER_NAME_OPTION,
-              SWITCH_MANAGER_PREFIX,
-              inet_ntoa( addr.sin_addr ), ntohs( addr.sin_port ) );
-
-    socket_opt_len = SWITCH_MANAGER_SOCKET_OPTION_STR_LEN
-                     + SWITCH_MANAGER_SOCKET_STR_LEN;
-    socket_opt = xmalloc( socket_opt_len );
-    snprintf( socket_opt, socket_opt_len, "%s%d",
-              SWITCH_MANAGER_SOCKET_OPTION, accept_fd );
-
-    daemonize_opt = xstrdup( SWITCH_MANAGER_DAEMONIZE_OPTION );
-
-    i = 0;
-    argv[ i++ ] = command_name;
-    argv[ i++ ] = service_name;
-    argv[ i++ ] = socket_opt;
-    argv[ i++ ] = daemonize_opt;
-    for ( j = 0; j < listener_info->switch_manager_argc; i++, j++ ) {
-      argv[ i ] = listener_info->switch_manager_argv[ j ];
-    }
+    char **argv = make_switch_daemon_args( listener_info, &addr, accept_fd );
 
     int in_fd = open( "/dev/null", O_RDONLY );
     if ( in_fd != 0 ) {
@@ -257,16 +256,12 @@ secure_channel_accept( struct listener_info *listener_info ) {
       close( err_fd );
     }
 
-    execvp( listener_info->switch_manager, argv );
+    execvp( listener_info->switch_daemon, argv );
     error( "Failed to execvp: %s(%s) %s %s. %s.",
-      argv[ 0 ], listener_info->switch_manager,
+      argv[ 0 ], listener_info->switch_daemon,
       argv[ 1 ], argv[ 2 ], strerror( errno ) );
 
-    xfree( service_name );
-    xfree( command_name );
-    xfree( socket_opt );
-    xfree( daemonize_opt );
-    xfree( argv );
+    free_switch_daemon_args( argv );
 
     UNREACHABLE();
   }

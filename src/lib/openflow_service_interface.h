@@ -28,10 +28,11 @@
  * Message type definitions for sending/receiving OpenFlow messages or
  * related events via messenger.
  */
-#define MESSENGER_OPENFLOW_MESSAGE      1
-#define MESSENGER_OPENFLOW_CONNECTED    2
-#define MESSENGER_OPENFLOW_READY        3
+#define MESSENGER_OPENFLOW_MESSAGE 1
+#define MESSENGER_OPENFLOW_CONNECTED 2
+#define MESSENGER_OPENFLOW_READY 3
 #define MESSENGER_OPENFLOW_DISCONNECTED 4
+#define MESSENGER_OPENFLOW_DISCONNECT_REQUEST 5
 
 
 /**

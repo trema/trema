@@ -1,5 +1,5 @@
 /*
- * Author: Kazusi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -383,16 +383,27 @@ switch_event_disconnected( struct switch_info *sw_info ) {
 
 
 int
-switch_event_recv_openflow_message_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf ) {
+switch_event_recv_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf ) {
 
   if ( *datapath_id != switch_info.datapath_id ) {
-    error( "Invalid datapath id %#" PRIx64 ".", datapath_id );
+    error( "Invalid datapath id %#" PRIx64 ".", *datapath_id );
     free_buffer( buf );
 
     return -1;
   }
 
   return ofpmsg_send( &switch_info, buf, application_service_name );
+}
+
+
+int
+switch_event_disconnect_request( uint64_t *datapath_id ) {
+
+  if ( *datapath_id != switch_info.datapath_id ) {
+    error( "Invalid datapath id %#" PRIx64 ".", *datapath_id );
+    return -1;
+  }
+  return switch_event_disconnected( &switch_info );
 }
 
 

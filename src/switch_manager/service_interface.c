@@ -1,5 +1,5 @@
 /*
- * Author: Kazusi Sugyo
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -92,21 +92,36 @@ service_send_to_application( list_element *service_name_list, uint16_t message_t
 }
 
 
-void
-service_recv_from_application( uint16_t message_type, buffer *buf ) {
-   openflow_service_header_t *message;
-   uint64_t datapath_id;
-   struct ofp_header *header;
-   uint16_t service_name_length;
-   char *service_name;
-   int ret;
+static void
+handle_openflow_message( uint64_t *datapath_id, char *service_name, buffer *buf ) {
+  struct ofp_header *header;
+  int ret;
 
-  if ( message_type != MESSENGER_OPENFLOW_MESSAGE ) {
-    error( "Unknown message type %d.", message_type );
+  ret = validate_openflow_message( buf );
+  if ( ret != 0 ) {
+    header = buf->data;
+    debug( "Validation error. type %u, errno %d", header->type, ret );
     free_buffer( buf );
 
     return;
   }
+
+  switch_event_recv_from_application( datapath_id, service_name, buf );
+}
+
+
+static void
+handle_openflow_disconnect_request( uint64_t *datapath_id ) {
+  switch_event_disconnect_request( datapath_id );
+}
+
+
+void
+service_recv_from_application( uint16_t message_type, buffer *buf ) {
+   openflow_service_header_t *message;
+   uint64_t datapath_id;
+   uint16_t service_name_length;
+   char *service_name;
 
   if ( buf->length < sizeof( openflow_service_header_t ) + sizeof( struct ofp_header ) ) {
     error( "Too short openflow application message(%u).", buf->length );
@@ -131,18 +146,21 @@ service_recv_from_application( uint16_t message_type, buffer *buf ) {
 
     return;
   }
-
   remove_front_buffer( buf, service_name_length );
-  ret = validate_openflow_message( buf );
-  if ( ret != 0 ) {
-    header = buf->data;
-    debug( "Validation error. type %u, errno %d", header->type, ret );
+
+  switch ( message_type ) {
+  case MESSENGER_OPENFLOW_MESSAGE:
+    handle_openflow_message( &datapath_id, service_name, buf );
+    break;
+  case MESSENGER_OPENFLOW_DISCONNECT_REQUEST:
     free_buffer( buf );
-
-    return;
+    handle_openflow_disconnect_request( &datapath_id );
+    break;
+  default:
+    error( "Unknown message type %d.", message_type );
+    free_buffer( buf );
+    break;
   }
-
-  switch_event_recv_openflow_message_from_application( &datapath_id, service_name, buf );
 }
 
 
