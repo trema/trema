@@ -1,7 +1,7 @@
 This directory includes an example that demonstrates how you can
 retrieve the list of OpenFlow switches currently connected.
 
-# Howto Run
+# How to Run
 
 Run this:
 

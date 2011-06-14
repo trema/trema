@@ -2,7 +2,7 @@ This directory includes a dedicated OpenFlow controller implementation
 for "cbench" OpenFlow controller benchmark suite.
 
 
-# Howto Run
+# How to Run
 
 Run this controller
 
