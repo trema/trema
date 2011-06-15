@@ -36,8 +36,8 @@
 // If this is being built for a unit test.
 #ifndef UNIT_TESTING
 
-void NO_RETURN
-die( const char *format, ... ) {
+static void
+_die( const char *format, ... ) {
   char err[ 1024 ];
 
   assert( format != NULL );
@@ -49,6 +49,7 @@ die( const char *format, ... ) {
   critical( err );
   abort();
 }
+void ( *die )( const char *format, ... ) = _die;
 
 #endif // UNIT_TESTING
 

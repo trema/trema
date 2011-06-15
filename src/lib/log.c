@@ -28,51 +28,11 @@
 #include "bool.h"
 #include "checks.h"
 #include "log.h"
+#include "trema_string.h"
 #include "wrapper.h"
 
 
-// If this is being built for a unit test.
-#ifdef UNIT_TESTING
-
-/* Redirect die to a function in the test application so it's possible
- * to test error messages. */
-#ifdef die
-#undef die
-#endif // die
-#define die mock_die
-extern void mock_die( const char *format, ... );
-
-/* Redirect vsyslog to a function in the test application so it's
- * possible to test the syslog output. */
-#ifdef vsyslog
-#undef vsyslog
-#endif // vsyslog
-#define vsyslog mock_vsyslog
-extern void mock_vsyslog( int priority, const char *format, va_list ap );
-
-/* Redirect vprintf to a function in the test application so it's
- * possible to test the output to stdout. */
-#ifdef vprintf
-#undef vprintf
-#endif // vprintf
-#define vprintf mock_vprintf
-extern int mock_vprintf( const char *format, va_list ap );
-
-#ifdef printf
-#undef printf
-#endif // printf
-#define printf mock_printf
-extern int mock_printf( const char *format, ... );
-
-/* Redefine static to nothing so that we can test the value of logging
- * level. */
-#define static
-
-#endif // UNIT_TESTING
-
-
 static void log_stdout( int priority, const char *format, va_list ap );
-
 
 static int level = LOG_INFO;
 static const int level_min = LOG_CRIT;
@@ -81,14 +41,10 @@ static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static char ident[ PATH_MAX ];
 
 
-#ifndef _DOXYGEN
-
 typedef struct priority {
   const char *name;
   const int value;
 } priority;
-
-#endif // _DOXYGEN
 
 
 static priority priority_list[] = {
@@ -143,8 +99,10 @@ logging_level_from( const char *name ) {
 bool
 init_log( const char *custom_ident, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
+  level = LOG_INFO;
+
   if ( run_as_daemon ) {
-    do_log = vsyslog;
+    do_log = trema_vsyslog;
     // we need to copy custom_ident since it might be freed.
     strncpy( ident, custom_ident, sizeof( ident ) );
     ident[ sizeof( ident ) - 1 ] = '\0';
@@ -153,10 +111,11 @@ init_log( const char *custom_ident, bool run_as_daemon ) {
   else {
     do_log = log_stdout;
   }
-  char *level = getenv( "LOGGING_LEVEL" );
-  if ( level != NULL ) {
-    set_logging_level( level );
+  char *level_string = getenv( "LOGGING_LEVEL" );
+  if ( level_string != NULL ) {
+    set_logging_level( level_string );
   }
+
   pthread_mutex_unlock( &mutex );
 
   return true;
@@ -189,12 +148,12 @@ logging_started( void ) {
 }
 
 
-#ifndef _DOXYGEN
-
 #define DO_LOG( _priority, _format )                \
   do {                                              \
     assert( do_log != NULL );                       \
-    assert( _format != NULL );                      \
+    if ( _format == NULL ) {                        \
+      die( "Log message should not be NULL" );      \
+    }                                               \
     if ( level >= _priority ) {                     \
       pthread_mutex_lock( &mutex );                 \
       va_list _args;                                \
@@ -204,8 +163,6 @@ logging_started( void ) {
       pthread_mutex_unlock( &mutex );               \
     }                                               \
   } while ( 0 )
-
-#endif // _DOXYGEN
 
 
 void
@@ -250,7 +207,7 @@ log_stdout( int priority, const char *format, va_list ap ) {
 
   char format_newline[ strlen( format ) + 1 ];
   sprintf( format_newline, "%s\n", format );
-  vprintf( format_newline, ap );
+  trema_vprintf( format_newline, ap );
 }
 
 

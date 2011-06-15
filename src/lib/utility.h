@@ -48,7 +48,7 @@
 
 #else // UNIT_TESTING
 
-void NO_RETURN die( const char *format, ... );
+extern void ( *die )( const char *format, ... );
 
 #endif // UNIT_TESTING
 

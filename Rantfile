@@ -696,18 +696,17 @@ def libtrema_unit_tests
   {
     :arp_test => [ :buffer, :packet_info, :wrapper ],
     :buffer_test => [ :wrapper ],
-    :byteorder_test => [ :log, :wrapper ],
+    :byteorder_test => [ :log, :wrapper, :trema_string ],
     :daemon_test => [],
     :doubly_linked_list_test => [ :wrapper ],
     :ether_test => [ :buffer, :packet_info, :wrapper ],
     :hash_table_test => [ :linked_list, :utility, :wrapper ],
     :ipv4_test => [ :arp, :buffer, :ether, :packet_info, :packet_parser, :wrapper ],
     :linked_list_test => [ :wrapper ],
-    :log_test => [],
-    :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper ],
+    :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_string ],
     :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper ],
-    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :utility, :wrapper ],
-    :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :utility, :wrapper, :trema_string ],
+    :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_string ],
     :packet_info_test => [ :buffer, :wrapper ],
     :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :packet_info, :wrapper ],
     :stat_test => [ :hash_table, :linked_list, :utility, :wrapper ],
@@ -761,11 +760,23 @@ libtrema_unit_tests.keys.each do | each |
 end
 
 
+# new unittest
+target = "unittests/objects/log_test"
+
+task :unittests => target
+task target => [ :libtrema, "vendor:cmockery" ]
+file target do | t |
+  sys "gcc -o #{ t.name } #{ var :CFLAGS } unittests/lib/#{ File.basename t.name }.c -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -L#{ trema_lib } -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
+end
+
+
 desc "Run unittests"
 task :unittests do
   sys[ "unittests/objects/*_test" ].each do | each |
     puts "Running #{ each }..."
-    sys each
+    FileUtils.cd "unittests/objects" do
+      sys "./#{ File.basename( each ) }"
+    end
   end
 end
 

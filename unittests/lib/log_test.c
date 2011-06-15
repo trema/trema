@@ -26,62 +26,45 @@
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "log.h"
-
-
-extern int level;
-extern void ( *do_log )( int priority, const char *format, va_list ap );
-
-
-int logging_level_from( const char *name );
-
+#include "trema_string.h"
+#include "utility.h"
 
 
 /********************************************************************************
  * Mocks
  ********************************************************************************/
 
-static int times_vsyslog_called;
+static void ( *original_die )( const char *format, ... );
 
+static void
+mock_die( const char *format, ... ) {
+  char message[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( message, format, args );
+  va_end( args );
+  check_expected( message );
 
-void
-mock_die( char *format, ... ) {
-  check_expected( format );
   mock_assert( false, "mock_die", __FILE__, __LINE__ );
 }
 
 
-/*
- * A mock vsyslog() that checks priority and the value of strings
- * logged to the syslog.
- */
-void
+static void
 mock_vsyslog( int priority, const char *format, va_list ap ) {
   char output[ 256 ];
   vsnprintf( output, sizeof( output ), format, ap );
 
   check_expected( priority );
   check_expected( output );
-
-  times_vsyslog_called++;
 }
 
 
-/*
- * A mock vprintf() that checks the value of strings logged to the
- * stdout.
- */
-void
+static int
 mock_vprintf( const char *format, va_list ap ) {
   char output[ 256 ];
   vsnprintf( output, sizeof( output ), format, ap );
 
   check_expected( output );
-}
-
-
-int
-mock_printf( const char *format, ... ) {
-  UNUSED( format );
 
   return 0;
 }
@@ -91,22 +74,44 @@ mock_printf( const char *format, ... ) {
  * Setup and teardown function.
  ********************************************************************************/
 
-void
-reset_logging_level() {
+static void
+reset_LOGGING_LEVEL() {
   unsetenv( "LOGGING_LEVEL" );
-  set_logging_level( "info" );
 }
 
 
-void
-reset_times_syslog_called() {
-  times_vsyslog_called = 0;
+static void
+setup_logger() {
+  reset_LOGGING_LEVEL();
+  original_die = die;
+  die = mock_die;
+  trema_vprintf = mock_vprintf;
+  init_log( "log_test.c", false );
 }
 
 
-void
-reset_do_log() {
-  do_log = NULL;
+static void
+teardown_logger() {
+  reset_LOGGING_LEVEL();
+  die = original_die;
+  trema_vprintf = vprintf;
+}
+
+
+static void
+setup_daemon_logger() {
+  reset_LOGGING_LEVEL();
+  die = mock_die;
+  trema_vsyslog = mock_vsyslog;
+  init_log( "log_test.c", true );
+}
+
+
+static void
+teardown_daemon_logger() {
+  reset_LOGGING_LEVEL();
+  die = original_die;
+  trema_vsyslog = vsyslog;
 }
 
 
@@ -117,25 +122,8 @@ reset_do_log() {
 void
 test_init_log_reads_LOGING_LEVEL_environment_variable() {
   setenv( "LOGGING_LEVEL", "CRITICAL", 1 );
-  assert_true( init_log( "tetris", true ) );
-  assert_int_equal( level, LOG_CRIT );
-}
-
-
-/********************************************************************************
- * logging_started() tests.
- ********************************************************************************/
-
-void
-test_logging_started_returns_false_if_logger_is_not_initialized() {
-  assert_false( logging_started() );
-}
-
-
-void
-test_logging_started_returns_true_if_logger_is_initialized() {
-  assert_true( init_log( "tetris", true ) );
-  assert_true( logging_started() );
+  init_log( "tetris", false );
+  assert_int_equal( LOG_CRIT, get_logging_level() );
 }
 
 
@@ -145,72 +133,21 @@ test_logging_started_returns_true_if_logger_is_initialized() {
 
 void
 test_default_logging_level_is_INFO() {
-  assert_int_equal( level, LOG_INFO );
+  assert_int_equal( LOG_INFO, get_logging_level() );
 }
 
 
 void
 test_set_logging_level_succeed() {
   set_logging_level( "critical" );
-  assert_int_equal( level, LOG_CRIT );
+  assert_int_equal( LOG_CRIT, get_logging_level() );
 }
 
 
 void
 test_set_logging_level_fail_with_invalid_value() {
-  expect_string( mock_die, format, "Invalid logging level: %s" );
-
+  expect_string( mock_die, message, "Invalid logging level: INVALID_LEVEL" );
   expect_assert_failure( set_logging_level( "INVALID_LEVEL" ) );
-}
-
-
-void
-test_get_logging_level_succeed() {
-  assert_int_equal( get_logging_level(), LOG_INFO );
-}
-
-
-void
-test_logging_level_from() {
-  assert_int_equal( LOG_CRIT, logging_level_from( "CRITICAL" ) );
-  assert_int_equal( LOG_CRIT, logging_level_from( "critical" ) );
-  assert_int_equal( LOG_CRIT, logging_level_from( "CRIT" ) );
-  assert_int_equal( LOG_CRIT, logging_level_from( "crit" ) );
-
-  assert_int_equal( LOG_ERR, logging_level_from( "ERROR" ) );
-  assert_int_equal( LOG_ERR, logging_level_from( "error" ) );
-  assert_int_equal( LOG_ERR, logging_level_from( "ERR" ) );
-  assert_int_equal( LOG_ERR, logging_level_from( "err" ) );
-
-  assert_int_equal( LOG_WARNING, logging_level_from( "WARNING" ) );
-  assert_int_equal( LOG_WARNING, logging_level_from( "warning" ) );
-  assert_int_equal( LOG_WARNING, logging_level_from( "WARN" ) );
-  assert_int_equal( LOG_WARNING, logging_level_from( "warn" ) );
-
-  assert_int_equal( LOG_NOTICE, logging_level_from( "NOTICE" ) );
-  assert_int_equal( LOG_NOTICE, logging_level_from( "notice" ) );
-
-  assert_int_equal( LOG_INFO, logging_level_from( "INFORMATION" ) );
-  assert_int_equal( LOG_INFO, logging_level_from( "information" ) );
-  assert_int_equal( LOG_INFO, logging_level_from( "INFO" ) );
-  assert_int_equal( LOG_INFO, logging_level_from( "info" ) );
-
-  assert_int_equal( LOG_DEBUG, logging_level_from( "DEBUG" ) );
-  assert_int_equal( LOG_DEBUG, logging_level_from( "debug" ) );
-  assert_int_equal( LOG_DEBUG, logging_level_from( "DBG" ) );
-  assert_int_equal( LOG_DEBUG, logging_level_from( "dbg" ) );
-}
-
-
-void
-test_logging_level_from_NULL_fail() {
-  expect_assert_failure( logging_level_from( NULL ) );
-}
-
-
-void
-test_logging_level_from_fail_with_invalid_logging_level() {
-  assert_int_equal( -1, logging_level_from( "INVALID_LOGGING_LEVEL_STRING" ) );
 }
 
 
@@ -240,6 +177,7 @@ test_critical_logs_if_logging_level_is_ERROR() {
 
 void
 test_critical_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( critical( NULL ) );
 }
 
@@ -252,8 +190,6 @@ void
 test_error_donothing_if_logging_level_is_CRITICAL() {
   set_logging_level( "critical" );
   error( "This message should not be logged." );
-
-  assert_true( times_vsyslog_called == 0 );
 }
 
 
@@ -279,6 +215,7 @@ test_error_logs_if_logging_level_is_WARNING() {
 
 void
 test_error_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( error( NULL ) );
 }
 
@@ -291,8 +228,6 @@ void
 test_warn_donothing_if_logging_level_is_ERROR() {
   set_logging_level( "error" );
   warn( "This message should not be logged." );
-
-  assert_true( times_vsyslog_called == 0 );
 }
 
 
@@ -318,6 +253,7 @@ test_warn_logs_if_logging_level_is_NOTICE() {
 
 void
 test_warn_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( warn( NULL ) );
 }
 
@@ -330,8 +266,6 @@ void
 test_notice_donothing_if_logging_level_is_WARNING() {
   set_logging_level( "warning" );
   notice( "This message should not be logged." );
-
-  assert_true( times_vsyslog_called == 0 );
 }
 
 
@@ -357,6 +291,7 @@ test_notice_logs_if_logging_level_is_INFO() {
 
 void
 test_notice_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( notice( NULL ) );
 }
 
@@ -369,8 +304,6 @@ void
 test_info_donothing_if_logging_level_is_NOTICE() {
   set_logging_level( "notice" );
   info( "This message should not be logged." );
-
-  assert_true( times_vsyslog_called == 0 );
 }
 
 
@@ -396,6 +329,7 @@ test_info_logs_if_logging_level_is_DEBUG() {
 
 void
 test_info_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( info( NULL ) );
 }
 
@@ -408,8 +342,6 @@ void
 test_DEBUG_donothing_if_logging_level_is_INFO() {
   set_logging_level( "info" );
   debug( "This message should not be logged." );
-
-  assert_true( times_vsyslog_called == 0 );
 }
 
 
@@ -425,6 +357,7 @@ test_DEBUG_logs_if_logging_level_is_DEBUG() {
 
 void
 test_debug_fail_if_NULL() {
+  expect_string( mock_die, message, "Log message should not be NULL" );
   expect_assert_failure( debug( NULL ) );
 }
 
@@ -437,8 +370,6 @@ void
 test_output_to_stdout() {
   expect_string( mock_vprintf, output, "Hello World\n" );
 
-  init_log( "tetris", false );
-
   info( "Hello World" );
 }
 
@@ -450,74 +381,68 @@ test_output_to_stdout() {
 int
 main() {
   const UnitTest tests[] = {
-    unit_test_setup_teardown( test_default_logging_level_is_INFO,
-                              reset_logging_level, reset_logging_level ),
-    unit_test_setup_teardown( test_set_logging_level_succeed,
-                              reset_logging_level, reset_logging_level ),
-    unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
-                              reset_logging_level, reset_logging_level ),
-    unit_test_setup_teardown( test_get_logging_level_succeed,
-                              reset_logging_level, reset_logging_level ),
-
     unit_test_setup_teardown( test_init_log_reads_LOGING_LEVEL_environment_variable,
-                              reset_logging_level, reset_logging_level ),
+                              reset_LOGGING_LEVEL, reset_LOGGING_LEVEL ),
 
-    unit_test_setup_teardown( test_logging_started_returns_false_if_logger_is_not_initialized,
-                              reset_do_log, reset_do_log ),
-    unit_test_setup_teardown( test_logging_started_returns_true_if_logger_is_initialized,
-                              reset_do_log, reset_times_syslog_called ),
-
-    unit_test( test_logging_level_from_NULL_fail ),
-    unit_test_setup_teardown( test_logging_level_from,
-                              reset_logging_level, reset_logging_level ),
-    unit_test_setup_teardown( test_logging_level_from_fail_with_invalid_logging_level,
-                              reset_logging_level, reset_logging_level ),
+    unit_test_setup_teardown( test_default_logging_level_is_INFO,
+                              setup_logger, teardown_logger ),
+    unit_test_setup_teardown( test_set_logging_level_succeed,
+                              setup_logger, teardown_logger ),
+    unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
+                              setup_logger, teardown_logger ),
 
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_CRITICAL,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_ERROR,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_critical_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_critical_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
     unit_test_setup_teardown( test_error_donothing_if_logging_level_is_CRITICAL,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_error_logs_if_logging_level_is_ERROR,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_error_logs_if_logging_level_is_WARNING,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_error_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_error_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
     unit_test_setup_teardown( test_warn_donothing_if_logging_level_is_ERROR,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_warn_logs_if_logging_level_is_WARNING,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_warn_logs_if_logging_level_is_NOTICE,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_warn_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_warn_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
     unit_test_setup_teardown( test_notice_donothing_if_logging_level_is_WARNING,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_notice_logs_if_logging_level_is_NOTICE,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_notice_logs_if_logging_level_is_INFO,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_notice_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_notice_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
     unit_test_setup_teardown( test_info_logs_if_logging_level_is_DEBUG,
-        		      reset_times_syslog_called, reset_times_syslog_called ),
+        		      setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_info_logs_if_logging_level_is_INFO,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_info_donothing_if_logging_level_is_NOTICE,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_info_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_info_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
     unit_test_setup_teardown( test_DEBUG_donothing_if_logging_level_is_INFO,
-                              reset_times_syslog_called, reset_times_syslog_called ),
+                              setup_daemon_logger, teardown_daemon_logger ),
     unit_test_setup_teardown( test_DEBUG_logs_if_logging_level_is_DEBUG,
-                              reset_times_syslog_called, reset_times_syslog_called ),
-    unit_test( test_debug_fail_if_NULL ),
+                              setup_daemon_logger, teardown_daemon_logger ),
+    unit_test_setup_teardown( test_debug_fail_if_NULL,
+                              setup_daemon_logger, teardown_daemon_logger ),
 
-    unit_test( test_output_to_stdout ),
+    unit_test_setup_teardown( test_output_to_stdout,
+                              setup_logger, teardown_logger ),
   };
   return run_tests( tests );
 }
