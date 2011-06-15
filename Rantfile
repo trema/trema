@@ -774,9 +774,7 @@ desc "Run unittests"
 task :unittests do
   sys[ "unittests/objects/*_test" ].each do | each |
     puts "Running #{ each }..."
-    FileUtils.cd "unittests/objects" do
-      sys "./#{ File.basename( each ) }"
-    end
+    sys each
   end
 end
 
