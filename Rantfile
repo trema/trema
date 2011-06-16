@@ -694,26 +694,26 @@ end
 
 def libtrema_unit_tests
   {
-    :arp_test => [ :buffer, :packet_info, :wrapper ],
-    :buffer_test => [ :wrapper ],
-    :byteorder_test => [ :log, :wrapper, :trema_string ],
+    :arp_test => [ :buffer, :packet_info, :utility, :log, :wrapper, :trema_string ],
+    :buffer_test => [ :wrapper, :utility, :log, :trema_string ],
+    :byteorder_test => [ :log, :utility, :wrapper, :trema_string ],
     :daemon_test => [],
-    :doubly_linked_list_test => [ :wrapper ],
-    :ether_test => [ :buffer, :packet_info, :wrapper ],
-    :hash_table_test => [ :linked_list, :utility, :wrapper ],
-    :ipv4_test => [ :arp, :buffer, :ether, :packet_info, :packet_parser, :wrapper ],
-    :linked_list_test => [ :wrapper ],
+    :doubly_linked_list_test => [ :utility, :log, :wrapper, :trema_string ],
+    :ether_test => [ :buffer, :log, :packet_info, :utility, :wrapper, :trema_string ],
+    :hash_table_test => [ :linked_list, :utility, :log, :wrapper, :trema_string ],
+    :ipv4_test => [ :arp, :buffer, :ether, :log, :packet_info, :packet_parser, :utility, :wrapper, :trema_string ],
+    :linked_list_test => [ :log, :utility, :wrapper, :trema_string ],
     :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_string ],
-    :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper, :log, :trema_string ],
     :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :utility, :wrapper, :trema_string ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_string ],
-    :packet_info_test => [ :buffer, :wrapper ],
-    :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :packet_info, :wrapper ],
-    :stat_test => [ :hash_table, :linked_list, :utility, :wrapper ],
-    :timer_test => [ :wrapper, :doubly_linked_list ],
-    :trema_test => [ :wrapper, :doubly_linked_list ],
-    :utility_test => [],
-    :wrapper_test => [],
+    :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_string ],
+    :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :utility, :log, :packet_info, :wrapper, :trema_string ],
+    :stat_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_string ],
+    :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_string ],
+    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_string ],
+    :utility_test => [ :log, :trema_string ],
+    :wrapper_test => [ :utility, :log, :trema_string ],
   }
 end
 
@@ -722,7 +722,7 @@ def test_object_files test
   names = [ test.to_s.gsub( /_test$/, "" ) ] + libtrema_unit_tests[ test ]
   names.collect do | each |
     if each == :log
-      [ "unittests/objects/log.o", "unittests/objects/log_stubs.o" ]
+      [ "unittests/objects/log.o" ]
     elsif each == :buffer
       [ "unittests/objects/buffer.o", "unittests/objects/buffer_stubs.o" ]
     elsif each == :wrapper

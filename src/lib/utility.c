@@ -33,9 +33,6 @@
 #include "utility.h"
 
 
-// If this is being built for a unit test.
-#ifndef UNIT_TESTING
-
 static void
 _die( const char *format, ... ) {
   char err[ 1024 ];
@@ -50,8 +47,6 @@ _die( const char *format, ... ) {
   abort();
 }
 void ( *die )( const char *format, ... ) = _die;
-
-#endif // UNIT_TESTING
 
 
 bool

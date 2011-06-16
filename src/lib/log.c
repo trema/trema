@@ -38,11 +38,13 @@ typedef struct priority {
   const int value;
 } priority;
 
+typedef void ( *log_function )( int, const char *, va_list );
+
 
 static FILE *fd = NULL;
 static int level = -1;
+static bool daemonized = false;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 
 static priority priority_list[][ 5 ] = {
@@ -143,13 +145,7 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
 
   level = LOG_INFO;
-
-  if ( run_as_daemon ) {
-    do_log = log_file;
-  }
-  else {
-    do_log = log_stdout;
-  }
+  daemonized = run_as_daemon;
   fd = open_log( ident, log_directory );
 
   pthread_mutex_unlock( &mutex );
@@ -160,7 +156,7 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 
 bool
 logging_started() {
-  return do_log != NULL ? true : false;
+  return fd == NULL ? false : true;
 }
 
 
@@ -197,7 +193,7 @@ set_logging_level( const char *name ) {
 
 static int
 _get_logging_level() {
-  if ( level == -1 ) {
+  if ( !logging_started() ) {
     die( "Logger is not initialized. Call init_log() first" );
   }
 
@@ -212,6 +208,21 @@ _get_logging_level() {
 int ( *get_logging_level )( void ) = _get_logging_level;
 
 
+static log_function
+do_log() {
+  if ( !logging_started() ) {
+    die( "Logger is not initialized. Call init_log() first" );
+  }
+
+  if ( daemonized ) {
+    return log_file;
+  }
+  else {
+    return log_stdout;
+  }
+}
+
+
 #define DO_LOG( _priority, _format )                \
   do {                                              \
     if ( _format == NULL ) {                        \
@@ -221,8 +232,7 @@ int ( *get_logging_level )( void ) = _get_logging_level;
       pthread_mutex_lock( &mutex );                 \
       va_list _args;                                \
       va_start( _args, _format );                   \
-      assert( do_log != NULL );                     \
-      do_log( _priority, _format, _args );          \
+      ( *do_log() )( _priority, _format, _args );   \
       va_end( _args );                              \
       pthread_mutex_unlock( &mutex );               \
     }                                               \

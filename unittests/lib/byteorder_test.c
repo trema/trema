@@ -28,17 +28,14 @@
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "log.h"
+#include "utility.h"
 
 
 void
-mock_die( char *format, ... ) {
+mock_die( const char *format, ... ) {
   UNUSED( format );
-}
 
-
-static int
-mock_get_logging_level() {
-  return LOG_DEBUG;
+  mock_assert( false, "mock_die", __FILE__, __LINE__ );
 }
 
 
@@ -1776,8 +1773,8 @@ test_hton_packet_queue_with_OFPQT_NONE_and_OFPQT_MIN_RATE() {
 
 int
 main() {
-  // FIXME: use setup() and teardown()
-  get_logging_level = mock_get_logging_level;
+  // FIXME: mockanize in setup()
+  die = mock_die;
 
   const UnitTest tests[] = {
     unit_test( test_ntoh_match ),

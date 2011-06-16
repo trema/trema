@@ -255,8 +255,7 @@ ntoh_action( struct ofp_action_header *dst,
                         ( const struct ofp_action_vendor_header * ) src );
     break;
   default:
-    critical( "Undefined action type ( type = %d ).", ntohs( src->type ) );
-    assert( 0 );
+    die( "Undefined action type ( type = %d ).", ntohs( src->type ) );
     break;
   }
 }
@@ -313,8 +312,7 @@ hton_action( struct ofp_action_header *dst,
                         ( const struct ofp_action_vendor_header * ) src );
     break;
   default:
-    critical( "Undefined action type ( type = %d ).", src->type );
-    assert( 0 );
+    die( "Undefined action type ( type = %d ).", src->type );
     break;
   }
 }

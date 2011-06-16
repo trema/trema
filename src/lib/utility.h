@@ -30,27 +30,7 @@
 #include "openflow.h"
 
 
-#define NO_RETURN __attribute__( ( __noreturn__ ) )
-
-
-// If this is being built for a unit test.
-#ifdef UNIT_TESTING
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#define die( _fmt, ... )                         \
-  do {                                           \
-    fprintf( stderr, ( _fmt ), ## __VA_ARGS__ ); \
-    abort();                                     \
-  }                                              \
-  while ( 0 )
-
-#else // UNIT_TESTING
-
 extern void ( *die )( const char *format, ... );
-
-#endif // UNIT_TESTING
 
 bool compare_string( const void *x, const void *y );
 unsigned int hash_string( const void *key );

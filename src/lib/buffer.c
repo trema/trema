@@ -25,6 +25,7 @@
 #include <string.h>
 #include "buffer.h"
 #include "checks.h"
+#include "utility.h"
 #include "wrapper.h"
 
 
