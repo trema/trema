@@ -30,6 +30,7 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "cmockery_trema.h"
+#include "log.h"
 #include "openflow_message.h"
 #include "wrapper.h"
 
@@ -98,6 +99,12 @@ mock_debug( char *format, ... ) {
 }
 
 
+static int
+mock_get_logging_level() {
+  return LOG_DEBUG;
+}
+
+
 /********************************************************************************
  * Common function.
  ********************************************************************************/
@@ -119,6 +126,7 @@ create_dummy_data( uint16_t length ) {
 static void
 init() {
   init_openflow_message();
+  get_logging_level = mock_get_logging_level;
 }
 
 

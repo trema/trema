@@ -27,11 +27,18 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "cmockery_trema.h"
+#include "log.h"
 
 
 void
 mock_die( char *format, ... ) {
   UNUSED( format );
+}
+
+
+static int
+mock_get_logging_level() {
+  return LOG_DEBUG;
 }
 
 
@@ -1769,6 +1776,9 @@ test_hton_packet_queue_with_OFPQT_NONE_and_OFPQT_MIN_RATE() {
 
 int
 main() {
+  // FIXME: use setup() and teardown()
+  get_logging_level = mock_get_logging_level;
+
   const UnitTest tests[] = {
     unit_test( test_ntoh_match ),
     unit_test( test_ntoh_phy_port ),

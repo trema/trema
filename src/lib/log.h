@@ -33,7 +33,7 @@
 enum {
   LOG_CRITICAL,
   LOG_ERROR,
-  LOG_WARNING,
+  LOG_WARN,
   LOG_NOTICE,
   LOG_INFO,
   LOG_DEBUG,
@@ -41,9 +41,11 @@ enum {
 
 
 bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
-bool set_logging_level( const char *level );
-int get_logging_level( void );
 bool logging_started( void );
+
+bool set_logging_level( const char *level );
+extern int ( *get_logging_level )( void );
+
 void critical( const char *format, ... );
 void error( const char *format, ... );
 void warn( const char *format, ... );

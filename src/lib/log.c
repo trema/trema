@@ -63,10 +63,10 @@ static priority priority_list[][ 5 ] = {
   },
 
   {
-    { .name = "warning", .value = LOG_WARNING },
-    { .name = "WARNING", .value = LOG_WARNING },
-    { .name = "WARN", .value = LOG_WARNING },
-    { .name = "warn", .value = LOG_WARNING },
+    { .name = "warning", .value = LOG_WARN },
+    { .name = "WARNING", .value = LOG_WARN },
+    { .name = "WARN", .value = LOG_WARN },
+    { .name = "warn", .value = LOG_WARN },
     { .name = NULL },
   },
 
@@ -106,8 +106,6 @@ level_string_from( int level, char *string ) {
 
 static void
 log_file( int priority, const char *format, va_list ap ) {
-  UNUSED( priority );
-
   time_t tm = time( NULL );
   char date_str[ 256 ];
   asctime_r( localtime( &tm ), date_str );
@@ -132,6 +130,14 @@ log_stdout( int priority, const char *format, va_list ap ) {
 }
 
 
+static FILE*
+open_log( const char *ident, const char *log_directory ) {
+  char pathname[ PATH_MAX ];
+  sprintf( pathname, "%s/%s.log", log_directory, ident );
+  return fopen( pathname, "w" );
+}
+
+
 bool
 init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
@@ -144,18 +150,17 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   else {
     do_log = log_stdout;
   }
-  char pathname[ PATH_MAX ];
-  sprintf( pathname, "%s/%s.log", log_directory, ident );
-  fd = fopen( pathname, "w" );
-
-  char *level_string = getenv( "LOGGING_LEVEL" );
-  if ( level_string != NULL ) {
-    set_logging_level( level_string );
-  }
+  fd = open_log( ident, log_directory );
 
   pthread_mutex_unlock( &mutex );
 
   return true;
+}
+
+
+bool
+logging_started() {
+  return do_log != NULL ? true : false;
 }
 
 
@@ -178,41 +183,46 @@ level_value_from( const char *name ) {
 
 bool
 set_logging_level( const char *name ) {
-  int newLevel = level_value_from( name );
-  if ( newLevel == -1 ) {
+  int new_level = level_value_from( name );
+  if ( new_level == -1 ) {
     die( "Invalid logging level: %s", name );
   }
   pthread_mutex_lock( &mutex );
-  level = newLevel;
+  level = new_level;
   pthread_mutex_unlock( &mutex );
 
   return true;
 }
 
 
-int
-get_logging_level( void ) {
+static int
+_get_logging_level() {
+  if ( level == -1 ) {
+    die( "Logger is not initialized. Call init_log() first" );
+  }
+
+  char *level_string = getenv( "LOGGING_LEVEL" );
+  if ( level_string != NULL ) {
+    set_logging_level( level_string );
+  }
+
+  assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
   return level;
 }
-
-
-bool
-logging_started( void ) {
-  return do_log != NULL ? true : false;
-}
+int ( *get_logging_level )( void ) = _get_logging_level;
 
 
 #define DO_LOG( _priority, _format )                \
   do {                                              \
-    assert( do_log != NULL );                       \
     if ( _format == NULL ) {                        \
       die( "Log message should not be NULL" );      \
     }                                               \
-    if ( level >= _priority ) {                     \
+    if ( get_logging_level() >= _priority ) {       \
       pthread_mutex_lock( &mutex );                 \
       va_list _args;                                \
       va_start( _args, _format );                   \
-      ( *do_log )( _priority, _format, _args );     \
+      assert( do_log != NULL );                     \
+      do_log( _priority, _format, _args );          \
       va_end( _args );                              \
       pthread_mutex_unlock( &mutex );               \
     }                                               \
@@ -233,7 +243,7 @@ error( const char *format, ... ) {
 
 void
 warn( const char *format, ... ) {
-  DO_LOG( LOG_WARNING, format );
+  DO_LOG( LOG_WARN, format );
 }
 
 

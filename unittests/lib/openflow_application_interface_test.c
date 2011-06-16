@@ -29,6 +29,7 @@
 #include "cmockery_trema.h"
 #include "hash_table.h"
 #include "linked_list.h"
+#include "log.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
@@ -404,6 +405,12 @@ mock_critical( char *format, ... ) {
 }
 
 
+static int
+mock_get_logging_level() {
+  return LOG_DEBUG;
+}
+
+
 /********************************************************************************
  * Setup and teardown function.
  ********************************************************************************/
@@ -426,6 +433,8 @@ cleanup() {
 static void
 init() {
   bool ret;
+
+  get_logging_level = mock_get_logging_level;
 
   cleanup();
 
