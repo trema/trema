@@ -130,7 +130,7 @@ void
 test_init_log_reads_LOGING_LEVEL_environment_variable() {
   setenv( "LOGGING_LEVEL", "CRITICAL", 1 );
   init_log( "tetris", get_trema_tmp(), false );
-  assert_int_equal( LOG_CRIT, get_logging_level() );
+  assert_int_equal( LOG_CRITICAL, get_logging_level() );
 }
 
 
@@ -147,7 +147,7 @@ test_default_logging_level_is_INFO() {
 void
 test_set_logging_level_succeed() {
   set_logging_level( "critical" );
-  assert_int_equal( LOG_CRIT, get_logging_level() );
+  assert_int_equal( LOG_CRITICAL, get_logging_level() );
 }
 
 

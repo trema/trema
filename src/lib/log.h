@@ -31,8 +31,8 @@
 
 
 enum {
-  LOG_CRIT,
-  LOG_ERR,
+  LOG_CRITICAL,
+  LOG_ERROR,
   LOG_WARNING,
   LOG_NOTICE,
   LOG_INFO,

@@ -47,18 +47,18 @@ static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 static priority priority_list[][ 5 ] = {
   {
-    { .name = "critical", .value = LOG_CRIT },
-    { .name = "CRITICAL", .value = LOG_CRIT },
-    { .name = "CRIT", .value = LOG_CRIT },
-    { .name = "crit", .value = LOG_CRIT },
+    { .name = "critical", .value = LOG_CRITICAL },
+    { .name = "CRITICAL", .value = LOG_CRITICAL },
+    { .name = "CRIT", .value = LOG_CRITICAL },
+    { .name = "crit", .value = LOG_CRITICAL },
     { .name = NULL },
   },
   
   {
-    { .name = "error", .value = LOG_ERR },
-    { .name = "ERROR", .value = LOG_ERR },
-    { .name = "ERR", .value = LOG_ERR },
-    { .name = "err", .value = LOG_ERR },
+    { .name = "error", .value = LOG_ERROR },
+    { .name = "ERROR", .value = LOG_ERROR },
+    { .name = "ERR", .value = LOG_ERROR },
+    { .name = "err", .value = LOG_ERROR },
     { .name = NULL },
   },
 
@@ -96,7 +96,7 @@ static priority priority_list[][ 5 ] = {
 
 static void
 level_string_from( int level, char *string ) {
-  assert( level >= LOG_CRIT && level <= LOG_DEBUG );
+  assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
   assert( string != NULL );
 
   const char *name = priority_list[ level ][ 0 ].name;
@@ -221,13 +221,13 @@ logging_started( void ) {
 
 void
 critical( const char *format, ... ) {
-  DO_LOG( LOG_CRIT, format );
+  DO_LOG( LOG_CRITICAL, format );
 }
 
 
 void
 error( const char *format, ... ) {
-  DO_LOG( LOG_ERR, format );
+  DO_LOG( LOG_ERROR, format );
 }
 
 
