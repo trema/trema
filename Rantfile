@@ -721,9 +721,7 @@ end
 def test_object_files test
   names = [ test.to_s.gsub( /_test$/, "" ) ] + libtrema_unit_tests[ test ]
   names.collect do | each |
-    if each == :log
-      [ "unittests/objects/log.o" ]
-    elsif each == :buffer
+    if each == :buffer
       [ "unittests/objects/buffer.o", "unittests/objects/buffer_stubs.o" ]
     elsif each == :wrapper
       [ "unittests/objects/wrapper.o", "unittests/objects/wrapper_stubs.o" ]
