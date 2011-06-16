@@ -60,6 +60,23 @@ mock_vprintf( const char *format, va_list ap ) {
 }
 
 
+static int
+mock_fprintf( FILE *stream, const char *format, ... ) {
+  UNUSED( stream );
+
+  char line[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( line, format, args );
+  va_end( args );
+
+  char *message = strchr( line, ']' ) + 2;
+  check_expected( message );
+
+  return 0;
+}
+
+
 /********************************************************************************
  * Setup and teardown function.
  ********************************************************************************/
@@ -92,6 +109,7 @@ static void
 setup_daemon_logger() {
   reset_LOGGING_LEVEL();
   die = mock_die;
+  trema_fprintf = mock_fprintf;
   init_log( "log_test.c", get_trema_tmp(), true );
 }
 
@@ -100,6 +118,7 @@ static void
 teardown_daemon_logger() {
   reset_LOGGING_LEVEL();
   die = original_die;
+  trema_fprintf = fprintf;
 }
 
 
@@ -145,8 +164,7 @@ test_set_logging_level_fail_with_invalid_value() {
 
 void
 test_critical_logs_if_logging_level_is_CRITICAL() {
-  /* expect_value( mock_vsyslog, priority, LOG_CRIT ); */
-  /* expect_string( mock_vsyslog, output, "CRITICAL message." ); */
+  expect_string( mock_fprintf, message, "CRITICAL message.\n" );
 
   set_logging_level( "critical" );
   critical( "CRITICAL message." );
@@ -155,8 +173,7 @@ test_critical_logs_if_logging_level_is_CRITICAL() {
 
 void
 test_critical_logs_if_logging_level_is_ERROR() {
-  /* expect_value( mock_vsyslog, priority, LOG_CRIT ); */
-  /* expect_string( mock_vsyslog, output, "CRITICAL message." ); */
+  expect_string( mock_fprintf, message, "CRITICAL message.\n" );
 
   set_logging_level( "error" );
   critical( "CRITICAL message." );
@@ -183,8 +200,7 @@ test_error_donothing_if_logging_level_is_CRITICAL() {
 
 void
 test_error_logs_if_logging_level_is_ERROR() {
-  /* expect_value( mock_vsyslog, priority, LOG_ERR ); */
-  /* expect_string( mock_vsyslog, output, "ERROR message." ); */
+  expect_string( mock_fprintf, message, "ERROR message.\n" );
 
   set_logging_level( "error" );
   error( "ERROR message." );
@@ -193,8 +209,7 @@ test_error_logs_if_logging_level_is_ERROR() {
 
 void
 test_error_logs_if_logging_level_is_WARNING() {
-  /* expect_value( mock_vsyslog, priority, LOG_ERR ); */
-  /* expect_string( mock_vsyslog, output, "ERROR message." ); */
+  expect_string( mock_fprintf, message, "ERROR message.\n" );
 
   set_logging_level( "warning" );
   error( "ERROR message." );
@@ -221,8 +236,7 @@ test_warn_donothing_if_logging_level_is_ERROR() {
 
 void
 test_warn_logs_if_logging_level_is_WARNING() {
-  /* expect_value( mock_vsyslog, priority, LOG_WARNING ); */
-  /* expect_string( mock_vsyslog, output, "WARN message." ); */
+  expect_string( mock_fprintf, message, "WARN message.\n" );
 
   set_logging_level( "warning" );
   warn( "WARN message." );
@@ -231,8 +245,7 @@ test_warn_logs_if_logging_level_is_WARNING() {
 
 void
 test_warn_logs_if_logging_level_is_NOTICE() {
-  /* expect_value( mock_vsyslog, priority, LOG_WARNING ); */
-  /* expect_string( mock_vsyslog, output, "WARN message." ); */
+  expect_string( mock_fprintf, message, "WARN message.\n" );
 
   set_logging_level( "notice" );
   warn( "WARN message." );
@@ -259,8 +272,7 @@ test_notice_donothing_if_logging_level_is_WARNING() {
 
 void
 test_notice_logs_if_logging_level_is_NOTICE() {
-  /* expect_value( mock_vsyslog, priority, LOG_NOTICE ); */
-  /* expect_string( mock_vsyslog, output, "NOTICE message." ); */
+  expect_string( mock_fprintf, message, "NOTICE message.\n" );
 
   set_logging_level( "notice" );
   notice( "NOTICE message." );
@@ -269,8 +281,7 @@ test_notice_logs_if_logging_level_is_NOTICE() {
 
 void
 test_notice_logs_if_logging_level_is_INFO() {
-  /* expect_value( mock_vsyslog, priority, LOG_NOTICE ); */
-  /* expect_string( mock_vsyslog, output, "NOTICE message." ); */
+  expect_string( mock_fprintf, message, "NOTICE message.\n" );
 
   set_logging_level( "info" );
   notice( "NOTICE message." );
@@ -297,8 +308,7 @@ test_info_donothing_if_logging_level_is_NOTICE() {
 
 void
 test_info_logs_if_logging_level_is_INFO() {
-  /* expect_value( mock_vsyslog, priority, LOG_INFO ); */
-  /* expect_string( mock_vsyslog, output, "INFO message." ); */
+  expect_string( mock_fprintf, message, "INFO message.\n" );
 
   set_logging_level( "info" );
   info( "INFO message." );
@@ -307,8 +317,7 @@ test_info_logs_if_logging_level_is_INFO() {
 
 void
 test_info_logs_if_logging_level_is_DEBUG() {
-  /* expect_value( mock_vsyslog, priority, LOG_INFO ); */
-  /* expect_string( mock_vsyslog, output, "INFO message." ); */
+  expect_string( mock_fprintf, message, "INFO message.\n" );
 
   set_logging_level( "debug" );
   info( "INFO message." );
@@ -335,8 +344,7 @@ test_DEBUG_donothing_if_logging_level_is_INFO() {
 
 void
 test_DEBUG_logs_if_logging_level_is_DEBUG() {
-  /* expect_value( mock_vsyslog, priority, LOG_DEBUG ); */
-  /* expect_string( mock_vsyslog, output, "DEBUG message." ); */
+  expect_string( mock_fprintf, message, "DEBUG message.\n" );
 
   set_logging_level( "debug" );
   debug( "DEBUG message." );

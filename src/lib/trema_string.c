@@ -22,7 +22,9 @@
 #include <stdio.h>
 
 
+int ( *trema_fprintf )( FILE *stream, const char *format, ... ) = fprintf;
 int ( *trema_vprintf )( const char *format, va_list ap ) = vprintf;
+
 
 
 /*

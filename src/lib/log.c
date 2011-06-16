@@ -111,7 +111,7 @@ log_file( int priority, const char *format, va_list ap ) {
 
   char message[ 1024 ];
   vsprintf( message, format, ap );
-  fprintf( fd, "%s [%s] %s\n", date_str, logging_level, message );
+  trema_fprintf( fd, "%s [%s] %s\n", date_str, logging_level, message );
 }
 
 

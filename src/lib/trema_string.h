@@ -28,6 +28,7 @@
 #include <stdio.h>
 
 
+extern int ( *trema_fprintf )( FILE *stream, const char *format, ... );
 extern int ( *trema_vprintf )( const char *format, va_list ap );
 
 
