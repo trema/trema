@@ -1,5 +1,5 @@
 /*
- * Wrap *printf family functions.
+ * Wraps *printf family.
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
@@ -20,8 +20,8 @@
  */
 
 
-#ifndef TREMA_STRING_H
-#define TREMA_STRING_H
+#ifndef TREMA_PRINTF_H
+#define TREMA_PRINTF_H
 
 
 #include <stdarg.h>
@@ -32,7 +32,7 @@ extern int ( *trema_fprintf )( FILE *stream, const char *format, ... );
 extern int ( *trema_vprintf )( const char *format, va_list ap );
 
 
-#endif // TREMA_STRING_H
+#endif // TREMA_PRINTF_H
 
 
 /*

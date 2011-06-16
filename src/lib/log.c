@@ -29,7 +29,7 @@
 #include "bool.h"
 #include "checks.h"
 #include "log.h"
-#include "trema_string.h"
+#include "trema_printf.h"
 #include "wrapper.h"
 
 
