@@ -19,7 +19,6 @@
 
 
 #include <assert.h>
-#include <linux/limits.h>
 #include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -38,7 +37,6 @@ static int level = LOG_INFO;
 static const int level_min = LOG_CRIT;
 static const int level_max = LOG_DEBUG;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-static char ident[ PATH_MAX ];
 
 
 typedef struct priority {
@@ -99,14 +97,12 @@ logging_level_from( const char *name ) {
 bool
 init_log( const char *custom_ident, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
+
   level = LOG_INFO;
 
   if ( run_as_daemon ) {
     do_log = trema_vsyslog;
-    // we need to copy custom_ident since it might be freed.
-    strncpy( ident, custom_ident, sizeof( ident ) );
-    ident[ sizeof( ident ) - 1 ] = '\0';
-    openlog( ident, LOG_PID, LOG_DAEMON );
+    xopenlog( custom_ident, LOG_PID, LOG_DAEMON );
   }
   else {
     do_log = log_stdout;
