@@ -33,17 +33,16 @@
 #include "wrapper.h"
 
 
-static FILE *fd = NULL;
-static int level = LOG_INFO;
-static const int level_min = LOG_CRIT;
-static const int level_max = LOG_DEBUG;
-static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-
-
 typedef struct priority {
   const char *name;
   const int value;
 } priority;
+
+
+static FILE *fd = NULL;
+static int level = -1;
+static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 
 static priority priority_list[][ 5 ] = {
@@ -52,7 +51,7 @@ static priority priority_list[][ 5 ] = {
     { .name = "CRITICAL", .value = LOG_CRIT },
     { .name = "CRIT", .value = LOG_CRIT },
     { .name = "crit", .value = LOG_CRIT },
-    { .name = NULL }
+    { .name = NULL },
   },
   
   {
@@ -60,7 +59,7 @@ static priority priority_list[][ 5 ] = {
     { .name = "ERROR", .value = LOG_ERR },
     { .name = "ERR", .value = LOG_ERR },
     { .name = "err", .value = LOG_ERR },
-    { .name = NULL }
+    { .name = NULL },
   },
 
   {
@@ -68,13 +67,13 @@ static priority priority_list[][ 5 ] = {
     { .name = "WARNING", .value = LOG_WARNING },
     { .name = "WARN", .value = LOG_WARNING },
     { .name = "warn", .value = LOG_WARNING },
-    { .name = NULL }
+    { .name = NULL },
   },
 
   {
     { .name = "notice", .value = LOG_NOTICE },
     { .name = "NOTICE", .value = LOG_NOTICE },
-    { .name = NULL }
+    { .name = NULL },
   },
 
   {
@@ -82,7 +81,7 @@ static priority priority_list[][ 5 ] = {
     { .name = "INFORMATION", .value = LOG_INFO },
     { .name = "information", .value = LOG_INFO },
     { .name = "INFO", .value = LOG_INFO },
-    { .name = NULL }
+    { .name = NULL },
   },
 
   {
@@ -90,17 +89,14 @@ static priority priority_list[][ 5 ] = {
     { .name = "DEBUG", .value = LOG_DEBUG },
     { .name = "DBG", .value = LOG_DEBUG },
     { .name = "dbg", .value = LOG_DEBUG },
-    { .name = NULL }
-  }
+    { .name = NULL },
+  },
 };
-
-
-static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 
 static void
 level_string_from( int level, char *string ) {
-  assert( level >= level_min && level <= level_max );
+  assert( level >= LOG_CRIT && level <= LOG_DEBUG );
   assert( string != NULL );
 
   const char *name = priority_list[ level ][ 0 ].name;
