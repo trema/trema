@@ -46,36 +46,52 @@ typedef struct priority {
 } priority;
 
 
-static priority priority_list[] = {
-  { .name = "critical", .value = LOG_CRIT },
-  { .name = "CRITICAL", .value = LOG_CRIT },
-  { .name = "CRIT", .value = LOG_CRIT },
-  { .name = "crit", .value = LOG_CRIT },
+static priority priority_list[][ 5 ] = {
+  {
+    { .name = "critical", .value = LOG_CRIT },
+    { .name = "CRITICAL", .value = LOG_CRIT },
+    { .name = "CRIT", .value = LOG_CRIT },
+    { .name = "crit", .value = LOG_CRIT },
+    { .name = NULL }
+  },
   
-  { .name = "error", .value = LOG_ERR },
-  { .name = "ERROR", .value = LOG_ERR },
-  { .name = "ERR", .value = LOG_ERR },
-  { .name = "err", .value = LOG_ERR },
+  {
+    { .name = "error", .value = LOG_ERR },
+    { .name = "ERROR", .value = LOG_ERR },
+    { .name = "ERR", .value = LOG_ERR },
+    { .name = "err", .value = LOG_ERR },
+    { .name = NULL }
+  },
 
-  { .name = "warning", .value = LOG_WARNING },
-  { .name = "WARNING", .value = LOG_WARNING },
-  { .name = "WARN", .value = LOG_WARNING },
-  { .name = "warn", .value = LOG_WARNING },
+  {
+    { .name = "warning", .value = LOG_WARNING },
+    { .name = "WARNING", .value = LOG_WARNING },
+    { .name = "WARN", .value = LOG_WARNING },
+    { .name = "warn", .value = LOG_WARNING },
+    { .name = NULL }
+  },
 
-  { .name = "notice", .value = LOG_NOTICE },
-  { .name = "NOTICE", .value = LOG_NOTICE },
+  {
+    { .name = "notice", .value = LOG_NOTICE },
+    { .name = "NOTICE", .value = LOG_NOTICE },
+    { .name = NULL }
+  },
 
-  { .name = "info", .value = LOG_INFO },
-  { .name = "INFORMATION", .value = LOG_INFO },
-  { .name = "information", .value = LOG_INFO },
-  { .name = "INFO", .value = LOG_INFO },
+  {
+    { .name = "info", .value = LOG_INFO },
+    { .name = "INFORMATION", .value = LOG_INFO },
+    { .name = "information", .value = LOG_INFO },
+    { .name = "INFO", .value = LOG_INFO },
+    { .name = NULL }
+  },
 
-  { .name = "debug", .value = LOG_DEBUG },
-  { .name = "DEBUG", .value = LOG_DEBUG },
-  { .name = "DBG", .value = LOG_DEBUG },
-  { .name = "dbg", .value = LOG_DEBUG },
-
-  { .name = NULL }
+  {
+    { .name = "debug", .value = LOG_DEBUG },
+    { .name = "DEBUG", .value = LOG_DEBUG },
+    { .name = "DBG", .value = LOG_DEBUG },
+    { .name = "dbg", .value = LOG_DEBUG },
+    { .name = NULL }
+  }
 };
 
 
@@ -84,16 +100,11 @@ static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 static void
 level_string_from( int level, char *string ) {
-  assert( level != -1 );
+  assert( level >= level_min && level <= level_max );
   assert( string != NULL );
 
-  priority *p;
-  for ( p = priority_list; p->name != NULL; p++ ) {
-    if ( p->value == level ) {
-      strncpy( string, p->name, strlen( p->name ) + 1 );
-      return;
-    }
-  }
+  const char *name = priority_list[ level ][ 0 ].name;
+  strncpy( string, name, strlen( name ) + 1 );
 }
 
 
@@ -156,10 +167,13 @@ static int
 level_value_from( const char *name ) {
   assert( name != NULL );
 
-  priority *p;
-  for ( p = priority_list; p->name != NULL; p++ ) {
-    if ( strcmp( p->name, name ) == 0 ) {
-      return p->value;
+  int i;
+  for ( i = 0; i <= LOG_DEBUG; i++ ) {
+    priority *p;
+    for ( p = priority_list[ i ]; p->name != NULL; p++ ) {
+      if ( strcmp( p->name, name ) == 0 ) {
+        return p->value;
+      }
     }
   }
   return -1;
