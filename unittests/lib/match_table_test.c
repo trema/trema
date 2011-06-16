@@ -48,7 +48,8 @@ extern match_table match_table_head;
 
 static void
 setup() {
-  init_log( "match_table_test", false );
+  // FIXME: fake logging!
+  init_log( "match_table_test", "/tmp", true );
 }
 
 

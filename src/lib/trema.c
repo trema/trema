@@ -48,19 +48,13 @@
 #undef init_log
 #endif
 #define init_log mock_init_log
-bool mock_init_log( const char *ident, bool run_as_daemon );
+bool mock_init_log( const char *ident, const char *log_directory, bool run_as_daemon );
 
 #ifdef logging_started
 #undef logging_started
 #endif
 #define logging_started mock_logging_started
 bool mock_logging_started( void );
-
-#ifdef notice
-#undef notice
-#endif
-#define notice mock_notice
-void mock_notice( const char *format, ... );
 
 #ifdef error
 #undef error
@@ -262,6 +256,7 @@ static char *trema_name = NULL;
 static char *executable_name = NULL;
 static char *trema_home = NULL;
 static char *trema_tmp = NULL;
+static char *trema_log = NULL;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
@@ -303,7 +298,7 @@ expand( const char *path, char *absolute_path ) {
   char buf[ 256 ];
   char *result = realpath( path, absolute_path );
   if ( result == NULL ) {
-    notice( "Could not get the absolute path of %s: %s.", path, strerror_r( errno, buf, sizeof( buf ) ) );
+    fprintf( stderr, "Could not get the absolute path of %s: %s.\n", path, strerror_r( errno, buf, sizeof( buf ) ) );
     return false;
   }
 
@@ -322,7 +317,7 @@ set_trema_home() {
   else {
     char absolute_path[ PATH_MAX ];
     if ( !expand( getenv( TREMA_HOME ), absolute_path ) ) {
-      notice( "Falling back TREMA_HOME to \"/\"." );
+      fprintf( stderr, "Falling back TREMA_HOME to \"/\".\n" );
       strncpy( absolute_path, "/", 2 );
     }
     setenv( TREMA_HOME, absolute_path, 1 );
@@ -363,13 +358,13 @@ set_trema_tmp() {
   }
   else {
     if ( !expand( getenv( TREMA_TMP ), path ) ) {
-      notice( "Falling back TREMA_TMP to \"/tmp\"." );
+      fprintf( stderr, "Falling back TREMA_TMP to \"/tmp\".\n" );
       strncpy( path, "/tmp", 5 );
     }
   }
 
-  setenv( TREMA_TMP, path, 1 );
   trema_tmp = xstrdup( path );
+  setenv( TREMA_TMP, trema_tmp, 1 );
 
   pthread_mutex_lock( &mutex );
 }
@@ -384,6 +379,17 @@ get_trema_tmp() {
     set_trema_tmp();
   }
   return trema_tmp;
+}
+
+
+static const char *
+get_trema_log() {
+  if ( trema_log == NULL ) {
+    char path[ PATH_MAX ];
+    sprintf( path, "%s/log", get_trema_tmp() );
+    trema_log = xstrdup( path );
+  }
+  return trema_log;
 }
 
 
@@ -423,6 +429,8 @@ finalize_trema() {
   trema_home = NULL;
   xfree( trema_tmp );
   trema_tmp = NULL;
+  xfree( trema_log );
+  trema_log = NULL;
 
   initialized = false;
 }
@@ -597,16 +605,18 @@ init_trema( int *argc, char ***argv ) {
   pthread_mutex_lock( &mutex );
 
   trema_name = NULL;
+  trema_tmp = NULL;
+  trema_log = NULL;
   executable_name = NULL;
   initialized = false;
   started_trema = false;
   run_as_daemon = false;
 
   parse_argv( argc, argv );
-  init_log( get_trema_name(), run_as_daemon );
   set_trema_home();
   set_trema_tmp();
   check_trema_tmp();
+  init_log( get_trema_name(), get_trema_log(), run_as_daemon );
   ignore_sigpipe();
   set_exit_handler();
   set_usr1_handler();
@@ -670,7 +680,7 @@ set_trema_name( const char *name ) {
   trema_name = xstrdup( name );
 
   if ( logging_started() ) {
-    init_log( trema_name, run_as_daemon );
+    init_log( trema_name, get_trema_tmp(), run_as_daemon );
   }
 }
 

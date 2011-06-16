@@ -26,11 +26,9 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <syslog.h>
 
 
 extern int ( *trema_vprintf )( const char *format, va_list ap );
-extern void ( *trema_vsyslog )( int priority, const char *format, va_list ap );
 
 
 #endif // TREMA_STRING_H

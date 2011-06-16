@@ -27,11 +27,20 @@
 #define LOG_H
 
 
-#include <syslog.h>
 #include "bool.h"
 
 
-bool init_log( const char *ident, bool run_as_daemon );
+enum {
+  LOG_CRIT,
+  LOG_ERR,
+  LOG_WARNING,
+  LOG_NOTICE,
+  LOG_INFO,
+  LOG_DEBUG,
+};
+
+
+bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
 bool set_logging_level( const char *level );
 int get_logging_level( void );
 bool logging_started( void );

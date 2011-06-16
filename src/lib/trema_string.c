@@ -20,11 +20,9 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <syslog.h>
 
 
 int ( *trema_vprintf )( const char *format, va_list ap ) = vprintf;
-void ( *trema_vsyslog )( int priority, const char *format, va_list ap ) = vsyslog;
 
 
 /*

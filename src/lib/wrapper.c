@@ -22,7 +22,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <syslog.h>
 #include "wrapper.h"
 
 
@@ -101,15 +100,6 @@ xasprintf( const char *format, ... ) {
   va_end( args );
 
   return str;
-}
-
-
-void
-xopenlog( const char *ident, int option, int facility ) {
-  static char _ident[ PATH_MAX ];
-  strncpy( _ident, ident, sizeof( ident ) );
-  _ident[ sizeof( _ident ) - 1 ] = '\0';
-  openlog( _ident, option, facility );
 }
 
 

@@ -19,11 +19,13 @@
 
 
 #include <assert.h>
+#include <linux/limits.h>
 #include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "bool.h"
 #include "checks.h"
 #include "log.h"
@@ -31,8 +33,7 @@
 #include "wrapper.h"
 
 
-static void log_stdout( int priority, const char *format, va_list ap );
-
+static FILE *fd = NULL;
 static int level = LOG_INFO;
 static const int level_min = LOG_CRIT;
 static const int level_max = LOG_DEBUG;
@@ -46,33 +47,34 @@ typedef struct priority {
 
 
 static priority priority_list[] = {
-  { .name = "CRITICAL", .value = LOG_CRIT },
   { .name = "critical", .value = LOG_CRIT },
+  { .name = "CRITICAL", .value = LOG_CRIT },
   { .name = "CRIT", .value = LOG_CRIT },
   { .name = "crit", .value = LOG_CRIT },
-
-  { .name = "ERROR", .value = LOG_ERR },
+  
   { .name = "error", .value = LOG_ERR },
+  { .name = "ERROR", .value = LOG_ERR },
   { .name = "ERR", .value = LOG_ERR },
   { .name = "err", .value = LOG_ERR },
 
-  { .name = "WARNING", .value = LOG_WARNING },
   { .name = "warning", .value = LOG_WARNING },
+  { .name = "WARNING", .value = LOG_WARNING },
   { .name = "WARN", .value = LOG_WARNING },
   { .name = "warn", .value = LOG_WARNING },
 
-  { .name = "NOTICE", .value = LOG_NOTICE },
   { .name = "notice", .value = LOG_NOTICE },
+  { .name = "NOTICE", .value = LOG_NOTICE },
 
+  { .name = "info", .value = LOG_INFO },
   { .name = "INFORMATION", .value = LOG_INFO },
   { .name = "information", .value = LOG_INFO },
   { .name = "INFO", .value = LOG_INFO },
-  { .name = "info", .value = LOG_INFO },
 
-  { .name = "DEBUG", .value = LOG_DEBUG },
   { .name = "debug", .value = LOG_DEBUG },
+  { .name = "DEBUG", .value = LOG_DEBUG },
   { .name = "DBG", .value = LOG_DEBUG },
   { .name = "dbg", .value = LOG_DEBUG },
+
   { .name = NULL }
 };
 
@@ -80,8 +82,78 @@ static priority priority_list[] = {
 static void ( *do_log )( int priority, const char *format, va_list ap ) = NULL;
 
 
+static void
+level_string_from( int level, char *string ) {
+  assert( level != -1 );
+  assert( string != NULL );
+
+  priority *p;
+  for ( p = priority_list; p->name != NULL; p++ ) {
+    if ( p->value == level ) {
+      strncpy( string, p->name, strlen( p->name ) + 1 );
+      return;
+    }
+  }
+}
+
+
+static void
+log_file( int priority, const char *format, va_list ap ) {
+  UNUSED( priority );
+
+  time_t tm = time( NULL );
+  char date_str[ 256 ];
+  asctime_r( localtime( &tm ), date_str );
+  date_str[ strlen( date_str ) - 1 ] = '\0';
+
+  char logging_level[ 128 ];
+  level_string_from( priority, logging_level );
+
+  char message[ 1024 ];
+  vsprintf( message, format, ap );
+  fprintf( fd, "%s [%s] %s\n", date_str, logging_level, message );
+}
+
+
+static void
+log_stdout( int priority, const char *format, va_list ap ) {
+  log_file( priority, format, ap );
+
+  char format_newline[ strlen( format ) + 1 ];
+  sprintf( format_newline, "%s\n", format );
+  trema_vprintf( format_newline, ap );
+}
+
+
+bool
+init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
+  pthread_mutex_lock( &mutex );
+
+  level = LOG_INFO;
+
+  if ( run_as_daemon ) {
+    do_log = log_file;
+  }
+  else {
+    do_log = log_stdout;
+  }
+  char pathname[ PATH_MAX ];
+  sprintf( pathname, "%s/%s.log", log_directory, ident );
+  fd = fopen( pathname, "w" );
+
+  char *level_string = getenv( "LOGGING_LEVEL" );
+  if ( level_string != NULL ) {
+    set_logging_level( level_string );
+  }
+
+  pthread_mutex_unlock( &mutex );
+
+  return true;
+}
+
+
 static int
-logging_level_from( const char *name ) {
+level_value_from( const char *name ) {
   assert( name != NULL );
 
   priority *p;
@@ -95,32 +167,8 @@ logging_level_from( const char *name ) {
 
 
 bool
-init_log( const char *custom_ident, bool run_as_daemon ) {
-  pthread_mutex_lock( &mutex );
-
-  level = LOG_INFO;
-
-  if ( run_as_daemon ) {
-    do_log = trema_vsyslog;
-    xopenlog( custom_ident, LOG_PID, LOG_DAEMON );
-  }
-  else {
-    do_log = log_stdout;
-  }
-  char *level_string = getenv( "LOGGING_LEVEL" );
-  if ( level_string != NULL ) {
-    set_logging_level( level_string );
-  }
-
-  pthread_mutex_unlock( &mutex );
-
-  return true;
-}
-
-
-bool
 set_logging_level( const char *name ) {
-  int newLevel = logging_level_from( name );
+  int newLevel = level_value_from( name );
   if ( newLevel == -1 ) {
     die( "Invalid logging level: %s", name );
   }
@@ -194,16 +242,6 @@ info( const char *format, ... ) {
 void
 debug( const char *format, ... ) {
   DO_LOG( LOG_DEBUG, format );
-}
-
-
-static void
-log_stdout( int priority, const char *format, va_list ap ) {
-  UNUSED( priority );
-
-  char format_newline[ strlen( format ) + 1 ];
-  sprintf( format_newline, "%s\n", format );
-  trema_vprintf( format_newline, ap );
 }
 
 

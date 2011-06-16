@@ -85,7 +85,6 @@ void *xcalloc( size_t nmemb, size_t size );
 void xfree( void *ptr );
 char *xstrdup( const char *s );
 char *xasprintf( const char *format, ... );
-void xopenlog( const char *ident, int option, int facility );
 
 
 #endif // WRAPPER_H

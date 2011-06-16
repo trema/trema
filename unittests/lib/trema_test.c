@@ -46,6 +46,7 @@ extern bool initialized;
 extern bool started_trema;
 extern char *trema_home;
 extern char *trema_tmp;
+extern char *trema_log;
 extern char *trema_name;
 extern char *executable_name;
 extern bool run_as_daemon;
@@ -81,18 +82,6 @@ mock_init_log() {
 bool
 mock_logging_started() {
   return ( bool ) mock();
-}
-
-
-void
-mock_notice( const char *format, ... ) {
-  va_list args;
-  va_start( args, format );
-  char message[ 1000 ];
-  vsprintf( message, format, args );
-  va_end( args );
-
-  check_expected( message );
 }
 
 
@@ -377,6 +366,7 @@ test_init_trema_initializes_submodules_in_right_order() {
 
   xfree( trema_home );
   xfree( trema_tmp );
+  xfree( trema_log );
   xfree( trema_name );
   xfree( executable_name );
 }
@@ -766,8 +756,6 @@ test_get_trema_home_falls_back_to_ROOT_if_TREMA_HOME_is_invalid() {
   setenv( "TREMA_HOME", "NO_SUCH_DIRECTORY", 1 );
 
   errno = ENOENT;
-  expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
-  expect_string( mock_notice, message, "Falling back TREMA_HOME to \"/\"." );
 
   assert_string_equal( "/", get_trema_home() );
 
@@ -806,8 +794,6 @@ test_get_trema_tmp_falls_back_to_default_if_TREMA_HOME_is_invalid() {
   setenv( "TREMA_HOME", "NO_SUCH_DIRECTORY", 1 );
 
   errno = ENOENT;
-  expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
-  expect_string( mock_notice, message, "Falling back TREMA_HOME to \"/\"." );
 
   assert_string_equal( "/tmp", get_trema_tmp() );
 
@@ -853,8 +839,6 @@ test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid() {
   setenv( "TREMA_TMP", "NO_SUCH_DIRECTORY", 1 );
 
   errno = ENOENT;
-  expect_string( mock_notice, message, "Could not get the absolute path of NO_SUCH_DIRECTORY: No such file or directory." );
-  expect_string( mock_notice, message, "Falling back TREMA_TMP to \"/tmp\"." );
 
   assert_string_equal( "/tmp", get_trema_tmp() );
 
@@ -938,6 +922,7 @@ test_get_executable_name() {
 
   xfree( trema_home );
   xfree( trema_tmp );
+  xfree( trema_log );
   xfree( trema_name );
   xfree( executable_name );
 }
