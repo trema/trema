@@ -115,7 +115,9 @@ log_file( int priority, const char *format, va_list ap ) {
   level_string_from( priority, logging_level );
 
   char message[ 1024 ];
-  vsprintf( message, format, ap );
+  va_list new_ap;
+  va_copy( new_ap, ap );
+  vsprintf( message, format, new_ap );
   trema_fprintf( fd, "%s [%s] %s\n", date_str, logging_level, message );
 }
 
@@ -126,7 +128,9 @@ log_stdout( int priority, const char *format, va_list ap ) {
 
   char format_newline[ strlen( format ) + 1 ];
   sprintf( format_newline, "%s\n", format );
-  trema_vprintf( format_newline, ap );
+  va_list new_ap;
+  va_copy( new_ap, ap );
+  trema_vprintf( format_newline, new_ap );
 }
 
 
