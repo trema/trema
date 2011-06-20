@@ -33,12 +33,10 @@
 #include "wrapper.h"
 
 
-typedef struct priority {
+typedef struct {
   const char *name;
   const int value;
 } priority;
-
-typedef void ( *log_function )( int, const char *, va_list );
 
 
 static FILE *fd = NULL;
@@ -208,17 +206,17 @@ _get_logging_level() {
 int ( *get_logging_level )( void ) = _get_logging_level;
 
 
-static log_function
-do_log() {
+static void
+do_log( int priority, const char *format, va_list ap ) {
   if ( !logging_started() ) {
     die( "Logger is not initialized. Call init_log() first" );
   }
 
   if ( daemonized ) {
-    return log_file;
+    return log_file( priority, format, ap );
   }
   else {
-    return log_stdout;
+    return log_stdout( priority, format, ap );
   }
 }
 
@@ -232,7 +230,7 @@ do_log() {
       pthread_mutex_lock( &mutex );                 \
       va_list _args;                                \
       va_start( _args, _format );                   \
-      ( *do_log() )( _priority, _format, _args );   \
+      do_log( _priority, _format, _args );          \
       va_end( _args );                              \
       pthread_mutex_unlock( &mutex );               \
     }                                               \
