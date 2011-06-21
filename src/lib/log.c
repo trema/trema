@@ -45,7 +45,7 @@ static bool daemonized = false;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
-static priority priority_list[][ 5 ] = {
+static priority priorities[][ 5 ] = {
   {
     { .name = "critical", .value = LOG_CRITICAL },
     { .name = "CRITICAL", .value = LOG_CRITICAL },
@@ -99,7 +99,7 @@ level_string_from( int level, char *string ) {
   assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
   assert( string != NULL );
 
-  const char *name = priority_list[ level ][ 0 ].name;
+  const char *name = priorities[ level ][ 0 ].name;
   strncpy( string, name, strlen( name ) + 1 );
 }
 
@@ -169,7 +169,7 @@ level_value_from( const char *name ) {
   int i;
   for ( i = 0; i <= LOG_DEBUG; i++ ) {
     priority *p;
-    for ( p = priority_list[ i ]; p->name != NULL; p++ ) {
+    for ( p = priorities[ i ]; p->name != NULL; p++ ) {
       if ( strcmp( p->name, name ) == 0 ) {
         return p->value;
       }
