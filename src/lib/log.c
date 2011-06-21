@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include <ctype.h>
 #include <linux/limits.h>
 #include <pthread.h>
 #include <stdarg.h>
@@ -45,49 +46,38 @@ static bool daemonized = false;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
-static priority priorities[][ 5 ] = {
+static priority priorities[][ 3 ] = {
   {
     { .name = "critical", .value = LOG_CRITICAL },
-    { .name = "CRITICAL", .value = LOG_CRITICAL },
-    { .name = "CRIT", .value = LOG_CRITICAL },
     { .name = "crit", .value = LOG_CRITICAL },
     { .name = NULL },
   },
   
   {
     { .name = "error", .value = LOG_ERROR },
-    { .name = "ERROR", .value = LOG_ERROR },
-    { .name = "ERR", .value = LOG_ERROR },
     { .name = "err", .value = LOG_ERROR },
     { .name = NULL },
   },
 
   {
     { .name = "warning", .value = LOG_WARN },
-    { .name = "WARNING", .value = LOG_WARN },
-    { .name = "WARN", .value = LOG_WARN },
     { .name = "warn", .value = LOG_WARN },
     { .name = NULL },
   },
 
   {
     { .name = "notice", .value = LOG_NOTICE },
-    { .name = "NOTICE", .value = LOG_NOTICE },
     { .name = NULL },
   },
 
   {
     { .name = "info", .value = LOG_INFO },
-    { .name = "INFORMATION", .value = LOG_INFO },
     { .name = "information", .value = LOG_INFO },
-    { .name = "INFO", .value = LOG_INFO },
     { .name = NULL },
   },
 
   {
     { .name = "debug", .value = LOG_DEBUG },
-    { .name = "DEBUG", .value = LOG_DEBUG },
-    { .name = "DBG", .value = LOG_DEBUG },
     { .name = "dbg", .value = LOG_DEBUG },
     { .name = NULL },
   },
@@ -162,20 +152,33 @@ logging_started() {
 }
 
 
+static char *
+lower( const char *string ) {
+  char *new_string = xstrdup( string );
+  for ( int i = 0; new_string[ i ] != '\0'; ++i ) {
+    new_string[ i ] = ( char ) tolower( new_string[ i ] );
+  }
+  return new_string;
+}
+
+
 static int
 level_value_from( const char *name ) {
   assert( name != NULL );
 
-  int i;
-  for ( i = 0; i <= LOG_DEBUG; i++ ) {
-    priority *p;
-    for ( p = priorities[ i ]; p->name != NULL; p++ ) {
-      if ( strcmp( p->name, name ) == 0 ) {
-        return p->value;
+  int level_value = -1;
+  char *name_lower = lower( name );
+
+  for ( int i = 0; i <= LOG_DEBUG; i++ ) {
+    for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
+      if ( strcmp( p->name, name_lower ) == 0 ) {
+        level_value = p->value;
+        break;
       }
     }
   }
-  return -1;
+  xfree( name_lower );
+  return level_value;
 }
 
 

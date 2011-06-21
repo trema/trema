@@ -712,7 +712,7 @@ def libtrema_unit_tests
     :stat_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_printf ],
     :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_printf ],
     :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_printf ],
-    :utility_test => [ :log, :trema_printf ],
+    :utility_test => [ :log, :trema_printf, :wrapper ],
     :wrapper_test => [ :utility, :log, :trema_printf ],
   }
 end
