@@ -100,6 +100,7 @@ log_file( int priority, const char *format, va_list ap ) {
   time_t tm = time( NULL );
   char now[ 26 ];
   asctime_r( localtime( &tm ), now );
+  now[ 24 ] = '\0'; // chomp
 
   char *priority_name = priority_name_from( priority );
 
