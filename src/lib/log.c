@@ -60,8 +60,8 @@ static priority priorities[][ 3 ] = {
   },
 
   {
-    { .name = "warning", .value = LOG_WARN },
     { .name = "warn", .value = LOG_WARN },
+    { .name = "warning", .value = LOG_WARN },
     { .name = NULL },
   },
 
@@ -84,13 +84,12 @@ static priority priorities[][ 3 ] = {
 };
 
 
-static void
-level_string_from( int level, char *string ) {
+static char *
+priority_name_from( int level ) {
   assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
-  assert( string != NULL );
-
   const char *name = priorities[ level ][ 0 ].name;
-  strncpy( string, name, strlen( name ) + 1 );
+  assert( name != NULL );
+  return xstrdup( name );
 }
 
 
@@ -101,14 +100,14 @@ log_file( int priority, const char *format, va_list ap ) {
   asctime_r( localtime( &tm ), date_str );
   date_str[ strlen( date_str ) - 1 ] = '\0';
 
-  char logging_level[ 128 ];
-  level_string_from( priority, logging_level );
+  char *priority_name = priority_name_from( priority );
 
   char message[ 1024 ];
   va_list new_ap;
   va_copy( new_ap, ap );
   vsprintf( message, format, new_ap );
-  trema_fprintf( fd, "%s [%s] %s\n", date_str, logging_level, message );
+  trema_fprintf( fd, "%s [%s] %s\n", date_str, priority_name, message );
+  xfree( priority_name );
 }
 
 
