@@ -93,20 +93,23 @@ priority_name_from( int level ) {
 }
 
 
+static const size_t max_message_length = 1024;
+
 static void
 log_file( int priority, const char *format, va_list ap ) {
   time_t tm = time( NULL );
-  char date_str[ 256 ];
-  asctime_r( localtime( &tm ), date_str );
-  date_str[ strlen( date_str ) - 1 ] = '\0';
+  char now[ 26 ];
+  asctime_r( localtime( &tm ), now );
 
   char *priority_name = priority_name_from( priority );
 
-  char message[ 1024 ];
+  char message[ max_message_length ];
   va_list new_ap;
   va_copy( new_ap, ap );
-  vsprintf( message, format, new_ap );
-  trema_fprintf( fd, "%s [%s] %s\n", date_str, priority_name, message );
+  vsnprintf( message, max_message_length, format, new_ap );
+
+  trema_fprintf( fd, "%s [%s] %s\n", now, priority_name, message );
+
   xfree( priority_name );
 }
 
