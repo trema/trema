@@ -70,7 +70,7 @@ Before running the script, the following software packages are required.
 
   Cucumber
   RSpec
-  rcov
+  RCov
   Rake
 
 If you are using Ubuntu 10.10 or Debian GNU/Linux 6.0 (squeeze), you
