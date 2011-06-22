@@ -116,10 +116,8 @@ log_file( int priority, const char *format, va_list ap ) {
 
 
 static void
-log_stdout( int priority, const char *format, va_list ap ) {
-  log_file( priority, format, ap );
-
-  char format_newline[ strlen( format ) + 1 ];
+log_stdout( const char *format, va_list ap ) {
+  char format_newline[ strlen( format ) + 2 ];
   sprintf( format_newline, "%s\n", format );
   va_list new_ap;
   va_copy( new_ap, ap );
@@ -146,12 +144,6 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_unlock( &mutex );
 
   return true;
-}
-
-
-bool
-logging_started() {
-  return fd == NULL ? false : true;
 }
 
 
@@ -199,9 +191,20 @@ set_logging_level( const char *name ) {
 }
 
 
+static bool
+started() {
+  if ( fd == NULL ) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+
 static int
 _get_logging_level() {
-  if ( !logging_started() ) {
+  if ( !started() ) {
     die( "Logger is not initialized. Call init_log() first" );
   }
 
@@ -218,15 +221,13 @@ int ( *get_logging_level )( void ) = _get_logging_level;
 
 static void
 do_log( int priority, const char *format, va_list ap ) {
-  if ( !logging_started() ) {
+  if ( !started() ) {
     die( "Logger is not initialized. Call init_log() first" );
   }
 
-  if ( daemonized ) {
-    return log_file( priority, format, ap );
-  }
-  else {
-    return log_stdout( priority, format, ap );
+  log_file( priority, format, ap );
+  if ( !daemonized ) {
+    log_stdout( format, ap );
   }
 }
 

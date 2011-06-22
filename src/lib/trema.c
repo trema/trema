@@ -50,12 +50,6 @@
 #define init_log mock_init_log
 bool mock_init_log( const char *ident, const char *log_directory, bool run_as_daemon );
 
-#ifdef logging_started
-#undef logging_started
-#endif
-#define logging_started mock_logging_started
-bool mock_logging_started( void );
-
 #ifdef error
 #undef error
 #endif
@@ -250,7 +244,7 @@ void mock_dump_stats();
 static const char TREMA_HOME[] = "TREMA_HOME";
 static const char TREMA_TMP[] = "TREMA_TMP";
 static bool initialized = false;
-static bool started_trema = false;
+static bool trema_started = false;
 static bool run_as_daemon = false;
 static char *trema_name = NULL;
 static char *executable_name = NULL;
@@ -419,7 +413,7 @@ finalize_trema() {
   finalize_messenger();
   finalize_stat();
   finalize_timer();
-  started_trema = false;
+  trema_started = false;
   unlink_pid( get_trema_tmp(), get_trema_name() );
   xfree( trema_name );
   trema_name = NULL;
@@ -609,7 +603,7 @@ init_trema( int *argc, char ***argv ) {
   trema_log = NULL;
   executable_name = NULL;
   initialized = false;
-  started_trema = false;
+  trema_started = false;
   run_as_daemon = false;
 
   parse_argv( argc, argv );
@@ -644,7 +638,7 @@ start_trema() {
 
   maybe_daemonize();
   write_pid( get_trema_tmp(), get_trema_name() );
-  started_trema = true;
+  trema_started = true;
   start_messenger();
 
   finalize_trema();
@@ -672,14 +666,14 @@ void
 set_trema_name( const char *name ) {
   assert( name != NULL );
   if ( trema_name != NULL ) {
-    if ( started_trema ) {
+    if ( trema_started ) {
       rename_pid( get_trema_tmp(), trema_name, name );
     }
     xfree( trema_name );
   }
   trema_name = xstrdup( name );
 
-  if ( logging_started() ) {
+  if ( initialized ) {
     init_log( trema_name, get_trema_tmp(), run_as_daemon );
   }
 }
