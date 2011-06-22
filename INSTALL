@@ -71,11 +71,12 @@ Before running the script, the following software packages are required.
   Cucumber
   RSpec
   rcov
+  RAKE
 
 If you are using Ubuntu 10.10 or Debian GNU/Linux 6.0 (squeeze), you
 can install them as follows:
 
-  $ sudo gem install cucumber rspec rcov --remote
+  $ sudo gem install cucumber rspec rcov rake --remote
 
 To execute the script, simply type as follows:
 
