@@ -158,7 +158,7 @@ lower( const char *string ) {
 
 
 static int
-level_value_from( const char *name ) {
+priority_value_from( const char *name ) {
   assert( name != NULL );
 
   int level_value = -1;
@@ -177,20 +177,6 @@ level_value_from( const char *name ) {
 }
 
 
-bool
-set_logging_level( const char *name ) {
-  int new_level = level_value_from( name );
-  if ( new_level == -1 ) {
-    die( "Invalid logging level: %s", name );
-  }
-  pthread_mutex_lock( &mutex );
-  level = new_level;
-  pthread_mutex_unlock( &mutex );
-
-  return true;
-}
-
-
 static bool
 started() {
   if ( fd == NULL ) {
@@ -202,11 +188,33 @@ started() {
 }
 
 
-static int
-_get_logging_level() {
+static void
+check_initialized() {
   if ( !started() ) {
     die( "Logger is not initialized. Call init_log() first" );
   }
+}
+
+
+bool
+set_logging_level( const char *name ) {
+  check_initialized();
+
+  int new_level = priority_value_from( name );
+  if ( new_level == -1 ) {
+    die( "Invalid logging level: %s", name );
+  }
+  pthread_mutex_lock( &mutex );
+  level = new_level;
+  pthread_mutex_unlock( &mutex );
+
+  return true;
+}
+
+
+static int
+_get_logging_level() {
+  check_initialized();
 
   char *level_string = getenv( "LOGGING_LEVEL" );
   if ( level_string != NULL ) {
@@ -222,12 +230,14 @@ int ( *get_logging_level )( void ) = _get_logging_level;
 static void
 do_log( int priority, const char *format, va_list ap ) {
   if ( !started() ) {
-    die( "Logger is not initialized. Call init_log() first" );
-  }
-
-  log_file( priority, format, ap );
-  if ( !daemonized ) {
+    // Fall back to stdout
     log_stdout( format, ap );
+  }
+  else {
+    log_file( priority, format, ap );
+    if ( !daemonized ) {
+      log_stdout( format, ap );
+    }
   }
 }
 
