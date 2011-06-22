@@ -23,12 +23,10 @@
 #include <linux/limits.h>
 #include <pthread.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include "bool.h"
-#include "checks.h"
 #include "log.h"
 #include "trema_printf.h"
 #include "wrapper.h"
@@ -52,7 +50,7 @@ static priority priorities[][ 3 ] = {
     { .name = "crit", .value = LOG_CRITICAL },
     { .name = NULL },
   },
-  
+
   {
     { .name = "error", .value = LOG_ERROR },
     { .name = "err", .value = LOG_ERROR },
