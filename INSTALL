@@ -9,6 +9,7 @@ environment satisfies with the following requirements.
 Trema has only tested with the following operating systems:
 
   Ubuntu 10.10 (Intel x86/x64, Desktop Edition)
+  Ubuntu 11.04 (Intel x86/x64, Desktop Edition)
   Debian GNU/Linux 6.0 (squeeze) (i386/amd64)
 
 Trema may also run on other GNU/Linux distributions but not tested and
@@ -73,8 +74,8 @@ Before running the script, the following software packages are required.
   RCov
   Rake
 
-If you are using Ubuntu 10.10 or Debian GNU/Linux 6.0 (squeeze), you
-can install them as follows:
+If you are using Ubuntu 10.10, 11.04 or Debian GNU/Linux 6.0 (squeeze), 
+you can install them as follows:
 
   $ sudo gem install cucumber rspec rcov rake --remote
 
