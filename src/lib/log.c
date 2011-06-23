@@ -145,6 +145,22 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 }
 
 
+bool
+finalize_log() {
+  pthread_mutex_lock( &mutex );
+
+  level = -1;
+  if ( fd != NULL ) {
+    fclose( fd );
+    fd = NULL;
+  }
+
+  pthread_mutex_unlock( &mutex );
+
+  return true;
+}
+
+
 static char *
 lower( const char *string ) {
   char *new_string = xstrdup( string );
@@ -227,15 +243,11 @@ int ( *get_logging_level )( void ) = _get_logging_level;
 
 static void
 do_log( int priority, const char *format, va_list ap ) {
-  if ( !started() ) {
-    // Fall back to stdout
+  assert( started() );
+
+  log_file( priority, format, ap );
+  if ( !daemonized ) {
     log_stdout( format, ap );
-  }
-  else {
-    log_file( priority, format, ap );
-    if ( !daemonized ) {
-      log_stdout( format, ap );
-    }
   }
 }
 

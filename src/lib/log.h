@@ -41,6 +41,7 @@ enum {
 
 
 bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
+bool finalize_log( void );
 
 bool set_logging_level( const char *level );
 extern int ( *get_logging_level )( void );
