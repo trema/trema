@@ -1,19 +1,20 @@
 Pre-requirements
 ================
 
-Before installing Trema, please make sure that your development
-environment satisfies with the following requirements.
+Before installing Trema, please make sure that your environment
+satisfies the following requirements:
 
 - Operating system
 
 Trema has been tested on the following GNU/Linux distributions:
 
-  Ubuntu 10.10 (Intel x86/x64, Desktop Edition)
   Ubuntu 11.04 (Intel x86/x64, Desktop Edition)
+  Ubuntu 10.10 (Intel x86/x64, Desktop Edition)
+  Ubuntu 10.04 (Intel x86/x64, Desktop Edition)
   Debian GNU/Linux 6.0 (squeeze) (i386/amd64)
 
-Trema may also run on other GNU/Linux distributions but not tested and
-NOT SUPPORTED at this moment.
+Trema may also run on other GNU/Linux distributions but is not tested
+and NOT SUPPORTED at this moment.
 
 - Third-party software
 
