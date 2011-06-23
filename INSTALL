@@ -6,7 +6,7 @@ environment satisfies with the following requirements.
 
 - Operating system
 
-Trema has only tested with the following operating systems:
+Trema has been tested on the following GNU/Linux distributions:
 
   Ubuntu 10.10 (Intel x86/x64, Desktop Edition)
   Ubuntu 11.04 (Intel x86/x64, Desktop Edition)
