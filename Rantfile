@@ -43,6 +43,14 @@ task :default => [
   :examples,
 ]
 
+
+desc "Build trema (coverage)"
+task :coverage => [
+  "coverage:libtrema",
+  :default,
+]
+
+
 task :examples => [
   "examples:cbench_switch",
   "examples:dumper",
@@ -90,7 +98,7 @@ def objects path
 end
 
 
-def dependency_file name
+def dependency name
   file = ".#{ name }.dependency"
   var[ :clean ] << file
   ".#{ name }.dependency"
@@ -316,30 +324,48 @@ end
 # Build libtrema.a
 ################################################################################
 
-task dependency_file( "libtrema" ) => "vendor:openflow"
-gen C::Dependencies, dependency_file( "libtrema" ),
+build_libtrema_a = Proc.new do | t |
+  sys "rm -f #{ t.name }"
+  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
+  sys "ranlib #{ t.name }"
+end
+
+build_libtrema_o = Proc.new do | t, coverage |
+  sys "gcc #{ coverage ? "--coverage" : "" } -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
+end
+
+
+task dependency( "libtrema" ) => "vendor:openflow"
+gen C::Dependencies, dependency( "libtrema" ),
   :search => [ trema_include, objects( "openflow" ) ],
   :sources => sys[ "#{ trema_include }/*.c" ]
 
 gen Action do
-  source dependency_file( "libtrema" )
+  source dependency( "libtrema" )
 end
 
 
 gen Directory, trema_lib
 
 libtrema = File.join( trema_lib, "libtrema.a" )
-libtrema_objects = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
-  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
-end
+libtrema_gcov = File.join( trema_lib, "libtrema_gcov.a" )
 
+libtrema_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
+  build_libtrema_o.call t, false
+end
+libtrema_gcov_o = gen DirectedRule, trema_lib => [ trema_include ], :co => :c do | t |
+  build_libtrema_o.call t, true
+end
 
 desc "Build trema library."
 task :libtrema => libtrema
-file libtrema => libtrema_objects.candidates do | t |
-  sys "rm -f #{ t.name }"
-  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
-  sys "ranlib #{ t.name }"
+file libtrema => libtrema_o.candidates do | t |
+  build_libtrema_a.call t
+end
+desc "Build trema library (coverage)."
+task "coverage:libtrema" => libtrema_gcov
+file libtrema_gcov => libtrema_gcov_o.candidates do | t |
+  build_libtrema_a.call t
 end
 
 
@@ -360,6 +386,7 @@ file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h" ] do
   end
 end
 
+
 task "rubylib:clean" do
   sys.cd "ruby" do
     sys "make clean" rescue nil
@@ -377,11 +404,11 @@ end
 
 switch_manager_objects_dir = objects( "switch_manager" )
 
-gen C::Dependencies, dependency_file( "switch_manager" ),
+gen C::Dependencies, dependency( "switch_manager" ),
   :search => [ "src/switch_manager", trema_include ], :sources => sys[ "src/switch_manager/*.c" ]
 
 gen Action do
-  source dependency_file( "switch_manager" )
+  source dependency( "switch_manager" )
 end
 
 
@@ -434,11 +461,11 @@ end
 # Build packetin filter
 ################################################################################
 
-gen C::Dependencies, dependency_file( "packetin_filter" ),
+gen C::Dependencies, dependency( "packetin_filter" ),
   :search => [ "src/packetin_filter", trema_include ], :sources => sys[ "src/packetin_filter/*.c" ]
 
 gen Action do
-  source dependency_file( "packetin_filter" )
+  source dependency( "packetin_filter" )
 end
 
 
@@ -460,11 +487,11 @@ end
 # tremashark
 ################################################################################
 
-gen C::Dependencies, dependency_file( "tremashark" ),
+gen C::Dependencies, dependency( "tremashark" ),
   :search => [ "src/tremashark", trema_include ], :sources => sys[ "src/tremashark/*.c" ]
 
 gen Action do
-  source dependency_file( "tremashark" )
+  source dependency( "tremashark" )
 end
 
 
@@ -490,11 +517,11 @@ topology_objects_dir = objects( "examples/topology" )
 topology_source_dir = "src/examples/topology"
 
 
-gen C::Dependencies, dependency_file( "topology" ),
+gen C::Dependencies, dependency( "topology" ),
   :search => [ topology_source_dir, trema_include ], :sources => sys[ "src/examples/topology/*.c" ]
 
 gen Action do
-  source dependency_file( "topology" )
+  source dependency( "topology" )
 end
 
 
@@ -581,11 +608,11 @@ routing_switch_objects_dir = objects( "examples/routing_switch" )
 routing_switch = objects( "examples/routing_switch/routing_switch" )
 
 
-gen C::Dependencies, dependency_file( "routing_switch" ),
+gen C::Dependencies, dependency( "routing_switch" ),
   :search => [ routing_switch_source_dir, trema_include ], :sources => sys[ "#{ routing_switch_source_dir }/*.c" ]
 
 gen Action do
-  source dependency_file( "routing_switch" )
+  source dependency( "routing_switch" )
 end
 
 
@@ -624,11 +651,11 @@ standalone_examples.each do | each |
   objects_dir = objects( "examples/#{ each }" )
   target = objects( "examples/#{ each }/#{ each }" )
 
-  gen C::Dependencies, dependency_file( each ),
+  gen C::Dependencies, dependency( each ),
     :search => [ "src/examples/#{ each }", trema_include ], :sources => sys[ "src/examples/#{ each }/*.c" ]
 
   gen Action do
-    source dependency_file( each )
+    source dependency( each )
   end
 
 
@@ -663,11 +690,11 @@ openflow_messages = [
 openflow_message_source_dir = "src/examples/openflow_message"
 openflow_message_objects_dir = objects( "examples/openflow_message" )
 
-gen C::Dependencies, dependency_file( "openflow_message" ),
+gen C::Dependencies, dependency( "openflow_message" ),
   :search => [ trema_include ], :sources => sys[ "#{ openflow_message_source_dir }/*.c" ]
 
 gen Action do
-  source dependency_file( "openflow_message" )
+  source dependency( "openflow_message" )
 end
 
 gen Directory, openflow_message_objects_dir
@@ -732,11 +759,11 @@ def test_object_files test
 end
 
 
-gen C::Dependencies, dependency_file( "unittests" ),
+gen C::Dependencies, dependency( "unittests" ),
   :search => [ trema_include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.c" ]
 
 gen Action do
-  source dependency_file( "unittests" )
+  source dependency( "unittests" )
 end
 
 
@@ -762,9 +789,10 @@ end
 target = "unittests/objects/log_test"
 
 task :unittests => target
-task target => [ :libtrema, "vendor:cmockery" ]
+task target => [ "coverage:libtrema", "vendor:cmockery", "unittests/objects" ]
 file target do | t |
-  sys "gcc -o #{ t.name } #{ var :CFLAGS } unittests/lib/#{ File.basename t.name }.c -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -L#{ trema_lib } -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
+  sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ target }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
+  sys "gcc --coverage -o #{ t.name } #{ target }.o -L#{ trema_lib } -L#{ File.dirname Trema.libcmockery_a } -ltrema_gcov -lrt -lcmockery -lpthread --static"
 end
 
 

@@ -26,7 +26,7 @@
 # threshold.
 #
 
-$coverage_threshold = 95.0
+$coverage_threshold = 95.1
 
 
 ################################################################################
@@ -100,8 +100,9 @@ end
 
 def gcov gcda
   file = nil
+
   cd File.dirname( gcda ) do
-    cmd = "gcov #{ File.basename gcda } -p -l"
+    cmd = "gcov #{ File.basename gcda } -p -l -n"
     SubProcess.create do | shell |
       shell.on_stdout do | l |
         file = File.basename( $1 ) if /^File '(.*)'/=~ l
@@ -240,7 +241,7 @@ end
 
 def run_unit_test
   test "Running unit tests ..." do
-    sh "./build.rb"
+    sh "./build.rb coverage"
     sh "./build.rb unittests"
     sh "rake spec"
   end
@@ -287,9 +288,7 @@ $options.parse! ARGV
 def init_cruise
   $start_time = Time.now
   sh "./build.rb distclean"
-  unless FileTest.exists?( Trema.log_directory )
-    mkdir_p Trema.log_directory
-  end
+  mkdir_p Trema.log_directory
 end
 
 
