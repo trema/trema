@@ -26,7 +26,7 @@
 # threshold.
 #
 
-$coverage_threshold = 72.3
+$coverage_threshold = 76.1
 
 
 ################################################################################
@@ -74,22 +74,96 @@ end
 # Code coverage (gcov)
 ################################################################################
 
-$coverage = {}
+$files_all = {}
 
-$lines_total = 0
-$lines_tested = 0
 
-$files_all = []
-$files_tested = []
+class Testee
+  attr_reader :coverage
+  attr_writer :lines
+
+
+  def initialize path
+    @path = path
+    @lines = 0
+    @coverage = 0.0
+  end
+
+
+  def name
+    File.basename( @path )
+  end
+  
+
+  def lines
+    return @lines if @lines != 0
+
+    n = 0
+    in_comment = false
+    File.open( @path, "r" ).each_line do | l |
+      next if /^\s+\/\//=~ l # comments starting with //
+      next if /^\s*$/=~ l # empty lines
+      next if /^\s*\/\*.*\*\//=~l # /* ... */
+      if /^\s*\/\*/=~ l # /*
+        in_comment = true
+        next
+      end
+      if /^\s*\*\//=~ l # */
+        in_comment = false
+        next
+      end
+      next if in_comment
+      n += 1
+    end
+    n
+  end
+  
+
+  def lines_tested
+    @lines * @coverage / 100.0
+  end
+
+
+  def coverage= value
+    if value > @coverage
+      @coverage = value
+    end
+  end
+
+
+  def <=> other
+    @name <=> other.name
+  end
+end
+
+
+def files_tested
+  $files_all.values.select do | each |
+    each.coverage != 0.0
+  end
+end
 
 
 def files_not_tested
-  $files_all - $files_tested
+  $files_all.values - files_tested
+end
+
+
+def lines_total
+  $files_all.values.inject( 0 ) do | r, each |
+    r += each.lines
+  end
+end
+
+
+def lines_tested
+  $files_all.values.inject( 0 ) do | r, each |
+    r += each.lines_tested
+  end
 end
 
 
 def coverage
-  sprintf( "%3.1f", $lines_tested / $lines_total * 100.0 ).to_f
+  sprintf( "%3.1f", lines_tested / lines_total * 100.0 ).to_f
 end
 
 
@@ -104,16 +178,11 @@ def gcov gcda, dir
   cmd = "gcov #{ gcda } -o #{ dir } -n"
   SubProcess.create do | shell |
     shell.on_stdout do | l |
-      file = File.basename( $1 ) if /^File '(.*)'/=~ l
-      $files_tested << file
+      file = File.expand_path( $1 ) if /^File '(.*)'/=~ l
+      testee = $files_all[ file ]
       if /^Lines executed:(.*)% of (.*)$/=~ l
-        coverage = $1.to_f
-        lines = $2.to_i
-        $lines_total += lines
-        $lines_tested += lines * coverage / 100.0
-        if $coverage[ file ].nil? or ( $coverage[ file ] and coverage > $coverage[ file ] )
-          $coverage[ file ] = coverage
-        end
+        testee.coverage = $1.to_f
+        testee.lines = $2.to_i
       end
     end
     shell.on_stderr do | l |
@@ -128,8 +197,11 @@ end
 
 
 def measure_coverage
-  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark" ) do | f |
-    $files_all << File.basename( f ) if /\.c$/=~ f
+  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark", "unittests" ) do | f |
+    if /\.c$/=~ f
+      path = File.expand_path( f )
+      $files_all[ path ] = Testee.new( path )
+    end
   end
   Dir.glob( "unittests/objects/*.gcda" ).each do | each |
     gcov each, "unittests/objects"
@@ -154,13 +226,10 @@ end
 
 def coverage_ranking
   summary = StringIO.new
-  files_not_tested.sort.each do | each |
-    summary.printf "  %45s:   0.0%%\n", each
-  end
-  $coverage.to_a.sort_by do | each |
-    each[ 1 ]
+  $files_all.values.sort_by do | each |
+    each.coverage
   end.each do | each |
-    summary.printf "  %45s: %5.1f%%\n", *each
+    summary.printf "  %45s (%4s LoC): %5.1f%%\n", each.name, each.lines, each.coverage
   end
   summary.string
 end
