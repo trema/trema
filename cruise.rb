@@ -26,7 +26,7 @@
 # threshold.
 #
 
-$coverage_threshold = 95.0
+$coverage_threshold = 72.3
 
 
 ################################################################################
@@ -98,45 +98,44 @@ def diff_coverage_threshold
 end
 
 
-def gcov gcda
+def gcov gcda, dir
   file = nil
 
-  cd File.dirname( gcda ) do
-    cmd = "gcov #{ File.basename gcda } -p -l -n"
-    SubProcess.create do | shell |
-      shell.on_stdout do | l |
-        file = File.basename( $1 ) if /^File '(.*)'/=~ l
-        $files_tested << file
-        if /^Lines executed:(.*)% of (.*)$/=~ l
-          coverage = $1.to_f
-          lines = $2.to_i
-          $lines_total += lines
-          $lines_tested += lines * coverage / 100.0
-          if $coverage[ file ].nil? or ( $coverage[ file ] and coverage > $coverage[ file ] )
-            $coverage[ file ] = coverage
-          end
+  cmd = "gcov #{ gcda } -o #{ dir } -n"
+  SubProcess.create do | shell |
+    shell.on_stdout do | l |
+      file = File.basename( $1 ) if /^File '(.*)'/=~ l
+      $files_tested << file
+      if /^Lines executed:(.*)% of (.*)$/=~ l
+        coverage = $1.to_f
+        lines = $2.to_i
+        $lines_total += lines
+        $lines_tested += lines * coverage / 100.0
+        if $coverage[ file ].nil? or ( $coverage[ file ] and coverage > $coverage[ file ] )
+          $coverage[ file ] = coverage
         end
       end
-      shell.on_stderr do | l |
-        $stderr.puts l
-      end
-      shell.on_failure do
-        raise "'#{ cmd }' failed."
-      end
-      shell.exec cmd
     end
+    shell.on_stderr do | l |
+      $stderr.puts l
+    end
+    shell.on_failure do
+      raise "'#{ cmd }' failed."
+    end
+    shell.exec cmd
   end
 end
 
 
 def measure_coverage
-  [ "src", "examples" ].each do | each |
-    Find.find each do | f |
-      $files_all << File.basename( f ) if /\.c$/=~ f
-    end
+  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark" ) do | f |
+    $files_all << File.basename( f ) if /\.c$/=~ f
   end
   Dir.glob( "unittests/objects/*.gcda" ).each do | each |
-    gcov each
+    gcov each, "unittests/objects"
+  end
+  Dir.glob( "objects/unittests/*.gcda" ).each do | each |
+    gcov each, "objects/unittests"
   end
 end
 
@@ -156,12 +155,12 @@ end
 def coverage_ranking
   summary = StringIO.new
   files_not_tested.sort.each do | each |
-    summary.printf "  %40s:   0.0%%\n", each
+    summary.printf "  %45s:   0.0%%\n", each
   end
   $coverage.to_a.sort_by do | each |
     each[ 1 ]
   end.each do | each |
-    summary.printf "  %40s: %5.1f%%\n", *each
+    summary.printf "  %45s: %5.1f%%\n", *each
   end
   summary.string
 end
@@ -241,8 +240,8 @@ end
 
 def run_unit_test
   test "Running unit tests ..." do
-    sh "./build.rb coverage"
     sh "./build.rb unittests"
+    sh "./build.rb"
     sh "rake spec"
   end
   measure_coverage

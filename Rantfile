@@ -44,13 +44,6 @@ task :default => [
 ]
 
 
-desc "Build trema (coverage)"
-task :coverage => [
-  "coverage:libtrema",
-  :default,
-]
-
-
 task :examples => [
   "examples:cbench_switch",
   "examples:dumper",
@@ -75,6 +68,7 @@ desc "Cleanup generated files."
 gen Clean
 
 var[ :clean ] << Trema.objects
+var[ :clean ] << File.join( Trema.home, "objects/unittests" )
 var[ :clean ] << File.join( Trema.home, "unittests/objects" )
 
 
@@ -330,10 +324,6 @@ build_libtrema_a = Proc.new do | t |
   sys "ranlib #{ t.name }"
 end
 
-build_libtrema_o = Proc.new do | t, coverage |
-  sys "gcc #{ coverage ? "--coverage" : "" } -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
-end
-
 
 task dependency( "libtrema" ) => "vendor:openflow"
 gen C::Dependencies, dependency( "libtrema" ),
@@ -346,15 +336,16 @@ end
 
 
 gen Directory, trema_lib
+gen Directory, "#{ Trema.home }/objects/unittests"
 
 libtrema = File.join( trema_lib, "libtrema.a" )
-libtrema_gcov = File.join( trema_lib, "libtrema_gcov.a" )
+libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
 
 libtrema_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
-  build_libtrema_o.call t, false
+  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
-libtrema_gcov_o = gen DirectedRule, trema_lib => [ trema_include ], :co => :c do | t |
-  build_libtrema_o.call t, true
+libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ trema_include ], :o => :c do | t |
+  sys "gcc --coverage -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 
 desc "Build trema library."
@@ -362,6 +353,7 @@ task :libtrema => libtrema
 file libtrema => libtrema_o.candidates do | t |
   build_libtrema_a.call t
 end
+
 desc "Build trema library (coverage)."
 task "coverage:libtrema" => libtrema_gcov
 file libtrema_gcov => libtrema_gcov_o.candidates do | t |
@@ -732,7 +724,7 @@ def libtrema_unit_tests
     :linked_list_test => [ :log, :utility, :wrapper, :trema_printf ],
     :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_printf ],
     :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper, :log, :trema_printf ],
-    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :utility, :wrapper, :trema_printf ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_printf, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_printf ],
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_printf ],
     :packet_parser_test => [ :arp, :buffer, :ether, :ipv4, :utility, :log, :packet_info, :wrapper, :trema_printf ],
@@ -768,6 +760,7 @@ end
 
 
 gen Directory, "unittests/objects"
+gen Directory, "objects/unittests"
 
 gen DirectedRule, "unittests/objects" => [ "unittests", "unittests/lib", "src/lib" ], :o => :c do | t |
   sys "gcc -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
@@ -777,28 +770,28 @@ end
 libtrema_unit_tests.keys.each do | each |
   target = "unittests/objects/#{ each }"
 
-  task :unittests => target
+  task :build_old_unittests => target
   task target => "vendor:cmockery"
   file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
-    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -lrt -lcmockery -lpthread --coverage --static"
+    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lpthread --coverage --static"
   end
 end
 
 
 # new unittest
-target = "unittests/objects/log_test"
+target = "objects/unittests/log_test"
 
-task :unittests => target
-task target => [ "coverage:libtrema", "vendor:cmockery", "unittests/objects" ]
+task :build_unittests => [ "coverage:libtrema", target ]
+task target => [ "coverage:libtrema", "vendor:cmockery", "#{ Trema.home }/objects/unittests" ]
 file target do | t |
   sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ target }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
-  sys "gcc --coverage -o #{ t.name } #{ target }.o -L#{ trema_lib } -L#{ File.dirname Trema.libcmockery_a } -ltrema_gcov -lrt -lcmockery -lpthread --static"
+  sys "gcc --coverage -o #{ t.name } #{ target }.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
 end
 
 
 desc "Run unittests"
-task :unittests do
-  sys[ "unittests/objects/*_test" ].each do | each |
+task :unittests => [ :build_old_unittests, :build_unittests ] do
+  ( sys[ "unittests/objects/*_test" ] + sys[ "objects/unittests/*_test" ] ).each do | each |
     puts "Running #{ each }..."
     sys each
   end
