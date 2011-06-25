@@ -25,7 +25,9 @@
 
 bool
 create_list( list_element **list ) {
-  assert( list != NULL );
+  if ( list == NULL ) {
+    die( "list must not be NULL" );
+  }
 
   *list = NULL;
   return true;
@@ -34,7 +36,9 @@ create_list( list_element **list ) {
 
 bool
 insert_in_front( list_element **head, void *data ) {
-  assert( head != NULL );
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
 
   list_element *old_head = *head;
   list_element *new_head = xmalloc( sizeof( list_element ) );
@@ -48,7 +52,9 @@ insert_in_front( list_element **head, void *data ) {
 
 bool
 insert_before( list_element **head, const void *sibling, void *data ) {
-  assert( head != NULL );
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
 
   list_element *e;
   list_element *new_element;
@@ -69,7 +75,9 @@ insert_before( list_element **head, const void *sibling, void *data ) {
 
 bool
 append_to_tail( list_element **head, void *data ) {
-  assert( head != NULL );
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
 
   list_element *e;
   list_element *new_tail = xmalloc( sizeof( list_element ) );
@@ -101,7 +109,9 @@ list_length_of( const list_element *head ) {
 
 bool
 delete_element( list_element **head, const void *data ) {
-  assert( head != NULL );
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
 
   list_element *e = *head;
   list_element *delete_me;

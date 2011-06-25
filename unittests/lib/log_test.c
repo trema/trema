@@ -45,8 +45,7 @@ mock_die( const char *format, ... ) {
   va_end( args );
   check_expected( output );
 
-  mock_assert( false, "mock_die", __FILE__, __LINE__ );
-}
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
 
 
 static int

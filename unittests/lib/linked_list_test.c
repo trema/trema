@@ -20,9 +20,42 @@
  */
 
 
+#include <stdio.h>
 #include <string.h>
 #include "cmockery_trema.h"
 #include "linked_list.h"
+#include "utility.h"
+
+
+/********************************************************************************
+ * Setup and Teardown
+ ********************************************************************************/
+
+static void ( *original_die )( const char *format, ... );
+
+static void
+mock_die( const char *format, ... ) {
+  char output[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( output, format, args );
+  va_end( args );
+  check_expected( output );
+
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
+
+static void
+setup() {
+  original_die = die;
+  die = mock_die;
+}
+
+
+static void
+teardown() {
+  die = original_die;
+}
 
 
 /********************************************************************************
@@ -56,6 +89,7 @@ test_create_and_delete_empty_list() {
 
 static void
 test_create_list_aborts_with_NULL() {
+  expect_string( mock_die, output, "list must not be NULL" );
   expect_assert_failure( create_list( NULL ) );
 }
 
@@ -79,6 +113,7 @@ test_insert_in_front() {
 
 static void
 test_insert_in_front_aborts_with_NULL_head() {
+  expect_string( mock_die, output, "head must not be NULL" );
   expect_assert_failure( insert_in_front( NULL, alpha ) );
 }
 
@@ -121,6 +156,7 @@ test_insert_before_fails_if_sibling_not_found() {
 
 static void
 test_insert_before_aborts_with_NULL_head() {
+  expect_string( mock_die, output, "head must not be NULL" );
   expect_assert_failure( insert_before( NULL, alpha, ( void * ) 123 ) );
 }
 
@@ -144,6 +180,7 @@ test_append_to_tail() {
 
 static void
 test_append_to_tail_aborts_with_NULL_head() {
+  expect_string( mock_die, output, "head must not be NULL" );
   expect_assert_failure( append_to_tail( NULL, alpha ) );
 }
 
@@ -219,6 +256,7 @@ test_delete_nonexisting_element() {
 
 static void
 test_delete_element_aborts_with_NULL_head() {
+  expect_string( mock_die, output, "head must not be NULL" );
   expect_assert_failure( delete_element( NULL, delete_me ) );
 }
 
@@ -264,23 +302,28 @@ main() {
   const UnitTest tests[] = {
     unit_test( test_create_list ),
     unit_test( test_create_and_delete_empty_list ),
-    unit_test( test_create_list_aborts_with_NULL ),
+    unit_test_setup_teardown( test_create_list_aborts_with_NULL,
+                              setup, teardown ),
 
     unit_test( test_insert_in_front ),
-    unit_test( test_insert_in_front_aborts_with_NULL_head ),
+    unit_test_setup_teardown( test_insert_in_front_aborts_with_NULL_head,
+                              setup, teardown ),
 
     unit_test( test_insert_before ),
     unit_test( test_insert_before_fails_if_sibling_not_found ),
-    unit_test( test_insert_before_aborts_with_NULL_head ),
+    unit_test_setup_teardown( test_insert_before_aborts_with_NULL_head,
+                              setup, teardown ),
 
     unit_test( test_append_to_tail ),
-    unit_test( test_append_to_tail_aborts_with_NULL_head ),
+    unit_test_setup_teardown( test_append_to_tail_aborts_with_NULL_head,
+                              setup, teardown ),
 
     unit_test( test_delete_first_element ),
     unit_test( test_delete_middle_element ),
     unit_test( test_delete_last_element ),
     unit_test( test_delete_nonexisting_element ),
-    unit_test( test_delete_element_aborts_with_NULL_head ),
+    unit_test_setup_teardown( test_delete_element_aborts_with_NULL_head,
+                              setup, teardown ),
 
     unit_test( test_list_length ),
     unit_test( test_list_length_of_empty_list ),
