@@ -717,7 +717,6 @@ def libtrema_unit_tests
     :buffer_test => [ :wrapper, :utility, :log, :trema_printf ],
     :byteorder_test => [ :log, :utility, :wrapper, :trema_printf ],
     :daemon_test => [],
-    :doubly_linked_list_test => [ :utility, :log, :wrapper, :trema_printf ],
     :ether_test => [ :buffer, :log, :packet_info, :utility, :wrapper, :trema_printf ],
     :hash_table_test => [ :linked_list, :utility, :log, :wrapper, :trema_printf ],
     :ipv4_test => [ :arp, :buffer, :ether, :log, :packet_info, :packet_parser, :utility, :wrapper, :trema_printf ],
@@ -779,8 +778,9 @@ end
 
 # new unittest
 tests = [
+  "objects/unittests/doubly_linked_list_test",
   "objects/unittests/linked_list_test",
-  "objects/unittests/log_test"
+  "objects/unittests/log_test",
 ]
 
 

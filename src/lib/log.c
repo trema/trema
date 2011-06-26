@@ -255,7 +255,7 @@ do_log( int priority, const char *format, va_list ap ) {
 #define DO_LOG( _priority, _format )                \
   do {                                              \
     if ( _format == NULL ) {                        \
-      die( "Log message should not be NULL" );      \
+      die( "Log message must not be NULL" );        \
     }                                               \
     if ( get_logging_level() >= _priority ) {       \
       pthread_mutex_lock( &mutex );                 \

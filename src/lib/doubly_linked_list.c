@@ -59,7 +59,9 @@ create_dlist() {
 
 dlist_element *
 insert_before_dlist( dlist_element *element, void *data ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
   pthread_mutex_t *mutex = ( ( private_dlist_element * ) element )->mutex;
@@ -84,7 +86,9 @@ insert_before_dlist( dlist_element *element, void *data ) {
 
 dlist_element *
 insert_after_dlist( dlist_element *element, void *data ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
   pthread_mutex_t *mutex = ( ( private_dlist_element * ) element )->mutex;
@@ -109,7 +113,9 @@ insert_after_dlist( dlist_element *element, void *data ) {
 
 dlist_element *
 get_first_element( dlist_element *element ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
 
@@ -125,7 +131,9 @@ get_first_element( dlist_element *element ) {
 
 dlist_element *
 get_last_element( dlist_element *element ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
 
@@ -141,7 +149,9 @@ get_last_element( dlist_element *element ) {
 
 dlist_element *
 find_element( dlist_element *element, const void *data ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
 
@@ -162,8 +172,10 @@ find_element( dlist_element *element, const void *data ) {
 
 bool
 delete_dlist_element( dlist_element *element ) {
-  assert( element != NULL );
- 
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
+
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
   pthread_mutex_t *mutex = ( ( private_dlist_element * ) element )->mutex;
 
@@ -183,7 +195,9 @@ delete_dlist_element( dlist_element *element ) {
 
 bool
 delete_dlist( dlist_element *element ) {
-  assert( element != NULL );
+  if ( element == NULL ) {
+    die( "element must not be NULL" );
+  }
 
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
   pthread_mutex_t *mutex = ( ( private_dlist_element * ) element )->mutex;

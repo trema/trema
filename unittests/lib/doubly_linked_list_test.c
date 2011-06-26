@@ -20,9 +20,42 @@
  */
 
 
+#include <stdio.h>
 #include <string.h>
 #include "cmockery_trema.h"
 #include "doubly_linked_list.h"
+#include "utility.h"
+
+
+/********************************************************************************
+ * Setup and Teardown
+ ********************************************************************************/
+
+static void ( *original_die )( const char *format, ... );
+
+static void
+mock_die( const char *format, ... ) {
+  char output[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( output, format, args );
+  va_end( args );
+  check_expected( output );
+
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
+
+static void
+setup() {
+  original_die = die;
+  die = mock_die;
+}
+
+
+static void
+teardown() {
+  die = original_die;
+}
 
 
 /********************************************************************************
@@ -70,6 +103,7 @@ test_insert_before_dlist() {
 
 static void
 test_insert_before_dlist_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( insert_before_dlist( NULL, NULL ) );
 }
 
@@ -102,6 +136,7 @@ test_insert_after_dlist() {
 
 static void
 test_insert_after_dlist_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( insert_after_dlist( NULL, NULL ) );
 }
 
@@ -126,6 +161,7 @@ test_get_first_element() {
 
 static void
 test_get_first_element_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( get_first_element( NULL ) );
 }
 
@@ -150,6 +186,7 @@ test_get_last_element() {
 
 static void
 test_get_last_element_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( get_last_element( NULL ) );
 }
 
@@ -210,6 +247,7 @@ test_remove_last_element() {
 
 static void
 test_delete_dlist_element_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( delete_dlist_element( NULL ) );
 }
 
@@ -245,12 +283,14 @@ test_find_element() {
 
 static void
 test_find_element_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( find_element( NULL, NULL ) );
 }
 
 
 static void
 test_delete_dlist_aborts_with_NULL_dlist() {
+  expect_string( mock_die, output, "element must not be NULL" );
   expect_assert_failure( delete_dlist( NULL ) );
 }
 
@@ -265,26 +305,33 @@ main() {
     unit_test( test_create_dlist ),
 
     unit_test( test_insert_before_dlist ),
-    unit_test( test_insert_before_dlist_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_insert_before_dlist_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
     unit_test( test_insert_after_dlist ),
-    unit_test( test_insert_after_dlist_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_insert_after_dlist_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
     unit_test( test_get_first_element ),
-    unit_test( test_get_first_element_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_get_first_element_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
     unit_test( test_get_last_element ),
-    unit_test( test_get_last_element_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_get_last_element_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
     unit_test( test_remove_middle_element ),
     unit_test( test_remove_first_element ),
     unit_test( test_remove_last_element ),
-    unit_test( test_delete_dlist_element_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_delete_dlist_element_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
     unit_test( test_find_element ),
-    unit_test( test_find_element_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_find_element_aborts_with_NULL_dlist,
+                              setup, teardown ),
 
-    unit_test( test_delete_dlist_aborts_with_NULL_dlist ),
+    unit_test_setup_teardown( test_delete_dlist_aborts_with_NULL_dlist,
+                              setup, teardown ),
   };
   return run_tests( tests );
 }
