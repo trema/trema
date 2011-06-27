@@ -277,9 +277,7 @@ test_iterate_empty_hash() {
   table = create_hash( compare_atom, hash_atom );
   init_hash_iterator( table, &iter );
 
-  while ( iterate_hash_next( &iter ) != NULL ) {
-    UNREACHABLE();
-  }
+  while ( iterate_hash_next( &iter ) != NULL ) { UNREACHABLE(); }
 
   delete_hash( table );
 }
