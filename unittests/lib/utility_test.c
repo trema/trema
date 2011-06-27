@@ -37,19 +37,62 @@
 
 static void
 test_compare_string() {
-  char hello[] = "Hello World";
+  char hello1[] = "Hello World";
+  char hello2[] = "Hello World";
   char bye[] = "Bye World";
 
-  assert_true( compare_string( hello, hello ) );
-  assert_false( compare_string( hello, bye ) );
+  assert_true( compare_string( hello1, hello2 ) );
+  assert_false( compare_string( hello1, bye ) );
 }
 
 
 static void
 test_hash_string() {
-  char hello[] = "Hello World";
+  char hello1[] = "Hello World";
+  char hello2[] = "Hello World";
 
-  assert_true( 3012568359UL == hash_string( hello ) );
+  assert_true( hash_string( hello1 ) == hash_string( hello2 ) );
+}
+
+
+static void
+test_compare_uint32() {
+  uint32_t x = 123;
+  uint32_t y = 123;
+  uint32_t z = 321;
+
+  assert_true( compare_uint32( ( void * ) &x, ( void * ) &y ) );
+  assert_false( compare_uint32( ( void * ) &x, ( void * ) &z ) );
+}
+
+
+static void
+test_hash_uint32() {
+  uint32_t key = 123;
+
+  assert_int_equal( 123, hash_uint32( ( void * ) &key ) );
+}
+
+
+static void
+test_compare_datapath_id() {
+  uint64_t x = 123;
+  uint64_t y = 123;
+  uint64_t z = 321;
+
+  assert_true( compare_datapath_id( ( void * ) &x, ( void * ) &y ) );
+  assert_false( compare_datapath_id( ( void * ) &x, ( void * ) &z ) );
+}
+
+
+static void
+test_hash_datapath_id() {
+  uint64_t x = 123;
+  uint64_t y = 123;
+  uint64_t z = 321;
+
+  assert_true( hash_datapath_id( ( void * ) &x ) == hash_datapath_id( ( void * ) &y ) );
+  assert_true( hash_datapath_id( ( void * ) &x ) != hash_datapath_id( ( void * ) &z ) );
 }
 
 
@@ -65,9 +108,10 @@ test_compare_mac() {
 
 static void
 test_hash_mac() {
-  uint8_t mac[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  uint8_t mac1[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  uint8_t mac2[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-  assert_true( 4294967295UL == hash_mac( mac ) );
+  assert_true( hash_mac( mac1 ) == hash_mac( mac2 ) );
 }
 
 
@@ -78,6 +122,8 @@ test_string_to_datapath_id() {
 
   assert_true( string_to_datapath_id( "18446744073709551615", &datapath_id ) );
   assert_memory_equal( &datapath_id, &expected_datapath_id, sizeof( uint64_t ) );
+
+  assert_false( string_to_datapath_id( "INVALID DATAPATH ID", &datapath_id ) );
 }
 
 
@@ -131,6 +177,12 @@ main() {
   const UnitTest tests[] = {
     unit_test( test_compare_string ),
     unit_test( test_hash_string ),
+
+    unit_test( test_compare_uint32 ),
+    unit_test( test_hash_uint32 ),
+
+    unit_test( test_compare_datapath_id ),
+    unit_test( test_hash_datapath_id ),
 
     unit_test( test_compare_mac ),
     unit_test( test_hash_mac ),

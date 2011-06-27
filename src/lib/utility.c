@@ -117,7 +117,7 @@ compare_datapath_id( const void *x, const void *y ) {
 
 unsigned int
 hash_datapath_id( const void *key ) {
-  const uint32_t *datapath_id = ( const uint32_t *) key;
+  const uint32_t *datapath_id = ( const uint32_t * ) key;
   return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
 }
 
