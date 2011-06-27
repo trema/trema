@@ -18,9 +18,7 @@
  */
 
 
-#include <getopt.h>
 #include <inttypes.h>
-#include <time.h>
 #include "trema.h"
 
 
@@ -29,16 +27,9 @@ recv_reply( uint16_t tag, void *data, size_t len, void *user_data ) {
   UNUSED( tag );
   UNUSED( user_data );
 
-  char time_string[ 64 ];
-  time_t now = time( NULL );
-  ctime_r( &now, time_string );
-  time_string[ strlen( time_string ) - 1 ] = '\0';
-  info( "[%s]", time_string );
-
   uint64_t *dpid = ( uint64_t * ) data;
   size_t count = len / sizeof( uint64_t );
-  unsigned int i;
-  for ( i = 0; i < count; i++ ) {
+  for ( unsigned int i = 0; i < count; i++ ) {
     info( "%#" PRIx64, ntohll( dpid[ i ] ) );
   }
 }
