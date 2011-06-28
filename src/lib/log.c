@@ -268,40 +268,46 @@ do_log( int priority, const char *format, va_list ap ) {
   } while ( 0 )
 
 
-void
-critical( const char *format, ... ) {
+static void
+_critical( const char *format, ... ) {
   DO_LOG( LOG_CRITICAL, format );
 }
+void ( *critical )( const char *format, ... ) = _critical;
 
 
-void
-error( const char *format, ... ) {
+static void
+_error( const char *format, ... ) {
   DO_LOG( LOG_ERROR, format );
 }
+void ( *error )( const char *format, ... ) = _error;
 
 
-void
-warn( const char *format, ... ) {
+static void
+_warn( const char *format, ... ) {
   DO_LOG( LOG_WARN, format );
 }
+void ( *warn )( const char *format, ... ) = _warn;
 
 
-void
-notice( const char *format, ... ) {
+static void
+_notice( const char *format, ... ) {
   DO_LOG( LOG_NOTICE, format );
 }
+void ( *notice )( const char *format, ... ) = _notice;
 
 
-void
-info( const char *format, ... ) {
+static void
+_info( const char *format, ... ) {
   DO_LOG( LOG_INFO, format );
 }
+void ( *info )( const char *format, ... ) = _info;
 
 
-void
-debug( const char *format, ... ) {
+static void
+_debug( const char *format, ... ) {
   DO_LOG( LOG_DEBUG, format );
 }
+void ( *debug )( const char *format, ... ) = _debug;
 
 
 /*

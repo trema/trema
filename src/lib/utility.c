@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include "bool.h"
 #include "log.h"
+#include "trema_wrapper.h"
 #include "utility.h"
 
 
@@ -44,7 +45,7 @@ _die( const char *format, ... ) {
   va_end( args );
 
   critical( err );
-  abort();
+  trema_abort();
 }
 void ( *die )( const char *format, ... ) = _die;
 

@@ -28,12 +28,63 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmockery.h"
+#include "log.h"
+#include "trema_wrapper.h"
 #include "utility.h"
+
+
+/********************************************************************************
+ * Setup and teardown
+ ********************************************************************************/
+
+static void ( *original_critical )( const char *format, ... );
+
+static void
+mock_critical( const char *format, ... ) {
+  char output[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( output, format, args );
+  va_end( args );
+  check_expected( output );
+}
+
+
+static void ( *original_abort )( void );
+
+static void
+stub_abort() {
+  // Do nothing.
+}
+
+
+static void
+setup() {
+  original_critical = critical;
+  critical = mock_critical;
+
+  original_abort = abort;
+  trema_abort = stub_abort;
+}
+
+
+static void
+teardown() {
+  critical = original_critical;
+  trema_abort = original_abort;
+}
 
 
 /********************************************************************************
  * Tests.
  ********************************************************************************/
+
+static void
+test_die() {
+  expect_string( mock_critical, output, "Bye!" );
+  die( "Bye!" );
+}
+
 
 static void
 test_compare_string() {
@@ -175,6 +226,8 @@ test_phy_port_to_string() {
 int
 main() {
   const UnitTest tests[] = {
+    unit_test_setup_teardown( test_die, setup, teardown ),
+
     unit_test( test_compare_string ),
     unit_test( test_hash_string ),
 

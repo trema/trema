@@ -30,6 +30,7 @@
 
 extern int ( *trema_fprintf )( FILE *stream, const char *format, ... );
 extern int ( *trema_vprintf )( const char *format, va_list ap );
+extern void ( *trema_abort )( void );
 
 
 #endif // TREMA_PRINTF_H

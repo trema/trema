@@ -46,12 +46,12 @@ bool finalize_log( void );
 bool set_logging_level( const char *level );
 extern int ( *get_logging_level )( void );
 
-void critical( const char *format, ... );
-void error( const char *format, ... );
-void warn( const char *format, ... );
-void notice( const char *format, ... );
-void info( const char *format, ... );
-void debug( const char *format, ... );
+extern void ( *critical )( const char *format, ... );
+extern void ( *error )( const char *format, ... );
+extern void ( *warn )( const char *format, ... );
+extern void ( *notice )( const char *format, ... );
+extern void ( *info )( const char *format, ... );
+extern void ( *debug )( const char *format, ... );
 
 
 #endif // LOG_H
