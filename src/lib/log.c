@@ -28,7 +28,7 @@
 #include <time.h>
 #include "bool.h"
 #include "log.h"
-#include "trema_printf.h"
+#include "trema_wrapper.h"
 #include "wrapper.h"
 
 

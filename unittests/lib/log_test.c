@@ -26,7 +26,7 @@
 #include "cmockery_trema.h"
 #include "log.h"
 #include "trema.h"
-#include "trema_printf.h"
+#include "trema_wrapper.h"
 #include "utility.h"
 
 
