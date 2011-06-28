@@ -21,7 +21,7 @@
 require "mkmf"
 
 
-$LDFLAGS = "-Wl,-Bsymbolic-functions"
+$LDFLAGS = "-Wl,-Bsymbolic"
 
 
 dir_config "trema"
