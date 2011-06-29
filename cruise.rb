@@ -74,7 +74,7 @@ end
 # Code coverage (gcov)
 ################################################################################
 
-$files_all = {}
+$c_files = {}
 
 
 class Testee
@@ -136,27 +136,34 @@ class Testee
 end
 
 
+def testees
+  $c_files.delete_if do | key, value |
+    File.basename( key ) == "trema_wrapper.c"
+  end
+end
+
+
 def files_tested
-  $files_all.values.select do | each |
+  testees.values.select do | each |
     each.coverage != 0.0
   end
 end
 
 
 def files_not_tested
-  $files_all.values - files_tested
+  testees.values - files_tested
 end
 
 
 def lines_total
-  $files_all.values.inject( 0 ) do | r, each |
+  testees.values.inject( 0 ) do | r, each |
     r += each.lines
   end
 end
 
 
 def lines_tested
-  $files_all.values.inject( 0 ) do | r, each |
+  testees.values.inject( 0 ) do | r, each |
     r += each.lines_tested
   end
 end
@@ -179,7 +186,7 @@ def gcov gcda, dir
   SubProcess.create do | shell |
     shell.on_stdout do | l |
       file = File.expand_path( $1 ) if /^File '(.*)'/=~ l
-      testee = $files_all[ file ]
+      testee = $c_files[ file ]
       if /^Lines executed:(.*)% of (.*)$/=~ l
         testee.coverage = $1.to_f
         testee.lines = $2.to_i
@@ -200,7 +207,7 @@ def measure_coverage
   Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark", "unittests" ) do | f |
     if /\.c$/=~ f
       path = File.expand_path( f )
-      $files_all[ path ] = Testee.new( path )
+      $c_files[ path ] = Testee.new( path )
     end
   end
   Dir.glob( "unittests/objects/*.gcda" ).each do | each |
@@ -226,7 +233,7 @@ end
 
 def coverage_ranking
   summary = StringIO.new
-  $files_all.values.sort_by do | each |
+  testees.values.sort_by do | each |
     each.coverage
   end.each do | each |
     summary.printf "  %45s (%4s LoC): %5.1f%%\n", each.name, each.lines, each.coverage
@@ -273,7 +280,7 @@ def show_summary
 
 #{ banner( "Summary" ) }
 - Total execution time = #{ ( Time.now - $start_time ).to_i } seconds
-- Overall coverage = #{ coverage }% (#{ files_not_tested.size }/#{ $files_all.size } files not yet tested)
+- Overall coverage = #{ coverage }% (#{ files_not_tested.size }/#{ testees.size } files not yet tested)
 
 
 EOF
