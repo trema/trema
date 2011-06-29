@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "log.h"
 #include "trema_wrapper.h"
 #include "utility.h"
