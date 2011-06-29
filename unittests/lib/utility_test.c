@@ -194,6 +194,15 @@ test_match_to_string() {
 
 
 static void
+test_match_to_string_fails_with_insufficient_buffer() {
+  char match_str[ 1 ];
+  struct ofp_match match;
+
+  assert_false( match_to_string( &match, match_str, sizeof( match_str ) ) );
+}
+
+
+static void
 test_phy_port_to_string() {
   char phy_port_str[ 256 ];
   char expected_phy_port_str[] = "port_no = 1, hw_addr =  01:02:03:04:05:06, name = GbE 0/1, config = 0x1, state = 0x1, curr = 0x4a0, advertised = 0x6bf, supported = 0x6bf, peer = 0x6bf";
@@ -216,6 +225,15 @@ test_phy_port_to_string() {
 
   assert_true( phy_port_to_string( &phy_port, phy_port_str, sizeof( phy_port_str ) ) );
   assert_string_equal( phy_port_str, expected_phy_port_str );
+}
+
+
+static void
+test_phy_port_to_string_fails_with_insufficient_buffer() {
+  char phy_port_str[ 1 ];
+  struct ofp_phy_port phy_port;
+
+  assert_false( phy_port_to_string( &phy_port, phy_port_str, sizeof( phy_port_str ) ) );
 }
 
 
@@ -243,7 +261,10 @@ main() {
     unit_test( test_string_to_datapath_id ),
 
     unit_test( test_match_to_string ),
+    unit_test( test_match_to_string_fails_with_insufficient_buffer ),
+
     unit_test( test_phy_port_to_string ),
+    unit_test( test_phy_port_to_string_fails_with_insufficient_buffer ),
   };
   return run_tests( tests );
 }
