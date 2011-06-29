@@ -1,4 +1,4 @@
-/*
+ /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include "trema_wrapper.h"
 #include "utility.h"
 #include "wrapper.h"
 
@@ -36,12 +37,6 @@
 #endif // free
 #define free( ptr ) _test_free( ptr, __FILE__, __LINE__ )
 extern void _test_free( void *const ptr, const char *file, const int line );
-
-#ifdef vasprintf
-#undef vasprintf
-#endif // vasprintf
-#define vasprintf mock_vasprintf
-extern int mock_vasprintf( char **strp, const char *fmt, va_list ap );
 
 #else // UNIT_TESTING
 
@@ -95,7 +90,7 @@ xasprintf( const char *format, ... ) {
 
   va_list args;
   va_start( args, format );
-  if ( vasprintf( &str, format, args ) < 0 ) {
+  if ( trema_vasprintf( &str, format, args ) < 0 ) {
     die( "Out of memory, vasprintf failed" );
   }
   va_end( args );

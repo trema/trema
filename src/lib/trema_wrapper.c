@@ -25,6 +25,7 @@
 
 int ( *trema_fprintf )( FILE *stream, const char *format, ... ) = fprintf;
 int ( *trema_vprintf )( const char *format, va_list ap ) = vprintf;
+int ( *trema_vasprintf )( char **strp, const char *fmt, va_list ap ) = vasprintf;
 void ( *trema_abort )( void ) = abort;
 
 

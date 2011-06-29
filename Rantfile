@@ -728,7 +728,6 @@ def libtrema_unit_tests
     :stat_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
     :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper ],
     :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_wrapper ],
-    :wrapper_test => [ :utility, :log, :trema_wrapper ],
   }
 end
 
@@ -781,6 +780,7 @@ tests = [
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
   "objects/unittests/utility_test",
+  "objects/unittests/wrapper_test",
 ]
 
 

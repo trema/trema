@@ -20,8 +20,8 @@
  */
 
 
-#ifndef TREMA_PRINTF_H
-#define TREMA_PRINTF_H
+#ifndef TREMA_WRAPPER_H
+#define TREMA_WRAPPER_H
 
 
 #include <stdarg.h>
@@ -30,10 +30,11 @@
 
 extern int ( *trema_fprintf )( FILE *stream, const char *format, ... );
 extern int ( *trema_vprintf )( const char *format, va_list ap );
+extern int ( *trema_vasprintf )( char **strp, const char *fmt, va_list ap );
 extern void ( *trema_abort )( void );
 
 
-#endif // TREMA_PRINTF_H
+#endif // TREMA_WRAPPER_H
 
 
 /*
