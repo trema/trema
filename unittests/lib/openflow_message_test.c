@@ -3272,12 +3272,15 @@ test_validate_stats_request_fails_if_message_is_NULL() {
 
 
 static void
-test_validate_stats_request_fails_if_message_is_not_stats_request() {
-  buffer *echo_request = create_echo_request( MY_TRANSACTION_ID, NULL );
+test_validate_stats_request_fails_with_unsupported_stats_type() {
+  buffer *broken_stats_request = create_vendor_stats_request( MY_TRANSACTION_ID, NO_FLAGS, VENDOR_ID, NULL );
+  struct ofp_stats_request *stats_request = ( struct ofp_stats_request * ) broken_stats_request->data;
+  const uint16_t unsupported_stats_type = ( uint16_t ) -2;
+  stats_request->type = htons( unsupported_stats_type );
 
-  assert_int_equal( validate_stats_request( echo_request ), ERROR_UNSUPPORTED_STATS_TYPE );
+  assert_int_equal( validate_stats_request( broken_stats_request ), ERROR_UNSUPPORTED_STATS_TYPE );
 
-  free_buffer( echo_request );
+  free_buffer( broken_stats_request );
 }
 
 
@@ -3483,12 +3486,15 @@ test_validate_stats_reply_fails_if_message_is_NULL() {
 
 
 static void
-test_validate_stats_reply_fails_if_message_is_not_stats_reply() {
-  buffer *echo_request = create_echo_request( MY_TRANSACTION_ID, NULL );
+test_validate_stats_reply_fails_with_unsupported_stats_type() {
+  buffer *broken_stats_reply = create_vendor_stats_reply( MY_TRANSACTION_ID, NO_FLAGS, VENDOR_ID, NULL );
+  struct ofp_stats_reply *stats_reply = ( struct ofp_stats_reply * ) broken_stats_reply->data;
+  const uint16_t unsupported_stats_type = ( uint16_t ) -2;
+  stats_reply->type = htons( unsupported_stats_type );
 
-  assert_int_equal( validate_stats_reply( echo_request ), ERROR_UNSUPPORTED_STATS_TYPE );
+  assert_int_equal( validate_stats_reply( broken_stats_reply ), ERROR_UNSUPPORTED_STATS_TYPE );
 
-  free_buffer( echo_request );
+  free_buffer( broken_stats_reply );
 }
 
 
@@ -6974,7 +6980,7 @@ main() {
     unit_test_setup_teardown( test_validate_stats_request_sucseed_with_OFPST_QUEUE_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_request_sucseed_with_OFPST_VENDOR_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_request_fails_if_message_is_NULL, init, teardown ),
-    unit_test_setup_teardown( test_validate_stats_request_fails_if_message_is_not_stats_request, init, teardown ),
+    unit_test_setup_teardown( test_validate_stats_request_fails_with_unsupported_stats_type, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_reply_with_OFPST_DESC_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_reply_with_OFPST_FLOW_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_reply_with_OFPST_AGGREGATE_message, init, teardown ),
@@ -6983,7 +6989,7 @@ main() {
     unit_test_setup_teardown( test_validate_stats_reply_with_OFPST_QUEUE_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_reply_with_OFPST_VENDOR_message, init, teardown ),
     unit_test_setup_teardown( test_validate_stats_reply_fails_if_message_is_NULL, init, teardown ),
-    unit_test_setup_teardown( test_validate_stats_reply_fails_if_message_is_not_stats_reply, init, teardown ),
+    unit_test_setup_teardown( test_validate_stats_reply_fails_with_unsupported_stats_type, init, teardown ),
     unit_test_setup_teardown( test_validate_barrier_reply, init, teardown ),
     unit_test_setup_teardown( test_validate_queue_get_config_reply, init, teardown ),
 

@@ -34,6 +34,7 @@
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "stat.h"
+#include "wrapper.h"
 
 
 /********************************************************************************
@@ -634,7 +635,7 @@ test_handle_switch_ready() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" ) );
 }
 
 
@@ -655,7 +656,7 @@ test_handle_switch_ready_with_simple_handler() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_ready_receive_succeeded" ) );
 }
 
 
@@ -1121,7 +1122,7 @@ test_send_openflow_message() {
                                strlen( SERVICE_NAME ) + 1 );
   expected_length = ( size_t ) ( header_length + sizeof( struct ofp_header ) );
 
-  expected_data = calloc( 1, expected_length );
+  expected_data = xcalloc( 1, expected_length );
 
   header = expected_data;
   header->datapath_id = htonll( DATAPATH_ID );
@@ -1144,8 +1145,8 @@ test_send_openflow_message() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( buffer );
-  free( expected_data );
-  free( delete_hash_entry( stats, "openflow_application_interface.hello_send_succeeded" ) );
+  xfree( expected_data );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.hello_send_succeeded" ) );
 }
 
 
@@ -1344,8 +1345,8 @@ test_handle_features_reply() {
   actions = ( ( 1 << OFPAT_OUTPUT ) | ( 1 << OFPAT_SET_VLAN_VID ) |
               ( 1 << OFPAT_SET_TP_SRC ) | ( 1 << OFPAT_SET_TP_DST ) );
 
-  phy_port[ 0 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
-  phy_port[ 1 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
+  phy_port[ 0 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
+  phy_port[ 1 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
 
   phy_port[ 0 ]->port_no = 1;
   memcpy( phy_port[ 0 ]->hw_addr, MAC_ADDR_X, sizeof( phy_port[ 0 ]->hw_addr ) );
@@ -1383,8 +1384,8 @@ test_handle_features_reply() {
   set_features_reply_handler( mock_features_reply_handler, USER_DATA );
   handle_features_reply( DATAPATH_ID, buffer );
 
-  free( phy_port[0] );
-  free( phy_port[1] );
+  xfree( phy_port[0] );
+  xfree( phy_port[1] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -1437,8 +1438,8 @@ test_handle_features_reply_if_handler_is_not_registered() {
   actions = ( ( 1 << OFPAT_OUTPUT ) | ( 1 << OFPAT_SET_VLAN_VID ) |
               ( 1 << OFPAT_SET_TP_SRC ) | ( 1 << OFPAT_SET_TP_DST ) );
 
-  phy_port[ 0 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
-  phy_port[ 1 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
+  phy_port[ 0 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
+  phy_port[ 1 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
 
   phy_port[ 0 ]->port_no = 1;
   memcpy( phy_port[ 0 ]->hw_addr, MAC_ADDR_X, sizeof( phy_port[ 0 ]->hw_addr ) );
@@ -1467,8 +1468,8 @@ test_handle_features_reply_if_handler_is_not_registered() {
 
   handle_features_reply( DATAPATH_ID, buffer );
 
-  free( phy_port[0] );
-  free( phy_port[1] );
+  xfree( phy_port[0] );
+  xfree( phy_port[1] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -1783,8 +1784,8 @@ test_handle_stats_reply_if_type_is_OFPST_FLOW() {
 
   stats_len = offsetof( struct ofp_flow_stats, actions ) + sizeof( struct ofp_action_output );
 
-  stats[ 0 ] = calloc( 1, stats_len );
-  stats[ 1 ] = calloc( 1, stats_len );
+  stats[ 0 ] = xcalloc( 1, stats_len );
+  stats[ 1 ] = xcalloc( 1, stats_len );
 
   stats[ 0 ]->length = stats_len;
   stats[ 0 ]->table_id = 1;
@@ -1813,7 +1814,7 @@ test_handle_stats_reply_if_type_is_OFPST_FLOW() {
   append_to_tail( &flow_stats, stats[ 0 ] );
   append_to_tail( &flow_stats, stats[ 1 ] );
 
-  expected_data = calloc( 1, ( size_t ) ( stats_len * 2 ) );
+  expected_data = xcalloc( 1, ( size_t ) ( stats_len * 2 ) );
   memcpy( expected_data, stats[ 0 ], stats_len );
   memcpy( ( char * ) expected_data + stats_len, stats[ 1 ], stats_len );
 
@@ -1834,10 +1835,10 @@ test_handle_stats_reply_if_type_is_OFPST_FLOW() {
   set_stats_reply_handler( mock_stats_reply_handler, USER_DATA );
   handle_stats_reply( DATAPATH_ID, buffer );
 
-  free( stats[ 0 ] );
-  free( stats[ 1 ] );
+  xfree( stats[ 0 ] );
+  xfree( stats[ 1 ] );
   delete_list( flow_stats );
-  free( expected_data );
+  xfree( expected_data );
   free_buffer( buffer );
 }
 
@@ -1890,8 +1891,8 @@ test_handle_stats_reply_if_type_is_OFPST_TABLE() {
 
   stats_len = sizeof( struct ofp_table_stats );
 
-  stats[ 0 ] = calloc( 1, stats_len );
-  stats[ 1 ] = calloc( 1, stats_len );
+  stats[ 0 ] = xcalloc( 1, stats_len );
+  stats[ 1 ] = xcalloc( 1, stats_len );
 
   stats[ 0 ]->table_id = 1;
   sprintf( stats[ 0 ]->name, "Table 1" );
@@ -1909,7 +1910,7 @@ test_handle_stats_reply_if_type_is_OFPST_TABLE() {
   append_to_tail( &table_stats, stats[ 0 ] );
   append_to_tail( &table_stats, stats[ 1 ] );
 
-  expected_data = calloc( 1, ( size_t ) ( stats_len * 2 ) );
+  expected_data = xcalloc( 1, ( size_t ) ( stats_len * 2 ) );
   memcpy( expected_data, stats[ 0 ], stats_len );
   memcpy( ( char * ) expected_data + stats_len, stats[ 1 ], stats_len );
 
@@ -1930,10 +1931,10 @@ test_handle_stats_reply_if_type_is_OFPST_TABLE() {
   set_stats_reply_handler( mock_stats_reply_handler, USER_DATA );
   handle_stats_reply( DATAPATH_ID, buffer );
 
-  free( stats[ 0 ] );
-  free( stats[ 1 ] );
+  xfree( stats[ 0 ] );
+  xfree( stats[ 1 ] );
   delete_list( table_stats );
-  free( expected_data );
+  xfree( expected_data );
   free_buffer( buffer );
 }
 
@@ -1951,8 +1952,8 @@ test_handle_stats_reply_if_type_is_OFPST_PORT() {
 
   stats_len = sizeof( struct ofp_port_stats );
 
-  stats[ 0 ] = calloc( 1, stats_len );
-  stats[ 1 ] = calloc( 1, stats_len );
+  stats[ 0 ] = xcalloc( 1, stats_len );
+  stats[ 1 ] = xcalloc( 1, stats_len );
 
   stats[ 0 ]->port_no = 1;
   stats[ 0 ]->rx_packets = 10000;
@@ -1975,7 +1976,7 @@ test_handle_stats_reply_if_type_is_OFPST_PORT() {
   append_to_tail( &port_stats, stats[ 0 ] );
   append_to_tail( &port_stats, stats[ 1 ] );
 
-  expected_data = calloc( 1, ( size_t ) ( stats_len * 2 ) );
+  expected_data = xcalloc( 1, ( size_t ) ( stats_len * 2 ) );
   memcpy( expected_data, stats[ 0 ], stats_len );
   memcpy( ( char * ) expected_data + stats_len, stats[ 1 ], stats_len );
 
@@ -1996,10 +1997,10 @@ test_handle_stats_reply_if_type_is_OFPST_PORT() {
   set_stats_reply_handler( mock_stats_reply_handler, USER_DATA );
   handle_stats_reply( DATAPATH_ID, buffer );
 
-  free( stats[ 0 ] );
-  free( stats[ 1 ] );
+  xfree( stats[ 0 ] );
+  xfree( stats[ 1 ] );
   delete_list( port_stats );
-  free( expected_data );
+  xfree( expected_data );
   free_buffer( buffer );
 }
 
@@ -2017,8 +2018,8 @@ test_handle_stats_reply_if_type_is_OFPST_QUEUE() {
 
   stats_len = sizeof( struct ofp_queue_stats );
 
-  stats[ 0 ] = calloc( 1, stats_len );
-  stats[ 1 ] = calloc( 1, stats_len );
+  stats[ 0 ] = xcalloc( 1, stats_len );
+  stats[ 1 ] = xcalloc( 1, stats_len );
 
   stats[ 0 ]->port_no = 1;
   stats[ 0 ]->queue_id = 2;
@@ -2033,7 +2034,7 @@ test_handle_stats_reply_if_type_is_OFPST_QUEUE() {
   append_to_tail( &queue_stats, stats[ 0 ] );
   append_to_tail( &queue_stats, stats[ 1 ] );
 
-  expected_data = calloc( 1, ( size_t ) ( stats_len * 2 ) );
+  expected_data = xcalloc( 1, ( size_t ) ( stats_len * 2 ) );
   memcpy( expected_data, stats[ 0 ], stats_len );
   memcpy( ( char * ) expected_data + stats_len, stats[ 1 ], stats_len );
 
@@ -2054,10 +2055,10 @@ test_handle_stats_reply_if_type_is_OFPST_QUEUE() {
   set_stats_reply_handler( mock_stats_reply_handler, USER_DATA );
   handle_stats_reply( DATAPATH_ID, buffer );
 
-  free( stats[ 0 ] );
-  free( stats[ 1 ] );
+  xfree( stats[ 0 ] );
+  xfree( stats[ 1 ] );
   delete_list( queue_stats );
-  free( expected_data );
+  xfree( expected_data );
   free_buffer( buffer );
 }
 
@@ -2075,7 +2076,7 @@ test_handle_stats_reply_if_type_is_OFPST_VENDOR() {
   append_back_buffer( body, 128 );
   memset( body->data, 0xa1, body->length );
 
-  expected_data = calloc( 1, ( size_t ) ( body->length + sizeof( uint32_t ) ) );
+  expected_data = xcalloc( 1, ( size_t ) ( body->length + sizeof( uint32_t ) ) );
   memcpy( expected_data, &vendor, sizeof( uint32_t ) );
   memcpy( ( char * ) expected_data + sizeof( uint32_t ), body->data, body->length );
 
@@ -2096,7 +2097,7 @@ test_handle_stats_reply_if_type_is_OFPST_VENDOR() {
   set_stats_reply_handler( mock_stats_reply_handler, USER_DATA );
   handle_stats_reply( DATAPATH_ID, buffer );
 
-  free( expected_data );
+  xfree( expected_data );
   free_buffer( body );
   free_buffer( buffer );
 }
@@ -2240,8 +2241,8 @@ test_handle_queue_get_config_reply() {
   struct ofp_queue_prop_header *prop_header;
 
   queue_len = offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header );
-  queue[ 0 ] = calloc( 1, queue_len );
-  queue[ 1 ] = calloc( 1, queue_len );
+  queue[ 0 ] = xcalloc( 1, queue_len );
+  queue[ 1 ] = xcalloc( 1, queue_len );
 
   queue[ 0 ]->queue_id = 1;
   queue[ 0 ]->len = 16;
@@ -2271,8 +2272,8 @@ test_handle_queue_get_config_reply() {
   set_queue_get_config_reply_handler( mock_queue_get_config_reply_handler, USER_DATA );
   handle_queue_get_config_reply( DATAPATH_ID, buffer );
 
-  free( queue[ 0 ] );
-  free( queue[ 1 ] );
+  xfree( queue[ 0 ] );
+  xfree( queue[ 1 ] );
   delete_list( queues );
   free_buffer( buffer );
 }
@@ -2302,8 +2303,8 @@ test_handle_queue_get_config_reply_if_handler_is_not_registered() {
   struct ofp_queue_prop_header *prop_header;
 
   queue_len = offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header );
-  queue[ 0 ] = calloc( 1, queue_len );
-  queue[ 1 ] = calloc( 1, queue_len );
+  queue[ 0 ] = xcalloc( 1, queue_len );
+  queue[ 1 ] = xcalloc( 1, queue_len );
 
   queue[ 0 ]->queue_id = 1;
   queue[ 0 ]->len = 16;
@@ -2326,8 +2327,8 @@ test_handle_queue_get_config_reply_if_handler_is_not_registered() {
   // FIXME
   handle_queue_get_config_reply( DATAPATH_ID, buffer );
 
-  free( queue[ 0 ] );
-  free( queue[ 1 ] );
+  xfree( queue[ 0 ] );
+  xfree( queue[ 1 ] );
   delete_list( queues );
   free_buffer( buffer );
 }
@@ -2371,7 +2372,7 @@ test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_connected_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_connected_receive_succeeded" ) );
 }
 
 
@@ -2395,7 +2396,7 @@ test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_disconnected_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_disconnected_receive_succeeded" ) );
 }
 
 
@@ -2444,7 +2445,7 @@ test_handle_switch_events_if_unhandled_message_type() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.undefined_switch_event_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.undefined_switch_event_receive_succeeded" ) );
 }
 
 
@@ -2487,7 +2488,7 @@ test_handle_openflow_message() {
 
     free_buffer( data );
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.error_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.error_receive_succeeded" ) );
   }
 
   // vendor
@@ -2517,7 +2518,7 @@ test_handle_openflow_message() {
 
     free_buffer( data );
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.vendor_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.vendor_receive_succeeded" ) );
   }
 
   // features_reply
@@ -2535,8 +2536,8 @@ test_handle_openflow_message() {
     actions = ( ( 1 << OFPAT_OUTPUT ) | ( 1 << OFPAT_SET_VLAN_VID ) |
                 ( 1 << OFPAT_SET_TP_SRC ) | ( 1 << OFPAT_SET_TP_DST ) );
 
-    phy_port[ 0 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
-    phy_port[ 1 ] = calloc( 1, sizeof( struct ofp_phy_port ) );
+    phy_port[ 0 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
+    phy_port[ 1 ] = xcalloc( 1, sizeof( struct ofp_phy_port ) );
 
     phy_port[ 0 ]->port_no = 1;
     memcpy( phy_port[ 0 ]->hw_addr, MAC_ADDR_X, sizeof( phy_port[ 0 ]->hw_addr ) );
@@ -2579,11 +2580,11 @@ test_handle_openflow_message() {
     stat = lookup_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" );
     assert_int_equal( ( int ) stat->value, 1 );
 
-    free( phy_port[0] );
-    free( phy_port[1] );
+    xfree( phy_port[0] );
+    xfree( phy_port[1] );
     delete_list( ports );
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" ) );
   }
 
   // get_config_reply
@@ -2609,7 +2610,7 @@ test_handle_openflow_message() {
     assert_int_equal( ( int ) stat->value, 1 );
 
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.get_config_reply_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.get_config_reply_receive_succeeded" ) );
   }
 
   // packet_in
@@ -2651,7 +2652,7 @@ test_handle_openflow_message() {
 
     free_buffer( data );
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.packet_in_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.packet_in_receive_succeeded" ) );
   }
 
   // flow_removed
@@ -2692,7 +2693,7 @@ test_handle_openflow_message() {
     assert_int_equal( ( int ) stat->value, 1 );
 
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.flow_removed_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.flow_removed_receive_succeeded" ) );
   }
 
   // port_status
@@ -2729,7 +2730,7 @@ test_handle_openflow_message() {
     assert_int_equal( ( int ) stat->value, 1 );
 
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.port_status_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.port_status_receive_succeeded" ) );
   }
 
   // stats_reply
@@ -2782,7 +2783,7 @@ test_handle_openflow_message() {
     assert_int_equal( ( int ) stat->value, 1 );
 
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.stats_reply_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.stats_reply_receive_succeeded" ) );
   }
 
   // barrier_reply
@@ -2804,7 +2805,7 @@ test_handle_openflow_message() {
     assert_int_equal( ( int ) stat->value, 1 );
 
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.barrier_reply_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.barrier_reply_receive_succeeded" ) );
   }
 
   // queue_get_config_reply
@@ -2817,8 +2818,8 @@ test_handle_openflow_message() {
     struct ofp_queue_prop_header *prop_header;
 
     queue_len = offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header );
-    queue[ 0 ] = calloc( 1, queue_len );
-    queue[ 1 ] = calloc( 1, queue_len );
+    queue[ 0 ] = xcalloc( 1, queue_len );
+    queue[ 1 ] = xcalloc( 1, queue_len );
 
     queue[ 0 ]->queue_id = 1;
     queue[ 0 ]->len = 16;
@@ -2854,11 +2855,11 @@ test_handle_openflow_message() {
     stat = lookup_hash_entry( stats, "openflow_application_interface.queue_get_config_reply_receive_succeeded" );
     assert_int_equal( ( int ) stat->value, 1 );
 
-    free( queue[ 0 ] );
-    free( queue[ 1 ] );
+    xfree( queue[ 0 ] );
+    xfree( queue[ 1 ] );
     delete_list( queues );
     free_buffer( buffer );
-    free( delete_hash_entry( stats, "openflow_application_interface.queue_get_config_reply_receive_succeeded" ) );
+    xfree( delete_hash_entry( stats, "openflow_application_interface.queue_get_config_reply_receive_succeeded" ) );
   }
 
   // unhandled message
@@ -2963,7 +2964,7 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_MESSAGE() {
 
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.barrier_reply_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.barrier_reply_receive_succeeded" ) );
 }
 
 
@@ -2981,7 +2982,7 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_connected_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_connected_receive_succeeded" ) );
 }
 
 
@@ -3005,7 +3006,7 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.switch_disconnected_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.switch_disconnected_receive_succeeded" ) );
 }
 
 
@@ -3041,7 +3042,7 @@ test_handle_message_if_unhandled_message_type() {
   assert_int_equal( ( int ) stat->value, 1 );
 
   free_buffer( data );
-  free( delete_hash_entry( stats, "openflow_application_interface.undefined_switch_event_receive_succeeded" ) );
+  xfree( delete_hash_entry( stats, "openflow_application_interface.undefined_switch_event_receive_succeeded" ) );
 }
 
 

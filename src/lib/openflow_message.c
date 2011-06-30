@@ -2507,6 +2507,9 @@ validate_stats_request( const buffer *message ) {
   assert( message != NULL );
 
   request = ( struct ofp_stats_request * ) message->data;
+
+  // TODO: if ( request->header.type != OFPT_STATS_REQUEST ) { ... }
+
   switch ( ntohs( request->type ) ) {
   case OFPST_DESC:
     return validate_desc_stats_request( message );
@@ -2871,6 +2874,9 @@ validate_stats_reply( const buffer *message ) {
   assert( message->data != NULL );
 
   reply = ( struct ofp_stats_reply * ) message->data;
+
+  // TODO: if ( reply->header.type != OFPT_STATS_REPLY ) { ... }
+
   switch ( ntohs( reply->type ) ) {
   case OFPST_DESC:
     return validate_desc_stats_reply( message );

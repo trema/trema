@@ -26,6 +26,7 @@
 #include "cmockery_trema.h"
 #include "packet_info.h"
 #include "packet_parser.h"
+#include "wrapper.h"
 
 
 const char macda[] = {
@@ -98,7 +99,7 @@ setup_dummy_ether_arp_packet() {
   arp->ar_pln = IPV4_ADDRLEN;
   arp->ar_op = htons( ARPOP_REPLY );
 
-  free( arp_buffer->user_data );
+  xfree( arp_buffer->user_data );
   arp_buffer->user_data = NULL;
 
   remove_front_buffer( arp_buffer, ETH_PREPADLEN );
@@ -123,7 +124,7 @@ setup_dummy_ether_ipv4_packet() {
   ipv4->frag_off = htons( 0 );
   ipv4->check = get_checksum( ( uint16_t * ) packet_info( ipv4_buffer )->l3_data.ipv4, sizeof( ipv4_header_t ) );
 
-  free( ipv4_buffer->user_data );
+  xfree( ipv4_buffer->user_data );
   ipv4_buffer->user_data = NULL;
 
   remove_front_buffer( ipv4_buffer, ETH_PREPADLEN );

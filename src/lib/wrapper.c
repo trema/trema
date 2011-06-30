@@ -27,25 +27,9 @@
 #include "wrapper.h"
 
 
-// If this is being built for a unit test.
-#ifdef UNIT_TESTING
-
-/* Redirect free to test_free() so cmockery can check for memory
- * leaks. */
-#ifdef free
-#undef free
-#endif // free
-#define free( ptr ) _test_free( ptr, __FILE__, __LINE__ )
-extern void _test_free( void *const ptr, const char *file, const int line );
-
-#else // UNIT_TESTING
-
-#include "utility.h"
-
-
 void *
 xmalloc( size_t size ) {
-  void *ret = malloc( size );
+  void *ret = trema_malloc( size );
 
   if ( !ret ) {
     die( "Out of memory, malloc failed" );
@@ -57,7 +41,7 @@ xmalloc( size_t size ) {
 
 void *
 xcalloc( size_t nmemb, size_t size ) {
-  void *ret = calloc( nmemb, size );
+  void *ret = trema_calloc( nmemb, size );
 
   if ( !ret ) {
     die( "Out of memory, calloc failed" );
@@ -65,12 +49,10 @@ xcalloc( size_t nmemb, size_t size ) {
   return ret;
 }
 
-#endif // UNIT_TESTING
-
 
 void
 xfree( void *ptr ) {
-  free( ptr );
+  trema_free( ptr );
 }
 
 
