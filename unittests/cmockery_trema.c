@@ -18,16 +18,25 @@
  */
 
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "cmockery_trema.h"
 
 
-int ( *trema_fprintf )( FILE *stream, const char *format, ... ) = fprintf;
-int ( *trema_vprintf )( const char *format, va_list ap ) = vprintf;
-int ( *trema_vasprintf )( char **strp, const char *fmt, va_list ap ) = vasprintf;
+void *
+test_malloc( size_t size ) {
+  return _test_malloc( size, __FILE__, __LINE__ );
+}
 
-void ( *trema_abort )( void ) = abort;
+
+void *
+test_calloc( size_t nmemb, size_t size ) {
+  return _test_calloc( nmemb, size, __FILE__, __LINE__ );
+}
+
+
+void
+test_free( void *ptr ) {
+  _test_free( ptr, __FILE__, __LINE__ );
+}
 
 
 /*

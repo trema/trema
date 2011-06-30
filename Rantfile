@@ -784,12 +784,17 @@ tests = [
 ]
 
 
+file "objects/unittests/cmockery_trema.o" do | t |
+  sys "gcc --coverage -c unittests/#{ File.basename t.name, ".o" }.c -o #{ t.name } #{ var :CFLAGS } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
+end
+
+
 tests.each do | each |
   task :build_unittests => [ "coverage:libtrema", each ]
-  task each => [ "coverage:libtrema", "vendor:cmockery", "#{ Trema.home }/objects/unittests" ]
+  task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
   file each do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
-    sys "gcc --coverage -o #{ t.name } #{ each }.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
+    sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
   end
 end
 

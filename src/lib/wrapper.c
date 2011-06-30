@@ -27,9 +27,9 @@
 #include "wrapper.h"
 
 
-void *
-xmalloc( size_t size ) {
-  void *ret = trema_malloc( size );
+static void *
+_xmalloc( size_t size ) {
+  void *ret = malloc( size );
 
   if ( !ret ) {
     die( "Out of memory, malloc failed" );
@@ -37,23 +37,26 @@ xmalloc( size_t size ) {
   memset( ret, 0xA5, size );
   return ret;
 }
+void * ( *xmalloc )( size_t size ) = _xmalloc;
 
 
-void *
-xcalloc( size_t nmemb, size_t size ) {
-  void *ret = trema_calloc( nmemb, size );
+static void *
+_xcalloc( size_t nmemb, size_t size ) {
+  void *ret = calloc( nmemb, size );
 
   if ( !ret ) {
     die( "Out of memory, calloc failed" );
   }
   return ret;
 }
+void * ( *xcalloc )( size_t nmemb, size_t size ) = _xcalloc;
 
 
-void
-xfree( void *ptr ) {
-  trema_free( ptr );
+static void
+_xfree( void *ptr ) {
+  free( ptr );
 }
+void ( *xfree )( void *ptr ) = _xfree;
 
 
 char *

@@ -98,6 +98,9 @@ setup() {
 
   original_die = die;
   die = mock_die;
+  xmalloc = test_malloc;
+  xcalloc = test_calloc;
+  xfree = test_free;
   trema_abort = mock_abort;
   trema_vprintf = mock_vprintf;
   trema_fprintf = mock_fprintf;

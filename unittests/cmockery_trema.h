@@ -37,6 +37,26 @@
 
 
 /********************************************************************************
+ * Dynamic allocators with leak detection
+ ********************************************************************************/
+
+#ifdef test_malloc
+#undef test_malloc
+#endif
+void *test_malloc( size_t size );
+
+#ifdef test_calloc
+#undef test_calloc
+#endif
+void *test_calloc( size_t nmemb, size_t size );
+
+#ifdef test_free
+#undef test_free
+#endif
+void test_free( void *ptr );
+
+
+/********************************************************************************
  * Relax cmockery's restrictions to avoid warnings.
  * See also: http://bit.ly/iw9ZbB
  ********************************************************************************/
@@ -75,3 +95,11 @@
 
 
 #endif /* CMOCKERY_TREMA_H */
+
+
+/*
+ * Local variables:
+ * c-basic-offset: 2
+ * indent-tabs-mode: nil
+ * End:
+ */
