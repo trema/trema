@@ -29,7 +29,7 @@
 
 static void *
 _xmalloc( size_t size ) {
-  void *ret = malloc( size );
+  void *ret = trema_malloc( size );
 
   if ( !ret ) {
     die( "Out of memory, malloc failed" );
@@ -42,7 +42,7 @@ void * ( *xmalloc )( size_t size ) = _xmalloc;
 
 static void *
 _xcalloc( size_t nmemb, size_t size ) {
-  void *ret = calloc( nmemb, size );
+  void *ret = trema_calloc( nmemb, size );
 
   if ( !ret ) {
     die( "Out of memory, calloc failed" );

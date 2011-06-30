@@ -25,20 +25,74 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "cmockery.h"
+#include "checks.h"
+#include "cmockery_trema.h"
+#include "trema_wrapper.h"
 #include "wrapper.h"
 
 
 /********************************************************************************
- * Mock function.
+ * Mock functions.
  ********************************************************************************/
 
-int
-mock_vasprintf( char **strp, const char *fmt, va_list ap ) {
-  const size_t buffer_length = 1024;
-  *strp = xmalloc( buffer_length );
-  memset( *strp, '\0', buffer_length );
-  return vsprintf( *strp, fmt, ap );
+static void *
+fail_malloc( size_t size ) {
+  UNUSED( size );
+  return NULL;
+}
+
+
+static void *
+fail_calloc( size_t nmemb, size_t size ) {
+  UNUSED( nmemb );
+  UNUSED( size );
+  return NULL;
+}
+
+
+static void ( *original_die )( const char *format, ... );
+
+static void
+mock_die( const char *format, ... ) {
+  char output[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( output, format, args );
+  va_end( args );
+  check_expected( output );
+
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
+
+static int
+fail_vasprintf( char **strp, const char *fmt, va_list ap ) {
+  UNUSED( strp );
+  UNUSED( fmt );
+  UNUSED( ap );
+  return -1;
+}
+
+
+/********************************************************************************
+ * Setup and teardown
+ ********************************************************************************/
+
+static void
+setup() {
+  trema_malloc = fail_malloc;
+  trema_calloc = fail_calloc;
+  trema_vasprintf = fail_vasprintf;
+  original_die = die;
+  die = mock_die;
+}
+
+
+static void
+teardown() {
+  trema_malloc = malloc;
+  trema_calloc = calloc;
+  trema_vasprintf = vasprintf;
+  die = original_die;
 }
 
 
@@ -54,10 +108,24 @@ test_xmalloc_and_xfree() {
 
 
 static void
+test_xmalloc_fail() {
+  expect_string( mock_die, output, "Out of memory, malloc failed" );
+  expect_assert_failure( xmalloc( 1 ) );
+}
+
+
+static void
 test_xcalloc_and_xfree() {
   void *mem = xcalloc( 1, 1 );
   assert_int_equal( 0, ( ( char * ) mem )[ 0 ] );
   xfree( mem );
+}
+
+
+static void
+test_xcalloc_fail() {
+  expect_string( mock_die, output, "Out of memory, calloc failed" );
+  expect_assert_failure( xcalloc( 1, 1 ) );
 }
 
 
@@ -79,6 +147,13 @@ test_xasprintf() {
 }
 
 
+static void
+test_xasprintf_fail() {
+  expect_string( mock_die, output, "Out of memory, vasprintf failed" );
+  expect_assert_failure( xasprintf( "FAIL" ) );
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -87,9 +162,15 @@ int
 main() {
   const UnitTest tests[] = {
     unit_test( test_xmalloc_and_xfree ),
+    unit_test_setup_teardown( test_xmalloc_fail, setup, teardown ),
+
     unit_test( test_xcalloc_and_xfree ),
+    unit_test_setup_teardown( test_xcalloc_fail, setup, teardown ),
+
     unit_test( test_xstrdup ),
+
     unit_test( test_xasprintf ),
+    unit_test_setup_teardown( test_xasprintf_fail, setup, teardown ),
   };
   return run_tests( tests );
 }
