@@ -626,7 +626,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
     }
   }
   else {
-    error( "Packet-In from invalid port ( in_port = %#u ).", in_port );
+    error( "Packet-In from invalid port ( in_port = %u ).", in_port );
     return;
   }
 
