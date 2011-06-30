@@ -205,7 +205,8 @@ started() {
 static void
 check_initialized() {
   if ( !started() ) {
-    die( "Logger is not initialized. Call init_log() first" );
+    // We can't call die() here because die() calls critical() internally.
+    trema_abort();
   }
 }
 

@@ -48,6 +48,11 @@ mock_die( const char *format, ... ) {
   mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
 
 
+static void
+mock_abort() {
+  mock_assert( false, "mock_abort", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
+
 static int
 mock_vprintf( const char *format, va_list ap ) {
   char output[ 256 ];
@@ -93,6 +98,7 @@ setup() {
 
   original_die = die;
   die = mock_die;
+  trema_abort = mock_abort;
   trema_vprintf = mock_vprintf;
   trema_fprintf = mock_fprintf;
 }
@@ -118,6 +124,7 @@ teardown() {
   reset_LOGGING_LEVEL();
 
   die = original_die;
+  trema_abort = abort;
   trema_vprintf = vprintf;
   trema_fprintf = fprintf;
 }
@@ -161,7 +168,6 @@ test_set_logging_level_fail_with_invalid_value() {
 
 void
 test_set_logging_level_die_if_no_init() {
-  expect_string( mock_die, output, "Logger is not initialized. Call init_log() first" );
   expect_assert_failure( set_logging_level( "DEBUG" ) );
 }
 
