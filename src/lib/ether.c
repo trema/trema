@@ -54,7 +54,7 @@ parse_ether( buffer *buf ) {
 
   size_t frame_length = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l2_data.l2 ) - ( char * ) buf->data ) - ETH_PREPADLEN;
   ether_header_t *eth = packet_info( buf )->l2_data.eth;
-  size_t ether_length = sizeof( *eth ) - ETH_PREPADLEN;
+  size_t ether_length = sizeof( ether_header_t ) - ETH_PREPADLEN;
   if ( frame_length < ether_length ) {
     debug( "Frame length is shorter than the length of an Ethernet header ( frame length = %u ).", frame_length );
     return false;
@@ -77,7 +77,7 @@ parse_ether( buffer *buf ) {
   vlantag_header_t *vlan_tag = ( void * ) ( eth + 1 );
   uint8_t next_vlan_tags = 0;
   while ( type == ETH_ETHTYPE_TPID ) {
-    ether_length += sizeof( *vlan_tag );
+    ether_length += sizeof( vlantag_header_t );
     if ( frame_length < ether_length ) {
       debug( "Too short 802.1Q frame ( frame length = %u ).", frame_length );
       return false;
@@ -89,10 +89,20 @@ parse_ether( buffer *buf ) {
   }
 
   if ( type <= ETH_ETHTYPE_8023 ) {
-    snap_header_t *snap = ( void * ) vlan_tag;
-    ether_length += sizeof( *snap );
+    snap_header_t *snap = ( snap_header_t * ) vlan_tag;
+
+    // check frame length first
+    if ( snap->llc[ 0 ] == 0xaa && snap->llc[ 1 ] == 0xaa ) {
+      // LLC header with SNAP
+      ether_length += sizeof( snap_header_t );
+    }
+    else {
+      // LLC header without SNAP
+      ether_length += offsetof( snap_header_t, oui );
+    }
     if ( frame_length < ether_length ) {
-      debug( "LLC without SNAP or too short SNAP frame ( frame length = %u ).", frame_length );
+      debug( "Too short LLC/SNAP frame ( minimun frame length = %u, frame length = %u ).",
+             ether_length, frame_length );
       return false;
     }
     if ( frame_length < ( size_t ) type ) {
@@ -100,20 +110,25 @@ parse_ether( buffer *buf ) {
              "( frame length = %u, length field value = %u ).", frame_length, type );
       return false;
     }
-    if ( ( snap->llc[ 0 ] == 0xaa ) && ( snap->llc[ 1 ] == 0xaa ) ) {
-      if ( snap->llc[ 2 ] == 0x03 || snap->llc[ 2 ] == 0xF3 || snap->llc[ 2 ] == 0xE3
-           || snap->llc[ 2 ] == 0xBF || snap->llc[ 2 ] == 0xAF ) {
+
+    // check header field values
+    if ( snap->llc[ 0 ] == 0xaa && snap->llc[ 1 ] == 0xaa ) {
+      // LLC header with SNAP
+      if ( snap->llc[ 2 ] == 0x03 || snap->llc[ 2 ] == 0xf3 || snap->llc[ 2 ] == 0xe3
+           || snap->llc[ 2 ] == 0xbf || snap->llc[ 2 ] == 0xaf ) {
         type = ntohs( snap->type );
-      } else {
+      }
+      else {
         debug( "Unexpected SNAP frame ( length = %u, llc = 0x%02x%02x%02x, oui = 0x%02x%02x%02x, type = %u ).",
                type, snap->llc[ 0 ], snap->llc[ 1 ], snap->llc[ 2 ],
                snap->oui[ 0 ], snap->oui[ 1 ], snap->oui[ 2 ], ntohs( snap->type ) );
         return false;
       }
-    } else {
-      debug( "Unhandled 802.3 frame ( length = %u, llc = 0x%02x%02x%02x, oui = 0x%02x%02x%02x, type = %u ).",
-             type, snap->llc[ 0 ], snap->llc[ 1 ], snap->llc[ 2 ],
-             snap->oui[ 0 ], snap->oui[ 1 ], snap->oui[ 2 ], ntohs( snap->type ) );
+    }
+    else {
+      // LLC header without SNAP
+      debug( "Unhandled 802.3 frame ( length = %u, llc = 0x%02x%02x%02x ).",
+             type, snap->llc[ 0 ], snap->llc[ 1 ], snap->llc[ 2 ] );
       type = ETH_ETHTYPE_UKNOWN;
     }
   }
