@@ -43,8 +43,22 @@ extern void mock_assert( const int result, const char *const expression, const c
 #endif // UNIT_TESTING
 
 
+// Undef Ruby's xmalloc()
+#ifdef xmalloc
+#undef xmalloc
+#endif
 void *xmalloc( size_t size );
+
+// Undef Ruby's xcalloc()
+#ifdef xcalloc
+#undef xcalloc
+#endif
 void *xcalloc( size_t nmemb, size_t size );
+
+// Undef Ruby's xfree()
+#ifdef xfree
+#undef xfree
+#endif
 void xfree( void *ptr );
 
 char *xstrdup( const char *s );
