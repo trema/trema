@@ -266,6 +266,7 @@ main() {
     unit_test( test_phy_port_to_string ),
     unit_test( test_phy_port_to_string_fails_with_insufficient_buffer ),
   };
+  setup_leak_detector();
   return run_tests( tests );
 }
 
