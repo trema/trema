@@ -333,6 +333,7 @@ main() {
     unit_test_setup_teardown( test_delete_dlist_aborts_with_NULL_dlist,
                               setup, teardown ),
   };
+  setup_leak_detector();
   return run_tests( tests );
 }
 
