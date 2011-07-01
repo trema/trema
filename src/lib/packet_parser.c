@@ -25,16 +25,6 @@
 #include "wrapper.h"
 
 
-#ifdef UNIT_TESTING
-
-#ifdef warn
-#undef warn
-#endif
-#define warn( ... )
-
-#endif // UNIT_TESTING
-
-
 uint16_t
 get_checksum( uint16_t *pos, uint32_t size ) {
   assert( pos != NULL );

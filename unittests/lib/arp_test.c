@@ -34,26 +34,6 @@
 const unsigned int padding_size = 46 - sizeof( arp_header_t );
 
 
-/******************************************************************************
- * Mock                                                                       
- ******************************************************************************/
-
-void
-mock_die( char *format, ... ) {
-  UNUSED( format );
-}
-
-
-/********************************************************************************
- * Mock function.
- ********************************************************************************/
-
-void
-mock_debug( const char *format, ... ) {
-  UNUSED( format );
-}
-
-
 /********************************************************************************
  * Setup and teardown function.
  ********************************************************************************/
@@ -184,23 +164,6 @@ test_arp_reply_succeeds() {
 }
 
 
-static void
-test_valid_arp_packet_fails_if_arp_data_is_NULL() {
-  buffer *buffer = setup_dummy_arp_packet( );
-  packet_info( buffer )->l3_data.arp = NULL;
-
-  expect_assert_failure( valid_arp_packet( buffer ) );
-
-  free_packet( buffer );
-}
-
-
-static void
-test_valid_arp_packet_fails_if_buffer_is_NULL() {
-  expect_assert_failure( valid_arp_packet( NULL ) );
-}
-
-
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -216,9 +179,9 @@ main() {
     unit_test( test_valid_arp_packet_fails_if_hw_size_is_no_mac_address_size ),
     unit_test( test_valid_arp_packet_fails_if_protocl_size_is_no_ip_address_size ),
     unit_test( test_valid_arp_packet_fails_if_operation_is_no_request_reply ),
-    unit_test( test_valid_arp_packet_fails_if_arp_data_is_NULL ),
-    unit_test( test_valid_arp_packet_fails_if_buffer_is_NULL ),
   };
+  stub_logger();
+  setup_leak_detector();
   return run_tests( tests );
 }
 

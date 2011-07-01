@@ -43,6 +43,9 @@
 void setup_leak_detector( void );
 void teardown_leak_detector( void );
 
+void stub_logger( void );
+void unstub_logger( void );
+
 
 /********************************************************************************
  * Relax cmockery's restrictions to avoid warnings.

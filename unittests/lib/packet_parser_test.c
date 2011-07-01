@@ -49,21 +49,6 @@ const unsigned int arp_padding_size = 46 - sizeof( arp_header_t );
 
 
 /********************************************************************************
- * Mock functions.
- ********************************************************************************/
-
-void
-mock_die( char *format, ... ) {
-  UNUSED( format );
-}
-
-void
-mock_debug( const char *format, ... ) {
-  UNUSED( format );
-}
-
-
-/********************************************************************************
  * Setup and teardown function.
  ********************************************************************************/
 
@@ -194,22 +179,6 @@ test_parse_ether_fails_if_version_is_no_ipv4() {
 }
 
 
-static void
-test_parse_packet_fails_if_data_is_NULL() {
-  buffer *null_data = alloc_buffer( );
-
-  expect_assert_failure( parse_packet( null_data ) );
-
-  free_buffer( null_data );
-}
-
-
-static void
-test_parse_packet_fails_if_buffer_is_NULL() {
-  expect_assert_failure( parse_packet( NULL ) );
-}
-
-
 /********************************************************************************
  * get_checksum Tests.
  ********************************************************************************/
@@ -259,12 +228,11 @@ main() {
 
     unit_test( test_parse_packet_ether_ipv4_succeeds ),
     unit_test( test_parse_ether_fails_if_version_is_no_ipv4 ),
-    unit_test( test_parse_packet_fails_if_data_is_NULL ),
-    unit_test( test_parse_packet_fails_if_buffer_is_NULL ),
 
     unit_test( test_get_checksum_succeeds_if_size_even_number ),
     unit_test( test_get_checksum_succeeds_if_size_odd_number ),
   };
+  stub_logger();
   return run_tests( tests );
 }
 

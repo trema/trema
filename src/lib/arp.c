@@ -24,17 +24,6 @@
 #include "wrapper.h"
 
 
-#ifdef UNIT_TESTING
-
-#ifdef debug
-#undef debug
-#endif
-#define debug mock_debug
-void mock_debug( const char *format, ... );
-
-#endif // UNIT_TESTING
-
-
 bool
 valid_arp_packet( const buffer *buf ) {
   assert( buf != NULL );

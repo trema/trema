@@ -19,7 +19,9 @@
 
 
 #include <stdlib.h>
+#include "checks.h"
 #include "cmockery_trema.h"
+#include "log.h"
 #include "trema_wrapper.h"
 
 
@@ -63,6 +65,53 @@ teardown_leak_detector() {
   trema_malloc = malloc;
   trema_calloc = calloc;
   trema_free = free;
+}
+
+
+/********************************************************************************
+ * Stub/unstub logger
+ ********************************************************************************/
+
+static void ( *original_critical )( const char *format, ... );
+static void ( *original_error )( const char *format, ... );
+static void ( *original_warn )( const char *format, ... );
+static void ( *original_notice )( const char *format, ... );
+static void ( *original_info )( const char *format, ... );
+static void ( *original_debug )( const char *format, ... );
+
+
+static void
+log_stub( const char *format, ... ) {
+  UNUSED( format );
+}
+
+
+void
+stub_logger( void ) {
+  original_critical = critical;
+  original_error = error;
+  original_warn = warn;
+  original_notice = notice;
+  original_info = info;
+  original_debug = debug;
+
+  critical = log_stub;
+  error = log_stub;
+  warn = log_stub;
+  notice = log_stub;
+  info = log_stub;
+  debug = log_stub;
+}
+
+
+void
+unstub_logger( void ) {
+  critical = original_critical;
+  error = original_error;
+  warn = original_warn;
+  notice = original_notice;
+  info = original_info;
+  debug = original_debug;
 }
 
 
