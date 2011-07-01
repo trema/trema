@@ -128,7 +128,8 @@ update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, u
 
       entry->dpid = dpid;
       entry->port = port;
-      entry->updated_at = time( NULL );
+      entry->created_at = time( NULL );
+      entry->updated_at = entry->created_at;
 
       return true;
     }
