@@ -37,31 +37,28 @@ _trema_malloc( size_t size, const char *error_message ) {
 }
 
 
-static void *
-_xmalloc( size_t size ) {
+void *
+xmalloc( size_t size ) {
   void *ret = _trema_malloc( size, "Out of memory, xmalloc failed" );
   memset( ret, 0xA5, size );
   return ret;
 }
-void * ( *xmalloc )( size_t size ) = _xmalloc;
 
 
-static void *
-_xcalloc( size_t nmemb, size_t size ) {
+void *
+xcalloc( size_t nmemb, size_t size ) {
   void *ret = trema_calloc( nmemb, size );
   if ( !ret ) {
     die( "Out of memory, xcalloc failed" );
   }
   return ret;
 }
-void * ( *xcalloc )( size_t nmemb, size_t size ) = _xcalloc;
 
 
-static void
-_xfree( void *ptr ) {
+void
+xfree( void *ptr ) {
   trema_free( ptr );
 }
-void ( *xfree )( void *ptr ) = _xfree;
 
 
 static char *

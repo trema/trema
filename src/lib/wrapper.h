@@ -47,19 +47,19 @@ extern void mock_assert( const int result, const char *const expression, const c
 #ifdef xmalloc
 #undef xmalloc
 #endif
-extern void * ( *xmalloc )( size_t size );
+void *xmalloc( size_t size );
 
 // Undef Ruby's xcalloc()
 #ifdef xcalloc
 #undef xcalloc
 #endif
-extern void * ( *xcalloc )( size_t nmemb, size_t size );
+void *xcalloc( size_t nmemb, size_t size );
 
 // Undef Ruby's xfree()
 #ifdef xfree
 #undef xfree
 #endif
-extern void ( *xfree )( void *ptr );
+void xfree( void *ptr );
 
 char *xstrdup( const char *s );
 char *xasprintf( const char *format, ... );
