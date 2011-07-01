@@ -96,11 +96,11 @@ setup() {
   finalize_log();
   reset_LOGGING_LEVEL();
 
+  setup_leak_detector();
+
   original_die = die;
   die = mock_die;
-  xmalloc = test_malloc;
-  xcalloc = test_calloc;
-  xfree = test_free;
+
   trema_abort = mock_abort;
   trema_vprintf = mock_vprintf;
   trema_fprintf = mock_fprintf;
@@ -125,6 +125,8 @@ static void
 teardown() {
   finalize_log();
   reset_LOGGING_LEVEL();
+
+  teardown_leak_detector();
 
   die = original_die;
   trema_abort = abort;

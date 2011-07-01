@@ -785,7 +785,7 @@ tests = [
 
 
 file "objects/unittests/cmockery_trema.o" do | t |
-  sys "gcc --coverage -c unittests/#{ File.basename t.name, ".o" }.c -o #{ t.name } #{ var :CFLAGS } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
+  sys "gcc --coverage -c unittests/#{ File.basename t.name, ".o" }.c -o #{ t.name } #{ var :CFLAGS } -I#{ trema_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
 end
 
 

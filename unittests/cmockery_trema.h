@@ -37,23 +37,11 @@
 
 
 /********************************************************************************
- * Dynamic allocators with leak detection
+ * Setup/teardown dynamic allocators with leak detection
  ********************************************************************************/
 
-#ifdef test_malloc
-#undef test_malloc
-#endif
-void *test_malloc( size_t size );
-
-#ifdef test_calloc
-#undef test_calloc
-#endif
-void *test_calloc( size_t nmemb, size_t size );
-
-#ifdef test_free
-#undef test_free
-#endif
-void test_free( void *ptr );
+void setup_leak_detector( void );
+void teardown_leak_detector( void );
 
 
 /********************************************************************************

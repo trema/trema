@@ -18,24 +18,51 @@
  */
 
 
+#include <stdlib.h>
 #include "cmockery_trema.h"
+#include "trema_wrapper.h"
 
 
-void *
+#ifdef test_malloc
+#undef test_malloc
+#endif
+static void *
 test_malloc( size_t size ) {
   return _test_malloc( size, __FILE__, __LINE__ );
 }
 
 
-void *
+#ifdef test_calloc
+#undef test_calloc
+#endif
+static void *
 test_calloc( size_t nmemb, size_t size ) {
   return _test_calloc( nmemb, size, __FILE__, __LINE__ );
 }
 
 
-void
+#ifdef test_free
+#undef test_free
+#endif
+static void
 test_free( void *ptr ) {
   _test_free( ptr, __FILE__, __LINE__ );
+}
+
+
+void
+setup_leak_detector() {
+  trema_malloc = test_malloc;
+  trema_calloc = test_calloc;
+  trema_free = test_free;
+}
+
+
+void
+teardown_leak_detector() {
+  trema_malloc = malloc;
+  trema_calloc = calloc;
+  trema_free = free;
 }
 
 

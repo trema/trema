@@ -1,4 +1,4 @@
- /*
+/*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -28,12 +28,18 @@
 
 
 static void *
-_xmalloc( size_t size ) {
+_trema_malloc( size_t size, const char *error_message ) {
   void *ret = trema_malloc( size );
-
   if ( !ret ) {
-    die( "Out of memory, malloc failed" );
+    die( error_message );
   }
+  return ret;
+}
+
+
+static void *
+_xmalloc( size_t size ) {
+  void *ret = _trema_malloc( size, "Out of memory, xmalloc failed" );
   memset( ret, 0xA5, size );
   return ret;
 }
@@ -43,9 +49,8 @@ void * ( *xmalloc )( size_t size ) = _xmalloc;
 static void *
 _xcalloc( size_t nmemb, size_t size ) {
   void *ret = trema_calloc( nmemb, size );
-
   if ( !ret ) {
-    die( "Out of memory, calloc failed" );
+    die( "Out of memory, xcalloc failed" );
   }
   return ret;
 }
@@ -54,33 +59,39 @@ void * ( *xcalloc )( size_t nmemb, size_t size ) = _xcalloc;
 
 static void
 _xfree( void *ptr ) {
-  free( ptr );
+  trema_free( ptr );
 }
 void ( *xfree )( void *ptr ) = _xfree;
 
 
-char *
-xstrdup( const char *s ) {
+static char *
+_xstrdup( const char *s, const char *error_message ) {
   size_t len = strlen( s ) + 1;
-  char *ret = xmalloc( len );
-
+  char *ret = _trema_malloc( len, error_message );
   memcpy( ret, s, len );
   return ret;
 }
 
 
 char *
-xasprintf( const char *format, ... ) {
-  char *str;
+xstrdup( const char *s ) {
+  return _xstrdup( s, "Out of memory, xstrdup failed" );
+}
 
+
+char *
+xasprintf( const char *format, ... ) {
+  const char error[] = "Out of memory, xasprintf failed";
   va_list args;
   va_start( args, format );
+  char *str;
   if ( trema_vasprintf( &str, format, args ) < 0 ) {
-    die( "Out of memory, vasprintf failed" );
+    die( error );
   }
+  char *result = _xstrdup( str, error );
+  free( str );
   va_end( args );
-
-  return str;
+  return result;
 }
 
 

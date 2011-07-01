@@ -34,6 +34,7 @@ extern int ( *trema_vasprintf )( char **strp, const char *fmt, va_list ap );
 
 extern void * ( *trema_malloc )( size_t size );
 extern void * ( *trema_calloc )( size_t nmemb, size_t size );
+extern void ( *trema_free )( void *ptr );
 
 extern void ( *trema_abort )( void );
 

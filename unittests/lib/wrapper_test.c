@@ -79,18 +79,27 @@ fail_vasprintf( char **strp, const char *fmt, va_list ap ) {
 
 static void
 setup() {
-  trema_malloc = fail_malloc;
-  trema_calloc = fail_calloc;
-  trema_vasprintf = fail_vasprintf;
+  setup_leak_detector();
+
   original_die = die;
   die = mock_die;
 }
 
 
 static void
+setup_fail_allocators() {
+  setup();
+
+  trema_malloc = fail_malloc;
+  trema_calloc = fail_calloc;
+  trema_vasprintf = fail_vasprintf;
+}
+
+
+static void
 teardown() {
-  trema_malloc = malloc;
-  trema_calloc = calloc;
+  teardown_leak_detector();
+
   trema_vasprintf = vasprintf;
   die = original_die;
 }
@@ -109,7 +118,7 @@ test_xmalloc_and_xfree() {
 
 static void
 test_xmalloc_fail() {
-  expect_string( mock_die, output, "Out of memory, malloc failed" );
+  expect_string( mock_die, output, "Out of memory, xmalloc failed" );
   expect_assert_failure( xmalloc( 1 ) );
 }
 
@@ -124,7 +133,7 @@ test_xcalloc_and_xfree() {
 
 static void
 test_xcalloc_fail() {
-  expect_string( mock_die, output, "Out of memory, calloc failed" );
+  expect_string( mock_die, output, "Out of memory, xcalloc failed" );
   expect_assert_failure( xcalloc( 1, 1 ) );
 }
 
@@ -139,6 +148,13 @@ test_xstrdup() {
 
 
 static void
+test_xstrdup_fail() {
+  expect_string( mock_die, output, "Out of memory, xstrdup failed" );
+  expect_assert_failure( xstrdup( "FAIL" ) );
+}
+
+
+static void
 test_xasprintf() {
   char hello[] = "Hello";
   char *printed_hello = xasprintf( "%s", hello );
@@ -149,7 +165,7 @@ test_xasprintf() {
 
 static void
 test_xasprintf_fail() {
-  expect_string( mock_die, output, "Out of memory, vasprintf failed" );
+  expect_string( mock_die, output, "Out of memory, xasprintf failed" );
   expect_assert_failure( xasprintf( "FAIL" ) );
 }
 
@@ -161,16 +177,17 @@ test_xasprintf_fail() {
 int
 main() {
   const UnitTest tests[] = {
-    unit_test( test_xmalloc_and_xfree ),
-    unit_test_setup_teardown( test_xmalloc_fail, setup, teardown ),
+    unit_test_setup_teardown( test_xmalloc_and_xfree, setup, teardown ),
+    unit_test_setup_teardown( test_xmalloc_fail, setup_fail_allocators, teardown ),
 
-    unit_test( test_xcalloc_and_xfree ),
-    unit_test_setup_teardown( test_xcalloc_fail, setup, teardown ),
+    unit_test_setup_teardown( test_xcalloc_and_xfree, setup, teardown ),
+    unit_test_setup_teardown( test_xcalloc_fail, setup_fail_allocators, teardown ),
 
-    unit_test( test_xstrdup ),
+    unit_test_setup_teardown( test_xstrdup, setup, teardown ),
+    unit_test_setup_teardown( test_xstrdup_fail, setup_fail_allocators, teardown ),
 
-    unit_test( test_xasprintf ),
-    unit_test_setup_teardown( test_xasprintf_fail, setup, teardown ),
+    unit_test_setup_teardown( test_xasprintf, setup, teardown ),
+    unit_test_setup_teardown( test_xasprintf_fail, setup_fail_allocators, teardown ),
   };
   return run_tests( tests );
 }
