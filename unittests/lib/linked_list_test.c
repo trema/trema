@@ -47,6 +47,7 @@ mock_die( const char *format, ... ) {
 
 static void
 setup() {
+  setup_leak_detector();
   original_die = die;
   die = mock_die;
 }
@@ -54,6 +55,7 @@ setup() {
 
 static void
 teardown() {
+  teardown_leak_detector();
   die = original_die;
 }
 
@@ -300,35 +302,48 @@ test_delete_list() {
 int
 main() {
   const UnitTest tests[] = {
-    unit_test( test_create_list ),
-    unit_test( test_create_and_delete_empty_list ),
+    unit_test_setup_teardown( test_create_list,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_create_and_delete_empty_list,
+                              setup, teardown ),
     unit_test_setup_teardown( test_create_list_aborts_with_NULL,
                               setup, teardown ),
 
-    unit_test( test_insert_in_front ),
+    unit_test_setup_teardown( test_insert_in_front,
+                              setup, teardown ),
     unit_test_setup_teardown( test_insert_in_front_aborts_with_NULL_head,
                               setup, teardown ),
 
-    unit_test( test_insert_before ),
-    unit_test( test_insert_before_fails_if_sibling_not_found ),
+    unit_test_setup_teardown( test_insert_before,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_insert_before_fails_if_sibling_not_found,
+                              setup, teardown ),
     unit_test_setup_teardown( test_insert_before_aborts_with_NULL_head,
                               setup, teardown ),
 
-    unit_test( test_append_to_tail ),
+    unit_test_setup_teardown( test_append_to_tail,
+                              setup, teardown ),
     unit_test_setup_teardown( test_append_to_tail_aborts_with_NULL_head,
                               setup, teardown ),
 
-    unit_test( test_delete_first_element ),
-    unit_test( test_delete_middle_element ),
-    unit_test( test_delete_last_element ),
-    unit_test( test_delete_nonexisting_element ),
+    unit_test_setup_teardown( test_delete_first_element,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_delete_middle_element,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_delete_last_element,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_delete_nonexisting_element,
+                              setup, teardown ),
     unit_test_setup_teardown( test_delete_element_aborts_with_NULL_head,
                               setup, teardown ),
 
-    unit_test( test_list_length ),
-    unit_test( test_list_length_of_empty_list ),
+    unit_test_setup_teardown( test_list_length,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_list_length_of_empty_list,
+                              setup, teardown ),
 
-    unit_test( test_delete_list ),
+    unit_test_setup_teardown( test_delete_list,
+                              setup, teardown ),
   };
   return run_tests( tests );
 }
