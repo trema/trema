@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "checks.h"
-#include "cmockery.h"
+#include "cmockery_trema.h"
 #include "hash_table.h"
 #include "utility.h"
 
@@ -302,6 +302,7 @@ main() {
     unit_test( test_multiple_inserts_and_deletes_then_iterate ),
     unit_test( test_iterate_empty_hash ),
   };
+  setup_leak_detector();
   return run_tests( tests );
 }
 
