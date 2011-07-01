@@ -31,13 +31,6 @@
 #include "port.h"
 
 
-#ifdef UNIT_TESTING
-
-#define static
-
-#endif  // UNIT_TESTING
-
-
 static switch_info *
 lookup_switch( list_element *switches, uint64_t dpid ) {
   for ( list_element *e = switches; e != NULL; e = e->next ) {

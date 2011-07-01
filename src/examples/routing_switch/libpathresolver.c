@@ -56,38 +56,6 @@ struct resolve_path_param {
 };
 
 
-#ifdef UNIT_TESTING
-
-#ifdef init_libtopology
-#undef init_libtopology
-#endif
-#define init_libtopology mock_init_libtopology
-void mock_init_libtopology( const char *service_name );
-
-#ifdef subscribe_topology
-#undef subscribe_topology
-#endif
-#define subscribe_topology mock_subscribe_topology
-void mock_subscribe_topology( void ( *callback )(), void *user_data );
-
-#ifdef finalize_libtopology
-#undef finalize_libtopology
-#endif
-#define  finalize_libtopology mock_finalize_libtopology
-void mock_finalize_libtopology( void );
-
-
-#ifdef get_all_link_status
-#undef get_all_link_status
-#endif
-#define get_all_link_status mock_get_all_link_status
-void mock_get_all_link_status( void ( *callback )(), void *user_data );
-
-#define static // export for unit test
-
-#endif  // UNIT_TESTING
-
-
 static bool
 comp_node( const void *x0, const void *y0 ) {
   const node *x = x0;
@@ -257,7 +225,8 @@ build_hop_list( node *src_node, uint16_t src_port_no,
 
     if ( prev_out_port != 0xffffU ) {
       hop->out_port_no = prev_out_port;
-    } else {
+    }
+    else {
       hop->out_port_no = dst_port_no;
     }
 
@@ -397,7 +366,7 @@ resolve_path( uint64_t in_dpid, uint16_t in_port,
               uint64_t out_dpid, uint16_t out_port,
               void *user_data,
               resolve_path_callback callback ) {
-  struct resolve_path_param *param = xmalloc( sizeof( *param ) );
+  struct resolve_path_param *param = xmalloc( sizeof( struct resolve_path_param ) );
 
   param->node_table = create_node_table();
   param->in_dpid = in_dpid;
