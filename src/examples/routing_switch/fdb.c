@@ -35,60 +35,6 @@ static const time_t FDB_AGING_INTERVAL = 5;
 static const time_t HOST_MOVE_GUARD_SEC = 5;
 
 
-#ifdef UNIT_TESTING
-
-#ifdef time
-#undef time
-#endif
-#define time mock_time
-time_t mock_time( time_t *t );
-
-#ifdef add_periodic_event_callback
-#undef add_periodic_event_callback
-#endif
-#define add_periodic_event_callback mock_add_periodic_event_callback
-bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
-
-#ifdef get_cookie
-#undef get_cookie
-#endif
-#define get_cookie mock_get_cookie
-uint64_t mock_get_cookie( void );
-
-#ifdef get_transaction_id
-#undef get_transaction_id
-#endif
-#define get_transaction_id mock_get_transaction_id
-uint32_t mock_get_transaction_id( void );
-
-#ifdef create_flow_mod
-#undef create_flow_mod
-#endif
-#define create_flow_mod mock_create_flow_mod
-buffer *mock_create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
-                              const uint64_t cookie, const uint16_t command,
-                              const uint16_t idle_timeout, const uint16_t hard_timeout,
-                              const uint16_t priority, const uint32_t buffer_id,
-                              const uint16_t out_port, const uint16_t flags,
-                              const openflow_actions *actions );
-
-#ifdef send_openflow_message
-#undef send_openflow_message
-#endif
-#define send_openflow_message mock_send_openflow_message
-bool mock_send_openflow_message( const uint64_t datapath_id, buffer *message );
-
-#ifdef free_buffer
-#undef free_buffer
-#endif
-#define free_buffer mock_free_buffer
-void mock_free_buffer( buffer *buf );
-
-#define static
-
-#endif  // UNIT_TESTING
-
-
 typedef struct mac_db_entry {
   uint8_t mac[ OFP_ETH_ALEN ];
   uint64_t dpid;
@@ -166,9 +112,8 @@ update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, u
 
   fdb_entry *entry = lookup_hash_entry( fdb, mac );
 
-  debug( "Updating fdb (mac: %02x:%02x:%02x:%02x:%02x:%02x, dpid = %#" PRIx64 ", port = %u)",
-         mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
-         dpid, port );
+  debug( "Updating fdb ( mac = %02x:%02x:%02x:%02x:%02x:%02x, dpid = %#" PRIx64 ", port = %u ).",
+         mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ], dpid, port );
 
   if ( entry != NULL ) {
     if ( ( entry->dpid == dpid ) && ( entry->port == port ) ) {
@@ -183,15 +128,18 @@ update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, u
 
       entry->dpid = dpid;
       entry->port = port;
-      entry->updated_at = time( NULL );
+      entry->created_at = time( NULL );
+      entry->updated_at = entry->created_at;
 
       return true;
     }
 
-    warn( "Failed to update fdb because host move detected in %d sec.",
-          HOST_MOVE_GUARD_SEC );
-    warn( "mac: %02x:%02x:%02x:%02x:%02x:%02x",
-          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ] );
+    warn( "Failed to update fdb because host move detected in %d sec "
+          "( mac = %02x:%02x:%02x:%02x:%02x:%02x, "
+          "dpid = %#" PRIx64 " -> %#" PRIx64 ", port = %u -> %u ).",
+          HOST_MOVE_GUARD_SEC,
+          mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ],
+          entry->dpid, dpid, entry->port, port );
 
     return false;
   }

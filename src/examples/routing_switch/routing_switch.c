@@ -42,276 +42,6 @@ static const uint16_t FLOW_TIMER = 60;
 static const uint16_t PACKET_IN_DISCARD_DURATION = 1;
 
 
-#ifdef UNIT_TESTING
-
-#ifdef free_hop_list
-#undef free_hop_list
-#endif
-#define free_hop_list mock_free_hop_list
-void mock_free_hop_list( dlist_element *hops );
-
-#ifdef create_actions
-#undef create_actions
-#endif
-#define create_actions mock_create_actions
-openflow_actions *mock_create_actions( void );
-
-#ifdef append_action_output
-#undef append_action_output
-#endif
-#define append_action_output mock_append_action_output
-bool mock_append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len );
-
-#ifdef get_transaction_id
-#undef get_transaction_id
-#endif
-#define get_transaction_id mock_get_transaction_id
-uint32_t mock_get_transaction_id( void );
-
-#ifdef create_packet_out
-#undef create_packet_out
-#endif
-#define create_packet_out mock_create_packet_out
-buffer *mock_create_packet_out( const uint32_t transaction_id,
-                                const uint32_t buffer_id,
-                                const uint16_t in_port,
-                                const openflow_actions *actions,
-                                const buffer *data );
-
-#ifdef delete_actions
-#undef delete_actions
-#endif
-#define delete_actions mock_delete_actions
-bool mock_delete_actions( openflow_actions *actions );
-
-#ifdef set_match_from_packet
-#undef set_match_from_packet
-#endif
-#define set_match_from_packet mock_set_match_from_packet
-void mock_set_match_from_packet( struct ofp_match *match,
-                                 const uint16_t in_port,
-                                 const uint32_t wildcards,
-                                 const buffer *packet );
-
-#ifdef get_cookie
-#undef get_cookie
-#endif
-#define get_cookie mock_get_cookie
-uint64_t mock_get_cookie( void );
-
-#ifdef create_flow_mod
-#undef create_flow_mod
-#endif
-#define create_flow_mod mock_create_flow_mod
-buffer *mock_create_flow_mod( const uint32_t transaction_id,
-                              const struct ofp_match match,
-                              const uint64_t cookie,
-                              const uint16_t command,
-                              const uint16_t idle_timeout,
-                              const uint16_t hard_timeout,
-                              const uint16_t priority,
-                              const uint32_t buffer_id,
-                              const uint16_t out_port,
-                              const uint16_t flags,
-                              const openflow_actions *actions );
-
-#ifdef time
-#undef time
-#endif
-#define time mock_time
-time_t mock_time( time_t *t );
-
-#ifdef resolve_path
-#undef resolve_path
-#endif
-#define resolve_path mock_resolve_path
-bool mock_resolve_path( uint64_t in_dpid, uint16_t in_port,
-                        uint64_t out_dpid, uint16_t out_port,
-                        void *user_data,
-                        resolve_path_callback callback );
-
-#ifdef send_openflow_message
-#undef send_openflow_message
-#endif
-#define send_openflow_message mock_send_openflow_message
-bool mock_send_openflow_message( const uint64_t datapath_id, buffer *message );
-
-#ifdef init_libtopology
-#undef init_libtopology
-#endif
-#define init_libtopology mock_init_libtopology
-int mock_init_libtopology( const char *service_name );
-
-#ifdef subscribe_topology
-#undef subscribe_topology
-#endif
-#define subscribe_topology mock_subscribe_topology
-void mock_subscribe_topology( void ( *callback )(), void *user_data );
-
-#ifdef set_packet_in_handler
-#undef set_packet_in_handler
-#endif
-#define set_packet_in_handler mock_set_packet_in_handler
-bool mock_set_packet_in_handler( packet_in_handler callback, void *user_data );
-
-#ifdef add_callback_port_status_updated
-#undef add_callback_port_status_updated
-#endif
-#define add_callback_port_status_updated mock_add_callback_port_status_updated
-bool mock_add_callback_port_status_updated( void ( *callback )( void *, const topology_port_status * ), void *param );
-
-#ifdef finalize_libtopology
-#undef finalize_libtopology
-#endif
-#define finalize_libtopology mock_finalize_libtopology
-bool mock_finalize_libtopology( void );
-
-#ifdef parse_packet
-#undef parse_packet
-#endif
-#define parse_packet mock_parse_packet
-bool mock_parse_packet( buffer *buf );
-
-#ifdef get_all_port_status
-#undef get_all_port_status
-#endif
-#define get_all_port_status mock_get_all_port_status
-bool mock_get_all_port_status( void ( *callback )(), void *param );
-
-#ifdef create_set_config
-#undef create_set_config
-#endif
-#define create_set_config mock_create_set_config
-buffer *mock_create_set_config( const uint32_t transaction_id, const uint16_t flags, uint16_t miss_send_len );
-
-#ifdef create_features_request
-#undef create_features_request
-#endif
-#define create_features_request mock_create_features_request
-buffer *mock_create_features_request( const uint32_t transaction_id );
-
-#ifdef add_periodic_event_callback
-#undef add_periodic_event_callback
-#endif
-#define add_periodic_event_callback mock_add_periodic_event_callback
-bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
-
-#ifdef set_features_reply_handler
-#undef set_features_reply_handler
-#endif
-#define set_features_reply_handler mock_set_features_reply_handler
-bool mock_set_features_reply_handler( features_reply_handler callback, void *user_data );
-
-#ifdef set_switch_ready_handler
-#undef set_switch_ready_handler
-#endif
-#define set_switch_ready_handler mock_set_switch_ready_handler
-bool mock_set_switch_ready_handler( switch_ready_handler callback, void *user_data );
-
-#ifdef finalize_topology_service_interface_options
-#undef finalize_topology_service_interface_options
-#endif
-#define finalize_topology_service_interface_options mock_finalize_topology_service_interface_options
-void mock_finalize_topology_service_interface_options( void );
-
-#ifdef exit
-#undef exit
-#endif
-#define exit mock_exit
-void mock_exit( int status );
-
-#ifdef usage
-#undef usage
-#endif
-#define usage mock_usage
-void mock_usage( void );
-
-#ifdef init_age_fdb
-#undef init_age_fdb
-#endif
-#define init_age_fdb mock_init_age_fdb
-void mock_init_age_fdb( hash_table *fdb );
-
-#ifdef update_fdb
-#undef update_fdb
-#endif
-#define update_fdb mock_update_fdb
-bool mock_update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, uint16_t port );
-
-#ifdef lookup_fdb
-#undef lookup_fdb
-#endif
-#define lookup_fdb mock_lookup_fdb
-bool mock_lookup_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t *dpid, uint16_t *port );
-
-#ifdef create_fdb
-#undef create_fdb
-#endif
-#define create_fdb mock_create_fdb
-hash_table * mock_create_fdb( void );
-
-#ifdef delete_fdb
-#undef delete_fdb
-#endif
-#define delete_fdb mock_delete_fdb
-void mock_delete_fdb( hash_table *fdb );
-
-#ifdef delete_outbound_port
-#undef delete_outbound_port
-#endif
-#define delete_outbound_port mock_delete_outbound_port
-void mock_delete_outbound_port( list_element **switches, port_info *delete_port );
-
-#ifdef add_outbound_port
-#undef add_outbound_port
-#endif
-#define add_outbound_port mock_add_outbound_port
-void mock_add_outbound_port( list_element **switches, uint64_t dpid, uint16_t port_no );
-
-#ifdef delete_outbound_ports
-#undef delete_outbound_ports
-#endif
-#define delete_outbound_all_ports mock_delete_outbound_all_ports
-void mock_delete_outbound_all_ports( list_element **switches );
-
-#ifdef lookup_outbound_port
-#undef lookup_outbound_port
-#endif
-#define lookup_outbound_port mock_lookup_outbound_port
-port_info *mock_lookup_outbound_port( list_element *switches, uint64_t dpid, uint16_t port_no );
-
-#ifdef create_outbound_ports
-#undef create_outbound_ports
-#endif
-#define create_outbound_ports mock_create_outbound_ports
-list_element *mock_create_outbound_ports( list_element **switches );
-
-#ifdef foreach_port
-#undef foreach_port
-#endif
-#define foreach_port mock_foreach_port
-int mock_foreach_port( const list_element *ports,
-                       int ( *function )( port_info *port,
-                                          openflow_actions *actions,
-                                          uint64_t dpid, uint16_t in_port ),
-                       openflow_actions *actions, uint64_t dpid, uint16_t port );
-
-#ifdef foreach_switch
-#undef foreach_switch
-#endif
-#define foreach_switch mock_foreach_switch
-void mock_foreach_switch( const list_element *switches,
-                          void ( *function )( switch_info *sw,
-                                              buffer *packet,
-                                              uint64_t dpid,
-                                              uint16_t in_port ),
-                          buffer *packet, uint64_t dpid, uint16_t in_port );
-
-#define static
-
-#endif  // UNIT_TESTING
-
-
 typedef struct routing_switch_options {
   uint16_t idle_timeout;
 } routing_switch_options;
@@ -544,7 +274,8 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
     }
     add_outbound_port( &routing_switch->switches, status->dpid, status->port_no );
     set_miss_send_len_maximum( status->dpid );
-  } else {
+  }
+  else {
     if ( p == NULL ) {
       debug( "Ignore this update (not found nor already deleted)" );
       return;
@@ -560,7 +291,8 @@ build_packet_out_actions( port_info *port, openflow_actions *actions, uint64_t d
   if ( port->dpid == dpid && port->port_no == in_port ) {
     // don't send to input port
     return 0;
-  } else {
+  }
+  else {
     append_action_output( actions, port->port_no, max_len );
     return 1;
   }
@@ -648,7 +380,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
     // Ask path resolver service to lookup a path
     // resolve_path_replied() will be called later
-    resolve_path_replied_params *param = xmalloc( sizeof( *param ) );
+    resolve_path_replied_params *param = xmalloc( sizeof( resolve_path_replied_params ) );
     param->routing_switch = routing_switch;
     param->in_datapath_id = datapath_id;
     param->in_port = in_port;
@@ -658,7 +390,8 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
     resolve_path( datapath_id, in_port, out_datapath_id, out_port,
                   param, resolve_path_replied );
-  } else {
+  }
+  else {
     // Host's location is unknown, so flood packet
     flood_packet( datapath_id, in_port, original_packet, routing_switch->switches );
   }
@@ -840,9 +573,6 @@ init_routing_switch_options( routing_switch_options *options, int *argc, char **
 }
 
 
-#ifndef UNIT_TESTING
-
-
 void
 usage() {
   topology_service_interface_usage( get_executable_name(), "Switching HUB.", option_description );
@@ -868,7 +598,6 @@ main( int argc, char *argv[] ) {
 
   return 0;
 }
-#endif  // UNIT_TESTING
 
 
 /*
