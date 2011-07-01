@@ -29,47 +29,6 @@
 #include "wrapper.h"
 
 
-#ifdef UNIT_TESTING
-
-#ifdef pthread_mutex_init
-#undef pthread_mutex_init
-#endif
-#define pthread_mutex_init mock_pthread_mutex_init
-int mock_pthread_mutex_init( pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr );
-
-#ifdef pthread_mutexattr_init
-#undef pthread_mutexattr_init
-#endif
-#define pthread_mutexattr_init mock_pthread_mutexattr_init
-int mock_pthread_mutexattr_init( pthread_mutexattr_t *attr );
-
-#ifdef pthread_mutexattr_settype
-#undef pthread_mutexattr_settype
-#endif
-#define pthread_mutexattr_settype mock_pthread_mutexattr_settype
-int mock_pthread_mutexattr_settype( pthread_mutexattr_t *attr, int kind );
-
-#ifdef pthread_mutex_lock
-#undef pthread_mutex_lock
-#endif
-#define pthread_mutex_lock mock_pthread_mutex_lock
-int mock_pthread_mutex_lock( pthread_mutex_t *mutex );
-
-#ifdef pthread_mutex_unlock
-#undef pthread_mutex_unlock
-#endif
-#define pthread_mutex_unlock mock_pthread_mutex_unlock
-int mock_pthread_mutex_unlock( pthread_mutex_t *mutex );
-
-#ifdef pthread_mutex_destroy
-#undef pthread_mutex_destroy
-#endif
-#define pthread_mutex_destroy mock_pthread_mutex_destroy
-int mock_pthread_mutex_destroy( pthread_mutex_t *mutex );
-
-#endif // UNIT_TESTING
-
-
 typedef struct private_buffer {
   buffer public;
   size_t real_length;
