@@ -58,7 +58,7 @@ class ForwardingDB
   AGE_MAX = 300
 
 
-  def_delegators :@db, :lookup, :[]
+  def_delegators :@db, :[]
   def_delegators :@db, :delete_if
 
 
@@ -92,7 +92,7 @@ class LearningSwitch < Trema::Controller
 
   def packet_in message
     fdb( message.datapath_id ).learn message.macsa, message.in_port
-    dest = fdb( message.datapath_id ).lookup( message.macda )
+    dest = fdb( message.datapath_id )[ message.macda ]
     if dest
       flow_mod message, dest.port_no
       packet_out message, dest.port_no
