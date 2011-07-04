@@ -28,12 +28,13 @@ class RepeaterHub < Trema::Controller
       :buffer_id => message.buffer_id,
       :actions => Trema::ActionOutput.new( OFPP_FLOOD )
     )
+    return if message.buffered?
     send_packet_out(
       message.datapath_id,
       message.buffer_id,
       message.in_port,
       Trema::ActionOutput.new( OFPP_FLOOD ),
-      message.buffered? ? nil : message.data
+      message.data
     )
   end
 end
