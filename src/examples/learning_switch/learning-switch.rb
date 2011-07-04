@@ -27,6 +27,7 @@ require "forwardable"
 
 
 class ForwardingEntry
+  attr_reader :mac
   attr_reader :port_no
   attr_writer :age_max
 
