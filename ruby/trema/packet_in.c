@@ -93,7 +93,8 @@ static VALUE
 packet_in_macsa( VALUE self ) {
   packet_in *cpacket_in;
   Data_Get_Struct( self, packet_in, cpacket_in );
-  return ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macsa ) );
+  VALUE macsa = ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macsa ) );
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
 }
 
 
@@ -101,12 +102,15 @@ static VALUE
 packet_in_macda( VALUE self ) {
   packet_in *cpacket_in;
   Data_Get_Struct( self, packet_in, cpacket_in );
-  return ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macda ) );
+  VALUE macda = ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macda ) );
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
 }
 
 
 void
 Init_packet_in() {
+  rb_require( "trema/mac" );
+
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
