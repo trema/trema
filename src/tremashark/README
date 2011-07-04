@@ -55,7 +55,7 @@ build the plugin as follows:
 How to run?
 ===========
 
-Use `use_tremashark' directive in your Trema configuration. e.g.,
+1. Add `use_tremashark' directive in your Trema configuration. e.g.,
 
   use_tremashark
 
@@ -64,6 +64,10 @@ Use `use_tremashark' directive in your Trema configuration. e.g.,
   }
   ...
 
+2. Send SIGUSR2 to processes to be monitored by tremashark. e.g.,
+
+  $ sudo kill -USR2 `cat tmp/learning_switch.pid`
+  $ sudo kill -USR2 `cat tmp/switch.abc.pid`
 
 Known issue
 ===========
