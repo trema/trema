@@ -1477,6 +1477,15 @@ on_send( int fd, send_queue *sq ) {
         truncate_message_buffer( sq->buffer, sq->buffer->data_length );
       }
       return;
+    } else if ( ( size_t ) sent_len < send_len ) {
+      size_t remain = 0;
+      if ( sent_len > 0 ) {
+        remain = send_len - ( size_t ) sent_len;
+      }
+      warn( "Dropping %u bytes data in send queue ( service_name = %s, remaining bytes = %u ).",
+            sq->buffer->data_length - remain, sq->service_name, remain );
+      sq->buffer->data_length = remain;
+      return;
     }
     send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, header, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
