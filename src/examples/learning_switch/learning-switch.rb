@@ -34,13 +34,13 @@ class ForwardingEntry
 
   def initialize mac, port_no, age_max
     @mac = mac
-    @port_no = port_no
     @age_max = age_max
-    update
+    update port_no
   end
 
 
-  def update
+  def update port_no
+    @port_no = port_no
     @last_update = Time.now
   end
 
