@@ -108,6 +108,7 @@ log_file( int priority, const char *format, va_list ap ) {
   vsnprintf( message, max_message_length, format, new_ap );
 
   trema_fprintf( fd, "%s [%s] %s\n", now, priority_name, message );
+  fflush( fd );
 
   xfree( priority_name );
 }
