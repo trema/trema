@@ -30,9 +30,9 @@ VALUE mTrema;
 VALUE cController;
 
 
-static VALUE
-controller_self_timer_event( VALUE self, VALUE handler, VALUE interval ) {
-  return self;
+static void
+handle_timer_event( void *self ) {
+  rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
 }
 
 
@@ -201,6 +201,13 @@ controller_run( VALUE self ) {
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   set_features_reply_handler( handle_features_reply, ( void * ) self );
   set_packet_in_handler( handle_packet_in, ( void * ) self );
+
+  struct itimerspec interval;
+  interval.it_interval.tv_sec = 1;
+  interval.it_interval.tv_nsec = 0;
+  interval.it_value.tv_sec = 0;
+  interval.it_value.tv_nsec = 0;
+  add_timer_event_callback( &interval, handle_timer_event, ( void * ) self );
 
   rb_funcall( self, rb_intern( "start" ), 0 );
 
@@ -415,8 +422,6 @@ Init_controller() {
 
   cController = rb_eval_string( "Trema::Controller" );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
-
-  rb_define_singleton_method( cController, "timer_event", controller_self_timer_event, 2 );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );

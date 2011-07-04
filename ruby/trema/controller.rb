@@ -26,6 +26,9 @@ module Trema
   # The base class of Trema controller.
   #
   class Controller < App
+    @@timer_event_handlers = {}
+
+
     #
     # Callback invoked whenever a subclass of this class is created.
     # This adds the created object to the DB of controllers.
@@ -34,6 +37,11 @@ module Trema
       controller = subclass.new
       Controller.instances ||= {}
       Controller.instances[ controller.name ] = controller
+    end
+
+
+    def self.timer_event handler, interval
+      @@timer_event_handlers[ handler ] = { :interval => interval, :rest => interval }
     end
 
 
@@ -49,6 +57,22 @@ module Trema
     #
     def name
       self.class.to_s.split( "::" ).last
+    end
+
+
+    ################################################################################
+    private
+    ################################################################################
+
+
+    def handle_timer_event
+      @@timer_event_handlers.each do | handler, data |
+        data[ :rest ] -= 1
+        if data[ :rest ] <= 0
+          __send__ handler
+          data[ :rest ] = data[ :interval ]
+        end
+      end
     end
   end
 end
