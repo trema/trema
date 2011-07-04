@@ -95,6 +95,12 @@ packet_in_macsa( VALUE self ) {
 }
 
 
+static VALUE
+packet_in_macda( VALUE self ) {
+  return self;
+}
+
+
 void
 Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
@@ -105,6 +111,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
+  rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
 }
 
 
