@@ -1,9 +1,6 @@
 #
 # Simple learning switch application in Ruby
 #
-# WARNING - Experimental
-# learning switch in Ruby is experimental. Don't expect it to work.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
