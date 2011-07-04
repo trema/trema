@@ -1,5 +1,5 @@
 /*
- * Ruby wrapper around libtrema.
+ * Logger class.
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
@@ -20,42 +20,13 @@
  */
 
 
-#include "action_output.h"
-#include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
-#include "hello.h"
-#include "logger.h"
-#include "packet_in.h"
-#include "port.h"
-#include "rbuffer.h"
 #include "ruby.h"
 
 
-VALUE mTrema;
+extern VALUE mLogger;
 
 
-void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-  init_log( NULL, "/tmp", false );
-
-  rb_require( "trema/host" );
-  rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
-  rb_require( "trema/switch" );
-
-  Init_action_output();
-  Init_buffer();
-  Init_logger();
-  Init_controller();
-  Init_features_reply();
-  Init_features_request();
-  Init_hello();
-  Init_match();
-  Init_packet_in();
-  Init_port();
-}
+void Init_logger( void );
 
 
 /*

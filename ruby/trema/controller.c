@@ -21,6 +21,7 @@
 #include "buffer.h"
 #include "controller.h"
 #include "features_reply.h"
+#include "logger.h"
 #include "openflow.h"
 #include "packet_in.h"
 #include "trema.h"
@@ -283,134 +284,6 @@ controller_packet_in( VALUE self, VALUE packet_in ) {
 
 
 /********************************************************************************
- * Logging methods.
- ********************************************************************************/
-
-/*
- * call-seq:
- *   critical(format ...)
- *
- * Outputs a message representing that "the system is completely
- * unusable" to log file.
- *
- * @example
- *   critical "Trema blue screen. Memory dump = %s", memory
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_critical( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  critical( STR2CSTR( message ) );
-  return message;
-}
-
-
-/*
- * call-seq:
- *   error(format ...)
- *
- * Outputs a message representing that "something went wrong" to log
- * file.
- *
- * @example
- *   error "Failed to accept %s", app_socket
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_error( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  error( STR2CSTR( message ) );
-  return message;
-}
-
-
-/*
- * call-seq:
- *   warn(format ...)
- *
- * Outputs a message representing that "something in the system was
- * not as expected" to log file.
- *
- * @example
- *   warn "%s: trema is already initialized", app_name
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_warn( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  warn( STR2CSTR( message ) );
-  return message;
-}
-
-
-/*
- * call-seq:
- *   notice(format ...)
- *
- * Outputs a message representing that "normal but significant
- * condition occurred" to log file.
- *
- * @example
- *   notice "The switch %s disconnected its secure channel connection", datapath_id
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_notice( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  notice( STR2CSTR( message ) );
-  return message;
-}
-
-
-/*
- * call-seq:
- *   info(format ...)
- *
- * Outputs an informational massage to log file.
- *
- * @example
- *   info "Hello world from %s!", datapath_id
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_info( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  info( STR2CSTR( message ) );
-  return message;
-}
-
-
-/*
- * call-seq:
- *   debug(format ...)
- *
- * Outputs a debug-level massage to log file.
- *
- * @example
- *   debug "Setting a packet_in handler: %s", method
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
- */
-static VALUE
-controller_debug( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  debug( STR2CSTR( message ) );
-  return message;
-}
-
-
-/********************************************************************************
  * Init Controller module.
  ********************************************************************************/
 
@@ -421,6 +294,7 @@ Init_controller() {
   rb_require( "trema/controller" );
 
   cController = rb_eval_string( "Trema::Controller" );
+  rb_include_module( cController, mLogger );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
@@ -435,14 +309,6 @@ Init_controller() {
   rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
   rb_define_method( cController, "features_reply", controller_features_reply, 1 );
   rb_define_method( cController, "packet_in", controller_packet_in, 1 );
-
-  // Logging
-  rb_define_method( cController, "critical", controller_critical, -1 );
-  rb_define_method( cController, "error", controller_error, -1 );
-  rb_define_method( cController, "warn", controller_warn, -1 );
-  rb_define_method( cController, "notice", controller_notice, -1 );
-  rb_define_method( cController, "info", controller_info, -1 );
-  rb_define_method( cController, "debug", controller_debug, -1 );
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
