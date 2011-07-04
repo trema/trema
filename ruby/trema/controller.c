@@ -31,6 +31,12 @@ VALUE cController;
 
 
 static VALUE
+controller_self_timer_event( VALUE self, VALUE handler, VALUE interval ) {
+  return self;
+}
+
+
+static VALUE
 controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
   buffer *buf;
   Data_Get_Struct( message, buffer, buf );
@@ -409,6 +415,8 @@ Init_controller() {
 
   cController = rb_eval_string( "Trema::Controller" );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
+
+  rb_define_singleton_method( cController, "timer_event", controller_self_timer_event, 2 );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
