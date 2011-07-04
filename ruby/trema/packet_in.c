@@ -89,21 +89,22 @@ packet_in_data( VALUE self ) {
 }
 
 
-#include <inttypes.h>
+static uint64_t
+mac_to_uint64( const uint8_t *mac ) {
+  return ( ( uint64_t ) mac[ 0 ] << 40 ) +
+         ( ( uint64_t ) mac[ 1 ] << 32 ) +
+         ( ( uint64_t ) mac[ 2 ] << 24 ) +
+         ( ( uint64_t ) mac[ 3 ] << 16 ) +
+         ( ( uint64_t ) mac[ 4 ] << 8 ) +
+         ( ( uint64_t ) mac[ 5 ] );
+}
+
+
 static VALUE
 packet_in_macsa( VALUE self ) {
   packet_in *cpacket_in;
   Data_Get_Struct( self, packet_in, cpacket_in );
-
-  uint8_t *macsa = packet_info( cpacket_in->data )->l2_data.eth->macsa;
-  uint8_t c_macsa[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  c_macsa[ 0 ] = macsa[ 5 ];
-  c_macsa[ 1 ] = macsa[ 4 ];
-  c_macsa[ 2 ] = macsa[ 3 ];
-  c_macsa[ 3 ] = macsa[ 2 ];
-  c_macsa[ 4 ] = macsa[ 1 ];
-  c_macsa[ 5 ] = macsa[ 0 ];
-  return ULL2NUM( *( ( uint64_t * ) c_macsa ) );
+  return ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macsa ) );
 }
 
 
@@ -111,16 +112,7 @@ static VALUE
 packet_in_macda( VALUE self ) {
   packet_in *cpacket_in;
   Data_Get_Struct( self, packet_in, cpacket_in );
-
-  uint8_t *macda = packet_info( cpacket_in->data )->l2_data.eth->macda;
-  uint64_t c_macda[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  c_macda[ 0 ] = macda[ 5 ];
-  c_macda[ 1 ] = macda[ 4 ];
-  c_macda[ 2 ] = macda[ 3 ];
-  c_macda[ 3 ] = macda[ 2 ];
-  c_macda[ 4 ] = macda[ 1 ];
-  c_macda[ 5 ] = macda[ 0 ];
-  return ULL2NUM( *( ( uint64_t * ) c_macda ) );
+  return ULL2NUM( mac_to_uint64( packet_info( cpacket_in->data )->l2_data.eth->macda ) );
 }
 
 
