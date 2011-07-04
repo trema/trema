@@ -89,16 +89,9 @@ class LearningSwitch < Trema::Controller
   timer_event :age_db, 5
 
 
-  def initialize
-    @forwarding_db = {}
-  end
-
-
   def packet_in message
-    @forwarding_db[ message.datapath_id ] ||= ForwardingDB.new
-    fdb = @forwarding_db[ message.datapath_id ]
-    fdb.learn message.macsa, message.in_port
-    dest = fdb.lookup( message.macda )
+    fdb( message.datapath_id ).learn message.macsa, message.in_port
+    dest = fdb( message.datapath_id ).lookup( message.macda )
     if dest
       flow_mod message, dest.port_no
       packet_out message, dest.port_no
@@ -109,7 +102,7 @@ class LearningSwitch < Trema::Controller
 
 
   def age_db
-    @forwarding_db.each do | datapath_id, db |
+    @fdb.each do | datapath_id, db |
       db.delete_if do | mac, entry |
         entry.aged_out?
       end
@@ -120,6 +113,13 @@ class LearningSwitch < Trema::Controller
   ##############################################################################
   private
   ##############################################################################
+
+
+  def fdb datapath_id
+    @fdb ||= {}
+    @fdb[ datapath_id ] ||= ForwardingDB.new
+    @fdb[ datapath_id ]
+  end
 
 
   def flow_mod message, port_no
