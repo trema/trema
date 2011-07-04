@@ -167,6 +167,16 @@ test_hash_mac() {
 
 
 static void
+test_mac_to_uint64() {
+  uint8_t mac1[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  uint8_t mac2[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+  assert_true( mac_to_uint64( mac1 ) == 281474976710655ULL );
+  assert_true( mac_to_uint64( mac2 ) == 0 );
+}
+
+
+static void
 test_string_to_datapath_id() {
   uint64_t datapath_id;
   uint64_t expected_datapath_id = 18446744073709551615ULL;
@@ -257,6 +267,7 @@ main() {
 
     unit_test( test_compare_mac ),
     unit_test( test_hash_mac ),
+    unit_test( test_mac_to_uint64 ),
 
     unit_test( test_string_to_datapath_id ),
 

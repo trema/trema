@@ -37,6 +37,7 @@ unsigned int hash_string( const void *key );
 
 bool compare_mac( const void *x, const void *y );
 unsigned int hash_mac( const void *mac );
+uint64_t mac_to_uint64( const uint8_t *mac );
 
 bool compare_uint32( const void *x, const void *y );
 unsigned int hash_uint32( const void *key );
@@ -48,6 +49,7 @@ bool string_to_datapath_id( const char *str, uint64_t *datapath_id );
 
 bool match_to_string( const struct ofp_match *match, char *str, size_t size );
 bool phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size );
+
 
 #endif // UTILITY_H
 

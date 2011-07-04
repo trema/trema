@@ -89,17 +89,6 @@ packet_in_data( VALUE self ) {
 }
 
 
-static uint64_t
-mac_to_uint64( const uint8_t *mac ) {
-  return ( ( uint64_t ) mac[ 0 ] << 40 ) +
-         ( ( uint64_t ) mac[ 1 ] << 32 ) +
-         ( ( uint64_t ) mac[ 2 ] << 24 ) +
-         ( ( uint64_t ) mac[ 3 ] << 16 ) +
-         ( ( uint64_t ) mac[ 4 ] << 8 ) +
-         ( ( uint64_t ) mac[ 5 ] );
-}
-
-
 static VALUE
 packet_in_macsa( VALUE self ) {
   packet_in *cpacket_in;
