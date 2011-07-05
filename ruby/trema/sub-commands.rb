@@ -312,6 +312,7 @@ EOL
       else
         # Ruby controller
         require "trema"
+        $LOAD_PATH << File.dirname( ARGV[ 0 ] )
         Trema.module_eval IO.read( ARGV[ 0 ] )
       end
     end

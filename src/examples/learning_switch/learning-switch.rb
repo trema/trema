@@ -20,9 +20,6 @@
 #
 
 
-$LOAD_PATH << "./src/examples/learning_switch/"
-
-
 require "forwarding-db"
 
 
