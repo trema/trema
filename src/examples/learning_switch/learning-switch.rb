@@ -81,13 +81,6 @@ class ForwardingDB
   end
 
 
-  def age_max= new_value
-    @db.each do | mac, entry |
-      entry.age_max = new_value
-    end
-  end
-
-
   def age
     @db.delete_if do | mac, entry |
       entry.aged_out?
@@ -104,12 +97,10 @@ class LearningSwitch < Trema::Controller
 
 
   def packet_in message
-    fdb = fdb_of( message.datapath_id )
-    fdb.learn message.macsa, message.in_port
-    dest = fdb.find( message.macda )
-    if dest
-      flow_mod message, dest.port_no
-      packet_out message, dest.port_no
+    learn message
+    if dest_port_of( message )
+      flow_mod message
+      packet_out message
     else
       flood message
     end
@@ -128,24 +119,39 @@ class LearningSwitch < Trema::Controller
   ##############################################################################
 
 
-  def fdb_of datapath_id
+  def learn message
+    fdb( message.datapath_id ).learn message.macsa, message.in_port
+  end
+
+
+  def fdb datapath_id
     @fdb ||= {}
     @fdb[ datapath_id ] ||= ForwardingDB.new
     @fdb[ datapath_id ]
   end
 
 
-  def flow_mod message, port_no
+  def dest_port_of message
+    dest = fdb( message.datapath_id ).find( message.macda )
+    if dest
+      dest.port_no
+    else
+      nil
+    end
+  end
+
+
+  def flow_mod message
     send_flow_mod_add(
       message.datapath_id,
       :match => Match.from( message ),
-      :actions => Trema::ActionOutput.new( port_no )
+      :actions => Trema::ActionOutput.new( dest_port_of( message ) )
     )
   end
 
 
-  def packet_out message, port_no
-    send_packet_out message, Trema::ActionOutput.new( port_no )
+  def packet_out message
+    send_packet_out message, Trema::ActionOutput.new( dest_port_of( message ) )
   end
 
 
