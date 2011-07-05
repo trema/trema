@@ -56,6 +56,9 @@ class ForwardingEntry
 end
 
 
+#
+# A database that keep pairs of MAC address and port number
+#
 class ForwardingDB
   extend Forwardable
 
@@ -64,7 +67,6 @@ class ForwardingDB
 
 
   def_delegators :@db, :[]
-  def_delegators :@db, :delete_if
 
 
   def initialize
@@ -88,9 +90,19 @@ class ForwardingDB
       entry.age_max = new_value
     end
   end
+
+
+  def age
+    @db.delete_if do | mac, entry |
+      entry.aged_out?
+    end
+  end
 end
 
 
+#
+# A OpenFlow controller class that emulates a layer-2 switch.
+#
 class LearningSwitch < Trema::Controller
   timer_event :age_db, 5
 
@@ -109,9 +121,7 @@ class LearningSwitch < Trema::Controller
 
   def age_db
     @fdb.each do | datapath_id, db |
-      db.delete_if do | mac, entry |
-        entry.aged_out?
-      end
+      db.age
     end
   end
 
