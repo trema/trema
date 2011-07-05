@@ -117,8 +117,8 @@ class LearningSwitch < Trema::Controller
 
 
   def age_db
-    @fdb.each do | datapath_id, db |
-      db.age
+    @fdb.each_value do | each |
+      each.age
     end
   end
 
