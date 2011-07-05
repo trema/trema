@@ -26,7 +26,7 @@ module Trema
   describe Controller do
     it "should respond to logging methods" do
       [ :critical, :error, :warn, :notice, :info, :debug ].each do | each |
-        Controller.new.__send__( each, "%s message", each ).should == "#{ each } message"
+        Controller.new.should respond_to( each )
       end
     end
   end
@@ -38,4 +38,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-
