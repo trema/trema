@@ -27,25 +27,34 @@ require "forwarding-db"
 
 
 #
-# A OpenFlow controller class that emulates a layer-2 switch.
+# A OpenFlow controller class that emulates multiple layer-2 switches.
 #
 class MultiLearningSwitch < Trema::Controller
-  timer_event :age_db, 5
+  timer_event :age_fdbs, 5
+
+
+  def start
+    @fdbs = Hash.new do | hash, datapath_id |
+      hash[ datapath_id ] = ForwardingDB.new
+    end
+  end
 
 
   def packet_in message
-    learn message
-    if dest_port_of( message )
-      flow_mod message
-      packet_out message
+    fdb = @fdbs[ message.datapath_id ]
+    fdb.learn message.macsa, message.in_port
+    port_no = fdb.port_no_of( message.macda )
+    if port_no
+      flow_mod message, port_no
+      packet_out message, port_no
     else
       flood message
     end
   end
 
 
-  def age_db
-    @fdb.each_value do | each |
+  def age_fdbs
+    @fdbs.each_value do | each |
       each.age
     end
   end
@@ -56,44 +65,22 @@ class MultiLearningSwitch < Trema::Controller
   ##############################################################################
 
 
-  def learn message
-    fdb( message.datapath_id ).learn message.macsa, message.in_port
-  end
-
-
-  def fdb datapath_id
-    @fdb ||= {}
-    @fdb[ datapath_id ] ||= ForwardingDB.new
-    @fdb[ datapath_id ]
-  end
-
-
-  def dest_port_of message
-    dest = fdb( message.datapath_id ).find( message.macda )
-    if dest
-      dest.port_no
-    else
-      nil
-    end
-  end
-
-
-  def flow_mod message
+  def flow_mod message, port_no
     send_flow_mod_add(
       message.datapath_id,
       :match => Match.from( message ),
-      :actions => Trema::ActionOutput.new( dest_port_of( message ) )
+      :actions => Trema::ActionOutput.new( port_no )
     )
   end
 
 
-  def packet_out message
-    send_packet_out message, Trema::ActionOutput.new( dest_port_of( message ) )
+  def packet_out message, port_no
+    send_packet_out message, Trema::ActionOutput.new( port_no )
   end
 
 
   def flood message
-    send_packet_out message, Trema::ActionOutput.new( OFPP_FLOOD )
+    packet_out message, OFPP_FLOOD
   end
 end
 

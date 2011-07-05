@@ -57,16 +57,11 @@ end
 # A database that keep pairs of MAC address and port number
 #
 class ForwardingDB
-  AGE_MAX = 300
+  DEFAULT_AGE_MAX = 300
 
 
   def initialize
     @db = {}
-  end
-
-
-  def find mac
-    @db[ mac ]
   end
 
 
@@ -81,11 +76,11 @@ class ForwardingDB
 
 
   def learn mac, port_no
-    entry = find( mac )
+    entry = @db[ mac ]
     if entry
       entry.update port_no
     else
-      new_entry = ForwardingEntry.new( mac, port_no, AGE_MAX )
+      new_entry = ForwardingEntry.new( mac, port_no, DEFAULT_AGE_MAX )
       @db[ new_entry.mac ] = new_entry
     end
   end

@@ -27,7 +27,7 @@ require "forwarding-db"
 # A OpenFlow controller class that emulates a layer-2 switch.
 #
 class LearningSwitch < Trema::Controller
-  timer_event :age_db, 5
+  timer_event :age_fdb, 5
 
 
   def start
@@ -47,7 +47,7 @@ class LearningSwitch < Trema::Controller
   end
 
 
-  def age_db
+  def age_fdb
     @fdb.age
   end
 
