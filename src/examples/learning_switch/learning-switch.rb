@@ -35,9 +35,10 @@ class LearningSwitch < Trema::Controller
 
   def packet_in message
     fdb.learn message.macsa, message.in_port
-    if dest_port_of( message )
-      flow_mod message
-      packet_out message
+    port_no = fdb.port_no_of( message.macda )
+    if port_no
+      flow_mod message, port_no
+      packet_out message, port_no
     else
       flood message
     end
@@ -45,7 +46,7 @@ class LearningSwitch < Trema::Controller
 
 
   def age_db
-    @fdb.each_value do | each |
+    fdb.entries do | each |
       each.age
     end
   end
@@ -61,32 +62,22 @@ class LearningSwitch < Trema::Controller
   end
 
 
-  def dest_port_of message
-    dest = fdb.find( message.macda )
-    if dest
-      dest.port_no
-    else
-      nil
-    end
-  end
-
-
-  def flow_mod message
+  def flow_mod message, port_no
     send_flow_mod_add(
       message.datapath_id,
       :match => Match.from( message ),
-      :actions => Trema::ActionOutput.new( dest_port_of( message ) )
+      :actions => Trema::ActionOutput.new( port_no )
     )
   end
 
 
-  def packet_out message
-    send_packet_out message, Trema::ActionOutput.new( dest_port_of( message ) )
+  def packet_out message, port_no
+    send_packet_out message, Trema::ActionOutput.new( port_no )
   end
 
 
   def flood message
-    send_packet_out message, Trema::ActionOutput.new( OFPP_FLOOD )
+    packet_out message, OFPP_FLOOD
   end
 end
 

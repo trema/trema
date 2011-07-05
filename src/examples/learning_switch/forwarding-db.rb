@@ -70,6 +70,23 @@ class ForwardingDB
   end
 
 
+  def entries &block
+    @db.each_value do | each |
+      block.call each
+    end
+  end
+
+
+  def port_no_of mac
+    dest = @db[ mac ]
+    if dest
+      dest.port_no
+    else
+      nil
+    end
+  end
+
+
   def learn mac, port_no
     entry = find( mac )
     if entry
