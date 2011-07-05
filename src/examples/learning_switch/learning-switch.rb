@@ -139,32 +139,18 @@ class LearningSwitch < Trema::Controller
     send_flow_mod_add(
       message.datapath_id,
       :match => Match.from( message ),
-      :buffer_id => message.buffer_id,
       :actions => Trema::ActionOutput.new( port_no )
     )
   end
 
 
   def packet_out message, port_no
-    return if message.buffered?
-    send_packet_out(
-      message.datapath_id,
-      message.buffer_id,
-      message.in_port,
-      Trema::ActionOutput.new( port_no ),
-      message.data
-    )
+    send_packet_out message, Trema::ActionOutput.new( port_no )
   end
 
 
   def flood message
-    send_packet_out(
-      message.datapath_id,
-      message.buffer_id,
-      message.in_port,
-      Trema::ActionOutput.new( OFPP_FLOOD ),
-      message.buffered? ? nil : message.data
-    )
+    send_packet_out message, Trema::ActionOutput.new( OFPP_FLOOD )
   end
 end
 

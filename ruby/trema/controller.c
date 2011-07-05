@@ -140,38 +140,93 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
 
 static VALUE
-controller_send_packet_out( VALUE self, VALUE datapath_id, VALUE buffer_id, VALUE in_port, VALUE action, VALUE data ) {
-  openflow_actions *actions = create_actions();
-  append_action_output( actions, rb_funcall( action, rb_intern( "port" ), 0 ), UINT16_MAX );
+controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
+  VALUE first_arg = Qnil;
+  VALUE second_arg = Qnil;
 
-  buffer *packet_out;
-  if ( data == Qnil ) {
-    packet_out = create_packet_out(
+  rb_scan_args( argc, argv, "11", &first_arg, &second_arg );
+
+  if ( rb_funcall( first_arg, rb_intern( "is_a?" ), 1, cPacketIn ) ) {
+    packet_in *cpacket_in;
+    Data_Get_Struct( first_arg, packet_in, cpacket_in );
+
+    VALUE raction = second_arg;
+    openflow_actions *actions = create_actions();
+    if ( raction != Qnil ) {
+      append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
+    }
+
+    buffer *packet_out = create_packet_out(
       get_transaction_id(),
-      NUM2ULONG( buffer_id ),
-      NUM2INT( in_port ),
+      cpacket_in->buffer_id,
+      cpacket_in->in_port,
       actions,
-      NULL
-   );
+      cpacket_in->buffer_id == UINT32_MAX ? cpacket_in->data : NULL
+    );
+
+    send_openflow_message( cpacket_in->datapath_id, packet_out );
+    free_buffer( packet_out );
+
+    delete_actions( actions );
   }
   else {
-    buffer *cbuffer;
-    Data_Get_Struct( data, buffer, cbuffer );
+    uint32_t buffer_id;
 
-    packet_out = create_packet_out(
-      get_transaction_id(),
-      NUM2ULONG( buffer_id ),
-      NUM2INT( in_port ),
-      actions,
-      cbuffer
-   );
+    VALUE datapath_id = first_arg;
+    VALUE options = second_arg;
+
+    VALUE rbuffer_id = Qnil;
+    VALUE rin_port = Qnil;
+    VALUE raction = Qnil;
+    VALUE rdata = Qnil;
+
+    if ( options != Qnil ) {
+      rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
+      rin_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
+      raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
+      rdata = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
+    }
+
+    if ( rbuffer_id == Qnil ) {
+      buffer_id = UINT32_MAX;
+    }
+    else {
+      buffer_id = NUM2ULONG( rbuffer_id );
+    }
+
+    openflow_actions *actions = create_actions();
+    if ( raction != Qnil ) {
+      append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
+    }
+
+    buffer *packet_out;
+    if ( rdata == Qnil ) {
+      packet_out = create_packet_out(
+        get_transaction_id(),
+        buffer_id,
+        NUM2INT( rin_port ),
+        actions,
+        NULL
+      );
+    }
+    else {
+      buffer *cbuffer;
+      Data_Get_Struct( rdata, buffer, cbuffer );
+
+      packet_out = create_packet_out(
+        get_transaction_id(),
+        buffer_id,
+        NUM2INT( rin_port ),
+        actions,
+        cbuffer
+      );
+    }
+
+    send_openflow_message( NUM2ULL( datapath_id ), packet_out );
+    free_buffer( packet_out );
+
+    delete_actions( actions );
   }
-
-  send_openflow_message( NUM2ULL( datapath_id ), packet_out );
-  free_buffer( packet_out );
-
-  delete_actions( actions );
-  
   return self;
 }
 
@@ -299,7 +354,7 @@ Init_controller() {
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
-  rb_define_method( cController, "send_packet_out", controller_send_packet_out, 5 );
+  rb_define_method( cController, "send_packet_out", controller_send_packet_out, -1 );
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
