@@ -34,9 +34,7 @@ module Trema
     # This adds the created object to the DB of controllers.
     #
     def self.inherited subclass
-      controller = subclass.new
-      Controller.instances ||= {}
-      Controller.instances[ controller.name ] = controller
+      subclass.new
     end
 
 
