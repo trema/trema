@@ -20,9 +20,6 @@
 #
 
 
-require "forwardable"
-
-
 class ForwardingEntry
   include Trema::Logger
 
@@ -60,13 +57,7 @@ end
 # A database that keep pairs of MAC address and port number
 #
 class ForwardingDB
-  extend Forwardable
-
-
   AGE_MAX = 300
-
-
-  def_delegators :@db, :[]
 
 
   def initialize
@@ -74,8 +65,13 @@ class ForwardingDB
   end
 
 
+  def find mac
+    @db[ mac ]
+  end
+
+
   def learn mac, port_no
-    entry = @db[ mac ]
+    entry = find( mac )
     if entry
       entry.update port_no
     else
@@ -108,8 +104,9 @@ class LearningSwitch < Trema::Controller
 
 
   def packet_in message
-    fdb( message.datapath_id ).learn message.macsa, message.in_port
-    dest = fdb( message.datapath_id )[ message.macda ]
+    fdb = fdb_of( message.datapath_id )
+    fdb.learn message.macsa, message.in_port
+    dest = fdb.find( message.macda )
     if dest
       flow_mod message, dest.port_no
       packet_out message, dest.port_no
@@ -131,7 +128,7 @@ class LearningSwitch < Trema::Controller
   ##############################################################################
 
 
-  def fdb datapath_id
+  def fdb_of datapath_id
     @fdb ||= {}
     @fdb[ datapath_id ] ||= ForwardingDB.new
     @fdb[ datapath_id ]
