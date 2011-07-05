@@ -1,5 +1,5 @@
 #
-# Simple learning switch application in Ruby
+# Learning switch application that supports multiple switches
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -29,12 +29,12 @@ require "forwarding-db"
 #
 # A OpenFlow controller class that emulates a layer-2 switch.
 #
-class LearningSwitch < Trema::Controller
+class MultiLearningSwitch < Trema::Controller
   timer_event :age_db, 5
 
 
   def packet_in message
-    fdb.learn message.macsa, message.in_port
+    learn message
     if dest_port_of( message )
       flow_mod message
       packet_out message
@@ -56,13 +56,20 @@ class LearningSwitch < Trema::Controller
   ##############################################################################
 
 
-  def fdb
-    @fdb ||= ForwardingDB.new
+  def learn message
+    fdb( message.datapath_id ).learn message.macsa, message.in_port
+  end
+
+
+  def fdb datapath_id
+    @fdb ||= {}
+    @fdb[ datapath_id ] ||= ForwardingDB.new
+    @fdb[ datapath_id ]
   end
 
 
   def dest_port_of message
-    dest = fdb.find( message.macda )
+    dest = fdb( message.datapath_id ).find( message.macda )
     if dest
       dest.port_no
     else
