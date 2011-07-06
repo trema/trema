@@ -22,6 +22,7 @@ $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" 
 
 require "trema/executables"
 require "trema/path"
+require "trema/dsl/parser"
 
 import "c/dependencies"
 import "directedrule"
@@ -70,6 +71,7 @@ gen Clean
 var[ :clean ] << Trema.objects
 var[ :clean ] << File.join( Trema.home, "objects/unittests" )
 var[ :clean ] << File.join( Trema.home, "unittests/objects" )
+var[ :clean ] << Trema::DSL::Parser::CURRENT_CONTEXT
 
 
 desc "Cleanup everything."
