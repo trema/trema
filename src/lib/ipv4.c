@@ -91,9 +91,6 @@ valid_ipv4_packet_more_fragments( buffer *buf, uint32_t packet_len ) {
            "( total length = %u, packet length = %u ).", ip_len, packet_len );
     return false;
   }
-  else if ( ip_len < packet_len ) {
-    buf->length -= ( packet_len - ip_len );
-  }
 
   return true;
 }
