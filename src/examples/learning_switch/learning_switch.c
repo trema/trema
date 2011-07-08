@@ -95,13 +95,16 @@ do_flooding( packet_in packet_in ) {
 
   buffer *packet_out;
   if ( packet_in.buffer_id == UINT32_MAX ) {
+    buffer *frame = duplicate_buffer( packet_in.data );
+    fill_ether_padding( frame );
     packet_out = create_packet_out(
       get_transaction_id(),
       packet_in.buffer_id,
       packet_in.in_port,
       actions,
-      packet_in.data
+      frame
     );
+    free_buffer( frame );
   }
   else {
     packet_out = create_packet_out(
@@ -143,15 +146,18 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
   free_buffer( flow_mod );
 
   if ( packet_in.buffer_id == UINT32_MAX ) {
+    buffer *frame = duplicate_buffer( packet_in.data );
+    fill_ether_padding( frame );
     buffer *packet_out = create_packet_out(
       get_transaction_id(),
       packet_in.buffer_id,
       packet_in.in_port,
       actions,
-      packet_in.data
+      frame
     );
     send_openflow_message( packet_in.datapath_id, packet_out );
     free_buffer( packet_out );
+    free_buffer( frame );
   }
 
   delete_actions( actions );

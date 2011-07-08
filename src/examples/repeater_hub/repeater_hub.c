@@ -48,15 +48,18 @@ handle_packet_in( packet_in message ) {
   free_buffer( flow_mod );
 
   if ( message.buffer_id == UINT32_MAX ) {
+    buffer *frame = duplicate_buffer( message.data );
+    fill_ether_padding( frame );
     buffer *packet_out = create_packet_out(
       get_transaction_id(),
       message.buffer_id,
       message.in_port,
       actions,
-      message.data
+      frame
     );
     send_openflow_message( message.datapath_id, packet_out );
     free_buffer( packet_out );
+    free_buffer( frame );
   }
 
   delete_actions( actions );
