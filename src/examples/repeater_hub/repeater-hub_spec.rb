@@ -24,25 +24,21 @@ require File.join( File.dirname( __FILE__ ), "repeater-hub" )
 
 describe RepeaterHub do
   around do | example |
-    begin
-      trema_run( RepeaterHub ) {
-        vswitch("switch") { datapath_id "0xabc" }
+    network {
+      vswitch("switch") { datapath_id "0xabc" }
 
-        vhost("host1") { promisc "on" }
-        vhost("host2") { promisc "on" }
-        vhost("host3") { promisc "on" }
+      vhost("host1") { promisc "on" }
+      vhost("host2") { promisc "on" }
+      vhost("host3") { promisc "on" }
 
-        link "switch", "host1"
-        link "switch", "host2"
-        link "switch", "host3"
-      }
-
+      link "switch", "host1"
+      link "switch", "host2"
+      link "switch", "host3"
+    }.run( RepeaterHub ) {
       example.run
-    ensure
-      trema_kill
-    end
+    }
   end
-  
+
 
   context "when host1 sends one packet to host2" do
     it "should #packet_in" do

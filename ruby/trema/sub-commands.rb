@@ -82,7 +82,7 @@ class Trema::SubCommands
     f = Tempfile.open( "irbrc" )
     f.print <<EOF
 include Trema::CommonCommands
-@context = Trema::DSL::Context.new
+$context = Trema::DSL::Context.new
 EOF
     f.close
     load f.path

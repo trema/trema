@@ -27,17 +27,17 @@ include Trema
 
 
 def controller name
-  @context.apps[ name ]
+  $context.apps[ name ]
 end
 
 
 def switch name
-  @context.switches[ name ]
+  $context.switches[ name ]
 end
 
 
 def host name
-  @context.hosts[ name ]
+  $context.hosts[ name ]
 end
 alias :vhost :host
 
@@ -48,9 +48,9 @@ def run
   begin
     cleanup_current_session
     if $run_as_daemon
-      DSL::Runner.new( @context ).daemonize
+      DSL::Runner.new( $context ).daemonize
     else
-      DSL::Runner.new( @context ).run
+      DSL::Runner.new( $context ).run
     end
   ensure
     cleanup_current_session
@@ -61,7 +61,7 @@ end
 def drun
   sanity_check
 
-  DSL::Runner.new( @context ).daemonize
+  DSL::Runner.new( $context ).daemonize
 end
 
 
