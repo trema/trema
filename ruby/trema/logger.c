@@ -36,17 +36,15 @@ do_log( void ( *log_function )( const char *format, ... ), int argc, VALUE *argv
 
 
 /*
- * call-seq:
- *   critical(format ...)
+ * @overload critical(format ...)
+ *   Outputs a message representing that "the system is completely
+ *   unusable" to log file.
  *
- * Outputs a message representing that "the system is completely
- * unusable" to log file.
+ *   @example
+ *     critical "Trema blue screen. Memory dump = %s", memory
  *
- * @example
- *   critical "Trema blue screen. Memory dump = %s", memory
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_critical( int argc, VALUE *argv, VALUE self ) {
@@ -56,17 +54,15 @@ logger_critical( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   error(format ...)
+ * @overload error(format ...)
+ *   Outputs a message representing that "something went wrong" to log
+ *   file.
  *
- * Outputs a message representing that "something went wrong" to log
- * file.
+ *   @example
+ *     error "Failed to accept %s", app_socket
  *
- * @example
- *   error "Failed to accept %s", app_socket
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_error( int argc, VALUE *argv, VALUE self ) {
@@ -76,17 +72,15 @@ logger_error( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   warn(format ...)
+ * @overload warn(format ...)
+ *   Outputs a message representing that "something in the system was
+ *   not as expected" to log file.
  *
- * Outputs a message representing that "something in the system was
- * not as expected" to log file.
+ *   @example
+ *     warn "%s: trema is already initialized", app_name
  *
- * @example
- *   warn "%s: trema is already initialized", app_name
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_warn( int argc, VALUE *argv, VALUE self ) {
@@ -96,17 +90,15 @@ logger_warn( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   notice(format ...)
+ * @overload notice(format ...)
+ *   Outputs a message representing that "normal but significant
+ *   condition occurred" to log file.
  *
- * Outputs a message representing that "normal but significant
- * condition occurred" to log file.
+ *   @example
+ *     notice "The switch %s disconnected its secure channel connection", datapath_id
  *
- * @example
- *   notice "The switch %s disconnected its secure channel connection", datapath_id
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_notice( int argc, VALUE *argv, VALUE self ) {
@@ -116,16 +108,14 @@ logger_notice( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   info(format ...)
+ * @overload info(format ...)
+ *   Outputs an informational massage to log file.
  *
- * Outputs an informational massage to log file.
+ *   @example
+ *     info "Hello world from %s!", datapath_id
  *
- * @example
- *   info "Hello world from %s!", datapath_id
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_info( int argc, VALUE *argv, VALUE self ) {
@@ -135,16 +125,14 @@ logger_info( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   debug(format ...)
+ * @overload debug(format ...)
+ *   Outputs a debug-level massage to log file.
  *
- * Outputs a debug-level massage to log file.
+ *   @example
+ *     debug "Setting a packet_in handler: %s", method
  *
- * @example
- *   debug "Setting a packet_in handler: %s", method
- *
- * @return [String] the string resulting from applying format to any
- *   additional arguments.
+ *   @return [String] the string resulting from applying format to any
+ *     additional arguments.
  */
 static VALUE
 logger_debug( int argc, VALUE *argv, VALUE self ) {
