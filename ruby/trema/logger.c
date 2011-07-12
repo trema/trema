@@ -18,12 +18,21 @@
  */
 
 
+#include "checks.h"
 #include "log.h"
 #include "ruby.h"
 
 
 extern VALUE mTrema;
 VALUE mLogger;
+
+
+static VALUE
+do_log( void ( *log_function )( const char *format, ... ), int argc, VALUE *argv ) {
+  VALUE message = rb_f_sprintf( argc, argv );
+  log_function( STR2CSTR( message ) );
+  return message;
+}
 
 
 /*
@@ -41,9 +50,8 @@ VALUE mLogger;
  */
 static VALUE
 logger_critical( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  critical( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( critical, argc, argv ) );
 }
 
 
@@ -62,9 +70,8 @@ logger_critical( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 logger_error( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  error( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( error, argc, argv ) );
 }
 
 
@@ -83,9 +90,8 @@ logger_error( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 logger_warn( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  warn( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( warn, argc, argv ) );
 }
 
 
@@ -104,9 +110,8 @@ logger_warn( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 logger_notice( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  notice( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( notice, argc, argv ) );
 }
 
 
@@ -124,9 +129,8 @@ logger_notice( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 logger_info( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  info( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( info, argc, argv ) );
 }
 
 
@@ -144,9 +148,8 @@ logger_info( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 logger_debug( int argc, VALUE *argv, VALUE self ) {
-  VALUE message = rb_f_sprintf( argc, argv );
-  debug( STR2CSTR( message ) );
-  return message;
+  UNUSED( self );
+  return( do_log( debug, argc, argv ) );
 }
 
 
