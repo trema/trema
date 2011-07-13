@@ -26,12 +26,14 @@ require "trema/dsl/stanza"
 module Trema
   module DSL
     class Switch < Stanza
-      def dpid str
-        no_0x = str.gsub( /^0x/, "" )
-        @dpid_long = "0" * ( 16 - no_0x.length ) + no_0x
-        @dpid_short = str
-        if @name.nil?
-          @name = @dpid_short
+      def dpid value
+        case value
+        when String
+          set_dpid value
+        when Integer
+          set_dpid sprintf( "%#x", value )
+        else
+          raise "Invalid datapath_id: #{ value }"
         end
       end
       alias :datapath_id :dpid
@@ -39,6 +41,24 @@ module Trema
 
       def ports str
         @ports = str
+      end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
+
+
+      def set_dpid string
+        @dpid_long = dpid_long_from( string )
+        @dpid_short = string
+        @name = @dpid_short if @name.nil?
+      end
+
+
+      def dpid_long_from string
+        no_0x = string.gsub( /^0x/, "" )
+        "0" * ( 16 - no_0x.length ) + no_0x
       end
     end
   end

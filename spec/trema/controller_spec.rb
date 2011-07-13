@@ -24,14 +24,30 @@ require "trema"
 
 module Trema
   describe Controller do
-    subject { Controller.new }
+    context "when logging" do
+      subject { Controller.new }
 
-    it { should respond_to :critical }
-    it { should respond_to :error }
-    it { should respond_to :warn }
-    it { should respond_to :notice }
-    it { should respond_to :info }
-    it { should respond_to :debug }
+      it { should respond_to :critical }
+      it { should respond_to :error }
+      it { should respond_to :warn }
+      it { should respond_to :notice }
+      it { should respond_to :info }
+      it { should respond_to :debug }
+    end
+
+
+    context "when sending flow_mod messages" do
+      it "should send a flow_mod_add message" do
+        class FlowModAddController < Controller; end
+
+        network {
+          vswitch { datapath_id 0xabc }
+        }.run( FlowModAddController ) {
+          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc )
+          switch( "0xabc" ).should have( 1 ).flows
+        }
+      end
+    end
   end
 end
 
