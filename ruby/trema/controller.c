@@ -72,6 +72,9 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *   @option options [Match] :match (nil)
  *     A {Match} object describing the fields of the flow.
  *
+ *   @option options [Integer] :idle_timeout (0)
+ *     The idle time in seconds before discarding.
+ *
  *   @option options [Integer] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
@@ -89,15 +92,18 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
   struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
+  uint16_t idle_timeout = 0;
   uint32_t buffer_id;
   openflow_actions *actions = create_actions();
 
   VALUE rmatch = Qnil;
+  VALUE ridle_timeout = Qnil;
   VALUE rbuffer_id = Qnil;
   VALUE raction = Qnil;
 
   if ( options != Qnil ) {
     rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
+    ridle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
     rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
   }
@@ -108,6 +114,10 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   else {
     memset( match, 0, sizeof( struct ofp_match ) );
     match->wildcards = OFPFW_ALL;
+  }
+
+  if ( ridle_timeout != Qnil ) {
+    idle_timeout = NUM2UINT( ridle_timeout );
   }
 
   if ( rbuffer_id == Qnil ) {
@@ -126,7 +136,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     *match,
     get_cookie(),
     OFPFC_ADD,
-    60,
+    idle_timeout,
     0,
     UINT16_MAX,
     buffer_id,

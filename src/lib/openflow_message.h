@@ -73,12 +73,19 @@ buffer *create_port_status( const uint32_t transaction_id, const uint8_t reason,
 buffer *create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id,
                            const uint16_t in_port, const openflow_actions *actions,
                            const buffer *data );
-buffer *create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
-                         const uint64_t cookie, const uint16_t command,
-                         const uint16_t idle_timeout, const uint16_t hard_timeout,
-                         const uint16_t priority, const uint32_t buffer_id,
-                         const uint16_t out_port, const uint16_t flags,
-                         const openflow_actions *actions );
+buffer *create_flow_mod(
+  const uint32_t transaction_id,
+  const struct ofp_match match,
+  const uint64_t cookie,
+  const uint16_t command,
+  const uint16_t idle_timeout,
+  const uint16_t hard_timeout,
+  const uint16_t priority,
+  const uint32_t buffer_id,
+  const uint16_t out_port,
+  const uint16_t flags,
+  const openflow_actions *actions
+);
 buffer *create_port_mod( const uint32_t transaction_id, const uint16_t port_no,
                          const uint8_t hw_addr[ OFP_ETH_ALEN ], const uint32_t config,
                          const uint32_t mask, const uint32_t advertise );
