@@ -90,6 +90,11 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *     If true, send a flow_removed message when the flow expires or
  *     is deleted.
  *
+ *   @option option [Bool] :check_overlap (false)
+ *     If true, check for overlapping entries first, i.e. if there are
+ *     conflicting entries with the same priority, the flow is not
+ *     added and the modification fails.
+ *
  *   @option options [Array] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the flow's packets.
@@ -141,6 +146,11 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem != Qnil ) {
       flags = flags || OFPFF_SEND_FLOW_REM;
+    }
+
+    VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
+    if ( opt_check_overlap != Qnil ) {
+      flags = flags || OFPFF_CHECK_OVERLAP;
     }
 
     VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
