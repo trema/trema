@@ -20,6 +20,10 @@
  */
 
 
+#ifndef LOGGER_H
+#define LOGGER_H
+
+
 #include "ruby.h"
 
 
@@ -27,6 +31,9 @@ extern VALUE mLogger;
 
 
 void Init_logger( void );
+
+
+#endif // LOGGER_H
 
 
 /*

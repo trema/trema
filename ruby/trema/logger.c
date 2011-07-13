@@ -20,7 +20,7 @@
 
 #include "checks.h"
 #include "log.h"
-#include "ruby.h"
+#include "logger.h"
 
 
 extern VALUE mTrema;
