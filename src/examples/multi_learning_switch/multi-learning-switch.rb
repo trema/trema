@@ -68,7 +68,7 @@ class MultiLearningSwitch < Trema::Controller
   def flow_mod message, port_no
     send_flow_mod_add(
       message.datapath_id,
-      :match => Match.from( message ),
+      :match => ExactMatch.from( message ),
       :actions => Trema::ActionOutput.new( port_no )
     )
   end

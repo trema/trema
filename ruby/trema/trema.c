@@ -55,6 +55,8 @@ Init_trema() {
   Init_match();
   Init_packet_in();
   Init_port();
+
+  rb_require( "trema/exact-match" );
 }
 
 

@@ -1,5 +1,5 @@
 #
-# Repeater hub controller.
+# A syntax sugar class for creating an exact match object.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,14 +20,11 @@
 #
 
 
-class RepeaterHub < Trema::Controller
-  def packet_in message
-    send_flow_mod_add(
-      message.datapath_id,
-      :match => ExactMatch.from( message ),
-      :actions => Trema::ActionOutput.new( OFPP_FLOOD )
-    )
-    send_packet_out message, Trema::ActionOutput.new( OFPP_FLOOD )
+module Trema
+  class ExactMatch
+    def self.from message
+      Match.from message
+    end
   end
 end
 
