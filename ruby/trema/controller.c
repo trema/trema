@@ -62,45 +62,45 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *     end
  *
  *
- *   @param [Integer] datapath_id
+ *   @param [Number] datapath_id
  *     the datapath to which a message is sent.
  *
  *   @param [Hash] options
  *     the options to create a message with.
  *
  *
- *   @option options [Match] :match (nil)
+ *   @option options [Match, nil] :match (nil)
  *     A {Match} object describing the fields of the flow.
  *
- *   @option options [Integer] :idle_timeout (0)
+ *   @option options [Number] :idle_timeout (0)
  *     The idle time in seconds before discarding.
  *
- *   @option options [Integer] :hard_timeout (0)
+ *   @option options [Number] :hard_timeout (0)
  *     The maximum time before discarding in seconds.
  *
- *   @option options [Integer] :priority (0xffff)
+ *   @option options [Number] :priority (0xffff)
  *     The priority level of the flow entry.
  *
- *   @option options [Integer] :buffer_id (0xffffffff)
+ *   @option options [Number] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
  *     applied the flow actions.
  *
- *   @option options [Bool] :send_flow_rem (false)
+ *   @option options [Boolean] :send_flow_rem (false)
  *     If true, send a flow_removed message when the flow expires or
  *     is deleted.
  *
- *   @option options [Bool] :check_overlap (false)
+ *   @option options [Boolean] :check_overlap (false)
  *     If true, check for overlapping entries first, i.e. if there are
  *     conflicting entries with the same priority, the flow is not
  *     added and the modification fails.
  *
- *   @option options [Bool] :emerg (false)
+ *   @option options [Boolean] :emerg (false)
  *     if true, the switch must consider this flow entry as an
  *     emergency entry, and only use it for forwarding when
  *     disconnected from the controller.
  *
- *   @option options [Array] :actions (nil)
+ *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the flow's packets.
  */
