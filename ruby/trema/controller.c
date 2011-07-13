@@ -95,6 +95,11 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *     conflicting entries with the same priority, the flow is not
  *     added and the modification fails.
  *
+ *   @option option [Bool] :emerg (false)
+ *     if true, the switch must consider this flow entry as an
+ *     emergency entry, and only use it for forwarding when
+ *     disconnected from the controller.
+ *
  *   @option options [Array] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the flow's packets.
@@ -151,6 +156,11 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
     if ( opt_check_overlap != Qnil ) {
       flags = flags || OFPFF_CHECK_OVERLAP;
+    }
+
+    VALUE opt_emerg = rb_hash_aref( options, ID2SYM( rb_intern( "emerg" ) ) );
+    if ( opt_emerg != Qnil ) {
+      flags = flags || OFPFF_EMERG;
     }
 
     VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
