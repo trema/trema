@@ -90,12 +90,12 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *     If true, send a flow_removed message when the flow expires or
  *     is deleted.
  *
- *   @option option [Bool] :check_overlap (false)
+ *   @option options [Bool] :check_overlap (false)
  *     If true, check for overlapping entries first, i.e. if there are
  *     conflicting entries with the same priority, the flow is not
  *     added and the modification fails.
  *
- *   @option option [Bool] :emerg (false)
+ *   @option options [Bool] :emerg (false)
  *     if true, the switch must consider this flow entry as an
  *     emergency entry, and only use it for forwarding when
  *     disconnected from the controller.
