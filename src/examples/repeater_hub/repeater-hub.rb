@@ -21,9 +21,9 @@
 
 
 class RepeaterHub < Trema::Controller
-  def packet_in message
+  def packet_in datapath_id, message
     send_flow_mod_add(
-      message.datapath_id,
+      datapath_id,
       :match => ExactMatch.from( message ),
       :actions => Trema::ActionOutput.new( OFPP_FLOOD )
     )

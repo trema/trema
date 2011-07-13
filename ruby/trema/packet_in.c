@@ -124,15 +124,15 @@ Init_packet_in() {
 
 
 void
-handle_packet_in( packet_in orig_packet ) {
-  packet_in *new_packet;
+handle_packet_in( packet_in message ) {
+  packet_in *tmp;
 
-  VALUE rpacket = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
-  Data_Get_Struct( rpacket, packet_in, new_packet );
-  memcpy( new_packet, &orig_packet, sizeof( packet_in ) );
+  VALUE r_message = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
+  Data_Get_Struct( r_message, packet_in, tmp );
+  memcpy( tmp, &message, sizeof( packet_in ) );
 
-  VALUE controller = ( VALUE ) orig_packet.user_data;
-  rb_funcall( controller, rb_intern( "packet_in" ), 1, rpacket );
+  VALUE controller = ( VALUE ) message.user_data;
+  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( message.datapath_id ), r_message );
 }
 
 

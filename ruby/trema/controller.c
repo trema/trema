@@ -51,14 +51,8 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *   Sends a flow_mod message to add a flow into the datapath.
  *
  *   @example
- *     # packet_in handler
- *     def packet_in message
- *       send_flow_mod_add(
- *         message.datapath_id,
- *         :match => ExactMatch.from(message),
- *         :buffer_id => message.buffer_id,
- *         :actions => ActionOutput.new(OFPP_FLOOD)
- *       )
+ *     def packet_in datapath_id, message
+ *       send_flow_mod_add datapath_id, :match => ExactMatch.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
  *     end
  *
  *
@@ -379,13 +373,11 @@ controller_features_reply( VALUE self, VALUE message ) {
 
 
 /*
- * call-seq:
- *   packet_in(message)
- *
- * Handle the reception of a {PacketIn} message.
+ * @overload packet_in(datapath_id, message)
+ *   Handle the reception of a {PacketIn} message.
  */
 static VALUE
-controller_packet_in( VALUE self, VALUE packet_in ) {
+controller_packet_in( VALUE self, VALUE datapath_id, VALUE packet_in ) {
   return self;
 }
 
@@ -414,7 +406,7 @@ Init_controller() {
   rb_define_method( cController, "start", controller_start, 0 );
   rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
   rb_define_method( cController, "features_reply", controller_features_reply, 1 );
-  rb_define_method( cController, "packet_in", controller_packet_in, 1 );
+  rb_define_method( cController, "packet_in", controller_packet_in, 2 );
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );

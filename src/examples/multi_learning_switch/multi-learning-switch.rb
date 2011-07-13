@@ -40,12 +40,12 @@ class MultiLearningSwitch < Trema::Controller
   end
 
 
-  def packet_in message
-    fdb = @fdbs[ message.datapath_id ]
+  def packet_in datapath_id, message
+    fdb = @fdbs[ datapath_id ]
     fdb.learn message.macsa, message.in_port
     port_no = fdb.port_no_of( message.macda )
     if port_no
-      flow_mod message, port_no
+      flow_mod datapath_id, message, port_no
       packet_out message, port_no
     else
       flood message
@@ -65,9 +65,9 @@ class MultiLearningSwitch < Trema::Controller
   ##############################################################################
 
 
-  def flow_mod message, port_no
+  def flow_mod datapath_id, message, port_no
     send_flow_mod_add(
-      message.datapath_id,
+      datapath_id,
       :match => ExactMatch.from( message ),
       :actions => Trema::ActionOutput.new( port_no )
     )

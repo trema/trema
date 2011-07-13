@@ -21,7 +21,7 @@
 
 
 class PacketinDumper < Controller
-  def packet_in event
+  def packet_in datapath_id, event
     puts "received a packet_in"
   end
 end
