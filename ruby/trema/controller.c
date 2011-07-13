@@ -94,58 +94,49 @@ static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
-
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
+  // Defaults
   struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
+  memset( match, 0, sizeof( struct ofp_match ) );
+  match->wildcards = OFPFW_ALL;
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
   uint32_t buffer_id = UINT32_MAX;
   openflow_actions *actions = create_actions();
 
-  VALUE rmatch = Qnil;
-  VALUE ridle_timeout = Qnil;
-  VALUE rhard_timeout = Qnil;
-  VALUE rpriority = Qnil;
-  VALUE rbuffer_id = Qnil;
-  VALUE raction = Qnil;
-
+  // Options
   if ( options != Qnil ) {
-    rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
-    ridle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
-    rhard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
-    rpriority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
-    rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-    raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
-  }
+    VALUE opt_match = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
+    if ( opt_match != Qnil ) {
+      Data_Get_Struct( opt_match, struct ofp_match, match );
+    }
 
-  if ( rmatch != Qnil ) {
-    Data_Get_Struct( rmatch, struct ofp_match, match );
-  }
-  else {
-    memset( match, 0, sizeof( struct ofp_match ) );
-    match->wildcards = OFPFW_ALL;
-  }
+    VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
+    if ( opt_idle_timeout != Qnil ) {
+      idle_timeout = NUM2UINT( opt_idle_timeout );
+    }
 
-  if ( ridle_timeout != Qnil ) {
-    idle_timeout = NUM2UINT( ridle_timeout );
-  }
+    VALUE opt_hard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
+    if ( opt_hard_timeout != Qnil ) {
+      hard_timeout = NUM2UINT( opt_hard_timeout );
+    }
 
-  if ( rhard_timeout != Qnil ) {
-    hard_timeout = NUM2UINT( rhard_timeout );
-  }
+    VALUE opt_priority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
+    if ( opt_priority != Qnil ) {
+      priority = NUM2UINT( opt_priority );
+    }
 
-  if ( rpriority != Qnil ) {
-    priority = NUM2UINT( priority );
-  }
+    VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
+    if ( opt_buffer_id != Qnil ) {
+      buffer_id = NUM2ULONG( opt_buffer_id );
+    }
 
-  if ( rbuffer_id != Qnil ) {
-    buffer_id = NUM2ULONG( rbuffer_id );
-  }
-
-  if ( raction != Qnil ) {
-    append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
+    VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
+    if ( opt_actions != Qnil ) {
+      append_action_output( actions, rb_funcall( opt_actions, rb_intern( "port" ), 0 ), UINT16_MAX );
+    }
   }
 
   buffer *flow_mod = create_flow_mod(
