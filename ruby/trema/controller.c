@@ -86,6 +86,10 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
  *     applied the flow actions.
  *
+ *   @option options [Bool] :send_flow_rem (false)
+ *     If true, send a flow_removed message when the flow expires or
+ *     is deleted.
+ *
  *   @option options [Array] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the flow's packets.
@@ -104,6 +108,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
   uint32_t buffer_id = UINT32_MAX;
+  uint16_t flags = 0;
   openflow_actions *actions = create_actions();
 
   // Options
@@ -133,6 +138,11 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
       buffer_id = NUM2ULONG( opt_buffer_id );
     }
 
+    VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
+    if ( opt_send_flow_rem != Qnil ) {
+      flags = flags || OFPFF_SEND_FLOW_REM;
+    }
+
     VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
     if ( opt_actions != Qnil ) {
       append_action_output( actions, rb_funcall( opt_actions, rb_intern( "port" ), 0 ), UINT16_MAX );
@@ -149,7 +159,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     priority,
     buffer_id,
     OFPP_NONE,
-    0,
+    flags,
     actions
   );
   send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
