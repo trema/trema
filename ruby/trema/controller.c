@@ -27,7 +27,7 @@
 #include "trema.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
 VALUE cController;
 
 
@@ -47,35 +47,39 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
 
 
 /*
- * call-seq:
- *   send_flow_mod_add(datapath_id, options={})
+ * @overload send_flow_mod_add(datapath_id, options={})
+ *   Sends a flow_mod message to add a flow into the datapath.
  *
- * Sends a flow_mod message to add a flow into the datapath.
+ *   @example
+ *     # packet_in handler
+ *     def packet_in message
+ *       send_flow_mod_add(
+ *         message.datapath_id,
+ *         :match => Match.from(message),
+ *         :buffer_id => message.buffer_id,
+ *         :actions => ActionOutput.new(OFPP_FLOOD)
+ *       )
+ *     end
  *
- *  # packet_in handler
- *  def packet_in message
- *    send_flow_mod_add(
- *      datapath_id,
- *      :match => Match.from(message),
- *      :buffer_id => message.buffer_id,
- *      :actions => ActionOutput.new( OFPP_FLOOD )
- *    )
- *  end
  *
- * Options:
+ *   @param [Integer] datapath_id
+ *     the datapath to which a message is sent.
  *
- * <code>match</code>::
- *   A {Match} object describing the fields of the
- *   flow. <em>(default=all fields are wildcarded)</em>
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- * <code>buffer_id</code>::
- *   The buffer ID assigned by the datapath of a buffered packet to
- *   apply the flow to. If 0xffffffff, no buffered packet is to be
- *   applied the flow actions. <em>(default=0xffffffff)</em>
- * 
- * <code>actions</code>::
- *   The sequence of actions specifying the actions to perform on the
- *   flow's packets. <em>(default=[])</em>
+ *
+ *   @option options [Match] :match (nil)
+ *     A {Match} object describing the fields of the flow.
+ *
+ *   @option options [Integer] :buffer_id (0xffffffff)
+ *     The buffer ID assigned by the datapath of a buffered packet to
+ *     apply the flow to. If 0xffffffff, no buffered packet is to be
+ *     applied the flow actions.
+ *
+ *   @option options [Array] :actions (nil)
+ *     The sequence of actions specifying the actions to perform on
+ *     the flow's packets.
  */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
@@ -344,12 +348,11 @@ controller_packet_in( VALUE self, VALUE packet_in ) {
 
 void
 Init_controller() {
-  mTrema = rb_define_module( "Trema" );
-
-  rb_require( "trema/controller" );
-
-  cController = rb_eval_string( "Trema::Controller" );
+  rb_require( "trema/app" );
+  VALUE cApp = rb_eval_string( "Trema::App" );
+  cController = rb_define_class_under( mTrema, "Controller", cApp );
   rb_include_module( cController, mLogger );
+
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
@@ -367,6 +370,8 @@ Init_controller() {
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
+
+  rb_require( "trema/controller" );
 }
 
 
