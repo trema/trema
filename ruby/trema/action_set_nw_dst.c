@@ -1,5 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,38 +20,41 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "action_common.h"
 
 
 extern VALUE mTrema;
-VALUE cActionOutput;
+VALUE cActionSetNwDst;
 
 static VALUE
-action_output_init( VALUE self, VALUE port ) {
-  rb_iv_set( self, "@port", port );
+action_set_nw_dst_init( VALUE self, VALUE nw_dst ) {
+  rb_iv_set( self, "@nw_dst", nw_dst );
   return self;
 }
 
 static VALUE
-action_output_port( VALUE self ) {
-  return NUM2UINT( rb_iv_get( self, "@port" ) );
+action_get_nw_dst( VALUE self ) {
+  return rb_iv_get( self, "@nw_dst" );
 }
 
 static VALUE
-action_output_append( VALUE self, VALUE action_ptr ) {
+action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_output( actions, ( uint16_t )action_output_port( self ), UINT16_MAX );
+
+  append_action_set_nw_dst( actions, nw_addr_to_i( action_get_nw_dst( self ) ) );
 
   return self;
 }
 
 void
-Init_action_output( ) {
-  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
-  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
-  rb_define_method( cActionOutput, "port", action_output_port, 0 );
-  rb_define_method( cActionOutput, "append", action_output_append, 1 );
+Init_action_set_nw_dst( ) {
+  rb_require( "ipaddr" );
+  cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", rb_cObject );
+  rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
+  rb_define_method( cActionSetNwDst, "nw_dst", action_get_nw_dst, 0 );
+  rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
 }
 
 /*

@@ -23,35 +23,36 @@
 
 
 extern VALUE mTrema;
-VALUE cActionOutput;
+VALUE cFlowStatsRequest;
+
 
 static VALUE
-action_output_init( VALUE self, VALUE port ) {
-  rb_iv_set( self, "@port", port );
-  return self;
+flow_stats_request_init( VALUE self, VALUE match_obj ) {
+	struct ofp_match *match;
+  buffer *flow_stats_request;
+	uint32_t transaction_id = get_transaction_id();
+	uint16_t flags = 0;
+	uint8_t table_id = 0xff;
+	uint16_t out_port = OFPP_NONE;
+
+	Data_Get_Struct( match_obj, struct ofp_match, match );
+	flow_stats_request = create_flow_stats_request( transaction_id, flags, *match, table_id, out_port );
+  rb_iv_set( self, "@buffer", Data_Wrap_Struct( cFlowStatsRequest, NULL, free_buffer, flow_stats_request ) );
+	return self;
 }
+
 
 static VALUE
-action_output_port( VALUE self ) {
-  return NUM2UINT( rb_iv_get( self, "@port" ) );
+flow_stats_request_buffer( VALUE self ) {
+	return rb_iv_get( self, "@buffer" );
 }
 
-static VALUE
-action_output_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_output( actions, ( uint16_t )action_output_port( self ), UINT16_MAX );
-
-  return self;
-}
 
 void
-Init_action_output( ) {
-  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
-  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
-  rb_define_method( cActionOutput, "port", action_output_port, 0 );
-  rb_define_method( cActionOutput, "append", action_output_append, 1 );
+Init_flow_stats_request( ) {
+  cFlowStatsRequest = rb_define_class_under( mTrema, "FlowStatsRequest", rb_cObject );
+  rb_define_method( cFlowStatsRequest, "initialize", flow_stats_request_init, 1 );
+  rb_define_method( cFlowStatsRequest, "buffer", flow_stats_request_buffer, 0 );
 }
 
 /*

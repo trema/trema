@@ -1,5 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -23,35 +23,35 @@
 
 
 extern VALUE mTrema;
-VALUE cActionOutput;
+VALUE cActionSetTpDst;
 
 static VALUE
-action_output_init( VALUE self, VALUE port ) {
-  rb_iv_set( self, "@port", port );
+action_set_tp_dst_init( VALUE self, VALUE tp_dst ) {
+  rb_iv_set( self, "@tp_dst", tp_dst );
   return self;
 }
 
 static VALUE
-action_output_port( VALUE self ) {
-  return NUM2UINT( rb_iv_get( self, "@port" ) );
+action_get_tp_dst( VALUE self ) {
+  return NUM2UINT( rb_iv_get( self, "@tp_dst" ) );
 }
 
 static VALUE
-action_output_append( VALUE self, VALUE action_ptr ) {
+action_set_tp_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_output( actions, ( uint16_t )action_output_port( self ), UINT16_MAX );
+  append_action_set_tp_dst( actions, ( uint16_t )action_get_tp_dst( self ) );
 
   return self;
 }
 
 void
-Init_action_output( ) {
-  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
-  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
-  rb_define_method( cActionOutput, "port", action_output_port, 0 );
-  rb_define_method( cActionOutput, "append", action_output_append, 1 );
+Init_action_set_tp_dst( ) {
+  cActionSetTpDst = rb_define_class_under( mTrema, "ActionSetTpDst", rb_cObject );
+  rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, 1 );
+  rb_define_method( cActionSetTpDst, "tp_dst", action_get_tp_dst, 0 );
+  rb_define_method( cActionSetTpDst, "append", action_set_tp_dst_append, 1 );
 }
 
 /*
