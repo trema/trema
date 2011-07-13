@@ -24,11 +24,14 @@ require "trema"
 
 module Trema
   describe Controller do
-    it "should respond to logging methods" do
-      [ :critical, :error, :warn, :notice, :info, :debug ].each do | each |
-        Controller.new.should respond_to( each )
-      end
-    end
+    subject { Controller.new }
+
+    it { should respond_to :critical }
+    it { should respond_to :error }
+    it { should respond_to :warn }
+    it { should respond_to :notice }
+    it { should respond_to :info }
+    it { should respond_to :debug }
   end
 end
 
