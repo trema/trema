@@ -78,6 +78,9 @@ controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
  *   @option options [Integer] :hard_timeout (0)
  *     The maximum time before discarding in seconds.
  *
+ *   @option options [Integer] :priority (0xffff)
+ *     The priority level of the flow entry.
+ *
  *   @option options [Integer] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
@@ -97,12 +100,14 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
   struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
-  uint32_t buffer_id;
+  uint16_t priority = UINT16_MAX;
+  uint32_t buffer_id = UINT32_MAX;
   openflow_actions *actions = create_actions();
 
   VALUE rmatch = Qnil;
   VALUE ridle_timeout = Qnil;
   VALUE rhard_timeout = Qnil;
+  VALUE rpriority = Qnil;
   VALUE rbuffer_id = Qnil;
   VALUE raction = Qnil;
 
@@ -110,6 +115,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     rmatch = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
     ridle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
     rhard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
+    rpriority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
     rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
   }
@@ -130,10 +136,11 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     hard_timeout = NUM2UINT( rhard_timeout );
   }
 
-  if ( rbuffer_id == Qnil ) {
-    buffer_id = UINT32_MAX;
+  if ( rpriority != Qnil ) {
+    priority = NUM2UINT( priority );
   }
-  else {
+
+  if ( rbuffer_id != Qnil ) {
     buffer_id = NUM2ULONG( rbuffer_id );
   }
 
@@ -148,7 +155,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
     OFPFC_ADD,
     idle_timeout,
     hard_timeout,
-    UINT16_MAX,
+    priority,
     buffer_id,
     OFPP_NONE,
     0,
