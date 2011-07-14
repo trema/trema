@@ -41,7 +41,7 @@ action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_vlan_pcp( actions, action_get_vlan_pcp( self ) );
+  append_action_set_vlan_pcp( actions, ( uint8_t ) action_get_vlan_pcp( self ) );
 
   return self;
 }

@@ -41,7 +41,7 @@ action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_vlan_vid( actions, action_get_vlan_vid( self ) );
+  append_action_set_vlan_vid( actions, ( uint16_t ) action_get_vlan_vid( self ) );
 
   return self;
 }
