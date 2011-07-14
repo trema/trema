@@ -372,16 +372,6 @@ controller_features_reply( VALUE self, VALUE message ) {
 }
 
 
-/*
- * @overload packet_in(datapath_id, message)
- *   Handle the reception of a {PacketIn} message.
- */
-static VALUE
-controller_packet_in( VALUE self, VALUE datapath_id, VALUE packet_in ) {
-  return self;
-}
-
-
 /********************************************************************************
  * Init Controller module.
  ********************************************************************************/
@@ -406,7 +396,6 @@ Init_controller() {
   rb_define_method( cController, "start", controller_start, 0 );
   rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
   rb_define_method( cController, "features_reply", controller_features_reply, 1 );
-  rb_define_method( cController, "packet_in", controller_packet_in, 2 );
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );

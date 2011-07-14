@@ -125,13 +125,16 @@ Init_packet_in() {
 
 void
 handle_packet_in( packet_in message ) {
-  packet_in *tmp;
+  VALUE controller = ( VALUE ) message.user_data;
+  if ( rb_respond_to( controller, rb_intern( "packet_in" ) ) == Qfalse ) {
+    return;
+  }
 
   VALUE r_message = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
+  packet_in *tmp = NULL;
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
 
-  VALUE controller = ( VALUE ) message.user_data;
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( message.datapath_id ), r_message );
 }
 
