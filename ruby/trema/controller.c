@@ -311,7 +311,9 @@ controller_run( VALUE self ) {
   interval.it_value.tv_nsec = 0;
   add_timer_event_callback( &interval, handle_timer_event, ( void * ) self );
 
-  rb_funcall( self, rb_intern( "start" ), 0 );
+  if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
+    rb_funcall( self, rb_intern( "start" ), 0 );
+  }
 
   rb_funcall( self, rb_intern( "start_trema" ), 0 );
 
@@ -348,31 +350,6 @@ controller_start_trema( VALUE self ) {
 
 
 /********************************************************************************
- * Handlers.
- ********************************************************************************/
-
-// Override me if necessary.
-static VALUE
-controller_start( VALUE self ) {
-  return self;
-}
-
-
-// Override me if necessary.
-static VALUE
-controller_switch_ready( VALUE self, VALUE datapath_id ) {
-  return self;
-}
-
-
-// Override me if necessary.
-static VALUE
-controller_features_reply( VALUE self, VALUE message ) {
-  return self;
-}
-
-
-/********************************************************************************
  * Init Controller module.
  ********************************************************************************/
 
@@ -391,11 +368,6 @@ Init_controller() {
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
-
-  // Handlers
-  rb_define_method( cController, "start", controller_start, 0 );
-  rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
-  rb_define_method( cController, "features_reply", controller_features_reply, 1 );
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
