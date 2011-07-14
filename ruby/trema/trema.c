@@ -40,7 +40,7 @@
 #include "action_set_vlan_vid.h"
 #include "action_set_vlan_pcp.h"
 #include "action_strip_vlan.h"
-#include "flow_stats_request.h"
+#include "stats_request.h"
 #include "match.h"
 #include "flow_removed.h"
 #include "port_status.h"
@@ -78,7 +78,7 @@ Init_trema() {
   Init_controller();
   Init_features_reply();
   Init_features_request();
-  Init_flow_stats_request();
+  Init_stats_request();
   Init_hello();
   Init_match();
   Init_packet_in();
