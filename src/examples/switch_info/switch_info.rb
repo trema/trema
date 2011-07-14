@@ -22,7 +22,7 @@
 
 class SwitchInfoController < Controller
   def switch_ready datapath_id
-    send_message FeaturesRequest.new, datapath_id
+    send_message datapath_id, FeaturesRequest.new
   end
 
 

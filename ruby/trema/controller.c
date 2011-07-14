@@ -38,7 +38,7 @@ handle_timer_event( void *self ) {
 
 
 static VALUE
-controller_send_message( VALUE self, VALUE message, VALUE datapath_id ) {
+controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   buffer *buf;
   Data_Get_Struct( message, buffer, buf );
   send_openflow_message( NUM2ULL( datapath_id ), buf );
