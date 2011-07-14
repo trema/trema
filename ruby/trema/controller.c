@@ -187,92 +187,59 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
 static VALUE
 controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
-  VALUE first_arg = Qnil;
-  VALUE second_arg = Qnil;
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
-  rb_scan_args( argc, argv, "11", &first_arg, &second_arg );
+  // Defaults.
+  uint32_t buffer_id = UINT32_MAX;
+  uint16_t in_port = OFPP_NONE;
+  openflow_actions *actions = create_actions();
+  buffer *data = NULL;
 
-  if ( rb_funcall( first_arg, rb_intern( "is_a?" ), 1, cPacketIn ) ) {
-    packet_in *cpacket_in;
-    Data_Get_Struct( first_arg, packet_in, cpacket_in );
+  if ( options != Qnil ) {
+    VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
+    if ( opt_message != Qnil ) {
+      packet_in *message;
+      Data_Get_Struct( opt_message, packet_in, message );
 
-    VALUE raction = second_arg;
-    openflow_actions *actions = create_actions();
-    if ( raction != Qnil ) {
-      append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
+      buffer_id = message->buffer_id;
+      in_port = message->in_port;
+      data = UINT32_MAX ? message->data : NULL;
     }
 
-    buffer *packet_out = create_packet_out(
-      get_transaction_id(),
-      cpacket_in->buffer_id,
-      cpacket_in->in_port,
-      actions,
-      cpacket_in->buffer_id == UINT32_MAX ? cpacket_in->data : NULL
-    );
+    VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
+    if ( opt_buffer_id != Qnil ) {
+      buffer_id = NUM2ULONG( opt_buffer_id );
+    }
 
-    send_openflow_message( cpacket_in->datapath_id, packet_out );
-    free_buffer( packet_out );
+    VALUE opt_in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
+    if ( opt_in_port != Qnil ) {
+      in_port = NUM2UINT( opt_in_port );
+    }
 
-    delete_actions( actions );
+    VALUE opt_action = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
+    if ( opt_action != Qnil ) {
+      append_action_output( actions, rb_funcall( opt_action, rb_intern( "port" ), 0 ), UINT16_MAX );
+    }
+
+    VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
+    if ( opt_data != Qnil ) {
+      Data_Get_Struct( opt_data, buffer, data );
+    }
   }
-  else {
-    uint32_t buffer_id;
 
-    VALUE datapath_id = first_arg;
-    VALUE options = second_arg;
+  buffer *packet_out = create_packet_out(
+    get_transaction_id(),
+    buffer_id,
+    in_port,
+    actions,
+    data
+  );
+  send_openflow_message( NUM2ULL( datapath_id ), packet_out );
 
-    VALUE rbuffer_id = Qnil;
-    VALUE rin_port = Qnil;
-    VALUE raction = Qnil;
-    VALUE rdata = Qnil;
-
-    if ( options != Qnil ) {
-      rbuffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-      rin_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
-      raction = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
-      rdata = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
-    }
-
-    if ( rbuffer_id == Qnil ) {
-      buffer_id = UINT32_MAX;
-    }
-    else {
-      buffer_id = NUM2ULONG( rbuffer_id );
-    }
-
-    openflow_actions *actions = create_actions();
-    if ( raction != Qnil ) {
-      append_action_output( actions, rb_funcall( raction, rb_intern( "port" ), 0 ), UINT16_MAX );
-    }
-
-    buffer *packet_out;
-    if ( rdata == Qnil ) {
-      packet_out = create_packet_out(
-        get_transaction_id(),
-        buffer_id,
-        NUM2INT( rin_port ),
-        actions,
-        NULL
-      );
-    }
-    else {
-      buffer *cbuffer;
-      Data_Get_Struct( rdata, buffer, cbuffer );
-
-      packet_out = create_packet_out(
-        get_transaction_id(),
-        buffer_id,
-        NUM2INT( rin_port ),
-        actions,
-        cbuffer
-      );
-    }
-
-    send_openflow_message( NUM2ULL( datapath_id ), packet_out );
-    free_buffer( packet_out );
-
-    delete_actions( actions );
-  }
+  free_buffer( packet_out );
+  delete_actions( actions );
   return self;
 }
 

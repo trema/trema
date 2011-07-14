@@ -27,7 +27,11 @@ class RepeaterHub < Trema::Controller
       :match => ExactMatch.from( message ),
       :actions => Trema::ActionOutput.new( OFPP_FLOOD )
     )
-    send_packet_out message, Trema::ActionOutput.new( OFPP_FLOOD )
+    send_packet_out(
+      datapath_id,
+      :packet_in => message,
+      :actions => Trema::ActionOutput.new( OFPP_FLOOD )
+    )
   end
 end
 
