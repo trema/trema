@@ -185,6 +185,48 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * @overload send_packet_out(datapath_id, options={})
+ *   Sends a packet_out message to have a packet processed by the datapath.
+ *
+ *   @example
+ *     send_packet_out(
+ *       datapath_id,
+ *       :packet_in => message,
+ *       :actions => Trema::ActionOutput.new(port_no)
+ *     )
+ *
+ *
+ *   @param [Number] datapath_id
+ *     the datapath to which a message is sent.
+ *
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *
+ *   @option options [PacketIn] :packet_in (nil)
+ *     The {PacketIn} object received by packet_in handler. If this
+ *     option is not nil, :buffer_id, :data, and :in_port option is
+ *     set automatically according to the value of :packet_in.
+ *
+ *   @option options [Number] :in_port (OFPP_NONE)
+ *     The port from which the frame is to be sent. OFPP_NONE if
+ *     none. OFPP_TABLE to perform the actions defined in the flow
+ *     table.
+ *
+ *   @option options [Number] :buffer_id (0xffffffff)
+ *     The buffer ID assigned by the datapath. If 0xffffffff, the
+ *     frame is not buffered, and the entire frame must be passed in
+ *     :data.
+ *
+ *   @option options [Buffer, nil] :data (nil)
+ *     The entire Ethernet frame. Should be of length 0 if buffer_id
+ *     is 0xffffffff, and should be of length >0 otherwise.
+ *
+ *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
+ *     The sequence of actions specifying the actions to perform on
+ *     the frame.
+ */
 static VALUE
 controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
