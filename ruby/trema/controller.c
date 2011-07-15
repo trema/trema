@@ -37,6 +37,20 @@ handle_timer_event( void *self ) {
 }
 
 
+/*
+ * @overload send_message(datapath_id, message)
+ *   Sends an OpenFlow message to the datapath.
+ *
+ *   @example
+ *     send_message datapath_id, FeaturesRequest.new
+ *
+ *
+ *   @param [Number] datapath_id
+ *     the datapath to which a message is sent.
+ *
+ *   @param [FeaturesRequest] message
+ *     the message to be sent.
+ */
 static VALUE
 controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   buffer *buf;
