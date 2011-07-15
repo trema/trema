@@ -1,3 +1,8 @@
+Trema ![Project status](http://stillmaintained.com/trema/trema.png)
+=====
+An Open Source modular framework for developing OpenFlow controllers in Ruby/C
+
+
 What's Trema?
 =============
 
