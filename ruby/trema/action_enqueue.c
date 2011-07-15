@@ -45,7 +45,7 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_enqueue( actions, (uint16_t) action_get_port( self ), (uint16_t) action_get_queue_id( self ) );
+  append_action_enqueue( actions, ( uint16_t ) action_get_port( self ), ( uint16_t ) action_get_queue_id( self ) );
 
   return self;
 }

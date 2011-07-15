@@ -41,7 +41,7 @@ action_set_tp_src_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_tp_src( actions, ( uint16_t )action_get_tp_src( self ) );
+  append_action_set_tp_src( actions, ( uint16_t ) action_get_tp_src( self ) );
 
   return self;
 }

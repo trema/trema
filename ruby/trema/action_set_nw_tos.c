@@ -41,7 +41,7 @@ action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_nw_tos( actions, ( uint8_t )( action_get_nw_tos( self ) ) );
+  append_action_set_nw_tos( actions, ( uint8_t ) ( action_get_nw_tos( self ) ) );
 
   return self;
 }

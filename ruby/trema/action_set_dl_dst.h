@@ -20,7 +20,7 @@
 
 extern VALUE cActionSetDlDst;
 
-void Init_action_set_dl_dst( void );
+void Init_action_set_dl_dst(void);
 
 /*
  * Local variables:

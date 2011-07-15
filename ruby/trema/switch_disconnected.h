@@ -20,7 +20,7 @@
  */
 
 
-void handle_switch_disconnected( uint64_t datapath_id, void *controller );
+void handle_switch_disconnected(uint64_t datapath_id, void *controller);
 
 
 /*

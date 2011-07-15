@@ -39,7 +39,7 @@ dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr ) {
   int len = RARRAY_LEN( mac_arr ), i;
 
   for ( i = 0; i < len; i++ ) {
-    ret_dl_addr[i] = (uint8_t ) ( FIX2INT( rb_funcall( data_ptr[i], rb_intern( "hex" ), 0 ) ) );
+    ret_dl_addr[i] = ( uint8_t ) ( FIX2INT( rb_funcall( data_ptr[i], rb_intern( "hex" ), 0 ) ) );
   }
   return ret_dl_addr;
 }

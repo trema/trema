@@ -20,7 +20,7 @@
 
 extern VALUE cActionSetDlSrc;
 
-void Init_action_set_dl_src( void );
+void Init_action_set_dl_src(void);
 
 /*
  * Local variables:

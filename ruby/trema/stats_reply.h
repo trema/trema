@@ -25,15 +25,15 @@
 extern VALUE cStatsReply;
 
 
-void Init_stats_reply( void );
+void Init_stats_reply(void);
 
 void
 handle_stats_reply(
         uint64_t datapath_id,
         uint32_t transaction_id,
-				uint16_t type,
-				uint16_t flags,
-				const buffer *body,
+        uint16_t type,
+        uint16_t flags,
+        const buffer *body,
         void *controller
         );
 /*

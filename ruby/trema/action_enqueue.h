@@ -22,7 +22,7 @@
 extern VALUE cActionEnqueue;
 
 
-void Init_action_enqueue( void );
+void Init_action_enqueue(void);
 
 /*
  * Local variables:

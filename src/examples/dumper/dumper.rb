@@ -10,7 +10,8 @@ class Dumper < Controller
     )
     send_packet_out message, ActionOutput.new( OFPP_FLOOD )
 
-		send_message FlowStatsRequest.new( match ).buffer, message.datapath_id
+		options = { }
+		send_message VendorStatsRequest.new(options).to_packet.buffer, message.datapath_id
   end
 
 	def flow_removed message
@@ -63,7 +64,18 @@ class Dumper < Controller
 		info "type: 0x#{message.type.to_s(16)}"
 		arr = message.stats
 		arr.each do |each| 
-			puts each.data
+			puts each.to_s
+		end
+	end
+
+	def openflow_error message
+		info "[error]"
+		info "datapath_id 0x#{message.datapath_id.to_s(16)}"
+		info "type: 0x#{message.type.to_s(16)}"
+		info "code: 0x#{message.code.to_s(16)}"
+		info "data: "
+		message.data.each do |d|
+			puts (d.gsub(/../) { |byte| byte.hex.chr}).unpack("H*")
 		end
 	end
 end

@@ -24,7 +24,7 @@
 extern VALUE cActionSetVlanVid;
 
 
-void Init_action_set_vlan_vid( void );
+void Init_action_set_vlan_vid(void);
 
 /*
  * Local variables:

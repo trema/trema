@@ -17,8 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-uint32_t nw_addr_to_i( VALUE nw_addr );
-uint8_t *dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr );
+uint32_t nw_addr_to_i(VALUE nw_addr);
+uint8_t *dl_addr_short(VALUE dl_addr, uint8_t *ret_dl_addr);
 
 
 /*

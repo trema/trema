@@ -27,22 +27,22 @@
 extern VALUE cFlowRemoved;
 
 
-void Init_flow_removed( void );
+void Init_flow_removed(void);
 
 void handle_flow_removed(
-  uint64_t datapath_id,
-	uint32_t transaction_id,
-	struct ofp_match match,
-	uint64_t cookie,
-	uint16_t priority,
-	uint8_t reason,
-	uint32_t duration_sec,
-	uint32_t duration_nsec,
-	uint16_t idle_timeout,
-	uint64_t packet_count,
-	uint64_t byte_count,
-	void *controller
-);
+        uint64_t datapath_id,
+        uint32_t transaction_id,
+        struct ofp_match match,
+        uint64_t cookie,
+        uint16_t priority,
+        uint8_t reason,
+        uint32_t duration_sec,
+        uint32_t duration_nsec,
+        uint16_t idle_timeout,
+        uint64_t packet_count,
+        uint64_t byte_count,
+        void *controller
+        );
 
 /*
  * Local variables:

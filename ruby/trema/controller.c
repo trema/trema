@@ -28,6 +28,7 @@
 #include "switch_disconnected.h"
 #include "port_status.h"
 #include "stats_reply.h"
+#include "openflow_error.h"
 #include "trema.h"
 
 
@@ -412,6 +413,7 @@ controller_run( VALUE self ) {
   set_switch_disconnected_handler( handle_switch_disconnected, ( void * ) self );
   set_port_status_handler( handle_port_status, ( void * ) self );
   set_stats_reply_handler( handle_stats_reply, ( void * ) self );
+  set_error_handler( handle_openflow_error, ( void * ) self );
 
   struct itimerspec interval;
   interval.it_interval.tv_sec = 1;
@@ -505,25 +507,37 @@ controller_flow_removed( VALUE self, VALUE message ) {
 }
 
 // Override me if necessary.
+
 static VALUE
 controller_switch_disconnected( VALUE self, VALUE datapath_id ) {
-	UNUSED( datapath_id );
+  UNUSED( datapath_id );
   return self;
 }
 
 // Override me if necessary.
+
 static VALUE
 controller_port_status( VALUE self, VALUE port_status ) {
-	UNUSED( port_status );
+  UNUSED( port_status );
   return self;
 }
 
 // Override me if necessary.
+
 static VALUE
 controller_stats_reply( VALUE self, VALUE stats_reply ) {
-	UNUSED( stats_reply );
+  UNUSED( stats_reply );
   return self;
 }
+
+// Override me if necessary.
+
+static VALUE
+controller_openflow_error( VALUE self, VALUE openflow_error ) {
+  UNUSED( openflow_error );
+  return self;
+}
+
 /********************************************************************************
 >>>>>>> flow mod messages, actions, asynchronous event handlers
  * Init Controller module.
@@ -557,6 +571,8 @@ Init_controller() {
   rb_define_method( cController, "switch_disconnected", controller_switch_disconnected, 1 );
   rb_define_method( cController, "port_status", controller_port_status, 1 );
   rb_define_method( cController, "stats_reply", controller_stats_reply, 1 );
+  rb_define_method( cController, "openflow_error", controller_openflow_error, 1 );
+
 
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
