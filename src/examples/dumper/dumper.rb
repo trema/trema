@@ -1,17 +1,19 @@
 class Dumper < Controller
 
-  def packet_in message
+  def packet_in datapath_id, message
 		puts "packet in received"
-		match = Match.from( message )
     send_flow_mod_add(
-      message.datapath_id,
-      :match => match,
+      datapath_id,
+      :match => ExactMatch.from( message ),
       :actions => [ ActionOutput.new( OFPP_FLOOD ) ]
     )
-    send_packet_out message, ActionOutput.new( OFPP_FLOOD )
+		#options = { :packet_in => message, :actions =>  [ ActionOutput.new( OFPP_FLOOD ) ] }
+    send_packet_out datapath_id, 
+			:packet_in => message,
+			:actions => ActionOutput.new( OFPP_FLOOD ) 
 
-		options = { }
-		send_message VendorStatsRequest.new(options).to_packet.buffer, message.datapath_id
+		options={}
+		send_message datapath_id, TableStatsRequest.new(options).to_packet.buffer
   end
 
 	def flow_removed message
