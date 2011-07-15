@@ -45,6 +45,7 @@
 #include "flow_removed.h"
 #include "port_status.h"
 #include "stats_reply.h"
+#include "openflow_error.h"
 #include "ruby.h"
 
 
@@ -86,6 +87,7 @@ Init_trema() {
   Init_flow_removed();
   Init_port_status();
   Init_stats_reply();
+  Init_openflow_error();
   rb_require( "trema/exact-match" );
 }
 
