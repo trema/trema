@@ -4,7 +4,7 @@ An Open Source modular framework for developing OpenFlow controllers in Ruby/C
 
 
 What's Trema?
-=============
+-------------
 
 Welcome to the Trema OpenFlow controller platform. The scope of Trema
 is to help researchers and developers to easily develop their own
@@ -16,7 +16,7 @@ C and Ruby.
 
 
 What's here?
-============
+------------
 
 This distribution includes all the source code of Trema you need to
 develop your own OpenFlow controllers. The source tree includes basic
@@ -32,7 +32,7 @@ is provided. Please refer to the quick start guide
 
 
 Meta
-====
+----
 
 * Ruby API documents: http://rubydoc.info/github/trema/trema/master/frames
 * Bugs: https://github.com/trema/trema/issues
@@ -42,7 +42,7 @@ Meta
 
 
 Authors
-=======
+-------
 
 Please keep the list sorted.
 
@@ -57,8 +57,7 @@ Please keep the list sorted.
 * Yasunori Nakazawa
 
 
-Contributors
-------------
+### Contributors
 
 Thanks to:
 
@@ -70,7 +69,7 @@ Thanks to:
 
 
 License & Terms
-===============
+---------------
 
 Copyright (C) 2008-2011 NEC Corporation
 
@@ -84,8 +83,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 
 
-Terms
------
+### Terms
 
 Terms of Contributing to Trema program ("Program")
 
