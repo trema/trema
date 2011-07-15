@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -554,15 +555,6 @@ create_receive_queue( const char *service_name ) {
   unlink( rq->listen_addr.sun_path ); // FIXME: handle error correctly
 
   int ret;
-  if ( geteuid() == 0 ) {
-    int rmem_size = 1048576;
-    ret = setsockopt( rq->listen_socket, SOL_SOCKET, SO_RCVBUFFORCE, ( const void * ) &rmem_size, ( socklen_t ) sizeof( rmem_size ) );
-    if ( ret < 0 ) {
-      error( "Failed to set SO_RCVBUFFORCE to %d ( %s [%d] ).", rmem_size, strerror( errno ), errno );
-      return NULL;
-    }
-  }
-
   ret = bind( rq->listen_socket, ( struct sockaddr * ) &rq->listen_addr, sizeof( struct sockaddr_un ) );
   if ( ret == -1 ) {
     error( "Failed to bind (fd = %d, sun_path = %s, errno = %s [%d]).",
@@ -576,6 +568,14 @@ create_receive_queue( const char *service_name ) {
   if ( ret == -1 ) {
     error( "Failed to listen (fd = %d, sun_path = %s, errno = %s [%d]).",
            rq->listen_socket, rq->listen_addr.sun_path, strerror( errno ), errno );
+    close( rq->listen_socket );
+    xfree( rq );
+    return NULL;
+  }
+
+  ret = fcntl( rq->listen_socket, F_SETFL, O_NONBLOCK );
+  if ( ret < 0 ) {
+    error( "Failed to set O_NONBLOCK ( %s [%d] ).", strerror( errno ), errno );
     close( rq->listen_socket );
     xfree( rq );
     return NULL;
@@ -796,6 +796,13 @@ send_queue_connect( send_queue *sq ) {
       sq->server_socket = -1;
       return -1;
     }
+  }
+  int ret = fcntl( sq->server_socket, F_SETFL, O_NONBLOCK );
+  if ( ret < 0 ) {
+    error( "Failed to set O_NONBLOCK ( %s [%d] ).", strerror( errno ), errno );
+    close( sq->server_socket );
+    sq->server_socket = -1;
+    return -1;
   }
 
   if ( connect( sq->server_socket, ( struct sockaddr * ) &sq->server_addr, sizeof( struct sockaddr_un ) ) == -1 ) {
@@ -1142,6 +1149,22 @@ on_accept( int fd, receive_queue *rq ) {
     return;
   }
 
+  if ( geteuid() == 0 ) {
+    int rmem_size = 1048576;
+    int ret = setsockopt( client_fd, SOL_SOCKET, SO_RCVBUFFORCE, ( const void * ) &rmem_size, ( socklen_t ) sizeof( rmem_size ) );
+    if ( ret < 0 ) {
+      error( "Failed to set SO_RCVBUFFORCE to %d ( %s [%d] ).", rmem_size, strerror( errno ), errno );
+      close( client_fd );
+      return;
+    }
+  }
+  int ret = fcntl( client_fd, F_SETFL, O_NONBLOCK );
+  if ( ret < 0 ) {
+    error( "Failed to set O_NONBLOCK ( %s [%d] ).", strerror( errno ), errno );
+    close( client_fd );
+    return;
+  }
+
   add_recv_queue_client_fd( rq, client_fd );
   send_dump_message( MESSENGER_DUMP_RECV_CONNECTED, rq->service_name, NULL, 0 );
 }
@@ -1419,15 +1442,17 @@ set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
     if ( sq->server_socket == -1 ) {
       ret_val = send_queue_connect( sq );
     }
-    switch ( ret_val == 1 ) {
+    switch ( ret_val ) {
     case 0: // refused
       break;
 
     case 1: // connected
+#define sizeof( X ) ( ( int ) sizeof( X ) )
+      FD_SET( sq->server_socket, read_set ); // for disconnect detection.
+#undef sizeof
       if ( sq->buffer->data_length > 0 ) {
         debug( "Adding a fd ( %d ) to fd_sets.", sq->server_socket );
 #define sizeof( X ) ( ( int ) sizeof( X ) )
-        FD_SET( sq->server_socket, read_set );
         FD_SET( sq->server_socket, write_set );
 #undef sizeof
       }
@@ -1465,7 +1490,8 @@ on_send( int fd, send_queue *sq ) {
     if ( sent_len == -1 ) {
       int err = errno;
       if ( err != EAGAIN && err != EWOULDBLOCK ) {
-        error( "Failed to send ( fd = %d, errno = %s [%d] ).", fd, strerror( err ), err );
+        error( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
+               sq->service_name, fd, strerror( err ), err );
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
         close( sq->server_socket );
         sq->server_socket = -1;
@@ -1478,6 +1504,7 @@ on_send( int fd, send_queue *sq ) {
       }
       return;
     }
+    assert( sent_len != 0 );
     send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, header, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
     sent_count++;
@@ -1556,8 +1583,8 @@ run_once( void ) {
     return true;
   }
 
-  check_recv_queue_fd_isset( &read_set );
   check_send_queue_fd_isset( &read_set, &write_set );
+  check_recv_queue_fd_isset( &read_set );
   if ( external_check_fd_isset ) {
     external_check_fd_isset( &read_set, &write_set );
   }
