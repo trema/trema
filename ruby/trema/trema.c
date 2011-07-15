@@ -29,6 +29,22 @@
 #include "packet_in.h"
 #include "port.h"
 #include "rbuffer.h"
+#include "action_set_dl_dst.h"
+#include "action_set_dl_src.h"
+#include "action_enqueue.h"
+#include "action_set_nw_src.h"
+#include "action_set_nw_dst.h"
+#include "action_set_tp_src.h"
+#include "action_set_tp_dst.h"
+#include "action_set_nw_tos.h"
+#include "action_set_vlan_vid.h"
+#include "action_set_vlan_pcp.h"
+#include "action_strip_vlan.h"
+#include "flow_stats_request.h"
+#include "match.h"
+#include "flow_removed.h"
+#include "port_status.h"
+#include "stats_reply.h"
 #include "ruby.h"
 
 
@@ -46,16 +62,30 @@ Init_trema() {
   rb_require( "trema/switch" );
 
   Init_action_output();
+  Init_action_set_dl_dst();
+  Init_action_set_dl_src();
+  Init_action_enqueue();
+  Init_action_set_nw_src();
+  Init_action_set_nw_dst();
+  Init_action_set_tp_src();
+  Init_action_set_tp_dst();
+  Init_action_set_nw_tos();
+  Init_action_set_vlan_vid();
+  Init_action_set_vlan_pcp();
+  Init_action_strip_vlan();
   Init_buffer();
   Init_logger();
   Init_controller();
   Init_features_reply();
   Init_features_request();
+  Init_flow_stats_request();
   Init_hello();
   Init_match();
   Init_packet_in();
   Init_port();
-
+  Init_flow_removed();
+  Init_port_status();
+  Init_stats_reply();
   rb_require( "trema/exact-match" );
 }
 
@@ -66,3 +96,4 @@ Init_trema() {
  * indent-tabs-mode: nil
  * End:
  */
+
