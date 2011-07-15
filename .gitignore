@@ -11,3 +11,4 @@ callgrind.out.*
 coverage
 doc
 objects
+*.swp
