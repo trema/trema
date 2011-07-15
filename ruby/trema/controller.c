@@ -353,13 +353,12 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
     VALUE opt_in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
     if ( opt_in_port != Qnil ) {
-      in_port = NUM2UINT( opt_in_port );
+      in_port = ( uint16_t ) NUM2UINT( opt_in_port );
     }
 
     VALUE opt_action = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
     if ( opt_action != Qnil ) {
       form_actions( opt_action, actions );
-      append_action_output( actions, rb_funcall( opt_action, rb_intern( "port" ), 0 ), UINT16_MAX );
     }
 
     VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );

@@ -32,7 +32,7 @@ void handle_openflow_error(
         uint32_t transaction_id,
         uint16_t type,
         uint16_t code,
-        buffer *body,
+        const buffer *body,
         void *controller
         );
 
