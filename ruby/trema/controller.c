@@ -460,96 +460,17 @@ controller_start_trema( VALUE self ) {
 
 
 /********************************************************************************
- * Handlers.
- ********************************************************************************/
-
-// Override me if necessary.
-static VALUE
-controller_start( VALUE self ) {
-  return self;
-}
-
-
-// Override me if necessary.
-static VALUE
-controller_switch_ready( VALUE self, VALUE datapath_id ) {
-	UNUSED( datapath_id );
-  return self;
-}
-
-
-// Override me if necessary.
-static VALUE
-controller_features_reply( VALUE self, VALUE message ) {
-	UNUSED( message );
-  return self;
-}
-
-
-/*
- * call-seq:
- *   packet_in(message)
- *
- * Handle the reception of a {PacketIn} message.
- */
-static VALUE
-controller_packet_in( VALUE self, VALUE packet_in ) {
-	UNUSED( packet_in );
-  return self;
-}
-
-// Override me if necessary.
-static VALUE
-controller_flow_removed( VALUE self, VALUE message ) {
-	UNUSED( message );
-  return self;
-}
-
-// Override me if necessary.
-
-static VALUE
-controller_switch_disconnected( VALUE self, VALUE datapath_id ) {
-  UNUSED( datapath_id );
-  return self;
-}
-
-// Override me if necessary.
-
-static VALUE
-controller_port_status( VALUE self, VALUE port_status ) {
-  UNUSED( port_status );
-  return self;
-}
-
-// Override me if necessary.
-
-static VALUE
-controller_stats_reply( VALUE self, VALUE stats_reply ) {
-  UNUSED( stats_reply );
-  return self;
-}
-
-// Override me if necessary.
-
-static VALUE
-controller_openflow_error( VALUE self, VALUE openflow_error ) {
-  UNUSED( openflow_error );
-  return self;
-}
-
-/********************************************************************************
 >>>>>>> flow mod messages, actions, asynchronous event handlers
  * Init Controller module.
  ********************************************************************************/
 
 void
 Init_controller() {
-  mTrema = rb_define_module( "Trema" );
-
-  rb_require( "trema/controller" );
-
-  cController = rb_eval_string( "Trema::Controller" );
+  rb_require( "trema/app" );
+  VALUE cApp = rb_eval_string( "Trema::App" );
+  cController = rb_define_class_under( mTrema, "Controller", cApp );
   rb_include_module( cController, mLogger );
+
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
@@ -561,20 +482,10 @@ Init_controller() {
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
 
-  // Handlers
-  rb_define_method( cController, "start", controller_start, 0 );
-  rb_define_method( cController, "switch_ready", controller_switch_ready, 1 );
-  rb_define_method( cController, "features_reply", controller_features_reply, 1 );
-  rb_define_method( cController, "packet_in", controller_packet_in, 1 );
-  rb_define_method( cController, "flow_removed", controller_flow_removed, 1 );
-  rb_define_method( cController, "switch_disconnected", controller_switch_disconnected, 1 );
-  rb_define_method( cController, "port_status", controller_port_status, 1 );
-  rb_define_method( cController, "stats_reply", controller_stats_reply, 1 );
-  rb_define_method( cController, "openflow_error", controller_openflow_error, 1 );
-
-
   // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
+
+  rb_require( "trema/controller" );
 }
 
 
