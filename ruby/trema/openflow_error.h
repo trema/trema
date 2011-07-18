@@ -33,7 +33,7 @@ void handle_openflow_error(
         uint16_t type,
         uint16_t code,
         const buffer *body,
-        void *controller
+        void *user_data
         );
 
 /*

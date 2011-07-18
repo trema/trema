@@ -73,8 +73,12 @@ handle_openflow_error(
         uint16_t type,
         uint16_t code,
         buffer *body,
-        void *controller
+        void *user_data
         ) {
+  VALUE controller = ( VALUE ) user_data;
+  if ( rb_respond_to( controller, rb_intern( "openflow_error" ) ) == Qfalse ) {
+    return;
+  }
   VALUE attributes = rb_hash_new( );
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
