@@ -32,7 +32,7 @@ void handle_port_status(
         uint32_t transaction_id,
         uint8_t reason,
         struct ofp_phy_port phy_port,
-        void *controller
+        void *user_data
         );
 
 /*

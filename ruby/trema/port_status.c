@@ -66,8 +66,12 @@ handle_port_status(
         uint32_t transaction_id,
         uint8_t reason,
         struct ofp_phy_port phy_port,
-        void *controller
+        void *user_data
         ) {
+  VALUE controller = ( VALUE ) user_data;
+  if ( rb_respond_to( controller, rb_intern( "port_status" ) ) == Qfalse ) {
+    return;
+  }
   VALUE attributes = rb_hash_new( );
   VALUE PhyPort, r_phy_port;
   VALUE hw_addr;
