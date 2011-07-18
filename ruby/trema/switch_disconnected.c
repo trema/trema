@@ -24,8 +24,12 @@
 void
 handle_switch_disconnected(
         uint64_t datapath_id,
-        void *controller
+        void *user_data
         ) {
+  VALUE controller = ( VALUE ) user_data;
+  if ( rb_respond_to( controller, rb_intern( "switch_disconnected" ) ) == Qfalse ) {
+    return;
+  }
   rb_funcall( ( VALUE ) controller, rb_intern( "switch_disconnected" ), 1, ULL2NUM( datapath_id ) );
 }
 
