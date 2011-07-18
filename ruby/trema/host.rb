@@ -197,7 +197,12 @@ module Trema
     # @api public
     #
     def send_packet dest, options = {}
-      @cli.send_packets dest, options
+      dest_host = if dest.is_a?( String )
+                    vhost( dest )
+                  else
+                    dest
+                  end
+      @cli.send_packets dest_host, options
     end
 
 
