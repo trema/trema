@@ -100,9 +100,15 @@ handle_openflow_error(
     case OFPET_PORT_MOD_FAILED:
     case OFPET_QUEUE_OP_FAILED:
     {
+      uint32_t i;
       if ( body != NULL )
         if ( body->length ) {
-          rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), rb_str_new( body->data, ( long int ) body->length ) );
+          VALUE data_arr = rb_ary_new2( ( int32_t ) body->length );
+          uint8_t *buf = ( uint8_t* ) body->data;
+          for ( i = 0; i < body->length; i++ ) {
+            rb_ary_push( data_arr, INT2FIX( buf[i] ) );
+          }
+          rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), data_arr );
         }
     }
       break;
