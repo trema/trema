@@ -34,7 +34,7 @@ handle_stats_reply(
         uint16_t type,
         uint16_t flags,
         const buffer *body,
-        void *controller
+        void *user_data
         );
 /*
  * Local variables:

@@ -81,8 +81,12 @@ handle_stats_reply(
         uint16_t type,
         uint16_t flags,
         const buffer *body,
-        void *controller
+        void *user_data
         ) {
+  VALUE controller = ( VALUE ) user_data;
+  if ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) {
+    return;
+  }
   if ( body == NULL ) {
     return;
   }
