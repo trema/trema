@@ -41,7 +41,7 @@ void handle_flow_removed(
         uint16_t idle_timeout,
         uint64_t packet_count,
         uint64_t byte_count,
-        void *controller
+        void *user_data
         );
 
 /*

@@ -115,8 +115,12 @@ handle_flow_removed(
         uint16_t idle_timeout,
         uint64_t packet_count,
         uint64_t byte_count,
-        void *controller
+        void *user_data
         ) {
+  VALUE controller = ( VALUE ) user_data;
+  if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
+    return;
+  }
   VALUE attributes = rb_hash_new( );
   VALUE match_obj;
 
@@ -146,4 +150,3 @@ handle_flow_removed(
  * indent-tabs-mode: nil
  * End:
  */
-
