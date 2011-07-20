@@ -20,7 +20,14 @@
  */
 
 
-void handle_switch_disconnected(uint64_t datapath_id, void *user_data);
+#ifndef SWITCH_DISCONNECTED_H
+#define SWITCH_DISCONNECTED_H
+
+
+void handle_switch_disconnected( uint64_t datapath_id, void *user_data );
+
+
+#endif // SWITCH_DISCONNECTED_H
 
 
 /*
