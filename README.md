@@ -49,6 +49,7 @@ Please keep the list sorted.
 * Kazushi Sugyo
 * Lei Sun
 * Naoyoshi Tada
+* Nick Karanatsios <nickkaranatsios@gmail.com>
 * Shin'ya Zenke
 * Shuji Ishii
 * Toshio Koide
