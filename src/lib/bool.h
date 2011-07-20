@@ -19,11 +19,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file bool.h
+ * Utility file containing enumerator for Boolean type, defining 0 for FALSE
+ * and 1 for TRUE. This is being widely used within the TREMA code for function
+ * return types, wherever applicable.
+ */
 
 #ifndef BOOL_H
 #define BOOL_H
 
-
+/* In case C++ compiler is being used, not bothering to define a new
+ * enumerator; C++'s inbuilt boolean type is used
+ */
 #ifdef __cplusplus
 // use C++ built-in bool type
 #elif defined __STDC__ && defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L

@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file arp.h
+ * Header file containing structures for defining a ARP packet
+ * @see arp.c
+ */
 
 #ifndef ARP_H
 #define ARP_H
