@@ -25,7 +25,7 @@
 #include "openflow.h"
 #include "packet_in.h"
 #include "flow_removed.h"
-#include "switch_disconnected.h"
+#include "switch-disconnected.h"
 #include "port_status.h"
 #include "stats_reply.h"
 #include "openflow_error.h"
