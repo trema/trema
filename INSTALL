@@ -8,10 +8,10 @@ satisfies the following requirements:
 
 Trema has been tested on the following GNU/Linux distributions:
 
-  Ubuntu 11.04 (Intel x86/x64, Desktop Edition)
-  Ubuntu 10.10 (Intel x86/x64, Desktop Edition)
-  Ubuntu 10.04 (Intel x86/x64, Desktop Edition)
-  Debian GNU/Linux 6.0 (squeeze) (i386/amd64)
+  Ubuntu 11.04 (i386/amd64, Desktop Edition)
+  Ubuntu 10.10 (i386/amd64, Desktop Edition)
+  Ubuntu 10.04 (i386/amd64, Desktop Edition)
+  Debian GNU/Linux 6.0 (i386/amd64)
 
 Trema may also run on other GNU/Linux distributions but is not tested
 and NOT SUPPORTED at this moment.
@@ -27,13 +27,12 @@ Trema relies on the following third-party software.
   Sudo
   libpcap
 
-If you are using Ubuntu 10.10 Desktop Edition or Debian GNU/Linux 6.0
-(squeeze) you can simply install them as follows. Other packages than
-listed below should have been installed by default operating system
-installation or will be installed automatically due to install
-dependencies.
+If you are using Ubuntu or Debian GNU/Linux 6.0 you can simply install
+them as follows. Other packages than listed below should have been
+installed by default operating system installation or will be installed
+automatically due to install dependencies.
 
-  $ sudo apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev
+  # apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev
 
 
 How to build and install
@@ -75,8 +74,8 @@ Before running the script, the following software packages are required.
   RCov
   Rake
 
-If you are using Ubuntu 10.10, 11.04 or Debian GNU/Linux 6.0 (squeeze), 
-you can install them as follows:
+If you are using Ubuntu or Debian GNU/Linux 6.0,  you can install them
+as follows:
 
   $ sudo gem install cucumber rspec rcov rake --remote
 

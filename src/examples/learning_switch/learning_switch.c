@@ -79,7 +79,7 @@ learn( hash_table *forwarding_db, struct key new_key, uint16_t port_no ) {
 
   if ( entry == NULL ) {
     entry = xmalloc( sizeof( forwarding_entry ) );
-    memcpy( entry->key.mac, new_key.mac, sizeof( OFP_ETH_ALEN ) );
+    memcpy( entry->key.mac, new_key.mac, OFP_ETH_ALEN );
     entry->key.datapath_id = new_key.datapath_id;
     insert_hash_entry( forwarding_db, &entry->key, entry );
   }
@@ -203,7 +203,7 @@ bool
 compare_forwarding_entry( const void *x, const void *y ) {
   const forwarding_entry *ex = x;
   const forwarding_entry *ey = y;
-  return memcmp( ex->key.mac, ey->key.mac, OFP_ETH_ALEN )
+  return ( memcmp( ex->key.mac, ey->key.mac, OFP_ETH_ALEN ) == 0 )
            && ( ex->key.datapath_id == ey->key.datapath_id );
 }
 
