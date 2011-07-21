@@ -44,7 +44,7 @@
 #include "match.h"
 #include "flow_removed.h"
 #include "port_status.h"
-#include "stats_reply.h"
+#include "stats-reply.h"
 #include "openflow_error.h"
 #include "ruby.h"
 
