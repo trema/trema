@@ -23,6 +23,12 @@ require "rubygems"
 require "rspec/core/rake_task"
 
 
+desc "Generate a monolithic rant file"
+task "build.rb" do
+  sh "rant-import --force --auto .mono.rant"
+end
+
+
 desc "Run all examples with RCov"
 RSpec::Core::RakeTask.new do | t |
   t.pattern = [ "spec/**/*_spec.rb", "src/examples/**/*_spec.rb" ]
