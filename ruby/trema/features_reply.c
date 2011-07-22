@@ -129,7 +129,7 @@ handle_features_reply(
   }
 
   VALUE attributes = rb_hash_new();
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), UINT2NUM( datapath_id ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "n_buffers" ) ), UINT2NUM( n_buffers ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "n_tables" ) ), UINT2NUM( n_tables ) );
