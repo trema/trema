@@ -17,6 +17,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file arp.c 
+ * This source file contains functions for handling ARP type messages
+ */
 
 #include <assert.h>
 #include "log.h"
@@ -24,6 +28,12 @@
 #include "wrapper.h"
 
 
+/**
+ * This function is to find if a packet contained in passed buffer is a valid
+ * ARP packet or not.
+ * @param buf Buffer containing packet to verify for being ARP message
+ * @return bool True if buffer contains valid ARP message, else False
+ */
 bool
 valid_arp_packet( const buffer *buf ) {
   assert( buf != NULL );
@@ -33,6 +43,10 @@ valid_arp_packet( const buffer *buf ) {
 
   arp_header_t *arp = packet_info( buf )->l3_data.arp;
   size_t frame_len = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l3_data.l3 ) - ( ( char * ) buf->data ) );
+
+  /* Packet is being referenced by the arp variable; Checking if the packet
+   * contains valid ARP parameters
+   */
   if ( frame_len < sizeof( arp_header_t ) ) {
     debug( "Frame length is shorter than the minimum length of ARP header ( length = %u ).", frame_len );
     return false;

@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file arp.h
+ * This header file contains types for defining a ARP packet
+ * @see arp.c
+ */
 
 #ifndef ARP_H
 #define ARP_H
@@ -30,8 +35,9 @@
 #include "ether.h"
 
 
-/*
- * See RFC 826 for protocol description.
+/**
+ * ARP Header specification
+ * For details, please refer RFC 826 (protocol description)
  * http://tools.ietf.org/html/rfc826
  */
 typedef struct arp_header {
