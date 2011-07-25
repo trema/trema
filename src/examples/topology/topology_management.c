@@ -105,7 +105,7 @@ port_entry *mock_lookup_port_entry( sw_entry *sw, uint16_t port_no, const char *
 #undef get_trema_name
 #endif
 #define get_trema_name mock_get_trema_name
-const char *get_trema_name( void );
+const char *mock_get_trema_name( void );
 
 #ifdef init_openflow_application_interface
 #undef init_openflow_application_interface

@@ -29,6 +29,7 @@
 #include "trema.h"
 #include "fdb.h"
 #include "port.h"
+#include "topology_service_interface.h"
 
 
 static switch_info *
@@ -59,13 +60,16 @@ allocate_port( uint64_t dpid, uint16_t port_no ) {
   port_info *port = xmalloc( sizeof( port_info ) );
   port->dpid = dpid;
   port->port_no = port_no;
+  port->external_link = false;
+  port->switch_to_switch_link = false;
+  port->switch_to_switch_reverse_link = false;
 
   return port;
 }
 
 
 static void
-delete_outbound_switch( list_element **switches, switch_info *delete_switch ) {
+delete_switch( list_element **switches, switch_info *delete_switch ) {
   list_element *ports = delete_switch->ports;
 
   // delete ports
@@ -81,7 +85,7 @@ delete_outbound_switch( list_element **switches, switch_info *delete_switch ) {
 
 
 void
-delete_outbound_port( list_element **switches, port_info *delete_port ) {
+delete_port( list_element **switches, port_info *delete_port ) {
   assert( switches != NULL );
   assert( delete_port != NULL );
 
@@ -99,13 +103,13 @@ delete_outbound_port( list_element **switches, port_info *delete_port ) {
   xfree( delete_port );
 
   if ( sw->ports == NULL ) {
-    delete_outbound_switch( switches, sw );
+    delete_switch( switches, sw );
   }
 }
 
 
 void
-add_outbound_port( list_element **switches, uint64_t dpid, uint16_t port_no ) {
+add_port( list_element **switches, uint64_t dpid, uint16_t port_no, uint8_t external ) {
   assert( port_no != 0 );
 
   info( "Adding a port: dpid = %#" PRIx64 ", port = %u", dpid, port_no );
@@ -118,12 +122,21 @@ add_outbound_port( list_element **switches, uint64_t dpid, uint16_t port_no ) {
   }
 
   port_info *new_port = allocate_port( dpid, port_no );
+  update_port( new_port, external );
   append_to_tail( &sw->ports, new_port );
 }
 
 
 void
-delete_outbound_all_ports( list_element **switches ) {
+update_port( port_info *port, uint8_t external ) {
+  assert( port != 0 );
+
+  port->external_link = ( external == TD_PORT_EXTERNAL );
+}
+
+
+void
+delete_all_ports( list_element **switches ) {
   if ( switches != NULL ) {
     for ( list_element *s = *switches ; s != NULL ; s = s->next ) {
       switch_info *sw = s->data;
@@ -143,7 +156,7 @@ delete_outbound_all_ports( list_element **switches ) {
 
 
 port_info *
-lookup_outbound_port( list_element *switches, uint64_t dpid, uint16_t port_no ) {
+lookup_port( list_element *switches, uint64_t dpid, uint16_t port_no ) {
   assert( port_no != 0 );
 
   switch_info *sw = lookup_switch( switches, dpid );
@@ -191,7 +204,7 @@ foreach_switch( const list_element *switches,
 
 
 list_element *
-create_outbound_ports( list_element **ports ) {
+create_ports( list_element **ports ) {
   assert( ports != NULL );
 
   create_list( ports );

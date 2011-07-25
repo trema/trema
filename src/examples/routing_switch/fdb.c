@@ -78,7 +78,7 @@ poison( uint64_t dpid, const uint8_t mac[ OFP_ETH_ALEN ] ) {
 }
 
 
-static bool
+bool
 is_ether_multicast( const uint8_t mac[ OFP_ETH_ALEN ] ) {
   return ( mac[ 0 ] & 1 ) == 1; // check I/G bit
 }

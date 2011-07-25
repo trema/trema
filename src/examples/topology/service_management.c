@@ -277,7 +277,7 @@ update_link_status( const messenger_context_handle *handle, void *data, size_t l
           link_status.from_dpid );
     goto send_response;
   }
-  bool link_up = ( link_status.status == TD_PORT_UP );
+  bool link_up = ( link_status.status == TD_LINK_UP );
   bool notification_required = false;
   if ( port->link_to == NULL ) {
     notification_required = true;
@@ -292,9 +292,9 @@ update_link_status( const messenger_context_handle *handle, void *data, size_t l
     notify_link_status_for_all_user( port );
   }
 
-  bool port_up = !port->link_to->up;
-  if ( port->external != port_up ) {
-    port->external = port_up;
+  bool external = ( link_status.status == TD_LINK_DOWN );
+  if ( port->external != external ) {
+    port->external = external;
     // Port status notification
     notify_port_status_for_all_user( port );
   }

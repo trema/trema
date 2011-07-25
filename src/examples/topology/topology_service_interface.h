@@ -82,6 +82,7 @@ typedef struct topology_link_status {
 enum topology_link_status_type {
   TD_LINK_DOWN = 0,
   TD_LINK_UP,
+  TD_LINK_UNSTABLE,
 };
 
 // port status

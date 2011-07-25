@@ -38,7 +38,7 @@ dlist_element *probe_timer_table;
 dlist_element *probe_timer_last;
 
 
-struct timespec port_down_time;
+struct timespec port_up_time;
 
 
 static inline void
@@ -93,7 +93,7 @@ other_port_status_changed( probe_timer_entry *entry ) {
                                                         entry->to_port_no );
     return peer == NULL;
   }
-  return !timespec_le( &port_down_time, &( entry->link_down_time ) );
+  return !timespec_le( &port_up_time, &( entry->send_lldp_time ) );
 }
 
 
@@ -113,7 +113,7 @@ set_send_delay_state( probe_timer_entry *entry ) {
     entry->state = PROBE_TIMER_STATE_SEND_DELAY;
     entry->retry_count = 1;
   }
-  set_random_expires( 500, 2000, entry );
+  set_random_expires( 0, 2000, entry );
 }
 
 
@@ -121,9 +121,26 @@ static void
 set_wait_state( probe_timer_entry *entry ) {
   if ( entry->state != PROBE_TIMER_STATE_WAIT ) {
     entry->state = PROBE_TIMER_STATE_WAIT;
-    entry->retry_count = 3;
+    entry->retry_count = 2;
   }
-  set_random_expires( 500, 2000, entry );
+  if ( entry->retry_count > 1 ) {
+    set_random_expires( 2500, 5000, entry );
+  }
+  else {
+    set_expires( 5000, entry );
+  }
+}
+
+
+static void
+reset_wait_state( probe_timer_entry *entry ) {
+  entry->retry_count++;
+  if ( entry->retry_count > 1 ) {
+    set_random_expires( 5000, 10000, entry );
+  }
+  else {
+    set_expires( 10000, entry );
+  }
 }
 
 
@@ -131,24 +148,27 @@ static void
 set_confirmed_state( probe_timer_entry *entry ) {
   if ( entry->state != PROBE_TIMER_STATE_CONFIRMED ) {
     entry->state = PROBE_TIMER_STATE_CONFIRMED;
-    entry->retry_count = 6;
+    entry->retry_count = 2;
   }
-  set_expires( 10000, entry );
+  set_expires( 30000, entry );
+}
+
+
+static void
+reset_confirmed_state( probe_timer_entry *entry ) {
+  entry->retry_count = 12;
 }
 
 
 void
 probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t port_no ) {
-  if ( event == PROBE_TIMER_EVENT_UP ) {
-    get_current_time( &port_down_time );
-  }
-
   int old_state = entry->state;
   switch ( entry->state ) {
     case PROBE_TIMER_STATE_INACTIVE:
       switch( event ) {
         case PROBE_TIMER_EVENT_UP:
           set_send_delay_state( entry );
+          get_current_time( &port_up_time );
           break;
         default:
           break;
@@ -161,7 +181,13 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           break;
         case PROBE_TIMER_EVENT_TIMEOUT:
           set_wait_state( entry );
-          send_lldp( entry );
+          bool ret = send_lldp( entry );
+          if ( !ret ) {
+            reset_wait_state( entry );
+          }
+          else {
+            get_current_time( &( entry->send_lldp_time ) );
+          }
           break;
         default:
           break;
@@ -174,36 +200,53 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           break;
         case PROBE_TIMER_EVENT_RECV_LLDP:
           set_confirmed_state( entry );
-          entry->link_up = true;
-          entry->to_datapath_id = *dpid;
-          entry->to_port_no = port_no;
 
           topology_update_link_status link_status;
           link_status.from_dpid = entry->datapath_id;
           link_status.from_portno = entry->port_no;
           link_status.to_dpid = *dpid;
           link_status.to_portno = port_no;
-          link_status.status = TD_PORT_UP;
-          set_link_status( &link_status, NULL, NULL );
+          link_status.status = TD_LINK_UP;
+          entry->to_datapath_id = *dpid;
+          entry->to_port_no = port_no;
+          entry->link_up = true;
+          bool ret = set_link_status( &link_status, NULL, NULL );
+          if ( !ret ) {
+            reset_confirmed_state( entry );
+          }
           break;
         case PROBE_TIMER_EVENT_TIMEOUT:
           if ( --entry->retry_count > 0 ) {
             set_wait_state( entry );
-            send_lldp( entry );
+            bool ret = send_lldp( entry );
+            if ( !ret ) {
+              reset_wait_state( entry );
+            }
+            else {
+              get_current_time( &( entry->send_lldp_time ) );
+            }
           } else {
             set_confirmed_state( entry );
-            entry->link_up = false;
-            entry->to_datapath_id = 0;
-            entry->to_port_no = 0;
-            get_current_time( &( entry->link_down_time ) );
+            get_current_time( &( entry->send_lldp_time ) );
 
             topology_update_link_status link_status;
             link_status.from_dpid = entry->datapath_id;
             link_status.from_portno = entry->port_no;
-            link_status.to_dpid = 0;
-            link_status.to_portno = 0;
-            link_status.status = TD_PORT_DOWN;
-            set_link_status( &link_status, NULL, NULL );
+            link_status.to_dpid = entry->to_datapath_id;
+            link_status.to_portno = entry->to_port_no;
+            if ( entry->link_up ) {
+              link_status.status = TD_LINK_UNSTABLE;
+            }
+            else {
+              link_status.status = TD_LINK_DOWN;
+            }
+            entry->to_datapath_id = 0;
+            entry->to_port_no = 0;
+            entry->link_up = false;
+            bool ret = set_link_status( &link_status, NULL, NULL );
+            if ( !ret ) {
+              reset_confirmed_state( entry );
+            }
           }
           break;
         default:
@@ -221,6 +264,20 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
             set_confirmed_state( entry );
           } else {
             set_send_delay_state( entry );
+          }
+          break;
+        case PROBE_TIMER_EVENT_RECV_LLDP:
+          if ( !entry->link_up ) {
+            // unstable link
+            set_confirmed_state( entry );
+
+            topology_update_link_status link_status;
+            link_status.from_dpid = entry->datapath_id;
+            link_status.from_portno = entry->port_no;
+            link_status.to_dpid = *dpid;
+            link_status.to_portno = port_no;
+            link_status.status = TD_LINK_UNSTABLE;
+            set_link_status( &link_status, NULL, NULL );
           }
           break;
         default:

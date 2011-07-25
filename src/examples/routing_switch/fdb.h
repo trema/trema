@@ -31,6 +31,7 @@
 
 
 hash_table *create_fdb( void );
+bool is_ether_multicast( const uint8_t mac[ OFP_ETH_ALEN ] );
 void delete_fdb( hash_table *fdb );
 bool update_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t dpid, uint16_t port );
 bool lookup_fdb( hash_table *fdb, const uint8_t mac[ OFP_ETH_ALEN ], uint64_t *dpid, uint16_t *port );
