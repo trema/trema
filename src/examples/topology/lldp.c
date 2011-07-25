@@ -129,7 +129,7 @@ static int parse_lldp_us( void *str, uint16_t *value, uint32_t len );
 static const uint16_t ethtype = ETH_ETHTYPE_LLDP;
 
 
-void
+bool
 send_lldp( probe_timer_entry *port ) {
   buffer *lldp;
 
@@ -138,7 +138,8 @@ send_lldp( probe_timer_entry *port ) {
   openflow_actions *actions = create_actions();
   if ( !append_action_output( actions, port->port_no, UINT16_MAX ) ) {
     free_buffer( lldp );
-    die( "append_action_output" );
+    error( "Failed to sent LLDP frame(%#" PRIx64 ", %u)", port->datapath_id, port->port_no );
+    return false;
   }
 
   uint32_t transaction_id = get_transaction_id();
@@ -157,6 +158,7 @@ send_lldp( probe_timer_entry *port ) {
   free_buffer( packetout );
 
   debug( "Sent LLDP frame(%#" PRIx64 ", %u)", port->datapath_id, port->port_no );
+  return true;
 }
 
 

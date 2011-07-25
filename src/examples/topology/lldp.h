@@ -101,7 +101,7 @@ struct tlv {
 };
 
 
-void send_lldp( probe_timer_entry *port );
+bool send_lldp( probe_timer_entry *port );
 bool init_lldp( void );
 bool finalize_lldp( void );
 
