@@ -46,10 +46,10 @@ compare_link( const void *x, const void *y ) {
 static unsigned int
 hash_link( const void *key ) {
   const topology_link_status *s = key;
-  uint hash = 0;
-  hash ^= ( uint ) ( s->from_dpid >> 32 ^ s->from_dpid );
+  unsigned int hash = 0;
+  hash ^= ( unsigned int ) ( s->from_dpid >> 32 ^ s->from_dpid );
   hash ^= s->from_portno;
-  hash ^= ( uint ) ( s->to_dpid >> 32 ^ s->to_dpid );
+  hash ^= ( unsigned int ) ( s->to_dpid >> 32 ^ s->to_dpid );
   hash ^= s->to_portno;
 
   return hash;
@@ -103,9 +103,10 @@ print_with_graph_easy_format( void *param, size_t entries, const topology_link_s
   }
   hash_iterator iter;
   init_hash_iterator( link_hash, &iter );
-  topology_link_status *e;
-  while ( ( e = ( topology_link_status * ) iterate_hash_next( &iter ) ) != NULL ) {
-    print_link_status( e, false );
+  hash_entry *e;
+  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
+    topology_link_status *le = e->value;
+    print_link_status( le, false );
   }
 
   delete_hash( link_hash );

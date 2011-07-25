@@ -50,7 +50,7 @@ compare_link( const void *x, const void *y ) {
 static unsigned int
 hash_link( const void *key ) {
   const struct link_entry *lkey = key;
-  uint hash = 0;
+  unsigned int hash = 0;
 
   hash ^= ( uint ) ( lkey->dpid0 >> 32 ^ lkey->dpid0 );
   hash ^= ( uint ) ( lkey->dpid1 >> 32 ^ lkey->dpid1 );

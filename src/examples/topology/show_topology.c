@@ -73,7 +73,8 @@ init_show_topology_options( show_topology_options *options, int *argc, char **ar
   int argc_tmp = *argc;
   char *new_argv[ *argc ];
 
-  for ( int i = 0; i <= *argc; ++i ) {
+  int i;
+  for ( i = 0; i <= *argc; ++i ) {
     new_argv[ i ] = ( *argv )[ i ];
   }
 
@@ -103,7 +104,8 @@ init_show_topology_options( show_topology_options *options, int *argc, char **ar
     }
   }
 
-  for ( int i = 0, j = 0; i < *argc; ++i ) {
+  int j;
+  for ( i = 0, j = 0; i < *argc; ++i ) {
     if ( new_argv[ i ] != NULL ) {
       ( *argv )[ j ] = new_argv[ i ];
       j++;
