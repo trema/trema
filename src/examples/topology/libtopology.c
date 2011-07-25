@@ -63,16 +63,9 @@ create_request_message( const char *name ) {
 
 static uint32_t
 get_request_transaction_id() {
-  static pid_t pid = 0;
+  static uint32_t transaction_id = 0;
 
-  if ( pid == 0 ) {
-    pid = getpid();
-  }
-
-  struct timeval now;
-  gettimeofday( &now, NULL );
-
-  return ( ( uint32_t ) ( pid << 16 ) ^  ( uint32_t ) now.tv_sec ^ ( uint32_t ) now.tv_usec );
+  return transaction_id++;
 }
 
 
@@ -81,7 +74,8 @@ mark_transaction( struct send_request_param *param, uint16_t message_type ) {
   gettimeofday( &param->called_at, NULL );
   param->transaction_id = get_request_transaction_id();
   param->message_type = message_type;
-  insert_hash_entry( transaction_table, &param->transaction_id, param );
+  void *duplicated = insert_hash_entry( transaction_table, &param->transaction_id, param );
+  assert( duplicated == NULL );
 }
 
 
@@ -115,7 +109,9 @@ send_request( uint16_t message_type, void ( *callback )(), void *user_data ) {
                               message_type, buf->data, buf->length,
                               param );
 
-  assert( ret );
+  if ( !ret ) {
+    warn("Failed to send a request message %d to %s.", message_type, topology_name);
+  }
   free_buffer( buf );
 }
 
@@ -135,7 +131,7 @@ create_update_link_status_message( const topology_update_link_status *link_statu
 }
 
 
-static void
+static bool
 send_update_link_status( const topology_update_link_status *link_status,
                          void ( *callback )(), void *user_data ) {
   // register transaction and continuation
@@ -149,8 +145,12 @@ send_update_link_status( const topology_update_link_status *link_status,
                               TD_MSGTYPE_UPDATE_LINK_STATUS,
                               buf->data, buf->length, param );
 
-  assert( ret );
+  if ( !ret ) {
+    warn("Failed to send a set link status request to %s.", topology_name);
+  }
   free_buffer( buf );
+
+  return ret;
 }
 
 
@@ -457,9 +457,7 @@ set_link_status( const topology_update_link_status *link_status,
   UNUSED( callback );
   UNUSED( user_data );
   // send request message
-  send_update_link_status( link_status, callback, user_data );
-
-  return true;
+  return send_update_link_status( link_status, callback, user_data );
 }
 
 
