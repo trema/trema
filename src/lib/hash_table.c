@@ -17,6 +17,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file hash_table.c
+ * This source file contain functions for hash table implementation
+ */
 
 #include <assert.h>
 #include <pthread.h>
@@ -35,7 +39,10 @@ typedef struct {
 
 
 /**
- * Default compare function.
+ * This is default compare function
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
  */
 bool
 compare_atom( const void *x, const void *y ) {
@@ -44,7 +51,9 @@ compare_atom( const void *x, const void *y ) {
 
 
 /**
- * Default hash function.
+ * This is a default hash function
+ * @param key Pointer to a address, for which hash key is generated
+ * @return unsigned int Key value after right shifting by 2 bits
  */
 unsigned int
 hash_atom( const void *key ) {
@@ -52,6 +61,12 @@ hash_atom( const void *key ) {
 }
 
 
+/**
+ * This function creates the hash table and initialize it to NULL
+ * @param compare Function Pointer to compare_function
+ * @param hash Function Pointer to hash_function
+ * @return hash_table Pointer to created hash table
+ */
 hash_table *
 create_hash( const compare_function compare, const hash_function hash ) {
   private_hash_table *table = xmalloc( sizeof( private_hash_table ) );
@@ -80,6 +95,12 @@ create_hash( const compare_function compare, const hash_function hash ) {
 }
 
 
+/**
+ * This function returns the index of hash bucket
+ * @param table Pointer to hash table for which bucket index is needed
+ * @param key Pointer to constant key identifier
+ * @return unsigned int Index of hash bucket
+ */
 static unsigned int
 get_bucket_index( const hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -89,6 +110,12 @@ get_bucket_index( const hash_table *table, const void *key ) {
 }
 
 
+/**
+ * This function searches for an element in the bucket pointed by the key
+ * @param table Pointer to hash table in which element is to be searched
+ * @param key Pointer to constant key identifier
+ * @return void Pointer to identified element in the bucket
+ */
 static void *
 find_list_element_from_buckets( const hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -105,6 +132,13 @@ find_list_element_from_buckets( const hash_table *table, const void *key ) {
 }
 
 
+/**
+ * This function inserts new element into an existing hash table
+ * @param table Pointer to hash table in which element is to be inserted
+ * @param key Pointer to new element's key
+ * @param value Pointer to associated data
+ * @return void Pointer to data associated with the key, else NULL
+ */
 void *
 insert_hash_entry( hash_table *table, void *key, void *value ) {
   assert( table != NULL );
@@ -136,6 +170,12 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
 }
 
 
+/**
+ * This function performs lookup for value associated with the key in the hash table
+ * @param table Pointer to hash table
+ * @param key Pointer to key
+ * @return void Pointer to value associated with the key, else NULL
+ */
 void *
 lookup_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -154,6 +194,12 @@ lookup_hash_entry( hash_table *table, const void *key ) {
 }
 
 
+/**
+ * This function deletes an entry from the hash table
+ * @param table Pointer to hash table from which element is to be deleted
+ * @param key Pointer to element's key which is to be deleted
+ * @return void Pointer to data that was associated with the key, else NULL
+ */
 void *
 delete_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -181,6 +227,15 @@ delete_hash_entry( hash_table *table, const void *key ) {
 }
 
 
+/**
+ * This function takes as argument a function pointer which it calls in
+ * case the key passed matches to a key in the hash_table
+ * @param table Pointer to hash table in which element is to be searched
+ * @param key Pointer to key for which function is to be called
+ * @param function The action function
+ * @param user_data A void pointer to user data
+ * @return None
+ */
 void
 map_hash( hash_table *table, const void *key, void function( void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
@@ -199,6 +254,14 @@ map_hash( hash_table *table, const void *key, void function( void *value, void *
 }
 
 
+/**
+ * This function takes as argument a function pointer which is called
+ * once for each bucket of the table being pointed to by passed argument
+ * @param table Pointer to hash table
+ * @param function The action function
+ * @param user_data A void pointer to user data
+ * @return None
+ */
 void
 foreach_hash( hash_table *table, void function( void *key, void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
@@ -219,6 +282,12 @@ foreach_hash( hash_table *table, void function( void *key, void *value, void *us
 }
 
 
+/**
+ * This function initializes iteration over hash_table
+ * @param table Pointer to hash table to iterate over
+ * @param iter Pointer to hash_iterator that needs to be initialized
+ * @return None
+ */
 void
 init_hash_iterator( hash_table *table, hash_iterator *iter ) {
   assert( table != NULL );
@@ -237,6 +306,11 @@ init_hash_iterator( hash_table *table, hash_iterator *iter ) {
 }
 
 
+/**
+ * This function moves the hash iterator forward to next hash entry
+ * @param iter Pointer to hash_iterator to move forward
+ * @return hash_entry Pointer to valid hash entry, else NULL
+ */
 hash_entry *
 iterate_hash_next( hash_iterator *iter ) {
   assert( iter != NULL );
@@ -265,6 +339,11 @@ iterate_hash_next( hash_iterator *iter ) {
 }
 
 
+/**
+ * This function releases all the memory held by the hash table
+ * @param hash_table Pointer to hash table which needs to be deleted
+ * @return None
+ */
 void
 delete_hash( hash_table *table ) {
   assert( table != NULL );
