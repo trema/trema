@@ -564,7 +564,7 @@ create_receive_queue( const char *service_name ) {
     return NULL;
   }
 
-  ret = listen( rq->listen_socket, 5 );
+  ret = listen( rq->listen_socket, SOMAXCONN );
   if ( ret == -1 ) {
     error( "Failed to listen (fd = %d, sun_path = %s, errno = %s [%d]).",
            rq->listen_socket, rq->listen_addr.sun_path, strerror( errno ), errno );
