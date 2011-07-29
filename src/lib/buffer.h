@@ -20,6 +20,12 @@
  */
 
 
+/**
+ * @file buffer.h
+ * This file contains function and type declarations for functions defined in buffer.c file
+ * @see buffer.c
+ */
+
 #ifndef BUFFER_H
 #define BUFFER_H
 
@@ -27,6 +33,11 @@
 #include <stddef.h>
 
 
+/**
+ * This type is used for representing an allocated space. It holds the pointer to the space on which
+ * data can be stored, and has members to define the length of data. It can be used either in local
+ * context (data allocation and usage) or for User's data.
+ */
 typedef struct buffer {
   void *data;
   size_t length;
