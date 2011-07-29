@@ -64,7 +64,7 @@ print_link_status( const topology_link_status *s, bool doubly_linked ) {
     l = "<==";
     r = "==>";
   }
-  printf( "[ 0x%#" PRIx64 " ] %s sp:%u\\ndp:%u %s [ 0x%" PRIx64 " ]\n",
+  printf( "[ 0x%" PRIx64 " ] %s sp:%u\\ndp:%u %s [ 0x%" PRIx64 " ]\n",
           s->from_dpid, l, s->from_portno, s->to_portno, r, s->to_dpid );
 }
 

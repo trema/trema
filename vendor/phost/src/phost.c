@@ -128,6 +128,8 @@ int main(int argc, char **argv)
     signal(SIGINT, phost_handle_signals);
     signal(SIGTERM, phost_handle_signals);
     signal(SIGPIPE, SIG_IGN);
+    signal(SIGUSR1, SIG_IGN);
+    signal(SIGUSR2, SIG_IGN);
 
     /* initializations */
     if(log_init(log_level, log_file) < 0){
