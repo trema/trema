@@ -124,10 +124,10 @@ set_wait_state( probe_timer_entry *entry ) {
     entry->retry_count = 2;
   }
   if ( entry->retry_count > 1 ) {
-    set_random_expires( 2500, 5000, entry );
+    set_random_expires( 2000, 4000, entry );
   }
   else {
-    set_expires( 5000, entry );
+    set_expires( 8000, entry );
   }
 }
 
@@ -136,10 +136,10 @@ static void
 reset_wait_state( probe_timer_entry *entry ) {
   entry->retry_count++;
   if ( entry->retry_count > 1 ) {
-    set_random_expires( 5000, 10000, entry );
+    set_random_expires( 4000, 8000, entry );
   }
   else {
-    set_expires( 10000, entry );
+    set_expires( 16000, entry );
   }
 }
 
@@ -316,7 +316,6 @@ timespec_sub( const struct timespec *a, const struct timespec *b,
 static void interval_timer_event( void *user_data );
 
 
-#if 1
 static void
 set_interval_timer( void ) {
   struct itimerspec interval;
@@ -329,41 +328,6 @@ set_interval_timer( void ) {
   add_timer_event_callback( &interval, interval_timer_event, NULL );
   debug( "set interval timer" );
 }
-#else
-static void
-unset_interval_timer( void ) {
-  delete_timer_event_callback( interval_timer_event );
-  debug( "unset interval timer" );
-}
-
-
-static void
-set_interval_timer( void ) {
-  unset_interval_timer();
-
-  if ( probe_timer_table->next == NULL ) {
-    debug( "interval: nil" );
-    return;
-  }
-  probe_timer_entry *entry = probe_timer_table->next->data;
-
-  struct timespec now;
-  struct itimerspec interval;
-  interval.it_interval.tv_sec = 0;
-  interval.it_interval.tv_nsec = 0;
-  get_current_time( &now );
-  timespec_sub( &( entry->expires ), &now, &( interval.it_value ) );
-  if ( interval.it_value.tv_sec < 0 || interval.it_value.tv_nsec < 0 ) {
-    interval.it_value.tv_sec = 0;
-    interval.it_value.tv_nsec = 1;
-  }
-
-  debug( "interval: %d.%09d", interval.it_value.tv_sec, interval.it_value.tv_nsec );
-
-  add_timer_event_callback( &interval, interval_timer_event, NULL );
-  debug( "set interval timer" );
-}
-#endif
 
 
 static void
@@ -384,9 +348,6 @@ interval_timer_event( void *user_data ) {
       delete_dlist_element( dlist );
       probe_request( entry, PROBE_TIMER_EVENT_TIMEOUT, 0, 0 );
     } else {
-#if 0
-      set_interval_timer();
-#endif
       return;
     }
   }
@@ -400,9 +361,7 @@ init_probe_timer_table( void ) {
 
   srandom( ( unsigned int ) time( NULL ) );
 
-#if 1
   set_interval_timer();
-#endif
 }
 
 
@@ -445,35 +404,23 @@ free_probe_timer_entry( probe_timer_entry *free_entry ) {
 
 void
 insert_probe_timer_entry( probe_timer_entry *new_entry ) {
-  probe_timer_entry *last_entry = probe_timer_last->data;
-  if ( probe_timer_table->next == NULL
-       || timespec_le( &(last_entry->expires ), &( new_entry->expires ) ) ) {
-    probe_timer_last = insert_after_dlist( probe_timer_last, new_entry );
-
-    goto set_interval_timer;
+  if ( probe_timer_table->next == NULL ) { // empty
+    probe_timer_last = insert_after_dlist( probe_timer_table, new_entry );
+    return;
   }
 
   dlist_element *dlist;
   probe_timer_entry *entry;
-  for ( dlist = probe_timer_table->next; dlist != NULL; dlist = dlist->next ) {
+  for ( dlist = probe_timer_last; dlist->prev != NULL; dlist = dlist->prev ) {
     entry = dlist->data;
-    if ( timespec_le( &(entry->expires ), &( new_entry->expires ) ) ) {
-      continue;
+    if ( timespec_le( &(entry->expires ), &( new_entry->expires ) ) ) { // entry <= new_entry
+      break;
     }
-    insert_before_dlist( dlist, new_entry );
-    goto set_interval_timer;
   }
-  UNREACHABLE();
-
-set_interval_timer:
-
-  if ( probe_timer_table->next->data != new_entry ) {
-    return;
+  dlist_element *new_dlist = insert_after_dlist( dlist, new_entry );
+  if ( dlist == probe_timer_last ) {
+    probe_timer_last = new_dlist;
   }
-
-#if 0
-  set_interval_timer();
-#endif
 }
 
 
@@ -489,15 +436,6 @@ delete_probe_timer_entry( const uint64_t *datapath_id, uint16_t port_no ) {
         probe_timer_last = dlist->prev;
       }
       delete_dlist_element( dlist );
-
-#if 0
-      if ( probe_timer_table->next == NULL ) {
-        unset_interval_timer();
-      } else if ( top ) {
-        set_interval_timer();
-      }
-#endif
-
       return entry;
     }
     top = false;
