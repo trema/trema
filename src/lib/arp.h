@@ -20,6 +20,11 @@
  */
 
 
+/**
+ * @file arp.h
+ * This header file contains types for defining a ARP packet
+ */
+
 #ifndef ARP_H
 #define ARP_H
 
@@ -30,9 +35,9 @@
 #include "ether.h"
 
 
-/*
- * See RFC 826 for protocol description.
- * http://tools.ietf.org/html/rfc826
+/**
+ * ARP Header Specification
+ * For protocol details, please refer RFC 826 at http://tools.ietf.org/html/rfc826
  */
 typedef struct arp_header {
   uint16_t ar_hrd;
