@@ -372,8 +372,8 @@ task :distclean => "rubylib:distclean"
 
 
 desc "Build ruby library."
-task :rubylib => [ :libtrema, "ruby/trema.so" ]
-file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h" ] do
+task :rubylib => "ruby/trema.so"
+file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h", libtrema ] do
   sys.cd "ruby" do
     sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
     sys "make"
@@ -423,8 +423,7 @@ end
 
 desc "Build switch manager."
 task :switch_manager => Trema::Executables.switch_manager
-task Trema::Executables.switch_manager => :libtrema
-file Trema::Executables.switch_manager => switch_manager_objects do | t |
+file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
 end
 
@@ -445,8 +444,7 @@ end
 
 desc "Build switch."
 task :switch => Trema::Executables.switch
-task Trema::Executables.switch => :libtrema
-file Trema::Executables.switch => switch_objects do | t |
+file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
 end
 
@@ -471,8 +469,7 @@ end
 
 desc "Build packetin filter."
 task :packetin_filter => Trema::Executables.packetin_filter
-task Trema::Executables.packetin_filter => :libtrema
-file Trema::Executables.packetin_filter => packetin_filter_objects.candidates do | t |
+file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
 end
 
@@ -497,8 +494,7 @@ end
 
 desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
-task Trema::Executables.tremashark => :libtrema
-file Trema::Executables.tremashark => objects.candidates do | t |
+file Trema::Executables.tremashark => objects.candidates + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
 end
 
@@ -544,31 +540,8 @@ end
 
 desc "Build topology example."
 task "examples:topology" => topology
-task topology => :libtrema
-file topology => topology_objects do | t |
+file topology => topology_objects + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
-end
-
-
-#
-# topology discovery
-#
-
-topology_discovery = File.join( topology_objects_dir, "topology_discovery" )
-
-topology_discovery_objects = [
-  "lldp.o",
-  "probe_timer_table.o",
-  "topology_discovery.o",
-].collect do | each |
-  File.join topology_objects_dir, each
-end
-
-desc "Build topology discovery example."
-task "examples:topology_discovery" => topology_discovery
-task topology_discovery => [ :libtrema, "examples:libtopology" ]
-file topology_discovery => topology_discovery_objects do | t |
-  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
 end
 
 
@@ -590,6 +563,27 @@ task "examples:libtopology" => libtopology
 file libtopology => libtopology_objects do | t |
   sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
   sys "ranlib #{ t.name }"
+end
+
+
+#
+# topology discovery
+#
+
+topology_discovery = File.join( topology_objects_dir, "topology_discovery" )
+
+topology_discovery_objects = [
+  "lldp.o",
+  "probe_timer_table.o",
+  "topology_discovery.o",
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build topology discovery example."
+task "examples:topology_discovery" => topology_discovery
+file topology_discovery => topology_discovery_objects + [ libtrema, libtopology ] do | t |
+  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
 end
 
 
@@ -619,8 +613,7 @@ end
 
 desc "Build routing switch example."
 task "examples:routing_switch" => routing_switch
-task routing_switch => [ :libtrema, "examples:libtopology" ]
-file routing_switch => objects.candidates do | t |
+file routing_switch => objects.candidates + [ libtrema, libtopology ] do | t |
   sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
 end
 
@@ -662,8 +655,7 @@ standalone_examples.each do | each |
 
   desc "Build #{ each } example."
   task "examples:#{ each }" => target
-  task target => :libtrema
-  file target => objects.candidates do | t |
+  file target => objects.candidates + [ libtrema ] do | t |
     sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
   end
 end
@@ -702,8 +694,7 @@ end
 openflow_messages.each do | each |
   target = File.join( openflow_message_objects_dir, each )
   task "examples:openflow_message" => target
-  task target => :libtrema
-  file target => File.join( openflow_message_objects_dir, "#{ each }.o" ) do | t |
+  file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
     sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lrt"
   end
 end

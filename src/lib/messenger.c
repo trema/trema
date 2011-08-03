@@ -199,6 +199,7 @@ typedef struct send_queue {
 #define MESSENGER_RECV_BUFFER 100000
 static const uint32_t messenger_send_queue_length = 100000;
 static const uint32_t messenger_recv_queue_length = 200000;
+static const uint32_t messenger_recv_queue_reserved = 2000;
 
 char socket_directory[ PATH_MAX ];
 static bool running = false;
@@ -1363,27 +1364,43 @@ on_recv( int fd, receive_queue *rq ) {
   uint8_t message_type;
   uint16_t tag;
 
-  recv_len = recv( fd, buf, sizeof( buf ), 0 );
-  if ( recv_len == -1 ) {
-    error( "Failed to recv ( fd = %d, errno = %s [%d] ).", fd, strerror( errno ), errno );
-  }
-  else if ( recv_len == 0 ) {
-    debug( "Connection closed ( fd = %d, service_name = %s ).", fd, rq->service_name );
-    send_dump_message( MESSENGER_DUMP_RECV_CLOSED, rq->service_name, NULL, 0 );
-    del_recv_queue_client_fd( rq, fd );
-    close( fd );
-  }
-  else {
-    if ( !write_message_buffer( rq->buffer, buf, ( size_t ) recv_len ) ) {
-      warn( "Could not write a message to receive queue due to overflow ( service_name = %s ).", rq->service_name );
-      send_dump_message( MESSENGER_DUMP_RECV_OVERFLOW, rq->service_name, buf, ( uint32_t ) recv_len );
-      // FIXME: remove fragmented message from buffer and notify it
+  while ( ( buf_len = message_buffer_remain_bytes( rq->buffer ) ) > messenger_recv_queue_reserved ) {
+    if ( buf_len > sizeof( buf ) ) {
+      buf_len = sizeof( buf );
+    }
+    recv_len = recv( fd, buf, buf_len, 0 );
+    if ( recv_len == -1 ) {
+      if ( errno != EAGAIN && errno != EWOULDBLOCK ) {
+        error( "Failed to recv ( fd = %d, errno = %s [%d] ).", fd, strerror( errno ), errno );
+        send_dump_message( MESSENGER_DUMP_RECV_CLOSED, rq->service_name, NULL, 0 );
+        del_recv_queue_client_fd( rq, fd );
+        close( fd );
+      }
+      else {
+        debug( "Failed to recv ( fd = %d, errno = %s [%d] ).", fd, strerror( errno ), errno );
+      }
+      break;
+    }
+    else if ( recv_len == 0 ) {
+      debug( "Connection closed ( fd = %d, service_name = %s ).", fd, rq->service_name );
+      send_dump_message( MESSENGER_DUMP_RECV_CLOSED, rq->service_name, NULL, 0 );
+      del_recv_queue_client_fd( rq, fd );
+      close( fd );
+      break;
     }
 
-    send_dump_message( MESSENGER_DUMP_RECEIVED, rq->service_name, buf, ( uint32_t ) recv_len );
-    while ( pull_from_recv_queue( rq, &message_type, &tag, buf, &buf_len, sizeof( buf ) ) == 1 ) {
-      call_message_callbacks( rq, message_type, tag, buf, buf_len );
+    if ( !write_message_buffer( rq->buffer, buf, ( size_t ) recv_len ) ) {
+      warn( "Could not write a message to receive queue due to overflow ( service_name = %s, len = %u ).", rq->service_name, recv_len );
+      send_dump_message( MESSENGER_DUMP_RECV_OVERFLOW, rq->service_name, buf, ( uint32_t ) recv_len );
     }
+    else {
+      debug( "Pushing a message to receive queue ( service_name = %s, len = %u ).", rq->service_name, recv_len );
+      send_dump_message( MESSENGER_DUMP_RECEIVED, rq->service_name, buf, ( uint32_t ) recv_len );
+    }
+  }
+
+  while ( pull_from_recv_queue( rq, &message_type, &tag, buf, &buf_len, sizeof( buf ) ) == 1 ) {
+    call_message_callbacks( rq, message_type, tag, buf, buf_len );
   }
 }
 
