@@ -18,6 +18,10 @@
  */
 
 
+#ifndef RBUFFER_H
+#define RBUFFER_H
+
+
 #include "ruby.h"
 
 
@@ -25,6 +29,9 @@ extern VALUE cBuffer;
 
 
 void Init_buffer( void );
+
+
+#endif // RBUFFER_H
 
 
 /*
