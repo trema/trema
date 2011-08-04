@@ -26,7 +26,6 @@ class SwitchDisconnected < Controller; end
 
 
 describe SwitchDisconnected do 
-  
   context "when switch is killed" do
     it "should receive a switch_disconnected" do
       network {
@@ -47,6 +46,4 @@ describe SwitchDisconnected do
       }
     end
   end
-  
-  
 end
