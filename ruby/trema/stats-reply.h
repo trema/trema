@@ -18,6 +18,10 @@
  */
 
 
+#ifndef STATS_REPLY_H
+#define STATS_REPLY_H
+
+
 #include "ruby.h"
 #include "trema.h"
 
@@ -26,6 +30,8 @@ extern VALUE cStatsReply;
 
 
 void Init_stats_reply( void );
+
+
 void handle_stats_reply(
   uint64_t datapath_id,
   uint32_t transaction_id,
@@ -34,6 +40,9 @@ void handle_stats_reply(
   const buffer *body,
   void *user_data
 );
+
+
+#endif // STATS_REPLY_H
 
 
 /*
