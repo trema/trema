@@ -3,7 +3,8 @@ require "trema/stats-helper"
 module Trema
   #
   # AggregateStatsReply class
-  #  attribute mapped to ofp_stats_aggregate_reply
+  #  attributes mapped to ofp_stats_aggregate_reply
+  #
   class AggregateStatsReply < StatsHelper
     FIELDS = %w(packet_count byte_count flow_count)
 
