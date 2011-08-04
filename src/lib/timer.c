@@ -160,7 +160,7 @@ void
 execute_timer_events() {
   struct timespec now;
   timer_callback *callback;
-  dlist_element *element;
+  dlist_element *element, *element_next;
 
   debug( "Executing timer events ( timer_callbacks = %p ).", timer_callbacks );
 
@@ -168,12 +168,18 @@ execute_timer_events() {
   assert( timer_callbacks != NULL );
 
   // TODO: timer_callbacks should be a list which is sorted by expiry time
-  for ( element = timer_callbacks->next; element; element = element->next ) {
+  for ( element = timer_callbacks->next; element; element = element_next ) {
+    element_next = element->next;
     callback = element->data;
-    if ( ( callback->expires_at.tv_sec < now.tv_sec )
-      || ( ( callback->expires_at.tv_sec == now.tv_sec )
-          && ( callback->expires_at.tv_nsec <= now.tv_nsec ) ) ) {
+    if ( callback->function != NULL
+         && ( ( callback->expires_at.tv_sec < now.tv_sec )
+              || ( ( callback->expires_at.tv_sec == now.tv_sec )
+                   && ( callback->expires_at.tv_nsec <= now.tv_nsec ) ) ) ) {
       on_timer( callback );
+    }
+    if ( callback->function == NULL ) {
+      xfree( callback );
+      delete_dlist_element( element );
     }
   }
 }
@@ -257,8 +263,14 @@ delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
     timer_callback *cb = e->data;
     if ( cb->function == callback ) {
       debug( "Deleting a callback ( callback = %p ).", callback );
-      xfree( cb );
-      delete_dlist_element( e );
+      //xfree( cb );
+      //delete_dlist_element( e );
+      cb->function = NULL;
+      cb->user_data = NULL;
+      cb->expires_at.tv_sec = 0;
+      cb->expires_at.tv_nsec = 0;
+      cb->interval.tv_sec = 0;
+      cb->interval.tv_nsec = 0;
       return true;
     }
   }
