@@ -20,6 +20,10 @@
  */
 
 
+#ifndef HELLO_H
+#define HELLO_H
+
+
 #include "ruby.h"
 
 
@@ -27,6 +31,9 @@ extern VALUE cHello;
 
 
 void Init_hello( void );
+
+
+#endif // HELLO_H
 
 
 /*
