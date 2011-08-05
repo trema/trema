@@ -20,32 +20,42 @@
  */
 
 
-#include "action_output.h"
+#include "action-output.h"
 #include "controller.h"
-#include "features_reply.h"
-#include "features_request.h"
+#include "features-reply.h"
+#include "features-request.h"
+#include "set-config.h"
 #include "hello.h"
 #include "logger.h"
 #include "packet_in.h"
 #include "port.h"
 #include "rbuffer.h"
-#include "action_set_dl_dst.h"
-#include "action_set_dl_src.h"
-#include "action_enqueue.h"
-#include "action_set_nw_src.h"
-#include "action_set_nw_dst.h"
-#include "action_set_tp_src.h"
-#include "action_set_tp_dst.h"
-#include "action_set_nw_tos.h"
-#include "action_set_vlan_vid.h"
-#include "action_set_vlan_pcp.h"
-#include "action_strip_vlan.h"
-#include "stats_request.h"
-#include "match.h"
-#include "flow_removed.h"
-#include "port_status.h"
+#include "action-set-dl-dst.h"
+#include "action-set-dl-src.h"
+#include "action-enqueue.h"
+#include "action-set-nw-src.h"
+#include "action-set-nw-dst.h"
+#include "action-set-tp-src.h"
+#include "action-set-tp-dst.h"
+#include "action-set-nw-tos.h"
+#include "action-set-vlan-vid.h"
+#include "action-set-vlan-pcp.h"
+#include "action-strip-vlan.h"
+#include "action-vendor.h"
+#include "stats-request.h"
+#include "flow-removed.h"
+#include "port-status.h"
 #include "stats-reply.h"
-#include "openflow_error.h"
+#include "openflow-error.h"
+#include "get-config-reply.h"
+#include "get-config-request.h"
+#include "barrier-reply.h"
+#include "barrier-request.h"
+#include "vendor-request.h"
+#include "queue-get-config-request.h"
+#include "queue-get-config-reply.h"
+#include "port-mod.h"
+#include "match.h"
 #include "ruby.h"
 
 
@@ -74,11 +84,13 @@ Init_trema() {
   Init_action_set_vlan_vid();
   Init_action_set_vlan_pcp();
   Init_action_strip_vlan();
+  Init_action_vendor();
   Init_buffer();
   Init_logger();
   Init_controller();
   Init_features_reply();
   Init_features_request();
+  Init_set_config();
   Init_stats_request();
   Init_hello();
   Init_match();
@@ -88,6 +100,14 @@ Init_trema() {
   Init_port_status();
   Init_stats_reply();
   Init_openflow_error();
+  Init_get_config_request();
+  Init_get_config_reply();
+  Init_barrier_request();
+  Init_barrier_reply();
+  Init_queue_get_config_request();
+  Init_queue_get_config_reply();
+  Init_vendor_request();
+  Init_port_mod();
   rb_require( "trema/exact-match" );
 }
 

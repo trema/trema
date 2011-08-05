@@ -20,6 +20,10 @@
  */
 
 
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
+
+
 #include "ruby.h"
 
 
@@ -27,6 +31,9 @@ extern VALUE cController;
 
 
 void Init_controller( void );
+
+
+#endif // CONTROLLER_H
 
 
 /*

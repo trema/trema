@@ -30,7 +30,7 @@ require "forwarding-db"
 # A OpenFlow controller class that emulates multiple layer-2 switches.
 #
 class MultiLearningSwitch < Trema::Controller
-  timer_event :age_fdbs, 5
+  add_timer_event :age_fdbs, 5, :periodic
 
 
   def start
