@@ -53,6 +53,15 @@ module Trema
           end.should raise_error( "Invalid MAC address: #{ 0x1000000000000 }" )
         end
       end
+
+
+      context %{when "[ 1, 2, 3 ]" } do
+        it "should raise an error" do
+          lambda do
+            Mac.new( [ 1, 2, 3 ] )
+          end.should raise_error( "Invalid MAC address: [1, 2, 3]" )
+        end
+      end
     end
 
 

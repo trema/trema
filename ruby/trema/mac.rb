@@ -33,7 +33,7 @@ module Trema
       when Integer
         @value = value_from_integer( value )
       else
-        raise %{Invalid MAC address: #{ value }}
+        raise %{Invalid MAC address: #{ value.inspect }}
       end
       @string = string_format
     end
