@@ -24,9 +24,6 @@ require "trema/mac"
 
 module Trema
   describe Mac do
-    subject { Mac.new( mac_address ) }
-
-
     context "when creating from an invalid value" do
       context %{when "INVALID MAC ADDRESS" } do
         it "should raise an error" do
@@ -66,6 +63,9 @@ module Trema
 
 
     context "when creating" do
+      subject { Mac.new( mac_address ) }
+
+
       context %{when "11:22:33:44:55:66"} do
         let( :mac_address ) { "11:22:33:44:55:66" }
 
