@@ -53,8 +53,7 @@ module Trema
 
 
     it "should respond to #to_short and return an array of integer values" do
-      @mac_str.should_receive( :to_short ).and_return( [ 11, 22, 33, 44, 55, 66] )
-      @mac_str.to_short
+      @mac_str.to_short.should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ]
     end
   end
 end
