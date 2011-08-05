@@ -29,6 +29,7 @@ describe Trema::ActionSetVlanPcp do
       action_set_vlan_pcp.vlan_pcp.should == 7
     end
   end
+
   
   it "should respond to #to_s and return a string" do
     action_set_vlan_pcp = Trema::ActionSetVlanPcp.new( 7 )
