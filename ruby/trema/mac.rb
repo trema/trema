@@ -24,7 +24,11 @@ module Trema
 
 
     def initialize value
-      @value = value
+      if value.is_a?( String )
+        @value = eval( "0x" + value.gsub( ":", "" ) )
+      else
+        @value = value
+      end
       @string = string_format
     end
 

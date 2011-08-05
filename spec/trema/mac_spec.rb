@@ -24,36 +24,36 @@ require "trema/mac"
 
 module Trema
   describe Mac do
-    before :each do
-      @mac0 = Mac.new( 0 )
-      @mac_str = Mac.new( "11:22:33:44:55:66" )
-      @mac_max = Mac.new( 0xffffffffffff )
+    subject { Mac.new( mac_address ) }
+
+
+    context "when created from a String" do
+      let( :mac_address ) { "11:22:33:44:55:66" }
+
+      it { should == Mac.new( "11:22:33:44:55:66" ) }
+      its( :value ) { should == 0x112233445566 }
+      its( :to_s ) { should == "11:22:33:44:55:66" }
+      its( :to_short ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
     end
 
 
-    it "should be created from an integer value" do
-      @mac0.value.should == 0
-      @mac0.to_s.should == "00:00:00:00:00:00"
+    context "when created from 0" do
+      let( :mac_address ) { 0 }
 
-      @mac_max.value.should == 0xffffffffffff
-      @mac_max.to_s.should == "ff:ff:ff:ff:ff:ff"
+      it { should == Mac.new( 0 ) }
+      its( :value ) { should == 0 }
+      its( :to_s ) { should == "00:00:00:00:00:00" }
+      its( :to_short ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
     end
 
 
-    it "should be created from a string value" do
-      @mac_str.value.should == "11:22:33:44:55:66"
-      @mac_str.to_s.should == "11:22:33:44:55:66"
-    end
+    context "when created from 0xffffffffffff" do
+      let( :mac_address ) { 0xffffffffffff }
 
-
-    it "should be compared by its value" do
-      @mac0.should == Mac.new( 0 )
-      @mac_max.should == Mac.new( 0xffffffffffff )
-    end
-
-
-    it "should respond to #to_short and return an array of integer values" do
-      @mac_str.to_short.should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ]
+      it { should == Mac.new( 0xffffffffffff ) }
+      its( :value ) { should == 0xffffffffffff }
+      its( :to_s ) { should == "ff:ff:ff:ff:ff:ff" }
+      its( :to_short ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
     end
   end
 end
