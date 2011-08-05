@@ -39,7 +39,7 @@ describe Trema::QueueGetConfigRequest do
     end
   end
   
-    
+  
   context "when #queue_get_config_request is sent" do
     it "should receive #queue_get_config_reply" do
       pending "#queue_get_config_reply is not implemented in openvswitch-1.0.1"

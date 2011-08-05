@@ -29,7 +29,7 @@ describe Trema::ActionSetTpDst do
       action_set_tp_dst.tp_dst.should == 5555
     end
   end
-
+  
   
   it "should respond to #to_s and return a string" do
     action_set_tp_dst = Trema::ActionSetTpDst.new( 5555 )
@@ -40,9 +40,9 @@ describe Trema::ActionSetTpDst do
   
   it "should append its tp_dst attribute to a list of actions" do
     action_set_tp_dst = Trema::ActionSetTpDst.new( 5555 )
-		openflow_actions = double( )
-		action_set_tp_dst.should_receive( :append ).with( openflow_actions )
-		action_set_tp_dst.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_tp_dst.should_receive( :append ).with( openflow_actions )
+    action_set_tp_dst.append( openflow_actions )
   end
   
   

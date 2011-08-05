@@ -42,7 +42,7 @@ describe Trema::SetConfig do
     end
   end
   
-    
+  
   context "when #set_config is sent" do
     it "should not receive #set_config_reply" do
       class SetConfigController < Controller; end
@@ -56,7 +56,7 @@ describe Trema::SetConfig do
     end
   end
   
-
+  
   context "when #set_config is sent with flags and miss_send_len set to 0" do
     it "should have flags and miss_send_len set to 0 in #get_config_reply " do
       class SetConfigController < Controller; end

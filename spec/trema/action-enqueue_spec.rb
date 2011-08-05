@@ -39,9 +39,9 @@ describe Trema::ActionEnqueue, "A new enqueue action" do
   
   it "appends its attributes to a list of actions" do
     action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-		openflow_actions = double( )
-		action_enqueue.should_receive( :append ).with( openflow_actions )
-		action_enqueue.append( openflow_actions )
+    openflow_actions = double( )
+    action_enqueue.should_receive( :append ).with( openflow_actions )
+    action_enqueue.append( openflow_actions )
   end
   
   

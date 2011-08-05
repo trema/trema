@@ -29,7 +29,7 @@ describe Trema::ActionSetNwTos do
       action_set_nw_tos.nw_tos.should == 4
     end
   end
-
+  
   
   it "should respond to #to_s and return a string" do
     action_set_nw_tos = Trema::ActionSetNwTos.new( 4 )
@@ -40,9 +40,9 @@ describe Trema::ActionSetNwTos do
   
   it "should append its nw_tos attribute to a list of actions" do
     action_set_nw_tos = Trema::ActionSetNwTos.new( 5555 )
-		openflow_actions = double( )
-		action_set_nw_tos.should_receive( :append ).with( openflow_actions )
-		action_set_nw_tos.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_nw_tos.should_receive( :append ).with( openflow_actions )
+    action_set_nw_tos.append( openflow_actions )
   end
   
   

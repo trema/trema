@@ -49,12 +49,14 @@ describe Trema::ActionOutput do
       @action_output.max_len.should == 256
     end
   
+    
     it "should respond to #to_s and return a string" do
       @action_output.should respond_to :to_s 
       @action_output.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 256"
     end 
   end
     
+  
   it "appends its attributes to a list of actions" do
     action_output = Trema::ActionOutput.new( 1 )
     openflow_actions = double( )

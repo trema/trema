@@ -40,9 +40,9 @@ describe Trema::ActionSetTpSrc do
   
   it "should append its tp_src attribute to a list of actions" do
     action_set_tp_src = Trema::ActionSetTpSrc.new( 5555 )
-		openflow_actions = double( )
-		action_set_tp_src.should_receive( :append ).with( openflow_actions )
-		action_set_tp_src.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_tp_src.should_receive( :append ).with( openflow_actions )
+    action_set_tp_src.append( openflow_actions )
   end
   
   

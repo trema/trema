@@ -48,8 +48,8 @@ describe Trema::QueueGetConfigReply do
       pq.len.should == 64
     end
   end
-
-
+  
+  
   context "when a MinRateQueue instance is created" do
     it "should have valid attributes"  do
       pq = PacketQueue.new( :queue_id => 123, :len => 64 )
@@ -59,7 +59,7 @@ describe Trema::QueueGetConfigReply do
       mr.rate.should == 1024
     end
   end
-
+  
   
   context "when multiple PacketQueue instances created" do
     it "should support multiplicity of queues" do

@@ -40,9 +40,9 @@ describe Trema::ActionSetVlanVid do
   
   it "should append its VLAN id attribute to a list of actions" do
     action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-		openflow_actions = double( )
-		action_set_vlan_vid.should_receive( :append ).with( openflow_actions )
-		action_set_vlan_vid.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_vlan_vid.should_receive( :append ).with( openflow_actions )
+    action_set_vlan_vid.append( openflow_actions )
   end
   
   

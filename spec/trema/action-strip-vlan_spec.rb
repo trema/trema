@@ -27,7 +27,7 @@ describe Trema::ActionSetVlanPcp do
     action_strip_vlan = Trema::ActionStripVlan.new
     action_strip_vlan.should be_an_instance_of Trema::ActionStripVlan
   end
-
+  
   
   it "should respond to #to_s and return a string" do
     action_strip_vlan = Trema::ActionStripVlan.new( )
@@ -38,9 +38,9 @@ describe Trema::ActionSetVlanPcp do
   
   it "should append its action to a list of actions" do
     action_strip_vlan = Trema::ActionStripVlan.new( )
-		openflow_actions = double( )
-		action_strip_vlan.should_receive( :append ).with( openflow_actions )
-		action_strip_vlan.append( openflow_actions )
+    openflow_actions = double( )
+    action_strip_vlan.should_receive( :append ).with( openflow_actions )
+    action_strip_vlan.append( openflow_actions )
   end
   
   

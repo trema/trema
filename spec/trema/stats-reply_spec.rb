@@ -42,7 +42,8 @@ describe StatsReply do
         # send two packets 
         send_packets "host1", "host2", :n_pkts => 2
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
-        controller( "FlowStatsController" ).send_message( 0xabc, FlowStatsRequest.new( :match => match ).to_packet.buffer )
+        controller( "FlowStatsController" ).send_message( 0xabc, 
+          FlowStatsRequest.new( :match => match ).to_packet.buffer )
         controller( "FlowStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 1
           message.stats[0].packet_count.should == 2
@@ -52,7 +53,7 @@ describe StatsReply do
     end
   end
   
-
+  
   context "when #stats_request(aggregate_stats) is sent" do
     it "should receive #stats_reply with valid AggregateStatsReply attributes" do
       class AggregateStatsController < Controller; end
@@ -83,7 +84,7 @@ describe StatsReply do
       }
     end
   end
-
+  
   
   context "when #stats_request(port-stats) is sent" do
     it "should receive #stats_reply with valid PortStatsReply attributes" do
@@ -100,8 +101,9 @@ describe StatsReply do
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ), 
           :actions => ActionOutput.new( PortStatsController::OFPP_FLOOD ) )
         send_packets "host1", "host2"
-      
-        controller( "PortStatsController" ).send_message( 0xabc, PortStatsRequest.new( :port_no => 1 ).to_packet.buffer )
+        
+        controller( "PortStatsController" ).send_message( 0xabc, 
+          PortStatsRequest.new( :port_no => 1 ).to_packet.buffer )
         controller( "PortStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 4
           message.stats[0].should be_an_instance_of(Trema::PortStatsReply)
@@ -125,8 +127,9 @@ describe StatsReply do
         controller( "TableStatsController" ).send_flow_mod_add( 0xabc, 
           :actions => ActionOutput.new( TableStatsController::OFPP_FLOOD ) )
         send_packets "host1", "host2"
-      
-        controller( "TableStatsController" ).send_message( 0xabc, TableStatsRequest.new(:transaction_id => 123).to_packet.buffer )
+        
+        controller( "TableStatsController" ).send_message( 0xabc, 
+          TableStatsRequest.new(:transaction_id => 123).to_packet.buffer )
         controller( "TableStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 3
           message.transaction_id.should == 123
@@ -139,26 +142,26 @@ describe StatsReply do
   
   
   context "when an instance of QueueStatsReply is created" do
-		it "should respond to #to_s in super StatsReply" do
-			queue_stats_options = { 
+    it "should respond to #to_s in super StatsReply" do
+      queue_stats_options = { 
         :port_no => 1,
         :queue_id => 123
-			}	
-			queue_stats_reply = QueueStatsReply.new( queue_stats_options )
-			stats_reply = StatsReply.new( :stats => [ queue_stats_reply ] )
+      }	
+      queue_stats_reply = QueueStatsReply.new( queue_stats_options )
+      stats_reply = StatsReply.new( :stats => [ queue_stats_reply ] )
       stats_reply.stats[0].should respond_to :to_s
-		end
-	end
+    end
+  end
   
-
+  
   context "when an instance of VendorStatsReply is created" do
-		it "should respond to #to_s in super StatsReply" do
-			vendor_stats_reply = VendorStatsReply.new( :vendor_id => 123 )
-			stats_reply = StatsReply.new( :stats => [ vendor_stats_reply ] )
-			stats_reply.stats.should have_exactly(1).items
+    it "should respond to #to_s in super StatsReply" do
+      vendor_stats_reply = VendorStatsReply.new( :vendor_id => 123 )
+      stats_reply = StatsReply.new( :stats => [ vendor_stats_reply ] )
+      stats_reply.stats.should have_exactly(1).items
       stats_reply.stats[0].should respond_to :to_s
-		end
-	end
+    end
+  end
 end
 
 

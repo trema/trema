@@ -40,9 +40,9 @@ describe Trema::ActionVendor do
   
   it "should append its vendor id attribute to a list of actions" do
     action_vendor = Trema::ActionVendor.new( 1 )
-		openflow_actions = double( )
-		action_vendor.should_receive( :append ).with( openflow_actions )
-		action_vendor.append( openflow_actions )
+    openflow_actions = double( )
+    action_vendor.should_receive( :append ).with( openflow_actions )
+    action_vendor.append( openflow_actions )
   end
   
   

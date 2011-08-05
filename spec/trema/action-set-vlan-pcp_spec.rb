@@ -39,9 +39,9 @@ describe Trema::ActionSetVlanPcp do
   
   it "should append its VLAN priority attribute to a list of actions" do
     action_set_vlan_pcp = Trema::ActionSetVlanPcp.new( 7 )
-		openflow_actions = double( )
-		action_set_vlan_pcp.should_receive( :append ).with( openflow_actions )
-		action_set_vlan_pcp.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_vlan_pcp.should_receive( :append ).with( openflow_actions )
+    action_set_vlan_pcp.append( openflow_actions )
   end
   
   

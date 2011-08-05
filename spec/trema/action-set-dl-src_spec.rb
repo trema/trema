@@ -30,21 +30,21 @@ describe Trema::ActionSetDlSrc do
     end
   end
   
-
-	it "should raise an error if its dl_src attribute is not specified" do
-		expect {
-    	action_set_dl_src = Trema::ActionSetDlSrc.new( )
-		}.to raise_error( ArgumentError )
-	end
-
   
-	it "should raise an error if its dl_src attribute is not a Mac object" do
-		expect {
-    	action_set_dl_src = Trema::ActionSetDlSrc.new( 1234 )
-		}.to raise_error( ArgumentError, /dl src address should be a Mac object/ )
-	end
+  it "should raise an error if its dl_src attribute is not specified" do
+    expect {
+      action_set_dl_src = Trema::ActionSetDlSrc.new( )
+    }.to raise_error( ArgumentError )
+  end
   
-
+  
+  it "should raise an error if its dl_src attribute is not a Mac object" do
+    expect {
+      action_set_dl_src = Trema::ActionSetDlSrc.new( 1234 )
+    }.to raise_error( ArgumentError, /dl src address should be a Mac object/ )
+  end
+  
+  
   it "should respond to #to_s and return a string" do
     action_set_dl_src = Trema::ActionSetDlSrc.new( Mac.new( "11:22:33:44:55:66" ) )
     action_set_dl_src.should respond_to( :to_s )
@@ -54,9 +54,9 @@ describe Trema::ActionSetDlSrc do
   
   it "should append its dl_src attribute to a list of actions" do
     action_set_dl_src = Trema::ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) )
-		openflow_actions = double( )
-		action_set_dl_src.should_receive( :append ).with( openflow_actions )
-		action_set_dl_src.append( openflow_actions )
+    openflow_actions = double( )
+    action_set_dl_src.should_receive( :append ).with( openflow_actions )
+    action_set_dl_src.append( openflow_actions )
   end
 end
 

@@ -36,7 +36,7 @@ describe Trema::BarrierRequest do
       barrier_request.transaction_id.should == 1234
     end
   end
-
+  
   
   context "when #barrier_request is sent" do
     it "should receive #barrier_reply" do
@@ -51,7 +51,7 @@ describe Trema::BarrierRequest do
     end
   end
   
-
+  
   context "when #barrier_request is sent with transaction_id" do
     it "should receive #barrier_reply with valid transaction_id" do
       class BarrierController < Controller; end

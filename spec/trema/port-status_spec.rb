@@ -35,8 +35,8 @@ describe Trema::PortStatus do
       end
     end
   end
-
-
+  
+  
   context "when #port_mod is sent" do
     it "should receive a #port_status" do
       network {
@@ -52,7 +52,7 @@ describe Trema::PortStatus do
     end
   end
   
-
+  
   context "when #port_mod(port-down) is sent" do
     it "should receive #port_status with valid attributes"  do
       network {
