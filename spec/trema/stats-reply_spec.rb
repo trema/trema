@@ -38,7 +38,7 @@ describe StatsReply do
           # match the UDP packet
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ), 
           # flood the packet
-          :actions => ActionOutput.new( 0xfffb ) )        
+          :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )        
         # send two packets 
         send_packets "host1", "host2", :n_pkts => 2
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
@@ -68,7 +68,7 @@ describe StatsReply do
           # match the UDP packet
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ), 
           # flood the packet
-          :actions => ActionOutput.new( 0xfffb ) )        
+          :actions => ActionOutput.new( AggregateStatsController::OFPP_FLOOD ) )        
         # send two packets 
         send_packets "host1", "host2", :n_pkts => 10
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
@@ -98,7 +98,7 @@ describe StatsReply do
         controller( "PortStatsController" ).send_flow_mod_add( 
           0xabc, 
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ), 
-          :actions => ActionOutput.new( 0xfffb ) )
+          :actions => ActionOutput.new( PortStatsController::OFPP_FLOOD ) )
         send_packets "host1", "host2"
       
         controller( "PortStatsController" ).send_message( 0xabc, PortStatsRequest.new( :port_no => 1 ).to_packet.buffer )
@@ -122,7 +122,8 @@ describe StatsReply do
         link "host1", "table-stats"
         link "host2", "table-stats"
       }.run( TableStatsController) {
-        controller( "TableStatsController" ).send_flow_mod_add( 0xabc, :actions => ActionOutput.new( 0xfffb ) )
+        controller( "TableStatsController" ).send_flow_mod_add( 0xabc, 
+          :actions => ActionOutput.new( TableStatsController::OFPP_FLOOD ) )
         send_packets "host1", "host2"
       
         controller( "TableStatsController" ).send_message( 0xabc, TableStatsRequest.new(:transaction_id => 123).to_packet.buffer )
