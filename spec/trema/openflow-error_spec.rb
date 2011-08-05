@@ -92,7 +92,6 @@ describe Trema::OpenflowError do
   end
   
   
-  
   context "when an unsupported message is sent" do  
     it "should receive an openflow error with valid attributes" do
       class OpenflowController < Controller; end
