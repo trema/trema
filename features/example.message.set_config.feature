@@ -12,4 +12,4 @@ Feature: Send set config messages
       """
       And wait until "set_config" is up
       And I terminated all trema services
-    Then the log file "openflowd.set_config.log" should include "received: set_config" x 11
+    Then the log file "openflowd.set_config.log" should include "received: OFPT_SET_CONFIG" x 11

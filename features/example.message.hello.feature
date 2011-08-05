@@ -12,4 +12,4 @@ Feature: Send hello messages
       """
       And wait until "hello" is up
       And I terminated all trema services
-    Then the log file "openflowd.hello.log" should include "received: hello" x 11
+    Then the log file "openflowd.hello.log" should include "received: OFPT_HELLO" x 11

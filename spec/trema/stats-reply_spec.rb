@@ -41,6 +41,7 @@ describe StatsReply do
           :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )        
         # send two packets 
         send_packets "host1", "host2", :n_pkts => 2
+        sleep 1
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "FlowStatsController" ).send_message( 0xabc, 
           FlowStatsRequest.new( :match => match ).to_packet.buffer )
@@ -72,6 +73,7 @@ describe StatsReply do
           :actions => ActionOutput.new( AggregateStatsController::OFPP_FLOOD ) )        
         # send two packets 
         send_packets "host1", "host2", :n_pkts => 10
+        sleep 1
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "AggregateStatsController" ).send_message( 0xabc, 
           AggregateStatsRequest.new( :match => match, :table_id => 0xff ).to_packet.buffer )

@@ -36,7 +36,7 @@ module Trema
 
 
     def flows switch
-      dump_flows( switch ).split( "\n" )[ 2..-1 ].collect do | each |
+      dump_flows( switch ).split( "\n" )[ 1..-1 ].collect do | each |
         Trema::Flow.parse( each )
       end.compact
     end

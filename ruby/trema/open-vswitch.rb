@@ -186,7 +186,6 @@ module Trema
       [
        "--detach",
        "--out-of-band",
-       "--no-resolv-conf",
        "--fail=closed",
        "--inactivity-probe=180",
        "--rate-limit=40000",
