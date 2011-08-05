@@ -17,7 +17,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
+/**
+ * @byteorder.c
+ * Converts network byteorder to host byteorder and vice versa.
+ */
 #include <assert.h>
 #include <arpa/inet.h>
 #include <stddef.h>
@@ -26,7 +29,13 @@
 #include "log.h"
 #include "wrapper.h"
 
-
+/**
+ * Converts network byteorder to host byteorder for match entry. It is called when 
+ * validation of flow occurs.
+ * @param dst Pointer to open flow match compatible with host machine
+ * @param src Pointer to open flow match compatible with network
+ * @return None
+ */
 void
 ntoh_match( struct ofp_match *dst, const struct ofp_match *src ) {
   assert( src != NULL );
@@ -52,6 +61,13 @@ ntoh_match( struct ofp_match *dst, const struct ofp_match *src ) {
 }
 
 
+/**
+ * Converts network byteorder to host byteorder for phy port. It is called in process
+ * of validating phy port.
+ * @param dst Pointer to phy port compatible with host machine
+ * @param src Pointer to phy port compatible with network 
+ * @return None
+ */
 void
 ntoh_phy_port( struct ofp_phy_port *dst, const struct ofp_phy_port *src ) {
   assert( src != NULL );
@@ -74,6 +90,13 @@ ntoh_phy_port( struct ofp_phy_port *dst, const struct ofp_phy_port *src ) {
 }
 
 
+/**
+ * Converts the ofp_action_header struture from network byteorder to host byteorder,
+ * when packet type is OFPAT_OUTPUT.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_output( struct ofp_action_output *dst,
                     const struct ofp_action_output *src ) {
@@ -87,6 +110,13 @@ ntoh_action_output( struct ofp_action_output *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_VLAN_VID. 
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_vlan_vid( struct ofp_action_vlan_vid *dst,
                       const struct ofp_action_vlan_vid *src ) {
@@ -100,6 +130,13 @@ ntoh_action_vlan_vid( struct ofp_action_vlan_vid *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_VLAN_PCP.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_vlan_pcp( struct ofp_action_vlan_pcp *dst,
                       const struct ofp_action_vlan_pcp *src ) {
@@ -113,6 +150,13 @@ ntoh_action_vlan_pcp( struct ofp_action_vlan_pcp *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_STRIP_VLAN.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_strip_vlan( struct ofp_action_header *dst,
                         const struct ofp_action_header *src ) {
@@ -125,6 +169,13 @@ ntoh_action_strip_vlan( struct ofp_action_header *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_DL_DST or OFPAT_SET_DL_SRC.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_dl_addr( struct ofp_action_dl_addr *dst,
                      const struct ofp_action_dl_addr *src ) {
@@ -140,6 +191,13 @@ ntoh_action_dl_addr( struct ofp_action_dl_addr *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure  network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_NW_SRC or OFPAT_SET_NW_DST.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_nw_addr( struct ofp_action_nw_addr *dst,
                      const struct ofp_action_nw_addr *src ) {
@@ -152,6 +210,13 @@ ntoh_action_nw_addr( struct ofp_action_nw_addr *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_NW_TOS.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_nw_tos( struct ofp_action_nw_tos *dst,
                     const struct ofp_action_nw_tos *src ) {
@@ -165,6 +230,13 @@ ntoh_action_nw_tos( struct ofp_action_nw_tos *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_SET_TP_SRC or OFPAT_SET_TP_DST.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_tp_port( struct ofp_action_tp_port *dst,
                      const struct ofp_action_tp_port *src ) {
@@ -178,6 +250,13 @@ ntoh_action_tp_port( struct ofp_action_tp_port *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure network byteorder to host byteorder,
+ * when packet type is OFPAT_ENQUEUE.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_enqueue( struct ofp_action_enqueue *dst,
                      const struct ofp_action_enqueue *src ) {
@@ -192,6 +271,13 @@ ntoh_action_enqueue( struct ofp_action_enqueue *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header structure from network byteorder to host byteorder, 
+ * when packet type is OFPAT_VENDOR 
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action_vendor( struct ofp_action_vendor_header *dst,
                     const struct ofp_action_vendor_header *src ) {
@@ -204,6 +290,13 @@ ntoh_action_vendor( struct ofp_action_vendor_header *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header from network byteorder to host byteorder. 
+ * This is a helper function of ntoh_flow_stats.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 ntoh_action( struct ofp_action_header *dst,
              const struct ofp_action_header *src ) {
@@ -261,6 +354,13 @@ ntoh_action( struct ofp_action_header *dst,
 }
 
 
+/**
+ * Converts the ofp_action_header from host byteorder to network byteorder.
+ * This is a helper function of hton_flow_stats.
+ * @param dst Pointer to ofp_action_header structure compatible with network 
+ * @param src Pointer to ofp_action_header structure compatible with host machine
+ * @return None
+ */
 void
 hton_action( struct ofp_action_header *dst,
              const struct ofp_action_header *src ) {
@@ -318,6 +418,12 @@ hton_action( struct ofp_action_header *dst,
 }
 
 
+/**
+ * Converts the flow stats from network byteorder to host byteorder.
+ * @param dst Pointer to flow stat compatible with host machine
+ * @param src Pointer to flow stat compatible with network
+ * @return None
+ */
 void
 ntoh_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) {
   uint16_t actions_length;
@@ -361,6 +467,12 @@ ntoh_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
 }
 
 
+/**
+ * Converts the flow stats from host byteorder to network byteorder.
+ * @param dst Pointer to flow stat compatible with network
+ * @param src Pointer to flow stat compatible with host machine
+ * @return None
+ */
 void
 hton_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) {
   uint16_t actions_length;
@@ -404,6 +516,13 @@ hton_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
 }
 
 
+/**
+ * Converts network byteorder to host byteorder all the members of 
+ * structure ofp_aggegate_stats, this function is called while handling openflow messages.
+ * @param dst Pointer to aggregate stats reply compatible with host machine
+ * @param src Pointer to aggregate stats reply compatible with network
+ * @return None
+ */
 void
 ntoh_aggregate_stats( struct ofp_aggregate_stats_reply *dst,
                       const struct ofp_aggregate_stats_reply *src ) {
@@ -416,7 +535,13 @@ ntoh_aggregate_stats( struct ofp_aggregate_stats_reply *dst,
   memset( &dst->pad, 0, sizeof( dst->pad ) );
 }
 
-
+/**
+ * Helper function to handle stats reply, this function converts 
+ * network byteorder to host byteorder the members of ofp_table_stats structure.
+ * @param dst Pointer to table stats compatible with host machine
+ * @param src Pointer to table stats compatible with network 
+ * @return None
+ */
 void
 ntoh_table_stats( struct ofp_table_stats *dst, const struct ofp_table_stats *src ) {
   assert( src != NULL );
@@ -435,6 +560,12 @@ ntoh_table_stats( struct ofp_table_stats *dst, const struct ofp_table_stats *src
 }
 
 
+/**
+ * Converts network byteorder to host byteorder all the members of ofp_port_stats structure.
+ * @param dst Pointer to flow stats compatible with host machine
+ * @param src Pointer to flow stats compatible with network
+ * @return None
+ */
 void
 ntoh_port_stats( struct ofp_port_stats *dst, const struct ofp_port_stats *src ) {
   assert( src != NULL );
@@ -457,6 +588,12 @@ ntoh_port_stats( struct ofp_port_stats *dst, const struct ofp_port_stats *src ) 
 }
 
 
+/**
+ * Converts network byteorder to host byteorder all the members of queue stats structure.
+ * @param dst Pointer to flow stats compatible with host machine
+ * @param src Pointer to flow stats compatible with network
+ * @return None
+ */
 void
 ntoh_queue_stats( struct ofp_queue_stats *dst, const struct ofp_queue_stats *src ) {
   assert( src != NULL );
@@ -470,7 +607,13 @@ ntoh_queue_stats( struct ofp_queue_stats *dst, const struct ofp_queue_stats *src
   dst->tx_errors = htonll( src->tx_errors );
 }
 
-
+/**
+ * Converts queue properties from network byteorder to host byteorder. This is
+ * helper function of ntoh_packet_queues. 
+ * @param dst Pointer to queue property header compatible with host machine
+ * @param src Pointer to queue property header compatible with network
+ * @return None
+ */
 void
 ntoh_queue_property( struct ofp_queue_prop_header *dst,
                      const struct ofp_queue_prop_header *src ) {
@@ -499,6 +642,13 @@ ntoh_queue_property( struct ofp_queue_prop_header *dst,
 }
 
 
+/**
+ * Converts queue properties from host to network byteorder. This is
+ * helper function of ntoh_packet_queues. 
+ * @param dst Pointer to queue property header compatible with network
+ * @param src Pointer to queue property header compatible with host machine
+ * @return None
+ */
 void
 hton_queue_property( struct ofp_queue_prop_header *dst,
                      const struct ofp_queue_prop_header *src ) {
@@ -526,7 +676,12 @@ hton_queue_property( struct ofp_queue_prop_header *dst,
   xfree( ph );
 }
 
-
+/**
+ * Converts packet queue from network byteorder to host byteorder.
+ * @param dst Pointer to packet queue compatible with host machine
+ * @param src Pointer to packet queue compatible with network
+ * @return None
+ */
 void
 ntoh_packet_queue( struct ofp_packet_queue *dst,
                    const struct ofp_packet_queue *src) {
@@ -568,6 +723,12 @@ ntoh_packet_queue( struct ofp_packet_queue *dst,
 }
 
 
+/**
+ * Converts packet queue from host to network byteorder.
+ * @param dst Pointer to packet queue compatible with network
+ * @param src Pointer to packet queue compatible with host machine
+ * @return None
+ */
 void
 hton_packet_queue( struct ofp_packet_queue *dst,
                    const struct ofp_packet_queue *src) {
