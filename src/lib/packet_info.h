@@ -37,6 +37,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file packet_info.h
+ * Header file containing type definitions and function declarations of packet_info.c file
+ * @see packet_info.c
+ */
 
 #ifndef PACKET_INFO_H
 #define PACKET_INFO_H
@@ -51,6 +56,9 @@
 #include "udp.h"
 
 
+/**
+ * Packet header information definitions
+ */
 typedef struct packet_header_info {
   uint16_t ethtype;
   uint8_t nvtags;
@@ -80,6 +88,7 @@ void alloc_packet( buffer *buf );
 
 
 #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
+/*!<Returns pointer to structure of type packet_header_info*/
 
 
 #endif // PACKET_INFO_H
