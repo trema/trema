@@ -33,7 +33,12 @@ module Trema
       @string
     end
 
-
+    
+    def to_short
+      @string.split( ':' ).collect { |each| each.hex }
+    end
+    
+    
     def == other
       @value == other.value
     end
@@ -45,15 +50,19 @@ module Trema
 
 
     def string_format
-      v = sprintf( "%012x", @value ).split( // )
-      [
-       v[ 0 ], v[ 1 ], ":",
-       v[ 2 ], v[ 3 ], ":",
-       v[ 4 ], v[ 5 ], ":",
-       v[ 6 ], v[ 7 ], ":",
-       v[ 8 ], v[ 9 ], ":",
-       v[ 10 ], v[ 11 ]
-      ].join
+      if @value.kind_of? Integer
+        v = sprintf( "%012x", @value ).split( // )
+        [
+          v[ 0 ], v[ 1 ], ":",
+          v[ 2 ], v[ 3 ], ":",
+          v[ 4 ], v[ 5 ], ":",
+          v[ 6 ], v[ 7 ], ":",
+          v[ 8 ], v[ 9 ], ":",
+          v[ 10 ], v[ 11 ]
+        ].join
+      else
+        v = @value
+      end
     end
   end
 end

@@ -18,14 +18,13 @@
  */
 
 
-#include "ruby.h"
 #include "trema.h"
+#include "ruby.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
 VALUE cStatsReply;
-VALUE cQueueStatsReply;
-VALUE cVendorStatsReply;
 
 
 static VALUE
@@ -72,10 +71,8 @@ Init_stats_reply( ) {
   rb_require( "trema/table-stats-reply" );
   rb_require( "trema/port-stats-reply" );
   rb_require( "trema/queue-stats-reply" );
-
+  rb_require( "trema/vendor-stats-reply" );
   cStatsReply = rb_define_class_under( mTrema, "StatsReply", rb_cObject );
-  cVendorStatsReply = rb_define_class_under( mTrema, "VendorStatsReply", cStatsReply );
-
   rb_define_method( cStatsReply, "initialize", stats_reply_init, 1 );
   rb_define_method( cStatsReply, "datapath_id", stats_reply_datapath_id, 0 );
   rb_define_method( cStatsReply, "transaction_id", stats_reply_transaction_id, 0 );
@@ -85,15 +82,110 @@ Init_stats_reply( ) {
 }
 
 
+static VALUE
+get_action( const struct ofp_action_header *ah ) {
+  VALUE action = Qnil;
+
+  switch ( ah->type ) {
+    case OFPAT_OUTPUT:
+    {
+      const struct ofp_action_output *ao = ( const struct ofp_action_output * ) ah;
+
+      action = rb_funcall( rb_eval_string( "Trema::ActionOutput" ), rb_intern( "new" ), 1, UINT2NUM( ao->port ) );
+    }
+      break;
+    case OFPAT_SET_VLAN_VID:
+    {
+      const struct ofp_action_vlan_vid *action_vlan_vid = ( const struct ofp_action_vlan_vid * ) ah;
+
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanVid" ), rb_intern( "new" ), 1, UINT2NUM( action_vlan_vid->vlan_vid ) );
+    }
+      break;
+    case OFPAT_SET_VLAN_PCP:
+    {
+      const struct ofp_action_vlan_pcp *action_vlan_pcp = ( const struct ofp_action_vlan_pcp * ) ah;
+
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanPcp" ), rb_intern( "new" ), 1, UINT2NUM( action_vlan_pcp->vlan_pcp ) );
+    }
+      break;
+    case OFPAT_STRIP_VLAN:
+    {
+      action = rb_funcall( rb_eval_string( "Trema::ActionStripVlan" ), rb_intern( "new" ), 0 );
+    }
+      break;
+    case OFPAT_SET_DL_SRC:
+    case OFPAT_SET_DL_DST:
+    {
+      VALUE dl_addr;
+      const struct ofp_action_dl_addr *action_dl_addr = ( const struct ofp_action_dl_addr * ) ah;
+
+      dl_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
+      if ( ah->type == OFPAT_SET_DL_SRC ) {
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlSrc" ), rb_intern( "new" ), 1, dl_addr );
+      } else {
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlDst" ), rb_intern( "new" ), 1, dl_addr );
+      }
+    }
+      break;
+    case OFPAT_SET_NW_SRC:
+    case OFPAT_SET_NW_DST:
+    {
+      VALUE nw_addr;
+      const struct ofp_action_nw_addr *action_nw_addr = ( const struct ofp_action_nw_addr * ) ah;
+
+      nw_addr = rb_funcall( rb_eval_string( "Trema::IP " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
+      if ( ah->type == OFPAT_SET_NW_SRC ) {
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwSrc" ), rb_intern( "new" ), 1, nw_addr );
+      } else {
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwDst" ), rb_intern( "new" ), 1, nw_addr );
+      }
+    }
+      break;
+    case OFPAT_SET_NW_TOS:
+    {
+      const struct ofp_action_nw_tos *action_nw_tos = ( const struct ofp_action_nw_tos * ) ah;
+
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetNwTos" ), rb_intern( "new" ), 1, ULL2NUM( action_nw_tos->nw_tos ) );
+    }
+      break;
+    case OFPAT_SET_TP_SRC:
+    {
+      const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpSrc" ), rb_intern( "new" ), 1, ULL2NUM( action_tp_port->tp_port ) );
+    }
+      break;
+    case OFPAT_SET_TP_DST:
+    {
+      const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpDst" ), rb_intern( "new" ), 1, ULL2NUM( action_tp_port->tp_port ) );
+    }
+      break;
+    case OFPAT_ENQUEUE:
+    {
+      const struct ofp_action_enqueue *action_enqueue = ( const struct ofp_action_enqueue * ) ah;
+      action = rb_funcall( rb_eval_string( "Trema::ActionEnqueue" ), rb_intern( "new" ), 2, ULL2NUM( action_enqueue->port ), ULL2NUM( action_enqueue->queue_id ) );
+    }
+      break;
+    case OFPAT_VENDOR:
+    {
+      const struct ofp_action_vendor_header *action_vendor = ( const struct ofp_action_vendor_header * ) ah;
+      action = rb_funcall( rb_eval_string( "Trema::ActionVendor" ), rb_intern( "new" ), 1, ULL2NUM( action_vendor->vendor ) );
+    }
+      break;
+  }
+  return action;
+}
+
+
 void
 handle_stats_reply(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint16_t type,
-  uint16_t flags,
-  const buffer *body,
-  void *user_data
-) {
+        uint64_t datapath_id,
+        uint32_t transaction_id,
+        uint16_t type,
+        uint16_t flags,
+        const buffer *body,
+        void *user_data
+        ) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) {
     return;
@@ -104,22 +196,32 @@ handle_stats_reply(
   if ( !body->length ) {
     return;
   }
+  VALUE attributes = rb_hash_new( );
+  uint16_t body_length;
 
-  VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "type" ) ), UINT2NUM( type ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "flags" ) ), UINT2NUM( flags ) );
 
-  uint16_t body_length = ( uint16_t ) body->length;
+  body_length = ( uint16_t ) body->length;
   switch ( type ) {
-    case OFPST_FLOW: {
-      VALUE flow_stats_arr = rb_ary_new();
-      VALUE options = rb_hash_new();
-      struct ofp_flow_stats *flow_stats = ( struct ofp_flow_stats * ) body->data;
+    case OFPST_FLOW:
+    {
+      struct ofp_flow_stats *flow_stats;
+      struct ofp_action_header *ah;
+      VALUE flow_stats_arr = rb_ary_new( );
+      VALUE flow_stats_reply;
+      VALUE match_obj;
+      VALUE options = rb_hash_new( );
+      VALUE actions_arr = rb_ary_new( );
+      uint16_t actions_length;
+
+      flow_stats = ( struct ofp_flow_stats * ) body->data;
 
       while ( body_length > 0 ) {
-        VALUE match_obj = rb_funcall( rb_eval_string( "Match.new" ), rb_intern( "replace" ), 1, Data_Wrap_Struct( cStatsReply, NULL, NULL, &flow_stats->match ) );
+
+        match_obj = rb_funcall( rb_eval_string( "Match.new" ), rb_intern( "replace" ), 1, Data_Wrap_Struct( cStatsReply, NULL, NULL, &flow_stats->match ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "length" ) ), UINT2NUM( flow_stats->length ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "table_id" ) ), UINT2NUM( flow_stats->table_id ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "match" ) ), match_obj );
@@ -132,7 +234,19 @@ handle_stats_reply(
         rb_hash_aset( options, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( flow_stats->packet_count ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( flow_stats->byte_count ) );
 
-        VALUE flow_stats_reply = rb_funcall( rb_eval_string( "Trema::FlowStatsReply" ), rb_intern( "new" ), 1, options );
+        actions_length = ( uint16_t ) ( flow_stats->length - offsetof( struct ofp_flow_stats, actions ) );
+
+        ah = ( struct ofp_action_header * ) flow_stats->actions;
+        while ( actions_length > 0 ) {
+          rb_ary_push( actions_arr, get_action( ah ) );
+          actions_length = ( uint16_t ) ( actions_length - ah->len );
+          if ( actions_length ) {
+            ah = ( struct ofp_action_header * ) ( ( char * ) ah + ah->len );
+          }
+        }
+        rb_hash_aset( options, ID2SYM( rb_intern( "actions" ) ), actions_arr );
+
+        flow_stats_reply = rb_funcall( rb_eval_string( "Trema::FlowStatsReply" ), rb_intern( "new" ), 1, options );
         rb_ary_push( flow_stats_arr, flow_stats_reply );
 
         // here create flow_stats object and insert into array 
@@ -144,27 +258,33 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), flow_stats_arr );
-      break;
     }
-    case OFPST_AGGREGATE: {
+      break;
+    case OFPST_AGGREGATE:
+    {
       struct ofp_aggregate_stats_reply *aggregate_stats = ( struct ofp_aggregate_stats_reply * ) body->data;
-      VALUE options = rb_hash_new();
-      VALUE aggregate_stats_arr = rb_ary_new();
+      VALUE options = rb_hash_new( );
+      VALUE aggregate_stats_reply;
+      VALUE aggregate_stats_arr = rb_ary_new( );
 
       rb_hash_aset( options, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( aggregate_stats->packet_count ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( aggregate_stats->byte_count ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "flow_count" ) ), UINT2NUM( aggregate_stats->flow_count ) );
-      VALUE aggregate_stats_reply = rb_funcall( rb_eval_string( "Trema::AggregateStatsReply" ), rb_intern( "new" ), 1, options );
+      aggregate_stats_reply = rb_funcall( rb_eval_string( " Trema::AggregateStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( aggregate_stats_arr, aggregate_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), aggregate_stats_arr );
-      break;
     }
-    case OFPST_TABLE: {
-      VALUE table_stats_arr = rb_ary_new();
-      VALUE options = rb_hash_new();
+      break;
+    case OFPST_TABLE:
+    {
+      struct ofp_table_stats *table_stats;
+      VALUE table_stats_arr = rb_ary_new( );
+      VALUE options = rb_hash_new( );
+      VALUE table_stats_reply;
 
-      struct ofp_table_stats *table_stats = ( struct ofp_table_stats * ) body->data;
+      table_stats = ( struct ofp_table_stats * ) body->data;
       while ( body_length > 0 ) {
+
         rb_hash_aset( options, ID2SYM( rb_intern( "table_id" ) ), UINT2NUM( table_stats->table_id ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "name" ) ), rb_str_new2( table_stats->name ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "wildcards" ) ), UINT2NUM( table_stats->wildcards ) );
@@ -173,22 +293,25 @@ handle_stats_reply(
         rb_hash_aset( options, ID2SYM( rb_intern( "lookup_count" ) ), ULL2NUM( table_stats->active_count ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "matched_count" ) ), ULL2NUM( table_stats->matched_count ) );
 
-        VALUE table_stats_reply = rb_funcall( rb_eval_string( "Trema::TableStatsReply" ), rb_intern( "new" ), 1, options );
+        table_stats_reply = rb_funcall( rb_eval_string( "Trema::TableStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( table_stats_arr, table_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_table_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_table_stats ) );
         if ( body_length ) {
           table_stats++;
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), table_stats_arr );
-      break;
     }
-    case OFPST_PORT: {
-      VALUE port_stats_arr = rb_ary_new();
-      VALUE options = rb_hash_new();
+      break;
+    case OFPST_PORT:
+    {
+      struct ofp_port_stats *port_stats;
+      VALUE port_stats_arr = rb_ary_new( );
+      VALUE options = rb_hash_new( );
+      VALUE port_stats_reply;
 
-      struct ofp_port_stats *port_stats = ( struct ofp_port_stats * ) body->data;
+      port_stats = ( struct ofp_port_stats * ) body->data;
       while ( body_length > 0 ) {
         rb_hash_aset( options, ID2SYM( rb_intern( "port_no" ) ), UINT2NUM( port_stats->port_no ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "rx_packets" ) ), ULL2NUM( port_stats->rx_packets ) );
@@ -204,49 +327,55 @@ handle_stats_reply(
         rb_hash_aset( options, ID2SYM( rb_intern( "rx_crc_err" ) ), ULL2NUM( port_stats->rx_crc_err ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "collisions" ) ), ULL2NUM( port_stats->collisions ) );
 
-        VALUE port_stats_reply = rb_funcall( rb_eval_string( "Trema::PortStatsReply" ), rb_intern( "new" ), 1, options );
+        port_stats_reply = rb_funcall( rb_eval_string( "Trema::PortStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( port_stats_arr, port_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_port_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_port_stats ) );
         if ( body_length ) {
           port_stats++;
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), port_stats_arr );
-      break;
     }
-    case OFPST_QUEUE: {
-      VALUE queue_stats_arr = rb_ary_new();
-      VALUE options = rb_hash_new();
+      break;
+    case OFPST_QUEUE:
+    {
+      struct ofp_queue_stats *queue_stats;
+      VALUE queue_stats_arr = rb_ary_new( );
+      VALUE options = rb_hash_new( );
+      VALUE queue_stats_reply;
 
-      struct ofp_queue_stats *queue_stats = ( struct ofp_queue_stats * ) body->data;
+      queue_stats = ( struct ofp_queue_stats * ) body->data;
       while ( body_length > 0 ) {
         rb_hash_aset( options, ID2SYM( rb_intern( "port_no" ) ), UINT2NUM( queue_stats->port_no ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "queue_id" ) ), UINT2NUM( queue_stats->queue_id ) );
 
-        VALUE queue_stats_reply = rb_funcall( rb_eval_string( "Trema::QueueStatsReply" ), rb_intern( "new" ), 1, options );
+        queue_stats_reply = rb_funcall( rb_eval_string( "Trema::QueueStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( queue_stats_arr, queue_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_queue_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_queue_stats ) );
         if ( body_length ) {
           queue_stats++;
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), queue_stats_arr );
-      break;
     }
-    case OFPST_VENDOR: {
-      VALUE options = rb_hash_new();
+      break;
+    case OFPST_VENDOR:
+    {
+      uint32_t *vendor_id;
+      VALUE options = rb_hash_new( );
       VALUE vendor_stats_arr = rb_ary_new2( 1 );
+      VALUE vendor_stats_reply;
 
-      uint32_t *vendor_id = ( uint32_t * ) body->data;
+      vendor_id = ( uint32_t * ) body->data;
       rb_hash_aset( options, ID2SYM( rb_intern( "vendor_id" ) ), UINT2NUM( *vendor_id ) );
-      VALUE vendor_stats_reply = rb_funcall( rb_eval_string( "Trema::VendorStatsReply" ), rb_intern( "new" ), 1, options );
+      vendor_stats_reply = rb_funcall( rb_eval_string( "Trema::VendorStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( vendor_stats_arr, vendor_stats_reply );
 
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), vendor_stats_arr );
-      break;
     }
+      break;
     default:
       critical( "Unhandled stats type ( type = %u ),", type );
       break;
@@ -263,3 +392,4 @@ handle_stats_reply(
  * indent-tabs-mode: nil
  * End:
  */
+

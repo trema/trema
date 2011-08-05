@@ -26,6 +26,7 @@ module Trema
   describe Mac do
     before :each do
       @mac0 = Mac.new( 0 )
+      @mac_str = Mac.new( "11:22:33:44:55:66" )
       @mac_max = Mac.new( 0xffffffffffff )
     end
     
@@ -38,10 +39,19 @@ module Trema
       @mac_max.to_s.should == "ff:ff:ff:ff:ff:ff"
     end
 
+    it "should be created from a string value" do
+      @mac_str.value.should == "11:22:33:44:55:66"
+      @mac_str.to_s.should == "11:22:33:44:55:66"
+    end
 
     it "should be compared by its value" do
       @mac0.should == Mac.new( 0 )
       @mac_max.should == Mac.new( 0xffffffffffff )
+    end
+    
+    it "should respond to #to_short and return an array of integer values" do
+      @mac_str.should_receive( :to_short ).and_return( [ 11, 22, 33, 44, 55, 66] )
+      @mac_str.to_short
     end
   end
 end
