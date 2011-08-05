@@ -17,6 +17,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file packet_parser.c
+ * Source file containing functions for handling packets. This file contains functions for 
+ * parsing a packet to find its type (whether IPv4, or ARP) and peform checksum if required.
+ */
 
 #include <assert.h>
 #include <stdint.h>
@@ -25,6 +30,19 @@
 #include "wrapper.h"
 
 
+/**
+ * Calculates checksum. Following code snippet explains how 
+ * @code
+ *   //Calling get_checksum to calculate checksum over ipv4 header, which is stored in a buf pointer
+ *   if ( get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ){
+ *       //Registering ¨checksum verification error¨ if calculated checksum is not equal to 0
+ *       debug( "Corrupted IPv4 header ( checksum verification error )." );
+ *   }
+ * @endcode
+ * @param pos Pointer of type uint16_t
+ * @param size Variable of type uint32_t
+ * @return uint16_t Checksum
+ */
 uint16_t
 get_checksum( uint16_t *pos, uint32_t size ) {
   assert( pos != NULL );
@@ -44,6 +62,11 @@ get_checksum( uint16_t *pos, uint32_t size ) {
 }
 
 
+/**
+ * Validates packet header information contained in structure of type packet_header_info.
+ * @param buf Pointer to buffer type structure, user_data element of which points to structure of type packet_header_info
+ * @return bool True if packet has valid header, else False
+ */
 bool
 parse_packet( buffer *buf ) {
   assert( buf != NULL );
