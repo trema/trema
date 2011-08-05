@@ -19,12 +19,15 @@
 
 
 module Trema
+  #
+  # MAC address class
+  #
   class Mac
     attr_reader :value
 
 
     def initialize value
-      if value.is_a?( String )
+      if value.kind_of?( String )
         if /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/=~ value
           @value = eval( "0x" + value.gsub( ":", "" ) )
         else
@@ -47,7 +50,9 @@ module Trema
 
     
     def to_short
-      @string.split( ':' ).collect { |each| each.hex }
+      @string.split( ":" ).collect do | each |
+        each.hex
+      end
     end
     
     
@@ -62,18 +67,10 @@ module Trema
 
 
     def string_format
-      if @value.kind_of? Integer
-        v = sprintf( "%012x", @value ).split( // )
-        [
-          v[ 0 ], v[ 1 ], ":",
-          v[ 2 ], v[ 3 ], ":",
-          v[ 4 ], v[ 5 ], ":",
-          v[ 6 ], v[ 7 ], ":",
-          v[ 8 ], v[ 9 ], ":",
-          v[ 10 ], v[ 11 ]
-        ].join
+      if @value.kind_of?( Integer )
+        sprintf( "%012x", @value ).unpack( "a2" * 6 ).join( ":" )
       else
-        v = @value
+        @value
       end
     end
   end
