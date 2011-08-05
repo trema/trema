@@ -20,6 +20,10 @@
  */
 
 
+#ifndef PACKET_IN_H
+#define PACKET_IN_H
+
+
 #include "ruby.h"
 #include "trema.h"
 
@@ -28,7 +32,12 @@ extern VALUE cPacketIn;
 
 
 void Init_packet_in( void );
+
+
 void handle_packet_in( packet_in packet_in );
+
+
+#endif // PACKET_IN_H
 
 
 /*

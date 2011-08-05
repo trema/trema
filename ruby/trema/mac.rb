@@ -19,18 +19,35 @@
 
 
 module Trema
+  #
+  # MAC address class
+  #
   class Mac
     attr_reader :value
 
 
     def initialize value
-      @value = value
+      case value
+      when String
+        @value = from_string( value )
+      when Integer
+        @value = from_integer( value )
+      else
+        raise %{Invalid MAC address: #{ value.inspect }}
+      end
       @string = string_format
     end
 
 
     def to_s
       @string
+    end
+
+
+    def to_short
+      @string.split( ":" ).collect do | each |
+        each.hex
+      end
     end
 
 
@@ -44,16 +61,27 @@ module Trema
     ################################################################################
 
 
+    def from_string string
+      octet_regex = "[0-9a-fA-F][0-9a-fA-F]"
+      if /^(#{ octet_regex }:){5}(#{ octet_regex })$/=~ string
+        eval( "0x" + string.gsub( ":", "" ) )
+      else
+        raise %{Invalid MAC address: "#{ string }"}
+      end
+    end
+
+
+    def from_integer integer
+      if integer >= 0 and integer <= 0xffffffffffff
+        integer
+      else
+        raise %{Invalid MAC address: #{ integer }}
+      end
+    end
+
+
     def string_format
-      v = sprintf( "%012x", @value ).split( // )
-      [
-       v[ 0 ], v[ 1 ], ":",
-       v[ 2 ], v[ 3 ], ":",
-       v[ 4 ], v[ 5 ], ":",
-       v[ 6 ], v[ 7 ], ":",
-       v[ 8 ], v[ 9 ], ":",
-       v[ 10 ], v[ 11 ]
-      ].join
+      sprintf( "%012x", @value ).unpack( "a2" * 6 ).join( ":" )
     end
   end
 end

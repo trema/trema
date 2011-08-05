@@ -24,24 +24,76 @@ require "trema/mac"
 
 module Trema
   describe Mac do
-    before :each do
-      @mac0 = Mac.new( 0 )
-      @mac_max = Mac.new( 0xffffffffffff )
+    context "when creating from an invalid value" do
+      context %{when "INVALID MAC ADDRESS" } do
+        it "should raise an error" do
+          lambda do
+            Mac.new( "INVALID MAC ADDRESS" )
+          end.should raise_error( %{Invalid MAC address: "INVALID MAC ADDRESS"} )
+        end
+      end
+
+
+      context "when -1" do
+        it "should raise an error" do
+          lambda do
+            Mac.new( -1 )
+          end.should raise_error( "Invalid MAC address: -1" )
+        end
+      end
+
+
+      context "when 0x1000000000000" do
+        it "should raise an error" do
+          lambda do
+            Mac.new( 0x1000000000000 )
+          end.should raise_error( "Invalid MAC address: #{ 0x1000000000000 }" )
+        end
+      end
+
+
+      context %{when "[ 1, 2, 3 ]" } do
+        it "should raise an error" do
+          lambda do
+            Mac.new( [ 1, 2, 3 ] )
+          end.should raise_error( "Invalid MAC address: [1, 2, 3]" )
+        end
+      end
     end
-    
-    
-    it "should be created from an integer value" do
-      @mac0.value.should == 0
-      @mac0.to_s.should == "00:00:00:00:00:00"
-
-      @mac_max.value.should == 0xffffffffffff
-      @mac_max.to_s.should == "ff:ff:ff:ff:ff:ff"
-    end
 
 
-    it "should be compared by its value" do
-      @mac0.should == Mac.new( 0 )
-      @mac_max.should == Mac.new( 0xffffffffffff )
+    context "when creating" do
+      subject { Mac.new( mac_address ) }
+
+
+      context %{when "11:22:33:44:55:66"} do
+        let( :mac_address ) { "11:22:33:44:55:66" }
+
+        it { should == Mac.new( "11:22:33:44:55:66" ) }
+        its( :value ) { should == 0x112233445566 }
+        its( :to_s ) { should == "11:22:33:44:55:66" }
+        its( :to_short ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
+      end
+
+
+      context "when 0" do
+        let( :mac_address ) { 0 }
+
+        it { should == Mac.new( 0 ) }
+        its( :value ) { should == 0 }
+        its( :to_s ) { should == "00:00:00:00:00:00" }
+        its( :to_short ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
+      end
+
+
+      context "when 0xffffffffffff" do
+        let( :mac_address ) { 0xffffffffffff }
+
+        it { should == Mac.new( 0xffffffffffff ) }
+        its( :value ) { should == 0xffffffffffff }
+        its( :to_s ) { should == "ff:ff:ff:ff:ff:ff" }
+        its( :to_short ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
+      end
     end
   end
 end
@@ -52,4 +104,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-

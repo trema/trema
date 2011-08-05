@@ -20,15 +20,19 @@
 
 #include "buffer.h"
 #include "controller.h"
-#include "features_reply.h"
+#include "features-reply.h"
 #include "logger.h"
 #include "openflow.h"
 #include "packet_in.h"
-#include "flow_removed.h"
+#include "flow-removed.h"
 #include "switch-disconnected.h"
-#include "port_status.h"
+#include "port-status.h"
 #include "stats-reply.h"
-#include "openflow_error.h"
+#include "openflow-error.h"
+#include "get-config-reply.h"
+#include "barrier-reply.h"
+#include "vendor.h"
+#include "queue-get-config-reply.h"
 #include "trema.h"
 
 
@@ -38,7 +42,9 @@ VALUE cController;
 
 static void
 handle_timer_event( void *self ) {
-  rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
+  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) == Qtrue ) {
+    rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
+  }
 }
 
 
@@ -113,6 +119,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = OFPFW_ALL;
+  uint64_t cookie = get_cookie();
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
@@ -127,19 +134,24 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
       Data_Get_Struct( opt_match, struct ofp_match, match );
     }
 
+    VALUE opt_cookie = rb_hash_aref( options, ID2SYM( rb_intern( "cookie" ) ) );
+    if ( opt_cookie != Qnil ) {
+      cookie = NUM2ULL( opt_cookie );
+    }
+    
     VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
     if ( opt_idle_timeout != Qnil ) {
-      idle_timeout = NUM2UINT( opt_idle_timeout );
+      idle_timeout = ( uint16_t )NUM2UINT( opt_idle_timeout );
     }
 
     VALUE opt_hard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
     if ( opt_hard_timeout != Qnil ) {
-      hard_timeout = NUM2UINT( opt_hard_timeout );
+      hard_timeout = ( uint16_t )NUM2UINT( opt_hard_timeout );
     }
 
     VALUE opt_priority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
     if ( opt_priority != Qnil ) {
-      priority = NUM2UINT( opt_priority );
+      priority = ( uint16_t )NUM2UINT( opt_priority );
     }
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
@@ -171,11 +183,11 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
     *match,
-    get_cookie(),
+    cookie,
     command,
-    60,
-    0,
-    UINT16_MAX,
+    idle_timeout,
+    hard_timeout,
+    priority,
     buffer_id,
     OFPP_NONE,
     flags,
@@ -333,7 +345,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   uint32_t buffer_id = UINT32_MAX;
   uint16_t in_port = OFPP_NONE;
   openflow_actions *actions = create_actions();
-  buffer *data = NULL;
+  const buffer *data = NULL;
 
   if ( options != Qnil ) {
     VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
@@ -398,11 +410,11 @@ controller_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
-  char **argv = malloc( sizeof( char * ) * ( argc + 1 ) );
+  char **argv = malloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
-  argv[ 1 ] = "--name";
+  argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
-  argv[ 3 ] = NULL;
+  argv[ 3 ] = NULL; 
   init_trema( &argc, &argv );
 
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
@@ -413,6 +425,10 @@ controller_run( VALUE self ) {
   set_port_status_handler( handle_port_status, ( void * ) self );
   set_stats_reply_handler( handle_stats_reply, ( void * ) self );
   set_error_handler( handle_openflow_error, ( void * ) self );
+  set_get_config_reply_handler( handle_get_config_reply, ( void * ) self );
+  set_barrier_reply_handler( handle_barrier_reply, ( void * ) self );
+  set_vendor_handler( handle_vendor, ( void * ) self );
+  set_queue_get_config_reply_handler( handle_queue_get_config_reply, ( void * ) self );
 
   struct itimerspec interval;
   interval.it_interval.tv_sec = 1;
@@ -457,7 +473,6 @@ controller_start_trema( VALUE self ) {
 
   return self;
 }
-
 
 /********************************************************************************
 >>>>>>> flow mod messages, actions, asynchronous event handlers

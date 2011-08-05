@@ -20,6 +20,10 @@
  */
 
 
+#ifndef PORT_H
+#define PORT_H
+
+
 #include "ruby.h"
 
 
@@ -27,7 +31,12 @@ extern VALUE cPort;
 
 
 void Init_port( void );
+
+
 VALUE port_from( const struct ofp_phy_port *phy_port );
+
+
+#endif // PORT_H
 
 
 /*
