@@ -27,18 +27,13 @@ module Trema
 
 
     def initialize value
-      if value.kind_of?( String )
-        if /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/=~ value
-          @value = eval( "0x" + value.gsub( ":", "" ) )
-        else
-          raise %{Invalid MAC address: "#{ value }"}
-        end
+      case value
+      when String
+        @value = value_from_string( value )
+      when Integer
+        @value = value_from_integer( value )
       else
-        if value >= 0 and value <= 0xffffffffffff
-          @value = value
-        else
-          raise %{Invalid MAC address: #{ value }}
-        end
+        raise %{Invalid MAC address: #{ value }}
       end
       @string = string_format
     end
@@ -66,12 +61,26 @@ module Trema
     ################################################################################
 
 
-    def string_format
-      if @value.kind_of?( Integer )
-        sprintf( "%012x", @value ).unpack( "a2" * 6 ).join( ":" )
+    def value_from_string string
+      if /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/=~ string
+        eval( "0x" + string.gsub( ":", "" ) )
       else
-        @value
+        raise %{Invalid MAC address: "#{ string }"}
       end
+    end
+
+
+    def value_from_integer integer
+      if integer >= 0 and integer <= 0xffffffffffff
+        integer
+      else
+        raise %{Invalid MAC address: #{ integer }}
+      end
+    end
+
+
+    def string_format
+      sprintf( "%012x", @value ).unpack( "a2" * 6 ).join( ":" )
     end
   end
 end
