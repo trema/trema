@@ -29,9 +29,9 @@ module Trema
     def initialize value
       case value
       when String
-        @value = value_from_string( value )
+        @value = from_string( value )
       when Integer
-        @value = value_from_integer( value )
+        @value = from_integer( value )
       else
         raise %{Invalid MAC address: #{ value.inspect }}
       end
@@ -43,14 +43,14 @@ module Trema
       @string
     end
 
-    
+
     def to_short
       @string.split( ":" ).collect do | each |
         each.hex
       end
     end
-    
-    
+
+
     def == other
       @value == other.value
     end
@@ -61,8 +61,9 @@ module Trema
     ################################################################################
 
 
-    def value_from_string string
-      if /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/=~ string
+    def from_string string
+      octet_regex = "[0-9a-fA-F][0-9a-fA-F]"
+      if /^(#{ octet_regex }:){5}(#{ octet_regex })$/=~ string
         eval( "0x" + string.gsub( ":", "" ) )
       else
         raise %{Invalid MAC address: "#{ string }"}
@@ -70,7 +71,7 @@ module Trema
     end
 
 
-    def value_from_integer integer
+    def from_integer integer
       if integer >= 0 and integer <= 0xffffffffffff
         integer
       else
