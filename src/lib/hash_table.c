@@ -19,7 +19,38 @@
 
 /**
  * @file hash_table.c
- * This source file contain functions for hash table implementation
+ * This source file contain functions for hash table implementation. It provides helpers through
+ * which a hash table can be created, elements can be added and deleted, and data can be searched.
+ *
+ * @code 
+ *     //Create a Hash Table, assigning it to hash_table type of pointer
+ *     hash_table *table_p = create_hash( <compare function>, <hash function> );
+ *
+ *     // In the above call to create_hash, customized functions for comparing hash entries and for 
+ *     // defining the hash algorithm can be provided. In case the arguments are NULL, default functions
+ *     // compare_atom and hash_atom are used.
+ *     ...
+ *     // For inserting the following key:value pair into the created hash_table: { "A": "Apple", "B":"Ball", "C":"Cat" }
+ *     old_data = insert_hash_entry ( table_p, "A", "Apple" );
+ *     // In case any other entry with same key exists, it would be returned in old_data, else NULL is returned\n
+ *     old_data = insert_hash_entry( table_p, "B", "Bat" );
+ *     old_data = insert_hash_entry( table_p, "C", "Cat" );
+ *     ...
+ *     // For finding some data when the key is known, for example, searching for data for key "A"
+ *     data =  lookup_hash_entry( table_p,  "A" );
+ *     // If successful, data would contain pointer to string "Apple"
+ *     ...
+ *     // Iterating over ALL hash entries so far in table
+ *     // Second argument is pointer to a function to call for each entry
+ *     // argument to this function
+ *     foreach_hash( table_p, print_element, NULL);
+ *     // where, print_element can be defined as:
+ *     void print_element( void *key, void *data, void *my_data) {
+ *         printf("%s", data);
+ *     }
+ *     // The foreach_hash call above would print all the data (Apple, Bat, Cat) stored in the hash_table
+ * @endcode
+ *      
  */
 
 #include <assert.h>
@@ -237,10 +268,11 @@ delete_hash_entry( hash_table *table, const void *key ) {
  * Searches (maps) for the entry in hash_table corresponding to the key passed as argument. A user 
  * defined function is called if the search is successful. The user defiend function is passed as a 
  * function pointer. The definition of the function pointer is:
+ * @code
  *      void <name of function> ( void *value, void *user_data);
  *      // value is the data being represented by hash key found
  *      // user_data is the 3rd argument of map_hash, which is passed directly to this function
- *
+ * @endcode
  * @param table Pointer to hash table in which element is to be searched
  * @param key Pointer to key for which function is to be called
  * @param function Pointer to funtion to be called if a matching entry is found
@@ -270,6 +302,7 @@ map_hash( hash_table *table, const void *key, void function( void *value, void *
  * once for each bucket of the table being pointed to by passed argument. It is used as an iterator over 
  * each hash entry belonging to each bucket.
  * Example:
+ * @code
  *     // Create a Hash Table
  *     hashtable_p = create_hash(<compare function>, <hash function>)
  *     ...
@@ -280,7 +313,7 @@ map_hash( hash_table *table, const void *key, void function( void *value, void *
  *     // Second argument is pointer to a function to call for each entry
  *     // argument to this function
  *     foreach_hash(table, <function which is to be executed for each entry>);
- *
+ * @endcode
  * @param table Pointer to hash table
  * @param function The action function
  * @param user_data A void pointer to user data
@@ -337,6 +370,7 @@ init_hash_iterator( hash_table *table, hash_iterator *iter ) {
  * Moves the hash iterator forward to next hash entry. It uses the iterator initialized by
  * init_hash_iterator. It can be used to fetch the data associated with each hash entry.
  * Example:
+ * @code
  *     // Assuming a hash table pointed to by hashtable_p
  *     // Initializing the hash iterator
  *     hash_iterator iter;
@@ -349,7 +383,7 @@ init_hash_iterator( hash_table *table, hash_iterator *iter ) {
  *         dump(p->value);
  *         ...
  *     }
- *         
+ * @endcode        
  * @param iter Pointer to hash_iterator to move forward
  * @return hash_entry* Pointer to valid hash entry, else NULL
  * @see init_hash_iterator
