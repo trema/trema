@@ -25,9 +25,17 @@ module Trema
 
     def initialize value
       if value.is_a?( String )
-        @value = eval( "0x" + value.gsub( ":", "" ) )
+        if /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/=~ value
+          @value = eval( "0x" + value.gsub( ":", "" ) )
+        else
+          raise %{Invalid MAC address: "#{ value }"}
+        end
       else
-        @value = value
+        if value >= 0 and value <= 0xffffffffffff
+          @value = value
+        else
+          raise %{Invalid MAC address: #{ value }}
+        end
       end
       @string = string_format
     end
