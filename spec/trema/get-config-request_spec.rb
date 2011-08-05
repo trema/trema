@@ -36,6 +36,7 @@ describe Trema::GetConfigRequest do
       get_config_request.transaction_id.should == 1234
     end
   end  
+
   
   context "when a #get_config_request is sent" do
     it "should receive #get_config_reply" do
