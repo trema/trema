@@ -1,5 +1,26 @@
+require "singleton"
+
+
+class Queue
+  include Singleton
+  
+  
+  def append queue
+    @@queues ||= []
+    @@queues << queue
+  end
+  
+  
+  def queues
+    @@queues
+  end
+end
+
+
+QUEUE = Queue.instance
+
+
 class PacketQueue
-  @@queues ||= []
   attr_accessor :queue_id, :len, :properties
 
 
@@ -12,12 +33,6 @@ class PacketQueue
 
   def append queue
     @properties << queue
-    @@queues << self
-  end
-
-
-  def self.queues
-    @@queues
   end
 
 
@@ -50,10 +65,12 @@ end
 class MinRateQueue < QueueProperty
   attr_accessor :rate
 
+  
   def initialize property, len, rate, packet_queue
-    @rate = rate
     super property, len
+    @rate = rate
     packet_queue.append self
+    QUEUE.append packet_queue
   end
 
 
