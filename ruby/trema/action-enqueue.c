@@ -49,7 +49,7 @@ action_enqueue_get_queue_id( VALUE self ) {
 static VALUE
 action_enqueue_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
-  uint32_t queue_id = NUM2UINT( action_enqueue_get_queue_id( self ) );
+  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_get_queue_id( self ) );
   uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_get_port( self ) );
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
@@ -63,7 +63,7 @@ static VALUE
 action_enqueue_to_s( VALUE self ) {
   char str[ 64 ];
 
-  uint32_t queue_id = NUM2UINT( action_enqueue_get_queue_id( self ) );
+  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_get_queue_id( self ) );
   uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_get_port( self ) );
   sprintf( str, "#<%s> port = %u, queue_id = %u", rb_obj_classname( self ), port,
           queue_id );
