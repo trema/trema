@@ -43,7 +43,7 @@ get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   uint32_t xid;
 
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-    xid = NUM2UINT( xid_ruby );
+    xid = ( uint32_t ) NUM2UINT( xid_ruby );
   } else {
     xid = get_transaction_id( );
   }
