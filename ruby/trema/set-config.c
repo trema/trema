@@ -44,7 +44,7 @@ set_config_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t flags, miss_send_len;
 
   if ( rb_scan_args( argc, argv, "03", &xid_ruby, &flags_ruby, &miss_send_len_ruby ) == 3 ) {
-    xid = NUM2UINT( xid_ruby );
+    xid = ( uint32_t ) NUM2UINT( xid_ruby );
     flags = ( uint16_t ) NUM2UINT( flags_ruby );
     miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_ruby );
   } else {
