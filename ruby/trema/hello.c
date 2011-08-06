@@ -44,7 +44,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     xid = get_transaction_id();
   }
   else {
-    xid = NUM2UINT( xid_ruby );
+    xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
   return self;
