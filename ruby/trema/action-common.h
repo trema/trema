@@ -25,7 +25,7 @@
 uint32_t nw_addr_to_i( VALUE nw_addr );
 
 
-VALUE nw_addr_to_s( uint32_t nw_addr );
+VALUE nw_addr_to_s( VALUE nw_addr );
 
 
 uint8_t *dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr );
