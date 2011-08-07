@@ -39,7 +39,6 @@ describe StatsReply do
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ), 
           # flood the packet
           :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )        
-        # send two packets 
         send_packets "host1", "host2", :n_pkts => 2
         sleep 1
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )

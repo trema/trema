@@ -45,7 +45,7 @@ queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t port;
 
   if ( rb_scan_args( argc, argv, "02", &xid_ruby, &port_ruby ) == 2 ) {
-    xid = NUM2UINT( xid_ruby );
+    xid = ( uint32_t ) NUM2UINT( xid_ruby );
     port = ( uint16_t ) NUM2UINT( port_ruby );
   } else {
     xid = get_transaction_id( );

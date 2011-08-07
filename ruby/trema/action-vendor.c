@@ -42,7 +42,7 @@ action_get_vendor( VALUE self ) {
 static VALUE
 action_vendor_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
-  uint32_t vendor = NUM2UINT( action_get_vendor( self ) );
+  uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_vendor( actions, vendor, NULL );
@@ -54,7 +54,7 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
 static VALUE
 action_vendor_to_s( VALUE self ) {
   char str[ 64 ];
-  uint32_t vendor = NUM2UINT( action_get_vendor( self ) );
+  uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
 
   sprintf( str, "#<%s> vendor = %u", rb_obj_classname( self ), vendor );
   return rb_str_new2( str );

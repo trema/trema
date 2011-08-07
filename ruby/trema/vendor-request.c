@@ -56,7 +56,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
   data_length = ( uint16_t ) ( vendor_request->length - sizeof ( struct ofp_vendor_header ) );
 
   if ( rb_scan_args( argc, argv, "03", &xid_r, &vendor_r, &data_r ) == 3 ) {
-    xid = NUM2UINT( xid_r );
+    xid = ( uint32_t ) NUM2UINT( xid_r );
     vendor = NUM2UINT( vendor_r );
     if ( TYPE( data_r ) == T_ARRAY ) {
       if ( data_length > RARRAY( data_r )->len ) {

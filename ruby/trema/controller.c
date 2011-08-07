@@ -70,19 +70,18 @@ controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   return self;
 }
 
+
 static void
 form_actions( VALUE raction, openflow_actions *actions ) {
   VALUE *data_ptr;
-  int len;
   int i;
 
   if ( raction != Qnil ) {
     switch ( TYPE( raction ) ) {
       case T_ARRAY:
         data_ptr = RARRAY_PTR( raction );
-        len = RARRAY_LEN( raction );
 
-        for ( i = 0; i < len; i++ ) {
+        for ( i = 0; i < RARRAY_LEN( raction ); i++ ) {
           VALUE value = data_ptr[i];
           rb_funcall( value, rb_intern( "append" ), 1, Data_Wrap_Struct( cController, NULL, NULL, actions ) );
         }
@@ -96,6 +95,7 @@ form_actions( VALUE raction, openflow_actions *actions ) {
   }
 }
 
+
 static VALUE
 get_strict( int argc, VALUE *argv ) {
   VALUE datapath_id = Qnil;
@@ -108,6 +108,7 @@ get_strict( int argc, VALUE *argv ) {
   }
   return strict;
 }
+
 
 static VALUE
 controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) {
@@ -201,6 +202,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   return self;
 }
 
+
 /*
  * @overload send_flow_mod_add(datapath_id, options={})
  *   Sends a flow_mod message to add a flow into the datapath.
@@ -260,6 +262,7 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 	return controller_send_flow_mod( command, argc, argv, self );
 }
 
+
 /*
  * call-seq :
  * send_flow_mod_modify(datapath, options={})
@@ -283,6 +286,7 @@ controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
   return controller_send_flow_mod( command, argc, argv, self );
 }
 
+
 static VALUE
 controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
   uint16_t command = OFPFC_DELETE;
@@ -292,6 +296,7 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
   }
   return controller_send_flow_mod( command, argc, argv, self );
 }
+
 
 /*
  * @overload send_packet_out(datapath_id, options={})
@@ -459,6 +464,7 @@ thread_pass( void *user_data ) {
 	UNUSED( user_data );
   rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
 }
+
 
 static VALUE
 controller_start_trema( VALUE self ) {
