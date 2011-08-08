@@ -163,7 +163,7 @@ module Trema
 
       context "when #tx_stats" do      
         describe :cli do
-          it "shoud get tx stats" do
+          it "should get tx stats" do
             @cli.should_receive( :tx_stats ).and_return( @stats )
 
             @host.tx_stats.should == @stats

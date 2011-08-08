@@ -114,6 +114,26 @@ port_peer( VALUE self ) {
 
 
 static VALUE
+port_up( VALUE self ) {
+  uint32_t config = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@config" ) );
+  if ( ( config & OFPPC_PORT_DOWN ) == OFPPC_PORT_DOWN ) {
+    return Qfalse;
+  }
+  uint32_t state = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@state" ) );
+  if ( ( state & OFPPS_LINK_DOWN ) == OFPPS_LINK_DOWN ) {
+    return Qfalse;
+  }
+  return Qtrue;
+}
+
+
+static VALUE
+port_down( VALUE self ) {
+  return port_up( self ) == Qfalse ? Qtrue : Qfalse;
+}
+
+
+static VALUE
 port_compare( VALUE self, VALUE other ) {
   uint16_t a = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@number" ) );
   uint16_t b = ( uint16_t ) NUM2UINT( rb_iv_get( other, "@number" ) );
@@ -134,6 +154,8 @@ Init_port() {
   rb_define_method( cPort, "advertised", port_advertised, 0 );
   rb_define_method( cPort, "supported", port_supported, 0 );
   rb_define_method( cPort, "peer", port_peer, 0 );
+  rb_define_method( cPort, "up?", port_up, 0 );
+  rb_define_method( cPort, "down?", port_down, 0 );
   rb_define_method( cPort, "<=>", port_compare, 1 );
 }
 

@@ -27,6 +27,30 @@ describe Trema::Port do
     port = Trema::Port.new( :number => 123 )
     port.number.should == 123
   end
+
+  it "should check the port up" do
+    port = Trema::Port.new( :config => 0, :state => 0 )
+    port.up?.should == true
+    port.down?.should == false
+  end
+
+  it "should check the port down(config=0,state=1)" do
+    port = Trema::Port.new( :config => 0, :state => 1 )
+    port.up?.should == false
+    port.down?.should == true
+  end
+
+  it "should check the port down(config=1,state=0)" do
+    port = Trema::Port.new( :config => 1, :state => 0 )
+    port.up?.should == false
+    port.down?.should == true
+  end
+
+  it "should check the port down(config=1,state=1)" do
+    port = Trema::Port.new( :config => 1, :state => 1 )
+    port.up?.should == false
+    port.down?.should == true
+  end
 end
 
 
