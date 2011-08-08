@@ -113,6 +113,14 @@ port_peer( VALUE self ) {
 }
 
 
+static VALUE
+port_compare( VALUE self, VALUE other ) {
+  uint16_t a = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@number" ) );
+  uint16_t b = ( uint16_t ) NUM2UINT( rb_iv_get( other, "@number" ) );
+  return UINT2NUM( a - b );
+}
+
+
 void
 Init_port() {
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
@@ -126,6 +134,7 @@ Init_port() {
   rb_define_method( cPort, "advertised", port_advertised, 0 );
   rb_define_method( cPort, "supported", port_supported, 0 );
   rb_define_method( cPort, "peer", port_peer, 0 );
+  rb_define_method( cPort, "<=>", port_compare, 1 );
 }
 
 

@@ -25,7 +25,7 @@ require "trema"
 describe Trema::PortStatus do
   class PortStatusController < Controller
     def features_reply message
-      ports = message.ports.select{ |each| each.name == "trema0-1" }
+      ports = message.ports.select{ |each| each.config == 0 }.sort
       if ports.length > 0 
         port_mod = PortMod.new( ports[0].number,
           ports[0].hw_addr, 
@@ -66,7 +66,7 @@ describe Trema::PortStatus do
         controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
         controller( "PortStatusController" ).should_receive( :port_status ) do | message |
           message.datapath_id.should == 0xabc
-          message.phy_port.name.should == "trema0-1"
+          message.phy_port.number.should == 1
           message.phy_port.config.should == 1
           message.reason.should == 2
         end
