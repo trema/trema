@@ -48,14 +48,13 @@ describe Trema::ActionEnqueue, "A new enqueue action" do
   context "when sending #flow_mod(add) with action set to enqueue" do
     it "should have a flow with action set to enqueue" do
       class FlowModAddController < Controller; end
-      pending "ActionEnqueue can not be set"
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionEnqueue.new( 0, 123 ) )
+          :actions => ActionEnqueue.new( 1, 123 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        #switch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /enqueue:1q123/ )
       }
     end
   end
