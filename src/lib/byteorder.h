@@ -19,7 +19,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
+/**
+ * @byteorder.h
+ * Fucntions to convert network host byteorder and vice versa.
+ */
 #ifndef BYTEORDER_H
 #define BYTEORDER_H
 

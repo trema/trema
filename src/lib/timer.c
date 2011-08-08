@@ -18,6 +18,10 @@
  */
 
 
+/**
+ * @timer.c
+ * Contains functions which handles timer functionality.
+ */
 #include <assert.h>
 #include <errno.h>
 #include "doubly_linked_list.h"
@@ -62,6 +66,11 @@ typedef struct timer_callback {
 static dlist_element *timer_callbacks = NULL;
 
 
+/**
+ * Initializes event list which contains event callbacks.
+ * @param None
+ * @return bool True
+ */
 bool
 init_timer() {
   timer_callbacks = create_dlist();
@@ -69,6 +78,11 @@ init_timer() {
 }
 
 
+/**
+ * Deletes event callbacks from callback list.
+ * @param None
+ * @return bool True if the list is deleted
+ */
 bool
 finalize_timer() {
   dlist_element *e;
@@ -104,6 +118,12 @@ finalize_timer() {
   while ( 0 )
 
 
+/**
+ * Calls the callback function associated with timer and incase interval has been specified
+ * renews the timer, so that the callback is called again.
+ * @param callback Pointer to timer_callback structure 
+ * @return None
+ */
 static void
 on_timer( timer_callback *callback ) {
   assert( callback != NULL );
@@ -130,6 +150,12 @@ on_timer( timer_callback *callback ) {
 }
 
 
+/**
+ * Moves over the timer callback list and checks if that timer has expired. Incase it has, calls on_timer which 
+ * inturn calls callback associated with that timer.
+ * @param None
+ * @return None
+ */
 void
 execute_timer_events() {
   struct timespec now;
@@ -159,6 +185,15 @@ execute_timer_events() {
 }
 
 
+/**
+ * Adds a timer event callback in the event list.
+ * add_perodic_event_callback acts as wrapper to this function from which the interval value is specified.
+ * @param interval Time interval specification
+ * @param callback Pointer to callback function  
+ * @param user_data Pointer string which would be passed as it is to callback function
+ * @return bool True if event callback is updated in list, else False when timer is zero or not monotonic
+ * @see add_periodic_event_callback
+ */
 bool
 add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data ) {
   assert( interval != NULL );
@@ -205,6 +240,12 @@ add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void 
 }
 
 
+/**
+ * Deletes event callback from event list associated with the callback function whcih is passed
+ * as the argument.
+ * @param callback Pointer to callback function
+ * @return bool True if sucessfully deleted, else False 
+ */
 bool
 delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
   assert( callback != NULL );
@@ -240,6 +281,15 @@ delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
 }
 
 
+/**
+ * Updates the timer interval for a timer represented by the callback function
+ * and calls add_timer_event_callback which updates this entry to event list.
+ * @param seconds Time interval in seconds for timer entry
+ * @param callback Pointer to callback function 
+ * @param user_data Pointer to string 
+ * @return bool True if timer is sucessfully added in list, else False
+ * @see add_timer_event_callback
+ */
 bool
 add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
   assert( callback != NULL );
@@ -258,6 +308,12 @@ add_periodic_event_callback( const time_t seconds, void ( *callback )( void *use
 }
 
 
+/**
+ * Wrapper around the delete_timer_callback function which is used for deleting timer event from 
+ * event list.
+ * @param callback Pointer to callback function 
+ * @return bool True if timer event is successfully deleted, else False
+ */
 bool
 delete_periodic_event_callback( void ( *callback )( void *user_data ) ) {
   assert( callback != NULL );

@@ -18,12 +18,24 @@
  */
 
 
+/**
+ * @file arp.c
+ * This source file contains functions for handling ARP type messages
+ */
+
 #include <assert.h>
 #include "log.h"
 #include "packet_info.h"
 #include "wrapper.h"
 
 
+/**
+ * This function is to find if a packet contained in passed buffer is a valid
+ * ARP Packet or not. It does so by matching the incoming buffer against the ARP
+ * Header specifications as defined by RFC 826
+ * @param buf Buffer containing packet to verify for being ARP message
+ * @return bool True if buffer contains valid ARP message, else False
+ */
 bool
 valid_arp_packet( const buffer *buf ) {
   assert( buf != NULL );

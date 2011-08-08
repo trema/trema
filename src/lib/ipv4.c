@@ -17,6 +17,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file ipv4.c
+ * This source file contain functions for handling IPv4 type packets.
+ */
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -40,6 +44,14 @@ void mock_debug( const char *format, ... );
 #endif // UNIT_TESTING
 
 
+/**
+ * This function validates if the packet header is valid IPv4 header. This is
+ * wrapped around by parse_ipv4 function.
+ * @param buf Pointer to buffer containing packet header to verify for being ipv4 header
+ * @param packet_len Length of packet passed in the buffer
+ * @return bool True if the packet header is a valid IPv4 header, else False
+ * @see bool parse_ipv4( buffer *buf )
+ */
 static bool
 valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
   if ( ( size_t ) packet_len < sizeof( ipv4_header_t ) ) {
@@ -69,6 +81,14 @@ valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
 }
 
 
+/**
+ * This function extracts fragment offset and IP packet length of IPv4 packet
+ * and validates if packet's length is valid. This is wrapped around by parse_ipv4 function.
+ * @param buf Pointer to buffer containing IPv4 packet header
+ * @param packet_len Length of packet passed in the buffer
+ * @return bool True if the packet length is valid IPv4 packet length, else False
+ * @see bool parse_ipv4( buffer *buf )
+ */
 static bool
 valid_ipv4_packet_more_fragments( buffer *buf, uint32_t packet_len ) {
   uint16_t ip_len = ntohs( packet_info( buf )->l3_data.ipv4->tot_len );
@@ -96,6 +116,13 @@ valid_ipv4_packet_more_fragments( buffer *buf, uint32_t packet_len ) {
 }
 
 
+/**
+ * This function extracts source and destination address of IPv4 packet and
+ * validates them. This is wrapped around by parse_ipv4 function.
+ * @param buf Pointer to buffer containing IPv4 packet header
+ * @return bool True if source and destination address of IPv4 packet header are valid, else False
+ * @see bool parse_ipv4( buffer *buf )
+ */
 static bool
 valid_ipv4_packet_ip_address( buffer *buf ) {
   char addr[ 16 ];
@@ -130,6 +157,11 @@ valid_ipv4_packet_ip_address( buffer *buf ) {
 }
 
 
+/**
+ * This function parses the IPv4 packet for being valid IPv4 packet.
+ * @param buf Pointer to buffer containing IPv4 packet
+ * @return bool True if the buffer contains valid IPv4 packet, else False
+ */
 bool
 parse_ipv4( buffer *buf ) {
   assert( buf != NULL );

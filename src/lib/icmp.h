@@ -19,49 +19,57 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file icmp.h
+ * This header file contain type definitions, type codes, error codes of
+ * Internet Control Message Protocol(ICMP)
+ */
 
 #ifndef ICMP_H
 #define ICMP_H
 
 
+/**
+ * This is the type that specifies ICMP header information
+ */
 typedef struct icmp_header {
-  uint8_t type;  // ICMP error type
-  uint8_t code;  // ICMP error code
-  uint16_t csum; // checksum
+  uint8_t type; /*!<ICMP error type*/
+  uint8_t code; /*!<ICMP error code*/
+  uint16_t csum; /*!<Checksum*/
   union {
     struct {
-      uint16_t ident; // identifier
-      uint16_t seq;   // sequence number
+      uint16_t ident; /*!<Identifier*/
+      uint16_t seq; /*!<Sequence Number*/
     } echo;
-    uint32_t gateway; // gateway internet address
-    uint32_t pad;     // padding for Destination Unreachable or Time Exceeded
+    uint32_t gateway; /*!<Gateway internet address*/
+    uint32_t pad; /*!<Padding for destination Unreachable or Time Exceeded*/
   } icmp_data;
 } icmp_header_t;
 
 
 // ICMP types
-#define ICMP_TYPE_ECHOREP 0
-#define ICMP_TYPE_UNREACH 3
-#define ICMP_TYPE_SOURCEQUENCH 4
-#define ICMP_TYPE_REDIRECT 5
-#define ICMP_TYPE_ECHOREQ 8
-#define ICMP_TYPE_ROUTERADV 9
-#define ICMP_TYPE_ROUTERSOL 10
-#define ICMP_TYPE_TIMEEXCEED 11
-#define ICMP_TYPE_PARAMPROBLEM 12
+#define ICMP_TYPE_ECHOREP 0 /*!<Echo Reply*/
+#define ICMP_TYPE_UNREACH 3 /*!<Destination Unreachable*/
+#define ICMP_TYPE_SOURCEQUENCH 4 /*!<Source Quench*/
+#define ICMP_TYPE_REDIRECT 5 /*!<Redirect (change route)*/
+#define ICMP_TYPE_ECHOREQ 8 /*!<Echo Request*/
+#define ICMP_TYPE_ROUTERADV 9 /*!<Router Advertisement*/
+#define ICMP_TYPE_ROUTERSOL 10 /*!<Router Solicitation*/
+#define ICMP_TYPE_TIMEEXCEED 11 /*!<Time Exceeded*/
+#define ICMP_TYPE_PARAMPROBLEM 12 /*!<Parameter Problem*/
 
 // ICMP codes for Destination Unreachable
-#define ICMP_CODE_NETUNREACH 0
-#define ICMP_CODE_HOSTUNREACH 1
-#define ICMP_CODE_PROTOUNREACH 2
-#define ICMP_CODE_PORTUNREACH 3
-#define ICMP_CODE_FRAGNEED 4
-#define ICMP_CODE_SRCROUTEFAIL 5
-#define ICMP_CODE_ADMINPROHIBIT 13
+#define ICMP_CODE_NETUNREACH 0 /*!<Network Unreachable*/
+#define ICMP_CODE_HOSTUNREACH 1 /*!<Host Unreachable*/
+#define ICMP_CODE_PROTOUNREACH 2 /*!<Protocol Unreachable*/
+#define ICMP_CODE_PORTUNREACH 3 /*!<Port Unreachable*/
+#define ICMP_CODE_FRAGNEED 4 /*!<Fragmentation Needed set*/
+#define ICMP_CODE_SRCROUTEFAIL 5 /*!<Source Route failed*/
+#define ICMP_CODE_ADMINPROHIBIT 13 /*!<Administrator Prohibited Filter*/
 
 // ICMP codes for Time Exceeded
-#define ICMP_CODE_TIMETOLIVE 0
-#define ICMP_CODE_FRAGREASM 1
+#define ICMP_CODE_TIMETOLIVE 0 /*!<Time to live*/
+#define ICMP_CODE_FRAGREASM 1 /*!<Fragment reassembly timeout*/
 
 
 #endif // ICMP_H

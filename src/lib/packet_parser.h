@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file packet_parser.h
+ * Header file containing function declarations of packet_parser.c file
+ * @see packet_parser.c
+ */
 
 #ifndef PACKET_PARSER_H
 #define PACKET_PARSER_H

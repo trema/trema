@@ -19,11 +19,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file udp.h
+ * Header file containing definitions of User Datagram Protocol (UDP) header
+ */
 
 #ifndef UDP_H
 #define UDP_H
 
 
+/**
+ * UDP header information definitions
+ */
 typedef struct udp_header {
   uint16_t src_port;
   uint16_t dst_port;
