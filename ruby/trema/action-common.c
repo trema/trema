@@ -24,12 +24,12 @@
 
 uint32_t
 nw_addr_to_i( VALUE nw_addr ) {
-  return NUM2UINT( rb_funcall( nw_addr, rb_intern( "to_i" ), 0 ) );
+  return ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "to_i" ), 0 ) );
 }
 
 
 VALUE
-nw_addr_to_s( uint32_t nw_addr ) {
+nw_addr_to_s( VALUE nw_addr ) {
   return rb_funcall( nw_addr, rb_intern( "to_s" ), 0 );
 }
 

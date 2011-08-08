@@ -71,9 +71,9 @@ port_mod_init( VALUE self,
   ( ( struct ofp_header * ) ( port_mod->data ) )->xid = htonl( transaction_id );
   ( ( struct ofp_port_mod * ) ( port_mod->data ) )->port_no = htons( ( uint16_t ) NUM2UINT( port_no ) );
   memcpy( ( ( struct ofp_port_mod * ) ( port_mod->data ) )->hw_addr, ptr, OFP_ETH_ALEN );
-  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->config = htonl( NUM2UINT( config ) );
-  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->mask = htonl( NUM2UINT( mask ) );
-  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->advertise = htonl( NUM2UINT( advertise ) );
+  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->config = htonl( ( uint32_t ) NUM2UINT( config ) );
+  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->mask = htonl( ( uint32_t ) NUM2UINT( mask ) );
+  ( ( struct ofp_port_mod * ) ( port_mod->data ) )->advertise = htonl( ( uint32_t ) NUM2UINT( advertise ) );
   return self;
 }
 

@@ -32,7 +32,7 @@ describe Trema::QueueGetConfigReply do
       qr = QueueGetConfigReply.new( :datapath_id => 0xabc, 
         :transaction_id => 123, 
         :port => 1,
-        :queues => PacketQueue.queues )
+        :queues => QUEUE.queues )
       qr.datapath_id.should == 0xabc
       qr.transaction_id.should == 123
       qr.port.should == 1
@@ -63,7 +63,7 @@ describe Trema::QueueGetConfigReply do
   
   context "when multiple PacketQueue instances created" do
     it "should support multiplicity of queues" do
-      PacketQueue.should have(3).queues
+      QUEUE.should have(3).queues
     end
   end
 end
