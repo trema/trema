@@ -49,6 +49,7 @@ describe Trema::PortStatus do
       }.run( PortStatusController ) {
         controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
         controller( "PortStatusController" ).should_receive( :port_status )
+        sleep 1 # FIXME: wait to receive port_status
       }
     end
   end
@@ -70,6 +71,7 @@ describe Trema::PortStatus do
           message.phy_port.config.should == 1
           message.reason.should == 2
         end
+        sleep 1 # FIXME: wait to receive port_status
       }
     end
   end

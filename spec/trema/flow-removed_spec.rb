@@ -33,7 +33,7 @@ describe Trema::FlowRemoved do
         controller( "FlowRemovedController" ).send_flow_mod_add( 0xabc, 
           :idle_timeout => 1,
           :send_flow_rem => true )
-        sleep 2
+        sleep 2 # FIXME: wait to receive flow_removed
       }
     end
     
@@ -83,7 +83,7 @@ describe Trema::FlowRemoved do
           :cookie => 123456789,
           :idle_timeout => 1,
           :send_flow_rem => true )
-        sleep 2
+        sleep 2 # FIXME: wait to receive flow_removed
       }
     end
   end
