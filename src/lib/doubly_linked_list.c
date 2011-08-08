@@ -17,6 +17,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file doubly_linked_list.c
+ * Source file containing functions for doubly linked list implementation. It
+ * has functions for insertion, deletion and search of elements.
+ * @code
+ *     // Create a doubly linked list
+ *     dlistelement_p = create_dlist();
+ *     ...
+ *     // Add element ¨ABCD¨ at the HEAD of the created list
+ *     dlistelement_p = insert_before_dlist( get_first_element( dlistelement_p ), ¨ABCD¨ );
+ *     //Add another element ¨EFGH¨ after the previously inserted element ¨ABCD¨
+ *     dlistelement_p = insert_after_dlist( dlistelement_p, ¨EFGH¨ );
+ *     ...
+ *     // Doubly list looks like: (pointer from EFGH)->ABCD<->EFGH<-(Pointer from ABCD)
+ *     ...
+ *     // Find element ¨ABCD¨ from the list, where dlistelement_p can be pointing to any element of
+ *     // list.
+ *     dlistelement_p1 = find_element( dlistelement_p, ¨ABCD¨ );
+ *     ...
+ *     // Delete element ¨EFGH¨ from the list. dlistelement_p, in this case, points to the element to be deleted
+ *     delete_dlist_element( dlistelement_p );
+ *     ...
+ *     // Delete entire list
+ *     delete_dlist( dlistelement_p );
+ * @endcode
+ */
 
 #include <assert.h>
 #include <pthread.h>
@@ -24,12 +50,29 @@
 #include "wrapper.h"
 
 
+/**
+ * Defines an internal structure to be used within the
+ * doubly_linked_list.c file for handling doubly linked list allocation and
+ * management which when used by external functions
+ * (through dlist_element type)are assigned to member element and support
+ * for locking is provided on it through this type. Design of this type is
+ * such to embed the externally visible doubly linked list into a management
+ * layer. For applications, this type is never directly accessed.
+ * @see dlist_element
+ */
 typedef struct private_dlist_element {
   dlist_element public;
   pthread_mutex_t *mutex;
 } private_dlist_element;
 
 
+/**
+ * Allocates memory to structure of type private_dlist_element, elements of
+ * which are initialized to NULL apart from mutex which is assigned the value
+ * pointed by mutex pointer passed to this function.
+ * @param mutex Pointer of type pthread_mutex_t
+ * @return dlist_element* Pointer to dlist_element type which holds the allocated area with its members appropriately initialized
+ */
 static dlist_element *
 create_dlist_with_mutex( pthread_mutex_t *mutex ) {
   private_dlist_element *element = xmalloc( sizeof( private_dlist_element ) );
@@ -43,6 +86,14 @@ create_dlist_with_mutex( pthread_mutex_t *mutex ) {
 }
 
 
+/**
+ * Allocates memory to empty dlist_element type structure which can be used for
+ * representing allocated area. It does so by wrapping dlist_element type into
+ * private_dlist_element type. It would also initialize the mutex element of
+ * private_dlist_element type structure.
+ * @param None
+ * @return dlist_element*  Pointer to dlist_element type, which is embedded into private_dlist_element type
+ */
 dlist_element *
 create_dlist() {
   private_dlist_element *element = ( private_dlist_element * ) create_dlist_with_mutex( NULL );
@@ -57,6 +108,13 @@ create_dlist() {
 }
 
 
+/**
+ * Inserts a new element (of type dlist_element) before the specified element
+ * (which has been passed as first argument) in the doubly linked list .
+ * @param element Pointer to element in the doubly linked list before which new element is to be inserted
+ * @param data Pointer to data to be inserted in doubly linked list
+ * @return dlist_element* Pointer to newly inserted node in the doubly linked list
+ */
 dlist_element *
 insert_before_dlist( dlist_element *element, void *data ) {
   if ( element == NULL ) {
@@ -84,6 +142,13 @@ insert_before_dlist( dlist_element *element, void *data ) {
 }
 
 
+/**
+ * Inserts a new element (of type dlist_element) after the specified element
+ * (which has been passed as first argument) in the doubly linked list.
+ * @param element Pointer to element in the doubly linked list after which new element is to be inserted
+ * @param data Pointer to data to be inserted in doubly linked list
+ * @return dlist_element* Pointer to newly inserted node in the doubly linked list
+ */
 dlist_element *
 insert_after_dlist( dlist_element *element, void *data ) {
   if ( element == NULL ) {
@@ -111,6 +176,11 @@ insert_after_dlist( dlist_element *element, void *data ) {
 }
 
 
+/**
+ * Gets the first element in the doubly linked list.
+ * @param element Pointer to any of the element (of type dlist_element) of doubly linked list whose first element is needed
+ * @return dlist_element* Pointer to the first element in doubly linked list
+ */
 dlist_element *
 get_first_element( dlist_element *element ) {
   if ( element == NULL ) {
@@ -129,6 +199,11 @@ get_first_element( dlist_element *element ) {
 }
 
 
+/**
+ * Gets the last element in the doubly linked list.
+ * @param element Pointer to any of the element (of type dlist_element) of doubly linked list whose last element is needed
+ * @return dlist_element* Pointer to the last element in doubly linked list
+ */
 dlist_element *
 get_last_element( dlist_element *element ) {
   if ( element == NULL ) {
@@ -147,6 +222,14 @@ get_last_element( dlist_element *element ) {
 }
 
 
+/**
+ * Given a pointer to any element of the doubly linked list, finds the element
+ * which matches to the data passed as second argument. Calling functions are
+ * not required to find head for searches.
+ * @param element Pointer to any of the node (of type dlist_element)of doubly linked list in which element needs to be searched
+ * @param data Pointer to data corresponding to which element is to be searched in doubly linked list
+ * @return dlist_element* Pointer to the element in doubly linked list, Null if element with corresponding data is not found
+ */
 dlist_element *
 find_element( dlist_element *element, const void *data ) {
   if ( element == NULL ) {
@@ -170,6 +253,11 @@ find_element( dlist_element *element, const void *data ) {
 }
 
 
+/**
+ * Deletes node (can be HEAD or TAIL as well) from the doubly linked list.
+ * @param element Pointer to node(of type dlist_element) of doubly linked list which needs to be deleted
+ * @return bool True if element is deleted from the doubly linked list
+ */
 bool
 delete_dlist_element( dlist_element *element ) {
   if ( element == NULL ) {
@@ -193,6 +281,11 @@ delete_dlist_element( dlist_element *element ) {
 }
 
 
+/**
+ * Deletes whole of the doubly linked list.
+ * @param element Pointer to any of the node (of type dlist_element)of doubly linked list
+ * @return bool True if doubly linked list is deleted
+ */
 bool
 delete_dlist( dlist_element *element ) {
   if ( element == NULL ) {

@@ -17,12 +17,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file packet_info.c
+ * Source file containing functions for handling packet header information. The
+ * packets can be of any of the following type : Ethernet packet, ARP packet,
+ * IPv4 packet, TCP packet, UDP packet, ICMP packet.
+ */
 
 #include <assert.h>
 #include "packet_info.h"
 #include "wrapper.h"
 
 
+/**
+ * Releases the memory allocated to structure of type packet_header_info which
+ * contains packet header information. Pointer to this structure is stored in
+ * user_data element of buffer type structure. This is wrapped around by
+ * free_packet function.
+ * @param buf Pointer to buffer type structure
+ * @see free_packet
+ * @return None
+ */
 static void
 free_packet_header_info( buffer *buf ) {
   assert( buf != NULL );
@@ -33,6 +48,14 @@ free_packet_header_info( buffer *buf ) {
 }
 
 
+/**
+ * Allocates memory to structure of type packet_header_info which contains
+ * packet header information and initializes its elements to either NULL or 0.
+ * Also, user_data element of buffer type structure is initialized to pointer
+ * to this structure.
+ * @param buf Pointer to buffer type structure
+ * @return None
+ */
 void
 alloc_packet( buffer *buf ) {
   assert( buf != NULL );
@@ -51,6 +74,13 @@ alloc_packet( buffer *buf ) {
 }
 
 
+/**
+ * Releases the memory allocated to structure of type buffer and also to
+ * structure of type packet_header_info, pointer to which is contained in
+ * user_data element of this buffer type structure.
+ * @param buf Pointer to buffer type structure
+ * @return None
+ */
 void
 free_packet( buffer *buf ) {
   assert( buf != NULL );

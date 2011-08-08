@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file doubly_linked_list.h
+ * Header file containing function declarations and type definitions of doubly_linked_list.c
+ * @see doubly_linked_list.c
+ */
 
 #ifndef DOUBLY_LINKED_LIST_H
 #define DOUBLY_LINKED_LIST_H
@@ -27,6 +32,9 @@
 #include "bool.h"
 
 
+/**
+ * Specifies node of doubly linked list
+ */
 typedef struct dlist_element {
   void *data;
   struct dlist_element *prev;
