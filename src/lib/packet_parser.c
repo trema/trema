@@ -35,7 +35,7 @@
  * @code
  *   //Calling get_checksum to calculate checksum over ipv4 header, which is stored in a buf pointer
  *   if ( get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ){
- *       //Registering ¨checksum verification error¨ if calculated checksum is not equal to 0
+ *       //Registering "checksum verification error" if calculated checksum is not equal to 0
  *       debug( "Corrupted IPv4 header ( checksum verification error )." );
  *   }
  * @endcode
