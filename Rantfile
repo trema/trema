@@ -50,16 +50,12 @@ task :examples => [
   "examples:dumper",
   "examples:hello_trema",
   "examples:learning_switch",
-  "examples:libtopology",
   "examples:list_switches",
   "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",                 
-  "examples:routing_switch",
   "examples:switch_info",
-  "examples:topology",
-  "examples:topology_discovery",
 ]
 
 
@@ -496,125 +492,6 @@ desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
 file Trema::Executables.tremashark => objects.candidates + [ libtrema ] do | t |
   sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
-end
-
-
-################################################################################
-# Build topology
-################################################################################
-
-topology_objects_dir = objects( "examples/topology" )
-topology_source_dir = "src/examples/topology"
-
-
-gen C::Dependencies, dependency( "topology" ),
-  :search => [ topology_source_dir, trema_include ], :sources => sys[ "src/examples/topology/*.c" ]
-
-gen Action do
-  source dependency( "topology" )
-end
-
-
-gen Directory, topology_objects_dir
-
-gen DirectedRule, topology_objects_dir => [ topology_source_dir ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
-
-#
-# topology
-#
-
-topology = File.join( topology_objects_dir, "topology" )
-
-topology_objects = [
-  "service_management.o",
-  "subscriber_table.o",
-  "topology.o",
-  "topology_management.o",
-  "topology_table.o",
-].collect do | each |
-  File.join topology_objects_dir, each
-end
-
-desc "Build topology example."
-task "examples:topology" => topology
-file topology => topology_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
-end
-
-
-#
-# libtopology
-#
-
-libtopology = File.join( topology_objects_dir, "libtopology.a" )
-
-libtopology_objects = [
-  "libtopology.o",
-  "topology_service_interface_option_parser.o",
-].collect do | each |
-  File.join topology_objects_dir, each
-end
-
-desc "Build libtopology example."
-task "examples:libtopology" => libtopology
-file libtopology => libtopology_objects do | t |
-  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
-  sys "ranlib #{ t.name }"
-end
-
-
-#
-# topology discovery
-#
-
-topology_discovery = File.join( topology_objects_dir, "topology_discovery" )
-
-topology_discovery_objects = [
-  "lldp.o",
-  "probe_timer_table.o",
-  "topology_discovery.o",
-].collect do | each |
-  File.join topology_objects_dir, each
-end
-
-desc "Build topology discovery example."
-task "examples:topology_discovery" => topology_discovery
-file topology_discovery => topology_discovery_objects + [ libtrema, libtopology ] do | t |
-  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
-end
-
-
-################################################################################
-# Build routing switch
-################################################################################
-
-routing_switch_source_dir = "src/examples/routing_switch"
-routing_switch_objects_dir = objects( "examples/routing_switch" )
-routing_switch = objects( "examples/routing_switch/routing_switch" )
-
-
-gen C::Dependencies, dependency( "routing_switch" ),
-  :search => [ routing_switch_source_dir, trema_include ], :sources => sys[ "#{ routing_switch_source_dir }/*.c" ]
-
-gen Action do
-  source dependency( "routing_switch" )
-end
-
-
-gen Directory, routing_switch_objects_dir
-
-objects = gen DirectedRule, routing_switch_objects_dir => [ routing_switch_source_dir ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ topology_source_dir } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
-
-desc "Build routing switch example."
-task "examples:routing_switch" => routing_switch
-file routing_switch => objects.candidates + [ libtrema, libtopology ] do | t |
-  sys "gcc -L#{ trema_lib } -L#{ topology_objects_dir } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -ltopology -lrt"
 end
 
 
