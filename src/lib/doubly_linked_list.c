@@ -25,18 +25,18 @@
  *     // Create a doubly linked list
  *     dlistelement_p = create_dlist();
  *     ...
- *     // Add element ¨ABCD¨ at the HEAD of the created list
- *     dlistelement_p = insert_before_dlist( get_first_element( dlistelement_p ), ¨ABCD¨ );
- *     //Add another element ¨EFGH¨ after the previously inserted element ¨ABCD¨
- *     dlistelement_p = insert_after_dlist( dlistelement_p, ¨EFGH¨ );
+ *     // Add element "ABCD" at the HEAD of the created list
+ *     dlistelement_p = insert_before_dlist( get_first_element( dlistelement_p ), "ABCD" );
+ *     //Add another element "EFGH" after the previously inserted element "ABCD"
+ *     dlistelement_p = insert_after_dlist( dlistelement_p, "EFGH" );
  *     ...
  *     // Doubly list looks like: (pointer from EFGH)->ABCD<->EFGH<-(Pointer from ABCD)
  *     ...
- *     // Find element ¨ABCD¨ from the list, where dlistelement_p can be pointing to any element of
+ *     // Find element "ABCD" from the list, where dlistelement_p can be pointing to any element of
  *     // list.
- *     dlistelement_p1 = find_element( dlistelement_p, ¨ABCD¨ );
+ *     dlistelement_p1 = find_element( dlistelement_p, "ABCD" );
  *     ...
- *     // Delete element ¨EFGH¨ from the list. dlistelement_p, in this case, points to the element to be deleted
+ *     // Delete element "EFGH" from the list. dlistelement_p, in this case, points to the element to be deleted
  *     delete_dlist_element( dlistelement_p );
  *     ...
  *     // Delete entire list
