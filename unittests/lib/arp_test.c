@@ -83,7 +83,7 @@ test_valid_arp_packet_fails_if_packet_size_is_Less_than_arp_data_size() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -94,7 +94,7 @@ test_valid_arp_packet_fails_if_hw_type_is_no_ethernet_type() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -105,7 +105,7 @@ test_valid_arp_packet_fails_if_protocl_type_is_no_ip_type() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -116,7 +116,7 @@ test_valid_arp_packet_fails_if_hw_size_is_no_mac_address_size() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -127,7 +127,7 @@ test_valid_arp_packet_fails_if_protocl_size_is_no_ip_address_size() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -138,7 +138,7 @@ test_valid_arp_packet_fails_if_operation_is_no_request_reply() {
 
   assert_int_equal( valid_arp_packet( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -149,7 +149,7 @@ test_arp_request_succeeds() {
 
   assert_int_equal( valid_arp_packet( buffer ), true );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -160,7 +160,7 @@ test_arp_reply_succeeds() {
 
   assert_int_equal( valid_arp_packet( buffer ), true );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 

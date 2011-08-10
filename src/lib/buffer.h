@@ -42,6 +42,7 @@ typedef struct buffer {
   void *data;
   size_t length;
   void *user_data;
+  void ( *user_data_free_function)( struct buffer *buffer );
 } buffer;
 
 

@@ -715,7 +715,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
     if ( !parse_ok ) {
       error( "Failed to parse a packet." );
       // ???: Is it OK to drop malformed packets?
-      free_packet( body );
+      free_buffer( body );
       return;
     }
   }
@@ -755,7 +755,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   }
 
   if ( body != NULL ) {
-    free_packet( body );
+    free_buffer( body );
   }
 }
 

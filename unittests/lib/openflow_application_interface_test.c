@@ -874,7 +874,6 @@ test_handle_packet_in() {
   buffer *buffer = create_packet_in( TRANSACTION_ID, buffer_id, total_len, in_port, reason, data );
   handle_packet_in( DATAPATH_ID, buffer );
 
-  free_packet( data );
   free_buffer( buffer );
 }
 
@@ -905,7 +904,6 @@ test_handle_packet_in_with_simple_handler() {
   buffer *buffer = create_packet_in( TRANSACTION_ID, buffer_id, total_len, in_port, reason, data );
   handle_packet_in( DATAPATH_ID, buffer );
 
-  free_packet( data );
   free_buffer( buffer );
 }
 
@@ -929,7 +927,6 @@ test_handle_packet_in_with_malformed_packet() {
 
   assert_false( packet_in_handler_called );
 
-  free_packet( data );
   free_buffer( buffer );
 }
 

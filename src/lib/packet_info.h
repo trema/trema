@@ -14,10 +14,8 @@
  *     case ETH_ETHTYPE_ARP:
  *      ...
  *
- *   // Finally free the buffer. Note that you have to call free_packet()
- *   // instead of free_buffer() because parse_packet() allocates a memory
- *   // area to save parse results and it is not freed by free_buffer().
- *   free_packet( eth_frame );
+ *   // Finally free the buffer.
+ *   free_buffer( eth_frame );
  *
  * Author: Naoyoshi Tada
  *
@@ -47,6 +45,7 @@
 #define PACKET_INFO_H
 
 
+#include "checks.h"
 #include "bool.h"
 #include "arp.h"
 #include "ether.h"
@@ -83,7 +82,7 @@ typedef struct packet_header_info {
 } packet_header_info;
 
 
-void free_packet( buffer *buf );
+void free_packet( buffer *buf ) DEPRECATED;
 void alloc_packet( buffer *buf );
 
 

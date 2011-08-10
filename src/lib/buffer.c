@@ -207,6 +207,7 @@ alloc_buffer_with_length( size_t length ) {
   new_buf->public.data = xmalloc( length );
   new_buf->public.length = 0;
   new_buf->public.user_data = NULL;
+  new_buf->public.user_data_free_function = NULL;
   new_buf->top = new_buf->public.data;
   new_buf->real_length = length;
 
@@ -230,6 +231,9 @@ void
 free_buffer( buffer *buf ) {
   assert( buf != NULL );
 
+  if ( buf->user_data != NULL && buf->user_data_free_function != NULL ) {
+    ( *buf->user_data_free_function )( buf );
+  }
   pthread_mutex_lock( ( ( private_buffer * ) buf )->mutex );
   private_buffer *delete_me = ( private_buffer * ) buf;
   if ( delete_me->top != NULL ) {

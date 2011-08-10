@@ -89,7 +89,7 @@ test_parse_ipv4_without_ah_succeeds() {
 
   assert_int_equal( parse_ipv4( buf ), true );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -100,7 +100,7 @@ test_parse_ipv4_fails_if_packet_size_is_too_short() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -111,7 +111,7 @@ test_parse_ipv4_fails_if_version_is_not_ipv4() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -122,7 +122,7 @@ test_parse_ipv4_fails_if_ihl_is_too_small() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -133,7 +133,7 @@ test_parse_ipv4_fails_if_checksum_has_incorrect_value() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -147,7 +147,7 @@ test_parse_ipv4_fails_if_fragment_does_not_have_any_data() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -162,7 +162,7 @@ test_parse_ipv4_fails_if_packet_size_is_too_big() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -176,7 +176,7 @@ test_parse_ipv4_fails_if_tot_len_has_incorrect_value() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -190,7 +190,7 @@ test_parse_ipv4_fails_if_source_address_is_illigal() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -204,7 +204,7 @@ test_parse_ipv4_fails_if_destination_address_is_illigal() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -219,7 +219,7 @@ test_parse_ipv4_fails_if_source_and_destination_are_same() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -234,7 +234,7 @@ test_parse_ipv4_with_ah_succeeds() {
 
   assert_int_equal( parse_ipv4( buf ), true );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -250,7 +250,7 @@ test_parse_ipv4_fails_if_packet_with_ah_is_too_short() {
 
   assert_int_equal( parse_ipv4( buf ), false );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -261,7 +261,7 @@ test_parse_ipv4_fails_if_ipv4_data_is_NULL() {
 
   expect_assert_failure( parse_ipv4( buf ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
