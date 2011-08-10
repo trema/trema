@@ -169,7 +169,7 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
   original_packet->user_data = NULL;
   if ( !parse_packet( original_packet ) ) {
     warn( "Received unsupported packet." );
-    free_packet( original_packet );
+    free_buffer( original_packet );
     free_hop_list( hops );
     xfree( param );
     return;
@@ -179,7 +179,7 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
     warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
           in_datapath_id, in_port, out_datapath_id, out_port );
     discard_packet_in( in_datapath_id, in_port, original_packet );
-    free_packet( original_packet );
+    free_buffer( original_packet );
     xfree( param );
     return;
   }
@@ -200,7 +200,7 @@ resolve_path_replied( void *user_data, dlist_element *hops ) {
 
   // free them
   free_hop_list( hops );
-  free_packet( original_packet );
+  free_buffer( original_packet );
   xfree( param );
 }
 

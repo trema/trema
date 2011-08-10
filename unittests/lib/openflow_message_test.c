@@ -5149,7 +5149,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_tag_and_wildcards_is_zero
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5173,7 +5173,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_zero() {
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5196,7 +5196,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_IN
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5219,7 +5219,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5242,7 +5242,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5265,7 +5265,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5284,7 +5284,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5307,7 +5307,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5331,7 +5331,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_TP
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5355,7 +5355,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_TP
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5380,7 +5380,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   assert_int_equal( ( int ) match.nw_src, ( int ) ip_source_address_flag );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5405,7 +5405,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   uint32_t ip_destination_address_flag = ntohl( arp->tip ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ip_destination_address_flag );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5429,7 +5429,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5453,7 +5453,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5473,7 +5473,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_AL
   assert_int_equal( ( int ) match.nw_src, 0 );
   assert_int_equal( ( int ) match.nw_dst, 0 );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5499,7 +5499,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_tag_and_wildcards_is
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5527,7 +5527,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_zer
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5554,7 +5554,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5581,7 +5581,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5608,7 +5608,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5635,7 +5635,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5654,7 +5654,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5678,7 +5678,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5705,7 +5705,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5732,7 +5732,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5761,7 +5761,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5790,7 +5790,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5818,7 +5818,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5845,7 +5845,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5867,7 +5867,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5898,7 +5898,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_tag_and_wildcards_is
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5926,7 +5926,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_zer
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5953,7 +5953,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -5980,7 +5980,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6007,7 +6007,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6034,7 +6034,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6053,7 +6053,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6077,7 +6077,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6104,7 +6104,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6131,7 +6131,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6160,7 +6160,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6189,7 +6189,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6217,7 +6217,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6244,7 +6244,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6266,7 +6266,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6297,7 +6297,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_tag_and_wildcards_i
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6325,7 +6325,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_ze
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6352,7 +6352,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6379,7 +6379,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6406,7 +6406,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6433,7 +6433,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6452,7 +6452,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6476,7 +6476,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6503,7 +6503,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6530,7 +6530,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6559,7 +6559,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6589,7 +6589,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6617,7 +6617,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6644,7 +6644,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6666,7 +6666,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6687,7 +6687,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_tag_and_wildcar
   assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6712,7 +6712,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_tag_and_wild
   assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6737,7 +6737,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_tag_and_wild
   assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6757,7 +6757,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_and_wildcards_i
   assert_int_equal( match.dl_vlan, UINT16_MAX );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6781,7 +6781,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcard
   assert_int_equal( match.dl_vlan, UINT16_MAX );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
@@ -6805,7 +6805,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcard
   assert_int_equal( match.dl_vlan, UINT16_MAX );
   assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 

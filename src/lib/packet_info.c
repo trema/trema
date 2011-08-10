@@ -32,10 +32,8 @@
 /**
  * Releases the memory allocated to structure of type packet_header_info which
  * contains packet header information. Pointer to this structure is stored in
- * user_data element of buffer type structure. This is wrapped around by
- * free_packet function.
+ * user_data element of buffer type structure.
  * @param buf Pointer to buffer type structure
- * @see free_packet
  * @return None
  */
 static void
@@ -45,6 +43,7 @@ free_packet_header_info( buffer *buf ) {
 
   xfree( buf->user_data );
   buf->user_data = NULL;
+  buf->user_data_free_function = NULL;
 }
 
 
@@ -71,10 +70,13 @@ alloc_packet( buffer *buf ) {
   header_info->l3_data.l3 = NULL;
   header_info->l4_data.l4 = NULL;
   buf->user_data = header_info;
+  buf->user_data_free_function = free_packet_header_info;
 }
 
 
 /**
+ * This function is deprecated.
+ *
  * Releases the memory allocated to structure of type buffer and also to
  * structure of type packet_header_info, pointer to which is contained in
  * user_data element of this buffer type structure.

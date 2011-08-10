@@ -128,7 +128,7 @@ test_parse_packet_ether_arp_succeeds() {
 
   assert_int_equal( parse_packet( arp_buffer ), true );
 
-  free_packet( arp_buffer );
+  free_buffer( arp_buffer );
 }
 
 
@@ -139,7 +139,7 @@ test_parse_packet_fails_if_packet_size_is_short_ethernet_size() {
 
   assert_int_equal( parse_packet( arp_short_ethernet_size ), false );
 
-  free_packet( arp_short_ethernet_size );
+  free_buffer( arp_short_ethernet_size );
 }
 
 
@@ -150,7 +150,7 @@ test_parse_packet_fails_if_arp_hw_type_is_no_ethernet_type() {
 
   assert_int_equal( parse_packet( arp_hw_type ), false );
 
-  free_packet( arp_hw_type );
+  free_buffer( arp_hw_type );
 }
 
 
@@ -164,7 +164,7 @@ test_parse_packet_ether_ipv4_succeeds() {
 
   assert_int_equal( parse_packet( ipv4_buffer ), true );
 
-  free_packet( ipv4_buffer );
+  free_buffer( ipv4_buffer );
 }
 
 
@@ -175,7 +175,7 @@ test_parse_ether_fails_if_version_is_no_ipv4() {
 
   assert_int_equal( parse_packet( ip_version ), false );
 
-  free_packet( ip_version );
+  free_buffer( ip_version );
 }
 
 

@@ -107,7 +107,7 @@ test_parse_ether_succeeds() {
 
   assert_int_equal( parse_ether( buffer ), true );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -118,7 +118,7 @@ test_parse_ether_fails_if_packet_size_is_short_ethernet_size() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -129,7 +129,7 @@ test_parse_ether_fails_if_mac_address_is_wrong_mac() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -143,7 +143,7 @@ test_parse_ether_snap_succeeds() {
 
   assert_int_equal( parse_ether( buffer ), true );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -156,7 +156,7 @@ test_parse_ether_netbios_succeeds() {
   assert_int_equal( parse_ether( buffer ), true );
   assert_int_equal( packet_info( buffer )->ethtype, ETH_ETHTYPE_UKNOWN );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -169,7 +169,7 @@ test_parse_ether_not_llc_header_succeeds() {
   assert_int_equal( parse_ether( buffer ), true );
   assert_int_equal( packet_info( buffer )->ethtype, ETH_ETHTYPE_UKNOWN );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -180,7 +180,7 @@ test_parse_ether_fails_if_type_is_trancated_llc_snap_ieee8023() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -191,7 +191,7 @@ test_parse_ether_fails_if_type_is_trancated_payload_ieee8023() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -202,7 +202,7 @@ test_parse_ether_fails_if_llc_is_unsupported_llc_snap() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -216,7 +216,7 @@ test_parse_ether_vlan_succeeds() {
 
   assert_int_equal( parse_ether( buffer ), true );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -227,7 +227,7 @@ test_parse_ether_fails_if_type_is_trancated_vlan() {
 
   assert_int_equal( parse_ether( buffer ), false );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 
@@ -238,7 +238,7 @@ test_parse_ether_fails_if_ether_data_is_NULL() {
 
   expect_assert_failure( parse_ether( buffer ) );
 
-  free_packet( buffer );
+  free_buffer( buffer );
 }
 
 

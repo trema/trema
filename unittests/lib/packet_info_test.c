@@ -24,6 +24,8 @@
 #include <netinet/ip.h>
 #include "checks.h"
 #include "cmockery_trema.h"
+#undef DEPRECATED
+#define DEPRECATED
 #include "packet_info.h"
 
 
@@ -38,7 +40,7 @@ test_alloc_packet_succeeds() {
   alloc_packet( buf );
   assert_true( packet_info( buf ) != NULL );
 
-  free_packet( buf );
+  free_buffer( buf );
 }
 
 
