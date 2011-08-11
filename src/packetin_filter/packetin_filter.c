@@ -150,7 +150,8 @@ parse_etherip( const buffer *data ) {
     return NULL;
   }
   copy->user_data = NULL;
-  uint32_t offset = ( uint32_t ) ( ( char * ) etherip - ( char *) data->data + ( uint32_t ) sizeof( etherip_header ) );
+  uint32_t offset = ( uint32_t ) ( ( char * ) etherip - ( char *) data->data );
+  offset += ( uint32_t ) sizeof( etherip_header );
   remove_front_buffer( copy, offset );
 
   if ( !parse_packet( copy ) ) {
