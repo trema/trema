@@ -218,6 +218,7 @@ set_logging_level( const char *name ) {
 
   int new_level = priority_value_from( name );
   if ( new_level == -1 ) {
+    unsetenv( "LOGGING_LEVEL" );; // avoid an infinite loop
     die( "Invalid logging level: %s", name );
   }
   pthread_mutex_lock( &mutex );
