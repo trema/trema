@@ -139,6 +139,15 @@ open_log( const char *ident, const char *log_directory ) {
 }
 
 
+/**
+ * Initializes the Logger. This creates a log file to which messages
+ * are written.
+ *
+ * @param ident name of the log file, used as an identifier.
+ * @param log_directory the directory in which log file is created.
+ * @param run_as_daemon determines if messages should be reported to terminal as well.
+ * @return true on success; false otherwise.
+ */
 bool
 init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
@@ -158,6 +167,11 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 }
 
 
+/**
+ * Closes the log file.
+ *
+ * @return true on success; false otherwise.
+ */
 bool
 finalize_log() {
   pthread_mutex_lock( &mutex );
@@ -215,6 +229,13 @@ started() {
 }
 
 
+/**
+ * Sets a new logging level. This overrides the value which has been
+ * previously set.
+ *
+ * @param name name of the logging level to be set.
+ * @return true on success; false otherwise.
+ */
 bool
 set_logging_level( const char *name ) {
   int new_level = priority_value_from( name );
@@ -268,6 +289,11 @@ static void
 _critical( const char *format, ... ) {
   DO_LOG( LOG_CRITICAL, format );
 }
+/**
+ * Logs an critical message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *critical )( const char *format, ... ) = _critical;
 
 
@@ -275,6 +301,11 @@ static void
 _error( const char *format, ... ) {
   DO_LOG( LOG_ERROR, format );
 }
+/**
+ * Logs an error message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *error )( const char *format, ... ) = _error;
 
 
@@ -282,6 +313,11 @@ static void
 _warn( const char *format, ... ) {
   DO_LOG( LOG_WARN, format );
 }
+/**
+ * Logs a warning message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *warn )( const char *format, ... ) = _warn;
 
 
@@ -289,6 +325,11 @@ static void
 _notice( const char *format, ... ) {
   DO_LOG( LOG_NOTICE, format );
 }
+/**
+ * Logs a notice message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *notice )( const char *format, ... ) = _notice;
 
 
@@ -296,6 +337,11 @@ static void
 _info( const char *format, ... ) {
   DO_LOG( LOG_INFO, format );
 }
+/**
+ * Logs an info message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *info )( const char *format, ... ) = _info;
 
 
@@ -303,6 +349,11 @@ static void
 _debug( const char *format, ... ) {
   DO_LOG( LOG_DEBUG, format );
 }
+/**
+ * Logs a debug message.
+ *
+ * @param format format string, followed by parameters to insert into the format string (as with printf())
+ */
 void ( *debug )( const char *format, ... ) = _debug;
 
 

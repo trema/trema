@@ -23,6 +23,14 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Versatile support for logging messages with different levels
+ * of importance.
+ */
+
+
 #ifndef LOG_H
 #define LOG_H
 
