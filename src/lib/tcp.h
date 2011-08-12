@@ -20,8 +20,9 @@
  */
 
 /**
- * @file tcp.h
- * Header file containing definitions of Transmission Control Protocol (TCP) header
+ * @file
+ *
+ * @brief Definitions of Transmission Control Protocol (TCP) header
  */
 
 #ifndef TCP_H
