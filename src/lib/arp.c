@@ -19,8 +19,9 @@
 
 
 /**
- * @file arp.c
- * This source file contains functions for handling ARP type messages
+ * @file
+ *
+ * @brief Functions for handling ARP type messages
  */
 
 #include <assert.h>

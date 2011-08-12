@@ -21,8 +21,9 @@
 
 
 /**
- * @file arp.h
- * This header file contains types for defining a ARP packet
+ * @file
+ *
+ * @brief Contains types for defining a ARP packet
  */
 
 #ifndef ARP_H
