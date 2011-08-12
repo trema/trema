@@ -18,8 +18,9 @@
  */
 
 /**
- * @file ether.c
- * This source file contains functions for handling Ethernet headers
+ * @file
+ *
+ * @brief Handling Ethernet headers
  */
 
 #include <assert.h>

@@ -20,9 +20,11 @@
  */
 
 /**
- * @file ether.h
- * This header file contain type definitions, type codes of Ethernet header and function declarations of ether.c file
- * @see ether.c
+ * @file
+ *
+ * @brief Ethernet header and function declarations
+ *
+ * Contains type definitions, type codes of Ethernet header and function declarations.
  */
 
 #ifndef ETHER_H
