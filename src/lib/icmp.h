@@ -20,7 +20,10 @@
  */
 
 /**
- * @file icmp.h
+ * @file
+ *
+ * @brief Internet Control Message Protocol(ICMP) header
+ *
  * This header file contain type definitions, type codes, error codes of
  * Internet Control Message Protocol(ICMP)
  */
