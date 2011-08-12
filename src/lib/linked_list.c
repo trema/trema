@@ -19,11 +19,31 @@
 
 
 /**
- * @file linked_list.c
- * This file contains functions for linked list implementation. This is a 
- * singly linked list implementation, for which this file contains various
- * helper functions for insertion, deletion and modification of elements as
- * well as the List (head).
+ * @file 
+ *
+ * @brief Linked List Implementation
+ *
+ * File contains various functions for Single Linked List implemenation.
+ * Helper functions for insertion, deletion and modification of elements are provided.
+ *
+ * @code 
+ * // Initialize a Linked List HEAD
+ * list_element **HEAD;
+ * bool ret = create_list( HEAD );
+ * // On failure to create, FALSE (0) is returned
+ *
+ * // Insert elements into the linked list
+ * insert_in_front( HEAD, "Apple" );      // For inserting in front (like a Stack)
+ * append_to_tail( HEAD, "Ball" );        // Insert at the end (like a Queue)
+ * insert_before( HEAD, "Ball", "Cat" );  // Insert before a specified Node
+ *
+ * // Linked list looks like Apple->Cat->Ball
+ *
+ * // Delete a node
+ * delete_element( HEAD, "Ball" );
+ * // Delete the complete list
+ * delete_list( *HEAD );
+ * @endcode
  */
 
 

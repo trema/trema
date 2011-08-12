@@ -20,10 +20,9 @@
  */
 
 /**
- * @file linked_list.h
- * This header file contains type definitions and function declarations for 
- * Linked list implementation.
- * @see linked_list.c
+ * @file 
+ *
+ * @brief Single Linked List Implementation.
  */
 
 
