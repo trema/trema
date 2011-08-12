@@ -13,6 +13,7 @@ Feature: Get the list of openflow switches with list_switches
       vswitch { datapath_id "0x3" }
       vswitch { datapath_id "0x4" }
       """
+      And *** sleep 1 ***
       And wait until "list_switches" is up
       And I terminated all trema services
     Then the output should include:
