@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * File containing function definitions of Trema Application.
+ */
 
 #ifndef TREMA_H
 #define TREMA_H

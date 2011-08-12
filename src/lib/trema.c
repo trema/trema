@@ -17,6 +17,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Trema Application implementation
+ *
+ * File containing functions for handling Trema Application.
+ * @code
+ * // Initialize the Trema World
+ * init_trema( int *argc, char ***argv );
+ * ...
+ * // Start Trema World i,e. run the main loop
+ * start_trema();
+ * ...
+ * // Rename service name of messenger to "ABCD"
+ * rename_message_received_callback( get_trema_name(), "ABCD" );
+ * ...
+ * set_trema_name( "ABCD" );
+ * // Stop Trema World i,e. exit the main loop
+ * stop_trema();
+ * @endcode
+ */
+
 
 #include <assert.h>
 #include <errno.h>
@@ -265,10 +287,10 @@ static char short_options[] = "n:dl:h";
 
 
 /**
- * Default usage function shown on <tt>-h</tt> or <tt>--help</tt>.
- *
- * This can be overridden by defining your own <tt>void usage( void )</tt>
- * in your Trema application.
+ * Default usage function shown on -h or --help. This can be overridden by
+ * defining your own void usage ( void ) in your Trema Application.
+ * @param None
+ * @return None
  */
 void
 usage() {
@@ -284,6 +306,13 @@ usage() {
 }
 
 
+/**
+ * Expands all symbolic links and resolves references to '/./', '/../' and
+ * extra '/'  characters.
+ * @param path Pointer of type character to constant path i,e. null terminated string having unresolved symbolic links
+ * @param absolute_path Pointer of type character to absolute_path i,e. resulting path with no symbolic link, '/./' or '/../'
+ * @return bool True if absolute_path is found, else False
+ */
 static bool
 expand( const char *path, char *absolute_path ) {
   assert( path != NULL );
@@ -300,6 +329,13 @@ expand( const char *path, char *absolute_path ) {
 }
 
 
+/**
+ * Sets trema home working directory to "/" if variable name TREMA_HOME is not
+ * present in environment list, else sets it to absolute path. This process is
+ * thread safe.
+ * @param None
+ * @return None
+ */
 static void
 set_trema_home() {
   pthread_mutex_lock( &mutex );
@@ -323,7 +359,9 @@ set_trema_home() {
 
 
 /**
- * Returns trema home directory used in your trema session.
+ * Gets trema home directory used in Trema session.
+ * @param None
+ * @return char* Pointer of type character to constant string that holds trema home directory
  */
 const char *
 get_trema_home() {
@@ -334,6 +372,13 @@ get_trema_home() {
 }
 
 
+/**
+ * Sets trema temporary directory to "/tmp" if variable name TREMA_TMP is not
+ * present in environment list, else sets it to absolute path. This process is
+ * thread safe.
+ * @param None
+ * @return None
+ */
 static void
 set_trema_tmp() {
   pthread_mutex_lock( &mutex );
@@ -365,7 +410,9 @@ set_trema_tmp() {
 
 
 /**
- * Returns temporary directory used in your Trema session.
+ * Gets trema temporary directory used in Trema session.
+ * @param None
+ * @return char* Pointer of type character to constant string that holds trema temporary directory
  */
 const char *
 get_trema_tmp() {
@@ -375,6 +422,12 @@ get_trema_tmp() {
   return trema_tmp;
 }
 
+
+/**
+ * Gets trema log directory used in Trema session.
+ * @param None
+ * @return char* Pointer of type character to constant string that holds trema log directory
+ */
 
 static const char *
 get_trema_log() {
@@ -387,6 +440,14 @@ get_trema_log() {
 }
 
 
+/**
+ * Finalizes OpenFlow application interface if
+ * openflow_application_interface_initialized is set to true. It is wrapped
+ * around by finalize_trema.
+ * @param None
+ * @return None
+ * @see finalize_trema
+ */
 static void
 maybe_finalize_openflow_application_interface() {
   if ( openflow_application_interface_is_initialized() ) {
@@ -395,6 +456,11 @@ maybe_finalize_openflow_application_interface() {
 }
 
 
+/**
+ * Dies if trema is not initialized.
+ * @param None
+ * @return None
+ */
 static void
 die_unless_initialized() {
   if ( !initialized ) {
@@ -403,6 +469,14 @@ die_unless_initialized() {
 }
 
 
+/**
+ * Finalizes trema, sets all the involved parameters to there default values.
+ * It should be called only after trema has been initialized
+ * ( i.e, init_trema has been called ). It is wrapped around by start_trema.
+ * @param None
+ * @return None
+ * @see start_trema
+ */
 static void
 finalize_trema() {
   die_unless_initialized();
@@ -430,6 +504,14 @@ finalize_trema() {
 }
 
 
+/**
+ * Checks if trema temporary directory does not exist, calls get_trema_tmp.
+ * It is wrapped around by init_trema.
+ * @param None
+ * @return None
+ * @see get_trema_tmp
+ * @see init_trema
+ */
 static void
 check_trema_tmp() {
   _stat st;
@@ -440,13 +522,27 @@ check_trema_tmp() {
 }
 
 
+/**
+ * Resets the optind ( index of the next element of the argv[] vector to be
+ * processed ) and opterr ( If this variable is 1 and getopt() does not
+ * recognize an option character, it prints an error message to stderr )
+ * variables. It is wrapped around by parse_argv.
+ * @param None
+ * @return None
+ * @see parse_argv
+ */
 static void
 reset_getopt() {
   optind = 0;
   opterr = 1;
 }
 
-
+/**
+ * Parses the command line arguments.
+ * @param argc Pointer of type integer to argument count
+ * @param argv Pointer to argument vector
+ * @return None
+ */
 static void
 parse_argv( int *argc, char ***argv ) {
   assert( argc != NULL );
@@ -516,6 +612,12 @@ parse_argv( int *argc, char ***argv ) {
 }
 
 
+/**
+ * Sets to ignore SIGPIPE signal.It is wrapped around by init_trema.
+ * @param None
+ * @return None
+ * @see init_trema
+ */
 static void
 ignore_sigpipe() {
   struct sigaction sigpipe_ignore;
@@ -526,6 +628,13 @@ ignore_sigpipe() {
 }
 
 
+/**
+ * Sets exit handler, such that when SIGINT or SIGTERM signals are encountered
+ * call to stop_trema is made. It is wrapped around by init_trema.
+ * @param None
+ * @return None
+ * @see init_trema
+ */
 static void
 set_exit_handler() {
   struct sigaction signal_exit;
@@ -537,12 +646,25 @@ set_exit_handler() {
 }
 
 
+/**
+ * It is wrapped around by set_usr1_handler.
+ * @param None
+ * @return None
+ * @see set_usr1_handler
+ */
 static void
 set_dump_stats_as_external_callback() {
   set_external_callback( dump_stats );
 }
 
 
+/**
+ * Sets SIGUSR1 to call set_dump_stats_as_external_callback. It is wrapped
+ * around by init_trema.
+ * @param None
+ * @return None
+ * @see init_trema
+ */
 static void
 set_usr1_handler() {
   struct sigaction signal_usr1;
@@ -553,6 +675,12 @@ set_usr1_handler() {
 }
 
 
+/**
+ * Toggles the messenger dump. It is wrapped around by set_usr2_handler.
+ * @param None
+ * @return None
+ * @see set_usr2_handler
+ */
 static void
 toggle_messenger_dump() {
   if ( messenger_dump_enabled() ) {
@@ -564,6 +692,13 @@ toggle_messenger_dump() {
 }
 
 
+/**
+ * Sets SIGUSR2 to call toggle_messenger_dump. It is wrapped around by
+ * init_trema.
+ * @param None
+ * @return None
+ * @see init_trema
+ */
 static void
 set_usr2_handler() {
   struct sigaction signal_usr2;
@@ -574,6 +709,11 @@ set_usr2_handler() {
 }
 
 
+/**
+ * Daemonizes the process if run_as_daemon is set to true.
+ * @param None
+ * @return None
+ */
 static void
 maybe_daemonize() {
   if ( run_as_daemon ) {
@@ -583,13 +723,12 @@ maybe_daemonize() {
 
 
 /**
- * Call this function before using any other Trema functions in your
- * applications.
- *
- * It will initialize everything needed to handle OpenFlow events and
- * parses some standard command line options. <tt>argc</tt> and
- * <tt>argv</tt> are adjusted accordingly so your own code will never
- * see those standard arguments.
+ * Initializes everything needed to handle OpenFlow events and parses some
+ * standard command line options.This function needs to be called before any
+ * other Trema function in application.
+ * @param argc
+ * @param argv
+ * @return None
  */
 void
 init_trema( int *argc, char ***argv ) {
@@ -626,7 +765,9 @@ init_trema( int *argc, char ***argv ) {
 
 
 /**
- * Runs the main loop.
+ * Starts Trema World i,e. runs the main loop.
+ * @param None
+ * @return None
  */
 void
 start_trema() {
@@ -647,6 +788,11 @@ start_trema() {
 }
 
 
+/**
+ * Flushes the messenger queues.
+ * @param None
+ * @return None
+ */
 void
 flush() {
   flush_messenger();
@@ -655,6 +801,8 @@ flush() {
 
 /**
  * Exits from the main loop.
+ * @param None
+ * @return None
  */
 void
 stop_trema() {
@@ -662,6 +810,12 @@ stop_trema() {
 }
 
 
+/**
+ * Sets ID of trema application to "name" ( pointer to which is passed as an
+ * argument to the function ).
+ * @param char* Pointer of type character to constant string that holds ID of trema application
+ * @return None
+ */
 void
 set_trema_name( const char *name ) {
   assert( name != NULL );
@@ -680,7 +834,9 @@ set_trema_name( const char *name ) {
 
 
 /**
- * Returns the ID of your Trema application.
+ * Gets ID of trema application.
+ * @param None
+ * @return char* Pointer of type character to constant string that holds ID of trema application 
  */
 const char *
 get_trema_name() {
@@ -690,8 +846,10 @@ get_trema_name() {
 
 
 /**
- * Returns the basename of <tt>argv[ 0 ]</tt>. This function is useful
- * for your application's <tt>usage()</tt> function.
+ * Gets the basename of argv[ 0 ]. This function is useful for trema application's
+ * usage() function.
+ * @param None
+ * @return char* Pointer of type character to constant string that holds basename of argv[ 0 ]
  */
 const char *
 get_executable_name() {
@@ -700,12 +858,22 @@ get_executable_name() {
 }
 
 
+/**
+ * Gets process ID from name.
+ * @param name Pointer of type character to constant string that holds ID of trema application
+ * @return pid_t Process ID
+ */
 pid_t
 get_trema_process_from_name( const char *name ) {
   return read_pid( get_trema_tmp(), name );
 }
 
 
+/**
+ * Terminates the process.
+ * @param pid Process ID of process that needs to be terminated
+ * @return bool True if the process specified by Process ID is terminated successfully, else False
+ */
 bool
 terminate_trema_process( pid_t pid ) {
   assert( pid > 0 );
