@@ -30,8 +30,8 @@ VALUE cMatch;
 
 static VALUE
 match_alloc( VALUE klass ) {
-  struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
-  return Data_Wrap_Struct( klass, NULL, free, match );
+  struct ofp_match *match = xmalloc( sizeof( struct ofp_match ) );
+  return Data_Wrap_Struct( klass, NULL, xfree, match );
 }
 
 

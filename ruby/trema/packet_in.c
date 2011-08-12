@@ -31,8 +31,8 @@ VALUE cPacketIn;
 
 static VALUE
 packet_in_alloc( VALUE klass ) {
-  packet_in *_packet_in = malloc( sizeof( packet_in ) );
-  return Data_Wrap_Struct( klass, 0, free, _packet_in );
+  packet_in *_packet_in = xmalloc( sizeof( packet_in ) );
+  return Data_Wrap_Struct( klass, 0, xfree, _packet_in );
 }
 
 
@@ -87,6 +87,7 @@ packet_in_data( VALUE self ) {
   VALUE rbuffer = rb_funcall( cBuffer, rb_intern( "new" ), 0 );
   Data_Get_Struct( rbuffer, buffer, to );
   memcpy( to, get_packet_in( self )->data, sizeof( buffer ) );
+  to->user_data_free_function = NULL;
 
   return rbuffer;
 }

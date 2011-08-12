@@ -116,6 +116,7 @@ alloc_private_buffer() {
   new_buf->public.data = NULL;
   new_buf->public.length = 0;
   new_buf->public.user_data = NULL;
+  new_buf->public.user_data_free_function = NULL;
   new_buf->top = NULL;
   new_buf->real_length = 0;
 
@@ -233,6 +234,8 @@ free_buffer( buffer *buf ) {
 
   if ( buf->user_data != NULL && buf->user_data_free_function != NULL ) {
     ( *buf->user_data_free_function )( buf );
+    assert( buf->user_data == NULL );
+    assert( buf->user_data_free_function == NULL );
   }
   pthread_mutex_lock( ( ( private_buffer * ) buf )->mutex );
   private_buffer *delete_me = ( private_buffer * ) buf;
@@ -370,6 +373,7 @@ duplicate_buffer( const buffer *buf ) {
 
   new_buffer->public.length = old_buffer->public.length;
   new_buffer->public.user_data = old_buffer->public.user_data;
+  new_buffer->public.user_data_free_function = NULL;
   new_buffer->public.data = ( char * ) ( new_buffer->public.data ) + front_length_of( old_buffer );
 
   pthread_mutex_unlock( old_buffer->mutex );

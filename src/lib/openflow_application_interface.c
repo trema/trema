@@ -163,11 +163,13 @@ init_openflow_application_interface( const char *custom_service_name ) {
   memset( &event_handlers, 0, sizeof( openflow_event_handlers_t ) );
   memset( service_name, '\0', sizeof( service_name ) );
 
-  if ( strlen( custom_service_name ) + 1 > MESSENGER_SERVICE_NAME_LENGTH ) {
+  size_t length = strlen( custom_service_name ) + 1;
+  if ( length > MESSENGER_SERVICE_NAME_LENGTH ) {
     error( "Too long custom service name ( %s ).", custom_service_name );
     return false;
   }
-  memcpy( service_name, custom_service_name, sizeof( service_name ) );
+  assert( length <= sizeof( service_name ) );
+  memcpy( service_name, custom_service_name, length );
 
   init_openflow_message();
 
