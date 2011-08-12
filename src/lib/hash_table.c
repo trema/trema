@@ -23,8 +23,8 @@
  *
  * @brief Hash table implementation
  *
- * It provides helpers through which a hash table can be created,
- * elements can be added and deleted, and data can be searched:
+ * Provides APIs through which various hash table related operations can be performed. For example, 
+ * creation, deletion and searching of data in a hash table.
  *
  * @code 
  * // Create a hash table with default hash and compare function

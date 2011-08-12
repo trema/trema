@@ -20,9 +20,9 @@
  */
 
 /**
- * @file hash_table.h
- * This header file contain type definitions and function declarations of hash_table.c file
- * @see hash_table.c
+ * @file 
+ *
+ * @brief Contain type definations and function declarations of hash_table
  */
 
 #ifndef HASH_TABLE_H
