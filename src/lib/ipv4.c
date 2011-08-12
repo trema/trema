@@ -18,8 +18,9 @@
  */
 
 /**
- * @file ipv4.c
- * This source file contain functions for handling IPv4 type packets.
+ * @file
+ *
+ * @brief Functions for handling IPv4 type packets.
  */
 
 #include <arpa/inet.h>

@@ -20,9 +20,9 @@
  */
 
 /**
- * @file ipv4.h
- * This header file contain type definitions and function declarations of ipv4.c file
- * @see ipv4.c
+ * @file
+ *
+ * @brief Contain type definitions and function declarations of IPv4
  */
 
 #ifndef IPV4_H
