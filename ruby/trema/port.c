@@ -137,7 +137,7 @@ static VALUE
 port_compare( VALUE self, VALUE other ) {
   uint16_t a = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@number" ) );
   uint16_t b = ( uint16_t ) NUM2UINT( rb_iv_get( other, "@number" ) );
-  return UINT2NUM( a - b );
+  return UINT2NUM( ( uint16_t ) ( a - b ) );
 }
 
 
