@@ -27,11 +27,10 @@ VALUE cActionOutput;
 
 
 /*
- *  call-seq:
+ *  @example
  *    ao = ActionOutput.new( 1 ) specify only port number.
  *    ao = ActionOutput.new( 1, 32 ) specify port and maximum length to send to 
  *    controller.
- * 
  */
 static VALUE
 action_output_init( int argc, VALUE *argv, VALUE self ) {
