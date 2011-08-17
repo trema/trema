@@ -36,13 +36,15 @@ describe Trema::Hello do
   end
   
   
-  context "when creating from a negative transaction ID(-1234)" do
-    it "should raise an error" do
-      lambda do 
-        Hello.new( -1234 )
-      end.should raise_error( "Transaction ID must be >= 0" )
+   context "when an instance is created with" do
+    describe "negative transaction ID" do
+      it "should raise an error" do
+        expect {
+          Hello.new( -1234 )
+        }.to raise_error( ArgumentError )
+      end
     end
-  end
+  end 
   
   
   context "when #hello is sent after controller initialization" do
