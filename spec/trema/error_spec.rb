@@ -45,7 +45,7 @@ describe Error do
   
   
   context "when an instance is created with no arguments" do  
-    before ( :all ) do
+    before( :all ) do
       @error = Error.new
     end
     
@@ -72,7 +72,7 @@ describe Error do
   
   
   context "when an instance is created with two arguments(type,code)" do
-    before ( :all ) do
+    before( :all ) do
       @error = Error.new( Error::OFPET_BAD_REQUEST, 
         Error::ERROR_CODES[ Error::OFPET_BAD_REQUEST ][ 1 ] )
     end
@@ -100,7 +100,7 @@ describe Error do
   
   
   context "when an instance is created with three arguments(transaction ID,type,code)" do
-    before ( :all ) do
+    before( :all ) do
       @error = Error.new( 1234, Error::OFPET_BAD_ACTION,
         Error::ERROR_CODES[ Error::OFPET_BAD_ACTION ][ 2 ] )
     end
@@ -126,7 +126,7 @@ describe Error do
   
   
   context "when an instance is created with all four arguments" do
-    before ( :all ) do
+    before( :all ) do
       @error = Error.new( 6789, Error::OFPET_FLOW_MOD_FAILED,
         Error::ERROR_CODES[ Error::OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" )
     end
