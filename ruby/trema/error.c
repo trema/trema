@@ -27,34 +27,28 @@ VALUE cError;
 
 
 /*
- * @overload
- *   Error.new => #<Trema::Error:0xabcd>
- *   Invoke constructor with no arguments.
- *   Creates an <code>Error</code> object instances with auto-generated transaction id,
- *   error type set to Error::OFPET_HELLO_FAILED and error code set to OFPHFC_INCOMPATIBLE
- *   with <code>nil</code> user data payload.
- * 
- *   Error.new( Error::OFPET_BAD_REQUEST, Error::ERROR_CODES[ Error::OFPET_BAD_REQUEST ][ 1 ] )
- *   Invoke constructor by specifying the error type and code.
- *   Creates an <code>Error</code> object instance with auto-generated transaction id,
- *   error type set to OFPET_BAD_REQUEST and code set to OFPBRC_BAD_TYPE with 
- *   <code>nil</code> user data payload.
- * 
- *   Error.new( 1234, Error::OFPET_BAD_ACTION, Error::ERROR_CODES[ Error::OFPET_BAD_ACTION ][ 2 ] )
- *   Invoke constructor by specifying the transaction_id, the error type and code.
- *   Creates an <code>Error</code>object instance with transaction_id set to 1234, 
- *   error type set to OFPET_BAD_ACTION and code set to OFPBAC_BAD_VENDOR with 
- *   <code>nil</code>user data payload.
- * 
- *   Error.new( 6789, Error::OFPET_FLOW_MOD_FAILED, 
- *     Error::ERROR_CODES[ Error::OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" )
- *   Invoke constructor specifying all arguments.
- *   Creates an <code>Error<code>object instance with transaction id set to 6789,
- *   error type set to OFPET_FLOW_MOD_FAILED and error code set to OFPFMFC_BAD_EMERG_TIMEOUT
- *   with user data payload set to "this is a test"
- * 
- * Error codes stored as an array of numeric values accessed from a hash whose key 
- * is the error type. 
+ * @overload Error.new( )
+ *   Create instance with no arguments.
+ *   Creates a {Error} object with auto-generated transaction id,
+ *   error type set to {OFPET_HELLO_FAILED} and error code set to OFPHFC_INCOMPATIBLE
+ *   with no user data payload.
+ *
+ * @overload Error.new( type, code )
+ *   Create instance by specifying its error type and code.
+ *   @example
+ *     error = Error.new(OFPET_BAD_REQUEST, ERROR_CODES[ OFPET_BAD_REQUEST ][ 1 ])
+ *
+ * @overload Error.new( transaction_id, type, code )
+ *   Create instance by specifying its transaction id, its error type and code.
+ *   @example
+ *     error = Error.new( 1234, OFPET_BAD_ACTION, ERROR_CODES[ OFPET_BAD_ACTION ][ 2 ] )
+ *
+ * @overload Error.new( transaction_id, type, code, user_data )
+ *   Create instance by specifying all its arguments.
+ *   @example
+ *     error = Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
+ *
+ * @return [Error] an object that encapsulates the OFPT_ERROR Openflow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
@@ -123,6 +117,10 @@ get_error( VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 error_transaction_id( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
@@ -132,6 +130,11 @@ error_transaction_id( VALUE self ) {
 }
 
 
+/*
+ * An optional user data payload field, possibly detailed description of the error.
+ * @return [String] a user data payload is set.
+ * @return [nil] a user data payload is not set.
+ */
 static VALUE
 error_user_data( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
@@ -144,6 +147,10 @@ error_user_data( VALUE self ) {
 }
 
 
+/*
+ * A type uniquely identifies the error.
+ * @return [Number] the value of attribute error type.
+ */
 static VALUE
 error_type( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
@@ -152,6 +159,10 @@ error_type( VALUE self ) {
 }
 
 
+/*
+ * Associated with the type, the code further signifies the error.
+ * @return [Number] the value of attribute error code.
+ */
 static VALUE
 error_code( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
@@ -213,6 +224,12 @@ Init_error( ) {
     INT2NUM( OFPQOFC_BAD_PORT ),
     INT2NUM( OFPQOFC_BAD_QUEUE ),
     INT2NUM( OFPQOFC_EPERM ) ) );
+  /*
+   * error codes stored as an array of numeric values accessed from a hash 
+   * whose key is the error type.
+   *
+   * @return [ERROR_CODES{type => Array<codes>}] the mapping of error types to codes.
+   */  
   rb_define_const( cError, "ERROR_CODES", error_code_hash );
   rb_define_method( cError, "transaction_id", error_transaction_id, 0 );
   rb_define_method( cError, "user_data", error_user_data, 0 );
