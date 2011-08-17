@@ -40,8 +40,8 @@ VALUE cEchoRequest;
  *   @example 
  *     echo_request = EchoRequest.new( 1234, "this is a test" )
  * 
- * @raise [eArgError] if transaction id is negative
- * @raise [eArgError] if user data is not a string.
+ * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if user data is not a string.
  * 
  * @return [EchoRequest] an object that encapsulates the OFPT_ECHO_REQUEST Openflow message.
  */
@@ -80,6 +80,7 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 
 
 /*
+ * Transaction ids, message sequence numbers matching requests to replies.
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
