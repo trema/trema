@@ -69,7 +69,7 @@ describe VendorRequest do
   
   
   context "when an instance is created with" do
-    describe "invalid transaction id" do
+    describe "negative transaction ID" do
       it "should raise an error" do
         expect {
           VendorRequest.new( -1234, 0x5555, "test".unpack( "C*" ) )
