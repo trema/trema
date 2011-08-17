@@ -58,7 +58,7 @@ vendor_request_alloc( VALUE klass ) {
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not an array of bytes.
  * 
- * @return [Vendor] an object that encapsulates the OFPT_VENDOR Openflow message.
+ * @return [Vendor] an object that encapsulates the OFPT_VENDOR OpenFlow message.
  */
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {
