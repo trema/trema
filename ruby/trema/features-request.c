@@ -33,6 +33,18 @@ features_request_alloc( VALUE klass ) {
 }
 
 
+/*
+ * @overload FeaturesRequest.new( )
+ *   Create instance with no arguments.
+ *   Create a {FeaturesRequest} object with auto-generated transaction id.
+ *
+ * @overload FeaturesRequest.new( transaction_id )
+ *   Create instance by specifying its transaction id.
+ * 
+ *   @raise [ArgumentError] if transaction id is negative.
+ * 
+ * @return [FeaturesRequest] an object that encapsulates the OFPT_FEATURES_REQUEST OpenFlow message.
+ */
 static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *features_request;
@@ -44,6 +56,9 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
     xid = get_transaction_id();
   }
   else {
+    if ( NUM2INT( xid_ruby ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( features_request->data ) )->xid = htonl( xid );
@@ -51,6 +66,10 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 features_request_transaction_id( VALUE self ) {
   buffer *features_request;
