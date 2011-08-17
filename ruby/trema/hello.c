@@ -34,14 +34,14 @@ hello_alloc( VALUE klass ) {
 
 
 /*
- * @overload Hello.new()
- *   Auto-generates a transaction id and assigns it.
+ * @overload Hello.new( )
+ *   Create instance with no arguments.
+ *   Create a {Hello} object with auto-generated transaction id.
  *
- * @overload Hello.new(transaction_id)
- *   Overrides the default transaction id with the passed in argument.
- *   @param [Number] transaction_id a positive transaction id.
+ * @overload Hello.new( transaction_id )
+ *   Create instance by specifying its transaction id.
  * 
- *   @raise [eArgError] an argument error if transaction id is negative.
+ *   @raise [ArgumentError] if transaction id is negative.
  * 
  * @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
  */
@@ -67,7 +67,8 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute transaction_id
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * @return [Number] the value of attribute transaction id.
  */
 static VALUE
 hello_transaction_id( VALUE self ) {
