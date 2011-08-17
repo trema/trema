@@ -43,7 +43,7 @@ VALUE cEchoRequest;
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
  * 
- * @return [EchoRequest] an object that encapsulates the OFPT_ECHO_REQUEST Openflow message.
+ * @return [EchoRequest] an object that encapsulates the OFPT_ECHO_REQUEST OpenFlow message.
  */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
