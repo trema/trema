@@ -1,10 +1,6 @@
 require "trema/stats-helper"
 
 module Trema
-  #
-  # AggregateStatsReply class
-  #  attributes mapped to ofp_stats_aggregate_reply
-  #
   class AggregateStatsReply < StatsHelper
     FIELDS = %w(packet_count byte_count flow_count)
 
@@ -12,14 +8,12 @@ module Trema
 
 
     #
-    # Initialize the fields(attributes) from the options hash
+    # Create AggregateStatsReply from options hash.
     #
-    # @example AggregateStatsReply.new :packet_count => 1, :byte_count => 64, 
-    # :flow_count => 1
+    # @example AggregateStatsReply.new( options = {} )
+    #   options = { :packet_count => 1, :byte_count => 64, :flow_count => 1 }
     #
-    # @returns AggregateStatsReply instance
-    #
-    # @api public
+    # @return [AggregateStatsReply] an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) OpenFlow message.
     #
     def initialize options
       super FIELDS, options
