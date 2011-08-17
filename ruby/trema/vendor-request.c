@@ -42,6 +42,24 @@ vendor_request_alloc( VALUE klass ) {
 }
 
 
+/*
+ * @overload Vendor.new
+ *   Create instance with no arguments.
+ *   Create a {Vendor} object with auto-generated transaction id and vendor id
+ *   set to 0xccddeeff and 16 bytes of fixed vendor data.
+ * 
+ * @overload Vendor.new( transaction_id, vendor_id, vendor_data )
+ *   Create instance by specifying its transaction id, vendor id and upto 16 bytes 
+ *   of any vendor data.
+ *   @example
+ *     vendor_data = "test".unpack( "C*" ) => [ 116, 101, 115, 116 ]
+ *     vendor = Vendor.new( 1234, 0x3000, vendor_data )
+ * 
+ * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if user data is not an array of bytes.
+ * 
+ * @return [Vendor] an object that encapsulates the OFPT_VENDOR Openflow message.
+ */
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *vendor_request;
@@ -56,16 +74,19 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
   data_length = ( uint16_t ) ( vendor_request->length - sizeof ( struct ofp_vendor_header ) );
 
   if ( rb_scan_args( argc, argv, "03", &xid_r, &vendor_r, &data_r ) == 3 ) {
+    if ( NUM2INT( xid_r ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_r );
     vendor = NUM2UINT( vendor_r );
     if ( TYPE( data_r ) == T_ARRAY ) {
-      if ( data_length > RARRAY( data_r )->len ) {
-        buf = ( uint8_t * ) ( ( char * ) vendor_request->data + sizeof ( struct ofp_vendor_header ) );
-        memset( buf, 0, data_length );
-        for ( i = 0; i < RARRAY( data_r )->len; i++ ) {
-          buf[i] = ( uint8_t ) FIX2INT( RARRAY( data_r )->ptr[i] );
-        }
+      buf = ( uint8_t * ) ( ( char * ) vendor_request->data + sizeof ( struct ofp_vendor_header ) );
+      memset( buf, 0, data_length );
+      for ( i = 0; i < data_length; i++ ) {
+        buf[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( data_r )[ i ] );
       }
+    } else {
+      rb_raise( rb_eArgError, "User data must be an array of bytes" );
     }
   } else {
     xid = get_transaction_id( );
@@ -77,6 +98,10 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 vendor_request_transaction_id( VALUE self ) {
   buffer *vendor_request;
@@ -88,6 +113,10 @@ vendor_request_transaction_id( VALUE self ) {
 }
 
 
+/*
+ * A 32-bit value that uniquely identifies the vendor.
+ * @return [Number] the value of attribute vendor id.
+ */
 static VALUE
 vendor_request_vendor( VALUE self ) {
   buffer *vendor_request;
@@ -99,6 +128,11 @@ vendor_request_vendor( VALUE self ) {
 }
 
 
+/*
+ * Vendor specific data payload.
+ * @return [Array] an array of data payload bytes.
+ * @return [nil] vendor specific data not found.
+ */
 static VALUE
 vendor_request_data( VALUE self ) {
   VALUE data_arr;
