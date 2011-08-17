@@ -29,7 +29,7 @@ VALUE cError;
 /*
  * @overload Error.new( )
  *   Create instance with no arguments.
- *   Creates a {Error} object with auto-generated transaction id,
+ *   Create an {Error} object with auto-generated transaction id,
  *   error type set to {OFPET_HELLO_FAILED} and error code set to OFPHFC_INCOMPATIBLE
  *   with no user data payload.
  *
