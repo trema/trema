@@ -26,6 +26,25 @@ extern VALUE mTrema;
 VALUE cEchoRequest;
 
 
+/*
+ * @overload EchoRequest.new( )
+ *   Create instance with no arguments.
+ *   Create an {EchoRequest} object with auto-generated transaction id and
+ *   no user data payload.
+ * 
+ * @overload EchoRequest.new(transaction_id)
+ *   Create instance by specifying its transaction id.
+ *  
+ * @overload EchoRequest.new(transaction_id, user_data)
+ *   Create instance by specifying its transaction id and user data payload.
+ *   @example 
+ *     echo_request = EchoRequest.new( 1234, "this is a test" )
+ * 
+ * @raise [eArgError] if transaction id is negative
+ * @raise [eArgError] if user data is not a string.
+ * 
+ * @return [EchoRequest] an object that encapsulates the OFPT_ECHO_REQUEST Openflow message.
+ */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *echo_request;
@@ -37,6 +56,9 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
   xid = get_transaction_id( );
   if ( argc == 1 ) {
     if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
+      if ( NUM2INT( xid_ruby ) < 0 ) {
+        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+      }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
   }
@@ -57,6 +79,9 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 }
 
 
+/*
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 echo_request_transaction_id( VALUE self ) {
   buffer *echo_request;
@@ -67,6 +92,11 @@ echo_request_transaction_id( VALUE self ) {
 }
 
 
+/*
+ * User data payload found at end of message.
+ * @return [String] a user data payload is set.
+ * @return [nil] a user data payload is not set.
+ */
 static VALUE
 echo_request_user_data( VALUE self ) {
   buffer *echo_request;
