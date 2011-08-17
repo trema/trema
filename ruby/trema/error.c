@@ -48,6 +48,9 @@ VALUE cError;
  *   @example
  *     error = Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
  *
+ * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if user data is not a string.
+ * 
  * @return [Error] an object that encapsulates the OFPT_ERROR Openflow message.
  */
 static VALUE
