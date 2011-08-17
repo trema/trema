@@ -43,7 +43,7 @@ hello_alloc( VALUE klass ) {
  * 
  *   @raise [ArgumentError] if transaction id is negative.
  * 
- * @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
+ * @return [Hello] an object that encapsulates the OFPT_HELLO OpenFlow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
