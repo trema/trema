@@ -34,6 +34,18 @@ set_config_alloc( VALUE klass ) {
 }
 
 
+/*
+ * @overload initialize(transaction_id = nil, flags = 0, miss_send_len = 128)
+ *   Create a {SetConfig} object by specifying its transaction_id, flags and 
+ *   miss_send_len. If no arguments passed in, the transaction_id defaults to
+ *   auto-generated transaction_id, flags set to 0(no special handling for 
+ *   IP fragments) and miss_send_len set to 128 bytes.
+ * 
+ * @raise [ArgumentError] if transaction id is negative.
+ * 
+ * @return [SetConfig] object that encapsulates the OFPT_SET_CONFIG openflow message.
+ * 
+*/
 static VALUE
 set_config_init( int argc, VALUE *argv, VALUE self ) {
   buffer *set_config;
@@ -44,6 +56,9 @@ set_config_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t flags, miss_send_len;
 
   if ( rb_scan_args( argc, argv, "03", &xid_ruby, &flags_ruby, &miss_send_len_ruby ) == 3 ) {
+    if ( NUM2INT( xid_ruby ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
     flags = ( uint16_t ) NUM2UINT( flags_ruby );
     miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_ruby );
@@ -59,6 +74,11 @@ set_config_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 set_config_transaction_id( VALUE self ) {
   buffer *set_config;
@@ -68,6 +88,12 @@ set_config_transaction_id( VALUE self ) {
 }
 
 
+/*
+ * A 2-bit value that can be set to indicate no special handling, drop or reassemble
+ * IP fragments. 
+ * 
+ * @return [Number] the value of attribute flags.
+ */
 static VALUE
 set_config_flags( VALUE self ) {
   buffer *set_config;
@@ -77,6 +103,11 @@ set_config_flags( VALUE self ) {
 }
 
 
+/*
+ * The maximum number of bytes to send on flow table miss or flow destined to controller.
+ * 
+ * @return [Number] the value of attribute miss_send_len.
+ */
 static VALUE
 set_config_miss_send_len( VALUE self ) {
   buffer *set_config;
