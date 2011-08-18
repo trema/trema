@@ -70,6 +70,7 @@ features_reply_init( VALUE self, VALUE attribute ) {
   return self;
 }
 
+
 /*
  * Message originator identifier.
  * 
