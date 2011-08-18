@@ -34,16 +34,14 @@ hello_alloc( VALUE klass ) {
 
 
 /*
- * @overload Hello.new( )
- *   Create instance with no arguments.
- *   Create a {Hello} object with auto-generated transaction id.
- *
- * @overload Hello.new( transaction_id )
- *   Create instance by specifying its transaction id.
+ * @overload initialize(transaction_id=nil)
+ *   Creates a {Hello} object by specifying its transaction id. If
+ *   transaction_id is not specified, an auto-generated transaction_id
+ *   is set.
  * 
  *   @raise [ArgumentError] if transaction id is negative.
  * 
- * @return [Hello] an object that encapsulates the OFPT_HELLO OpenFlow message.
+ *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
@@ -68,6 +66,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
+ *
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
