@@ -26,6 +26,32 @@ extern VALUE mTrema;
 VALUE cGetConfigReply;
 
 
+/*
+ * @overload initialize(options={})
+ *
+ *   @example 
+ *     GetConfigReply.new(
+ *       :datapath_id => 2748
+ *       :transaction_id => 1,
+ *       :flags => 0
+ *       :miss_send_len => 65535
+ *     )
+ * 
+ *   @param [Number] datapath_id 
+ *     message originator identifier.
+ * 
+ *   @param [Number] transaction_id
+ *     the saved transaction_id from OFPT_GET_CONFIG_REQUEST message.
+ * 
+ *   @param [Number] flags
+ *     indicate how IP fragments are treated.
+ * 
+ *   @param [Number] miss_send_len
+ *     the maximum number of bytes to send on a flow table miss or 
+ *     flow destined to controller.
+ * 
+ *   @return [GetConfigReply] an object that encapsulates the OFPT_GET_CONFIG_REPLY openflow message.   
+ */
 static VALUE
 get_config_reply_init( VALUE self, VALUE attribute ) {
   rb_iv_set( self, "@attribute", attribute );
@@ -33,24 +59,45 @@ get_config_reply_init( VALUE self, VALUE attribute ) {
 }
 
 
+/*
+ * Message originator identifier.
+ * 
+ * @return [Number] the value of attribute datapath_id
+ */
 static VALUE
 get_config_reply_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * 
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 get_config_reply_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * Flags that indicate how IP fragments should be treated (no special handling,
+ * dropped or reassembled).
+ * 
+ * @return [Number] the value of attribute flags.
+ */
 static VALUE
 get_config_reply_flags( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "flags" ) ) );
 }
 
 
+/*
+ * The maximum number of bytes to send on flow table miss or flow destined to controller.
+ * 
+ * @return [Number] the value of attribute miss_send_len.
+ */
 static VALUE
 get_config_reply_miss_send_len( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "miss_send_len" ) ) );
@@ -68,6 +115,9 @@ Init_get_config_reply( ) {
 }
 
 
+/*
+ * Handler called when OFPT_GET_CONFIG_REPLY message is received.
+ */
 void
 handle_get_config_reply(
         uint64_t datapath_id,
