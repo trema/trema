@@ -41,32 +41,35 @@ VALUE cFeaturesReply;
  *       :port => [ Trema::Port ]
  *     )
  * 
- *   @param [Number] datapath_id 
+ *   @param [Hash] options the options hash.
+ * 
+  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
  * 
- *   @param [Number] transaction_id
+ *   @option options [Symbol] :transaction_id
  *     the saved transaction_id from OFPT_FEATURES_REQUEST message.
  * 
- *   @param [Number] n_buffers
+ *   @option options [Symbol] :n_buffers
  *     maximum number of packets that can be buffered.
  * 
- *   @param [Number] n_tables
+ *   @option options [Symbol] :n_tables
  *     number of supported tables (linear/hash).
  * 
- *   @param [Number] capabilities
+ *   @option options [Symbol] :capabilities
  *     32-bitmap of supported capabilities.
  * 
- *   @param [Number] actions
+ *   @option options [Symbol] :actions
  *     32-bitmap of supported actions.
  * 
- *   @param [Array<Port>] port
+ *   @option options [Symbol] :port
  *     array of {Port} objects describing physical port properties.
  *
- * @return [FeaturesReply] an object that encapsulates the OFPT_FEATURES_REPLY openflow message.
+ * @return [FeaturesReply] an object that encapsulates the +OFPT_FEATURES_REPLY+ 
+ *   openflow message.
  */
 static VALUE
-features_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+features_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
@@ -188,7 +191,7 @@ handle_switch_ready( uint64_t datapath_id, void *controller ) {
 }
 
 /*
- * The handler that is called when an OFPT_FEATURES_REPLY message is received.
+ * The handler that is called when an +OFPT_FEATURES_REPLY+ message is received.
  */
 void
 handle_features_reply(
