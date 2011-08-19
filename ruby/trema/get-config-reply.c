@@ -37,24 +37,27 @@ VALUE cGetConfigReply;
  *       :miss_send_len => 65535
  *     )
  * 
- *   @param [Number] datapath_id 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :datapath_id
  *     message originator identifier.
  * 
- *   @param [Number] transaction_id
- *     the saved transaction_id from OFPT_GET_CONFIG_REQUEST message.
+ *   @option options [Symbol] :transaction_id
+ *     the saved transaction_id from +OFPT_GET_CONFIG_REQUEST+ message.
  * 
- *   @param [Number] flags
- *     indicate how IP fragments are treated.
+ *   @option options [Symbol] :flags
+ *     indicates how IP fragments are treated.
  * 
- *   @param [Number] miss_send_len
+ *   @option options [Symbol] :miss_send_len
  *     the maximum number of bytes to send on a flow table miss or 
  *     flow destined to controller.
  * 
- *   @return [GetConfigReply] an object that encapsulates the OFPT_GET_CONFIG_REPLY openflow message.   
+ * @return [GetConfigReply] 
+ *   an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ openflow message.   
  */
 static VALUE
-get_config_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+get_config_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
@@ -62,7 +65,7 @@ get_config_reply_init( VALUE self, VALUE attribute ) {
 /*
  * Message originator identifier.
  * 
- * @return [Number] the value of attribute datapath_id
+ * @return [Number] the value of attribute datapath_id.
  */
 static VALUE
 get_config_reply_datapath_id( VALUE self ) {
@@ -82,7 +85,7 @@ get_config_reply_transaction_id( VALUE self ) {
 
 
 /*
- * Flags that indicate how IP fragments should be treated (no special handling,
+ * Flags indicate how IP fragments should be treated (no special handling,
  * dropped or reassembled).
  * 
  * @return [Number] the value of attribute flags.
@@ -116,7 +119,7 @@ Init_get_config_reply( ) {
 
 
 /*
- * Handler called when OFPT_GET_CONFIG_REPLY message is received.
+ * Handler called when +OFPT_GET_CONFIG_REPLY+ message is received.
  */
 void
 handle_get_config_reply(
