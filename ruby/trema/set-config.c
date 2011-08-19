@@ -43,7 +43,7 @@ set_config_alloc( VALUE klass ) {
  * 
  * @raise [ArgumentError] if transaction id is negative.
  * 
- * @return [SetConfig] object that encapsulates the OFPT_SET_CONFIG openflow message.
+ * @return [SetConfig] object that encapsulates the +OFPT_SET_CONFIG+ openflow message.
  * 
 */
 static VALUE
