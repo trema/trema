@@ -17,6 +17,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Wrappers for basic library functions
+ *
+ * @code
+ * // For printing to stream or screen within the trema code, call trema_* series
+ * // of wrappers. e.g. trema_fprintf, trema_vsprintf, trema_vasprintf
+ * trema_fprintf( stdout, "A test message: %s\n", "TEST" );
+ * // Or, allocation of memory, call trema_* series of wrappers
+ * trema_malloc( 10 );
+ * @endcode
+ *
+ */
+
 
 #include <stdarg.h>
 #include <stdio.h>
