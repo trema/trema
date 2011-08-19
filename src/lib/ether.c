@@ -44,17 +44,19 @@ void mock_debug( const char *format, ... );
  * This function pads the buffer containing Ethernet header, in case the length
  * of buffer is less than 64bytes including CRC
  * @param buf Buffer containing Ethernet header
- * @return None
+ * @return size_t Length of the padding
  */
-void
+uint16_t
 fill_ether_padding( buffer *buf ) {
   assert( buf != NULL );
+  size_t padding_length = 0;
 
   if ( buf->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH ) {
-    size_t padding_length = ETH_MINIMUM_LENGTH - buf->length - ETH_FCS_LENGTH;
+    padding_length = ETH_MINIMUM_LENGTH - buf->length - ETH_FCS_LENGTH;
     debug( "Adding %u octets padding ( original frame length = %u ).", buf->length, padding_length );
     append_back_buffer( buf, padding_length );
   }
+  return ( uint16_t ) padding_length;
 }
 
 

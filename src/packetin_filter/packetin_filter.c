@@ -24,7 +24,7 @@
 #include <openflow.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "match_table.h"
+#include "etherip.h"
 #include "trema.h"
 
 
@@ -131,6 +131,41 @@ usage() {
 }
 
 
+static buffer *
+parse_etherip( const buffer *data ) {
+  uint32_t hdr_len = ( uint32_t ) packet_info( data )->l3_data.ipv4->ihl * 4;
+  if ( data->length < hdr_len + sizeof( etherip_header ) ) {
+    debug( "too short etherip message" );
+    return NULL;
+  }
+
+  etherip_header *etherip = ( etherip_header * ) packet_info( data )->l4_data.l4;
+  if ( etherip->version != htons( ETHERIP_VERSION ) ) {
+    error( "invalid etherip version 0x%04x.", ntohs( etherip->version ) );
+    return NULL;
+  }
+  buffer *copy = duplicate_buffer( data );
+  if ( copy == NULL ) {
+    error( "duplicate_buffer failed." );
+    return NULL;
+  }
+  copy->user_data = NULL;
+  uint32_t offset = ( uint32_t ) ( ( char * ) etherip - ( char *) data->data );
+  offset += ( uint32_t ) sizeof( etherip_header );
+  remove_front_buffer( copy, offset );
+
+  if ( !parse_packet( copy ) ) {
+    error( "parse_packet failed." );
+    free_buffer( copy );
+    return NULL;
+  }
+
+  debug( "Receive EtherIP packet." );
+
+  return copy;
+}
+
+
 static void
 handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
                   uint32_t buffer_id, uint16_t total_len,
@@ -141,7 +176,17 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   char match_str[ 1024 ];
   struct ofp_match ofp_match;   // host order
 
-  set_match_from_packet( &ofp_match, in_port, 0, data );
+  buffer *copy = NULL;
+  debug( "Receive packet. ethertype=%d, ipproto=%d", packet_info( data )->ethtype, packet_info( data )->ipproto );
+  if ( packet_info( data )->ethtype == ETH_ETHTYPE_IPV4
+       && packet_info( data )->ipproto == IPPROTO_ETHERIP ) {
+    copy = parse_etherip( data );
+  }
+  set_match_from_packet( &ofp_match, in_port, 0, copy != NULL ? copy : data );
+  if ( copy != NULL ) {
+    free_buffer( copy );
+    copy = NULL;
+  }
   match_to_string( &ofp_match, match_str, sizeof( match_str ) );
 
   match_entry *match_entry = lookup_match_entry( &ofp_match );
@@ -172,7 +217,6 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 }
 
 
-// TODO: use pubsub lib.
 static void
 register_dl_type_filter( uint16_t dl_type, uint16_t priority,
                          const char *service_name, const char *entry_name ) {
@@ -185,7 +229,6 @@ register_dl_type_filter( uint16_t dl_type, uint16_t priority,
 }
 
 
-// TODO: use pubsub lib.
 static void
 register_any_filter( uint16_t priority, const char *service_name,
                      const char *entry_name ) {

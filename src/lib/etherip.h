@@ -1,5 +1,7 @@
 /*
- * Author: Shuji Ishii, Kazushi SUGYO
+ * EtherIP definitions
+ *
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -17,28 +19,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file etherip.h
+ * This source file contain functions for handling EtherIP type packets.
+ * @see rfc3378
+ */
 
-#ifndef SUBSCRIBER_TABLE_H
-#define SUBSCRIBER_TABLE_H
-
-
-#include "trema.h"
-
-
-typedef struct subscriber_entry {
-  char *name;
-} subscriber_entry;
+#ifndef ETHERIP_H
+#define ETHERIP_H
 
 
-void init_subscriber_table( void );
-void finalize_subscriber_table( void );
-bool insert_subscriber_entry( const char *name );
-void delete_subscriber_entry( subscriber_entry *entry );
-subscriber_entry *lookup_subscriber_entry( const char *name );
-void foreach_subscriber( void function( subscriber_entry *entry, void *user_data ), void *user_data );
+/**
+ * Protocol NUmbers
+ * @see http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
+ */
+#define IPPROTO_ETHERIP 97 /*!<Ethernet-within-IP Encapsulation*/
 
 
-#endif // SUBSCRIBER_TABLE_H
+/**
+ * This is the type that specifies EtherIP header definitions
+ * @see rfc3378
+ */
+typedef struct etherip_headr {
+  uint16_t version;
+} etherip_header;
+
+
+#define ETHERIP_VERSION ( 0x3 << 12 ) /*!<Protocol version (included reserved field)*/
+
+#endif // ETHERIP_H
 
 
 /*

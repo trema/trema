@@ -18,11 +18,18 @@
 #
 
 
+require "forwardable"
+
+
 module Trema
   #
   # MAC address class
   #
   class Mac
+    extend Forwardable
+    def_delegator :@value, :hash
+
+
     attr_reader :value
 
 
@@ -53,6 +60,11 @@ module Trema
 
     def == other
       @value == other.value
+    end
+
+
+    def eql? other
+      @value.eql? other.value
     end
 
 

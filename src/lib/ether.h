@@ -143,7 +143,7 @@ typedef struct snap_header {
   ) /*!<Sets the VLAN ID in tag control information to mentioned VLAN ID*/
 
 
-void fill_ether_padding( buffer *buf );
+uint16_t fill_ether_padding( buffer *buf );
 bool parse_ether( buffer *buf );
 
 

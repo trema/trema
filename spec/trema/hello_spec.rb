@@ -24,18 +24,41 @@ require "trema"
 
 describe Trema::Hello do
   it "should automatically allocate a transaction ID" do
-    hello = Trema::Hello.new
+    hello = Hello.new
     hello.transaction_id.should be_a_kind_of( Integer )
     hello.transaction_id.should >= 0
   end
 
 
   it "should be created by specifying its transaction ID" do
-    hello = Trema::Hello.new( 1234 )
+    hello = Hello.new( 1234 )
     hello.transaction_id.should == 1234
   end
+  
+  
+  context "when creating from a negative transaction ID(-1234)" do
+    it "should raise an error" do
+      lambda do 
+        Hello.new( -1234 )
+      end.should raise_error( "Transaction ID must be >= 0" )
+    end
+  end
+  
+  
+  context "when #hello is sent after controller initialization" do
+    it "should receive #error" do
+      class HelloController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( HelloController ) {
+        hello = Hello.new( 1234 )
+        controller( "HelloController" ).send_message( 0xabc, hello )
+        controller( "HelloController" ).should_receive( :openflow_error )
+        sleep 1
+      }
+    end
+  end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -117,9 +117,10 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
   // Defaults
-  struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
-  memset( match, 0, sizeof( struct ofp_match ) );
-  match->wildcards = OFPFW_ALL;
+  struct ofp_match default_match;
+  memset( &default_match, 0, sizeof( struct ofp_match ) );
+  default_match.wildcards = OFPFW_ALL;
+  struct ofp_match *match = &default_match;
   uint64_t cookie = get_cookie();
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
@@ -157,7 +158,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     if ( opt_buffer_id != Qnil ) {
-      buffer_id = NUM2ULONG( opt_buffer_id );
+      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
@@ -365,7 +366,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     if ( opt_buffer_id != Qnil ) {
-      buffer_id = NUM2ULONG( opt_buffer_id );
+      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
     VALUE opt_in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
@@ -415,12 +416,13 @@ controller_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
-  char **argv = malloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
   argv[ 3 ] = NULL; 
   init_trema( &argc, &argv );
+  xfree( argv );
 
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   set_features_reply_handler( handle_features_reply, ( void * ) self );

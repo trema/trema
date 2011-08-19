@@ -272,7 +272,6 @@ init_messenger( const char *working_directory ) {
   }
 
   strcpy( socket_directory, working_directory );
-  debug( "Initializing messenger (working_directory = %s).", socket_directory );
 
   receive_queues = create_hash( compare_string, hash_string );
   send_queues = create_hash( compare_string, hash_string );

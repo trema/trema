@@ -120,6 +120,11 @@ ofpmsg_recv_error( struct switch_info *sw_info, buffer *buf ) {
     size_t length = ntohs( error_msg->header.length ) - offsetof( struct ofp_error_msg, data );
     if ( length >= offsetof( struct ofp_flow_mod, command ) ) {
       struct ofp_flow_mod *flow_mod = ( struct ofp_flow_mod * ) error_msg->data;
+      uint32_t xid = ntohl( flow_mod->header.xid );
+      xid_entry_t *xid_entry = lookup_xid_entry( xid );
+      if ( xid_entry != NULL ) {
+        flow_mod->header.xid = htonl( xid_entry->original_xid );
+      }
       uint64_t cookie = ntohll( flow_mod->cookie );
       if ( cookie == RESERVED_COOKIE ) {
         free_buffer( buf );

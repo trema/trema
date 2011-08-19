@@ -33,6 +33,16 @@ hello_alloc( VALUE klass ) {
 }
 
 
+/*
+ * @overload initialize(transaction_id=nil)
+ *   Creates a {Hello} object by specifying its transaction id. If
+ *   transaction_id is not specified, an auto-generated transaction_id
+ *   is set.
+ * 
+ *   @raise [ArgumentError] if transaction id is negative.
+ * 
+ *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
+ */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
   buffer *hello;
@@ -44,6 +54,9 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     xid = get_transaction_id();
   }
   else {
+    if ( NUM2INT( xid_ruby ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
@@ -51,6 +64,11 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 hello_transaction_id( VALUE self ) {
   buffer *hello;

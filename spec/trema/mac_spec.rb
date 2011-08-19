@@ -95,6 +95,15 @@ module Trema
         its( :to_short ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
       end
     end
+
+
+    context "when querying FDB" do
+      it "should be used for FDB keys" do
+        fdb = {}
+        fdb[ Mac.new( "00:00:00:00:00:01" ) ] = "Port #1"
+        fdb[ Mac.new( "00:00:00:00:00:01" ) ].should == "Port #1"
+      end
+    end
   end
 end
 

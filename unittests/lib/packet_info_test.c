@@ -24,8 +24,6 @@
 #include <netinet/ip.h>
 #include "checks.h"
 #include "cmockery_trema.h"
-#undef DEPRECATED
-#define DEPRECATED
 #include "packet_info.h"
 
 
@@ -51,25 +49,13 @@ test_alloc_packet_fails_if_buffer_is_NULL() {
 
 
 void
-test_free_packet_buffer_succeeds() {
+test_free_buffer_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   alloc_packet( buf );
-
-  free_packet( buf );
-}
-
-
-void
-test_free_packet_buffer_fails_if_buffer_is_NULL() {
-  expect_assert_failure( free_packet( NULL ) );
-}
-
-
-void
-test_free_packet_buffer_fails_if_user_data_is_NULL() {
-  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-
-  expect_assert_failure( free_packet( buf ) );
+  assert_true( buf->user_data_free_function != NULL );
+  ( *buf->user_data_free_function )( buf );
+  assert_true( buf->user_data == NULL );
+  assert_true( buf->user_data_free_function == NULL );
 
   free_buffer( buf );
 }
@@ -85,9 +71,7 @@ main() {
     unit_test( test_alloc_packet_succeeds ),
     unit_test( test_alloc_packet_fails_if_buffer_is_NULL ),
 
-    unit_test( test_free_packet_buffer_succeeds ),
-    unit_test( test_free_packet_buffer_fails_if_buffer_is_NULL ),
-    unit_test( test_free_packet_buffer_fails_if_user_data_is_NULL ),
+    unit_test( test_free_buffer_succeeds ),
   };
   return run_tests( tests );
 }
