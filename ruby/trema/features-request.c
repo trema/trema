@@ -34,16 +34,16 @@ features_request_alloc( VALUE klass ) {
 
 
 /*
- * @overload FeaturesRequest.new( )
- *   Create instance with no arguments.
+ * @overload FeaturesRequest.initialize(transaction_id=nil)
  *   Create a {FeaturesRequest} object with auto-generated transaction id.
  *
- * @overload FeaturesRequest.new( transaction_id )
- *   Create instance by specifying its transaction id.
+ * @overload FeaturesRequest.initialize(transaction_id)
+ *   Create a {FeaturesRequest} object by specifying its transaction id.
  * 
- *   @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if transaction id is negative.
  * 
- * @return [FeaturesRequest] an object that encapsulates the OFPT_FEATURES_REQUEST OpenFlow message.
+ * @return [FeaturesRequest] an object that encapsulates the 
+ *   +OFPT_FEATURES_REQUEST+ OpenFlow message.
  */
 static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -68,6 +68,7 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
+ * 
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
