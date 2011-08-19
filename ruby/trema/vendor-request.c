@@ -43,12 +43,11 @@ vendor_request_alloc( VALUE klass ) {
 
 
 /*
- * @overload Vendor.new
- *   Create instance with no arguments.
+ * @overload Vendor.initialize(transaction_id=nil, vendor_id = nil, vendor_data=nil)
  *   Create a {Vendor} object with auto-generated transaction id and vendor id
  *   set to 0xccddeeff and 16 bytes of fixed vendor data.
  * 
- * @overload Vendor.new( transaction_id, vendor_id, vendor_data )
+ * @overload Vendor.initialize(transaction_id, vendor_id, vendor_data)
  *   Create instance by specifying its transaction id, vendor id and upto 16 bytes 
  *   of any vendor data.
  *   @example
@@ -58,7 +57,7 @@ vendor_request_alloc( VALUE klass ) {
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not an array of bytes.
  * 
- * @return [Vendor] an object that encapsulates the OFPT_VENDOR OpenFlow message.
+ * @return [Vendor] an object that encapsulates the +OFPT_VENDOR+ openFlow message.
  */
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -100,6 +99,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
+ * 
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
@@ -115,6 +115,7 @@ vendor_request_transaction_id( VALUE self ) {
 
 /*
  * A 32-bit value that uniquely identifies the vendor.
+ * 
  * @return [Number] the value of attribute vendor id.
  */
 static VALUE
@@ -130,6 +131,7 @@ vendor_request_vendor( VALUE self ) {
 
 /*
  * Vendor specific data payload.
+ * 
  * @return [Array] an array of data payload bytes.
  * @return [nil] vendor specific data not found.
  */
