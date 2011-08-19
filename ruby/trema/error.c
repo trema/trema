@@ -27,31 +27,32 @@ VALUE cError;
 
 
 /*
- * @overload Error.new( )
- *   Create instance with no arguments.
- *   Create an {Error} object with auto-generated transaction id,
- *   error type set to {OFPET_HELLO_FAILED} and error code set to OFPHFC_INCOMPATIBLE
- *   with no user data payload.
+ * @overload Error.initialize(transaction_id=nil, type=nil, code=nil, user_data=nil)
+ *   Create a {Error} object with auto-generated transaction id,
+ *   error type set to {OFPET_HELLO_FAILED} and error code set to 
+ *   +OFPHFC_INCOMPATIBLE+ and no user data payload.
  *
- * @overload Error.new( type, code )
- *   Create instance by specifying its error type and code.
+ * @overload Error.initialize(transaction_id=nil, type, code, user_data=nil)
+ *   Create a {Error} object by specifying its error type and code. 
+ *   Transaction id is auto-generated with no user data payload.
  *   @example
  *     error = Error.new(OFPET_BAD_REQUEST, ERROR_CODES[ OFPET_BAD_REQUEST ][ 1 ])
  *
- * @overload Error.new( transaction_id, type, code )
- *   Create instance by specifying its transaction id, its error type and code.
+ * @overload Error.initialize(transaction_id, type, code, user_data=nil)
+ *   Create a {Error} object by specifying its transaction id, its error type 
+ *   and code.
  *   @example
  *     error = Error.new( 1234, OFPET_BAD_ACTION, ERROR_CODES[ OFPET_BAD_ACTION ][ 2 ] )
  *
- * @overload Error.new( transaction_id, type, code, user_data )
- *   Create instance by specifying all its arguments.
+ * @overload Error.initialize(transaction_id, type, code, user_data)
+ *   Create a {Error} object by specifying all its arguments.
  *   @example
  *     error = Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
  *
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
  * 
- * @return [Error] an object that encapsulates the OFPT_ERROR Openflow message.
+ * @return [Error] an object that encapsulates the +OFPT_ERROR+ openflow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
@@ -122,6 +123,7 @@ get_error( VALUE self ) {
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
+ * 
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
@@ -134,7 +136,8 @@ error_transaction_id( VALUE self ) {
 
 
 /*
- * An optional user data payload field, possibly detailed description of the error.
+ * An optional user data payload, possibly detailed description of the error.
+ * 
  * @return [String] a user data payload is set.
  * @return [nil] a user data payload is not set.
  */
@@ -152,6 +155,7 @@ error_user_data( VALUE self ) {
 
 /*
  * A type uniquely identifies the error.
+ * 
  * @return [Number] the value of attribute error type.
  */
 static VALUE
@@ -164,6 +168,7 @@ error_type( VALUE self ) {
 
 /*
  * Associated with the type, the code further signifies the error.
+ * 
  * @return [Number] the value of attribute error code.
  */
 static VALUE
