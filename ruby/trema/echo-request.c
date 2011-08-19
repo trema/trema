@@ -27,23 +27,24 @@ VALUE cEchoRequest;
 
 
 /*
- * @overload EchoRequest.new( )
- *   Create instance with no arguments.
- *   Create an {EchoRequest} object with auto-generated transaction id and
+ * @overload EchoRequest.initialize()
+ *   Create a {EchoRequest} object with auto-generated transaction id and
  *   no user data payload.
  * 
- * @overload EchoRequest.new(transaction_id)
- *   Create instance by specifying its transaction id.
+ * @overload EchoRequest.initialize(transaction_id)
+ *   Create a {EchoRequest} object by specifying its transaction id.
  *  
- * @overload EchoRequest.new(transaction_id, user_data)
- *   Create instance by specifying its transaction id and user data payload.
+ * @overload EchoRequest.initialize(transaction_id, user_data)
+ *   Create a {EchoRequest} object by specifying its transaction id 
+ *   and user data payload.
  *   @example 
- *     echo_request = EchoRequest.new( 1234, "this is a test" )
+ *     echo_request = EchoRequest.new(1234, "this is a test")
  * 
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
  * 
- * @return [EchoRequest] an object that encapsulates the OFPT_ECHO_REQUEST OpenFlow message.
+ * @return [EchoRequest] an object that encapsulates the +OFPT_ECHO_REQUEST+ 
+ *   openFlow message.
  */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
@@ -81,6 +82,7 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
+ * 
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
@@ -94,7 +96,8 @@ echo_request_transaction_id( VALUE self ) {
 
 
 /*
- * User data payload found at end of message.
+ * User data payload found at the end of message.
+ * 
  * @return [String] a user data payload is set.
  * @return [nil] a user data payload is not set.
  */
