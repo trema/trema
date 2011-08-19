@@ -36,7 +36,7 @@ get_config_request_alloc( VALUE klass ) {
 
 /*
  * @overload initialize(transaction_id=nil)
- *   Creates a {GetConfigRequest} object by specifying its transaction id. If
+ *   Create a {GetConfigRequest} object by specifying its transaction id. If
  *   transaction_id is not specified, an auto-generated transaction_id
  *   is set.
  * 
