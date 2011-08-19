@@ -18,6 +18,31 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Trema Statistics Management layer
+ *
+ * This file provides various functions for creating a generic statistics management service, 
+ * which can be used by Trema application to manage stats for arbitrary parameters.
+ *
+ * @code
+ * // Initialize the Statistics layer
+ * init_stat();
+ * // Add an arbitrary parameter to track its statistics
+ * add_stat_entry( "count_of_apples" );
+ * ...
+ * // Increment the number of apples we have by 1
+ * increment_stat( "count_of_apples" );
+ * ...
+ * // Dump all the current parameters with their stats
+ * dump_stats();
+ * // Which would output the following
+ * count_of_apples: 1
+ * ...
+ * // Finish stats parameter recording or tracking
+ * finalize_stat();
+ */
 #include <assert.h>
 #include <inttypes.h>
 #include <pthread.h>
@@ -60,16 +85,27 @@ void mock_error( const char *format, ... );
 
 #endif // UNIT_TESTING
 
+/**
+ * Global Hash table which would store the Stats Parameters and their values
+ */
 static hash_table *stats = NULL;
 static pthread_mutex_t stats_table_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
+/**
+ * Type that stores each entry of hash table representing stats of a parameter
+ */
 typedef struct {
   char key[ STAT_KEY_LENGTH ];
   uint64_t value;
 } stat_entry;
 
 
+/**
+ * Initialize the global hash_table which would store the stats of parameters.
+ * @param None
+ * @return None
+ */
 static void
 create_stats_table() {
   assert( stats == NULL );
@@ -78,6 +114,11 @@ create_stats_table() {
 }
 
 
+/**
+ * Delete the global hash_table which stored the stats of parameters.
+ * @param None
+ * @return None
+ */
 static void
 delete_stats_table() {
   hash_iterator iter;
@@ -95,6 +136,11 @@ delete_stats_table() {
 }
 
 
+/**
+ * Primiary routine which initializes a Statistics holding database/table (of hash_table type).
+ * @param None
+ * @return bool Always returns True
+ */
 bool
 init_stat() {
   debug( "Initializing statistics collector." );
@@ -112,6 +158,11 @@ init_stat() {
 }
 
 
+/**
+ * Cleans up the Statistics database.
+ * @param None
+ * @return bool Always returns True
+ */
 bool
 finalize_stat() {
   debug( "Finalizing statistics collector." );
@@ -126,6 +177,11 @@ finalize_stat() {
 }
 
 
+/**
+ * Adds a parameter to the Statistics database/table, stats of which are to be tracked.
+ * @param key Identifier for the parameter of which stats are required
+ * @return bool True if the entry was successfully added, else False in case entry already exists
+ */
 bool
 add_stat_entry( const char *key ) {
   assert( key != NULL );
@@ -153,6 +209,11 @@ add_stat_entry( const char *key ) {
 }
 
 
+/**
+ * Increment the stat counter for the specified Parameter by 1
+ * @param key Identifier for parameter
+ * @return None
+ */
 void
 increment_stat( const char *key ) {
   assert( key != NULL );
@@ -177,6 +238,11 @@ increment_stat( const char *key ) {
 }
 
 
+/**
+ * Dump the statistics onto screen (or stream specified by info function)
+ * @param None
+ * @return None
+ */
 void
 dump_stats() {
   assert( stats != NULL );
