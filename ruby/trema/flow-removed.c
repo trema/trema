@@ -49,7 +49,7 @@ VALUE cFlowRemoved;
  *     message originator identifier.
  * 
  *   @option options [Symbol] :transaction_id
- *     unsolicited message transaction_id equals zero.
+ *     unsolicited message transaction_id is zero.
  * 
  *   @option options [Symbol] :match
  *     a {Match} object describing the flow copied from the corresponding 
