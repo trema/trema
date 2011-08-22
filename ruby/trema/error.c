@@ -144,9 +144,11 @@ error_transaction_id( VALUE self ) {
 static VALUE
 error_user_data( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
+  long length;
 
-  if ( ntohs( error->header.length ) > sizeof ( struct ofp_error_msg ) ) {
-    return rb_str_new2( ( char * ) error->data );
+  length = ( long ) ( ntohs( error->header.length ) - sizeof ( struct ofp_error_msg ) );
+  if ( length > 0 ) {
+    return rb_str_new( ( char * ) error->data, length );
   } else {
     return Qnil;
   }
