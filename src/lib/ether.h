@@ -142,7 +142,6 @@ typedef struct snap_header {
 
 
 uint16_t fill_ether_padding( buffer *buf );
-bool parse_ether( buffer *buf );
 
 
 #endif // ETHER_H

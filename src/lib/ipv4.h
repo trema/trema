@@ -51,8 +51,6 @@ typedef struct iphdr ipv4_header_t;
 #define IPV4_IS_LIMITEDBC( _addr )   ( ( _addr ) == 0xffffffffUL )
 /*!<Checks if address corresponds to limited broadcast address of IPv4 address classes*/
 
-bool parse_ipv4( buffer *buf );
-
 
 #endif // IPV4_H
 
