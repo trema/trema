@@ -59,17 +59,13 @@ void
 alloc_packet( buffer *buf ) {
   assert( buf != NULL );
 
-  packet_header_info *header_info = xcalloc( 1, sizeof( packet_header_info ) );
-  assert( header_info != NULL );
+  packet_info *packet_info = xcalloc( 1, sizeof( packet_info ) );
+  assert( packet_info != NULL );
 
-  header_info->ethtype = 0;
-  header_info->nvtags = 0;
-  header_info->ipproto = 0;
-  header_info->l2_data.l2 = NULL;
-  header_info->vtag = NULL;
-  header_info->l3_data.l3 = NULL;
-  header_info->l4_data.l4 = NULL;
-  buf->user_data = header_info;
+  memset( packet_info, 0, sizeof( packet_info ) );
+
+  buf->user_data = packet_info;
+  // REVISIT
   buf->user_data_free_function = free_packet_header_info;
 }
 
@@ -91,6 +87,15 @@ free_packet( buffer *buf ) {
   free_buffer( buf );
 }
 
+/**
+ *
+ */
+packet_info 
+get_packet_info( const buffer *frame ) {
+  assert( frame != NULL );
+  
+  return *( packet_info *)frame->user_data;
+}
 
 /*
  * Local variables:
