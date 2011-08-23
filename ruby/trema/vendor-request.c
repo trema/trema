@@ -77,7 +77,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
       rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_r );
-    vendor = NUM2UINT( vendor_r );
+    vendor = ( uint32_t ) NUM2UINT( vendor_r );
     if ( TYPE( data_r ) == T_ARRAY ) {
       buf = ( uint8_t * ) ( ( char * ) vendor_request->data + sizeof ( struct ofp_vendor_header ) );
       memset( buf, 0, data_length );
