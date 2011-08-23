@@ -39,6 +39,9 @@
 #define ETH_PREPADLEN 2 /*!<Length of ethernet type field*/
 #define ETH_FCS_LENGTH 4 /*!<Length of the ethernet CRC i.e, Frame Check Sequence*/
 #define ETH_MINIMUM_LENGTH 64 /*!<Minimum frame length, including CRC*/
+#define ETH_MAXIMUM_LENGTH 1518 /*!<Maximum frame length, including CRC*/
+#define ETH_HDR_LENGTH sizeof( ether_header_t ) /*!<Length of ethernet header*/
+#define ETH_MTU (ETH_MAXIMUM_LENGTH - ETH_HDR_LENGTH - ETH_FCS_LENGTH ) /*!<MTU of Ethernet*/
 
 //Ethernet payload types
 #define ETH_ETHTYPE_8023 0x05dc /*!<IEEE 802.3*/
