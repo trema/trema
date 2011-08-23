@@ -29,8 +29,9 @@
 #define PACKET_PARSER_H
 
 
+/* This file will be deprecated. */
 // uint16_t get_checksum( uint16_t *pos, uint32_t size );
-bool parse_packet( buffer *buf );
+// bool parse_packet( buffer *buf );
 
 
 #endif // PACKET_PARSER_H

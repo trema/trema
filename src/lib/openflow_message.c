@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include "openflow_message.h"
 #include "packet_info.h"
-#include "packet_parser.h"
 #include "wrapper.h"
 #include "log.h"
 

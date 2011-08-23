@@ -67,7 +67,7 @@ get_checksum( uint16_t *pos, uint32_t size ) {
 
   return ( uint16_t ) ~csum;
 }
-#endif 
+#endif
 
 /**
  * Validates packet header information contained in structure of type packet_header_info.
@@ -79,7 +79,7 @@ parse_packet( buffer *buf ) {
   assert( buf != NULL );
   assert( buf->data != NULL );
 
-  alloc_packet( buf );
+  alloc_packet_info( buf );
   if ( buf->user_data != NULL ) {
     return false;
   }
@@ -149,7 +149,7 @@ parse_packet( buffer *buf ) {
 static bool
 parse_ether( buffer *buf ) {
   assert( buf != NULL );
-  assert( packet_info( buf )->l2_data.eth != NULL );
+  assert( buf->user_data != NULL );
 
   size_t frame_length = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l2_data.l2 ) - ( char * ) buf->data ) - ETH_PREPADLEN;
   ether_header_t *eth = packet_info( buf )->l2_data.eth;

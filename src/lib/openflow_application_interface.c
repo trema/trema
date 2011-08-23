@@ -29,7 +29,6 @@
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "packet_info.h"
-#include "packet_parser.h"
 #include "wrapper.h"
 
 
