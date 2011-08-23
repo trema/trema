@@ -70,6 +70,28 @@ alloc_packet_info( buffer *buf ) {
 
 
 /**
+ * Return packet information stored in user_data element of
+ * buffer type structure.
+ * @param frame Pointer to buffer type structure
+ * @return packet_info Packet information stored in frame
+ */
+packet_info 
+get_packet_info( const buffer *frame ) {
+  assert( frame != NULL );
+
+  packet_info info;
+  
+  if ( frame->user_data != NULL ) {
+    info = *( packet_info *)frame->user_data;
+  } else {
+    memset( &info, 0, sizeof( info ) );
+  }
+  
+  return info;
+}
+
+
+/**
  * This function is deprecated.
  *
  * Releases the memory allocated to structure of type buffer and also to
@@ -85,21 +107,6 @@ free_packet( buffer *buf ) {
   free_packet_info( buf );
   free_buffer( buf );
 }
-
-/**
- *
- */
-packet_info 
-get_packet_info( const buffer *frame ) {
-  assert( frame != NULL );
-  
-  return *( packet_info *)frame->user_data;
-}
-
-/**
- *
- */
-
 
 
 /*
