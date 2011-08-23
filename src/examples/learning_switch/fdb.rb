@@ -56,7 +56,7 @@ end
 #
 # A database that keep pairs of MAC address and port number
 #
-class ForwardingDB
+class FDB
   DEFAULT_AGE_MAX = 300
 
 
