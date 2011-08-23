@@ -24,47 +24,25 @@ require "trema"
 
 describe VendorRequest do
   context "when an instance is created with no arguments" do  
-    before( :all ) do
-      @vendor_request = VendorRequest.new( )
-    end
-    
-    it "should automatically allocate a transaction ID" do
-      @vendor_request.transaction_id.should be_a_kind_of( Integer )
-      @vendor_request.transaction_id.should >= 0
-    end
-    
-    
-    it "should have a default vendor id(0xccddeeff)" do
-      @vendor_request.vendor.should == 0xccddeeff
-    end
-    
-    
-    it "should have 16 bytes of default vendor user data" do
-      @vendor_request.data.should have( 16 ).items 
-    end
+    its( :transaction_id ) { should be_a_kind_of( Integer ) }
+    its( :transaction_id ) { should >= 0 }
+    its( :vendor ) { should == 0xccddeeff }
+    its( :data ) { should have( 16 ).items  }
   end  
 
   
   context "when an instance is created with all arguments set" do
-    before( :all ) do
+    subject {
       @vendor_data = "this is a test".unpack( "C*" )
       @vendor_request = VendorRequest.new( 1234, 0x5555, @vendor_data )
+    }
+    its( :transaction_id ) { should == 1234 }
+    its( :vendor ) { should == 0x5555 }
+    let( :vendor_data ) { subject.data[0...@vendor_data.length]}
+    it %{ data "[116, 104, 105, 115, 32, 105, 115, 32, 97, 32, 116, 101, 115, 116]" } do
+      vendor_data.should == @vendor_data
     end
-    
-    
-    it "should have valid transaction ID(1234)" do
-      @vendor_request.transaction_id.should == 1234
-    end
-    
-    
-    it "should have valid vendor id(0x5555)" do
-      @vendor_request.vendor.should == 0x5555
-    end
-    
-    
-    it "should have valid vendor user data" do
-      @vendor_request.data[ 0...@vendor_data.length ].should == @vendor_data
-    end
+
   end
   
   
