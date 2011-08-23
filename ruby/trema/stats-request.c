@@ -32,6 +32,36 @@ VALUE cQueueStatsRequest;
 VALUE cVendorStatsRequest;
 
 
+/* 
+ * @overload initialize(options={})
+ *   A +OPPT_STATS_REQUEST+ message is issued to gather statistics for a
+ *   type element from the datapath. This type element can be a flow
+ *   port, queue, or vendor. All stats. request messages share a common header
+ *   followed by extra fields that may further describe each specific type. 
+ *   There is a derived class for each associated type responsible for setting the 
+ *   type of this request. All stats. requests encapsulate their instances 
+ *   as a buffer object that can be converted to packet to be used 
+ *   with the send_message.
+ * 
+ *   @see FlowStatsRequest
+ *   @see AggregateStatsRequest
+ *   @see TableStatsRequest
+ *   @see PortStatsRequest
+ *   @see QueueStatsRequest
+ *   @see VendorStatsRequest
+ * 
+ *   @param [Hash] options the options hash.
+ *   
+ *   @option options [Symbol] :transaction_id
+ *     transaction_id for this request or auto-generated if not specified.
+ * 
+ *   @option options [Symbol] :flags
+ *     flags not defined yet should be set to zero.
+ * 
+ * @return
+ *   an object that encapsulates an +OFPT_STATS_REQUEST+ openflow message.
+ * 
+ */
 static VALUE
 stats_request_init( VALUE self, VALUE options ) {
   VALUE transaction_id;
@@ -77,6 +107,158 @@ subclass_stats_request_init( VALUE self, VALUE options ) {
 }
 
 
+/*
+ * @overload initialize(options={})
+ *   @example 
+ *     FlowStatsRequest.new( 
+ *       :match => Match
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :match
+ *     a {Match} object to match flow fields with this request.
+ *     This option is mandatory.
+ * 
+ *   @option options [Symbol] :table_id
+ *     a table id to match and restrict returned results.
+ *     A value of 0xff would return all tables and is set if not specified.
+ * 
+ *   @option options [Symbol] :out_port
+ *     a value of +OFPP_NONE+ would match all flow entries and is set if not
+ *     specified.
+ * 
+ * @raise [ArgumentError] if option[:match] is not specified.
+ * 
+ * @return [FlowStatsRequest] 
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ openflow message.
+ */
+static VALUE
+flow_stats_request_init( VALUE self, VALUE options ) {
+  return subclass_stats_request_init( self, options );
+}
+
+
+/*
+ * @overload initialize(options={})
+ *   @example
+ *     AggregateStatsRequest.new(
+ *       :match => Match
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :match
+ *     a {Match} object to match flow fields with this request.
+ *     This option is mandatory.
+ * 
+ *   @option options [Symbol] :table_id
+ *     a table id to match and restrict returned results.
+ *     A value of 0xff would return all tables and is set if not specified.
+ * 
+ *   @option options [Symbol] :out_port
+ *     a value of +OFPP_NONE+ would match all flow entries and is set if not
+ *     specified.
+ * 
+ * @raise [ArgumentError] if option[:match] is not specified.
+ * 
+ * @return [AggregateStatsRequest]
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ openflow message.
+ */
+static VALUE
+aggregate_stats_request_init( VALUE self, VALUE options ) {
+  return subclass_stats_request_init( self, options );
+}
+
+
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * 
+ * @return [Number] the value of attribute transaction_id.
+ */
+static VALUE
+stats_transaction_id( VALUE self ) {
+  return rb_iv_get( self, "@transaction_id" );
+}
+
+
+/*
+ * Not yet defined. Set to zero.
+ * 
+ * @return [Number] the value of attribute flags.
+ */
+static VALUE
+stats_flags( VALUE self ) {
+  return rb_iv_get( self, "@flags" );
+}
+
+
+/*
+ * Detailed description of each flow field.
+ * 
+ * @return [Match] the value of attribute match.
+ */
+static VALUE
+stats_match( VALUE self ) {
+  return rb_iv_get( self, "@match" );
+}
+
+
+/*
+ * An index into array of tables. 0xff for all tables.
+ * 
+ * @return [Number] the value of attribute table_id.
+ */
+static VALUE
+stats_table_id( VALUE self ) {
+  return rb_iv_get( self, "@table_id" );
+}
+
+
+/*
+ * Requires flow matching if defined.
+ * 
+ * @return [Number] the value of attribute out_port.
+ */
+static VALUE
+stats_out_port( VALUE self ) {
+  return rb_iv_get( self, "@out_port" );
+}
+
+
+/*
+ * Restrict port statistics to a specific port_no or to all ports.
+ * 
+ * @return [Number] the value of attribute port_no.
+ */
+static VALUE
+stats_port_no( VALUE self ) {
+  return rb_iv_get( self, "@port_no" );
+}
+
+
+/*
+ * Restrict queue statistics to a specific queue_id or to all queues.
+ * 
+ * @return [Number] the value of attribute queue_id.
+ */
+static VALUE
+stats_queue_id( VALUE self ) {
+  return rb_iv_get( self, "@queue_id" );
+}
+
+
+/*
+ * Vendor id uniquely assigned for each vendor.
+ * 
+ * @return [Number] the value of attribute vendor_id.
+ */
+static VALUE
+stats_vendor_id( VALUE self ) {
+  return rb_iv_get( self, "@vendor_id" );
+}
+
+
 uint16_t
 get_stats_request_num2uint( VALUE self, const char *field ) {
   return ( uint16_t ) NUM2UINT( rb_iv_get( self, field ) );
@@ -106,6 +288,9 @@ stats_request_buffer_set( VALUE self, buffer *stats_request_buffer ) {
 }
 
 
+/*
+ * FlowStatsRequest
+ */
 static VALUE
 flow_stats_request_to_packet( VALUE self ) {
   buffer *flow_stats_request;
@@ -136,13 +321,34 @@ aggregate_stats_request_to_packet( VALUE self ) {
   return self;
 }
 
-
+/*
+ * @return [Buffer] a buffer object that encapsulates a stats. request type object. 
+ */
 static VALUE
 stats_request_buffer( VALUE self ) {
   return rb_iv_get( self, "@buffer" );
 }
 
 
+/*
+ * @overload initialize(options={})
+ *   Request table statistics. The table stats. request does not contain any data
+ *   in the body.
+ * 
+ *   @example 
+ *     TableStatsRequest.new(
+ *       :transaction_id => 1234
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :transaction_id
+ *     set the transaction_id as specified or auto-generate it.
+ * 
+ * @return [TableStatsRequest]
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE) openflow 
+ *   message.
+ */
 static VALUE
 table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   UNUSED(self);
@@ -168,10 +374,33 @@ table_stats_request_to_packet( VALUE self ) {
 }
 
 
+/*
+ * @overload initialize(options={})
+ *   Request port statistics.
+ * 
+ *   @example 
+ *     PortStatsRequest.new(
+ *       :port_no => port_no
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :port_no
+ *     request statistics for a specific port if specified, otherwise set port_no
+ *     to +OFPP_NONE+ for all ports.
+ * 
+ * @return [PortStatsRequest]
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ openflow 
+ *   message.
+ */
 static VALUE
-port_stats_request_init( VALUE self, VALUE options ) {
+port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE port_no;
+  VALUE options;
 
+  if ( !rb_scan_args( argc, argv, "01", &options )) {
+    options = rb_hash_new();
+  }
   rb_call_super( 1, &options );
   port_no = rb_hash_aref( options, ID2SYM( rb_intern( "port_no" ) ) );
   if ( port_no == Qnil ) {
@@ -196,10 +425,38 @@ port_stats_request_to_packet( VALUE self ) {
 }
 
 
+/*
+ * @overload initialize(options={})
+ *   Request queue statistics.
+ * 
+ *   @example 
+ *     QueueStatsRequest.new(
+ *       :port_no => port_no,
+ *       :queue_id => queue_id
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :port_no
+ *     request statistics for a specific port if specified, otherwise set port_no
+ *     to +OFPP_ALL+ for all ports.
+ * 
+ *   @option options [Symbol] :queue_id
+ *     request statistics for a specific queue_id or set queue_id to +OFPQ_ALL+ 
+ *     for all queues.
+ * 
+ * @return [QueueStatsRequest]
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_QUEUE)+ openflow 
+ *   message.
+ */
 static VALUE
-queue_stats_request_init( VALUE self, VALUE options ) {
+queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE port_no, queue_id;
+  VALUE options;
 
+  if ( !rb_scan_args( argc, argv, "01", &options )) {
+    options = rb_hash_new();
+  }
   rb_call_super( 1, &options );
   port_no = rb_hash_aref( options, ID2SYM( rb_intern( "port_no" ) ) );
   if ( port_no == Qnil ) {
@@ -230,10 +487,33 @@ queue_stats_request_to_packet( VALUE self ) {
 }
 
 
+/*
+ * @overload initialize(options={})
+ *   Request vendor specific statistics.
+ * 
+ *   @example 
+ *     VendorStatsRequeset.new(
+ *       :vendor_id => vendor_id
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :vendor_id
+ *     request statistics for a specific vendor_id, otherwise set vendor_id
+ *     to a default value of 0x00004cff.
+ * 
+ * @return [VendorStatsRequest]
+ *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow 
+ *   message.
+ */
 static VALUE
-vendor_stats_request_init( VALUE self, VALUE options ) {
+vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE vendor_id;
+  VALUE options;
 
+  if ( !rb_scan_args( argc, argv, "01", &options )) {
+    options = rb_hash_new();
+  }
   rb_call_super( 1, &options );
   vendor_id = rb_hash_aref( options, ID2SYM( rb_intern( "vendor_id" ) ) );
   if ( vendor_id == Qnil ) {
@@ -264,11 +544,20 @@ Init_stats_request( ) {
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
   cFlowStatsRequest = rb_define_class_under( mTrema, "FlowStatsRequest", cStatsRequest );
   rb_define_method( cStatsRequest, "initialize", stats_request_init, 1 );
-  rb_define_method( cFlowStatsRequest, "initialize", subclass_stats_request_init, 1 );
+  rb_define_method( cStatsRequest, "transaction_id", stats_transaction_id, 0 );
+  rb_define_method( cStatsRequest, "flags", stats_flags, 0 );
+  
+  rb_define_method( cFlowStatsRequest, "initialize", flow_stats_request_init, 1 );
+  rb_define_method( cFlowStatsRequest, "match", stats_match, 0 );
+  rb_define_method( cFlowStatsRequest, "table_id", stats_table_id, 0 );
+  rb_define_method( cFlowStatsRequest, "out_port", stats_out_port, 0 );  
   rb_define_method( cFlowStatsRequest, "to_packet", flow_stats_request_to_packet, 0 );
 
   cAggregateStatsRequest = rb_define_class_under( mTrema, "AggregateStatsRequest", cStatsRequest );
-  rb_define_method( cAggregateStatsRequest, "initialize", subclass_stats_request_init, 1 );
+  rb_define_method( cAggregateStatsRequest, "initialize", aggregate_stats_request_init, 1 );
+  rb_define_method( cAggregateStatsRequest, "match", stats_match, 0 );
+  rb_define_method( cAggregateStatsRequest, "table_id", stats_table_id, 0 );
+  rb_define_method( cAggregateStatsRequest, "out_port", stats_out_port, 0 );  
   rb_define_method( cAggregateStatsRequest, "to_packet", aggregate_stats_request_to_packet, 0 );
 
   cTableStatsRequest = rb_define_class_under( mTrema, "TableStatsRequest", cStatsRequest );
@@ -276,15 +565,19 @@ Init_stats_request( ) {
   rb_define_method( cTableStatsRequest, "to_packet", table_stats_request_to_packet, 0 );
 
   cPortStatsRequest = rb_define_class_under( mTrema, "PortStatsRequest", cStatsRequest );
-  rb_define_method( cPortStatsRequest, "initialize", port_stats_request_init, 1 );
+  rb_define_method( cPortStatsRequest, "initialize", port_stats_request_init, -1 );
+  rb_define_method( cPortStatsRequest, "port_no", stats_port_no, 0 );
   rb_define_method( cPortStatsRequest, "to_packet", port_stats_request_to_packet, 0 );
 
   cQueueStatsRequest = rb_define_class_under( mTrema, "QueueStatsRequest", cStatsRequest );
-  rb_define_method( cQueueStatsRequest, "initialize", queue_stats_request_init, 1 );
+  rb_define_method( cQueueStatsRequest, "initialize", queue_stats_request_init, -1 );
+  rb_define_method( cQueueStatsRequest, "port_no", stats_port_no, 0 );
+  rb_define_method( cQueueStatsRequest, "queue_id", stats_queue_id, 0 );
   rb_define_method( cQueueStatsRequest, "to_packet", queue_stats_request_to_packet, 0 );
 
   cVendorStatsRequest = rb_define_class_under( mTrema, "VendorStatsRequest", cStatsRequest );
-  rb_define_method( cVendorStatsRequest, "initialize", vendor_stats_request_init, 1 );
+  rb_define_method( cVendorStatsRequest, "initialize", vendor_stats_request_init, -1 );
+  rb_define_method( cVendorStatsRequest, "vendor_id", stats_vendor_id, 0 );
   rb_define_method( cVendorStatsRequest, "to_packet", vendor_stats_request_to_packet, 0 );
 
   rb_define_method( cStatsRequest, "buffer", stats_request_buffer, 0 );
