@@ -26,9 +26,9 @@ extern VALUE mTrema;
 VALUE cBarrierReply;
 
 /*
- * A new instance of {BarrierReply} constructed when the +OFPT_BARRIER_REPLY+ 
- * message is received.
- * 
+ * A new instance of {BarrierReply} constructed when +OFPT_BARRIER_REPLY+ 
+ * message received.
+ *  
  * @overload initialize(datapath_id, transaction_id) 
  * 
  * @param [Number] datapath_id
