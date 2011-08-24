@@ -41,7 +41,7 @@ enum {
   ETH_8023_SNAP = 0x00000008,
   ETH_8021Q = 0x00000010,
   NW_IPV4 = 0x00000100,
-  NW_ICMP = 0x00000200,
+  NW_ICMPV4 = 0x00000200,
   NW_IPV6 = 0x00000400,
   NW_ICMPV6 = 0x00000800,
   NW_ARP = 0x00001000,
@@ -54,22 +54,22 @@ enum {
   ETH_VTAG_SNAP = ETH_8021Q | ETH_8023_SNAP,
   ETH_ARP = ETH_DIX | NW_ARP,
   ETH_IPV4 = ETH_DIX | NW_IPV4,
-  ETH_IPV4_ICMP = ETH_DIX | NW_ICMP,
+  ETH_IPV4_ICMPV4 = ETH_DIX | NW_ICMPV4,
   ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
   ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
   ETH_VTAG_ARP = ETH_8021Q | ETH_DIX | NW_ARP,
   ETH_VTAG_IPV4 = ETH_8021Q | ETH_DIX | NW_IPV4,
-  ETH_VTAG_IPV4_ICMP = ETH_8021Q | ETH_DIX | NW_ICMP,
+  ETH_VTAG_IPV4_ICMPV4 = ETH_8021Q | ETH_DIX | NW_ICMPV4,
   ETH_VTAG_IPV4_TCP = ETH_8021Q | ETH_IPV4 | TP_TCP,
   ETH_VTAG_IPV4_UDP = ETH_8021Q | ETH_IPV4 | TP_UDP,
   ETH_SNAP_ARP = ETH_8023_SNAP | NW_ARP,
   ETH_SNAP_IPV4 = ETH_8023_SNAP | NW_IPV4,
-  ETH_SNAP_IPV4_ICMP = ETH_8023_SNAP | NW_ICMP,
+  ETH_SNAP_IPV4_ICMPV4 = ETH_8023_SNAP | NW_ICMPV4,
   ETH_SNAP_IPV4_TCP = ETH_SNAP_IPV4 | TP_TCP,
   ETH_SNAP_IPV4_UDP = ETH_SNAP_IPV4 | TP_UDP,
   ETH_SNAP_VTAG_ARP = ETH_8021Q | ETH_8023_SNAP | NW_ARP,
   ETH_SNAP_VTAG_IPV4 = ETH_8021Q | ETH_8023_SNAP | NW_IPV4,
-  ETH_SNAP_VTAG_IPV4_ICMP = ETH_8021Q | ETH_8023_SNAP | NW_ICMP,
+  ETH_SNAP_VTAG_IPV4_ICMPV4 = ETH_8021Q | ETH_8023_SNAP | NW_ICMPV4,
   ETH_SNAP_VTAG_IPV4_TCP = ETH_8021Q | ETH_SNAP_IPV4 | TP_TCP,
   ETH_SNAP_VTAG_IPV4_UDP = ETH_8021Q | ETH_SNAP_IPV4 | TP_UDP,
 };
@@ -120,12 +120,12 @@ typedef struct packet_info {
   uint32_t ipv4_saddr;
   uint32_t ipv4_daddr;
 
-  uint8_t icmp_errortype;
-  uint8_t icmp_errorcode;
-  uint16_t icmp_checksum;
-  uint16_t icmp_id;
-  uint16_t icmp_seq;
-  uint32_t icmp_gateway;
+  uint8_t icmpv4_type;
+  uint8_t icmpv4_code;
+  uint16_t icmpv4_checksum;
+  uint16_t icmpv4_id;
+  uint16_t icmpv4_seq;
+  uint32_t icmpv4_gateway;
 
   uint16_t tcp_src_port;
   uint16_t tcp_dst_port;
@@ -162,22 +162,22 @@ bool packet_type_eth_vtag_llc( const buffer *frame );
 bool packet_type_eth_vtag_snap( const buffer *frame );
 bool packet_type_eth_arp( const buffer *frame );
 bool packet_type_eth_ipv4( const buffer *frame );
-bool packet_type_eth_ipv4_icmp( const buffer *frame );
+bool packet_type_eth_ipv4_icmpv4( const buffer *frame );
 bool packet_type_eth_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_ipv4_udp( const buffer *frame );
 bool packet_type_eth_vtag_arp( const buffer *frame );
 bool packet_type_eth_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_icmp( const buffer *frame );
+bool packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame );
 bool packet_type_eth_vtag_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_vtag_ipv4_udp( const buffer *frame );
 bool packet_type_eth_snap_arp( const buffer *frame );
 bool packet_type_eth_snap_ipv4( const buffer *frame );
-bool packet_type_eth_snap_ipv4_icmp( const buffer *frame );
+bool packet_type_eth_snap_ipv4_icmpv4( const buffer *frame );
 bool packet_type_eth_snap_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_snap_ipv4_udp( const buffer *frame );
 bool packet_type_eth_snap_vtag_arp( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_icmp( const buffer *frame );
+bool packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame );
 

@@ -1,5 +1,5 @@
 /*
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -23,51 +23,230 @@
  * parsing a packet to find its type (whether IPv4, or ARP) and peform checksum if required.
  */
 
+
 #include <assert.h>
 #include <stdint.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
 
-static bool parse_ether( buffer *buf );
-static bool parse_arp( buffer *buf );
-static bool parse_ipv4( buffer *buf );
-static bool parse_icmp( buffer *buf );
-static bool parse_udp( buffer *buf );
-static bool parse_tcp( buffer *buf );
 
-#if 0
 /**
- * Calculates checksum. Following code snippet explains how 
- * @code
- *   //Calling get_checksum to calculate checksum over ipv4 header, which is stored in a buf pointer
- *   if ( get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ){
- *       //Registering "checksum verification error" if calculated checksum is not equal to 0
- *       debug( "Corrupted IPv4 header ( checksum verification error )." );
- *   }
- * @endcode
- * @param pos Pointer of type uint16_t
- * @param size Variable of type uint32_t
- * @return uint16_t Checksum
  */
-static uint16_t
-get_checksum( uint16_t *pos, uint32_t size ) {
-  assert( pos != NULL );
+static void *
+parse_ether( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
 
-  uint32_t csum = 0;
-  for (; 2 <= size; pos++, size -= 2 ) {
-    csum += *pos;
-  }
-  if ( size == 1 ) {
-    csum += *( unsigned char * ) pos;
-  }
-  while ( csum & 0xffff0000 ) {
-    csum = ( csum & 0x0000ffff ) + ( csum >> 16 );
-  }
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
 
-  return ( uint16_t ) ~csum;
+  // Ethernet header
+  ether_header_t *ether_header = ( ether_header_t * )ptr;
+  memcpy( packet_info0->eth_macsa, ether_header->macsa, ETH_ADDRLEN );
+  memcpy( packet_info0->eth_macda, ether_header->macda, ETH_ADDRLEN );
+  packet_info0->eth_type = ntohs( ether_header->type );
+
+  debug( "Parsing an Ethernet frame "
+         "( source mac = %02x:%02x:%02x:%02x:%02x:%02x, "
+         "destination mac = %02x:%02x:%02x:%02x:%02x:%02x ).",
+         packet_info0->eth_macsa[ 0 ], packet_info0->eth_macsa[ 1 ], 
+         packet_info0->eth_macsa[ 2 ], packet_info0->eth_macsa[ 3 ], 
+         packet_info0->eth_macsa[ 4 ], packet_info0->eth_macsa[ 5 ],
+         packet_info0->eth_macda[ 0 ], packet_info0->eth_macda[ 1 ], 
+         packet_info0->eth_macda[ 2 ], packet_info0->eth_macda[ 3 ], 
+         packet_info0->eth_macda[ 4 ], packet_info0->eth_macda[ 5 ] );
+
+  if ( packet_info0->eth_macsa[ 0 ] & 0x01 ) {
+    debug( "Source MAC address is multicast or broadcast." );
+  }
+  ptr = ( void * )( ether_header + 1 ); 
+
+  // vlan tag 
+  if ( packet_info0->eth_type == ETH_ETHTYPE_TPID ) {
+    vlantag_header_t *vlantag_header = ( vlantag_header_t * )ptr;
+
+    packet_info0->vlan_tci = ntohs( vlantag_header->tci );
+    packet_info0->vlan_tpid = packet_info0->eth_type;
+    // is correct?
+    packet_info0->vlan_prio = ( uint8_t )( ( packet_info0->vlan_tci >> 13 ) & 7 ); 
+    packet_info0->vlan_cfi = ( uint8_t )( ( packet_info0->vlan_tci >> 12 ) & 1 );
+    packet_info0->vlan_vid = packet_info0->vlan_tci & 0x0FFF;
+
+    // Rewrite eth_type 
+    packet_info0->eth_type = ntohs( vlantag_header->type ); 
+
+    packet_info0->format |= ETH_8021Q;
+    
+    ptr = ( void * )( vlantag_header + 1 );
+  }
+  
+  // snap header.
+  if ( packet_info0->eth_type <= ETH_MTU ) {
+    snap_header_t *snap_header = ( snap_header_t * )ptr;
+
+    memcpy( packet_info0->snap_llc, snap_header->llc, SNAP_LLC_LENGTH );
+    memcpy( packet_info0->snap_oui, snap_header->oui, SNAP_OUI_LENGTH );
+    packet_info0->snap_type = ntohs( snap_header->type );
+
+    packet_info0->format |= ETH_8023_SNAP;
+
+    ptr = ( void * )( snap_header + 1 );
+  } else {
+    packet_info0->format |= ETH_DIX;
+  }
+  
+  return ptr;
 }
-#endif
+
+
+/**
+ */
+static void *
+parse_arp( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
+
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
+
+  // Ethernet header
+  arp_header_t *arp_header = ( arp_header_t * )ptr;
+  packet_info0->arp_ar_hrd = ntohs( arp_header->ar_hrd );
+  packet_info0->arp_ar_pro = ntohs( arp_header->ar_pro );
+  packet_info0->arp_ar_hln = arp_header->ar_hln;
+  packet_info0->arp_ar_pln = arp_header->ar_pln;
+  packet_info0->arp_ar_op = ntohs( arp_header->ar_op );
+  memcpy( packet_info0->arp_sha, arp_header->sha, ETH_ADDRLEN );
+  packet_info0->arp_spa = ntohl( arp_header->sip );
+  memcpy( packet_info0->arp_tha, arp_header->tha, ETH_ADDRLEN );
+  packet_info0->arp_tpa = ntohl( arp_header->tip );
+
+  packet_info0->format |= NW_ARP;
+  
+  ptr = ( void * )( arp_header + 1 );
+
+  return ptr;
+};
+
+
+/**
+ */
+static void *
+parse_ipv4( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
+
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
+
+  // Ethernet header
+  ipv4_header_t *ipv4_header = ( ipv4_header_t * )ptr;
+  packet_info0->ipv4_version = ipv4_header->version;
+  packet_info0->ipv4_ihl = ipv4_header->ihl;
+  packet_info0->ipv4_tos = ipv4_header->tos;
+  packet_info0->ipv4_tot_len = ntohs( ipv4_header->tot_len );
+  packet_info0->ipv4_id = ntohs( ipv4_header->id );
+  packet_info0->ipv4_frag_off = ntohs( ipv4_header->frag_off );
+  packet_info0->ipv4_ttl = ipv4_header->ttl;
+  packet_info0->ipv4_protocol = ipv4_header->protocol;
+  packet_info0->ipv4_checksum = ntohs( ipv4_header->check );
+  packet_info0->ipv4_saddr = ntohl( ipv4_header->saddr );
+  packet_info0->ipv4_daddr = ntohl( ipv4_header->daddr );
+
+  ptr = ( void * )( ipv4_header + 1 );
+
+  return ptr;
+}
+
+
+/**
+ */
+static void *
+parse_icmp( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
+
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
+
+  // ICMPV4 header
+  icmp_header_t *icmp_header = ( icmp_header_t * )ptr;
+  packet_info0->icmpv4_type = icmp_header->type;
+  packet_info0->icmpv4_code = icmp_header->code;
+  packet_info0->icmpv4_checksum = ntohs( icmp_header->csum );
+
+  switch ( packet_info0->icmpv4_type ) {
+  case ICMP_TYPE_ECHOREP:
+  case ICMP_TYPE_ECHOREQ:
+    packet_info0->icmpv4_id = ntohs( icmp_header->icmp_data.echo.ident );
+    packet_info0->icmpv4_seq = ntohs( icmp_header->icmp_data.echo.seq );
+    break;
+
+  case ICMP_TYPE_REDIRECT:
+    packet_info0->icmpv4_gateway = ntohl( icmp_header->icmp_data.gateway );
+    break;
+
+  default:
+    break;
+  }
+
+  packet_info0->format |= NW_ICMPV4;
+
+  ptr = ( void * )( icmp_header + 1 );
+
+  return ptr;
+};
+
+
+/**
+ */
+static void *
+parse_udp( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
+
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
+
+  // UDP header
+  udp_header_t *udp_header = ( udp_header_t * )ptr;
+  packet_info0->udp_src_port = ntohs( udp_header->src_port );
+  packet_info0->udp_dst_port = ntohs( udp_header->dst_port );
+  packet_info0->udp_len = ntohs( udp_header->len );
+  packet_info0->udp_checksum = ntohs( udp_header->csum );
+
+  packet_info0->format |= TP_UDP;
+
+  ptr = ( void * )( udp_header + 1 );
+
+  return ptr;
+};
+
+
+/**
+ */
+static void *
+parse_tcp( void *ptr, buffer *buf ) {
+  assert( ptr != NULL );
+  assert( buf != NULL );
+
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
+
+  // TCP header
+  tcp_header_t *tcp_header = ( tcp_header_t * )ptr;
+  packet_info0->tcp_src_port = ntohs( tcp_header->src_port );
+  packet_info0->tcp_dst_port = ntohs( tcp_header->dst_port );
+  packet_info0->tcp_seq_no = ntohl( tcp_header->seq_no );
+  packet_info0->tcp_ack_no = ntohl( tcp_header->ack_no );
+  packet_info0->tcp_offset = tcp_header->offset;
+  packet_info0->tcp_flags = tcp_header->flags;
+  packet_info0->tcp_window = ntohs( tcp_header->window );
+  packet_info0->tcp_checksum = ntohs( tcp_header->csum );
+  packet_info0->tcp_urgent = ntohs( tcp_header->urgent );
+
+  packet_info0->format |= TP_TCP;
+
+  ptr = ( void * )( tcp_header + 1 );
+
+  return ptr;
+};
+
 
 /**
  * Validates packet header information contained in structure of type packet_header_info.
@@ -84,219 +263,51 @@ parse_packet( buffer *buf ) {
     return false;
   }
 
-  packet_info *pkt_info = ( packet_info * )buf->user_data;
+  void *ptr = buf->data;
+  packet_info *packet_info0 = ( packet_info * )buf->user_data;
 
   // parse L2 information.
-  if ( !parse_ether( buf ) ) {
-    warn( "Failed to parse ethernet header." );
-    return false;
-  }
-
+  ptr = parse_ether( ptr, buf );
+  
   // parse L3 information.
-  switch ( pkt_info->eth_type ) {
+  switch ( packet_info0->eth_type ) {
   case ETH_ETHTYPE_ARP:
-    if ( !parse_arp( buf ) ) {
-      warn( "Failed to parse an arp packet." );
-      return false;
-    }
+    ptr = parse_arp( ptr, buf );
     break;
 
   case ETH_ETHTYPE_IPV4:
-    if ( !parse_ipv4( buf ) ) {
-      warn( "Failed to parse IPv4 header." );
-      return false;
-    }
+    ptr = parse_ipv4( ptr, buf );
+    break;
+
+  default:
+    warn( "" );
+    break;
+  }
     
-    // parse L4 information.
-    switch ( pkt_info->ipv4_protocol ) {
-    case IPPROTO_ICMP:
-      if ( !parse_icmp( buf ) ) {
-        return false;
-      }
-        
-    case IPPROTO_TCP:
-      if ( !parse_tcp( buf ) ) {
-        return false;
-      }
+  if ( !( packet_info0->format & NW_IPV4 ) ) {
+    return true;
+  } 
 
-    case IPPROTO_UDP:
-      if ( !parse_udp( buf ) ) {
-        return false;        
-      }
-      
-    default:
-      warn( "" );
-      break;
-    }
-      
-    break; // exit from parsing ipv4 header.
+  // parse L4 information.
+  switch ( packet_info0->ipv4_protocol ) {
+  case IPPROTO_ICMP:
+    parse_icmp( ptr, buf );    
+    break;
 
-    default:
-      warn( "" );
-      break;
+  case IPPROTO_TCP:
+    parse_tcp( ptr, buf );    
+    break;
+    
+  case IPPROTO_UDP:
+    parse_udp( ptr, buf );    
+    break;
+    
+  default:
+    warn( "" );
+    break;
   }
-
   return true;
 }
-
-
-/**
- * This function is to find if Ethernet header contained in passed buffer is
- * valid Ethernet header or not.
- * @param buf Buffer containing header to verify for being valid Ethernet header
- * @return bool True if buffer contains valid Ethernet header, else False
- */
-static bool
-parse_ether( buffer *buf ) {
-  assert( buf != NULL );
-  assert( buf->user_data != NULL );
-
-  size_t frame_length = buf->length - ( size_t ) ( ( char * ) ( packet_info( buf )->l2_data.l2 ) - ( char * ) buf->data ) - ETH_PREPADLEN;
-  ether_header_t *eth = packet_info( buf )->l2_data.eth;
-  size_t ether_length = sizeof( ether_header_t ) - ETH_PREPADLEN;
-  if ( frame_length < ether_length ) {
-    debug( "Frame length is shorter than the length of an Ethernet header ( frame length = %u ).", frame_length );
-    return false;
-  }
-
-  debug( "Parsing an Ethernet frame "
-         "( source mac = %02x:%02x:%02x:%02x:%02x:%02x, "
-         "destination mac = %02x:%02x:%02x:%02x:%02x:%02x ).",
-         eth->macsa[ 0 ], eth->macsa[ 1 ], eth->macsa[ 2 ],
-         eth->macsa[ 3 ], eth->macsa[ 4 ], eth->macsa[ 5 ],
-         eth->macda[ 0 ], eth->macda[ 1 ], eth->macda[ 2 ],
-         eth->macda[ 3 ], eth->macda[ 4 ], eth->macda[ 5 ] );
-
-  if ( eth->macsa[ 0 ] & 0x01 ) {
-    debug( "Source MAC address is multicast or broadcast." );
-    return false;
-  }
-
-  uint16_t type = ntohs( eth->type );
-  vlantag_header_t *vlan_tag = ( void * ) ( eth + 1 );
-  uint8_t next_vlan_tags = 0;
-  while ( type == ETH_ETHTYPE_TPID ) {
-    ether_length += sizeof( vlantag_header_t );
-    if ( frame_length < ether_length ) {
-      debug( "Too short 802.1Q frame ( frame length = %u ).", frame_length );
-      return false;
-    }
-    type = ntohs( vlan_tag->type );
-    vlan_tag++;
-    next_vlan_tags++;
-    debug( "802.1Q header found ( type = %#x, # of headers = %u ).", type, next_vlan_tags );
-  }
-
-  if ( type <= ETH_ETHTYPE_8023 ) {
-    snap_header_t *snap = ( snap_header_t * ) vlan_tag;
-
-    // check frame length first
-    if ( snap->llc[ 0 ] == 0xaa && snap->llc[ 1 ] == 0xaa ) {
-      // LLC header with SNAP
-      ether_length += sizeof( snap_header_t );
-    }
-    else {
-      // LLC header without SNAP
-      ether_length += offsetof( snap_header_t, oui );
-    }
-    if ( frame_length < ether_length ) {
-      debug( "Too short LLC/SNAP frame ( minimun frame length = %u, frame length = %u ).",
-             ether_length, frame_length );
-      return false;
-    }
-    if ( frame_length < ( size_t ) type ) {
-      debug( "Frame length is shorter than the length header field value "
-             "( frame length = %u, length field value = %u ).", frame_length, type );
-      return false;
-    }
-
-    // check header field values
-    if ( snap->llc[ 0 ] == 0xaa && snap->llc[ 1 ] == 0xaa ) {
-      // LLC header with SNAP
-      if ( snap->llc[ 2 ] == 0x03 || snap->llc[ 2 ] == 0xf3 || snap->llc[ 2 ] == 0xe3
-           || snap->llc[ 2 ] == 0xbf || snap->llc[ 2 ] == 0xaf ) {
-        type = ntohs( snap->type );
-      }
-      else {
-        debug( "Unexpected SNAP frame ( length = %u, llc = 0x%02x%02x%02x, oui = 0x%02x%02x%02x, type = %u ).",
-               type, snap->llc[ 0 ], snap->llc[ 1 ], snap->llc[ 2 ],
-               snap->oui[ 0 ], snap->oui[ 1 ], snap->oui[ 2 ], ntohs( snap->type ) );
-        return false;
-      }
-    }
-    else {
-      // LLC header without SNAP
-      debug( "Unhandled 802.3 frame ( length = %u, llc = 0x%02x%02x%02x ).",
-             type, snap->llc[ 0 ], snap->llc[ 1 ], snap->llc[ 2 ] );
-      type = ETH_ETHTYPE_UKNOWN;
-    }
-  }
-
-  packet_info( buf )->nvtags = next_vlan_tags;
-  if ( next_vlan_tags > 0 ) {
-    packet_info( buf )->vtag = ( void * ) ( eth + 1 );
-    debug( "802.1Q header found ( tci = %#x, type = %#x ).",
-           ntohs( packet_info( buf )->vtag->tci ), ntohs( packet_info( buf )->vtag->type ) );
-  }
-  else {
-    packet_info( buf )->vtag = NULL;
-    debug( "No 802.1Q header found." );
-  }
-
-  debug( "Ethernet type = %#x.", type );
-
-  packet_info( buf )->ethtype = type;
-  packet_info( buf )->l3_data.l3 = ( char * ) packet_info( buf )->l2_data.l2 + ETH_PREPADLEN + ether_length;
-
-  return true;
-}
-
-/**
- */
-static bool 
-parse_arp( buffer *buf ) {
-  assert( buf != NULL );
-  return true;
-};
-
-
-/**
- * This function parses the IPv4 packet for being valid IPv4 packet.
- * @param buf Pointer to buffer containing IPv4 packet
- * @return bool True if the buffer contains valid IPv4 packet, else False
- */
-static bool
-parse_ipv4( buffer *buf ) {
-  assert( buf != NULL );
-  return true;
-}
-
-
-/**
- */
-static bool 
-parse_icmp( buffer *buf ) {
-  assert( buf != NULL );
-  return true;
-};
-
-
-/**
- */
-static bool 
-parse_udp( buffer *buf ) {
-  assert( buf != NULL );
-  return true;
-};
-
-
-/**
- */
-static bool 
-parse_tcp( buffer *buf ) {
-  assert( buf != NULL );
-  return true;
-};
 
 
 /*
