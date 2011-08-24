@@ -29,7 +29,7 @@ VALUE cFlowRemoved;
 /*
  * @overload initialize(options={})
  *   @example 
- *     FlowRemoved( 
+ *     FlowRemoved.new( 
  *       :datapath_id => 0xabc,
  *       :transaction_id => 0,
  *       :match => Match,
