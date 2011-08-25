@@ -27,32 +27,38 @@ VALUE cError;
 
 
 /*
- * @overload Error.initialize(transaction_id=nil, type=nil, code=nil, user_data=nil)
- *   Create a {Error} object with auto-generated transaction id,
- *   error type set to {OFPET_HELLO_FAILED} and error code set to 
- *   +OFPHFC_INCOMPATIBLE+ and no user data payload.
+ * @overload initialize(transaction_id=nil, type=OFPET_HELLO_FAILED, code=OFPHFC_INCOMPATIBLE, user_data=nil)
+ * 
+ * @param [Number] transaction_id
+ *   a positive number, not recently attached to any previous pending commands to
+ *   guarantee message integrity auto-generated if not specified.
+ * 
+ * @param [Number] type
+ *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if 
+ *   not specified.
+ * 
+ * @param [Number] code
+ *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if 
+ *   not specified.
  *
- * @overload Error.initialize(transaction_id=nil, type, code, user_data=nil)
- *   Create a {Error} object by specifying its error type and code. 
- *   Transaction id is auto-generated with no user data payload.
- *   @example
- *     error = Error.new(OFPET_BAD_REQUEST, ERROR_CODES[ OFPET_BAD_REQUEST ][ 1 ])
- *
- * @overload Error.initialize(transaction_id, type, code, user_data=nil)
- *   Create a {Error} object by specifying its transaction id, its error type 
- *   and code.
- *   @example
- *     error = Error.new( 1234, OFPET_BAD_ACTION, ERROR_CODES[ OFPET_BAD_ACTION ][ 2 ] )
- *
- * @overload Error.initialize(transaction_id, type, code, user_data)
- *   Create a {Error} object by specifying all its arguments.
- *   @example
- *     error = Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
- *
+ * @param [String] user_data
+ *   a more user friendly explanation of the error. Defaults to nil if not 
+ *   specified.
+ * 
+ * @example Instantiate with type and code
+ *   Error.new(OFPET_BAD_REQUEST, ERROR_CODES[ OFPET_BAD_REQUEST ][ 1 ])
+ * 
+ * @example Instantiate with transaction_id, type and code.
+ *   Error.new( 1234, OFPET_BAD_ACTION, ERROR_CODES[ OFPET_BAD_ACTION ][ 2 ] )
+ * 
+ * @example Instantiate with transaction_id, type, code, user_data
+ *   Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
+ * 
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
  * 
- * @return [Error] an object that encapsulates the +OFPT_ERROR+ openflow message.
+ * @return [Error] 
+ *   an object that encapsulates the +OFPT_ERROR+ openflow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
@@ -136,10 +142,10 @@ error_transaction_id( VALUE self ) {
 
 
 /*
- * An optional user data payload, possibly detailed description of the error.
+ * An optional user data payload field, possibly detailed explanation of the error.
  * 
- * @return [String] a user data payload is set.
- * @return [nil] a user data payload is not set.
+ * @return [String] user data payload is set.
+ * @return [nil] user data payload is not set.
  */
 static VALUE
 error_user_data( VALUE self ) {
@@ -156,7 +162,7 @@ error_user_data( VALUE self ) {
 
 
 /*
- * A type uniquely identifies the error.
+ * Indicates the command or action that failed.
  * 
  * @return [Number] the value of attribute error type.
  */
@@ -169,7 +175,7 @@ error_type( VALUE self ) {
 
 
 /*
- * Associated with the type, the code further signifies the error.
+ * Reason of the failed type error.
  * 
  * @return [Number] the value of attribute error code.
  */
