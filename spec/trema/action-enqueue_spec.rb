@@ -23,27 +23,23 @@ require "trema"
 
 
 describe Trema::ActionEnqueue, "A new enqueue action" do
-  it "should be specified by its port and queue id attributes" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    action_enqueue.port.should == 1
-    action_enqueue.queue_id.should == 123
-  end
-
-
-  it "should respond to #to_s and return a string" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    action_enqueue.should respond_to :to_s 
-    action_enqueue.to_s.should == "#<Trema::ActionEnqueue> port = 1, queue_id = 123"
-  end 
-  
-  
-  it "appends its attributes to a list of actions" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    openflow_actions = double( )
-    action_enqueue.should_receive( :append ).with( openflow_actions )
-    action_enqueue.append( openflow_actions )
-  end
-  
+  context "when a new instance is created" do
+    subject { Trema::ActionEnqueue.new( 1, 123 ) }
+    it { should respond_to :to_s }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionEnqueue> port = 1, queue_id = 123"
+    end
+    its ( :port ) { should == 1 }
+    its ( :queue_id ) { should == 123 }
+    
+    
+    it "should append its attributes to a list of actions" do
+      action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
+      openflow_actions = double( )
+      action_enqueue.should_receive( :append ).with( openflow_actions )
+      action_enqueue.append( openflow_actions )
+    end
+  end  
   
   context "when sending #flow_mod(add) with action set to enqueue" do
     it "should have a flow with action set to enqueue" do
