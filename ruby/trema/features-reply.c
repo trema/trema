@@ -28,7 +28,10 @@ extern VALUE mTrema;
 VALUE cFeaturesReply;
 
 
-/*
+/* 
+ * A user would not implicitly instantiate a {FeaturesReply} object but would be 
+ * constructed while parsing the +OFPT_FEATURES_REPLY+ message.
+ * 
  * @overload initialize(options={})
  *   @example
  *     FeaturesReply.new( 
@@ -44,28 +47,31 @@ VALUE cFeaturesReply;
  *   @param [Hash] options the options hash.
  * 
   *   @option options [Symbol] :datapath_id
- *     message originator identifier.
+ *     datapath unique id. Subsequent commands directed to switch should 
+ *     embed this id.
  * 
  *   @option options [Symbol] :transaction_id
- *     the saved transaction_id from OFPT_FEATURES_REQUEST message.
+ *     a positive number lower layers match this to ensure message integrity.
  * 
  *   @option options [Symbol] :n_buffers
- *     maximum number of packets that can be buffered.
+ *     maximum number of packets that can be buffered at once.
  * 
  *   @option options [Symbol] :n_tables
- *     number of supported tables (linear/hash).
+ *     number of supported tables, number could vary according to 
+ *     switch's implementation.
  * 
  *   @option options [Symbol] :capabilities
- *     32-bitmap of supported capabilities.
+ *     supported capabilities expressed as a 32-bit bitmap. Ability of a switch 
+ *     to respond or perform a certain function for example flow statistics, 
+ *     IP address lookup in APR packets.
  * 
  *   @option options [Symbol] :actions
- *     32-bitmap of supported actions.
+ *     supported actions expressed as a 32-bit bitmap.
  * 
  *   @option options [Symbol] :port
- *     array of {Port} objects describing physical port properties.
+ *     an array of {Port} objects detailing physical port description and function.
  *
- * @return [FeaturesReply] an object that encapsulates the +OFPT_FEATURES_REPLY+ 
- *   openflow message.
+ * @return [FeaturesReply] self
  */
 static VALUE
 features_reply_init( VALUE self, VALUE options ) {
@@ -97,7 +103,7 @@ features_reply_transaction_id( VALUE self ) {
 
 
 /*
- * Maximum number of packets that can be buffered.
+ * Maximum number of packets that can be buffered at once.
  * 
  * @return [Number] the value of attribute n_buffers.
  */
@@ -119,7 +125,7 @@ features_reply_n_tables( VALUE self ) {
 
 
 /*
- * 32-bitmap of supported capabilities(+ofp_capabilities+).
+ * Supported capabilities expressed as a 32-bit bitmap.
  * 
  * @return [Number] the value of attribute capabilities.
  */
@@ -130,7 +136,7 @@ features_reply_capabilities( VALUE self ) {
 
 
 /*
- * 32-bitmap of supported actions(+ofp_action_types+).
+ * Supported actions expressed as a 32-bit bitmap.
  * 
  * @return [Number] the value of atttribute actions.
  */
@@ -141,7 +147,7 @@ features_reply_actions( VALUE self ) {
 
 
 /*
- * An array of {Port} objects describing physical port properties.
+ * An array of {Port} objects detailing physical port description and function.
  * 
  * @return [Array<Port>] the value of attribute ports.
  */

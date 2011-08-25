@@ -33,17 +33,20 @@ features_request_alloc( VALUE klass ) {
 }
 
 
-/*
- * @overload FeaturesRequest.initialize(transaction_id=nil)
- *   Create a {FeaturesRequest} object with auto-generated transaction id.
- *
- * @overload FeaturesRequest.initialize(transaction_id)
- *   Create a {FeaturesRequest} object by specifying its transaction id.
+/* 
+ * A features request message is sent upon TLS session establishment to obtain 
+ * switch's supported capabilities. Creates an object that encapsulates the
+ * +OFPT_FEATURES_REQUEST+ openflow message.
+ * 
+ * @overload initialize(transaction_id=nil)
+ * 
+ * @param [Number] transaction_id
+ *   any positive number, same value should be attached to the +OFPT_FEATURES_REPLY+ 
+ *   message. If not specified is auto-generated.
  * 
  * @raise [ArgumentError] if transaction id is negative.
  * 
- * @return [FeaturesRequest] an object that encapsulates the 
- *   +OFPT_FEATURES_REQUEST+ OpenFlow message.
+ * @return [FeaturesRequest] self
  */
 static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
