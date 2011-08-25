@@ -42,6 +42,8 @@
 #include "action-set-vlan-pcp.h"
 #include "action-strip-vlan.h"
 #include "action-vendor.h"
+#include "echo-request.h"
+#include "error.h"
 #include "stats-request.h"
 #include "flow-removed.h"
 #include "port-status.h"
@@ -85,6 +87,8 @@ Init_trema() {
   Init_action_set_vlan_pcp();
   Init_action_strip_vlan();
   Init_action_vendor();
+  Init_echo_request();
+  Init_error();
   Init_buffer();
   Init_logger();
   Init_controller();

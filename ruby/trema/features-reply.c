@@ -28,49 +28,129 @@ extern VALUE mTrema;
 VALUE cFeaturesReply;
 
 
+/* 
+ * A user would not implicitly instantiate a {FeaturesReply} object but would be 
+ * constructed while parsing the +OFPT_FEATURES_REPLY+ message.
+ * 
+ * @overload initialize(options={})
+ *   @example
+ *     FeaturesReply.new( 
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 1,
+ *       :n_buffers => 256,
+ *       :n_tables => 1,
+ *       :capabilities => 135,
+ *       :actions => 2048,
+ *       :port => [ Trema::Port ]
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+  *   @option options [Symbol] :datapath_id
+ *     datapath unique id. Subsequent commands directed to switch should 
+ *     embed this id.
+ * 
+ *   @option options [Symbol] :transaction_id
+ *     a positive number lower layers match this to ensure message integrity.
+ * 
+ *   @option options [Symbol] :n_buffers
+ *     maximum number of packets that can be buffered at once.
+ * 
+ *   @option options [Symbol] :n_tables
+ *     number of supported tables, number could vary according to 
+ *     switch's implementation.
+ * 
+ *   @option options [Symbol] :capabilities
+ *     supported capabilities expressed as a 32-bit bitmap. Ability of a switch 
+ *     to respond or perform a certain function for example flow statistics, 
+ *     IP address lookup in APR packets.
+ * 
+ *   @option options [Symbol] :actions
+ *     supported actions expressed as a 32-bit bitmap.
+ * 
+ *   @option options [Symbol] :port
+ *     an array of {Port} objects detailing physical port description and function.
+ *
+ * @return [FeaturesReply] self
+ */
 static VALUE
-features_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+features_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ * Message originator identifier.
+ * 
+ * @return [Number] the value of attribute datapath_id
+ */
 static VALUE
 features_reply_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * 
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 features_reply_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * Maximum number of packets that can be buffered at once.
+ * 
+ * @return [Number] the value of attribute n_buffers.
+ */
 static VALUE
 features_reply_n_buffers( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "n_buffers" ) ) );
 }
 
 
+/*
+ * Number of supported tables.
+ * 
+ * @return [Number] the value of attribute n_tables.
+ */
 static VALUE
 features_reply_n_tables( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "n_tables" ) ) );
 }
 
 
+/*
+ * Supported capabilities expressed as a 32-bit bitmap.
+ * 
+ * @return [Number] the value of attribute capabilities.
+ */
 static VALUE
 features_reply_capabilities( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "capabilities" ) ) );
 }
 
 
+/*
+ * Supported actions expressed as a 32-bit bitmap.
+ * 
+ * @return [Number] the value of atttribute actions.
+ */
 static VALUE
 features_reply_actions( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "actions" ) ) );
 }
 
 
+/*
+ * An array of {Port} objects detailing physical port description and function.
+ * 
+ * @return [Array<Port>] the value of attribute ports.
+ */
 static VALUE
 features_reply_ports( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "ports" ) ) );
@@ -91,6 +171,9 @@ Init_features_reply() {
 }
 
 
+/*
+ * Extract and map {Port} to +ofp_phy_port+ structure.
+ */
 static VALUE
 ports_from( const list_element *phy_ports ) {
   VALUE ports = rb_ary_new();
@@ -113,7 +196,9 @@ handle_switch_ready( uint64_t datapath_id, void *controller ) {
   }
 }
 
-
+/*
+ * The handler that is called when an +OFPT_FEATURES_REPLY+ message is received.
+ */
 void
 handle_features_reply(
   uint64_t datapath_id,

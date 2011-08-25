@@ -1,10 +1,6 @@
 require "trema/stats-helper"
 
 module Trema
-  #
-  # TableStasReply class
-  # attributes mapped to ofp_table_stats
-  #
   class TableStatsReply < StatsHelper
     FIELDS = %w(table_id name wildcards max_entries ) +
       %w(active_count lookup_count matched_count)
@@ -12,6 +8,51 @@ module Trema
     FIELDS.each { |field| attr_reader field.intern }
 
 
+    # Information about tables that a switch supports. A switch may choose to  
+    # maintain a single table that can store both wildcard and exact match flows. 
+    # Or may use separate tables for each flow type. 
+    # A user would not implicitly instantiate a {TableStatsReply} object but would
+    # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_TABLE)+ message.
+    #
+    # @overload initialize(options={})
+    #
+    #   @example 
+    #     TableStatsReply.new(
+    #       :table_id => 0,
+    #       :name => "classifier",
+    #       :wildcards => 4194303,
+    #       :max_entries => 1048576,
+    #       :active_count => 4,
+    #       :lookup_count => 4,
+    #       :matched_count => 0
+    #     )
+    #   
+    #   @param [Hash] options the options hash.
+    #   
+    #   @option options [Symbol] :table_id
+    #     a number that uniquely identifies the table.
+    #     
+    #   @option options [Symbol] :name
+    #     a meaningful name for the table.
+    #
+    #   @option options [Symbol] :wildcards
+    #     wildcards that supported by the table.
+    #
+    #   @option options [Symbol] :max_entries
+    #     the maximum number of flow entries the table can support.
+    #
+    #   @option options [Symbol] :active_count
+    #     number of active entries.
+    #
+    #   @option options [Symbol] :lookup_count
+    #     a counter of the number of packets looked up in the table.
+    #   
+    #   @option options [Symbol] :matched_count
+    #     a counter of the matched hit entries.
+    #         
+    # @return [TableStatsReply] 
+    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_TABLE) openFlow message.
+    #
     def initialize options
       super FIELDS, options
     end

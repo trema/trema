@@ -26,31 +26,84 @@ extern VALUE mTrema;
 VALUE cQueueGetConfigReply;
 
 
+/*
+ * A new instance of {QueueGetConfigReply} constructed when 
+ * +OFPT_QUEUE_GET_CONFIG_REPLY+ message received.
+ * 
+ * @overload initialize(options={})
+ * 
+ *   @example
+ *     QueueGetConfigReply.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 1
+ *       :port => 1,
+ *       :queues => [ PacketQueue ]
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :datapath_id
+ *     a unique name that identifies an OpenVSwitch, the message originator.
+ * 
+ *   @option options [Symbol] :transaction_id
+ *     value copied from +OPFT_QUEUE_SET_CONFIG_REQUEST+ message.
+ *   
+ *   @option options [Symbol] :port
+ *     the port the queue is attached to.
+ * 
+ *   @option options [Symbol] :queues
+ *     an array of {PacketQueue} objects.
+ * 
+ * @return [QueueGetConfigReply]
+ *   an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ openflow message.
+ */
 static VALUE
-queue_get_config_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+queue_get_config_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 queue_get_config_reply_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 queue_get_config_reply_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * The port the queue is attached to.
+ * 
+ * @return [Number] the value of attribute port.
+ */
 static VALUE
 queue_get_config_reply_port( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "port" ) ) );
 }
 
 
+/*
+ * An array of {PacketQueue} objects. A packet queue is further classified 
+ * depending on its properties. Currently only a minimum-rate type queue 
+ * supported.
+ * 
+ * @return [Array<PacketQueue>] the value of attribute queues.
+ */
 static VALUE
 queue_get_config_reply_queues( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "queues" ) ) );

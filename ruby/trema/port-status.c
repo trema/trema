@@ -27,31 +27,78 @@ extern VALUE mTrema;
 VALUE cPortStatus;
 
 
+/*
+ * @overload initialize(options={})
+ *   @example
+ *     PortStatus.new(
+ *       :datapath_id => 2748,
+ *       :transaction_id => 0,
+ *       :reason => 2,
+ *       :phy_port => Port
+ *     )
+ *   
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :datapath_id
+ *     message originator identifier.
+ * 
+ *   @option options [Symbol] :transaction_id
+ *     unsolicited message transaction_id is zero.
+ * 
+ *   @option options [Symbol] :reason
+ *     the reason why this message was sent.
+ * 
+ *   @option options [Symbol] :phy_port
+ *     a {Port} object describing the properties of the port.
+ * 
+ * @return [PortStatus]
+ *   an object that encapsulates the +OFPT_PORT_STATUS+ openflow message.
+ */
 static VALUE
-port_status_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+port_status_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 port_status_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * For this asynchronous message the transaction_id is set to zero.
+ * 
+ * @return [Number] the value of attribute transaction_id.
+ */
 static VALUE
 port_status_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * The reason value specifies an addition, deletion or modification to a port.
+ * 
+ * @return [Number] the value of attribute reason.
+ */
 static VALUE
 port_status_reason( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "reason" ) ) );
 }
 
 
+/*
+ * Port detailed description, state.
+ * 
+ * @return [Port] the value of attribute phy_port.
+ */
 static VALUE
 port_status_phy_port( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "phy_port" ) ) );
@@ -68,7 +115,9 @@ Init_port_status( ) {
   rb_define_method( cPortStatus, "phy_port", port_status_phy_port, 0 );
 }
 
-
+/*
+ * Handler called when +OFPT_PORT_STATUS+ message is received.
+ */
 void
 handle_port_status(
         uint64_t datapath_id,

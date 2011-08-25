@@ -25,7 +25,21 @@
 extern VALUE mTrema;
 VALUE cBarrierReply;
 
-
+/*
+ * A new instance of {BarrierReply} constructed when +OFPT_BARRIER_REPLY+ 
+ * message received.
+ *  
+ * @overload initialize(datapath_id, transaction_id) 
+ * 
+ * @param [Number] datapath_id
+ *   a unique name that identifies an OpenVSwitch, the message originator.
+ * 
+ * @param [Number] transaction_id
+ *   value copied from the +OFPT_BARRIER_REQUEST+ message.
+ * 
+ * @return [BarrierReply] 
+ *   an object that encapsulates the +OFPT_BARRIER_REPLY+ message.
+ */
 static VALUE
 barrier_reply_init( VALUE self, VALUE datapath_id, VALUE transaction_id ) {
   rb_iv_set( self, "@datapath_id", datapath_id );
@@ -34,12 +48,22 @@ barrier_reply_init( VALUE self, VALUE datapath_id, VALUE transaction_id ) {
 }
 
 
+/*
+ * Message originator identifier.
+ * 
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 barrier_reply_datapath_id( VALUE self ) {
   return rb_iv_get( self, "@datapath_id" );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ * 
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 barrier_reply_transaction_id( VALUE self ) {
   return rb_iv_get( self, "@transaction_id" );

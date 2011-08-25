@@ -35,6 +35,24 @@ queue_get_config_request_alloc( VALUE klass ) {
 }
 
 
+/*
+ * Request message to retrieve configuration about a queue port setting.
+ * Each flow entry contains a queue that a flow is mapped to set constraints on
+ * like maximum/minimum data rate.
+ *
+ * @overload initialize(transaction_id=nil, port=nil)
+ *
+ * @param [Number] transaction_id
+ *   a positive number, if not given transaction_id is auto-generated.
+ *
+ * @param [Number] port
+ *   a port number to query (defaults to 1)
+ *
+ * @raise [ArgumentError] if transaction_id is negative.
+ *
+ * @return [QueueGetConfigRequest]
+ *   an object that encapsulates the +OFPT_GET_CONFIG_REQUEST+ openflow message.
+ */
 static VALUE
 queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *queue_get_config_request;
@@ -45,6 +63,9 @@ queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t port;
 
   if ( rb_scan_args( argc, argv, "02", &xid_ruby, &port_ruby ) == 2 ) {
+    if ( NUM2INT( xid_ruby ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
     port = ( uint16_t ) NUM2UINT( port_ruby );
   } else {
@@ -57,6 +78,11 @@ queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 queue_get_config_request_transaction_id( VALUE self ) {
   buffer *queue_get_config_request;
@@ -67,6 +93,11 @@ queue_get_config_request_transaction_id( VALUE self ) {
 }
 
 
+/*
+ * The port the queue is attached to.
+ * 
+ * @return [Number] the value of attribute port.
+ */
 static VALUE
 queue_get_config_request_port( VALUE self ) {
   buffer *queue_get_config_request;

@@ -38,8 +38,17 @@ describe Trema::GetConfigRequest do
   end  
 
   
-  context "when a #get_config_request is sent" do
-    it "should receive #get_config_reply" do
+  context "when creating from a negative transaction ID(-1234)" do
+    it "should raise an error" do
+      lambda do 
+        GetConfigRequest.new( -1234 )
+      end.should raise_error( "Transaction ID must be >= 0" )
+    end
+  end
+  
+  
+  context "when #get_config_request is sent" do
+    it "should #get_config_reply" do
       class GetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
@@ -51,7 +60,7 @@ describe Trema::GetConfigRequest do
     end
     
     
-    it "should receive #get_config_reply with all attributes set" do
+    it "should #get_config_reply with valid attributes" do
       class GetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
