@@ -34,12 +34,12 @@ describe Trema::ActionEnqueue, "A new enqueue action" do
     
     
     it "should append its attributes to a list of actions" do
-      action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
       openflow_actions = double( )
-      action_enqueue.should_receive( :append ).with( openflow_actions )
-      action_enqueue.append( openflow_actions )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
     end
   end  
+  
   
   context "when sending #flow_mod(add) with action set to enqueue" do
     it "should have a flow with action set to enqueue" do
