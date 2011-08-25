@@ -23,49 +23,34 @@ require "trema"
 
 
 describe Trema::ActionOutput do
-  context "when an instance is created" do
-    before :all do 
-      @action_output = Trema::ActionOutput.new( 1 )
-    end
-    
-    it "should have a valid port attribute" do
-      @action_output.port.should == 1
-    end
+  context "when an instance is created with port" do
+    subject { Trema::ActionOutput.new( 1 ) }
+    its( :port ) { should  == 1 }
+    its( :max_len ) { should == 65535 }
     
     
-    it "should have a valid default max_len attribute" do
-      @action_output.max_len.should == 65535
+    it "should append its attributes to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
     end
   end
   
   
-  context "when an instance is created with all attributes specified" do
-    before :all do 
-      @action_output = Trema::ActionOutput.new( 1, 256 )
+  context "when an instance is created with port, max_len" do
+    subject { Trema::ActionOutput.new( 1, 256 ) }
+    it { should respond_to :to_s }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 256"
     end
-    
-    
-    it "should have a valid max_len attribute" do
-      @action_output.max_len.should == 256
-    end
-  
-    
-    it "should respond to #to_s and return a string" do
-      @action_output.should respond_to :to_s 
-      @action_output.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 256"
-    end 
+    its( :port ) { should == 1 }
+    its( :max_len ) { should == 256 }
   end
     
   
-  it "appends its attributes to a list of actions" do
-    action_output = Trema::ActionOutput.new( 1 )
-    openflow_actions = double( )
-    action_output.should_receive( :append ).with( openflow_actions )
-    action_output.append( openflow_actions )
-  end
   
   
-  context "when a single ActionOutput object is assigned to #flow_mod(add) " do
+  context "when an action output is set to #flow_mod(add) " do
     it "should have its action set to output:1" do
       class FlowModAddController < Controller; end
       network {
