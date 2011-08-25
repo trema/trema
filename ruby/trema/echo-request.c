@@ -27,24 +27,29 @@ VALUE cEchoRequest;
 
 
 /*
- * @overload EchoRequest.initialize()
- *   Create a {EchoRequest} object with auto-generated transaction id and
- *   no user data payload.
+ * An echo request message can be used to measure the bandwidth of a controller/
+ * switch connection as well as to verify its liveness.
  * 
- * @overload EchoRequest.initialize(transaction_id)
- *   Create a {EchoRequest} object by specifying its transaction id.
- *  
- * @overload EchoRequest.initialize(transaction_id, user_data)
- *   Create a {EchoRequest} object by specifying its transaction id 
- *   and user data payload.
- *   @example 
- *     echo_request = EchoRequest.new(1234, "this is a test")
+ * @overload initialize(transaction_id=nil, user_data=nil)
+ * 
+ * @param [Number] transaction_id
+ *   a positive number, not recently attached to any previous pending commands to
+ *   guarantee message integrity auto-generated if not specified.
+ * 
+ * @param [String] user_data.
+ *   the user data field may be a message timestamp to check latency, various
+ *   lengths to measure bandwidth or zero-size(nil) to verify liveness between 
+ *   the switch and controller.
+ * 
+ * @example Instantiate with transaction_id, user_data
+ *   EchoRequest.new(1234, "Thu Aug 25 13:09:00 +0900 2011")
  * 
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
  * 
- * @return [EchoRequest] an object that encapsulates the +OFPT_ECHO_REQUEST+ 
- *   openFlow message.
+ * @return [EchoRequest] self
+ *   a {EchoRequest} object that encapsulates the +OPFT_ECHO_REQUEST+ openflow
+ *   message.
  */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
@@ -96,7 +101,7 @@ echo_request_transaction_id( VALUE self ) {
 
 
 /*
- * User data payload found at the end of message.
+ * User data payload found at the end of message header.
  * 
  * @return [String] a user data payload is set.
  * @return [nil] a user data payload is not set.
