@@ -26,6 +26,22 @@ extern VALUE mTrema;
 VALUE cActionEnqueue;
 
 
+/*
+ * Enqueues the packet on the specified queue attached to a port. When a queue 
+ * is configured the user can associate a flow with this action to forward a 
+ * packet through the specific queue in that port.
+ * 
+ * @overload initialize(port, queue_id)
+ * 
+ * @param [Number] port
+ *   the port the queue is attached to.
+ * 
+ * @param [Number] queue_id
+ *   the configured queue.  Currently only minimum rate queues provided.
+ * 
+ * @return [ActionEnqueue] self
+ *   an object that encapsulates the action:enqueue
+ */
 static VALUE
 action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
   rb_iv_set( self, "@port", port );
@@ -34,18 +50,32 @@ action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
 }
 
 
+/*
+ * The port the queue is attached to.
+ * 
+ * @return [Number] the value of attribute port.
+ */
 static VALUE
 action_enqueue_get_port( VALUE self ) {
   return rb_iv_get( self, "@port" );
 }
 
 
+/*
+ * The configured queue.
+ * 
+ * @return [Number] the value of attribute queue_id.
+ */
 static VALUE
 action_enqueue_get_queue_id( VALUE self ) {
   return rb_iv_get( self, "@queue_id" );
 }
 
-
+/*
+ * Appends the enqueue action to the list of actions.
+ * 
+ * @return [ActionEnqueue] self
+ */
 static VALUE
 action_enqueue_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -59,6 +89,11 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * A string representation of {ActionEnqueue}'s attributes.
+ * 
+ * @return [String] 
+ */
 static VALUE
 action_enqueue_to_s( VALUE self ) {
   char str[ 64 ];
