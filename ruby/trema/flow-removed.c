@@ -26,7 +26,13 @@ extern VALUE mTrema;
 VALUE cFlowRemoved;
 
 
-/*
+/* 
+ * When a flow is deleted or expired a +OFPT_FLOW_REMOVED+ message is sent as long
+ * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during 
+ * flow setup. A user would not implicitly instantiate a {FlowRemoved} object but
+ * would be constructed while parsing the +OPPT_FLOW_REMOVED+ message.
+ * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
+ * 
  * @overload initialize(options={})
  *   @example 
  *     FlowRemoved.new( 
@@ -52,38 +58,37 @@ VALUE cFlowRemoved;
  *     unsolicited message transaction_id is zero.
  * 
  *   @option options [Symbol] :match
- *     a {Match} object describing the flow copied from the corresponding 
- *     +OPFT_FLOW_MOD(add)+ message.
+ *     a {Match} object describing the flow fields copied from the corresponding 
+ *     flow setup message.
  * 
  *   @option options [Symbol] :cookie
- *     an opaque identifier copied from the corresponding +OPFT_FLOW_MOD(add)+ 
- *     message.
+ *     an opaque identifier copied from the corresponding 
+ *     flow setup message.
  * 
  *   @option options [Symbol] :priority
  *     the priority level of the flow copied from the corresponding 
- *     +OPFT_FLOW_MOD(add)+ message.
+ *     flow setup message.
  * 
  *   @option options [Symbol] :reason
- *     the reason why the flow removed.
+ *     the reason why the flow is removed.
  * 
  *   @option options [Symbol] :duration_sec
- *     the number of seconds flow was active.
+ *     the number of seconds the flow was active.
  * 
  *   @option options [Symbol] :duration_nsec
- *     the number of nanoseconds flow was active.
+ *     the number of nanoseconds the flow was active.
  * 
  *   @option options [Symbol] :idle_timeout
- *     time elapsed in seconds before flow removed copied from the 
- *     corresponding +OPFT_FLOW_MOD(add)+ message.
+ *     time elapsed in seconds before the flow is removed, copied from the 
+ *     corresponding flow setup message.
  * 
  *   @option options [Symbol] :packet_count
- *     the accumulated total number of packets.
+ *     a counter of the total number of packets.
  * 
  *   @option options [Symbol] :byte_count
- *     the accumulated total number of bytes.
+ *     a counter of the total number of bytes.
  * 
- * @return [FlowRemoved] 
- *   an object that encapsulates the +OFPT_FLOW_REMOVED+ openflow message.
+ * @return [FlowRemoved] self
  */
 static VALUE
 flow_removed_init( VALUE self, VALUE options ) {
@@ -115,7 +120,9 @@ flow_removed_transaction_id( VALUE self ) {
 
 
 /*
- * @return [Match] an object that encapsulates flow details.
+ * Flow fields matched.
+ * 
+ * @return [Match] an object that encapsulates flow fields details.
  */
 static VALUE
 flow_removed_match( VALUE self ) {
@@ -124,7 +131,7 @@ flow_removed_match( VALUE self ) {
 
 
 /*
- * An opaque identifier copied from the corresponding +OPFT_FLOW_MOD(add)+ message.
+ * An opaque identifier copied from the corresponding flow setup message.
  * 
  * @return [Number] the value of attribute cookie.
  */
@@ -135,8 +142,8 @@ flow_removed_cookie( VALUE self ) {
 
 
 /*
- * The priority level of the flow copied from the corresponding 
- * +OPFT_FLOW_MOD(add)+ message.
+ * The priority level of the flow copied from the corresponding flow setup 
+ * message.
  * 
  * @return [Number] the value of attribute priority.
  */
@@ -147,7 +154,7 @@ flow_removed_priority( VALUE self ) {
 
 
 /*
- * The reason why the flow removed.
+ * The reason why the flow is removed.
  * 
  * @return [Number] the value of attribute reason.
  */
@@ -158,7 +165,7 @@ flow_removed_reason( VALUE self ) {
 
 
 /*
- * The number of seconds flow was active.
+ * The number of seconds the flow was active.
  * 
  * @return [Number] the value of attribute duration_sec.
  */
@@ -169,7 +176,7 @@ flow_removed_duration_sec( VALUE self ) {
 
 
 /*
- * The number of nanoseconds flow was active.
+ * The number of nanoseconds the flow was active.
  * 
  * @return [Number] the value of attribute duration_nsec.
  */
@@ -180,7 +187,7 @@ flow_removed_duration_nsec( VALUE self ) {
 
 
 /*
- * Time elapsed in seconds before flow removed.
+ * Time elapsed in seconds before the flow is removed.
  * 
  * @return [Number] the value of attribute idle_timeout.
  */
@@ -191,7 +198,7 @@ flow_removed_idle_timeout( VALUE self ) {
 
 
 /*
- * The accumulated total number of packets.
+ * A counter of the total number of packets.
  * 
  * @return [Number] the value of attribute packet_count.
  */
@@ -202,7 +209,7 @@ flow_removed_packet_count( VALUE self ) {
 
 
 /*
- * The accumulated total number of bytes.
+ * A counter of the total number of bytes.
  * 
  * @return [Number] the value of attribute byte_count.
  */
