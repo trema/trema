@@ -23,30 +23,52 @@
 
 
 static void
-recv_reply( uint16_t tag, void *data, size_t len, void *user_data ) {
-  UNUSED( tag );
-  UNUSED( user_data );
-
-  uint64_t *dpid = ( uint64_t * ) data;
-  size_t count = len / sizeof( uint64_t );
-  for ( unsigned int i = 0; i < count; i++ ) {
-    info( "%#" PRIx64, ntohll( dpid[ i ] ) );
+join( char *result, const list_element *switches ) {
+  const char comma[] = ", ";
+  const list_element *element;
+  for ( element = switches; element != NULL; element = element->next ) {
+    char tmp[ 19 ]; // "0x" + 64bits in hex + '\0'
+    snprintf( tmp, sizeof( tmp ), "%#" PRIx64, * ( uint64_t *) element->data );
+    strcat( result, tmp );
+    strcat( result, comma );
   }
+  result[ strlen( result ) - strlen( comma ) ] = '\0';
 }
 
 
 static void
-send_request( void *user_data ) {
+handle_list_switches_reply( const list_element *switches, void *user_data ) {
   UNUSED( user_data );
-  send_request_message( "switch_manager", get_trema_name(), 0, NULL, 0, NULL );
+
+  unsigned int num_switch = list_length_of( switches );
+
+  char *list = xmalloc( 20 * num_switch + 1 ); // 20 = dpid string (18 chars) + ", "
+  list[ 0 ] = '\0';
+  join( list, switches );
+  info( "switches = %s", list );
+  xfree( list );
+
+  stop_trema();
+}
+
+
+static void
+timeout( void *user_data ) {
+  UNUSED( user_data );
+
+  error( "List switches request timeout." );
+  stop_trema();
 }
 
 
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
-  add_periodic_event_callback( 1, send_request, NULL );
-  add_message_replied_callback( get_trema_name(), recv_reply );
+  add_periodic_event_callback( 30, timeout, NULL );
+
+  add_periodic_event_callback( 1, ( void ( * ) ( void * ) )send_list_switches_request, NULL );
+  set_list_switches_reply_handler( handle_list_switches_reply );
+
   start_trema();
 }
 

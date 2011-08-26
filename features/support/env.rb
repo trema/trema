@@ -32,7 +32,7 @@ end
 
 
 def ps_entry_of name
-  `ps -ef | grep "#{ name } " | grep -v grep`
+  `ps -ef | grep -w "#{ name } " | grep -v grep`
 end
 
 
