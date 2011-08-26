@@ -25,46 +25,41 @@ require "trema/ip"
 
 describe Trema::ActionSetNwDst do
   context "when an instance is created" do
-    it "should have its nw_dst attribute specified as an Trema::IP object" do
-      action_set_nw_dst = Trema::ActionSetNwDst.new( IP.new( "192.168.1.1" ) )
-      action_set_nw_dst.nw_dst.should be_an_instance_of Trema::IP 
+    subject { Trema::ActionSetNwDst.new( IP.new( "192.168.1.1" ) ) }
+    its( :nw_dst ) { should be_an_instance_of Trema::IP  }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetNwDst> nw_dst = 192.168.1.1"
     end
-  end
+    it { should respond_to( :to_i ) }
+    it "should respond to #to_i and return an Integer" do
+      subject.nw_dst.to_i.should == 3232235777
+    end
+    
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+
+    
+    context "when nw_dst is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetNwDst.new( )
+        end.should raise_error ArgumentError
+      end
+    end
   
-  
-  it "should raise an argument error if its nw_dst attribute is not specified" do
-    expect {
-      action_set_nw_dst = Trema::ActionSetNwDst.new( )
-    }.to raise_error ArgumentError
-  end
-  
-  
-  it "should raise an error if its nw_dst attribute is not an IP object" do
-    expect {
-      action_set_nw_dst = Trema::ActionSetNwDst.new( 1234 )
-    }.to raise_error ArgumentError, /nw dst address should be an IP object/
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_nw_dst = Trema::ActionSetNwDst.new( IP.new( "192.168.1.1" ) )
-    action_set_nw_dst.should respond_to :to_s 
-    action_set_nw_dst.to_s.should == "#<Trema::ActionSetNwDst> nw_dst = 192.168.1.1"
-  end 
-  
-  
-  it "should respond to #to_i and return an Integer" do
-    action_set_nw_dst = Trema::ActionSetNwDst.new( IP.new( "192.168.1.1" ) )
-    action_set_nw_dst.should respond_to :to_i
-    action_set_nw_dst.to_i.should == 3232235777
-  end
-  
-  
-  it "should append its nw_dst attribute to a list of actions" do
-    action_set_nw_dst = Trema::ActionSetNwDst.new( Trema::IP.new( "192.168.1.1" ) )
-    openflow_actions = double( )
-    action_set_nw_dst.should_receive( :append ).with( openflow_actions )
-    action_set_nw_dst.append( openflow_actions )
+    
+    context "when nw_dst is not an IP object" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetNwDst.new( 1234 )
+        end.should raise_error ArgumentError, /nw dst address should be an IP object/
+      end
+    end
   end
   
   
