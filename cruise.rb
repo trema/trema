@@ -40,6 +40,7 @@ require "blocker"
 require "fileutils"
 require "find"
 require "optparse"
+require "rubygems"
 require "stringio"
 require "sub-process"
 require "trema/path"
@@ -53,9 +54,8 @@ include FileUtils
 ################################################################################
 
 def path_string
-  gem_bin = "/var/lib/gems/1.8/bin"
   paths = ENV[ "PATH" ].split( ":" )
-  paths << gem_bin unless paths.include?( gem_bin )
+  paths << Gem::bindir unless paths.include?( Gem::bindir )
   paths.join ":"
 end
 
