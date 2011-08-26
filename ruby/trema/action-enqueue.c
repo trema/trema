@@ -40,7 +40,7 @@ VALUE cActionEnqueue;
  *   the configured queue.  Currently only minimum rate queues provided.
  * 
  * @return [ActionEnqueue] self
- *   an object that encapsulates the action:enqueue
+ *   an object that encapsulates the enqueue action.
  */
 static VALUE
 action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
@@ -90,7 +90,7 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of {ActionEnqueue}'s attributes.
+ * A string representation of its attributes.
  * 
  * @return [String] 
  */
