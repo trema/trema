@@ -28,18 +28,18 @@ VALUE cActionSetDlDst;
 
 
 /*
- * An action to set the destination Ethernet address of a packet to a specified 
- * value.
+ * An action to modify the destination Ethernet address of a packet.
  * 
  * @overload initialize(dl_dst) 
  * 
  * @param [Mac] dl_dst
  *   a destination Ethernet address encapsulated as a {Mac} object.
  * 
- * @raise [ArgumentError] if dl_dst is not a {Mac} object instance.
+ * @raise [ArgumentError] if dl_dst argument is not supplied.
+ * @raise [ArgumentError] if dl_dst argument is not a {Mac} object instance.
  * 
  * @return [ActionSetDlDst] self
- *   an object that encapsulates the set dl dst action.
+ *   an object that encapsulates this action.
  */
 static VALUE
 action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
@@ -64,7 +64,7 @@ action_get_dl_dst( VALUE self ) {
 
 
 /*
- * Appends the set dl dst action to the list of actions.
+ * Appends its action(set_dl_dst) to the list of actions.
  * 
  * @return [ActionSetDlDst] self
  */
@@ -84,9 +84,7 @@ action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of its attributes.
- * 
- * @return [String] 
+ * (see ActionEnqueue#to_s)
  */
 static VALUE
 action_set_dl_dst_to_s( VALUE self ) {
