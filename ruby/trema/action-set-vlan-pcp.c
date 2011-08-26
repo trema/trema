@@ -26,6 +26,21 @@ extern VALUE mTrema;
 VALUE cActionSetVlanPcp;
 
 
+/*
+ * An action to modify the VLAN priority of a packet. Valid values are between
+ * (0) lowest and (7) highest. Priority bits can be used to prioritize different
+ * classes of traffic.
+ * 
+ * @overload initialize(vlan_pcp)
+ * 
+ * @param [Number] vlan_pcp
+ *   the VLAN priority to set to.
+ * 
+ * @raise [ArgumentError] if vlan_pcp argument is not supplied.
+ * 
+ * @return [ActionSetVlanPcp]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
   rb_iv_set( self, "@vlan_pcp", vlan_pcp );
@@ -33,12 +48,22 @@ action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
 }
 
 
+/*
+ * The VLAN priority value.
+ * 
+ * @return [Number] the value of attribute vlan_pcp.
+ */
 static VALUE
 action_get_vlan_pcp( VALUE self ) {
   return rb_iv_get( self, "@vlan_pcp" );
 }
 
 
+/*
+ * Appends its action(vlan_pcp) to the list of actions.
+ * 
+ * @return [ActionSetVlanPcp] self
+ */
 static VALUE
 action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -51,6 +76,9 @@ action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_vlan_pcp_to_s( VALUE self ) {
 	char str[ 64 ];
@@ -59,6 +87,7 @@ action_set_vlan_pcp_to_s( VALUE self ) {
 	sprintf(str, "#<%s> vlan_pcp = %u", rb_obj_classname( self ), vlan_pcp );
 	return rb_str_new2( str );
 }
+
 
 void
 Init_action_set_vlan_pcp( ) {
