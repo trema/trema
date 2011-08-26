@@ -18,8 +18,5 @@ Feature: Get the list of openflow switches with list_switches
       And I terminated all trema services
     Then the output should include:
       """
-      0x1
-      0x2
-      0x3
-      0x4
+      switches = 0x1, 0x2, 0x3, 0x4
       """
