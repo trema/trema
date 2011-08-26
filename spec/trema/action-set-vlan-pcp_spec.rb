@@ -24,27 +24,31 @@ require "trema"
 
 describe Trema::ActionSetVlanPcp do
   context "when an instance is created" do
-    it "should have a valid VLAN priority attribute" do
-      action_set_vlan_pcp = Trema::ActionSetVlanPcp.new( 7 )
-      action_set_vlan_pcp.vlan_pcp.should == 7
+    subject { Trema::ActionSetVlanPcp.new( 7 ) }
+    
+    its( :vlan_pcp ) { should  == 7 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetVlanPcp> vlan_pcp = 7"
+    end
+    
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+    
+    
+    context "when vlan_pcp argument is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetVlanPcp.new( )
+        end.should raise_error ArgumentError
+      end
     end
   end
 
-  
-  it "should respond to #to_s and return a string" do
-    action_set_vlan_pcp = Trema::ActionSetVlanPcp.new( 7 )
-    action_set_vlan_pcp.should respond_to :to_s 
-    action_set_vlan_pcp.to_s.should == "#<Trema::ActionSetVlanPcp> vlan_pcp = 7"
-  end 
-  
-  
-  it "should append its VLAN priority attribute to a list of actions" do
-    action_set_vlan_pcp = Trema::ActionSetVlanPcp.new( 7 )
-    openflow_actions = double( )
-    action_set_vlan_pcp.should_receive( :append ).with( openflow_actions )
-    action_set_vlan_pcp.append( openflow_actions )
-  end
-  
   
   context "when sending #flow_mod(add) message with action set to VLAN priority" do
     it "should have a flow with action set to mod_vlan_pcp" do
