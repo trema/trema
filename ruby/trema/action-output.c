@@ -42,7 +42,7 @@ VALUE cActionOutput;
  *   should be sent. It defaults to 64K.
  * 
  * @return [ActionOutput] self
- *   an object that encapsulates the action:output
+ *   an object that encapsulates the output action.
  */
 static VALUE
 action_output_init( int argc, VALUE *argv, VALUE self ) {
