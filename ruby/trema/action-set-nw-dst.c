@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetNwDst;
 
 
+/*
+ * An action to modify the IPv4 destination address of a packet.
+ * 
+ * @overload initialize(nw_dst)
+ * 
+ * @param [IP] nw_dst
+ *   a destination IPv4 address encapsulated as an {IP} object.
+ * 
+ * @raise [ArgumentError] if nw_dst argument is not supplied.
+ * @raise [ArgumentError] if nw_dst argument is not an {IP} object instance.
+ * 
+ * @return [ActionSetNwDst] 
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_nw_dst_init( VALUE self, VALUE nw_dst ) {
   if ( rb_obj_is_instance_of( nw_dst, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
@@ -38,12 +52,22 @@ action_set_nw_dst_init( VALUE self, VALUE nw_dst ) {
 }
 
 
+/*
+ * The destination IPv4 address as an {IP} object.
+ * 
+ * @return [IP] the value of attribute nw_dst.
+ */
 static VALUE
 action_get_nw_dst( VALUE self ) {
   return rb_iv_get( self, "@nw_dst" );
 }
 
 
+/*
+ * Appends its action(nw_dst) to the list of actions.
+ * 
+ * @return [ActionSetNwDst] self
+ */
 static VALUE
 action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -56,6 +80,9 @@ action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_nw_dst_to_s( VALUE self ) {
   char str[ 64 ];
@@ -65,6 +92,11 @@ action_set_nw_dst_to_s( VALUE self ) {
 }
 
 
+/*
+ * The numeric representation of IPv4 destination address.
+ * 
+ * @return [Number] the value of IPv4 destination address converted to an integer.
+ */
 static VALUE
 action_set_nw_dst_to_i( VALUE self ) {
   return rb_funcall( action_get_nw_dst( self ), rb_intern( "to_i" ), 0 );
