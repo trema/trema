@@ -26,6 +26,19 @@ extern VALUE mTrema;
 VALUE cActionSetTpSrc;
 
 
+/*
+ * An action to modify the source TCP or UDP port of a packet.
+ * 
+ * @overload initialize(tp_src)
+ * 
+ * @param [Number] tp_src
+ *   the source TCP or UDP port number. Any numeric 16-bit value.
+ * 
+ * @raise [ArgumentError] if tp_src argument is not supplied.
+ * 
+ * @return [ActionSetTpSrc]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_tp_src_init( VALUE self, VALUE tp_src ) {
   rb_iv_set( self, "@tp_src", tp_src );
@@ -33,12 +46,22 @@ action_set_tp_src_init( VALUE self, VALUE tp_src ) {
 }
 
 
+/*
+ * The source TCP or UDP port number.
+ * 
+ * @return [Number] the value of attribute tp_src.
+ */
 static VALUE
 action_get_tp_src( VALUE self ) {
   return rb_iv_get( self, "@tp_src" );
 }
 
 
+/*
+ * Appends its action(tp_src) to the list of actions.
+ * 
+ * @return [ActionSetTpSrc] self
+ */
 static VALUE
 action_set_tp_src_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -51,6 +74,9 @@ action_set_tp_src_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_tp_src_to_s( VALUE self ) {
   char str[ 64 ];
