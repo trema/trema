@@ -39,8 +39,10 @@ VALUE cActionEnqueue;
  * @param [Number] queue_id
  *   the configured queue.  Currently only minimum rate queues provided.
  * 
+ * @raise [ArgumentError] if both port and queue_id arguments not supplied.
+ * 
  * @return [ActionEnqueue] self
- *   an object that encapsulates the enqueue action.
+ *   an object that encapsulates this action.
  */
 static VALUE
 action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
@@ -72,7 +74,7 @@ action_enqueue_get_queue_id( VALUE self ) {
 }
 
 /*
- * Appends the enqueue action to the list of actions.
+ * Appends its action(enqueue) to the list of actions.
  * 
  * @return [ActionEnqueue] self
  */
@@ -90,7 +92,7 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of its attributes.
+ * A text representation of its attributes.
  * 
  * @return [String] 
  */
