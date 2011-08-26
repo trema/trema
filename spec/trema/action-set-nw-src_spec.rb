@@ -25,53 +25,47 @@ require "trema/ip"
 
 describe Trema::ActionSetNwSrc do
   context "when an instance is created" do
-    it "should have its nw_src attribute specified as an IP object" do
-      action_set_nw_src = Trema::ActionSetNwSrc.new( IP.new( "192.168.1.1" ) )
-      action_set_nw_src.nw_src.should be_an_instance_of Trema::IP 
+    subject { Trema::ActionSetNwSrc.new( IP.new( "192.168.1.1" ) ) }
+    its( :nw_src ) { should be_an_instance_of Trema::IP  }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetNwSrc> nw_src = 192.168.1.1"
     end
-  end
-  
-  
-  it "should raise an argument error if its nw_src attribute is not specified" do
-    expect {
-      action_set_nw_src = Trema::ActionSetNwSrc.new( )
-    }.to raise_error ArgumentError
-  end
-  
-  
-  it "should raise an error if its nw_src attribute is not an IP object" do
-    expect {
-      action_set_nw_src = Trema::ActionSetNwSrc.new( 1234 )
-    }.to raise_error ArgumentError, /nw src address should be an IP object/
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_nw_src = Trema::ActionSetNwSrc.new( IP.new( "192.168.1.1" ) )
-    action_set_nw_src.should respond_to :to_s 
-    action_set_nw_src.to_s.should == "#<Trema::ActionSetNwSrc> nw_src = 192.168.1.1"
-  end 
-  
-  
-  it "should respond to #to_i and return an Integer" do
-    action_set_nw_src = Trema::ActionSetNwSrc.new( IP.new( "192.168.1.1" ) )
-    action_set_nw_src.should respond_to :to_i
-    action_set_nw_src.to_i.should == 3232235777
-  end
-  
-  
-  it "should append its nw_src attribute to a list of actions" do
-    action_set_nw_src = Trema::ActionSetNwSrc.new( Trema::IP.new( "192.168.1.1" ) )
-    openflow_actions = double( )
-    action_set_nw_src.should_receive( :append ).with( openflow_actions )
-    action_set_nw_src.append( openflow_actions )
+    it { should respond_to( :to_i ) }
+    it "should respond to #to_i and return an Integer" do
+      subject.nw_src.to_i.should == 3232235777
+    end
+    
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+
+    
+    context "when nw_src is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetNwSrc.new( )
+        end.should raise_error ArgumentError
+      end
+    end
+    
+    
+    context "when nw_src is not an IP object" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetNwSrc.new( 1234 )
+        end.should raise_error ArgumentError, /nw src address should be an IP object/
+      end
+    end 
   end
   
   
   context "when sending #flow_mod(add) with action set to nw src" do
     it "should have a flow with action set to mod_nw_src" do
       class FlowModAddController < Controller; end
-      
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
