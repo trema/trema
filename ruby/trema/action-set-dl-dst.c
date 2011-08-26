@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetDlDst;
 
 
+/*
+ * An action to set the destination Ethernet address of a packet to a specified 
+ * value.
+ * 
+ * @overload initialize(dl_src) 
+ * 
+ * @param [Mac] dl_dst
+ *   a destination Ethernet address encapsulated as a {Mac} object.
+ * 
+ * @raise [ArgumentError] if dl_dst is not a {Mac} object instance.
+ * 
+ * @return [ActionSetDlDst] self
+ *   an object that encapsulates the set dl dst action.
+ */
 static VALUE
 action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
   if ( rb_obj_is_instance_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
@@ -38,12 +52,22 @@ action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
 }
 
 
+/*
+ * A destination Ethernet address encapsulated as a {Mac} object.
+ * 
+ * @return [Mac] the value of attribute dl_dst.
+ */
 static VALUE
 action_get_dl_dst( VALUE self ) {
   return rb_iv_get( self, "@dl_dst" );
 }
 
 
+/*
+ * Appends the set dl dst action to the list of actions.
+ * 
+ * @return [ActionSetDlDst] self
+ */
 static VALUE
 action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -59,6 +83,11 @@ action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * A string representation of its attributes.
+ * 
+ * @return [String] 
+ */
 static VALUE
 action_set_dl_dst_to_s( VALUE self ) {
   char str[ 64 ];
