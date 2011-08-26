@@ -39,7 +39,7 @@ describe Trema::ActionSetDlSrc do
     end
     
     
-    context "when dl_src is not specified" do
+    context "when dl_src is not supplied" do
       it "should raise an error" do
         lambda do
           Trema::ActionSetDlSrc.new( )
