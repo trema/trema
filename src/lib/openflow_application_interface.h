@@ -20,6 +20,11 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Trema Event Handling Interfaces
+ */
 #ifndef OPENFLOW_APPLICATION_INTERFACE_H
 #define OPENFLOW_APPLICATION_INTERFACE_H
 
@@ -30,23 +35,23 @@
 #include "openflow_service_interface.h"
 
 
-/********************************************************************************
+/**
  * Functions for initializing/finalizing the OpenFlow application interface.
- ********************************************************************************/
+ */
 
 bool init_openflow_application_interface( const char *service_name );
 bool finalize_openflow_application_interface( void );
 bool openflow_application_interface_is_initialized( void );
 
 
-/********************************************************************************
- * Event handler definitions.
- ********************************************************************************/
-
 typedef struct {
   uint64_t datapath_id;
   void *user_data;
 } switch_ready;
+
+/**
+ * Event handler definitions.
+ */
 
 typedef void ( simple_switch_ready_handler )( switch_ready event );
 
@@ -102,6 +107,9 @@ typedef void ( *get_config_reply_handler )(
 );
 
 
+/**
+ * Structure representing an incoming packet
+ */
 typedef struct {
   uint64_t datapath_id;
   uint32_t transaction_id;
@@ -184,6 +192,10 @@ typedef void ( *list_switches_reply_handler )(
 );
 
 
+/**
+ * Structure representing OpenFlow Event Handlers. These would be used by Trema Applications
+ * to register their listeners for switch events.
+ */
 typedef struct openflow_event_handlers {
   bool simple_switch_ready_callback;
   void *switch_ready_callback;
@@ -227,9 +239,9 @@ typedef struct openflow_event_handlers {
 } openflow_event_handlers_t;
 
 
-/********************************************************************************
+/**
  * Functions for setting callback functions for OpenFlow related events.
- ********************************************************************************/
+ */
 
 bool set_openflow_event_handlers( const openflow_event_handlers_t handlers );
 
@@ -276,9 +288,9 @@ bool set_queue_get_config_reply_handler( queue_get_config_reply_handler callback
 bool set_list_switches_reply_handler( list_switches_reply_handler callback );
 
 
-/********************************************************************************
+/**
  * Function for sending an OpenFlow message to an OpenFlow switch.
- ********************************************************************************/
+ */
 
 bool send_openflow_message( const uint64_t datapath_id, buffer *message );
 
