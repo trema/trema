@@ -28,18 +28,18 @@ VALUE cActionSetDlSrc;
 
 
 /*
- * An action to set the source Ethernet address of a packet to a specified 
- * value.
+ * An action to modify the source Ethernet address of a packet.
  * 
  * @overload initialize(dl_src) 
  * 
  * @param [Mac] dl_src
- *   a destination Ethernet address encapsulated as a {Mac} object.
+ *   a source Ethernet address encapsulated as a {Mac} object.
  * 
- * @raise [ArgumentError] if dl_src is not a {Mac} object instance.
+ * @raise [ArgumentError] if dl_src argument is not supplied.
+ * @raise [ArgumentError] if dl_src argument is not a {Mac} object instance.
  * 
  * @return [ActionSetDlSrc] self
- *   an object that encapsulates the set dl src action.
+ *   an object that encapsulates this action.
  */
 static VALUE
 action_set_dl_src_init( VALUE self, VALUE dl_src ) {
@@ -64,7 +64,7 @@ action_get_dl_src( VALUE self ) {
 
 
 /*
- * Appends the set dl src action to the list of actions.
+ * Appends its action(set_dl_src) to the list of actions.
  * 
  * @return [ActionSetDlSrc] self
  */
@@ -84,9 +84,7 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of its attributes.
- * 
- * @return [String] 
+ * (see ActionEnqueue#to_s)
  */
 static VALUE
 action_set_dl_src_to_s( VALUE self ) {
