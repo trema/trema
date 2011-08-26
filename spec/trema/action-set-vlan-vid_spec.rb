@@ -24,27 +24,30 @@ require "trema"
 
 describe Trema::ActionSetVlanVid do
   context "when an instance is created" do
-    it "should have a valid VLAN id attribute" do
-      action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-      action_set_vlan_vid.vlan_vid.should == 1024
+    subject { Trema::ActionSetVlanVid.new( 1024 ) }
+
+    its( :vlan_vid ) { should == 1024 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetVlanVid> vlan_vid = 1024"
     end
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-    action_set_vlan_vid.should respond_to :to_s 
-    action_set_vlan_vid.to_s.should == "#<Trema::ActionSetVlanVid> vlan_vid = 1024"
-  end 
-  
-  
-  it "should append its VLAN id attribute to a list of actions" do
-    action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-    openflow_actions = double( )
-    action_set_vlan_vid.should_receive( :append ).with( openflow_actions )
-    action_set_vlan_vid.append( openflow_actions )
-  end
-  
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+
+    
+    context "when VLAN id is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetVlanVid.new( )
+        end.should raise_error ArgumentError
+      end
+    end
+  end    
+
   
   context "when sending #flow_mod(add) message with action set to VLAN id" do
     it "should have a flow with action set to mod_vlan_vid" do
