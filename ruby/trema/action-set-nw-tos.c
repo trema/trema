@@ -26,6 +26,19 @@ extern VALUE mTrema;
 VALUE cActionSetNwTos;
 
 
+/*
+ * An action to modify the IP ToS/DSCP field of a packet.
+ * 
+ * @overload initialize(nw_tos)
+ * 
+ * @param [Number] nw_tos
+ *  the ToS/DSCP field to set to.
+ * 
+ * @raise [ArgumentError] if nw_tos argument is not supplied.
+ * 
+ * @return [ActionSetNwTos]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
   rb_iv_set( self, "@nw_tos", nw_tos );
@@ -33,12 +46,22 @@ action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
 }
 
 
+/*
+ * The ToS/DSCP value to set to.
+ * 
+ * @return [Number] the value of attribute nw_tos.
+ */
 static VALUE
 action_get_nw_tos( VALUE self ) {
   return rb_iv_get( self, "@nw_tos" );
 }
 
 
+/*
+ * Appends its action(nw_tos) to the list of actions.
+ * 
+ * @return [ActionSetNwTos] self
+ */
 static VALUE
 action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -51,6 +74,9 @@ action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_nw_tos_to_s( VALUE self ) {
   char str[ 64 ];
