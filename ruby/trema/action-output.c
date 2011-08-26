@@ -27,7 +27,7 @@ VALUE cActionOutput;
 
 
 /*
- * An action to output a packet to a specified port.
+ * An action to output a packet to a port.
  * 
  * @overload initialize(port, max_len=nil)
  * 
@@ -41,8 +41,10 @@ VALUE cActionOutput;
  *   is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet 
  *   should be sent. It defaults to 64K.
  * 
+ * @raise [ArgumentError] if port argument is not supplied.
+ * 
  * @return [ActionOutput] self
- *   an object that encapsulates the output action.
+ *   an object that encapsulates this action.
  */
 static VALUE
 action_output_init( int argc, VALUE *argv, VALUE self ) {
@@ -63,7 +65,7 @@ action_output_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * An index into switch's physical port list.
+ * The index into switch's physical port list.
  * 
  * @return [Number] the value of attribute port.
  */
@@ -86,7 +88,7 @@ action_output_max_len( VALUE self ) {
 
 
 /*
- * Appends the output action to the list of actions.
+ * Appends its action(output to port) to the list of actions.
  * 
  * @return [ActionOutput] self
  */
@@ -104,9 +106,7 @@ action_output_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of its attributes.
- * 
- * @return [String] 
+ * (see ActionEnqueue#to_s)
  */
 static VALUE
 action_output_to_s( VALUE self ) {
