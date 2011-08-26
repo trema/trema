@@ -24,25 +24,28 @@ require "trema"
 
 describe Trema::ActionSetNwTos do
   context "when an instance is created" do
-    it "should have a valid nw_tos attribute" do
-      action_set_nw_tos = Trema::ActionSetNwTos.new( 4 )
-      action_set_nw_tos.nw_tos.should == 4
+    subject { Trema::ActionSetNwTos.new( 4 ) }
+    its( :nw_tos ) { should == 4 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetNwTos> nw_tos = 4"
+    end
+    
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
     end
   end
+
   
-  
-  it "should respond to #to_s and return a string" do
-    action_set_nw_tos = Trema::ActionSetNwTos.new( 4 )
-    action_set_nw_tos.should respond_to :to_s 
-    action_set_nw_tos.to_s.should == "#<Trema::ActionSetNwTos> nw_tos = 4"
-  end 
-  
-  
-  it "should append its nw_tos attribute to a list of actions" do
-    action_set_nw_tos = Trema::ActionSetNwTos.new( 5555 )
-    openflow_actions = double( )
-    action_set_nw_tos.should_receive( :append ).with( openflow_actions )
-    action_set_nw_tos.append( openflow_actions )
+  context "when nw_tos is not supplied" do
+    it "should raise an error" do
+      lambda do
+        Trema::ActionSetNwTos.new( )
+      end.should raise_error ArgumentError
+    end
   end
   
   
