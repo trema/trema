@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetNwSrc;
 
 
+/*
+ * An action to modify the IPv4 source address of a packet.
+ * 
+ * @overload initialize(nw_src)
+ * 
+ * @param [IP] nw_src
+ *   the source IPv4 address encapsulated as an {IP} object.
+ * 
+ * @raise [ArgumentError] if nw_src argument is not supplied.
+ * @raise [ArgumentError] if nw_src argument is not an {IP} object instance.
+ * 
+ * @return [ActionSetNwSrc]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_nw_src_init( VALUE self, VALUE nw_src ) {
   if ( rb_obj_is_instance_of( nw_src, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
@@ -38,12 +52,22 @@ action_set_nw_src_init( VALUE self, VALUE nw_src ) {
 }
 
 
+/*
+ * The source IPv4 address as an {IP} object.
+ * 
+ * @return [IP] the value of attribute nw_src.
+ */
 static VALUE
 action_get_nw_src( VALUE self ) {
   return rb_iv_get( self, "@nw_src" );
 }
 
 
+/*
+ * Appends its action(set_nw_src) to the list of actions.
+ * 
+ * @return [ActionSetNwSrc] self
+ */
 static VALUE
 action_set_nw_src_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -56,6 +80,9 @@ action_set_nw_src_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_nw_src_to_s( VALUE self ) {
   char str[ 64 ];
@@ -65,6 +92,11 @@ action_set_nw_src_to_s( VALUE self ) {
 }
 
 
+/*
+ * The numeric representation of IPv4 source address.
+ * 
+ * @return [Number] the value of IPv4 source address converted to an integer.
+ */
 static VALUE
 action_set_nw_src_to_i( VALUE self ) {
   return rb_funcall( action_get_nw_src( self ), rb_intern( "to_i" ), 0 );
