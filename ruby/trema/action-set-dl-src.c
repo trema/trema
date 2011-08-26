@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetDlSrc;
 
 
+/*
+ * An action to set the source Ethernet address of a packet to a specified 
+ * value.
+ * 
+ * @overload initialize(dl_src) 
+ * 
+ * @param [Mac] dl_src
+ *   a destination Ethernet address encapsulated as a {Mac} object.
+ * 
+ * @raise [ArgumentError] if dl_src is not a {Mac} object instance.
+ * 
+ * @return [ActionSetDlSrc] self
+ *   an object that encapsulates the set dl src action.
+ */
 static VALUE
 action_set_dl_src_init( VALUE self, VALUE dl_src ) {
   if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
@@ -38,12 +52,22 @@ action_set_dl_src_init( VALUE self, VALUE dl_src ) {
 }
 
 
+/*
+ * A source Ethernet address encapsulated as a {Mac} object.
+ * 
+ * @return [Mac] the value of attribute dl_src.
+ */
 static VALUE
 action_get_dl_src( VALUE self ) {
   return rb_iv_get( self, "@dl_src" );
 }
 
 
+/*
+ * Appends the set dl src action to the list of actions.
+ * 
+ * @return [ActionSetDlSrc] self
+ */
 static VALUE
 action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
   uint8_t dl_src[ OFP_ETH_ALEN ];
@@ -59,6 +83,11 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * A string representation of its attributes.
+ * 
+ * @return [String] 
+ */
 static VALUE
 action_set_dl_src_to_s( VALUE self ) {
   char str[ 64 ];
