@@ -23,32 +23,37 @@ require "trema"
 
 
 describe Trema::ActionOutput do
-  context "when an instance is created with port" do
+  context "when an instance is created with argument port" do
     subject { Trema::ActionOutput.new( 1 ) }
     its( :port ) { should  == 1 }
     its( :max_len ) { should == 65535 }
-    
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 65535"
+    end
     
     it "should append its attributes to a list of actions" do
       openflow_actions = double( )
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
+    
+    
+    context "when no argument supplied" do
+      it "should raise an error" do
+        lambda do 
+          Trema::ActionOutput.new( )
+        end.should raise_error ArgumentError
+      end
+    end
   end
   
   
-  context "when an instance is created with port, max_len" do
+  context "when an instance is created with port, max_len arguments" do
     subject { Trema::ActionOutput.new( 1, 256 ) }
-    it { should respond_to :to_s }
-    it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 256"
-    end
     its( :port ) { should == 1 }
     its( :max_len ) { should == 256 }
   end
     
-  
-  
   
   context "when an action output is set to #flow_mod(add) " do
     it "should have its action set to output:1" do
@@ -65,7 +70,7 @@ describe Trema::ActionOutput do
   end
   
   
-  context "when multiple ActionOutput objects assigned to #flow_mod(add)" do
+  context "when multiple output actions assigned to #flow_mod(add)" do
     it "should have its actions set to output:1\/output:2" do
       class FlowModAddController < Controller; end
       network {
