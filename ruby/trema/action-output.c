@@ -104,7 +104,7 @@ action_output_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * A string representation of {ActionOutput}'s attributes.
+ * A string representation of its attributes.
  * 
  * @return [String] 
  */
