@@ -31,7 +31,7 @@ VALUE cActionSetDlDst;
  * An action to set the destination Ethernet address of a packet to a specified 
  * value.
  * 
- * @overload initialize(dl_src) 
+ * @overload initialize(dl_dst) 
  * 
  * @param [Mac] dl_dst
  *   a destination Ethernet address encapsulated as a {Mac} object.
