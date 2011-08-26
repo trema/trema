@@ -17,6 +17,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief OpenFlow message handling. Creates messages for openflow communications.
+ *
+ * Provides function which creates OpenFlow messages.
+ *
+ * @code
+ * // Initializes OpenFlow message.
+ * init_openflow_message( );
+ *
+ * // Creates messages.
+ * crete_hello( ' trasaction ID' );
+ * create_error( transaction ID, error_type, error_code, user_data );
+ *
+ * // Validates OpenFlow message.
+ * validate_openflow_message( "Pointer to location containing message" );
+ *
+ * @endcode
+ */
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -38,16 +58,20 @@
 // Allow static functions to be called from unit tests.
 #define static
 
-/* Redirect getpid to a function in the test application so it's
- * possible to test if pid value is correctly used. */
+/**
+ * Redirect getpid to a function in the test application so it is
+ * possible to test if pid value is correctly used. 
+ */
 #ifdef getpid
 #undef getpid
 #endif // getpid
 #define getpid mock_getpid
 extern pid_t mock_getpid( void );
 
-/* Redirect debug to a function in the test application so it's
- * possible to test if debug messages are generated expectedly. */
+/**
+ * Redirect debug to a function in the test application so it is
+ * possible to test if debug messages are generated expectedly. 
+ */
 #ifdef debug
 #undef debug
 #endif // debug
@@ -81,6 +105,11 @@ static uint64_t cookie = 0;
 static pthread_mutex_t cookie_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
+/**
+ * Initializes openflow message by acquiring lock on transaction id, cookie.
+ * @param None
+ * @return bool True
+ */
 bool
 init_openflow_message( void ) {
   pid_t pid;
@@ -102,6 +131,13 @@ init_openflow_message( void ) {
 }
 
 
+/**
+ * Creates OpenFlow header message.
+ * @param transaction_id Id associated with packet
+ * @param type Type of header
+ * @param length Length of OpenFlow header
+ * @return buffer* Pointer to location where header is stored
+ */
 static buffer *
 create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t length ) {
   debug( "Creating an OpenFlow header ( version = %#x, type = %#x, length = %u, xid = %#x ).",
@@ -126,6 +162,13 @@ create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t
 }
 
 
+/**
+ * Creates an error message.
+ * @param transaction_id Id associated with packet
+ * @param type Type of error
+ * @param code Code from which error is created
+ * @return buffer* Pointer to location where error is stored
+ */
 buffer *
 create_error( const uint32_t transaction_id, const uint16_t type,
               const uint16_t code, const buffer *data ) {
@@ -157,6 +200,11 @@ create_error( const uint32_t transaction_id, const uint16_t type,
 }
 
 
+/**
+ * Creates hello message shared between switch and controller.
+ * @param transaction_id Id associated with packet 
+ * @return buffer* Pointer to location where hello is stored
+ */
 buffer *
 create_hello( const uint32_t transaction_id ) {
   debug( "Creating a hello ( xid = %#x ).", transaction_id );
@@ -165,6 +213,12 @@ create_hello( const uint32_t transaction_id ) {
 }
 
 
+/**
+ * Creates echo request message.
+ * @param transaction_id Id associated with packet 
+ * @param body Message replied
+ * @return buffer* Pointer to location where hello is stored
+ */
 buffer *
 create_echo_request( const uint32_t transaction_id, const buffer *body ) {
   uint16_t data_length = 0;
@@ -186,6 +240,12 @@ create_echo_request( const uint32_t transaction_id, const buffer *body ) {
 }
 
 
+/**
+ * Creates echo reply message from switch to controller or controller to switch.
+ * @param transaction_id Id associated with packet 
+ * @param body Message replied
+ * @return buffer* Pointer to location where echo reply is stored
+ */
 buffer *
 create_echo_reply( const uint32_t transaction_id, const buffer *body ) {
   uint16_t data_length = 0;
@@ -207,6 +267,13 @@ create_echo_reply( const uint32_t transaction_id, const buffer *body ) {
 }
 
 
+/**
+ * Creates a vendor information message.
+ * @param transaction_id Id associated with packet
+ * @param vendor Vendor data 
+ * @param data User data
+ * @return buffer* Pointer to location where vendor is stored
+ */
 buffer *
 create_vendor( const uint32_t transaction_id, const uint32_t vendor, const buffer *data ) {
   void *d;
@@ -237,7 +304,11 @@ create_vendor( const uint32_t transaction_id, const uint32_t vendor, const buffe
   return buffer;
 }
 
-
+/**
+ * Creates request for switch capabilities.
+ * @param transaction_id Id associated with packet  
+ * @return buffer* Pointer to location where feature request is stored
+ */
 buffer *
 create_features_request( const uint32_t transaction_id ) {
   debug( "Creating a features request ( xid = %#x ).", transaction_id );
@@ -245,7 +316,17 @@ create_features_request( const uint32_t transaction_id ) {
   return create_header( transaction_id, OFPT_FEATURES_REQUEST, sizeof( struct ofp_header ) );
 }
 
-
+/**
+ * Creates features reply i.e. capabilities of switch are replied.
+ * @param transaction_id Id associated with packet 
+ * @param datapath_id Datapath unique ID 
+ * @param n_buffer Max packets buffered at once
+ * @param n_tables Number of tables supported by datapath
+ * @param capabilities Bitmap of support "ofp_capabilities"
+ * @param actions Actions supported by switch
+ * @param ports List of ports 
+ * @return buffer* Pointer to location where feature reply is stored
+ */
 buffer *
 create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id,
                        const uint32_t n_buffers, const uint8_t n_tables,
@@ -310,6 +391,11 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
 }
 
 
+/**
+ * Creates configuration request message.
+ * @param transaction_id Id associated with packet 
+ * @return buffer* Pointer to location where get config request is stored
+ */ 
 buffer *
 create_get_config_request( const uint32_t transaction_id ) {
   debug( "Creating a get config request ( xid = %#x ).", transaction_id );
@@ -318,13 +404,21 @@ create_get_config_request( const uint32_t transaction_id ) {
 }
 
 
+/**
+ * Creates configuration reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param miss_send_len Max bytes of new flow that datapath should send to the controller
+ * send to the controller. 
+ * @return buffer* Pointer to location where get config reply is stored
+ */ 
 buffer *
 create_get_config_reply( const uint32_t transaction_id, const uint16_t flags,
                          const uint16_t miss_send_len ) {
   buffer *buffer;
   struct ofp_switch_config *switch_config;
 
-  debug( "Creating a get config reply ( xid = %#x, flags = %#x, miss_send_len = %u ).",
+  debug( "Creating a 		get config reply ( xid = %#x, flags = %#x, miss_send_len = %u ).",
          transaction_id, flags, miss_send_len );
 
   buffer = create_header( transaction_id, OFPT_GET_CONFIG_REPLY, sizeof( struct ofp_switch_config ) );
@@ -338,6 +432,13 @@ create_get_config_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates configuration message which can be set at switch.
+ * @param transaction_id Id associated with packet 
+ * @param flags OFPC_* flags
+ * @param miss_send_len Max bytes of new flow that datapath should send to the controller
+ * @return buffer* Pointer to location where set config is stored
+ */ 
 buffer *
 create_set_config( const uint32_t transaction_id, const uint16_t flags, uint16_t miss_send_len ) {
   debug( "Creating a set config ( xid = %#x, flags = %#x, miss_send_len = %u ).",
@@ -353,6 +454,16 @@ create_set_config( const uint32_t transaction_id, const uint16_t flags, uint16_t
 }
 
 
+/**
+ * Creates packet-in message.
+ * @param transaction_id Id associated with packet 
+ * @param buffer_id Buffered packet to apply to (or -1) Not meaningful for OFPFC_DELETE* 
+ * @param total_len Full length of frame 
+ * @param in_port Input switch port
+ * @param reason Reason packet is being sent (one of OFPR_*)
+ * @param data User data 
+ * @return buffer* Pointer to location where packet in is stored
+ */ 
 buffer *
 create_packet_in( const uint32_t transaction_id, const uint32_t buffer_id, const uint16_t total_len,
                   uint16_t in_port, const uint8_t reason, const buffer *data ) {
@@ -389,6 +500,20 @@ create_packet_in( const uint32_t transaction_id, const uint32_t buffer_id, const
 }
 
 
+/**
+ * Creates flow remove message from which flow entry is removed.
+ * @param transaction_id Id associated with packet
+ * @param match Fields to match against flows
+ * @param cookie Opaque controller-issued identifier
+ * @param priority Priority level of flow entry
+ * @param reason Reason packet is being sent (one of OFPR_*)
+ * @param duration_sec Time flow has been alive in seconds
+ * @param duration_nsec Time flow has been alive in nanoseconds beyond duration_sec
+ * @param idle_timeout Number of seconds idle before expiration
+ * @param packet_count Number of packets in flow
+ * @param byte_count Number of bytes in flow
+ * @return buffer* Pointer to location where flow remove is stored
+ */ 
 buffer *
 create_flow_removed( const uint32_t transaction_id, const struct ofp_match match,
                      const uint64_t cookie, const uint16_t priority,
@@ -432,6 +557,13 @@ create_flow_removed( const uint32_t transaction_id, const struct ofp_match match
 }
 
 
+/**
+ * Creates port status message.
+ * @param transaction_id Id associated with packet
+ * @param reason Reason packet is being sent (one of OFPR_*)
+ * @param desc Discription of physical port
+ * @return buffer* Pointer to location where get port status is stored
+ */ 
 buffer *
 create_port_status( const uint32_t transaction_id, const uint8_t reason,
                     const struct ofp_phy_port desc) {
@@ -456,6 +588,11 @@ create_port_status( const uint32_t transaction_id, const uint8_t reason,
 }
 
 
+/**
+ * Gets length of action from OpenFlow actions.
+ * @param actions Actions supported by switch
+ * @return uint16_t Returns action length
+ */
 static uint16_t
 get_actions_length( const openflow_actions *actions ) {
   int actions_length = 0;
@@ -493,6 +630,15 @@ get_actions_length( const openflow_actions *actions ) {
 }
 
 
+/**
+ * Creates packet-out message. 
+ * @param transaction_id Id associated with packet 
+ * @param buffer_id Buffered packet to apply to (or -1) Not meaningful for OFPFC_DELETE* 
+ * @param in_port Input switch port
+ * @param actions Actions supported by switch 
+ * @param data User data 
+ * @return buffer* Pointer to location where packet out is stored
+ */
 buffer *
 create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id, const uint16_t in_port,
                    const openflow_actions *actions, const buffer *data ) {
@@ -559,6 +705,20 @@ create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id, cons
 }
 
 
+/**
+ * Creates flow modification message.
+ * @param transaction_id Id associated with packet
+ * @param match Fields to match against flows
+ * @param cookie Opaque controller-issued identifier
+ * @param command One of OFPFC_* 
+ * @param idle_timeout Number of seconds idle before expiration
+ * @param hard_timeout Max time before discarding (seconds)
+ * @param priority Priority level of flow entry
+ * @param buffer_id Buffered packet to apply to (or -1) Not meaningful for OFPFC_DELETE* 
+ * @param out_port Output switch port
+ * @param flags OFPC_* flags
+ * @return buffer* Pointer to location where flow modification is stored
+ */
 buffer *
 create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
                  const uint64_t cookie, const uint16_t command,
@@ -626,6 +786,16 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
 }
 
 
+/**
+ * Creates port modifications message.
+ * @param transaction_id Id associated with packet
+ * @param port_no Port number
+ * @param hw_addr Hardware address of port number
+ * @param config Describes port administrator settings
+ * @param mask Bitmap of OFPPC_* flags to be changed
+ * @param advertise Features being advertised by the port
+ * @return buffer* Pointer to location where port modification is stored
+ */
 buffer *
 create_port_mod( const uint32_t transaction_id, const uint16_t port_no,
                  const uint8_t hw_addr[ OFP_ETH_ALEN ], const uint32_t config,
@@ -655,6 +825,14 @@ create_port_mod( const uint32_t transaction_id, const uint16_t port_no,
 }
 
 
+/**
+ * Creates statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param type Type of statastics request
+ * @param length Length of request
+ * @param flags OFPC_* flags
+ * @return buffer* Pointer to location where stats request is stored
+ */
 static buffer *
 create_stats_request( const uint32_t transaction_id, const uint16_t type,
                       const uint16_t length, const uint16_t flags ) {
@@ -675,6 +853,12 @@ create_stats_request( const uint32_t transaction_id, const uint16_t type,
 }
 
 
+/**
+ * Creates description statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @return buffer* Pointer to location where description statatsics request is stored
+ */
 buffer *
 create_desc_stats_request( const uint32_t transaction_id, const uint16_t flags ) {
   debug( "Creating a description stats request ( xid = %#x, flags = %#x ).",
@@ -685,6 +869,15 @@ create_desc_stats_request( const uint32_t transaction_id, const uint16_t flags )
 }
 
 
+/**
+ * Creates flow statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param match Fields to match against flows
+ * @param table_id Set next table in the lookup pipeline
+ * @param out_port Output switch port
+ * @return buffer* Pointer to location where flow statastics request is stored
+ */
 buffer *
 create_flow_stats_request( const uint32_t transaction_id, const uint16_t flags,
                            const struct ofp_match match, const uint8_t table_id,
@@ -718,6 +911,15 @@ create_flow_stats_request( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates aggregated statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param match Fields to match against flows
+ * @param table_id Set next table in the lookup pipeline
+ * @param out_port Output switch port
+ * @return buffer* Pointer to location where aggegate stats request is stored
+ */
 buffer *
 create_aggregate_stats_request( const uint32_t transaction_id,
                                 const uint16_t flags, const struct ofp_match match,
@@ -751,6 +953,12 @@ create_aggregate_stats_request( const uint32_t transaction_id,
 }
 
 
+/**
+ * Creates table statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @return buffer* Pointer to location where table stats request is stored
+ */
 buffer *
 create_table_stats_request( const uint32_t transaction_id, const uint16_t flags ) {
   debug( "Creating a table stats request ( xid = %#x, flags = %#x ).", transaction_id, flags );
@@ -760,6 +968,13 @@ create_table_stats_request( const uint32_t transaction_id, const uint16_t flags 
 }
 
 
+/**
+ * Creates port statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param port_no Port number 
+ * @return buffer* Pointer to location where port stats request is stored
+ */
 buffer *
 create_port_stats_request( const uint32_t transaction_id, const uint16_t flags,
                            const uint16_t port_no ) {
@@ -784,6 +999,14 @@ create_port_stats_request( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates queue statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param port_number Port number
+ * @param queue_id Id for the specific queue
+ * @return buffer* Pointer to location where queue stats request is stored
+ */
 buffer *
 create_queue_stats_request( const uint32_t transaction_id, const uint16_t flags,
                             const uint16_t port_no, const uint32_t queue_id ) {
@@ -809,6 +1032,14 @@ create_queue_stats_request( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates vendor statastics request message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param vendor Vendor identification
+ * @param body User data
+ * @return buffer* Pointer to location where vendor stats request is stored
+ */
 buffer *
 create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags,
                              const uint32_t vendor, const buffer *body ) {
@@ -846,6 +1077,14 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
 }
 
 
+/**
+ * Creates statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param type Type of statastics reply
+ * @param length length of statastics reply
+ * @param flags OFPC_* flags
+ * @return buffer* Pointer to location where statastics reply is stored
+ */
 static buffer *
 create_stats_reply( const uint32_t transaction_id, const uint16_t type,
                     const uint16_t length, const uint16_t flags ) {
@@ -866,6 +1105,17 @@ create_stats_reply( const uint32_t transaction_id, const uint16_t type,
 }
 
 
+/**
+ * Creates description statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param mfr_desc Manufacturer description
+ * @param hw_desc Hardware description
+ * @param sw_desc Software description
+ * @param serial_num Serial number
+ * @param dp_desc Human readible description os datapath
+ * @return buffer* Pointer to location where description statastics reply is stored
+ */
 buffer *
 create_desc_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                          const char mfr_desc[ DESC_STR_LEN ],
@@ -899,6 +1149,13 @@ create_desc_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates flow statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param flow_stats_head Head of flow stats list
+ * @return buffer* Pointer to location where flow stats reply is stored
+ */
 buffer *
 create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                          const list_element *flows_stats_head ) {
@@ -946,6 +1203,14 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates aggregate statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param packet_count Number of packets in flow
+ * @param byte_count Number of bytes in flow
+ * @param flow_count Number of flows
+ * @return buffer* Pointer to location where aggregate stats reply is stored
+ */
 buffer *
 create_aggregate_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                               const uint64_t packet_count, const uint64_t byte_count,
@@ -975,6 +1240,13 @@ create_aggregate_stats_reply( const uint32_t transaction_id, const uint16_t flag
 }
 
 
+/**
+ * Creates table statastics reply message. 
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param table_stats_head Head of statastics table
+ * @return buffer* Pointer to location where table statastics reply is stored
+ */
 buffer *
 create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                           const list_element *table_stats_head ) {
@@ -1020,6 +1292,13 @@ create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates port statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param port_stats_head Head of port statastics list
+ * @return buffer* Pointer to location where port statastics reply is stored
+ */
 buffer *
 create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                          const list_element *port_stats_head ) {
@@ -1064,6 +1343,13 @@ create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates queue statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param queue_stats_head Head of queue statastics list
+ * @return buffer* Pointer to location where queue statastics reply is stored
+ */
 buffer *
 create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                           const list_element *queue_stats_head ) {
@@ -1109,6 +1395,14 @@ create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates vendor statastics reply message.
+ * @param transaction_id Id associated with packet
+ * @param flags OFPC_* flags
+ * @param vendor Vendor information
+ * @param body User data
+ * @return buffer* Pointer to location where vendor statastics reply is stored
+ */
 buffer *
 create_vendor_stats_reply( const uint32_t transaction_id, const uint16_t flags,
                            const uint32_t vendor, const buffer *body ) {
@@ -1144,6 +1438,11 @@ create_vendor_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 }
 
 
+/**
+ * Creates barrier request message.
+ * @param transaction_id Id associated with packet
+ * @return buffer* Pointer to location where barrier request is stored
+ */
 buffer *
 create_barrier_request( const uint32_t transaction_id ) {
   debug( "Creating a barrier request ( xid = %#x ).", transaction_id );
@@ -1152,6 +1451,11 @@ create_barrier_request( const uint32_t transaction_id ) {
 }
 
 
+/**
+ * Creates barrier reply message.
+ * @param transaction_id Id associated with packet
+ * @return buffer* Pointer to location where barrier reply is stored
+ */
 buffer *
 create_barrier_reply( const uint32_t transaction_id ) {
   debug( "Creating a barrier reply ( xid = %#x ).", transaction_id );
@@ -1160,6 +1464,12 @@ create_barrier_reply( const uint32_t transaction_id ) {
 }
 
 
+/**
+ * Creates queue configuration request message.
+ * @param transaction_id Id associated with packet
+ * @param ports List of ports 
+ * @return buffer* Pointer to location where queue get config request is stored
+ */
 buffer *
 create_queue_get_config_request( const uint32_t transaction_id, const uint16_t port ) {
   buffer *buffer;
@@ -1179,6 +1489,13 @@ create_queue_get_config_request( const uint32_t transaction_id, const uint16_t p
 }
 
 
+/**
+ * Creates queue configuraiton reply message.
+ * @param transaction_id Id associated with packet
+ * @param ports List of ports 
+ * @param queues List of queues
+ * @return buffer* Pointer to location where queue get config reply is stored
+ */
 buffer *
 create_queue_get_config_reply( const uint32_t transaction_id, const uint16_t port,
                                const list_element *queues ) {
@@ -1238,6 +1555,11 @@ create_queue_get_config_reply( const uint32_t transaction_id, const uint16_t por
 }
 
 
+/**
+ * Generates transaction ID.
+ * @param None
+ * @return uint32_t Returns transaction_id
+ */
 uint32_t
 get_transaction_id( void ) {
   debug( "Generating a transaction id." );
@@ -1259,6 +1581,11 @@ get_transaction_id( void ) {
 }
 
 
+/**
+ * Generating a cookie.
+ * @param None
+ * @return uint64_t Returns cookie
+ */
 uint64_t
 get_cookie( void ) {
   debug( "Generating a cookie." );
@@ -1280,6 +1607,11 @@ get_cookie( void ) {
 }
 
 
+/**
+ * Creates empty actions list.
+ * @param None
+ * @return openflow_actions * Pointer to location where empty list is placed 
+ */
 openflow_actions *
 create_actions() {
   openflow_actions *actions;
@@ -1298,6 +1630,11 @@ create_actions() {
 }
 
 
+/**
+ * Deletes action list.
+ * @param actions Actions supported by switch
+ * @return bool True
+ */
 bool
 delete_actions( openflow_actions *actions ) {
   list_element *element;
@@ -1321,6 +1658,13 @@ delete_actions( openflow_actions *actions ) {
 }
 
 
+/**
+ * Appends output to supported action list.
+ * @param actions Actions supported by switch
+ * @param ports List of ports 
+ * @param max_len Max length to send to controller
+ * @return bool True if successfully appended to tail, Else false
+ */
 bool
 append_action_output( openflow_actions *actions, const uint16_t port, const uint16_t max_len ) {
   bool ret;
@@ -1345,6 +1689,12 @@ append_action_output( openflow_actions *actions, const uint16_t port, const uint
 }
 
 
+/**
+ * Appends vlan to supported action list.
+ * @param actions Actions supported by switch
+ * @param vlan_vid VLAN ID
+ * @return bool True if successfully appended to tail, Else false
+ */
 bool
 append_action_set_vlan_vid( openflow_actions *actions, const uint16_t vlan_vid ) {
   bool ret;
@@ -1369,6 +1719,12 @@ append_action_set_vlan_vid( openflow_actions *actions, const uint16_t vlan_vid )
 }
 
 
+/**
+ * Appends vlan pcp to supported action list.
+ * @param actions Actions supported by switch
+ * @param vlan_pcp VLAN priority
+ * @return bool True if successfully appended to tail, Else false
+ */
 bool
 append_action_set_vlan_pcp( openflow_actions *actions, const uint8_t vlan_pcp ) {
   bool ret;
@@ -1393,6 +1749,11 @@ append_action_set_vlan_pcp( openflow_actions *actions, const uint8_t vlan_pcp ) 
 }
 
 
+/**
+ * Appends a strip vlan to supported action list.
+ * @param actions Actions supported by switch
+ * @return bool True if successfully appended to tail, Else false
+ */
 bool
 append_action_strip_vlan( openflow_actions *actions ) {
   bool ret;
@@ -1415,6 +1776,13 @@ append_action_strip_vlan( openflow_actions *actions ) {
 }
 
 
+/**
+ * Appends dl_src/dl_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param type action_dl_addr type
+ * @param hw_addr Hardware address
+ * @return bool True if successfully appended to tail, Else false
+ */
 static bool
 append_action_set_dl_addr( openflow_actions *actions, const uint16_t type,
                            const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
@@ -1440,6 +1808,12 @@ append_action_set_dl_addr( openflow_actions *actions, const uint16_t type,
 }
 
 
+/**
+ * Appends dl_src to supported action list.
+ * @param actions Actions supported by switch
+ * @param hw_addr Hardware address
+ * @return bool True when successfully appends a set dl_src/dl_dst action, else false
+ */ 
 bool
 append_action_set_dl_src( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
   debug( "Appending a set dl_src action ( hw_addr = %02x:%02x:%02x:%02x:%02x:%02x ).",
@@ -1450,6 +1824,12 @@ append_action_set_dl_src( openflow_actions *actions, const uint8_t hw_addr[ OFP_
 }
 
 
+/**
+ * Appends dl_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param hw_addr Hardware address
+ * @return bool True sucessfully appends a set dl_src/dl_dst action, Else false
+ */
 bool
 append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
   debug( "Appending a set dl_dst action ( hw_addr = %02x:%02x:%02x:%02x:%02x:%02x ).",
@@ -1460,6 +1840,13 @@ append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_
 }
 
 
+/**
+ * Appends nw_src/nw_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param type Type of network address
+ * @param nw_addr IP address
+ * @return bool True sucessfully appended to tail, Else false
+ */
 static bool
 append_action_set_nw_addr( openflow_actions *actions, const uint16_t type, const uint32_t nw_addr ) {
   bool ret;
@@ -1488,6 +1875,12 @@ append_action_set_nw_addr( openflow_actions *actions, const uint16_t type, const
 }
 
 
+/**
+ * Appends nw_src to supported action list.
+ * @param actions Actions supported by switch
+ * @param nw_addr IP address
+ * @return bool True sucessfully append action set network address, Else false
+ */
 bool
 append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr ) {
   char addr_str[ 16 ];
@@ -1503,6 +1896,12 @@ append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr ) {
 }
 
 
+/**
+ * Appends nw_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param nw_addr IP address
+ * @return bool True sucessfully append action set network address, Else false
+ */
 bool
 append_action_set_nw_dst( openflow_actions *actions, const uint32_t nw_addr ) {
   char addr_str[ 16 ];
@@ -1518,6 +1917,12 @@ append_action_set_nw_dst( openflow_actions *actions, const uint32_t nw_addr ) {
 }
 
 
+/**
+ * Appends nw_tos to supported action list.
+ * @param actions Actions supported by switch
+ * @param nw_tos IP ToS (DSCP field, 6 bits)
+ * @return bool True if successfully append to tail, Else false
+ */
 bool
 append_action_set_nw_tos( openflow_actions *actions, const uint8_t nw_tos ) {
   bool ret;
@@ -1542,6 +1947,13 @@ append_action_set_nw_tos( openflow_actions *actions, const uint8_t nw_tos ) {
 }
 
 
+/**
+ * Appends tp_src/tp_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param type OFPAT_SET_TP_SRC/DST
+ * @param tp_port TCP/UDP/SCTP port
+ * @return bool True if successfully append to tail, Else false
+ */
 static bool
 append_action_set_tp_port( openflow_actions *actions, const uint16_t type, const uint16_t tp_port ) {
   bool ret;
@@ -1565,6 +1977,12 @@ append_action_set_tp_port( openflow_actions *actions, const uint16_t type, const
 }
 
 
+/**
+ * Appends tp_src to supported action list.
+ * @param actions Actions supported by switch
+ * @param tp_port TCP/UDP/SCTP port
+ * @return bool True if successfully append action set tp port, Else false
+ */
 bool
 append_action_set_tp_src( openflow_actions *actions, const uint16_t tp_port ) {
   debug( "Appending a set tp_src action ( tp_port = %u ).", tp_port );
@@ -1574,6 +1992,12 @@ append_action_set_tp_src( openflow_actions *actions, const uint16_t tp_port ) {
 }
 
 
+/**
+ * Appends tp_dst to supported action list.
+ * @param actions Actions supported by switch
+ * @param tp_port TCP/UDP/SCTP port
+ * @return bool True if successfully append action set tp port, Else false
+ */
 bool
 append_action_set_tp_dst( openflow_actions *actions, const uint16_t tp_port ) {
   debug( "Appending a set tp_dst action ( tp_port = %u ).", tp_port );
@@ -1583,6 +2007,13 @@ append_action_set_tp_dst( openflow_actions *actions, const uint16_t tp_port ) {
 }
 
 
+/**
+ * Appends enqueue to supported action list.
+ * @param actions Actions supported by switch
+ * @param ports List of ports 
+ * @param queue_id Id for the specific queue
+ * @return bool True if successfully append to tail, Else false 
+ */
 bool
 append_action_enqueue( openflow_actions *actions, const uint16_t port, const uint32_t queue_id ) {
   bool ret;
@@ -1607,6 +2038,13 @@ append_action_enqueue( openflow_actions *actions, const uint16_t port, const uin
 }
 
 
+/**
+ * Appends vendor information to supported action list.
+ * @param actions Actions supported by switch
+ * @param vendor Vendor action 
+ * @param body User data
+ * @return bool True if successfully append to tail, Else false
+ */
 bool
 append_action_vendor( openflow_actions *actions, const uint32_t vendor, const buffer *body ) {
   bool ret;
@@ -1636,6 +2074,14 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
 }
 
 
+/**
+ * Validates header of meaasge and returns appropriate error from header.
+ * @param message Message to validate
+ * @param type Type of header
+ * @param min_length Minimum header length
+ * @param max_length Maximun header length
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 static int
 validate_header( const buffer *message, const uint8_t type,
                  const uint16_t min_length, const uint16_t max_length ) {
@@ -1677,6 +2123,11 @@ validate_header( const buffer *message, const uint8_t type,
 }
 
 
+/**
+ * Validates hello from message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_hello( const buffer *message ) {
   assert( message != NULL );
@@ -1684,6 +2135,11 @@ validate_hello( const buffer *message ) {
 }
 
 
+/**
+ * Validates error from message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_error( const buffer *message ) {
   int ret;
@@ -1699,6 +2155,11 @@ validate_error( const buffer *message ) {
 }
 
 
+/**
+ * Validates echo request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_echo_request( const buffer *message ) {
   int ret;
@@ -1720,6 +2181,11 @@ validate_echo_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates echo reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_echo_reply( const buffer *message ) {
   int ret;
@@ -1741,6 +2207,11 @@ validate_echo_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates vendor information  message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_vendor( const buffer *message ) {
   int ret;
@@ -1762,6 +2233,11 @@ validate_vendor( const buffer *message ) {
 }
 
 
+/**
+ * Validates features request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code if header has error
+ */
 int
 validate_features_request( const buffer *message ) {
   assert( message != NULL );
@@ -1770,6 +2246,11 @@ validate_features_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates physical port number message.
+ * @param port_no Port number 
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_phy_port_no( const uint16_t port_no ) {
   if ( ( port_no == 0 ) || ( ( port_no > OFPP_MAX ) && ( port_no < OFPP_IN_PORT ) ) ) {
@@ -1780,6 +2261,11 @@ validate_phy_port_no( const uint16_t port_no ) {
 }
 
 
+/**
+ * Validates physical port message.
+ * @param port List of ports 
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_phy_port( struct ofp_phy_port *port ) {
   int ret;
@@ -1811,6 +2297,12 @@ validate_phy_port( struct ofp_phy_port *port ) {
 }
 
 
+/**
+ * Validates physical ports message. 
+ * @param ports List of ports
+ * @param n_ports Number of ports
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_phy_ports( struct ofp_phy_port *ports, const int n_ports ) {
   int i;
@@ -1833,6 +2325,11 @@ validate_phy_ports( struct ofp_phy_port *ports, const int n_ports ) {
 }
 
 
+/**
+ * Validates features reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_features_reply( const buffer *message ) {
   void *p;
@@ -1877,6 +2374,11 @@ validate_features_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates get config request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 int
 validate_get_config_request( const buffer *message ) {
   assert( message != NULL );
@@ -1885,6 +2387,11 @@ validate_get_config_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates switch config message. 
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 static int
 validate_switch_config( const buffer *message, const uint8_t type ) {
   int ret;
@@ -1910,6 +2417,11 @@ validate_switch_config( const buffer *message, const uint8_t type ) {
 }
 
 
+/**
+ * Validates get config reply message. It is wrapper to validate_switch_config.
+ * @param message Message to validate
+ * @return int Returns validate_switch_config 
+ */
 int
 validate_get_config_reply( const buffer *message ) {
   assert( message != NULL );
@@ -1917,6 +2429,11 @@ validate_get_config_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates set config message. It is wrapper to validate_switch_config 
+ * @param message Message to validate
+ * @return int Returns validate_switch_config 
+ */
 int
 validate_set_config( const buffer *message ) {
   assert( message != NULL );
@@ -1924,6 +2441,11 @@ validate_set_config( const buffer *message ) {
 }
 
 
+/**
+ * Validates packet in message. 
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 int
 validate_packet_in( const buffer *message ) {
   int ret;
@@ -1961,6 +2483,11 @@ validate_packet_in( const buffer *message ) {
 }
 
 
+/**
+ * Validates wildcards message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_wildcards( const uint32_t wildcards ) {
   if ( ( wildcards & ( uint32_t ) ~OFPFW_ALL ) != 0 ) {
@@ -1971,6 +2498,11 @@ validate_wildcards( const uint32_t wildcards ) {
 }
 
 
+/**
+ * Validates vlan vid message. 
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_vlan_vid( const uint16_t vid ) {
   if ( ( vid != UINT16_MAX ) && ( ( vid & ~VLAN_VID_MASK ) != 0 ) ) {
@@ -1981,6 +2513,11 @@ validate_vlan_vid( const uint16_t vid ) {
 }
 
 
+/**
+ * Validates vlan pcp message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_vlan_pcp( const uint8_t pcp ) {
   if ( ( pcp & ~VLAN_PCP_MASK ) != 0 ) {
@@ -1991,6 +2528,11 @@ validate_vlan_pcp( const uint8_t pcp ) {
 }
 
 
+/**
+ * Validates network tos message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_nw_tos( const uint8_t tos ) {
   if ( ( tos & ~NW_TOS_MASK ) != 0 ) {
@@ -2001,6 +2543,11 @@ validate_nw_tos( const uint8_t tos ) {
 }
 
 
+/**
+ * Validates match message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_match( const struct ofp_match match ) {
   int ret;
@@ -2029,6 +2576,11 @@ validate_match( const struct ofp_match match ) {
 }
 
 
+/**
+ * Validates flow removed message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 int
 validate_flow_removed( const buffer *message ) {
   int ret;
@@ -2072,6 +2624,11 @@ validate_flow_removed( const buffer *message ) {
 }
 
 
+/**
+ * Validates port status message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */ 
 int
 validate_port_status( const buffer *message ) {
   int ret;
@@ -2099,6 +2656,11 @@ validate_port_status( const buffer *message ) {
 }
 
 
+/**
+ * Validates packet out message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 int
 validate_packet_out( const buffer *message ) {
   int ret;
@@ -2139,6 +2701,11 @@ validate_packet_out( const buffer *message ) {
 }
 
 
+/**
+ * Validates flow mod message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case header has error
+ */
 int
 validate_flow_mod( const buffer *message ) {
   int ret;
@@ -2207,6 +2774,11 @@ validate_flow_mod( const buffer *message ) {
 }
 
 
+/**
+ * Validates port modification message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_port_mod( const buffer *message ) {
   int ret;
@@ -2246,6 +2818,11 @@ validate_port_mod( const buffer *message ) {
 }
 
 
+/**
+ * Validates description statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_desc_stats_request( const buffer *message ) {
   int ret;
@@ -2272,6 +2849,11 @@ validate_desc_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates flow statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_flow_stats_request( const buffer *message ) {
   int ret;
@@ -2319,6 +2901,11 @@ validate_flow_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates aggregate statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_aggregate_stats_request( const buffer *message ) {
   int ret;
@@ -2365,6 +2952,11 @@ validate_aggregate_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates table statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_table_stats_request( const buffer *message ) {
   int ret;
@@ -2391,6 +2983,11 @@ validate_table_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates port statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_port_stats_request( const buffer *message ) {
   int ret;
@@ -2434,6 +3031,11 @@ validate_port_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates queue statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_queue_stats_request( const buffer *message ) {
   int ret;
@@ -2472,6 +3074,11 @@ validate_queue_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates vendor statastics request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_vendor_stats_request( const buffer *message ) {
   int ret;
@@ -2500,6 +3107,12 @@ validate_vendor_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates statastics request message. It selects the request and calls suitable 
+ * statastics request. 
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_stats_request( const buffer *message ) {
   struct ofp_stats_request *request;
@@ -2533,6 +3146,11 @@ validate_stats_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates description statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_desc_stats_reply( const buffer *message ) {
   int ret;
@@ -2556,6 +3174,11 @@ validate_desc_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates flow statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_flow_stats_reply( const buffer *message ) {
   int ret;
@@ -2630,6 +3253,11 @@ validate_flow_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates aggregate statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_aggregate_stats_reply( const buffer *message ) {
   int ret;
@@ -2662,6 +3290,11 @@ validate_aggregate_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates table statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_table_stats_reply( const buffer *message ) {
   int i;
@@ -2717,6 +3350,11 @@ validate_table_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates port statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_port_stats_reply( const buffer *message ) {
   int i;
@@ -2778,6 +3416,11 @@ validate_port_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates queue statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_queue_stats_reply( const buffer *message ) {
   int i;
@@ -2830,6 +3473,11 @@ validate_queue_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates vendor statastics reply message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_vendor_stats_reply( const buffer *message ) {
   void *body;
@@ -2866,6 +3514,12 @@ validate_vendor_stats_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates statastics reply message. It selects the suitable message and 
+ * calls respective statastics reply.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_stats_reply( const buffer *message ) {
   struct ofp_stats_reply *reply;
@@ -2899,7 +3553,12 @@ validate_stats_reply( const buffer *message ) {
   return ERROR_UNSUPPORTED_STATS_TYPE;
 }
 
-
+  
+/**
+ * Validates barrier request message. It acts as wrapper to validate_header
+ * @param message Message to validate
+ * @return int validate_header
+ */
 int
 validate_barrier_request( const buffer *message ) {
   return validate_header( message, OFPT_BARRIER_REQUEST, sizeof( struct ofp_header ),
@@ -2907,6 +3566,11 @@ validate_barrier_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates barrier reply message. It acts as wrapper to validate_header
+ * @param message Message to validate
+ * @return int validate_header
+ */
 int
 validate_barrier_reply( const buffer *message ) {
   return validate_header( message, OFPT_BARRIER_REPLY, sizeof( struct ofp_header ),
@@ -2914,6 +3578,11 @@ validate_barrier_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates queue get config request message.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_queue_get_config_request( const buffer *message ) {
   int ret;
@@ -2937,6 +3606,11 @@ validate_queue_get_config_request( const buffer *message ) {
 }
 
 
+/**
+ * Validates queue property message.
+ * @param property Common description for queue
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_queue_property( const struct ofp_queue_prop_header *property ) {
   uint16_t property_length = ntohs( property->len );
@@ -2970,6 +3644,12 @@ validate_queue_property( const struct ofp_queue_prop_header *property ) {
 }
 
 
+/**
+ * Validates_queue_properties. Calls validate queue property for each member. 
+ * @param property Common description for queue
+ * @param properties_length Number of properties to validate 
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_queue_properties( struct ofp_queue_prop_header *prop_head,
                            const uint16_t properties_length ) {
@@ -2992,6 +3672,11 @@ validate_queue_properties( struct ofp_queue_prop_header *prop_head,
 }
 
 
+/**
+ * Validates packet queue message.
+ * @param queue Full description of queue 
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_packet_queue( struct ofp_packet_queue *queue ) {
   int ret;
@@ -3021,6 +3706,12 @@ validate_packet_queue( struct ofp_packet_queue *queue ) {
 }
 
 
+/**
+ * Validates packet queues message. Calls validate_packet_queue for every queue.
+ * @param queue_head Full description for a queue
+ * @param n_queues Number of queues
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_packet_queues( struct ofp_packet_queue *queue_head, const int n_queues ) {
   int i;
@@ -3042,6 +3733,11 @@ validate_packet_queues( struct ofp_packet_queue *queue_head, const int n_queues 
 }
 
 
+/**
+ * Validates queue get config reply message. 
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_queue_get_config_reply( const buffer *message ) {
   int ret;
@@ -3094,6 +3790,11 @@ validate_queue_get_config_reply( const buffer *message ) {
 }
 
 
+/**
+ * Validates the supported action, Calls suitable validation mechanism depending on type.
+ * @param action Actions associated with OFPIT_WRITE_ACTIONS and OFPIT_APPLY_ACTIONS
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 static int
 validate_action( struct ofp_action_header *action ) {
   if ( ntohs( action->len ) < sizeof( struct ofp_action_header ) ) {
@@ -3135,6 +3836,12 @@ validate_action( struct ofp_action_header *action ) {
 }
 
 
+/**
+ * Validates the supported actions. Calls validated action for every member. 
+ * @param actions_head Head of actions associated with OFPIT_WRITE_ACTIONS and OFPIT_APPLY_ACTIONS
+ * @param length Number of actions
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_actions( struct ofp_action_header *actions_head, const uint16_t length ) {
   int ret;
@@ -3156,6 +3863,11 @@ validate_actions( struct ofp_action_header *actions_head, const uint16_t length 
 }
 
 
+/**
+ * Validates action output. 
+ * @param action Action for OFPAT_OUTPUT, which sends packet out to port
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_output( const struct ofp_action_output *action ) {
   int ret;
@@ -3183,6 +3895,11 @@ validate_action_output( const struct ofp_action_output *action ) {
 }
 
 
+/**
+ * Validates action set vlan vid message.
+ * @param action Action for OFPAT_SET_VLAN_VID
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_vlan_vid( const struct ofp_action_vlan_vid *action ) {
   int ret;
@@ -3209,6 +3926,11 @@ validate_action_set_vlan_vid( const struct ofp_action_vlan_vid *action ) {
 }
 
 
+/**
+ * Validates action set vlan pcp message. 
+ * @param action Action for OFPAT_SET_VLAN_PCP
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_vlan_pcp( const struct ofp_action_vlan_pcp *action ) {
   int ret;
@@ -3235,6 +3957,11 @@ validate_action_set_vlan_pcp( const struct ofp_action_vlan_pcp *action ) {
 }
 
 
+/**
+ * Validates action strip vlan message.
+ * @param action Action for OFPAT_STRIP_VLAN
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_strip_vlan( const struct ofp_action_header *action ) {
   struct ofp_action_header strip_vlan;
@@ -3255,6 +3982,11 @@ validate_action_strip_vlan( const struct ofp_action_header *action ) {
 }
 
 
+/**
+ * Validates action set Ethernet source. 
+ * @param action Action for OFPAT_SET_DL_SRC
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_dl_src( const struct ofp_action_dl_addr *action ) {
   struct ofp_action_dl_addr dl_src;
@@ -3275,6 +4007,11 @@ validate_action_set_dl_src( const struct ofp_action_dl_addr *action ) {
 }
 
 
+/**
+ * Validates action set Ethernet destination.
+ * @param action Action for OFPAT_SET_DL_SRC
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_dl_dst( const struct ofp_action_dl_addr *action ) {
   struct ofp_action_dl_addr dl_dst;
@@ -3295,6 +4032,11 @@ validate_action_set_dl_dst( const struct ofp_action_dl_addr *action ) {
 }
 
 
+/**
+ * Validates action set network source.
+ * @param action Action for OFPAT_SET_NW_SRC
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_nw_src( const struct ofp_action_nw_addr *action ) {
   struct ofp_action_nw_addr nw_src;
@@ -3315,6 +4057,11 @@ validate_action_set_nw_src( const struct ofp_action_nw_addr *action ) {
 }
 
 
+/**
+ * Validates action set network destination.
+ * @param action Action for OFPAT_SET_NW_DST
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_nw_dst( const struct ofp_action_nw_addr *action ) {
   struct ofp_action_nw_addr nw_dst;
@@ -3335,6 +4082,11 @@ validate_action_set_nw_dst( const struct ofp_action_nw_addr *action ) {
 }
 
 
+/**
+ * Validates action set network TOS.
+ * @param action Action for OFPAT_SET_NW_TOS
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_nw_tos( const struct ofp_action_nw_tos *action ) {
   int ret;
@@ -3361,6 +4113,11 @@ validate_action_set_nw_tos( const struct ofp_action_nw_tos *action ) {
 }
 
 
+/**
+ * Validates action set TCP/UDP/SCTP source.
+ * @param action Action for OFPAT_SET_TP_SRC
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_tp_src( const struct ofp_action_tp_port *action ) {
   struct ofp_action_tp_port tp_src;
@@ -3381,6 +4138,11 @@ validate_action_set_tp_src( const struct ofp_action_tp_port *action ) {
 }
 
 
+/**
+ * Validates action set TCP/UDP/SCTP destination.
+ * @param action Action for OFPAT_SET_TP_DST
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_set_tp_dst( const struct ofp_action_tp_port *action ) {
   struct ofp_action_tp_port tp_dst;
@@ -3401,6 +4163,11 @@ validate_action_set_tp_dst( const struct ofp_action_tp_port *action ) {
 }
 
 
+/**
+ * Validates action enqueue. 
+ * @param action Action for OFPAT_ENQUEUE
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_enqueue( const struct ofp_action_enqueue *action ) {
   int ret;
@@ -3429,6 +4196,11 @@ validate_action_enqueue( const struct ofp_action_enqueue *action ) {
 }
 
 
+/**
+ * Validates action vendor.
+ * @param action Action for OFPAT_VENDOR
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_action_vendor( const struct ofp_action_vendor_header *action ) {
   struct ofp_action_vendor_header vendor;
@@ -3448,6 +4220,11 @@ validate_action_vendor( const struct ofp_action_vendor_header *action ) {
 }
 
 
+/**
+ * Validates OpenFlow message. Internally calls specific validate function.
+ * @param message Message to validate
+ * @return int Returns 0 in case of no error, returns error code in case of error
+ */
 int
 validate_openflow_message( const buffer *message ) {
   int ret;
@@ -3538,6 +4315,11 @@ validate_openflow_message( const buffer *message ) {
 }
 
 
+/**
+ * Verifies if the OpenFlow message is valid or not.
+ * @param message Message for which validity is to be checked
+ * @return bool True if message is valid, else False
+ */
 bool
 valid_openflow_message( const buffer *message ) {
   if ( validate_openflow_message( message ) < 0 ) {
@@ -3885,6 +4667,14 @@ static struct error_map {
 };
 
 
+/**
+ * Gets error type and code 
+ * @param type
+ * @param error_no Error number
+ * @param error_type Error type
+ * @param error_code Error code
+ * @return bool True when error type and code generated, Else false
+ */
 bool
 get_error_type_and_code( const uint8_t type, const int error_no,
                          uint16_t *error_type, uint16_t *error_code ) {
@@ -3908,6 +4698,14 @@ get_error_type_and_code( const uint8_t type, const int error_no,
 }
 
 
+/**
+ * Sets match from packet
+ * @param match Match structure
+ * @param in_port Input switch port
+ * @param wildcards Wildcard field
+ * @param packet User data
+ * @return None
+ */
 void
 set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
                        const uint32_t wildcards, const buffer *packet ) {
