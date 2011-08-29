@@ -21,7 +21,7 @@ Feature: Get the list of openflow switches with list_switches
       switches = 0x1, 0x2, 0x3, 0x4
       """
 
-  Scenario: Get the list of openflow switches(in Ruby)
+  Scenario: Get the list of openflow switches (in Ruby)
     Given I try trema run "./src/examples/list_switches/list-switches.rb" with following configuration (backgrounded):
       """
       vswitch { datapath_id "0x1" }

@@ -1,5 +1,5 @@
 #
-# Getting list switches
+# Get the list of switches
 #
 # Author: Kazushi SUGYO
 #
@@ -21,12 +21,12 @@
 
 
 class ListSwitches < Controller
-  add_timer_event :timeout, 30, :periodic
   add_timer_event :send_list_switches_request, 1, :periodic
+  add_timer_event :timeout, 30, :periodic
 
 
   def list_switches_reply dpids
-    info "switches = %s" % dpids.collect{ | dpid | sprintf( "0x%x", dpid ) }.join( ", " )
+    info "switches = %s" % dpids.collect { | each | sprintf( "0x%x", each ) }.join( ", " )
     shutdown!
   end
 

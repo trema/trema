@@ -26,11 +26,7 @@
 #include "trema.h"
 
 
-void
-handle_list_switches_reply(
-  const list_element *switches,
-  void *user_data
-);
+void handle_list_switches_reply( const list_element *switches, void *user_data );
 
 
 #endif // LIST_SWITCHES_REPLY_H
