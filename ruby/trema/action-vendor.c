@@ -28,12 +28,12 @@ VALUE cActionVendor;
 
 /*
  * An action to set vendor specific extensions. 
- * 
+ *
  * @overload initialize(vendor_id)
- * 
+ *
  * @param [Number] vendor
  *   the vendor id this action refers to.
- * 
+ *
  * @return [ActionVendor]
  *   An object that encapsulates this action.
  */
@@ -45,7 +45,7 @@ action_vendor_init( VALUE self, VALUE vendor ) {
 
 /*
  * The vendor id of this action.
- * 
+ *
  * @return [Number] the value of attribute vendor.
  */
 static VALUE
@@ -56,7 +56,7 @@ action_get_vendor( VALUE self ) {
 
 /*
  * Appends its action(vendor) to the list of actions.
- * 
+ *
  * @return [ActionVendor] self
  */
 static VALUE
@@ -85,7 +85,7 @@ action_vendor_to_s( VALUE self ) {
 
 
 void
-Init_action_vendor( ) {
+Init_action_vendor() {
   cActionVendor = rb_define_class_under( mTrema, "ActionVendor", rb_cObject );
   rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
   rb_define_method( cActionVendor, "vendor", action_get_vendor, 0 );
