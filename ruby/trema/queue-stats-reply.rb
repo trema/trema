@@ -28,7 +28,7 @@ module Trema
 
 
     # Queue statistics for a port.
-    # A user would not implicitly instantiate a {QueueStatsReply} object but 
+    # A user would not explicitly instantiate a {QueueStatsReply} object but 
     # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_QUEUE)+
     # message.
     # 
