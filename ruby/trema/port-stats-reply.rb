@@ -30,7 +30,7 @@ module Trema
 
 
     # Port counters or errors for one or more physical ports.
-    # A user would not implicitly instantiate a {PortStatsReply} object but would
+    # A user would not explicitly instantiate a {PortStatsReply} object but would
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_PORT)+ message.
     #
     # @overload initialize(options={})
