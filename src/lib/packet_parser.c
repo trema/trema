@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <netinet/ip.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
@@ -366,10 +367,10 @@ parse_packet( buffer *buf ) {
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
   packet_info0->l2_header = buf->data;
 
-  // parse L2 information.
+  // Parse a L2 header.
   parse_ether( buf );
   
-  // parse L3 information.
+  // Parse a L3 header.
   switch ( packet_info0->eth_type ) {
   case ETH_ETHTYPE_ARP:
     parse_arp( buf );
@@ -385,10 +386,14 @@ parse_packet( buffer *buf ) {
   }
     
   if ( !( packet_info0->format & NW_IPV4 ) ) {
+    // Unknown L3 type
     return true;
-  } 
+  } else if ( ( packet_info0->ipv4_frag_off & IP_OFFMASK ) != 0 ) {
+    // The ipv4 packet is fragmented.
+    return true;
+  }
 
-  // parse L4 information.
+  // Parse a L4 header.
   switch ( packet_info0->ipv4_protocol ) {
   case IPPROTO_ICMP:
     parse_icmp( buf );

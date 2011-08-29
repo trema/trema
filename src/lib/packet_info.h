@@ -113,6 +113,7 @@ typedef struct packet_info {
   uint8_t ipv4_tos;
   uint16_t ipv4_tot_len;
   uint16_t ipv4_id;
+  uint8_t ipv4_flags;
   uint16_t ipv4_frag_off;
   uint8_t ipv4_ttl;
   uint8_t ipv4_protocol;
@@ -220,7 +221,7 @@ typedef struct packet_header_info {
 
 
 void free_packet( buffer *frame ) DEPRECATED;
-
+#define alloc_packet( buf )  alloc_packet_info( buf )
 
 #endif // PACKET_INFO_H
 
