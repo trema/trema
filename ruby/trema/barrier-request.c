@@ -34,6 +34,19 @@ barrier_request_alloc( VALUE klass ) {
 }
 
 
+/*
+ * A barrier request message could be sent to ensure that an operation 
+ * completed successfully signaled with the reception of a barrier reply message.
+ *
+ * @overload initialize(transaction_id=nil) 
+ *   Creates a {BarrierRequest} object with auto-generated transaction_id if not
+ *   given.
+ *
+ * @raise [ArgumentError] if transaction_id is negative.
+ *
+ * @return [BarrierRequest]
+ *   an object that encapsulates the +OFPT_BARRIER_REQUEST+ openflow message.
+ */
 static VALUE
 barrier_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *barrier_request;
@@ -63,7 +76,7 @@ barrier_request_transaction_id( VALUE self ) {
 
 
 void
-Init_barrier_request( ) {
+Init_barrier_request() {
   cBarrierRequest = rb_define_class_under( mTrema, "BarrierRequest", rb_cObject );
   rb_define_alloc_func( cBarrierRequest, barrier_request_alloc );
   rb_define_method( cBarrierRequest, "initialize", barrier_request_init, -1 );
