@@ -24,25 +24,27 @@ require "trema"
 
 describe Trema::ActionVendor do
   context "when an instance is created" do
-    it "should have a valid vendor id" do
-      action_vendor = Trema::ActionVendor.new( 1 )
-      action_vendor.vendor.should == 1
+    subject  { Trema::ActionVendor.new( 1 ) }
+    its( :vendor ) { should == 1 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionVendor> vendor = 1"
     end
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_vendor = Trema::ActionVendor.new( 1 )
-    action_vendor.should respond_to :to_s 
-    action_vendor.to_s.should == "#<Trema::ActionVendor> vendor = 1"
-  end 
-  
-  
-  it "should append its vendor id attribute to a list of actions" do
-    action_vendor = Trema::ActionVendor.new( 1 )
-    openflow_actions = double( )
-    action_vendor.should_receive( :append ).with( openflow_actions )
-    action_vendor.append( openflow_actions )
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+    
+    
+    context "when vendor argument is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionVendor.new( )
+        end.should raise_error ArgumentError
+      end
+    end
   end
   
   
