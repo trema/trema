@@ -38,7 +38,7 @@ barrier_request_alloc( VALUE klass ) {
  * completed successfully signaled with the reception of a barrier reply message.
  * 
  * @overload initialize(transaction_id=nil) 
- *   Create a {BarrierRequest} object with auto-generated transaction_id if not
+ *   Creates a {BarrierRequest} object with auto-generated transaction_id if not
  *   given.
  * 
  * @raise [ArgumentError] if transaction_id is negative.
