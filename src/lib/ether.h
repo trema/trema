@@ -97,52 +97,17 @@ typedef struct snap_header {
   uint16_t type;
 } snap_header_t;
 
+/*!<Gets the User Priority from tag control information*/
+#define TCI_GET_PRIO( _tci ) ( uint8_t )( ( ( _tci ) >> 13 ) & 7 )
 
-#define TCI_GET_PRIO( _tci )                           \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->prio;         \
-  }                                                    \
-  ) /*!<Gets the User Priority from tag control information*/
+#define TCI_GET_CFI( _tci ) ( uint8_t )( ( ( _tci ) >> 12 ) & 1 )
 
-#define TCI_SET_PRIO( _tci, _prio )                    \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->prio = _prio; \
-    _tci_value;                                        \
-  }                                                    \
-  ) /*!<Sets the User Priority in tag control information to mentioned User Priority*/
+#define TCI_GET_VID( _tci ) ( uint8_t )( ( _tci ) & 0x0FFF )
 
-#define TCI_GET_CFI( _tci )                            \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->cfi;          \
-  }                                                    \
-  ) /*!<Gets the Canonical Format Indicator from tag control information*/
-
-#define TCI_SET_CFI( _tci, _cfi )                      \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->cfi = _cfi;   \
-    _tci_value;                                        \
-  }                                                    \
-  ) /*!<Sets the Canonical Format Indicator in tag control information to mentioned Canonical Format Indicator*/
-
-#define TCI_GET_VID( _tci )                            \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->vid;          \
-  }                                                    \
-  ) /*!<Gets the VLAN ID from tag control information*/
-
-#define TCI_SET_VID( _tci, _vid )                      \
-  ( {                                                  \
-    uint16_t _tci_value = _tci;                        \
-    ( ( vlantag_tci_t * ) &_tci_value )->vid = _vid;   \
-    _tci_value;                                        \
-  }                                                    \
-  ) /*!<Sets the VLAN ID in tag control information to mentioned VLAN ID*/
-
+#define TCI_CREATE( _prio, _cfi, _vid )         \
+  ( uint16_t )( ( ( ( _prio ) & 7 ) << 13 ) |   \
+                ( ( ( _cfi ) & 1 ) << 12 ) |    \
+                ( ( _vid ) & 0x0FFF ) ) 
 
 uint16_t fill_ether_padding( buffer *buf );
 

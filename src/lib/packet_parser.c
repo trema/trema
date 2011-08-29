@@ -32,13 +32,22 @@
 
 
 /**
+ * Parses an Ethernet header in buf->data and places in buf->user_data.
  */
-static void *
-parse_ether( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void 
+parse_ether( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l2_header;
+  assert( ptr != NULL );
+
+  // Check a length of remained buffer
+  size_t length = buf->length
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( ether_header_t ) ) {
+    return;
+  }
 
   // Ethernet header
   ether_header_t *ether_header = ( ether_header_t * )ptr;
@@ -63,14 +72,19 @@ parse_ether( void *ptr, buffer *buf ) {
 
   // vlan tag 
   if ( packet_info0->eth_type == ETH_ETHTYPE_TPID ) {
+    // Check a length of remained buffer
+    size_t length = buf->length
+      - ( size_t )( ( char * )ptr - ( char * )buf->data );
+    if ( length < sizeof( vlantag_header_t ) ) {
+      return;
+    }
     vlantag_header_t *vlantag_header = ( vlantag_header_t * )ptr;
 
     packet_info0->vlan_tci = ntohs( vlantag_header->tci );
     packet_info0->vlan_tpid = packet_info0->eth_type;
-    // is correct?
-    packet_info0->vlan_prio = ( uint8_t )( ( packet_info0->vlan_tci >> 13 ) & 7 ); 
-    packet_info0->vlan_cfi = ( uint8_t )( ( packet_info0->vlan_tci >> 12 ) & 1 );
-    packet_info0->vlan_vid = packet_info0->vlan_tci & 0x0FFF;
+    packet_info0->vlan_prio = TCI_GET_PRIO( packet_info0->vlan_tci );
+    packet_info0->vlan_cfi = TCI_GET_CFI( packet_info0->vlan_tci );
+    packet_info0->vlan_vid = TCI_GET_VID( packet_info0->vlan_tci );
 
     // Rewrite eth_type 
     packet_info0->eth_type = ntohs( vlantag_header->type ); 
@@ -80,8 +94,29 @@ parse_ether( void *ptr, buffer *buf ) {
     ptr = ( void * )( vlantag_header + 1 );
   }
   
+  // Skip nested vlan headers.
+  if (  packet_info0->eth_type == ETH_ETHTYPE_TPID ) { 
+    // Check a length of remained buffer
+    size_t length = buf->length
+      - ( size_t )( ( char * )ptr - ( char * )buf->data );
+    if ( length < sizeof( vlantag_header_t ) ) {
+      return;
+    }
+    vlantag_header_t *vlantag_header = ( vlantag_header_t * )ptr;
+
+    packet_info0->eth_type = ntohs( vlantag_header->type ); 
+    ptr = ( void * )( vlantag_header + 1 );
+  }
+  
   // snap header.
   if ( packet_info0->eth_type <= ETH_MTU ) {
+
+    // Check a length of remained buffer 
+    size_t length = buf->length
+      - ( size_t )( ( char * )ptr - ( char * )buf->data );
+    if ( length < sizeof( snap_header_t ) ) {
+      return;
+    }
     snap_header_t *snap_header = ( snap_header_t * )ptr;
 
     memcpy( packet_info0->snap_llc, snap_header->llc, SNAP_LLC_LENGTH );
@@ -91,22 +126,36 @@ parse_ether( void *ptr, buffer *buf ) {
     packet_info0->format |= ETH_8023_SNAP;
 
     ptr = ( void * )( snap_header + 1 );
+
   } else {
+
     packet_info0->format |= ETH_DIX;
+
   }
-  
-  return ptr;
+
+  packet_info0->l3_header = ptr;
+
+  return;
 }
 
 
 /**
+ * Parses an ARP header in buf->data and places in buf->user_data.
  */
-static void *
-parse_arp( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void 
+parse_arp( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l3_header;
+  assert( ptr != NULL );
+
+  // Check a length of remained buffer
+  size_t length = buf->length 
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( arp_header_t ) ) {
+    return;
+  }
 
   // Ethernet header
   arp_header_t *arp_header = ( arp_header_t * )ptr;
@@ -122,23 +171,38 @@ parse_arp( void *ptr, buffer *buf ) {
 
   packet_info0->format |= NW_ARP;
   
-  ptr = ( void * )( arp_header + 1 );
-
-  return ptr;
+  return;
 };
 
 
 /**
+ * Parses an IPv4 header in buf->data and places in buf->user_data.
  */
-static void *
-parse_ipv4( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void 
+parse_ipv4( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l3_header;
+  assert( ptr != NULL );
 
-  // Ethernet header
+  // Check a length of remained buffer for an ipv4 header without options.
+  size_t length = buf->length 
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( ipv4_header_t ) ) {
+    return;
+  }
+
+  // Check a length of remained buffer for an ipv4 header with options.
   ipv4_header_t *ipv4_header = ( ipv4_header_t * )ptr;
+  if ( ipv4_header->ihl < 5 ) {
+    return;
+  }
+  if ( length < ( size_t )ipv4_header->ihl * 4 ) {
+    return;
+  }
+
+  // Parses IPv4 header
   packet_info0->ipv4_version = ipv4_header->version;
   packet_info0->ipv4_ihl = ipv4_header->ihl;
   packet_info0->ipv4_tos = ipv4_header->tos;
@@ -151,20 +215,30 @@ parse_ipv4( void *ptr, buffer *buf ) {
   packet_info0->ipv4_saddr = ntohl( ipv4_header->saddr );
   packet_info0->ipv4_daddr = ntohl( ipv4_header->daddr );
 
-  ptr = ( void * )( ipv4_header + 1 );
+  packet_info0->l4_header = ( char * )packet_info0->l3_header 
+    + packet_info0->ipv4_ihl * 4;
 
-  return ptr;
+  return;
 }
 
 
 /**
+ * Parses an ICMP header in buf->data and places in buf->user_data.
  */
-static void *
-parse_icmp( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void 
+parse_icmp( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l4_header;
+  assert( ptr != NULL );
+
+  // Check a length of remained buffer
+  size_t length = buf->length 
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( icmp_header_t ) ) {
+    return;
+  }
 
   // ICMPV4 header
   icmp_header_t *icmp_header = ( icmp_header_t * )ptr;
@@ -189,20 +263,27 @@ parse_icmp( void *ptr, buffer *buf ) {
 
   packet_info0->format |= NW_ICMPV4;
 
-  ptr = ( void * )( icmp_header + 1 );
-
-  return ptr;
+  return;
 };
 
 
 /**
+ * Parses a UDP header in buf->data and places in buf->user_data.
  */
-static void *
-parse_udp( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void
+parse_udp( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l4_header;
+  assert( ptr != NULL );
+
+  // Check a length of remained buffer
+  size_t length = buf->length 
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( udp_header_t ) ) {
+    return;
+  }
 
   // UDP header
   udp_header_t *udp_header = ( udp_header_t * )ptr;
@@ -211,25 +292,43 @@ parse_udp( void *ptr, buffer *buf ) {
   packet_info0->udp_len = ntohs( udp_header->len );
   packet_info0->udp_checksum = ntohs( udp_header->csum );
 
+  packet_info0->l4_data = ( char * )packet_info0->l4_header 
+    + sizeof( udp_header_t );
+
   packet_info0->format |= TP_UDP;
-
-  ptr = ( void * )( udp_header + 1 );
-
-  return ptr;
+  
+  return;
 };
 
 
 /**
+ * Parses a TCP header in buf->data and places in buf->user_data.
  */
-static void *
-parse_tcp( void *ptr, buffer *buf ) {
-  assert( ptr != NULL );
+static void
+parse_tcp( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  void *ptr = packet_info0->l4_header;
+  assert( ptr != NULL );
 
-  // TCP header
+  // Check a length of remained buffer for a tcp header without options
+  size_t length = buf->length 
+    - ( size_t )( ( char * )ptr - ( char * )buf->data );
+  if ( length < sizeof( tcp_header_t ) ) {
+    return;
+  }
+
+  // Check a length of remained buffer for a tcp header with options
   tcp_header_t *tcp_header = ( tcp_header_t * )ptr;
+  if ( tcp_header->offset < 5 ) { 
+    return;
+  }
+  if ( length < ( size_t )tcp_header->offset * 4 ) {
+    return;
+  }
+  
+  // TCP header
   packet_info0->tcp_src_port = ntohs( tcp_header->src_port );
   packet_info0->tcp_dst_port = ntohs( tcp_header->dst_port );
   packet_info0->tcp_seq_no = ntohl( tcp_header->seq_no );
@@ -240,18 +339,19 @@ parse_tcp( void *ptr, buffer *buf ) {
   packet_info0->tcp_checksum = ntohs( tcp_header->csum );
   packet_info0->tcp_urgent = ntohs( tcp_header->urgent );
 
+  packet_info0->l4_data = ( char * )packet_info0->l4_header 
+    + packet_info0->tcp_offset * 4;
+
   packet_info0->format |= TP_TCP;
 
-  ptr = ( void * )( tcp_header + 1 );
-
-  return ptr;
+  return;
 };
 
 
 /**
- * Validates packet header information contained in structure of type packet_header_info.
- * @param buf Pointer to buffer type structure, user_data element of which points to structure of type packet_header_info
- * @return bool True if packet has valid header, else False
+ * Parses a packet in buf->data and place in buf->user_data.
+ * @param buf Pointer to buffer type structure, user_data element of which points to structure of type packet_info
+ * @return bool True on success, else False
  */
 bool
 parse_packet( buffer *buf ) {
@@ -263,24 +363,24 @@ parse_packet( buffer *buf ) {
     return false;
   }
 
-  void *ptr = buf->data;
   packet_info *packet_info0 = ( packet_info * )buf->user_data;
+  packet_info0->l2_header = buf->data;
 
   // parse L2 information.
-  ptr = parse_ether( ptr, buf );
+  parse_ether( buf );
   
   // parse L3 information.
   switch ( packet_info0->eth_type ) {
   case ETH_ETHTYPE_ARP:
-    ptr = parse_arp( ptr, buf );
+    parse_arp( buf );
     break;
 
   case ETH_ETHTYPE_IPV4:
-    ptr = parse_ipv4( ptr, buf );
+    parse_ipv4( buf );
     break;
 
   default:
-    warn( "" );
+    //    warn( "" );
     break;
   }
     
@@ -291,19 +391,19 @@ parse_packet( buffer *buf ) {
   // parse L4 information.
   switch ( packet_info0->ipv4_protocol ) {
   case IPPROTO_ICMP:
-    parse_icmp( ptr, buf );    
+    parse_icmp( buf );
     break;
 
   case IPPROTO_TCP:
-    parse_tcp( ptr, buf );    
+    parse_tcp( buf );
     break;
     
   case IPPROTO_UDP:
-    parse_udp( ptr, buf );    
+    parse_udp( buf );
     break;
     
   default:
-    warn( "" );
+    //    warn( "" );
     break;
   }
   return true;
