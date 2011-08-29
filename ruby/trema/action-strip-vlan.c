@@ -25,13 +25,25 @@
 extern VALUE mTrema;
 VALUE cActionStripVlan;
 
-
+/*
+ * Strips the VLAN tag of a packet.
+ * 
+ * @overload initialize()
+ * 
+ * @return [ActionStripVlan]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_strip_vlan_init( VALUE self ) {
   return self;
 }
 
 
+/*
+ * Appends its action(strip VLAN tag) to the list of actions.
+ * 
+ * @return [ActionStripVlan] self
+ */
 static VALUE
 action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -43,6 +55,9 @@ action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_strip_vlan_to_s( VALUE self ) {
 	char str[ 64 ];
