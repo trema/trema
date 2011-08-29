@@ -30,7 +30,7 @@ VALUE cStatsReply;
 /*
  * This is the reply message to +OFPT_STATS_REQUEST+ request message. The body 
  * of the reply message may be an array of one or more reply objects. 
- * The user would not instantiate stats. reply objects implicitly, the stats. 
+ * The user would not instantiate stats. reply objects explicitly, the stats. 
  * reply handler would normally do that while parsing the message.
  * 
  * @overload initialize(options={})
