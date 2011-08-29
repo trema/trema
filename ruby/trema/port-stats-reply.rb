@@ -27,10 +27,8 @@ module Trema
   # attributes mapped to ofp_port_stats
   #
   class PortStatsReply < StatsHelper
-    FIELDS = %w(port_no rx_packets tx_packets rx_bytes) + 
-      %w(tx_bytes rx_dropped tx_dropped rx_errors tx_errors) +
-      %w(rx_frame_err rx_over_err rx_crc_err collisions )
-    FIELDS.each { |field| attr_reader field.intern }
+    FIELDS = %w( port_no rx_packets tx_packets rx_bytes tx_bytes rx_dropped tx_dropped rx_errors tx_errors rx_frame_err rx_over_err rx_crc_err collisions )
+    FIELDS.each { | each | attr_reader each.intern }
 
 
     def initialize options 
