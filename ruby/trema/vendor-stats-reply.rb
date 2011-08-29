@@ -26,8 +26,8 @@ module Trema
   # The vendor stats reply class
   #
   class VendorStatsReply < StatsHelper
-    FIELDS = %w(vendor_id)
-    FIELDS.each { |field| attr_reader field.intern }
+    FIELDS = %w( vendor_id )
+    FIELDS.each { | each | attr_reader each.intern }
 
     
    #
