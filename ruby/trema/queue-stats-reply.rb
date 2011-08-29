@@ -27,8 +27,8 @@ module Trema
   # attributes mapped to ofp_queue_stats
   #
   class QueueStatsReply < StatsHelper
-    FIELDS = %w(port_no queue_id tx_bytes tx_packets tx_errors)
-    FIELDS.each { |field| attr_reader field.intern }
+    FIELDS = %w( port_no queue_id tx_bytes tx_packets tx_errors )
+    FIELDS.each { | each | attr_reader each.intern }
 
 
     def initialize options
