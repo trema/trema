@@ -28,6 +28,51 @@ extern VALUE mTrema;
 VALUE cFeaturesReply;
 
 
+/*
+ * A user would not explicitly instantiate a {FeaturesReply} object but would be 
+ * created while parsing the +OFPT_FEATURES_REPLY+ message.
+ *
+ * @overload initialize(options={})
+ *   @example
+ *     FeaturesReply.new( 
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 1,
+ *       :n_buffers => 256,
+ *       :n_tables => 1,
+ *       :capabilities => 135,
+ *       :actions => 2048,
+ *       :port => [ Trema::Port ]
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :datapath_id
+ *     datapath unique id. Subsequent commands directed to switch should 
+ *     embed this id.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     a positive number lower layers match this to ensure message integrity.
+ *
+ *   @option options [Symbol] :n_buffers
+ *     maximum number of packets that can be buffered at once.
+ *
+ *   @option options [Symbol] :n_tables
+ *     number of supported tables, number could vary according to 
+ *     switch's implementation.
+ *
+ *   @option options [Symbol] :capabilities
+ *     supported capabilities expressed as a 32-bit bitmap. Ability of a switch 
+ *     to respond or perform a certain function for example flow statistics, 
+ *     IP address lookup in APR packets.
+ *
+ *   @option options [Symbol] :actions
+ *     supported actions expressed as a 32-bit bitmap.
+ *
+ *   @option options [Symbol] :port
+ *     an array of {Port} objects detailing physical port description and function.
+ *
+ * @return [FeaturesReply] self
+ */
 static VALUE
 features_reply_init( VALUE self, VALUE attribute ) {
   rb_iv_set( self, "@attribute", attribute );
