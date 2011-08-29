@@ -24,7 +24,6 @@
 #define ERROR_H
 
 
-
 #include "ruby.h"
 
 
@@ -43,4 +42,3 @@ void Init_error( void );
  * indent-tabs-mode: nil
  * End:
  */
-
