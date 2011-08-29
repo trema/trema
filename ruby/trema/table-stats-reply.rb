@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+
 require "trema/stats-helper"
 
 
@@ -26,9 +27,8 @@ module Trema
   # attributes mapped to ofp_table_stats
   #
   class TableStatsReply < StatsHelper
-    FIELDS = %w(table_id name wildcards max_entries ) +
-      %w(active_count lookup_count matched_count)
-    FIELDS.each { |field| attr_reader field.intern }
+    FIELDS = %w( table_id name wildcards max_entries active_count lookup_count matched_count )
+    FIELDS.each { | each | attr_reader each.intern }
 
 
     def initialize options
