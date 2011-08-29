@@ -28,7 +28,7 @@ module Trema
 
 
     # Aggregate counters for flows.
-    # A user would not implicitly instantiate a {AggregateStatsReply} object but
+    # A user would not explicitly instantiate a {AggregateStatsReply} object but
     # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_AGGREGATE) 
     # message.
     # 
