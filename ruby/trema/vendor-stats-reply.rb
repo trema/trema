@@ -28,7 +28,7 @@ module Trema
 
     
     # Vendor statistics reply.
-    # A user would not implicitly instantiate a {VendorStatsReply} object but would
+    # A user would not explicitly instantiate a {VendorStatsReply} object but would
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_VENDOR)+
     # openflow message.
     #
