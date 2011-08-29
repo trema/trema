@@ -120,4 +120,3 @@ Init_trema() {
  * indent-tabs-mode: nil
  * End:
  */
-
