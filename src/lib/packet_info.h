@@ -83,7 +83,7 @@ enum {
 
 typedef struct packet_info {
   uint32_t format;
-
+  
   uint8_t eth_macda[ ETH_ADDRLEN ];
   uint8_t eth_macsa[ ETH_ADDRLEN ];
   uint16_t eth_type;
@@ -141,6 +141,11 @@ typedef struct packet_info {
   uint16_t udp_dst_port;
   uint16_t udp_len;
   uint16_t udp_checksum;
+
+  void *l2_header;
+  void *l3_header;
+  void *l4_header;
+  void *l4_data;
 
 } packet_info;
 
