@@ -28,15 +28,15 @@ VALUE cError;
 
 /*
  * @overload initialize(transaction_id=nil, type=OFPET_HELLO_FAILED, code=OFPHFC_INCOMPATIBLE, user_data=nil)
- * 
+ *
  * @param [Number] transaction_id
  *   a positive number, not recently attached to any previous pending commands to
  *   guarantee message integrity auto-generated if not specified.
- * 
+ *
  * @param [Number] type
  *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if 
  *   not specified.
- * 
+ *
  * @param [Number] code
  *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if 
  *   not specified.
@@ -44,46 +44,42 @@ VALUE cError;
  * @param [String] user_data
  *   a more user friendly explanation of the error. Defaults to nil if not 
  *   specified.
- * 
+ *
  * @example Instantiate with type and code
- *   Error.new(OFPET_BAD_REQUEST, ERROR_CODES[ OFPET_BAD_REQUEST ][ 1 ])
- * 
+ *   Error.new(OFPET_BAD_REQUEST, ERROR_CODES[OFPET_BAD_REQUEST][1])
+ *
  * @example Instantiate with transaction_id, type and code.
- *   Error.new( 1234, OFPET_BAD_ACTION, ERROR_CODES[ OFPET_BAD_ACTION ][ 2 ] )
- * 
+ *   Error.new(1234, OFPET_BAD_ACTION, ERROR_CODES[OFPET_BAD_ACTION][2])
+ *
  * @example Instantiate with transaction_id, type, code, user_data
- *   Error.new( 6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[ OFPET_FLOW_MOD_FAILED ][ 3 ], "this is a test" ) 
- * 
+ *   Error.new(6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[OFPET_FLOW_MOD_FAILED][3], "this is a test") 
+ *
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
- * 
+ *
  * @return [Error] 
  *   an object that encapsulates the +OFPT_ERROR+ openflow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
-  buffer *error;
   buffer *data = NULL;
+  uint32_t xid = get_transaction_id();
+  VALUE xid_r;
+  VALUE user_data;
+  VALUE type_r;
+  VALUE code_r;
+  uint16_t type;
+  uint16_t code;
 
-  VALUE xid_r, user_data;
-  VALUE type_r, code_r;
-  uint32_t xid;
-  uint16_t type, code;
-
-  xid = get_transaction_id( );
   switch ( argc ) {
     case 2:
-      /* 
-       * type, code specified.
-       */
+      // type, code specified.
       rb_scan_args( argc, argv, "02", &type_r, &code_r );
       type = ( uint16_t ) NUM2UINT( type_r );
       code = ( uint16_t ) NUM2UINT( code_r );
       break;
     case 3:
-      /*
-       * transaction id, type, code specified.
-       */
+      // transaction id, type, code specified.
       rb_scan_args( argc, argv, "03", &xid_r, &type_r, &code_r );
       if ( NUM2INT( xid_r ) < 0 ) {
         rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
@@ -113,7 +109,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       code = OFPHFC_INCOMPATIBLE;
       break;
   }
-  error = create_error( xid, type, code, data );
+  buffer *error = create_error( xid, type, code, data );
   return Data_Wrap_Struct( klass, NULL, free_buffer, error );
 }
 
@@ -121,21 +117,19 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
 static struct ofp_error_msg *
 get_error( VALUE self ) {
   buffer *error;
-
   Data_Get_Struct( self, buffer, error );
-  return (struct ofp_error_msg *) error->data;
+  return ( struct ofp_error_msg * ) error->data;
 }
 
 
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
- * 
+ *
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
 error_transaction_id( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
-
   uint32_t xid = ntohl( error->header.xid );
   return UINT2NUM( xid );
 }
@@ -143,19 +137,18 @@ error_transaction_id( VALUE self ) {
 
 /*
  * An optional user data payload field, possibly detailed explanation of the error.
- * 
+ *
  * @return [String] user data payload is set.
  * @return [nil] user data payload is not set.
  */
 static VALUE
 error_user_data( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
-  long length;
-
-  length = ( long ) ( ntohs( error->header.length ) - sizeof ( struct ofp_error_msg ) );
+  long length = ( long ) ( ntohs( error->header.length ) - sizeof( struct ofp_error_msg ) );
   if ( length > 0 ) {
     return rb_str_new( ( char * ) error->data, length );
-  } else {
+  }
+  else {
     return Qnil;
   }
 }
@@ -163,32 +156,30 @@ error_user_data( VALUE self ) {
 
 /*
  * Indicates the command or action that failed.
- * 
+ *
  * @return [Number] the value of attribute error type.
  */
 static VALUE
 error_type( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
-
   return UINT2NUM( ntohs( error->type ) );
 }
 
 
 /*
  * Reason of the failed type error.
- * 
+ *
  * @return [Number] the value of attribute error code.
  */
 static VALUE
 error_code( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
-
   return UINT2NUM( ntohs( error->code ) );
 }
 
 
 void
-Init_error( ) {
+Init_error() {
   cError = rb_define_class_under( mTrema, "Error", rb_cObject );
   rb_define_singleton_method( cError, "new", error_new, -1 );
   rb_define_const( cError, "OFPET_HELLO_FAILED", INT2NUM( OFPET_HELLO_FAILED ) );
@@ -197,49 +188,81 @@ Init_error( ) {
   rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  VALUE error_code_hash = rb_hash_new( );
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_HELLO_FAILED ), rb_ary_new3( 2,
-    INT2NUM( OFPHFC_INCOMPATIBLE ),
-    INT2NUM( OFPHFC_EPERM ) ) );
+  VALUE error_code_hash = rb_hash_new();
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_HELLO_FAILED ),
+    rb_ary_new3( 2, INT2NUM( OFPHFC_INCOMPATIBLE ), INT2NUM( OFPHFC_EPERM ) )
+  );
 
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_BAD_REQUEST ), rb_ary_new3( 9,
-    INT2NUM( OFPBRC_BAD_VERSION ),
-    INT2NUM( OFPBRC_BAD_TYPE ),
-    INT2NUM( OFPBRC_BAD_STAT ),
-    INT2NUM( OFPBRC_BAD_VENDOR ),
-    INT2NUM( OFPBRC_BAD_SUBTYPE ),
-    INT2NUM( OFPBRC_EPERM ),
-    INT2NUM( OFPBRC_BAD_LEN ),
-    INT2NUM( OFPBRC_BUFFER_EMPTY ),
-    INT2NUM( OFPBRC_BUFFER_UNKNOWN ) ) );
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_BAD_REQUEST ),
+    rb_ary_new3(
+      9,
+      INT2NUM( OFPBRC_BAD_VERSION ),
+      INT2NUM( OFPBRC_BAD_TYPE ),
+      INT2NUM( OFPBRC_BAD_STAT ),
+      INT2NUM( OFPBRC_BAD_VENDOR ),
+      INT2NUM( OFPBRC_BAD_SUBTYPE ),
+      INT2NUM( OFPBRC_EPERM ),
+      INT2NUM( OFPBRC_BAD_LEN ),
+      INT2NUM( OFPBRC_BUFFER_EMPTY ),
+      INT2NUM( OFPBRC_BUFFER_UNKNOWN )
+    )
+  );
 
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_BAD_ACTION ), rb_ary_new3( 9,
-    INT2NUM( OFPBAC_BAD_TYPE ),
-    INT2NUM( OFPBAC_BAD_LEN ),
-    INT2NUM( OFPBAC_BAD_VENDOR ),
-    INT2NUM( OFPBAC_BAD_VENDOR_TYPE ),
-    INT2NUM( OFPBAC_BAD_OUT_PORT ),
-    INT2NUM( OFPBAC_BAD_ARGUMENT ),
-    INT2NUM( OFPBAC_EPERM ),
-    INT2NUM( OFPBAC_TOO_MANY ),
-    INT2NUM( OFPBAC_BAD_QUEUE ) ) );
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_BAD_ACTION ),
+    rb_ary_new3(
+      9,
+      INT2NUM( OFPBAC_BAD_TYPE ),
+      INT2NUM( OFPBAC_BAD_LEN ),
+      INT2NUM( OFPBAC_BAD_VENDOR ),
+      INT2NUM( OFPBAC_BAD_VENDOR_TYPE ),
+      INT2NUM( OFPBAC_BAD_OUT_PORT ),
+      INT2NUM( OFPBAC_BAD_ARGUMENT ),
+      INT2NUM( OFPBAC_EPERM ),
+      INT2NUM( OFPBAC_TOO_MANY ),
+      INT2NUM( OFPBAC_BAD_QUEUE )
+    )
+  );
 
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_FLOW_MOD_FAILED ), rb_ary_new3( 6,
-    INT2NUM( OFPFMFC_ALL_TABLES_FULL ),
-    INT2NUM( OFPFMFC_OVERLAP ),
-    INT2NUM( OFPFMFC_EPERM ),
-    INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ),
-    INT2NUM( OFPFMFC_BAD_COMMAND ),
-    INT2NUM( OFPFMFC_UNSUPPORTED ) ) );
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_FLOW_MOD_FAILED ),
+    rb_ary_new3(
+      6,
+      INT2NUM( OFPFMFC_ALL_TABLES_FULL ),
+      INT2NUM( OFPFMFC_OVERLAP ),
+      INT2NUM( OFPFMFC_EPERM ),
+      INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ),
+      INT2NUM( OFPFMFC_BAD_COMMAND ),
+      INT2NUM( OFPFMFC_UNSUPPORTED )
+    )
+  );
 
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_PORT_MOD_FAILED ), rb_ary_new3( 2,
-    INT2NUM( OFPPMFC_BAD_PORT ),
-    INT2NUM( OFPPMFC_BAD_HW_ADDR ) ) );
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_PORT_MOD_FAILED ),
+    rb_ary_new3(
+      2,
+      INT2NUM( OFPPMFC_BAD_PORT ),
+      INT2NUM( OFPPMFC_BAD_HW_ADDR )
+    )
+  );
 
-  rb_hash_aset( error_code_hash, INT2NUM( OFPET_QUEUE_OP_FAILED ), rb_ary_new3( 3,
-    INT2NUM( OFPQOFC_BAD_PORT ),
-    INT2NUM( OFPQOFC_BAD_QUEUE ),
-    INT2NUM( OFPQOFC_EPERM ) ) );
+  rb_hash_aset(
+    error_code_hash,
+    INT2NUM( OFPET_QUEUE_OP_FAILED ),
+    rb_ary_new3(
+      3,
+      INT2NUM( OFPQOFC_BAD_PORT ),
+      INT2NUM( OFPQOFC_BAD_QUEUE ),
+      INT2NUM( OFPQOFC_EPERM )
+    )
+  );
   /*
    * error codes stored as an array of numeric values accessed from a hash 
    * whose key is the error type.
