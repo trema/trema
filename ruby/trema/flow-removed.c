@@ -26,6 +26,70 @@ extern VALUE mTrema;
 VALUE cFlowRemoved;
 
 
+/*
+ * When a flow is deleted or expired a +OFPT_FLOW_REMOVED+ message is sent as long
+ * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during 
+ * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
+ * would be created while parsing the +OPPT_FLOW_REMOVED+ message.
+ * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
+ *
+ * @overload initialize(options={})
+ *   @example
+ *     FlowRemoved.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 0,
+ *       :match => Match,
+ *       :cookie => 123456789,
+ *       :priority => 65535,
+ *       :reason => 0,
+ *       :duration_sec => 1,
+ *       :duration_nsec => 783000000,
+ *       :idle_timeout => 1,
+ *       :packet_count => 1
+ *       :byte_count=> 64
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :datapath_id
+ *     message originator identifier.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     unsolicited message transaction_id is zero.
+ *
+ *   @option options [Symbol] :match
+ *     a {Match} object describing the flow fields copied from the corresponding
+ *     flow setup message.
+ *
+ *   @option options [Symbol] :cookie
+ *     an opaque identifier copied from the corresponding
+ *     flow setup message.
+ *
+ *   @option options [Symbol] :priority
+ *     the priority level of the flow copied from the corresponding
+ *     flow setup message.
+ *
+ *   @option options [Symbol] :reason
+ *     the reason why the flow is removed.
+ *
+ *   @option options [Symbol] :duration_sec
+ *     the number of seconds the flow was active.
+ *
+ *   @option options [Symbol] :duration_nsec
+ *     the number of nanoseconds the flow was active.
+ *
+ *   @option options [Symbol] :idle_timeout
+ *     time elapsed in seconds before the flow is removed, copied from the
+ *     corresponding flow setup message.
+ *
+ *   @option options [Symbol] :packet_count
+ *     a counter of the total number of packets.
+ *
+ *   @option options [Symbol] :byte_count
+ *     a counter of the total number of bytes.
+ *
+ * @return [FlowRemoved] self
+ */
 static VALUE
 flow_removed_init( VALUE self, VALUE attribute ) {
   rb_iv_set( self, "@attribute", attribute );
@@ -100,7 +164,7 @@ flow_removed_byte_count( VALUE self ) {
 
 
 void
-Init_flow_removed( ) {
+Init_flow_removed() {
   cFlowRemoved = rb_define_class_under( mTrema, "FlowRemoved", rb_cObject );
   rb_define_method( cFlowRemoved, "initialize", flow_removed_init, 1 );
   rb_define_method( cFlowRemoved, "datapath_id", flow_removed_datapath_id, 0 );
@@ -119,19 +183,19 @@ Init_flow_removed( ) {
 
 void
 handle_flow_removed(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        struct ofp_match match,
-        uint64_t cookie,
-        uint16_t priority,
-        uint8_t reason,
-        uint32_t duration_sec,
-        uint32_t duration_nsec,
-        uint16_t idle_timeout,
-        uint64_t packet_count,
-        uint64_t byte_count,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  struct ofp_match match,
+  uint64_t cookie,
+  uint16_t priority,
+  uint8_t reason,
+  uint32_t duration_sec,
+  uint32_t duration_nsec,
+  uint16_t idle_timeout,
+  uint64_t packet_count,
+  uint64_t byte_count,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
     return;
