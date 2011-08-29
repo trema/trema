@@ -27,13 +27,33 @@ module Trema
     FIELDS.each { | each | attr_reader each.intern }
 
 
+    # Aggregate counters for multiple flows.
+    # A user would not explicitly instantiate a {AggregateStatsReply}
+    # object but would be created as a result of parsing the
+    # +OFPT_STATS_REPLY+ (+OFPST_AGGREGATE+) message.
     #
-    # Creates an AggregateStatsReply object from options hash.
+    # @overload initialize(options={})
     #
-    # @example AggregateStatsReply.new( options = {} )
-    #   options = { :packet_count => 1, :byte_count => 64, :flow_count => 1 }
+    #   @example
+    #     AggregateStatsReply.new(
+    #       :packet_count => 10,
+    #       :byte_count => 640,
+    #       :flow_count => 2
+    #     )
     #
-    # @return [AggregateStatsReply] an object that encapsulates the OFPST_STATS_REPLY (OFPST_AGGREGATE) OpenFlow message.
+    #   @param [Hash] options the options hash.
+    #
+    #   @option options [Symbol] :packet_count
+    #     the total packet counter.
+    #
+    #   @option options [Symbol] :byte_count
+    #     the total byte counter.
+    #
+    #   @option options [Symbol] :flow_count
+    #     the total flow counter.
+    #
+    # @return [AggregateStatsReply]
+    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) openFlow message.
     #
     def initialize options
       super FIELDS, options
