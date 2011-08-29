@@ -26,7 +26,7 @@ module Trema
     FIELDS = %w( length table_id match duration_sec duration_nsec priority idle_timeout hard_timeout cookie packet_count byte_count actions )
     FIELDS.each { | each | attr_reader each.intern }
 
-    
+
     #
     # Creates a FlowStatsReply object from options hash.
     #
