@@ -29,8 +29,8 @@ VALUE cFeaturesReply;
 
 
 /* 
- * A user would not implicitly instantiate a {FeaturesReply} object but would be 
- * constructed while parsing the +OFPT_FEATURES_REPLY+ message.
+ * A user would not explicitly instantiate a {FeaturesReply} object but would be 
+ * created while parsing the +OFPT_FEATURES_REPLY+ message.
  * 
  * @overload initialize(options={})
  *   @example
