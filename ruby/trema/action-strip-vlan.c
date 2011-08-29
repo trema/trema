@@ -25,11 +25,12 @@
 extern VALUE mTrema;
 VALUE cActionStripVlan;
 
+
 /*
  * Strips the VLAN tag of a packet.
- * 
+ *
  * @overload initialize()
- * 
+ *
  * @return [ActionStripVlan]
  *   an object that encapsulates this action.
  */
@@ -40,8 +41,8 @@ action_strip_vlan_init( VALUE self ) {
 
 
 /*
- * Appends its action(strip VLAN tag) to the list of actions.
- * 
+ * Appends its action (strip VLAN tag) to the list of actions.
+ *
  * @return [ActionStripVlan] self
  */
 static VALUE
@@ -60,15 +61,15 @@ action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
  */
 static VALUE
 action_strip_vlan_to_s( VALUE self ) {
-	char str[ 64 ];
+  char str[ 64 ];
 
   sprintf( str, "#<%s>", rb_obj_classname( self ) );
-	return rb_str_new2( str );
+  return rb_str_new2( str );
 }
 
 
 void
-Init_action_strip_vlan( ) {
+Init_action_strip_vlan() {
   cActionStripVlan = rb_define_class_under( mTrema, "ActionStripVlan", rb_cObject );
   rb_define_method( cActionStripVlan, "initialize", action_strip_vlan_init, 0 );
   rb_define_method( cActionStripVlan, "append", action_strip_vlan_append, 1 );
