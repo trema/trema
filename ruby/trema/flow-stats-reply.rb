@@ -29,7 +29,7 @@ module Trema
 
     
     # Flow counters for one or more matched flows.
-    # A user would not implicitly instantiate a {FlowStatsReply} object but 
+    # A user would not explicitly instantiate a {FlowStatsReply} object but 
     # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_FLOW)+ 
     # message.
     # 
