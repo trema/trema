@@ -30,7 +30,7 @@ module Trema
     # Information about tables that a switch supports. A switch may choose to  
     # maintain a single table that can store both wildcard and exact match flows. 
     # Or may use separate tables for each flow type. 
-    # A user would not implicitly instantiate a {TableStatsReply} object but would
+    # A user would not explicitly instantiate a {TableStatsReply} object but would
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_TABLE)+ message.
     #
     # @overload initialize(options={})
