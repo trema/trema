@@ -26,19 +26,39 @@ extern VALUE mTrema;
 VALUE cActionVendor;
 
 
+/*
+ * An action to set vendor specific extensions. 
+ * 
+ * @overload initialize(vendor_id)
+ * 
+ * @param [Number] vendor
+ *   the vendor id this action refers to.
+ * 
+ * @return [ActionVendor]
+ *   An object that encapsulates this action.
+ */
 static VALUE
 action_vendor_init( VALUE self, VALUE vendor ) {
   rb_iv_set( self, "@vendor", vendor );
   return self;
 }
 
-
+/*
+ * The vendor id of this action.
+ * 
+ * @return [Number] the value of attribute vendor.
+ */
 static VALUE
 action_get_vendor( VALUE self ) {
   return rb_iv_get( self, "@vendor" );
 }
 
 
+/*
+ * Appends its action(vendor) to the list of actions.
+ * 
+ * @return [ActionVendor] self
+ */
 static VALUE
 action_vendor_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -51,6 +71,9 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_vendor_to_s( VALUE self ) {
   char str[ 64 ];
