@@ -33,6 +33,7 @@
 #include "barrier-reply.h"
 #include "vendor.h"
 #include "queue-get-config-reply.h"
+#include "list-switches-reply.h"
 #include "trema.h"
 
 
@@ -67,6 +68,13 @@ controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   buffer *buf;
   Data_Get_Struct( message, buffer, buf );
   send_openflow_message( NUM2ULL( datapath_id ), buf );
+  return self;
+}
+
+
+static VALUE
+controller_send_list_switches_request( VALUE self ) {
+  send_list_switches_request( ( void * ) self );
   return self;
 }
 
@@ -436,6 +444,7 @@ controller_run( VALUE self ) {
   set_barrier_reply_handler( handle_barrier_reply, ( void * ) self );
   set_vendor_handler( handle_vendor, ( void * ) self );
   set_queue_get_config_reply_handler( handle_queue_get_config_reply, ( void * ) self );
+  set_list_switches_reply_handler( handle_list_switches_reply );
 
   struct itimerspec interval;
   interval.it_interval.tv_sec = 1;
@@ -497,6 +506,7 @@ Init_controller() {
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
+  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_flow_mod_modify", controller_send_flow_mod_modify, -1 );
   rb_define_method( cController, "send_flow_mod_delete", controller_send_flow_mod_delete, -1 );
