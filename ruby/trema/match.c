@@ -216,13 +216,17 @@ match_init( int argc, VALUE *argv, VALUE self ) {
   struct ofp_match *match;
   VALUE options;
 
+  // Always clear the memory as the unused memory locations are
+  // exposed to both the user and the OpenFlow controller.
+  Data_Get_Struct( self, struct ofp_match, match );
+  memset( match, 0, sizeof ( *match ) );
+
+  // Default matches all packets.
+  match->wildcards = ( OFPFW_ALL & ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK ) )
+    | OFPFW_NW_SRC_ALL | OFPFW_NW_DST_ALL;
+
   if ( rb_scan_args( argc, argv, "01", &options ) >= 1 ) {
     if ( options != Qnil ) {
-      Data_Get_Struct( self, struct ofp_match, match );
-      memset( match, 0, sizeof ( *match ) );
-
-      match->wildcards = ( OFPFW_ALL & ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK ) )
-              | OFPFW_NW_SRC_ALL | OFPFW_NW_DST_ALL;
       VALUE in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
       if ( in_port != Qnil ) {
         match->in_port = ( uint16_t ) NUM2UINT( in_port );
