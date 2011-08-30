@@ -503,7 +503,15 @@ Init_controller() {
   cController = rb_define_class_under( mTrema, "Controller", cApp );
   rb_include_module( cController, mLogger );
 
+  rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
+  rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
+  rb_define_const( cController, "OFPP_TABLE", INT2NUM( OFPP_TABLE ) );
+  rb_define_const( cController, "OFPP_NORMAL", INT2NUM( OFPP_NORMAL ) );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
+  rb_define_const( cController, "OFPP_ALL", INT2NUM( OFPP_ALL ) );
+  rb_define_const( cController, "OFPP_CONTROLLER", INT2NUM( OFPP_CONTROLLER ) );
+  rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
+  rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
