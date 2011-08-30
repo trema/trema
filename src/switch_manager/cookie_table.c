@@ -136,7 +136,7 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
   cookie_entry_t *new_entry, *conflict_entry;
 
   debug( "Inserting cookie entry ( original_cookie = %#" PRIx64 ", service_name = %s, flags = %#x ).",
-         original_cookie, service_name, flags );
+         *original_cookie, service_name, flags );
 
   new_entry = lookup_cookie_entry_by_application( original_cookie, service_name );
   if ( new_entry != NULL ) {
