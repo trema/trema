@@ -31,9 +31,13 @@ module Timers
   
   
     def add_timer_event handler, interval, event_type
-      @@timer_event_handlers[ handler ] = { :interval => interval, 
-        :rest => interval, :event_type => event_type  }
+      @@timer_event_handlers[ handler ] = {
+        :interval => interval,
+        :rest => interval,
+        :event_type => event_type
+      }
     end
+    alias_method :timer_event, :add_timer_event
 
   
     def delete_timer_event handler
@@ -45,11 +49,13 @@ module Timers
     def add_periodic_timer_event handler, interval
       add_timer_event handler, interval, :periodic
     end
+    alias_method :periodic_timer_event, :add_periodic_timer_event
 
   
     def add_oneshot_timer_event handler, interval
       add_timer_event handler, interval, :oneshot
     end
+    alias_method :oneshot_timer_event, :add_oneshot_timer_event
   
   
     def handle_timer_event
