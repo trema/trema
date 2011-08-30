@@ -46,13 +46,13 @@ VALUE cError;
  *   specified.
  *
  * @example Instantiate with type and code
- *   Error.new(OFPET_BAD_REQUEST, ERROR_CODES[OFPET_BAD_REQUEST][1])
+ *   Error.new(OFPET_BAD_REQUEST, OFPBRC_BAD_TYPE)
  *
  * @example Instantiate with transaction_id, type and code.
- *   Error.new(1234, OFPET_BAD_ACTION, ERROR_CODES[OFPET_BAD_ACTION][2])
+ *   Error.new(1234, OFPET_BAD_ACTION, OFPBAC_BAD_VENDOR)
  *
  * @example Instantiate with transaction_id, type, code, user_data
- *   Error.new(6789, OFPET_FLOW_MOD_FAILED, ERROR_CODES[OFPET_FLOW_MOD_FAILED][3], "this is a test") 
+ *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test") 
  *
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
@@ -188,88 +188,45 @@ Init_error() {
   rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  VALUE error_code_hash = rb_hash_new();
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_HELLO_FAILED ),
-    rb_ary_new3( 2, INT2NUM( OFPHFC_INCOMPATIBLE ), INT2NUM( OFPHFC_EPERM ) )
-  );
+  
+  // define error codes as constants.
+  rb_define_const( cError, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
+  rb_define_const( cError, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
 
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_BAD_REQUEST ),
-    rb_ary_new3(
-      9,
-      INT2NUM( OFPBRC_BAD_VERSION ),
-      INT2NUM( OFPBRC_BAD_TYPE ),
-      INT2NUM( OFPBRC_BAD_STAT ),
-      INT2NUM( OFPBRC_BAD_VENDOR ),
-      INT2NUM( OFPBRC_BAD_SUBTYPE ),
-      INT2NUM( OFPBRC_EPERM ),
-      INT2NUM( OFPBRC_BAD_LEN ),
-      INT2NUM( OFPBRC_BUFFER_EMPTY ),
-      INT2NUM( OFPBRC_BUFFER_UNKNOWN )
-    )
-  );
+  rb_define_const( cError, "OFPBRC_BAD_VERSION", INT2NUM( OFPBRC_BAD_VERSION ) );
+  rb_define_const( cError, "OFPBRC_BAD_TYPE", INT2NUM( OFPBRC_BAD_TYPE ) );
+  rb_define_const( cError, "OFPBRC_BAD_STAT", INT2NUM( OFPBRC_BAD_STAT ) );
+  rb_define_const( cError, "OFPBRC_BAD_VENDOR", INT2NUM( OFPBRC_BAD_VENDOR ) );
+  rb_define_const( cError, "OFPBRC_BAD_SUBTYPE", INT2NUM( OFPBRC_BAD_SUBTYPE ) );
+  rb_define_const( cError, "OFPBRC_EPERM", INT2NUM( OFPBRC_EPERM ) );
+  rb_define_const( cError, "OFPBRC_BAD_LEN", INT2NUM( OFPBRC_BAD_LEN ) );
+  rb_define_const( cError, "OFPBRC_BUFFER_EMPTY", INT2NUM( OFPBRC_BUFFER_EMPTY ) );
+  rb_define_const( cError, "OFPBRC_BUFFER_UNKNOWN", INT2NUM( OFPBRC_BUFFER_UNKNOWN ) );
 
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_BAD_ACTION ),
-    rb_ary_new3(
-      9,
-      INT2NUM( OFPBAC_BAD_TYPE ),
-      INT2NUM( OFPBAC_BAD_LEN ),
-      INT2NUM( OFPBAC_BAD_VENDOR ),
-      INT2NUM( OFPBAC_BAD_VENDOR_TYPE ),
-      INT2NUM( OFPBAC_BAD_OUT_PORT ),
-      INT2NUM( OFPBAC_BAD_ARGUMENT ),
-      INT2NUM( OFPBAC_EPERM ),
-      INT2NUM( OFPBAC_TOO_MANY ),
-      INT2NUM( OFPBAC_BAD_QUEUE )
-    )
-  );
+  rb_define_const( cError, "OFPBAC_BAD_TYPE", INT2NUM( OFPBAC_BAD_TYPE ) );
+  rb_define_const( cError, "OFPBAC_BAD_LEN", INT2NUM( OFPBAC_BAD_LEN ) );
+  rb_define_const( cError, "OFPBAC_BAD_VENDOR", INT2NUM( OFPBAC_BAD_VENDOR ) );
+  rb_define_const( cError, "OFPBAC_BAD_VENDOR_TYPE", INT2NUM( OFPBAC_BAD_VENDOR_TYPE ) );
+  rb_define_const( cError, "OFPBAC_BAD_OUT_PORT", INT2NUM( OFPBAC_BAD_OUT_PORT ) );
+  rb_define_const( cError, "OFPBAC_BAD_ARGUMENT", INT2NUM( OFPBAC_BAD_ARGUMENT ) );
+  rb_define_const( cError, "OFPBAC_EPERM", INT2NUM( OFPBAC_EPERM ) );
+  rb_define_const( cError, "OFPBAC_TOO_MANY", INT2NUM( OFPBAC_TOO_MANY ) );
+  rb_define_const( cError, "OFPBAC_BAD_QUEUE", INT2NUM( OFPBAC_BAD_QUEUE ) );
 
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_FLOW_MOD_FAILED ),
-    rb_ary_new3(
-      6,
-      INT2NUM( OFPFMFC_ALL_TABLES_FULL ),
-      INT2NUM( OFPFMFC_OVERLAP ),
-      INT2NUM( OFPFMFC_EPERM ),
-      INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ),
-      INT2NUM( OFPFMFC_BAD_COMMAND ),
-      INT2NUM( OFPFMFC_UNSUPPORTED )
-    )
-  );
+  rb_define_const( cError, "OFPFMFC_ALL_TABLES_FULL", INT2NUM( OFPFMFC_ALL_TABLES_FULL ) );
+  rb_define_const( cError, "OFPFMFC_OVERLAP", INT2NUM( OFPFMFC_OVERLAP ) );
+  rb_define_const( cError, "OFPFMFC_EPERM", INT2NUM( OFPFMFC_EPERM ) );
+  rb_define_const( cError, "OFPFMFC_BAD_EMERG_TIMEOUT", INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ) );
+  rb_define_const( cError, "OFPFMFC_BAD_COMMAND", INT2NUM( OFPFMFC_BAD_COMMAND ) );
+  rb_define_const( cError, "OFPFMFC_UNSUPPORTED", INT2NUM( OFPFMFC_UNSUPPORTED ) );
 
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_PORT_MOD_FAILED ),
-    rb_ary_new3(
-      2,
-      INT2NUM( OFPPMFC_BAD_PORT ),
-      INT2NUM( OFPPMFC_BAD_HW_ADDR )
-    )
-  );
+  rb_define_const( cError, "OFPPMFC_BAD_PORT", INT2NUM( OFPPMFC_BAD_PORT ) );
+  rb_define_const( cError, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
+  
+  rb_define_const( cError, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
+  rb_define_const( cError, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
+  rb_define_const( cError, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));
 
-  rb_hash_aset(
-    error_code_hash,
-    INT2NUM( OFPET_QUEUE_OP_FAILED ),
-    rb_ary_new3(
-      3,
-      INT2NUM( OFPQOFC_BAD_PORT ),
-      INT2NUM( OFPQOFC_BAD_QUEUE ),
-      INT2NUM( OFPQOFC_EPERM )
-    )
-  );
-  /*
-   * error codes stored as an array of numeric values accessed from a hash 
-   * whose key is the error type.
-   *
-   * @return [ERROR_CODES{type => Array<codes>}] the mapping of error types to codes.
-   */  
-  rb_define_const( cError, "ERROR_CODES", error_code_hash );
   rb_define_method( cError, "transaction_id", error_transaction_id, 0 );
   rb_define_method( cError, "user_data", error_user_data, 0 );
   rb_define_method( cError, "error_type", error_type, 0 );
