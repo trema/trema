@@ -41,7 +41,7 @@ module Trema
 
 
       it "should have a valid error code" do
-        @error.code.should == Error::ERROR_CODES[ Error::OFPET_HELLO_FAILED ].first
+        @error.code.should == Error::OFPHFC_INCOMPATIBLE
       end
 
 
@@ -55,7 +55,7 @@ module Trema
       before( :all ) do
         @error = Error.new(
           Error::OFPET_BAD_REQUEST, 
-          Error::ERROR_CODES[ Error::OFPET_BAD_REQUEST ][ 1 ]
+          Error::OFPBRC_BAD_TYPE
         )
       end
 
@@ -71,7 +71,7 @@ module Trema
 
 
       it "should have the specified error code" do
-        @error.code.should == Error::ERROR_CODES[ Error::OFPET_BAD_REQUEST ][ 1 ]
+        @error.code.should == Error::OFPBRC_BAD_TYPE
       end
 
 
@@ -86,7 +86,7 @@ module Trema
         @error = Error.new(
           1234,
           Error::OFPET_BAD_ACTION,
-          Error::ERROR_CODES[ Error::OFPET_BAD_ACTION ][ 2 ]
+          Error::OFPBAC_BAD_VENDOR
         )
       end
 
@@ -102,7 +102,7 @@ module Trema
 
 
       it "should have the specified error code" do
-        @error.code.should == Error::ERROR_CODES[ Error::OFPET_BAD_ACTION ][ 2 ]
+        @error.code.should == Error::OFPBAC_BAD_VENDOR
       end
 
 
@@ -117,7 +117,7 @@ module Trema
         @error = Error.new(
           6789,
           Error::OFPET_FLOW_MOD_FAILED,
-          Error::ERROR_CODES[ Error::OFPET_FLOW_MOD_FAILED ][ 3 ],
+          Error::OFPFMFC_BAD_EMERG_TIMEOUT,
           "this is a test"
         )
       end
@@ -134,7 +134,7 @@ module Trema
 
 
       it "should have the specified error code" do
-        @error.code.should == Error::ERROR_CODES[ Error::OFPET_FLOW_MOD_FAILED ][ 3 ]
+        @error.code.should == Error::OFPFMFC_BAD_EMERG_TIMEOUT
       end
 
 
