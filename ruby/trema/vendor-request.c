@@ -36,7 +36,7 @@ vendor_request_alloc( VALUE klass ) {
   data = alloc_buffer_with_length( 16 );
   append_back_buffer( data, 16 );
   memset( data->data, 'a', 16 );
-  vendor_request = create_vendor( get_transaction_id( ), VENDOR_ID, data );
+  vendor_request = create_vendor( get_transaction_id(), VENDOR_ID, data );
 
   return Data_Wrap_Struct( klass, NULL, free_buffer, vendor_request );
 }
@@ -96,7 +96,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
       rb_raise( rb_eArgError, "User data must be an array of bytes" );
     }
   } else {
-    xid = get_transaction_id( );
+    xid = get_transaction_id();
     vendor = VENDOR_ID;
   }
   ( ( struct ofp_header * ) ( vendor_request->data ) )->xid = htonl( xid );
@@ -165,7 +165,7 @@ vendor_request_data( VALUE self ) {
 
 
 void
-Init_vendor_request( ) {
+Init_vendor_request() {
   cVendorRequest = rb_define_class_under( mTrema, "VendorRequest", rb_cObject );
   rb_define_alloc_func( cVendorRequest, vendor_request_alloc );
   rb_define_method( cVendorRequest, "initialize", vendor_request_init, -1 );
