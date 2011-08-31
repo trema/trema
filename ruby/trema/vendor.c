@@ -80,7 +80,7 @@ handle_vendor(
   if ( rb_respond_to( controller, rb_intern( "vendor" ) ) == Qfalse ) {
     return;
   }
-  VALUE attributes = rb_hash_new( );
+  VALUE attributes = rb_hash_new();
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
