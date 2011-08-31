@@ -24,7 +24,6 @@
 #define FEATURES_REQUEST_H
 
 
-
 #include "ruby.h"
 
 
