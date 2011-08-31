@@ -513,6 +513,10 @@ Init_controller() {
   rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
   rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
 
+  rb_define_const( cController, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
+  rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
+  rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
+
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
