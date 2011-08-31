@@ -594,7 +594,7 @@ def libtrema_unit_tests
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
     :stat_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
     :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper ],
-    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_wrapper ],
+    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper ],
   }
 end
 
@@ -649,6 +649,7 @@ tests = [
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
   "objects/unittests/packet_parser_test",
+  "objects/unittests/trema_private_test",
   "objects/unittests/utility_test",
   "objects/unittests/wrapper_test",
 ]
