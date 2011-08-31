@@ -18,30 +18,20 @@
  */
 
 
-#ifndef VENDOR_H
-#define VENDOR_H
+#ifndef ECHO_REQUEST_H
+#define ECHO_REQUEST_H
 
 
 #include "ruby.h"
-#include "trema.h"
 
 
-extern VALUE cVendor;
+extern VALUE cEchoRequest;
 
 
-void Init_vendor( void );
+void Init_echo_request( void );
 
 
-void handle_vendor(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint32_t vendor,
-        const buffer *body,
-        void *user_data
-        );
-
-
-#endif // VENDOR_H
+#endif // ECHO_REQUEST_H
 
 
 /*
