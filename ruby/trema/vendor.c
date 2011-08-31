@@ -104,7 +104,7 @@ vendor_buffer( VALUE self ) {
 
 
 void
-Init_vendor( ) {
+Init_vendor() {
   cVendor = rb_define_class_under( mTrema, "Vendor", rb_cObject );
   rb_define_method( cVendor, "initialize", vendor_init, 1 );
   rb_define_method( cVendor, "datapath_id", vendor_datapath_id, 0 );
