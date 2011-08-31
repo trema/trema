@@ -35,19 +35,19 @@ VALUE cEchoRequest;
  * @param [Number] transaction_id
  *   a positive number, not recently attached to any previous pending commands to
  *   guarantee message integrity auto-generated if not specified.
- * 
- * @param [String] user_data.
+ *
+ * @param [String] user_data
  *   the user data field may be a message timestamp to check latency, various
  *   lengths to measure bandwidth or zero-size(nil) to verify liveness between 
  *   the switch and controller.
  *
  * @example Instantiate with transaction_id, user_data
  *   EchoRequest.new(1234, "Thu Aug 25 13:09:00 +0900 2011")
- * 
+ *
  * @raise [ArgumentError] if transaction id is negative.
  * @raise [ArgumentError] if user data is not a string.
- * 
- * @return [EchoRequest] self
+ *
+ * @return [EchoRequest]
  *   a {EchoRequest} object that encapsulates the +OPFT_ECHO_REQUEST+ openflow
  *   message.
  */
@@ -92,8 +92,8 @@ static VALUE
 echo_request_transaction_id( VALUE self ) {
   buffer *echo_request;
   Data_Get_Struct( self, buffer, echo_request );
-  uint32_t xid = ntohl( (( struct ofp_header *)(echo_request->data))->xid);
-  return UINT2NUM(xid);
+  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( echo_request->data ) )->xid );
+  return UINT2NUM( xid );
 }
 
 
@@ -107,15 +107,15 @@ static VALUE
 echo_request_user_data( VALUE self ) {
   buffer *echo_request;
   Data_Get_Struct( self, buffer, echo_request );
-  if ( echo_request->length > sizeof ( struct ofp_header ) ) {
-    return rb_str_new2( ( char * ) echo_request->data + sizeof ( struct ofp_header ) );
+  if ( echo_request->length > sizeof( struct ofp_header ) ) {
+    return rb_str_new2( ( char * ) echo_request->data + sizeof( struct ofp_header ) );
   }
   return Qnil;
 }
 
 
 void
-Init_echo_request( ) {
+Init_echo_request() {
   cEchoRequest = rb_define_class_under( mTrema, "EchoRequest", rb_cObject );
   rb_define_singleton_method( cEchoRequest, "new", echo_request_new, -1 );
   rb_define_method( cEchoRequest, "transaction_id", echo_request_transaction_id, 0 );
