@@ -26,31 +26,77 @@ extern VALUE mTrema;
 VALUE cVendor;
 
 
+/*
+ * Creates a {Vendor} instance that encapsulates the handling of vendor's messages.
+ *
+ * @overload initialize(options={})
+ * 
+ *   @example 
+ *     Vendor.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 123,
+ *       :vendor => vendor_id,
+ *       :buffer => data
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :datapath_id
+ *     message originator identifier.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     zero for unsolicited message otherwise a positive number.
+ *
+ *   @option options [Symbol] :vendor_id
+ *     the vendor identifier. if MSB is zero low order bytes are IEEE OUI.
+ *     If MSB not equal to zero defined by openflow.
+ *
+ *   @option options [Symbol] :buffer
+ *     a {Buffer} object that encapsulates vendor's defined arbitrary length data.
+ */
 static VALUE
-vendor_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+vendor_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
-
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 vendor_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Zero for unsolicited message otherwise a positive number copied from request
+ * message.
+ *
+ * @return [Number] the value of attribute transaction_id.
+ */
 static VALUE
 vendor_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * (see VendorRequest#vendor)
+ */
 static VALUE
 vendor_vendor( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "vendor" ) ) );
 }
 
 
+/*
+ * Vendor's arbitrary length data.
+ *
+ * @return [Buffer] the value of attribute buffer.
+ */
 static VALUE
 vendor_buffer( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "buffer" ) ) );
