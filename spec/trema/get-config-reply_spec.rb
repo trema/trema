@@ -22,24 +22,26 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigReply do
-  it "should have datapath_id" do
-    GetConfigReply.new( :datapath_id => 123 ).datapath_id.should == 123
-  end
+module Trema
+  describe GetConfigReply do
+    it "should have datapath_id" do
+      GetConfigReply.new( :datapath_id => 123 ).datapath_id.should == 123
+    end
 
 
-  it "should have transaction_id" do
-    GetConfigReply.new( :transaction_id => 1234 ).transaction_id.should == 1234
-  end
+    it "should have transaction_id" do
+      GetConfigReply.new( :transaction_id => 1234 ).transaction_id.should == 1234
+    end
 
 
-  it "should have flags" do
-    GetConfigReply.new( :flags => 1 ).flags.should == 1
-  end
+    it "should have flags" do
+      GetConfigReply.new( :flags => 1 ).flags.should == 1
+    end
 
 
-  it "should have miss_send_len" do
-    GetConfigReply.new( :miss_send_len => 1024 ).miss_send_len.should == 1024
+    it "should have miss_send_len" do
+      GetConfigReply.new( :miss_send_len => 1024 ).miss_send_len.should == 1024
+    end
   end
 end
 
@@ -49,4 +51,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-
