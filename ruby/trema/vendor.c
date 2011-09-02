@@ -30,7 +30,7 @@ VALUE cVendor;
  * Creates a {Vendor} instance that encapsulates the handling of vendor's messages.
  *
  * @overload initialize(options={})
- * 
+ *
  *   @example 
  *     Vendor.new(
  *       :datapath_id => 0xabc,
@@ -116,12 +116,12 @@ Init_vendor() {
 
 void
 handle_vendor(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint32_t vendor,
-        buffer *body,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint32_t vendor,
+  buffer *body,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "vendor" ) ) == Qfalse ) {
     return;
