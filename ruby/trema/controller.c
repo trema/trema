@@ -218,7 +218,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *
  *   @example
  *     def packet_in datapath_id, message
- *       send_flow_mod_add datapath_id, :match => ExactMatch.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
+ *       send_flow_mod_add datapath_id, :match => Match.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
  *     end
  *
  *
@@ -233,10 +233,15 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     A {Match} object describing the fields of the flow.
  *
  *   @option options [Number] :idle_timeout (0)
- *     The idle time in seconds before discarding.
+ *     The idle time in seconds before discarding. 
+ *     Zero means flow never expires.
+ *
+ *   @option options [Number] :cookie
+ *     An opaque issued identifier.
  *
  *   @option options [Number] :hard_timeout (0)
- *     The maximum time before discarding in seconds.
+ *     The maximum time before discarding in seconds. 
+ *     Zero means flow never expires.
  *
  *   @option options [Number] :priority (0xffff)
  *     The priority level of the flow entry.
@@ -244,7 +249,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *   @option options [Number] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
- *     applied the flow actions.
+ *     applied to flow actions.
  *
  *   @option options [Boolean] :send_flow_rem (false)
  *     If true, send a flow_removed message when the flow expires or
@@ -273,17 +278,16 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq :
- * send_flow_mod_modify(datapath, options={})
- * 
- * Sends a flow_mod message to either modify or modify strict a flow from the datapath.
- * The flow_mod modify/modify_strict command would be used to modify flow actions.
+ * @overload send_flow_mod_modify(datapath, options={})
+ *   Sends a flow_mod message to either modify or modify strict a flow from datapath.
+ *   Both flow_mod modify and flow_mod modify strict commands would modify 
+ *   matched flow actions. The strict option adds the flow priority to the 
+ *   matched criteria. Accepts the same options as #send_flow_mod_add with the
+ *   following additional option.
  *
- * Options:
- *
- * <code>strict</code>::
- * The strict option if set to true modify_strict command is invoked.
- * If not set or set to false modify command is invoked.
+ *   @option options [Symbol] :strict
+ *     If set to true modify_strict command is invoked otherwise the modify 
+ *     command is invoked.
  */
 static VALUE
 controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
@@ -296,6 +300,18 @@ controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * @overload send_flow_mod_delete(datapath_id, options={})
+ *   Sends a flow_mod_delete message to delete all matching flows.
+ *   Both flow_mod delete and flow_mod delete strict commands would delete matched flows.
+ *   The strict option adds the flow priority to the matched criteria.
+ *   Accepts the same options as #send_flow_mod_add with the following additional
+ *   option.
+ *
+ *   @option options [Symbol] :strict
+ *     If set to true delete_strict command is invoked otherwise the delete
+ *     command is invoked.
+ */
 static VALUE
 controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
   uint16_t command = OFPFC_DELETE;
@@ -409,9 +425,6 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   run()  => self
- *
  * Starts this controller. Usually you do not need to invoke
  * explicitly, because this is called implicitly by "trema run"
  * command.
@@ -463,6 +476,10 @@ controller_run( VALUE self ) {
 }
 
 
+/*
+ * @overload shutdown!
+ *   In the context of trema framework stops this controller and its applications.
+ */
 static VALUE
 controller_shutdown( VALUE self ) {
   stop_trema();
@@ -477,6 +494,9 @@ thread_pass( void *user_data ) {
 }
 
 
+/*
+ * In the context of trema framework invokes the scheduler to start its applications. 
+ */
 static VALUE
 controller_start_trema( VALUE self ) {
   struct itimerspec interval;
@@ -492,7 +512,6 @@ controller_start_trema( VALUE self ) {
 }
 
 /********************************************************************************
->>>>>>> flow mod messages, actions, asynchronous event handlers
  * Init Controller module.
  ********************************************************************************/
 
@@ -506,7 +525,7 @@ Init_controller() {
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
+  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );  
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_flow_mod_modify", controller_send_flow_mod_modify, -1 );
   rb_define_method( cController, "send_flow_mod_delete", controller_send_flow_mod_delete, -1 );
@@ -528,4 +547,3 @@ Init_controller() {
  * indent-tabs-mode: nil
  * End:
  */
-
