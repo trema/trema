@@ -28,7 +28,7 @@ VALUE cFlowRemoved;
 
 /* 
  * When a flow is deleted or expired a +OFPT_FLOW_REMOVED+ message is sent as long
- * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during 
+ * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during
  * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
  * would be created while parsing the +OPPT_FLOW_REMOVED+ message.
  * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
@@ -142,7 +142,7 @@ flow_removed_cookie( VALUE self ) {
 
 
 /*
- * The priority level of the flow copied from the corresponding flow setup 
+ * The priority level of the flow copied from the corresponding flow setup
  * message.
  *
  * @return [Number] the value of attribute priority.
@@ -239,19 +239,19 @@ Init_flow_removed() {
 
 void
 handle_flow_removed(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        struct ofp_match match,
-        uint64_t cookie,
-        uint16_t priority,
-        uint8_t reason,
-        uint32_t duration_sec,
-        uint32_t duration_nsec,
-        uint16_t idle_timeout,
-        uint64_t packet_count,
-        uint64_t byte_count,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  struct ofp_match match,
+  uint64_t cookie,
+  uint16_t priority,
+  uint8_t reason,
+  uint32_t duration_sec,
+  uint32_t duration_nsec,
+  uint16_t idle_timeout,
+  uint64_t packet_count,
+  uint64_t byte_count,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
     return;
