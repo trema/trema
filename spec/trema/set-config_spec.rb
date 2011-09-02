@@ -24,27 +24,60 @@ require "trema"
 
 describe Trema::SetConfig do
   context "when an instance is created with no arguments" do
-    it "should have valid default attributes" do
-      set_config = SetConfig.new
-      set_config.transaction_id.should be_a_kind_of Integer
-      set_config.flags.should == 0
-      set_config.miss_send_len.should == 128
+    before( :all ) do
+      @set_config = SetConfig.new
+    end
+    
+    
+    it "should have transaction_id" do
+      @set_config.transaction_id.should >= 0
+    end
+    
+    
+    it "should have flags" do
+      @set_config.flags.should == 0
+    end
+    
+    
+    it "should have miss_send_len" do
+      @set_config.miss_send_len.should == 128
     end
   end
   
   
   context "when an instance is created with arguments" do
-    it "should have valid attributes" do
-      set_config = SetConfig.new( 123, 1, 128 )
-      set_config.transaction_id.should == 123
-      set_config.flags.should == 1
-      set_config.miss_send_len.should == 128
+    before( :all ) do
+      @set_config = SetConfig.new( 1234, 1, 256 )
+    end
+    
+    
+    it "should have transaction_id(1234)" do
+      @set_config.transaction_id.should == 1234
+    end
+    
+    
+    it "should have flags(1)" do
+      @set_config.flags.should == 1
+    end
+    
+    
+    it "should have miss_send_len(256)" do
+      @set_config.miss_send_len.should == 256
+    end
+  end
+  
+  
+  context "when creating with negative transaction ID(-1234)" do
+    it "should raise an error" do
+      lambda do 
+        SetConfig.new( -1234, 0, 128 )
+      end.should raise_error( "Transaction ID must be >= 0" )
     end
   end
   
   
   context "when #set_config is sent" do
-    it "should not receive #set_config_reply" do
+    it "should not #set_config_reply" do
       class SetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }

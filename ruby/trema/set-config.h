@@ -42,4 +42,3 @@ void Init_set_config( void );
  * indent-tabs-mode: nil
  * End:
  */
-
