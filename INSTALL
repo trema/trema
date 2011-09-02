@@ -24,6 +24,7 @@ Trema relies on the following third-party software.
   GNU Make
   Ruby
   RubyGems
+  SQLite
   Sudo
   libpcap
 
@@ -32,7 +33,8 @@ them as follows. Other packages than listed below should have been
 installed by default operating system installation or will be installed
 automatically due to install dependencies.
 
-  # apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev
+  # apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev \
+  libsqlite3-dev
 
 
 How to build and install
@@ -47,16 +49,13 @@ How to run a sample application
 ===============================
 
 The following command allows you to run a sample application named
-"routing switch" that emulates a virtual layer 2 switch formed by
-multiple OpenFlow switches.
+"learning switch" that emulates a layer2 switch with a single
+OpenFlow switch.
 
-  $ ./trema run -c ./src/examples/routing_switch/routing_switch_null.conf
+  $ ./trema run ./objects/examples/learning_switch/learning_switch
 
-The command "trema" loads the specified configuration file
-(routing_switch_null.conf) and then runs required functional modules
-(processes) automatically.
-
-For detailed explanation on the command, please refer to QUICKSTART.
+For detailed explanation on the command, please refer to the tutorial
+documents found on http://trema.github.com/trema/.
 
 
 (Optional) Automated build and test script

@@ -1,7 +1,7 @@
 /*
- * Private functions that are only called from [trema]/src/lib or [trema]/unittests.
+ * A persistent data storage library
  *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,44 +20,22 @@
  */
 
 
-#ifndef TREMA_PRIVATE_H
-#define TREMA_PRIVATE_H
+#ifndef PERSISTENT_STORAGE_H
+#define PERSISTENT_STORAGE_H
 
 
-#include <sqlite3.h>
 #include "bool.h"
 
 
-/**
- * Functions called within [trema]/src/lib.
- */
-
-void set_trema_home( void );
-const char *get_trema_home( void );
-void unset_trema_home( void );
-
-void set_trema_tmp( void );
-const char *get_trema_tmp( void );
-void unset_trema_tmp( void );
+bool init_persistent_storage();
+bool finalize_persistent_storage();
+bool clear_persistent_storage();
+bool set_value( const char *key, const char *value );
+bool get_value( const char *key, char *value, const size_t length );
+bool delete_key_value( const char *key );
 
 
-/**
- * Functions defined only for unit tests.
- */
-
-const char *_get_trema_home( void );
-const char *_get_trema_tmp( void );
-
-const char *_get_db_file( void );
-const sqlite3 *_get_db_handle( void );
-
-bool _get_backend_initialized( void );
-
-size_t _get_max_key_length( void );
-size_t _get_max_value_length( void );
-
-
-#endif // TREMA_PRIVATE_H
+#endif // PERSISTENT_STORAGE_H
 
 
 /*
