@@ -31,7 +31,7 @@ VALUE cPortStatus;
  * An object that is implemented to wrap the details of the +OFPT_PORT_STATUS+
  * asynchronous message. This message is sent when a state transition on any 
  * physical port is detected.
- * 
+ *
  * @overload initialize(options={})
  *   @example
  *     PortStatus.new(
@@ -42,7 +42,7 @@ VALUE cPortStatus;
  *     )
  *
  *   @param [Hash] options the options hash.
- * 
+ *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
  *
@@ -124,12 +124,12 @@ Init_port_status() {
  */
 void
 handle_port_status(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint8_t reason,
-        struct ofp_phy_port phy_port,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint8_t reason,
+  struct ofp_phy_port phy_port,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "port_status" ) ) == Qfalse ) {
     return;
