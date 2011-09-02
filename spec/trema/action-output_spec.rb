@@ -23,49 +23,39 @@ require "trema"
 
 
 describe Trema::ActionOutput do
-  context "when an instance is created" do
-    before :all do 
-      @action_output = Trema::ActionOutput.new( 1 )
+  context "when an instance is created with argument port" do
+    subject { Trema::ActionOutput.new( 1 ) }
+    its( :port ) { should  == 1 }
+    its( :max_len ) { should == 65535 }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 65535"
     end
     
-    it "should have a valid port attribute" do
-      @action_output.port.should == 1
+    it "should append its attributes to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
     end
     
     
-    it "should have a valid default max_len attribute" do
-      @action_output.max_len.should == 65535
+    context "when no argument supplied" do
+      it "should raise an error" do
+        lambda do 
+          Trema::ActionOutput.new( )
+        end.should raise_error ArgumentError
+      end
     end
   end
   
   
-  context "when an instance is created with all attributes specified" do
-    before :all do 
-      @action_output = Trema::ActionOutput.new( 1, 256 )
-    end
-    
-    
-    it "should have a valid max_len attribute" do
-      @action_output.max_len.should == 256
-    end
-  
-    
-    it "should respond to #to_s and return a string" do
-      @action_output.should respond_to :to_s 
-      @action_output.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 256"
-    end 
+  context "when an instance is created with port, max_len arguments" do
+    subject { Trema::ActionOutput.new( 1, 256 ) }
+    its( :port ) { should == 1 }
+    its( :max_len ) { should == 256 }
   end
     
   
-  it "appends its attributes to a list of actions" do
-    action_output = Trema::ActionOutput.new( 1 )
-    openflow_actions = double( )
-    action_output.should_receive( :append ).with( openflow_actions )
-    action_output.append( openflow_actions )
-  end
-  
-  
-  context "when a single ActionOutput object is assigned to #flow_mod(add) " do
+  context "when an action output is set to #flow_mod(add) " do
     it "should have its action set to output:1" do
       class FlowModAddController < Controller; end
       network {
@@ -80,7 +70,7 @@ describe Trema::ActionOutput do
   end
   
   
-  context "when multiple ActionOutput objects assigned to #flow_mod(add)" do
+  context "when multiple output actions assigned to #flow_mod(add)" do
     it "should have its actions set to output:1\/output:2" do
       class FlowModAddController < Controller; end
       network {
