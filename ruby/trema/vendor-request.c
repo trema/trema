@@ -58,7 +58,7 @@ vendor_request_alloc( VALUE klass ) {
  *   The assigned vendor id defaults to 0xccddeeff if not specified.
  *
  * @param [Array] vendor_data
- *   Fixed 16 bytes of data if not specified. User can set upto 16 bytes of any 
+ *   Fixed 16 bytes of data if not specified. User can set upto 16 bytes of any
  *   vendor specific data.
  *
  * @raise [ArgumentError] if transaction id is negative.
@@ -164,7 +164,7 @@ vendor_request_data( VALUE self ) {
 
 
 void
-Init_vendor_request( ) {
+Init_vendor_request() {
   cVendorRequest = rb_define_class_under( mTrema, "VendorRequest", rb_cObject );
   rb_define_alloc_func( cVendorRequest, vendor_request_alloc );
   rb_define_method( cVendorRequest, "initialize", vendor_request_init, -1 );
