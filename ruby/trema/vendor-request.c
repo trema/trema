@@ -35,6 +35,7 @@ vendor_request_alloc( VALUE klass ) {
   append_back_buffer( data, 16 );
   memset( data->data, 'a', 16 );
   buffer *vendor_request = create_vendor( get_transaction_id( ), VENDOR_ID, data );
+  free_buffer( data );
 
   return Data_Wrap_Struct( klass, NULL, free_buffer, vendor_request );
 }
@@ -88,7 +89,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
     if ( TYPE( data_r ) == T_ARRAY ) {
       buf = ( uint8_t * ) ( ( char * ) vendor_request->data + sizeof( struct ofp_vendor_header ) );
       memset( buf, 0, data_length );
-      for ( i = 0; i < data_length; i++ ) {
+      for ( i = 0; i < data_length && i < RARRAY( data_r )->len; i++ ) {
         buf[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( data_r )[ i ] );
       }
     }
