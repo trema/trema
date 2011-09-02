@@ -27,6 +27,7 @@ extern VALUE cPortStatus;
 
 void Init_port_status( void );
 
+
 void handle_port_status(
         uint64_t datapath_id,
         uint32_t transaction_id,
