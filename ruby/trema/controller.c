@@ -489,7 +489,7 @@ controller_shutdown( VALUE self ) {
 
 static void
 thread_pass( void *user_data ) {
-	UNUSED( user_data );
+  UNUSED( user_data );
   rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
 }
 
