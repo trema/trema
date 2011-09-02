@@ -152,6 +152,7 @@ packet_in_reason( VALUE self ) {
   return INT2NUM( get_packet_in( self )->reason );
 }
 
+
 /*
  * The MAC source address.
  *
