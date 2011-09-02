@@ -27,6 +27,43 @@ extern VALUE mTrema;
 VALUE cStatsReply;
 
 
+/*
+ * This is the reply message to +OFPT_STATS_REQUEST+ request message. The body 
+ * of the reply message may be an array of one or more reply objects. 
+ * The user would not instantiate stats. reply objects explicitly, the stats. 
+ * reply handler would normally do that while parsing the message.
+ * 
+ * @overload initialize(options={})
+ * 
+ *   @example
+ *     StatsReply.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 123,
+ *       :type => OFPST_FLOW
+ *       :flags => 0,
+ *       :stats => [FlowStatsReply]
+ *     )
+ * 
+ *   @param [Hash] options the options hash.
+ * 
+ *   @option options [Symbol] :datapath_id
+ *     message originator identifier.
+ * 
+ *   @option options [Symbol] :transaction_id
+ *     transaction_id value carried over from request.
+ *
+ *   @option options [Symbol] :type
+ *     type id for the reply.
+ * 
+ *   @option options [Symbol] :flags
+ *     if set to 1 more replies would follow, 0 for the last reply.
+ * 
+ *   @option options [FlowStatsReply,...] :stats
+ *     an array of objects associated with the reply instance.
+ * 
+ * @return [StatsReply] 
+ *   an object that encapsulates the +OFPT_STATS_REPLY+ openflow message.
+ */
 static VALUE
 stats_reply_init( VALUE self, VALUE attribute ) {
   rb_iv_set( self, "@attribute", attribute );
@@ -65,7 +102,7 @@ stats_reply_stats( VALUE self ) {
 
 
 void
-Init_stats_reply( ) {
+Init_stats_reply() {
   rb_require( "trema/flow-stats-reply" );
   rb_require( "trema/aggregate-stats-reply" );
   rb_require( "trema/table-stats-reply" );

@@ -24,25 +24,27 @@ require "trema"
 
 describe Trema::ActionSetTpSrc do
   context "when an instance is created" do
-    it "should have a valid tp_src attribute" do
-      action_set_tp_src = Trema::ActionSetTpSrc.new( 5555 )
-      action_set_tp_src.tp_src.should == 5555
+    subject { Trema::ActionSetTpSrc.new( 5555 ) }
+    
+    its( :tp_src ) { should == 5555 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetTpSrc> tp_port = 5555"
     end
-  end
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double( )
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
   
-  
-  it "should respond to #to_s and return a string" do
-    action_set_tp_src = Trema::ActionSetTpSrc.new( 5555 )
-    action_set_tp_src.should respond_to :to_s 
-    action_set_tp_src.to_s.should == "#<Trema::ActionSetTpSrc> tp_port = 5555"
-  end 
-  
-  
-  it "should append its tp_src attribute to a list of actions" do
-    action_set_tp_src = Trema::ActionSetTpSrc.new( 5555 )
-    openflow_actions = double( )
-    action_set_tp_src.should_receive( :append ).with( openflow_actions )
-    action_set_tp_src.append( openflow_actions )
+    context "when tp_src argument is not supplied" do
+      it "should raise an error" do
+        lambda do
+          Trema::ActionSetTpSrc.new( )
+        end.should raise_error ArgumentError
+      end
+    end
   end
   
   

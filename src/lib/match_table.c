@@ -125,14 +125,13 @@ hash_match_entry( const void *key ) {
  * @return match_entry* Pointer to newly allocated match entry
  */
 static match_entry *
-allocate_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name, const char *entry_name ) {
+allocate_match_entry( struct ofp_match *ofp_match, uint16_t priority ) {
   match_entry *new_entry;
 
   new_entry = xmalloc( sizeof( match_entry ) );
   new_entry->ofp_match = *ofp_match;
   new_entry->priority = priority;
-  new_entry->service_name = xstrdup( service_name );
-  new_entry->entry_name = xstrdup( entry_name );
+  create_list( &new_entry->services_name );
 
   return new_entry;
 }
@@ -148,9 +147,39 @@ allocate_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char
 static void
 free_match_entry( match_entry *free_entry ) {
   assert( free_entry != NULL );
-  xfree( free_entry->service_name );
-  xfree( free_entry->entry_name );
+  list_element *element;
+  for ( element = free_entry->services_name; element != NULL; element = element->next ) {
+    xfree( element->data );
+  }
+  delete_list( free_entry->services_name );
   xfree( free_entry );
+}
+
+
+static bool
+add_service_name( match_entry *entry, const char *service_name ) {
+  char *copy = xstrdup( service_name );
+  return append_to_tail( &entry->services_name, copy );
+}
+
+
+static void
+delete_service_name( match_entry *entry, const char *service_name ) {
+  list_element *element;
+  for ( element = entry->services_name; element != NULL; element = element->next ) {
+    if ( strcmp( ( char * ) element->data, service_name ) == 0 ) {
+      char *delete_data = element->data;
+      delete_element( &entry->services_name, element->data );
+      xfree( delete_data );
+      return;
+    }
+  }
+}
+
+
+static unsigned int
+services_name_length_of( match_entry *entry ) {
+  return list_length_of( entry->services_name );
 }
 
 
@@ -232,49 +261,52 @@ finalize_match_table( void ) {
  * @return None
  */
 void
-insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name, const char *entry_name ) {
-  match_entry *new_entry, *entry;
-  list_element *list;
+insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name ) {
+  assert( ofp_match != NULL );
+  assert( service_name != NULL );
+
 
   pthread_mutex_lock( match_table_head.mutex );
-
-  new_entry = allocate_match_entry( ofp_match, priority, service_name, entry_name );
-
+  match_entry *entry = NULL;
   if ( !ofp_match->wildcards ) {
     entry = lookup_hash_entry( match_table_head.exact_table, ofp_match );
-    if ( entry != NULL ) {
-      warn( "insert entry exits" );
-      free_match_entry( new_entry );
-      pthread_mutex_unlock( match_table_head.mutex );
-      return;
-    }
-    insert_hash_entry( match_table_head.exact_table, &new_entry->ofp_match, new_entry );
-    pthread_mutex_unlock( match_table_head.mutex );
-    return;
-  }
-
-  // wildcard flags are set
-  for ( list = match_table_head.wildcard_table; list != NULL; list = list->next ) {
-    entry = list->data;
-    if ( entry->priority <= new_entry->priority ) {
-      break;
+    if ( entry == NULL ) {
+      entry = allocate_match_entry( ofp_match, 0 );
+      insert_hash_entry( match_table_head.exact_table, &entry->ofp_match, entry );
     }
   }
-  if ( list == NULL ) {
-    // wildcard_table is null or tail
-    append_to_tail( &match_table_head.wildcard_table, new_entry );
-    pthread_mutex_unlock( match_table_head.mutex );
-    return;
+  else {
+    // wildcard flags are set
+    list_element *element;
+    for ( element = match_table_head.wildcard_table; element != NULL; element = element->next ) {
+      entry = element->data;
+      if ( entry->priority == priority
+           && ( ( entry->ofp_match.wildcards ^ ofp_match->wildcards ) & OFPFW_ALL ) == 0
+           && compare_match( &entry->ofp_match, ofp_match ) ) {
+        break;
+      }
+      if ( entry->priority < priority ) {
+        entry = NULL;
+        break;
+      }
+    }
+    if ( entry == NULL || element == NULL ) {
+      entry = allocate_match_entry( ofp_match, priority );
+      if ( element == NULL ) {
+        // tail
+        append_to_tail( &match_table_head.wildcard_table, entry );
+      }
+      else if ( element == match_table_head.wildcard_table ) {
+        // head
+        insert_in_front( &match_table_head.wildcard_table, entry );
+      }
+      else {
+        // insert brefore
+        insert_before( &match_table_head.wildcard_table, element->data, entry );
+      }
+    }
   }
-  if ( list == match_table_head.wildcard_table ) {
-    // head
-    insert_in_front( &match_table_head.wildcard_table, new_entry );
-    pthread_mutex_unlock( match_table_head.mutex );
-    return;
-  }
-
-  // insert brefore
-  insert_before( &match_table_head.wildcard_table, list->data, new_entry );
+  add_service_name( entry, service_name );
   pthread_mutex_unlock( match_table_head.mutex );
 }
 
@@ -285,36 +317,47 @@ insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *
  * @return None
  */
 void
-delete_match_entry( struct ofp_match *ofp_match ) {
-  match_entry *delete_entry;
-  list_element *list;
+delete_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name ) {
+  assert( ofp_match != NULL );
+  assert( service_name != NULL );
 
   pthread_mutex_lock( match_table_head.mutex );
-
-  assert( ofp_match != NULL );
+  match_entry *entry = NULL;
   if ( !ofp_match->wildcards ) {
-    delete_entry = delete_hash_entry( match_table_head.exact_table, ofp_match );
-    if ( delete_entry == NULL ) {
+    entry = lookup_hash_entry( match_table_head.exact_table, ofp_match );
+    if ( entry == NULL ) {
       pthread_mutex_unlock( match_table_head.mutex );
       return;
     }
   }
   else {
-    for ( list = match_table_head.wildcard_table; list != NULL; list = list->next ) {
-      delete_entry = list->data;
-      if ( ( ( ( delete_entry->ofp_match.wildcards ^ ofp_match->wildcards ) & OFPFW_ALL ) == 0 )
-          && compare_match( &delete_entry->ofp_match, ofp_match ) ) {
+    // wildcard flags are set
+    list_element *element;
+    for ( element = match_table_head.wildcard_table; element != NULL; element = element->next ) {
+      entry = element->data;
+      if ( entry->priority == priority 
+           && ( ( entry->ofp_match.wildcards ^ ofp_match->wildcards ) & OFPFW_ALL ) == 0
+           && compare_match( &entry->ofp_match, ofp_match ) ) {
         break;
       }
     }
-    if ( list == NULL ) {
+    if ( element == NULL ) {
       pthread_mutex_unlock( match_table_head.mutex );
       return;
     }
-    delete_element( &match_table_head.wildcard_table, delete_entry );
   }
-  free_match_entry( delete_entry );
+  delete_service_name( entry, service_name );
+  if ( services_name_length_of( entry ) == 0 ) {
+    if ( !ofp_match->wildcards ) {
+      delete_hash_entry( match_table_head.exact_table, ofp_match );
+    }
+    else {
+      delete_element( &match_table_head.wildcard_table, entry );
+    }
+    free_match_entry( entry );
+  }
   pthread_mutex_unlock( match_table_head.mutex );
+  return;
 }
 
 

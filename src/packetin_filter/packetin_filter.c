@@ -65,7 +65,7 @@ buffer *mock_create_packet_in( const uint32_t transaction_id, const uint32_t buf
 #endif
 #define insert_match_entry mock_insert_match_entry
 void mock_insert_match_entry( struct ofp_match *ofp_match, uint16_t priority,
-                              const char *service_name, const char *entry_name );
+                              const char *service_name );
 
 #ifdef lookup_match_entry
 #undef lookup_match_entry
@@ -202,41 +202,41 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   message = append_front_buffer( buf, sizeof( openflow_service_header_t ) );
   message->datapath_id = htonll( datapath_id );
   message->service_name_length = htons( 0 );
-  if ( !send_message( match_entry->service_name, MESSENGER_OPENFLOW_MESSAGE,
-                      buf->data, buf->length ) ) {
-    error( "Failed to send a message to %s ( entry_name = %s, match = %s ).",
-           match_entry->service_name, match_entry->entry_name, match_str );
-    free_buffer( buf );
-    return;
+  list_element *element;
+  for ( element = match_entry->services_name; element != NULL; element = element->next ) {
+    const char *service_name = element->data;
+    if ( !send_message( service_name, MESSENGER_OPENFLOW_MESSAGE,
+                        buf->data, buf->length ) ) {
+      error( "Failed to send a message to %s ( match = %s ).", service_name, match_str );
+      free_buffer( buf );
+      return;
+    }
+  
+    debug( "Sending a message to %s ( match = %s ).", service_name, match_str );
   }
-
-  debug( "Sending a message to %s ( entry_name = %s, match = %s ).",
-         match_entry->service_name, match_entry->entry_name, match_str );
 
   free_buffer( buf );
 }
 
 
 static void
-register_dl_type_filter( uint16_t dl_type, uint16_t priority,
-                         const char *service_name, const char *entry_name ) {
+register_dl_type_filter( uint16_t dl_type, uint16_t priority, const char *service_name ) {
   struct ofp_match ofp_match;
   memset( &ofp_match, 0, sizeof( struct ofp_match ) );
   ofp_match.wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE;
   ofp_match.dl_type = dl_type;
 
-  insert_match_entry( &ofp_match, priority, service_name, entry_name );
+  insert_match_entry( &ofp_match, priority, service_name );
 }
 
 
 static void
-register_any_filter( uint16_t priority, const char *service_name,
-                     const char *entry_name ) {
+register_any_filter( uint16_t priority, const char *service_name ) {
   struct ofp_match ofp_match;
   memset( &ofp_match, 0, sizeof( struct ofp_match ) );
   ofp_match.wildcards = OFPFW_ALL;
 
-  insert_match_entry( &ofp_match, priority, service_name, entry_name );
+  insert_match_entry( &ofp_match, priority, service_name );
 }
 
 
@@ -261,11 +261,10 @@ set_match_type( int argc, char *argv[] ) {
   const char *service_name;
   for ( i = 1; i < argc; i++ ) {
     if ( ( service_name = match_type( LLDP_PACKET_IN, argv[ i ] ) ) != NULL ) {
-      register_dl_type_filter( ETH_ETHTYPE_LLDP, OFP_DEFAULT_PRIORITY,
-                               service_name, "filter-lldp" );
+      register_dl_type_filter( ETH_ETHTYPE_LLDP, OFP_DEFAULT_PRIORITY, service_name );
     }
     else if ( ( service_name = match_type( ANY_PACKET_IN, argv[ i ] ) ) != NULL ) {
-      register_any_filter( 0, service_name, "filter-any" );
+      register_any_filter( 0, service_name );
     }
     else {
       return false;

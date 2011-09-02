@@ -39,15 +39,19 @@
 typedef struct match_entry {
   struct ofp_match ofp_match; /*!< match data. host byte order */
   uint16_t priority;
+<<<<<<< HEAD
   char *service_name; /*!< application service name of messenger */
   char *entry_name; /*!< name of match entry */
+=======
+  list_element *services_name; // application service name of messenger
+>>>>>>> 3f8148ae1b5b2c7ef76cd74199e7795fc4223885
 } match_entry;
 
 
 void init_match_table( void );
 void finalize_match_table( void );
-void insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name, const char *entry_name );
-void delete_match_entry( struct ofp_match *ofp_match );
+void insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name );
+void delete_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name );
 match_entry *lookup_match_entry( struct ofp_match *match );
 
 
