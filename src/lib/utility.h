@@ -19,6 +19,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Utility function definitions for basic library function
+ *
+ */
 
 #ifndef UTILITY_H
 #define UTILITY_H

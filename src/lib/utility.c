@@ -17,6 +17,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Utility functions for basic library function
+ *
+ * @code
+ * // Use of compare_string and hash_string
+ * send_queues = create_hash( compare_string, hash_string );
+ * // Converts flow entry to string
+ * match_to_string( &m, match_str, sizeof( match_str ) );
+ * // Converts Physical port to string
+ * phy_port_to_string( port->data, port_str, sizeof( port_str ) );
+ * @endcode
+ */
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -34,6 +48,12 @@
 #include "utility.h"
 
 
+/**
+ * Abort routine for Trema Application.
+ * @param format Pointer to constant format specifier
+ * @param ... Variable argument list
+ * @return unsigned int Hash value
+ */
 static void
 _die( const char *format, ... ) {
   char err[ 1024 ];
@@ -50,6 +70,12 @@ _die( const char *format, ... ) {
 void ( *die )( const char *format, ... ) = _die;
 
 
+/**
+ * Compares two strings.
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
+ */
 bool
 compare_string( const void *x, const void *y ) {
   return strcmp( x, y ) == 0 ? true : false;
@@ -57,9 +83,10 @@ compare_string( const void *x, const void *y ) {
 
 
 /**
- * Generates a hash value from a string.
- *
- * FNV-1a is used for hashing. See http://isthe.com/chongo/tech/comp/fnv/index.html.
+ * Generates a hash value (Fowler Noll Vo 1a hash function) from a string.
+ * @param key Pointer to constant key identifier
+ * @return unsigned int Hash value
+ * @see http://isthe.com/chongo/tech/comp/fnv/index.html
  */
 unsigned int
 hash_string( const void *key ) {
@@ -79,13 +106,23 @@ hash_string( const void *key ) {
 }
 
 
+/**
+ * Compares first "N" elements of strings.
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
+ */
 bool
 compare_mac( const void *x, const void *y ) {
   return memcmp( x, y, OFP_ETH_ALEN ) == 0 ? true : false;
 }
 
 
-// The lowest 4 bytes of the mac address is used as a hash value.
+/**
+ * Generates hash value (Lowest four bytes of MAC address) from MAC address.
+ * @param mac A void type pointer to constant MAC address
+ * @return unsigned int Hash value
+ */
 unsigned int
 hash_mac( const void *mac ) {
   uint8_t mac_copy[ OFP_ETH_ALEN ];
@@ -98,6 +135,11 @@ hash_mac( const void *mac ) {
 }
 
 
+/**
+ * Converts MAC address to uint64_t type.
+ * @param mac Pointer to constant MAC address
+ * @return uint64_t MAC address in this type
+ */
 uint64_t
 mac_to_uint64( const uint8_t *mac ) {
   return ( ( uint64_t ) mac[ 0 ] << 40 ) +
@@ -109,24 +151,46 @@ mac_to_uint64( const uint8_t *mac ) {
 }
 
 
+/**
+ * Compares two uint32_t type constants.
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
+ */
 bool
 compare_uint32( const void *x, const void *y ) {
   return *( ( const uint32_t * ) x ) == *( ( const uint32_t * ) y ) ? true : false;
 }
 
 
+/**
+ * Generates hash in uint32_t type.
+ * @param key Pointer to constant key identifier
+ * @return unsigned int Hash value
+ */
 unsigned int
 hash_uint32( const void *key ) {
   return ( *( ( const uint32_t * ) key ) % UINT_MAX );
 }
 
 
+/**
+ * Compares two datapath_ids.
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
+ */
 bool
 compare_datapath_id( const void *x, const void *y ) {
   return *( ( const uint64_t * ) x ) == *( ( const uint64_t * ) y ) ? true : false;
 }
 
 
+/**
+ * Generates hash from datapath_id.
+ * @param key Pointer to constant key identifier
+ * @return unsigned int Hash value
+ */
 unsigned int
 hash_datapath_id( const void *key ) {
   const uint32_t *datapath_id = ( const uint32_t * ) key;
@@ -134,6 +198,12 @@ hash_datapath_id( const void *key ) {
 }
 
 
+/**
+ * Converts string to datapath_id.
+ * @param str A char pointer to constant string
+ * @param datapath_id Pointer to converted datapath_id
+ * @return bool True if conversion occurs, else False
+ */
 bool
 string_to_datapath_id( const char *str, uint64_t *datapath_id ) {
   char *endp = NULL;
@@ -145,6 +215,14 @@ string_to_datapath_id( const char *str, uint64_t *datapath_id ) {
 }
 
 
+/**
+ * Converts structure of type ofp_match (Flow table entry) to user readable
+ * string.
+ * @param match Pointer to structure of type ofp_match
+ * @param str Pointer to converted string
+ * @param size Size of the converted string
+ * @return bool True if conversion occurs, else False
+ */
 bool
 match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   assert( match != NULL );
@@ -190,6 +268,14 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
 }
 
 
+/**
+ * Converts structure of type ofp_phy_port (Physical port) to user readable
+ * string.
+ * @param phy_port Pointer to structure of type ofp_phy_port
+ * @param str Pointer to converted string
+ * @param size Size of the converted string
+ * @return bool True if conversion occurs, else False
+ */
 bool
 phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size ) {
   assert( phy_port != NULL );
