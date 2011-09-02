@@ -54,8 +54,8 @@ OpenFlow switch.
 
   $ ./trema run ./objects/examples/learning_switch/learning_switch
 
-For detailed explanation on the command, please refer to the tutorial
-documents found on http://trema.github.com/trema/.
+For detailed explanation on the command, please refer to the documents
+found on http://trema.github.com/trema/.
 
 
 (Optional) Automated build and test script
