@@ -25,7 +25,6 @@ require "trema"
 describe ActionSetTpDst do
   context "when an instance is created" do
     subject { ActionSetTpDst.new( 5555 ) }
-    
     its( :tp_dst ) { should == 5555 }
     it { should respond_to( :to_s ) }
     it "should print its attributes" do
@@ -58,7 +57,7 @@ describe ActionSetTpDst do
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => ActionSetTpDst.new( 5555 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
       }
     end
   end
