@@ -20,13 +20,32 @@
 
 module Trema
   #
-  # A wrapper to IPAddr class
+  # A wrapper class to IPAddr
   #
   class IP
     require "ipaddr"
+    
+    
+    #
+    # @return [IPAddr] value object instance of proxied IPAddr.
+    #
     attr_reader :value
 
 
+    #
+    # Creates a {IP} instance object as a proxy to IPAddr class.
+    #
+    # @overload initialize(addr)
+    #
+    # @param [String, Number] addr 
+    #   an IPv4 address specified either as a String or Number.
+    #
+    # @raise [ArgumentError] invalid address if supplied argument is invalid
+    #   IPv4 address.
+    #
+    # @return [IP] self
+    #   a proxy to IPAddr.
+    #
     def initialize addr
       if !addr.kind_of? String
         @value = IPAddr.new( addr, Socket::AF_INET )
@@ -36,11 +55,17 @@ module Trema
     end
     
 
+    #
+    # @return [String] the IPv4 address in its text representation.
+    #
     def to_s
       @value.to_s
     end
 
     
+    #
+    # @return [Number] the IPv4 address in its numeric representation.
+    #
     def to_i
       @value.to_i
     end
