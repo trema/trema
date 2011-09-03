@@ -36,7 +36,6 @@ describe ActionSetNwSrc do
       subject.nw_src.to_i.should == 3232235777
     end
     
-    
     it "should append its action to a list of actions" do
       openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
@@ -69,10 +68,10 @@ describe ActionSetNwSrc do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionSetNwSrc.new( IP.new( "192.168.1.1" ) ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ )
       }
     end
   end
