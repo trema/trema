@@ -32,7 +32,6 @@ describe ActionSetVlanPcp do
       subject.to_s.should == "#<Trema::ActionSetVlanPcp> vlan_pcp = 7"
     end
     
-    
     it "should append its action to a list of actions" do
       openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
@@ -56,10 +55,10 @@ describe ActionSetVlanPcp do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionSetVlanPcp.new( 7 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_vlan_pcp:7/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_vlan_pcp:7/ )
       }
     end
   end
