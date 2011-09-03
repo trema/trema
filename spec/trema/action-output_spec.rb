@@ -61,10 +61,10 @@ describe ActionOutput do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionOutput.new( 1 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /output:1/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /output:1/ )
       }
     end
   end
@@ -79,12 +79,11 @@ describe ActionOutput do
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => [ ActionOutput.new( 1 ), ActionOutput.new( 2 ) ] )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /output:1\/output:2/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /output:1\/output:2/ )
       }
     end
   end
 end
-
 
 
 ### Local variables:
