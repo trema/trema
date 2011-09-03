@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::BarrierRequest do
+describe BarrierRequest do
   context "when an instance is created with no arguments" do
     its( :transaction_id ) { should be_a_kind_of( Integer ) }
     its( :transaction_id ) { should >= 0 }
@@ -30,7 +30,7 @@ describe Trema::BarrierRequest do
   
   
   context "when an instance is created with transaction_id" do
-    subject { Trema::BarrierRequest.new( 1234 ) }
+    subject { BarrierRequest.new( 1234 ) }
     its( :transaction_id ) { should == 1234 }
   end
 
@@ -41,7 +41,7 @@ describe Trema::BarrierRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        barrier_request = Trema::BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         controller( "BarrierController" ).should_receive( :barrier_reply )
       }
@@ -55,7 +55,7 @@ describe Trema::BarrierRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        barrier_request = Trema::BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         controller( "BarrierController" ).should_receive( :barrier_reply ) do | message |
           message.datapath_id.should == 0xabc
