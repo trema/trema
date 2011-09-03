@@ -25,7 +25,6 @@ require "trema"
 describe ActionSetVlanPcp do
   context "when an instance is created" do
     subject { ActionSetVlanPcp.new( 7 ) }
-    
     its( :vlan_pcp ) { should  == 7 }
     it { should respond_to( :to_s ) }
     it "should print its attributes" do
