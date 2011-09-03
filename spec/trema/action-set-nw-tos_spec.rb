@@ -22,9 +22,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionSetNwTos do
+describe ActionSetNwTos do
   context "when an instance is created" do
-    subject { Trema::ActionSetNwTos.new( 4 ) }
+    subject { ActionSetNwTos.new( 4 ) }
     its( :nw_tos ) { should == 4 }
     it { should respond_to( :to_s ) }
     it "should print its attributes" do
@@ -33,7 +33,7 @@ describe Trema::ActionSetNwTos do
     
     
     it "should append its action to a list of actions" do
-      openflow_actions = double( )
+      openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
@@ -43,7 +43,7 @@ describe Trema::ActionSetNwTos do
   context "when nw_tos is not supplied" do
     it "should raise an error" do
       lambda do
-        Trema::ActionSetNwTos.new( )
+        ActionSetNwTos.new
       end.should raise_error ArgumentError
     end
   end
