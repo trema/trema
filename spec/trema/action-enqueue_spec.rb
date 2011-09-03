@@ -22,9 +22,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionEnqueue do
+describe ActionEnqueue do
   context "when a new instance is created" do
-    subject { Trema::ActionEnqueue.new( 1, 123 ) }
+    subject { ActionEnqueue.new( 1, 123 ) }
     
     its ( :port ) { should == 1 }
     its ( :queue_id ) { should == 123 }
@@ -34,7 +34,7 @@ describe Trema::ActionEnqueue do
     end
     
     it "should append its attributes to a list of actions" do
-      openflow_actions = double( )
+      openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
@@ -43,7 +43,7 @@ describe Trema::ActionEnqueue do
     context "when only one argument is supplied" do
       it "should raise an error" do
         lambda do
-          Trema::ActionEnqueue.new( 1 )
+          ActionEnqueue.new( 1 )
         end.should raise_error ArgumentError
       end
     end 
@@ -52,7 +52,7 @@ describe Trema::ActionEnqueue do
     context "when no argument supplied" do
       it "should raise an error" do
         lambda do
-          Trema::ActionEnqueue.new( )
+          ActionEnqueue.new
         end.should raise_error ArgumentError
       end
     end
