@@ -22,9 +22,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionSetTpSrc do
+describe ActionSetTpSrc do
   context "when an instance is created" do
-    subject { Trema::ActionSetTpSrc.new( 5555 ) }
+    subject { ActionSetTpSrc.new( 5555 ) }
     
     its( :tp_src ) { should == 5555 }
     it { should respond_to( :to_s ) }
@@ -33,7 +33,7 @@ describe Trema::ActionSetTpSrc do
     end
     
     it "should append its action to a list of actions" do
-      openflow_actions = double( )
+      openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
@@ -41,7 +41,7 @@ describe Trema::ActionSetTpSrc do
     context "when tp_src argument is not supplied" do
       it "should raise an error" do
         lambda do
-          Trema::ActionSetTpSrc.new( )
+          ActionSetTpSrc.new
         end.should raise_error ArgumentError
       end
     end
