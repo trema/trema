@@ -31,8 +31,7 @@ VALUE cActionStripVlan;
  *
  * @overload initialize()
  *
- * @return [ActionStripVlan]
- *   an object that encapsulates this action.
+ * @return [ActionStripVlan] an object that encapsulates this action.
  */
 static VALUE
 action_strip_vlan_init( VALUE self ) {
@@ -41,17 +40,15 @@ action_strip_vlan_init( VALUE self ) {
 
 
 /*
- * Appends its action (strip VLAN tag) to the list of actions.
+ * Appends its action(strip VLAN tag) to the list of actions.
  *
  * @return [ActionStripVlan] self
  */
 static VALUE
 action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
-
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_strip_vlan( actions );
-
   return self;
 }
 
@@ -61,10 +58,9 @@ action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
  */
 static VALUE
 action_strip_vlan_to_s( VALUE self ) {
-  char str[ 64 ];
-
+	char str[ 64 ];
   sprintf( str, "#<%s>", rb_obj_classname( self ) );
-  return rb_str_new2( str );
+	return rb_str_new2( str );
 }
 
 
