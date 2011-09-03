@@ -25,7 +25,6 @@ require "trema"
 describe ActionSetTpSrc do
   context "when an instance is created" do
     subject { ActionSetTpSrc.new( 5555 ) }
-    
     its( :tp_src ) { should == 5555 }
     it { should respond_to( :to_s ) }
     it "should print its attributes" do
