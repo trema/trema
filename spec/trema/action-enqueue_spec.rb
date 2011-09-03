@@ -25,7 +25,6 @@ require "trema"
 describe ActionEnqueue do
   context "when a new instance is created" do
     subject { ActionEnqueue.new( 1, 123 ) }
-    
     its ( :port ) { should == 1 }
     its ( :queue_id ) { should == 123 }
     it { should respond_to :to_s }
