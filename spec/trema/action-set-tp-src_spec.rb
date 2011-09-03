@@ -54,10 +54,10 @@ describe ActionSetTpSrc do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionSetTpSrc.new( 5555 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ )
       }
     end
   end
