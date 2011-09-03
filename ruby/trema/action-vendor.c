@@ -34,8 +34,7 @@ VALUE cActionVendor;
  * @param [Number] vendor
  *   the vendor id this action refers to.
  *
- * @return [ActionVendor]
- *   An object that encapsulates this action.
+ * @return [ActionVendor] an object that encapsulates this action.
  */
 static VALUE
 action_vendor_init( VALUE self, VALUE vendor ) {
@@ -66,7 +65,6 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_vendor( actions, vendor, NULL );
-
   return self;
 }
 
@@ -76,9 +74,8 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
  */
 static VALUE
 action_vendor_to_s( VALUE self ) {
-  char str[ 64 ];
   uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
-
+  char str[ 64 ];
   sprintf( str, "#<%s> vendor = %u", rb_obj_classname( self ), vendor );
   return rb_str_new2( str );
 }
