@@ -31,7 +31,6 @@ describe ActionSetDlSrc do
       subject.to_s.should == "#<Trema::ActionSetDlSrc> dl_src = 52:54:00:a8:ad:8c"
     end
     
-    
     it "should append its action to a list of actions" do
       openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
@@ -48,7 +47,7 @@ describe ActionSetDlSrc do
     end
   
 
-    context "when dl_src is not a Trema::Mac object" do  
+    context "when dl_src is not a Trema::Mac object" do
       it "should raise an error" do
         lambda do
           ActionSetDlSrc.new( 1234 )
