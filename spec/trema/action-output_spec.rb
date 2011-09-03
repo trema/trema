@@ -22,9 +22,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionOutput do
+describe ActionOutput do
   context "when an instance is created with argument port" do
-    subject { Trema::ActionOutput.new( 1 ) }
+    subject { ActionOutput.new( 1 ) }
     its( :port ) { should  == 1 }
     its( :max_len ) { should == 65535 }
     it "should print its attributes" do
@@ -32,7 +32,7 @@ describe Trema::ActionOutput do
     end
     
     it "should append its attributes to a list of actions" do
-      openflow_actions = double( )
+      openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
@@ -41,7 +41,7 @@ describe Trema::ActionOutput do
     context "when no argument supplied" do
       it "should raise an error" do
         lambda do 
-          Trema::ActionOutput.new( )
+          ActionOutput.new
         end.should raise_error ArgumentError
       end
     end
@@ -49,7 +49,7 @@ describe Trema::ActionOutput do
   
   
   context "when an instance is created with port, max_len arguments" do
-    subject { Trema::ActionOutput.new( 1, 256 ) }
+    subject { ActionOutput.new( 1, 256 ) }
     its( :port ) { should == 1 }
     its( :max_len ) { should == 256 }
   end
