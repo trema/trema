@@ -22,15 +22,16 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionStripVlan do
+describe ActionStripVlan do
   context "when an instance is created" do
     it { should respond_to( :to_s ) }
     it "should print its attributes" do
       subject.to_s.should == "#<Trema::ActionStripVlan>"
     end
+
     
     it "should append its action to a list of actions" do
-      openflow_actions = double( )
+      openflow_actions = double()
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
@@ -46,7 +47,7 @@ describe Trema::ActionStripVlan do
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => ActionStripVlan.new( ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /strip_vlan/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /strip_vlan/ )
       }
     end
   end
