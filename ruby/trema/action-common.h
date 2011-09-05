@@ -40,4 +40,3 @@ uint8_t *dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr );
  * indent-tabs-mode: nil
  * End:
  */
-
