@@ -606,15 +606,6 @@ set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, voi
 }
 
 
-<<<<<<< HEAD
-/**
- * Handles messages from switch denoting any error. Calls error_callback with datapath_id and all information in 
- * event handlers.
- * @param datapath_id Datapath unique ID
- * @param data Pointer to network packet containing error information
- * @return None
- */
-=======
 bool
 set_list_switches_reply_handler( list_switches_reply_handler callback ) {
   if ( callback == NULL ) {
@@ -633,7 +624,13 @@ set_list_switches_reply_handler( list_switches_reply_handler callback ) {
 }
 
 
->>>>>>> dd4bcffa04a8d4dbf4ffed0ec92d7b06e2f5bb00
+/**
+ * Handles messages from switch denoting any error. Calls error_callback with datapath_id and all information in 
+ * event handlers.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing error information
+ * @return None
+ */
 static void
 handle_error( const uint64_t datapath_id, buffer *data ) {
   uint16_t type, code;
