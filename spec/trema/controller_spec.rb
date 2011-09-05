@@ -24,6 +24,26 @@ require "trema"
 
 module Trema
   describe Controller do
+    context "when an instance is created" do
+      subject { Controller.new }
+
+      it "should have OpenFlow constants" do
+        Controller::OFPP_MAX.should == 0xff00
+        Controller::OFPP_IN_PORT.should == 0xfff8
+        Controller::OFPP_TABLE.should == 0xfff9
+        Controller::OFPP_NORMAL.should == 0xfffa
+        Controller::OFPP_FLOOD.should == 0xfffb
+        Controller::OFPP_ALL.should == 0xfffc
+        Controller::OFPP_CONTROLLER.should == 0xfffd
+        Controller::OFPP_LOCAL.should == 0xfffe
+        Controller::OFPP_NONE.should == 0xffff
+
+        Controller::OFPPR_ADD.should == 0x0
+        Controller::OFPPR_DELETE.should == 0x1
+        Controller::OFPPR_MODIFY.should == 0x2
+      end
+    end
+
     context "when logging" do
       subject { Controller.new }
 
