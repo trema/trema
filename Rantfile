@@ -420,7 +420,7 @@ end
 desc "Build switch manager."
 task :switch_manager => Trema::Executables.switch_manager
 file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -441,7 +441,7 @@ end
 desc "Build switch."
 task :switch => Trema::Executables.switch
 file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -466,7 +466,7 @@ end
 desc "Build packetin filter."
 task :packetin_filter => Trema::Executables.packetin_filter
 file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -491,7 +491,7 @@ end
 desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
 file Trema::Executables.tremashark => objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -533,7 +533,7 @@ standalone_examples.each do | each |
   desc "Build #{ each } example."
   task "examples:#{ each }" => target
   file target => objects.candidates + [ libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -572,7 +572,7 @@ openflow_messages.each do | each |
   target = File.join( openflow_message_objects_dir, each )
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lrt"
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -635,7 +635,7 @@ libtrema_unit_tests.keys.each do | each |
   task :build_old_unittests => target
   task target => "vendor:cmockery"
   file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
-    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lpthread --coverage --static"
+    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lsqlite3 -ldl -lpthread --coverage --static"
   end
 end
 
@@ -649,6 +649,7 @@ tests = [
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
   "objects/unittests/packet_parser_test",
+  "objects/unittests/persistent_storage_test",
   "objects/unittests/trema_private_test",
   "objects/unittests/utility_test",
   "objects/unittests/wrapper_test",
@@ -665,7 +666,7 @@ tests.each do | each |
   task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
   file each do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
-    sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
+    sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
   end
 end
 

@@ -40,18 +40,37 @@ port_mod_alloc( VALUE kclass ) {
 }
 
 
+/*
+ * A {PortMod} instance a request object to perform operations on a physical port.
+ *
+ * @overload initialize(port_no, hw_addr, config, mask, advertise)
+ *
+ *   @param [Number] port_no an index into datapath's ports list.
+ *
+ *   @param [String,Number,Trema::Mac] hw_addr the hardware address of a port.
+ *     Unique for each port. Obtained from +OFPT_FEATURES_REPLY+ message.
+ *     Can be supplied as a string, number or as a Mac object. 
+ *
+ *   @param [Number] config a bitmap that can be set to configure a port.
+ *
+ *   @param [Number] mask set the bits of the +config+ flag to change.
+ *
+ *   @param [Number] advertise bitmap of +ofp_port_features+ set to zero to prevent
+ *     any changes. Or can be copied from +OFPT_FEATURES_REPLY+ message.
+ *
+ * @return [PortMod]
+ *   an object that encapsulates the +OFPT_PORT_MOD+ openflow message.
+ */
 static VALUE
 port_mod_init( VALUE self,
-        VALUE port_no,
-        VALUE hw_addr,
-        VALUE config,
-        VALUE mask,
-        VALUE advertise ) {
+  VALUE port_no,
+  VALUE hw_addr,
+  VALUE config,
+  VALUE mask,
+  VALUE advertise ) {
   buffer *port_mod;
   VALUE mac = hw_addr;
-  uint32_t transaction_id = get_transaction_id( );
-  uint8_t haddr[ OFP_ETH_ALEN ];
-  uint8_t *ptr;
+  uint32_t transaction_id = get_transaction_id();
 
   Data_Get_Struct( self, buffer, port_mod );
   if ( rb_obj_is_kind_of( hw_addr, rb_cString ) == Qtrue ||
@@ -60,6 +79,8 @@ port_mod_init( VALUE self,
   } else if ( rb_obj_is_instance_of( hw_addr, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
     rb_raise( rb_eArgError, "hw_addr must be a string or an integer or Mac object" );
   }
+  uint8_t *ptr;
+  uint8_t haddr[ OFP_ETH_ALEN ];
   ptr = ( uint8_t* ) dl_addr_short( mac, haddr );
   rb_iv_set( self, "@transaction_id", UINT2NUM( transaction_id ) );
   rb_iv_set( self, "@port_no", port_no );
@@ -78,36 +99,67 @@ port_mod_init( VALUE self,
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction_id.
+ */
 static VALUE
 port_mod_transaction_id( VALUE self ) {
   return rb_iv_get( self, "@transaction_id" );
 }
 
 
+/*
+ * Port number and hardware address as a pair identify a port.
+ *
+ * @return [Number] the value of attribute port_no.
+ */
 static VALUE
 port_mod_port_no( VALUE self ) {
   return rb_iv_get( self, "@port_no" );
 }
 
 
+/*
+ * Ethernet address converted and stored as a {Trema::Mac} object.
+ *
+ * @return [Mac] the value of attribute hw_addr.
+ */
 static VALUE
 port_mod_hw_addr( VALUE self ) {
   return rb_iv_get( self, "@hw_addr" );
 }
 
 
+/*
+ * A port can be administratively brought down, disable flooding or packet 
+ * forwarding or any other options as per +ofp_port_config+. flags.
+ *
+ * @return [Number] the value of attribute config.
+ */
 static VALUE
 port_mod_config( VALUE self ) {
   return rb_iv_get( self, "@config" );
 }
 
 
+/*
+ * Set the bitmap as per +config+ attribute.
+ *
+ * @return [Number] the value of attribute mask.
+ */
 static VALUE
 port_mod_mask( VALUE self ) {
   return rb_iv_get( self, "@mask" );
 }
 
 
+/*
+ * Set to zero to prevent any changes.
+ *
+ * @return [Number] the value of attribute advertise. 
+ */
 static VALUE
 port_mod_advertise( VALUE self ) {
   return rb_iv_get( self, "@advertise" );
@@ -115,7 +167,7 @@ port_mod_advertise( VALUE self ) {
 
 
 void
-Init_port_mod( ) {
+Init_port_mod() {
   cPortMod = rb_define_class_under( mTrema, "PortMod", rb_cObject );
   rb_define_alloc_func( cPortMod, port_mod_alloc );
   rb_define_method( cPortMod, "initialize", port_mod_init, 5 );
