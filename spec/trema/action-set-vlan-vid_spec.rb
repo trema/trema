@@ -22,27 +22,29 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionSetVlanVid do
+describe ActionSetVlanVid do
   context "when an instance is created" do
-    it "should have a valid VLAN id attribute" do
-      action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-      action_set_vlan_vid.vlan_vid.should == 1024
+    subject { ActionSetVlanVid.new( 1024 ) }
+    its( :vlan_vid ) { should == 1024 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetVlanVid> vlan_vid = 1024"
     end
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-    action_set_vlan_vid.should respond_to :to_s 
-    action_set_vlan_vid.to_s.should == "#<Trema::ActionSetVlanVid> vlan_vid = 1024"
-  end 
-  
-  
-  it "should append its VLAN id attribute to a list of actions" do
-    action_set_vlan_vid = Trema::ActionSetVlanVid.new( 1024 )
-    openflow_actions = double( )
-    action_set_vlan_vid.should_receive( :append ).with( openflow_actions )
-    action_set_vlan_vid.append( openflow_actions )
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double()
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+
+    
+    context "when VLAN id is not supplied" do
+      it "should raise an error" do
+        lambda do
+          ActionSetVlanVid.new
+        end.should raise_error ArgumentError
+      end
+    end
   end
   
   
@@ -52,10 +54,10 @@ describe Trema::ActionSetVlanVid do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionSetVlanVid.new( 1024 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ )
       }
     end
   end
