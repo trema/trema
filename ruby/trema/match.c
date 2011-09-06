@@ -38,24 +38,85 @@ match_alloc( VALUE klass ) {
 static struct 
 ofp_match *get_match( VALUE self ) {
   struct ofp_match *match;
-
   Data_Get_Struct( self, struct ofp_match, match );
   return match;
 }
 
 
+/*
+ * Creates a {Match} instance from packet_in's data, the method accepts an
+ * additional single argument whose type is an array of symbols to wildcard set
+ * to don't care and ignore while matching flow entries.
+ *
+ * @overload match_from(message, *options)
+ *
+ *   @example
+ *     def packet_in datapath_id, message
+ *       send_flow_mod(
+ *         datapath_id,
+ *         :match => Match.from( message, [ :dl_type, :nw_proto ] ),
+ *         :actions => Trema::ActionOutput.new( 2 )
+ *       )
+ *     end
+ *
+ *   @param [PacketIn] message
+ *     the {PacketIn}'s message content.
+ *
+ *   @param [optional, Array] options
+ *     If supplied an array of symbol ids indicating fields to be wildcarded.
+ *
+ *     [:inport]
+ *       the physical port number to wildcard.
+ *
+ *     [:dl_src]
+ *       the source Ethernet address to wildcard.
+ *
+ *     [:dl_dst]
+ *       the destination Ethernet address to wildcard.
+ *
+ *     [:dl_vlan]
+ *       the IEEE 802.1q virtual VLAN tag to wildcard.
+ *
+ *     [:dl_vlan_pcp]
+ *       the IEEE 802.1q priority code point to wildcard.
+ *
+ *     [:dl_type]
+ *       the Ethernet protocol type to wildcard.
+ *
+ *     [:nw_tos]
+ *       the IP ToS /DSCP field to wildcard.
+ *
+ *     [:nw_proto]
+ *       the IP protocol type to wildcard.
+ *
+ *     [:nw_src]
+ *       the IPv4 source address to wildcard.
+ *
+ *     [:nw_dst]
+ *       the IPv4 destination address to wildcard.
+ *
+ *     [:tp_src]
+ *       the source TCP/UDP port number to wildcard.
+ *
+ *     [:tp_dst]
+ *       the destination TCP/UDP port number to wildcard.
+ *
+ * @return [Match] self
+ *   the modified or exact match from packet depending on whether the options 
+ *   argument supplied or not.
+ */
 static VALUE
 match_from( int argc, VALUE *argv, VALUE self ) {
   VALUE message, obj, wildcard_id, options;
   struct ofp_match *match;
   packet_in *packet;
-  int i;
   uint32_t wildcards = 0;
 
   if ( rb_scan_args( argc, argv, "1*", &message, &options ) >= 1 ) {
     obj = rb_funcall( self, rb_intern( "new" ), 0 );
     match = get_match( obj );
     Data_Get_Struct( message, packet_in, packet );
+    int i;
     for ( i = 0; i < RARRAY_LEN( options ); i++ ) {
       wildcard_id = SYM2ID( RARRAY_PTR( options )[ i ] );
       if ( rb_intern( "inport" ) == wildcard_id ) {
@@ -101,6 +162,12 @@ match_from( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Replaces context of {Match} self with {Match} other.
+ *
+ * @return [Match] self
+ *   the modified object instance.
+ */
 static VALUE
 match_replace( VALUE self, VALUE other ) {
   memcpy( get_match( self ), get_match( other ), sizeof ( struct ofp_match ) );
@@ -108,6 +175,9 @@ match_replace( VALUE self, VALUE other ) {
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 match_to_s( VALUE self ) {
   char match_str[ 1024 ];
@@ -117,12 +187,20 @@ match_to_s( VALUE self ) {
 }
 
 
+/*
+ * The wildcard field expressed as a 32-bit bitmap,
+ *
+ * @return [Number] the value of attribute wildcards.
+ */
 static VALUE
 match_wildcards( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->wildcards );
 }
 
 
+/*
+ * @return [Number] the value of attribute in_port.
+ */
 static VALUE
 match_in_port( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->in_port );
@@ -144,73 +222,189 @@ match_dl( VALUE self, uint8_t which ) {
 }
 
 
+/*
+ * @return [Mac] the value of attribute dl_src.
+ */
 static VALUE
 match_dl_src( VALUE self ) {
-
   return match_dl( self, 1 );
 }
 
 
+/*
+ * @return [Mac] the value of attribute dl_dst.
+ */
 static VALUE
 match_dl_dst( VALUE self ) {
   return match_dl( self, 0 );
 }
 
 
+/*
+ * @return [Number] the value of attribute dl_vlan.
+ */
 static VALUE
 match_dl_vlan( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->dl_vlan );
 }
 
 
+/*
+ * @return [Number] the value of attribute dl_vlan_pcp.
+ */
 static VALUE
 match_dl_vlan_pcp( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->dl_vlan_pcp );
 }
 
 
+/*
+ * @return [Number] the value of attribute dl_type.
+ */
 static VALUE
 match_dl_type( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->dl_type );
 }
 
 
+/*
+ * @return [Number] the value of attribute nw_tos.
+ */
 static VALUE
 match_nw_tos( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->nw_tos );
 }
 
 
+/*
+ * @return [Number] the value of attribute nw_proto.
+ */
 static VALUE
 match_nw_proto( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->nw_proto );
 }
 
 
+/*
+ * An IPv4 source address in its numeric representation.
+ *
+ * @return [Number] the value of attribute nw_src.
+ */
 static VALUE
 match_nw_src( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->nw_src );
 }
 
 
+/*
+ * An IPv4 destination address in its numeric representation.
+ * 
+ * @return [Number] the value of attribute nw_dst.
+ */
 static VALUE
 match_nw_dst( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->nw_dst );
 }
 
 
+/*
+ * @return [Number] the value of attribute tp_src.
+ */
 static VALUE
 match_tp_src( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->tp_src );
 }
 
 
+/*
+ * @return [Number] the value of attribute tp_dst.
+ */
 static VALUE
 match_tp_dst( VALUE self ) {
   return UINT2NUM( ( get_match( self ) )->tp_dst );
 }
 
 
+/*
+ * Creates a {Match} instance which describe fields such as MAC addresses, IP
+ * addresses, TCP/UDP ports of a flow to match against. An exact match 
+ * flow would match on all fields whereas don't care bits are wildcarded and
+ * ignored.
+ *
+ * @overload initialize(options={})
+ *
+ *   @example 
+ *     Match.new(
+ *       :in_port => port_no,
+ *       :dl_src => "xx:xx:xx;xx:xx:xx",
+ *       :dl_dst => "xx:xx:xx:xx:xx:xx",
+ *       :dl_type => ethertype,
+ *       :dl_vlan => vlan,
+ *       :dl_vlan_pcp => priority,
+ *       :nw_tos => tos,
+ *       :nw_proto => proto,
+ *       :nw_src => ip_address/netmask,
+ *       :nw_dst => ip_address/netmask,
+ *       :tp_src => port,
+ *       :tp_dst => port,
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :inport
+ *     the physical port number to match.
+ *
+ *   @option options [Symbol] :dl_src
+ *     the source ethernet address to match specified either as 6 pairs of
+ *     hexadecimal digits delimited by colon or as a hexadecimal number.
+ *     (eg. "00:11:22:33:44:55" or 0x001122334455).
+ *
+ *   @option options [Symbol] :dl_dst
+ *     the destination ethernet address to match specified either as a 6 pairs of
+ *     hexadecimal digits delimited by colon or as a hexadecimal number.
+ *     (eg. "00:11:22:33:44:55" or 0x001122334455).
+ *
+ *   @option options [Symbol] :dl_type
+ *     the Ethernet protocol type to match. Can be specified either as a decimal
+ *     or hexadecimal number. (eg 0x0800 to match IP packets, 0x08006 to match
+ *     ARP packets, 0x88cc for LLDP packets).
+ *
+ *   @option options [Symbol] :dl_vlan
+ *     the IEEE 802.1q virtual VLAN tag to match specified as a 12-bit number
+ *     0 to 4095 inclusive.
+ *
+ *   @option options [Symbol] :dl_vlan_pcp
+ *     the IEEE 802.1q Priority Code Point (PCP) to match specified as a value of
+ *     0 to 7 inclusive. A higher value indicates a higher priority frame.
+ *
+ *   @option options [Symbol] :nw_tos
+ *     the IP ToS/DSCP field to match specified as a decimal number between 0 and
+ *     255 inclusive.
+ *
+ *   @option options [Symbol] :nw_proto
+ *     Depending on the dl_type the IP protocol type to match. (eg if dl_type
+ *     equals 0x0800 UDP packets can be match by setting nw_proto to 17.)
+ *     to match TCP packets). When dl_type = 0x0806 is set to arp it matches the
+ *     lower 8 bits of the ARP opcode.
+ *
+ *   @option options [Symbol] :nw_src
+ *     the IPv4 source address to match if dl_type is set to 0x0800.
+ *
+ *   @option options [Symbol] :nw_dst
+ *     the IPv4 destination address to match if dl_type is set to 0x0800.
+ *
+ *   @option options [Symbol] :tp_src
+ *     the source TCP/UDP port number to match specified as a decimal number
+ *     between 0 and 65535 inclusive. The value dl_type and nw_proto must be set
+ *     to specify TCP or UDP.
+ *
+ *   @option options [Symbol] :tp_dst
+ *     the destination TCP/UDP port number to match specified as a decimal number
+ *     between 0 and 65535 inclusive.
+ *
+ * @return [Match] self
+ *   an object that encapsulates and wraps the +struct ofp_match+
+ */
 static VALUE
 match_init( int argc, VALUE *argv, VALUE self ) {
   struct ofp_match *match;
