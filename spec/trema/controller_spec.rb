@@ -24,25 +24,22 @@ require "trema"
 
 module Trema
   describe Controller do
-    context "when an instance is created" do
-      subject { Controller.new }
+    subject { Controller }
 
-      it "should have OpenFlow constants" do
-        Controller::OFPP_MAX.should == 0xff00
-        Controller::OFPP_IN_PORT.should == 0xfff8
-        Controller::OFPP_TABLE.should == 0xfff9
-        Controller::OFPP_NORMAL.should == 0xfffa
-        Controller::OFPP_FLOOD.should == 0xfffb
-        Controller::OFPP_ALL.should == 0xfffc
-        Controller::OFPP_CONTROLLER.should == 0xfffd
-        Controller::OFPP_LOCAL.should == 0xfffe
-        Controller::OFPP_NONE.should == 0xffff
+    its( :constants ) { should include( "OFPP_MAX" ) }
+    its( :constants ) { should include( "OFPP_IN_PORT" ) }
+    its( :constants ) { should include( "OFPP_TABLE" ) }
+    its( :constants ) { should include( "OFPP_NORMAL" ) }
+    its( :constants ) { should include( "OFPP_FLOOD" ) }
+    its( :constants ) { should include( "OFPP_ALL" ) }
+    its( :constants ) { should include( "OFPP_CONTROLLER" ) }
+    its( :constants ) { should include( "OFPP_LOCAL" ) }
+    its( :constants ) { should include( "OFPP_NONE" ) }
+    
+    its( :constants ) { should include( "OFPPR_ADD" ) }
+    its( :constants ) { should include( "OFPPR_DELETE" ) }
+    its( :constants ) { should include( "OFPPR_MODIFY" ) }
 
-        Controller::OFPPR_ADD.should == 0x0
-        Controller::OFPPR_DELETE.should == 0x1
-        Controller::OFPPR_MODIFY.should == 0x2
-      end
-    end
 
     context "when logging" do
       subject { Controller.new }
