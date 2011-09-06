@@ -22,26 +22,31 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::QueueGetConfigRequest do
+describe QueueGetConfigRequest do
   context "when an instance is created with no arguments" do
-    it "should have a valid port  attributes" do
-      queue_get_config_request = QueueGetConfigRequest.new
-      queue_get_config_request.port.should == 1
-    end
+    its( :transaction_id ) { should  >= 0 }
+    its( :port ) { should == 1 }
   end
   
   
   context "when an instance is created with arguments" do
-    it "should have valid attributes" do
-      queue_get_config_request = QueueGetConfigRequest.new( 123, 2 )
-      queue_get_config_request.transaction_id.should == 123
-      queue_get_config_request.port.should == 2
+    subject { QueueGetConfigRequest.new( 123, 2 ) }
+    its( :transaction_id ) { should == 123 }
+    its( :port) { should == 2 }
+  end
+
+  
+  context "when an instance is created with invalid transaction_id" do
+    it "should raise an error" do
+      lambda do
+        QueueGetConfigRequest.new( -1, 1 )
+      end.should raise_error ArgumentError
     end
   end
   
   
   context "when #queue_get_config_request is sent" do
-    it "should receive #queue_get_config_reply" do
+    it "should #queue_get_config_reply" do
       pending "#queue_get_config_reply is not implemented in openvswitch-1.1.2"
       class QueueGetConfigController < Controller; end
       network {
