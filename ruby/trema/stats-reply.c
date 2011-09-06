@@ -28,13 +28,14 @@ VALUE cStatsReply;
 
 
 /*
- * This is the reply message to +OFPT_STATS_REQUEST+ request message. The body 
- * of the reply message may be an array of one or more reply objects. 
- * The user would not instantiate stats. reply objects explicitly, the stats. 
+ * A {StatsReply} instance that encapsulates the header part of the
+ * +OFPT_STATS_REPLY+ message. The body of the reply message may be an array
+ * of one or more specific reply objects designated by the type.
+ * The user would not instantiate stats. reply objects explicitly, the stats.
  * reply handler would normally do that while parsing the message.
- * 
+ *
  * @overload initialize(options={})
- * 
+ *
  *   @example
  *     StatsReply.new(
  *       :datapath_id => 0xabc,
@@ -43,58 +44,94 @@ VALUE cStatsReply;
  *       :flags => 0,
  *       :stats => [FlowStatsReply]
  *     )
- * 
+ *
  *   @param [Hash] options the options hash.
- * 
+ *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
- * 
+ *
  *   @option options [Symbol] :transaction_id
  *     transaction_id value carried over from request.
  *
  *   @option options [Symbol] :type
  *     type id for the reply.
- * 
+ *
  *   @option options [Symbol] :flags
  *     if set to 1 more replies would follow, 0 for the last reply.
- * 
+ *
  *   @option options [FlowStatsReply,...] :stats
  *     an array of objects associated with the reply instance.
- * 
- * @return [StatsReply] 
+ *
+ * @return [StatsReply]
  *   an object that encapsulates the +OFPT_STATS_REPLY+ openflow message.
  */
 static VALUE
-stats_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+stats_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 stats_reply_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction_id.
+ */
 static VALUE
 stats_reply_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * The type of this reply.
+ *
+ * @return [Number] the value of attribute type.
+ */
 static VALUE
 stats_reply_type( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "type" ) ) );
 }
 
 
+/*
+ * Flag that indicates if more reply message(s) expected to follow.
+ *
+ * @return [Number] the value of attribute flags.
+ */
 static VALUE
 stats_reply_flags( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "flags" ) ) );
 }
 
 
+/*
+ * A list of reply type objects for this message.
+ *
+ * @return [Array<FlowStatsReply>] 
+ *   an array of {FlowStatsReply} objects if type is +OFPST_FLOW+.
+ * @return [Array<TableStatsReply>] 
+ *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
+ * @return [AggregateStatsReply] 
+ *   a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+.
+ * @return [Array<PortStatsReply>] 
+ *   an array of {PortStatsReply} objects if type is +OFPST_PORT+.
+ * @return [Array<QueueStatsReply>] 
+ *   an array of {QueueStatsReply} objects if type is +OFPST_QUEUE+.
+ * @return [VendorStatsReply] 
+ *   a {VendorStatsReply} object if type is +OFPST_VENDOR+.
+ */
 static VALUE
 stats_reply_stats( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "stats" ) ) );
@@ -216,13 +253,13 @@ get_action( const struct ofp_action_header *ah ) {
 
 void
 handle_stats_reply(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint16_t type,
-        uint16_t flags,
-        const buffer *body,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint16_t type,
+  uint16_t flags,
+  const buffer *body,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) {
     return;
@@ -233,26 +270,24 @@ handle_stats_reply(
   if ( !body->length ) {
     return;
   }
-  VALUE attributes = rb_hash_new( );
-  uint16_t body_length;
+  VALUE attributes = rb_hash_new();
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "type" ) ), UINT2NUM( type ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "flags" ) ), UINT2NUM( flags ) );
 
-  body_length = ( uint16_t ) body->length;
+  uint16_t body_length = ( uint16_t ) body->length;
   switch ( type ) {
     case OFPST_FLOW:
     {
       struct ofp_flow_stats *flow_stats;
       struct ofp_action_header *ah;
-      VALUE flow_stats_arr = rb_ary_new( );
+      VALUE flow_stats_arr = rb_ary_new();
       VALUE flow_stats_reply;
       VALUE match_obj;
-      VALUE options = rb_hash_new( );
-      VALUE actions_arr = rb_ary_new( );
-      uint16_t actions_length;
+      VALUE options = rb_hash_new();
+      VALUE actions_arr = rb_ary_new();
 
       flow_stats = ( struct ofp_flow_stats * ) body->data;
 
@@ -271,7 +306,7 @@ handle_stats_reply(
         rb_hash_aset( options, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( flow_stats->packet_count ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( flow_stats->byte_count ) );
 
-        actions_length = ( uint16_t ) ( flow_stats->length - offsetof( struct ofp_flow_stats, actions ) );
+        uint16_t actions_length = ( uint16_t ) ( flow_stats->length - offsetof( struct ofp_flow_stats, actions ) );
 
         ah = ( struct ofp_action_header * ) flow_stats->actions;
         while ( actions_length > 0 ) {
@@ -300,9 +335,9 @@ handle_stats_reply(
     case OFPST_AGGREGATE:
     {
       struct ofp_aggregate_stats_reply *aggregate_stats = ( struct ofp_aggregate_stats_reply * ) body->data;
-      VALUE options = rb_hash_new( );
+      VALUE options = rb_hash_new();
       VALUE aggregate_stats_reply;
-      VALUE aggregate_stats_arr = rb_ary_new( );
+      VALUE aggregate_stats_arr = rb_ary_new();
 
       rb_hash_aset( options, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( aggregate_stats->packet_count ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( aggregate_stats->byte_count ) );
@@ -315,8 +350,8 @@ handle_stats_reply(
     case OFPST_TABLE:
     {
       struct ofp_table_stats *table_stats;
-      VALUE table_stats_arr = rb_ary_new( );
-      VALUE options = rb_hash_new( );
+      VALUE table_stats_arr = rb_ary_new();
+      VALUE options = rb_hash_new();
       VALUE table_stats_reply;
 
       table_stats = ( struct ofp_table_stats * ) body->data;
@@ -344,8 +379,8 @@ handle_stats_reply(
     case OFPST_PORT:
     {
       struct ofp_port_stats *port_stats;
-      VALUE port_stats_arr = rb_ary_new( );
-      VALUE options = rb_hash_new( );
+      VALUE port_stats_arr = rb_ary_new();
+      VALUE options = rb_hash_new();
       VALUE port_stats_reply;
 
       port_stats = ( struct ofp_port_stats * ) body->data;
@@ -378,8 +413,8 @@ handle_stats_reply(
     case OFPST_QUEUE:
     {
       struct ofp_queue_stats *queue_stats;
-      VALUE queue_stats_arr = rb_ary_new( );
-      VALUE options = rb_hash_new( );
+      VALUE queue_stats_arr = rb_ary_new();
+      VALUE options = rb_hash_new();
       VALUE queue_stats_reply;
 
       queue_stats = ( struct ofp_queue_stats * ) body->data;
@@ -401,7 +436,7 @@ handle_stats_reply(
     case OFPST_VENDOR:
     {
       uint32_t *vendor_id;
-      VALUE options = rb_hash_new( );
+      VALUE options = rb_hash_new();
       VALUE vendor_stats_arr = rb_ary_new2( 1 );
       VALUE vendor_stats_reply;
 
@@ -429,4 +464,3 @@ handle_stats_reply(
  * indent-tabs-mode: nil
  * End:
  */
-
