@@ -271,9 +271,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
-	uint16_t command = OFPFC_ADD;
-
-	return controller_send_flow_mod( command, argc, argv, self );
+  return controller_send_flow_mod( OFPFC_ADD, argc, argv, self );
 }
 
 
