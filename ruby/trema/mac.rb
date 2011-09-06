@@ -18,11 +18,18 @@
 #
 
 
+require "forwardable"
+
+
 module Trema
   #
   # MAC address class
   #
   class Mac
+    extend Forwardable
+    def_delegator :@value, :hash
+
+
     #
     # @return [Number] Ethernet address in its numeric presentation.
     #
@@ -86,6 +93,14 @@ module Trema
     #
     def == other
       @value == other.value
+    end
+
+
+    #
+    # @return [Boolean] if other matches or not the attribute type value.
+    #
+    def eql? other
+      @value.eql? other.value
     end
 
 
