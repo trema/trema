@@ -26,6 +26,20 @@ extern VALUE mTrema;
 VALUE cBarrierReply;
 
 
+/*
+ * A new instance of {BarrierReply} constructed when +OFPT_BARRIER_REPLY+
+ * message received.
+ *
+ * @overload initialize(datapath_id, transaction_id)
+ *
+ * @param [Number] datapath_id
+ *   a unique name that identifies an OpenVSwitch, the message originator.
+ *
+ * @param [Number] transaction_id
+ *   value copied from the +OFPT_BARRIER_REQUEST+ message.
+ *
+ * @return [BarrierReply] self an object that encapsulates the +OFPT_BARRIER_REPLY+ message.
+ */
 static VALUE
 barrier_reply_init( VALUE self, VALUE datapath_id, VALUE transaction_id ) {
   rb_iv_set( self, "@datapath_id", datapath_id );
@@ -34,12 +48,22 @@ barrier_reply_init( VALUE self, VALUE datapath_id, VALUE transaction_id ) {
 }
 
 
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 barrier_reply_datapath_id( VALUE self ) {
   return rb_iv_get( self, "@datapath_id" );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 barrier_reply_transaction_id( VALUE self ) {
   return rb_iv_get( self, "@transaction_id" );
@@ -47,7 +71,7 @@ barrier_reply_transaction_id( VALUE self ) {
 
 
 void
-Init_barrier_reply( ) {
+Init_barrier_reply() {
   cBarrierReply = rb_define_class_under( mTrema, "BarrierReply", rb_cObject );
   rb_define_method( cBarrierReply, "initialize", barrier_reply_init, 2 );
   rb_define_method( cBarrierReply, "datapath_id", barrier_reply_datapath_id, 0 );
@@ -65,3 +89,11 @@ handle_barrier_reply( uint64_t datapath_id, uint32_t transaction_id, void *user_
   VALUE barrier_reply = rb_funcall( cBarrierReply, rb_intern( "new" ), 2, ULL2NUM( datapath_id ), UINT2NUM( transaction_id ) );
   rb_funcall( controller, rb_intern( "barrier_reply" ), 1, barrier_reply );
 }
+
+
+/*
+ * Local variables:
+ * c-basic-offset: 2
+ * indent-tabs-mode: nil
+ * End:
+ */
