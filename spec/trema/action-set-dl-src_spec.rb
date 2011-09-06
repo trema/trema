@@ -22,41 +22,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionSetDlSrc do
+describe ActionSetDlSrc do
   context "when an instance is created" do
-    it "should have a valid dl_src attribute specifield as a Trema::Mac object" do
-      action_set_dl_src = Trema::ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) )
-      action_set_dl_src.dl_src.should be_an_instance_of( Trema::Mac )
+    subject { ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) ) }
+    its ( :dl_src ) { should be_an_instance_of( Trema::Mac ) }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetDlSrc> dl_src = 52:54:00:a8:ad:8c"
     end
-  end
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double()
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+    
+    
+    context "when dl_src is not supplied" do
+      it "should raise an error" do
+        lambda do
+          ActionSetDlSrc.new
+        end.should raise_error( ArgumentError )
+      end
+    end
   
-  
-  it "should raise an error if its dl_src attribute is not specified" do
-    expect {
-      action_set_dl_src = Trema::ActionSetDlSrc.new( )
-    }.to raise_error( ArgumentError )
-  end
-  
-  
-  it "should raise an error if its dl_src attribute is not a Mac object" do
-    expect {
-      action_set_dl_src = Trema::ActionSetDlSrc.new( 1234 )
-    }.to raise_error( ArgumentError, /dl src address should be a Mac object/ )
-  end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_dl_src = Trema::ActionSetDlSrc.new( Mac.new( "11:22:33:44:55:66" ) )
-    action_set_dl_src.should respond_to( :to_s )
-    action_set_dl_src.to_s.should == "#<Trema::ActionSetDlSrc> dl_src = 11:22:33:44:55:66"
-  end 
-  
-  
-  it "should append its dl_src attribute to a list of actions" do
-    action_set_dl_src = Trema::ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) )
-    openflow_actions = double( )
-    action_set_dl_src.should_receive( :append ).with( openflow_actions )
-    action_set_dl_src.append( openflow_actions )
+
+    context "when dl_src is not a Trema::Mac object" do
+      it "should raise an error" do
+        lambda do
+          ActionSetDlSrc.new( 1234 )
+        end.should raise_error( ArgumentError, /dl src address should be a Mac object/ )
+      end
+    end
   end
 end
 
