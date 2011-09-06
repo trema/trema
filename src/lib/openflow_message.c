@@ -2812,7 +2812,7 @@ validate_queue_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_queue_stats ),
+                         offsetof( struct ofp_stats_reply, body ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
@@ -2824,7 +2824,7 @@ validate_queue_stats_reply( const buffer *message ) {
   }
 
   queues_length = ( uint16_t ) ( ntohs( stats_reply->header.length )
-                               - offsetof( struct ofp_stats_reply, body ) );
+                                 - offsetof( struct ofp_stats_reply, body ) );
   if ( queues_length % sizeof( struct ofp_queue_stats ) != 0 ) {
     return ERROR_INVALID_LENGTH;
   }
