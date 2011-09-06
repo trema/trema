@@ -24,21 +24,23 @@ require "trema"
 
 module Trema
   describe Controller do
-    subject { Controller }
+    context "when using OpenFlow constants" do
+      subject { Controller.constants }
 
-    its( :constants ) { should include( "OFPP_MAX" ) }
-    its( :constants ) { should include( "OFPP_IN_PORT" ) }
-    its( :constants ) { should include( "OFPP_TABLE" ) }
-    its( :constants ) { should include( "OFPP_NORMAL" ) }
-    its( :constants ) { should include( "OFPP_FLOOD" ) }
-    its( :constants ) { should include( "OFPP_ALL" ) }
-    its( :constants ) { should include( "OFPP_CONTROLLER" ) }
-    its( :constants ) { should include( "OFPP_LOCAL" ) }
-    its( :constants ) { should include( "OFPP_NONE" ) }
-    
-    its( :constants ) { should include( "OFPPR_ADD" ) }
-    its( :constants ) { should include( "OFPPR_DELETE" ) }
-    its( :constants ) { should include( "OFPPR_MODIFY" ) }
+      it { should include "OFPP_MAX" }
+      it { should include "OFPP_IN_PORT" }
+      it { should include "OFPP_TABLE" }
+      it { should include "OFPP_NORMAL" }
+      it { should include "OFPP_FLOOD" }
+      it { should include "OFPP_ALL" }
+      it { should include "OFPP_CONTROLLER" }
+      it { should include "OFPP_LOCAL" }
+      it { should include "OFPP_NONE" }
+      
+      it { should include "OFPPR_ADD" }
+      it { should include "OFPPR_DELETE" }
+      it { should include "OFPPR_MODIFY" }
+    end
 
 
     context "when logging" do
