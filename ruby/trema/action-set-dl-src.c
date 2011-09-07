@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetDlSrc;
 
 
+/*
+ * An action to modify the source Ethernet address of a packet.
+ *
+ * @overload initialize(dl_src)
+ *
+ * @param [Mac] dl_src
+ *   a source Ethernet address encapsulated as a {Mac} object.
+ *
+ * @raise [ArgumentError] if dl_src argument is not supplied.
+ * @raise [ArgumentError] if dl_src argument is not a {Mac} object instance.
+ *
+ * @return [ActionSetDlSrc] self
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_dl_src_init( VALUE self, VALUE dl_src ) {
   if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
@@ -38,40 +52,51 @@ action_set_dl_src_init( VALUE self, VALUE dl_src ) {
 }
 
 
+/*
+ * A source Ethernet address encapsulated as a {Mac} object.
+ *
+ * @return [Mac] the value of attribute dl_src.
+ */
 static VALUE
 action_get_dl_src( VALUE self ) {
   return rb_iv_get( self, "@dl_src" );
 }
 
 
+/*
+ * Appends its action(set_dl_src) to the list of actions.
+ *
+ * @return [ActionSetDlSrc] self
+ */
 static VALUE
 action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
-  uint8_t dl_src[ OFP_ETH_ALEN ];
-  uint8_t *ptr;
   openflow_actions *actions;
-
   Data_Get_Struct( action_ptr, openflow_actions, actions );
 
+  uint8_t dl_src[ OFP_ETH_ALEN ];
+  uint8_t *ptr;
   ptr = ( uint8_t* ) dl_addr_short( action_get_dl_src( self ), dl_src );
   append_action_set_dl_src( actions, ptr );
-
   return self;
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_dl_src_to_s( VALUE self ) {
-  char str[ 64 ];
   VALUE mac_obj = action_get_dl_src( self );
-
+  
   VALUE dl_src_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
+  char str[ 64 ];
   sprintf( str, "#<%s> dl_src = %s", rb_obj_classname( self ), RSTRING_PTR( dl_src_str ) );
   return rb_str_new2( str );
 }
 
 
 void
-Init_action_set_dl_src( ) {
+Init_action_set_dl_src() {
   cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_cObject );
   rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
   rb_define_method( cActionSetDlSrc, "dl_src", action_get_dl_src, 0 );

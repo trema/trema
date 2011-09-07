@@ -30,9 +30,29 @@ module Trema
     def_delegator :@value, :hash
 
 
+    #
+    # @return [Number] Ethernet address in its numeric presentation.
+    #
     attr_reader :value
 
 
+    #
+    # Creates a {Mac} instance that encapsulates Ethernet MAC addresses.
+    #
+    # @overload initialize(value)
+    #
+    # @param [String,Integer] value
+    #   the MAC address to set to.
+    #
+    # @example address as a hexadecimal string
+    #   Mac.new("11:22:33:44:55:66")
+    #
+    # @example address as a hexadecimal number
+    #   Mac.new(0xffffffffffff)
+    #
+    # @raise [ArgumentError] if invalid format is detected.
+    # @raise [ArgumentError] if supplied argument is not a string or integer.
+    #
     def initialize value
       case value
       when String
@@ -46,11 +66,21 @@ module Trema
     end
 
 
+    #
+    # @return [String]
+    #  the Ethernet address as 6 pairs of hexadecimal digits delimited by colons.
+    #  eg. xx:xx:xx:xx:xx:xx
+    #
     def to_s
       @string
     end
 
 
+    #
+    # @return [Array] 
+    #   an array of decimal numbers converted from Ethernet's address string
+    #   format.
+    #
     def to_short
       @string.split( ":" ).collect do | each |
         each.hex
@@ -58,11 +88,17 @@ module Trema
     end
 
 
+    #
+    # @return [Boolean] if other matches or not the attribute type value.
+    #
     def == other
       @value == other.value
     end
 
 
+    #
+    # @return [Boolean] if other matches or not the attribute type value.
+    #
     def eql? other
       @value.eql? other.value
     end

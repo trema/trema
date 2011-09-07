@@ -271,9 +271,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
-	uint16_t command = OFPFC_ADD;
-
-	return controller_send_flow_mod( command, argc, argv, self );
+  return controller_send_flow_mod( OFPFC_ADD, argc, argv, self );
 }
 
 
@@ -522,7 +520,19 @@ Init_controller() {
   cController = rb_define_class_under( mTrema, "Controller", cApp );
   rb_include_module( cController, mLogger );
 
+  rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
+  rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
+  rb_define_const( cController, "OFPP_TABLE", INT2NUM( OFPP_TABLE ) );
+  rb_define_const( cController, "OFPP_NORMAL", INT2NUM( OFPP_NORMAL ) );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
+  rb_define_const( cController, "OFPP_ALL", INT2NUM( OFPP_ALL ) );
+  rb_define_const( cController, "OFPP_CONTROLLER", INT2NUM( OFPP_CONTROLLER ) );
+  rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
+  rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
+
+  rb_define_const( cController, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
+  rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
+  rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );  

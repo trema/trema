@@ -100,7 +100,7 @@ handle_openflow_message( uint64_t *datapath_id, char *service_name, buffer *buf 
   ret = validate_openflow_message( buf );
   if ( ret != 0 ) {
     header = buf->data;
-    debug( "Validation error. type %u, errno %d", header->type, ret );
+    notice( "Validation error. type %u, errno %d", header->type, ret );
     free_buffer( buf );
 
     return;

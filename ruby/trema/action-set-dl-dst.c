@@ -27,6 +27,20 @@ extern VALUE mTrema;
 VALUE cActionSetDlDst;
 
 
+/*
+ * An action to modify the destination Ethernet address of a packet.
+ *
+ * @overload initialize(dl_dst)
+ *
+ * @param [Mac] dl_dst
+ *   a destination Ethernet address encapsulated as a {Mac} object.
+ *
+ * @raise [ArgumentError] if dl_dst argument is not supplied.
+ * @raise [ArgumentError] if dl_dst argument is not a {Mac} object instance.
+ *
+ * @return [ActionSetDlDst] self
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
   if ( rb_obj_is_instance_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
@@ -38,40 +52,51 @@ action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
 }
 
 
+/*
+ * A destination Ethernet address encapsulated as a {Mac} object.
+ *
+ * @return [Mac] the value of attribute dl_dst.
+ */
 static VALUE
 action_get_dl_dst( VALUE self ) {
   return rb_iv_get( self, "@dl_dst" );
 }
 
 
+/*
+ * Appends its action(set_dl_dst) to the list of actions.
+ *
+ * @return [ActionSetDlDst] self
+ */
 static VALUE
 action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
+  Data_Get_Struct( action_ptr, openflow_actions, actions );
+  
   uint8_t dl_dst[ OFP_ETH_ALEN ];
   uint8_t *ptr;
-
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-
   ptr = ( uint8_t* ) dl_addr_short( action_get_dl_dst( self ), dl_dst );
   append_action_set_dl_dst( actions, ptr );
-
   return self;
 }
 
 
+/*
+ * (see ActionEnqueue#to_s)
+ */
 static VALUE
 action_set_dl_dst_to_s( VALUE self ) {
-  char str[ 64 ];
   VALUE mac_obj = action_get_dl_dst( self );
-
   VALUE dl_dst_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
+  
+  char str[ 64 ];
   sprintf( str, "#<%s> dl_dst = %s", rb_obj_classname( self ), RSTRING_PTR( dl_dst_str ) );
   return rb_str_new2( str );
 }
 
 
 void
-Init_action_set_dl_dst( ) {
+Init_action_set_dl_dst() {
   cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", rb_cObject );
   rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, 1 );
   rb_define_method( cActionSetDlDst, "dl_dst", action_get_dl_dst, 0 );

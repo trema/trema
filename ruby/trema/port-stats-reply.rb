@@ -22,13 +22,11 @@ require "trema/stats-helper"
 
 
 module Trema
-  #
-  # PortStats Reply class
-  # attributes mapped to ofp_port_stats
-  #
   class PortStatsReply < StatsHelper
-    FIELDS = %w( port_no rx_packets tx_packets rx_bytes tx_bytes rx_dropped tx_dropped rx_errors tx_errors rx_frame_err rx_over_err rx_crc_err collisions )
-    FIELDS.each { | each | attr_reader each.intern }
+    FIELDS = %w(port_no rx_packets tx_packets rx_bytes) +
+      %w(tx_bytes rx_dropped tx_dropped rx_errors tx_errors) +
+      %w(rx_frame_err rx_over_err rx_crc_err collisions )
+    FIELDS.each { |field| attr_reader field.intern }
 
 
     # Port counters or errors for one or more physical ports.
@@ -53,12 +51,12 @@ module Trema
     #       :rx_crc_err => 0,
     #       :collisions => 0
     #     )
-    #   
+    #
     #   @param [Hash] options the options hash.
-    #   
+    #
     #   @option options [Symbol] :port_no
     #     the port_no statistics are reported for.
-    #     
+    #
     #   @option options [Symbol] :rx_packets
     #     a counter of received packets.
     #
@@ -73,10 +71,10 @@ module Trema
     #
     #   @option options [Symbol] :rx_dropped
     #     a counter of received dropped frames.
-    #   
+    #
     #   @option options [Symbol] :tx_dropped
     #     a counter of transmitted dropped frames.
-    #         
+    #
     #   @option options [Symbol] :rx_errors
     #     a counter of received errors.
     #
@@ -94,8 +92,8 @@ module Trema
     #
     #   @option options [Symbol] :collisions
     #     a counter of detected collisions.
-    # 
-    # @return [PortStatsReply] 
+    #
+    # @return [PortStatsReply]
     #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_PORT) openFlow message.
     #
     def initialize options 

@@ -17,23 +17,19 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require "trema/stats-helper"
 
 
 module Trema
-  #
-  # TableStasReply class
-  # attributes mapped to ofp_table_stats
-  #
   class TableStatsReply < StatsHelper
-    FIELDS = %w( table_id name wildcards max_entries active_count lookup_count matched_count )
-    FIELDS.each { | each | attr_reader each.intern }
+    FIELDS = %w(table_id name wildcards max_entries ) +
+      %w(active_count lookup_count matched_count)
+    FIELDS.each { |field| attr_reader field.intern }
 
 
-    # Information about tables that a switch supports. A switch may choose to  
-    # maintain a single table that can store both wildcard and exact match flows. 
-    # Or may use separate tables for each flow type. 
+    # Information about tables that a switch supports. A switch may choose to
+    # maintain a single table that can store both wildcard and exact match flows.
+    # Or may use separate tables for each flow type.
     # A user would not explicitly instantiate a {TableStatsReply} object but would
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_TABLE)+ message.
     #
@@ -49,12 +45,12 @@ module Trema
     #       :lookup_count => 4,
     #       :matched_count => 0
     #     )
-    #   
+    #
     #   @param [Hash] options the options hash.
-    #   
+    #
     #   @option options [Symbol] :table_id
     #     a number that uniquely identifies the table.
-    #     
+    #
     #   @option options [Symbol] :name
     #     a meaningful name for the table.
     #
@@ -69,11 +65,11 @@ module Trema
     #
     #   @option options [Symbol] :lookup_count
     #     a counter of the number of packets looked up in the table.
-    #   
+    #
     #   @option options [Symbol] :matched_count
     #     a counter of the matched hit entries.
-    #         
-    # @return [TableStatsReply] 
+    #
+    # @return [TableStatsReply]
     #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_TABLE) openFlow message.
     #
     def initialize options

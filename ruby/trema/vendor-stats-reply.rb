@@ -22,23 +22,22 @@ require "trema/stats-helper"
 
 
 module Trema
-  #
-  # The vendor stats reply class
-  #
   class VendorStatsReply < StatsHelper
-    FIELDS = %w( vendor_id )
-    FIELDS.each { | each | attr_reader each.intern }
+    FIELDS = %w(vendor_id)
+    FIELDS.each { |field| attr_reader field.intern }
 
     
     # Vendor statistics reply.
-    # A user would not explicitly instantiate a {VendorStatsReply}
-    # object but would be created as a result of parsing the
-    # +OFPT_STATS_REPLY+ (+OFPST_VENDOR+) openflow message.
+    # A user would not explicitly instantiate a {VendorStatsReply} object but would
+    # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_VENDOR)+
+    # openflow message.
     #
     # @overload initialize(otions={})
     #
     #   @example 
-    #     VendorStatsReply.new(:vendor_id => 123)
+    #     VendorStatsReply.new(
+    #       :vendor_id => 123
+    #     )
     #
     #   @param [Hash] options the options hash.
     #
@@ -46,7 +45,7 @@ module Trema
     #     the specific vendor identifier.
     #
     # @return [VendorStatsReply] 
-    #   an object that encapsulates the OFPST_STATS_REPLY(OPPST_VENDOR) openFlow message. 
+    #   an object that encapsulates the OFPST_STATS_REPLY(OPPST_VENDOR) openFlow message.
     #
     def initialize options
       super FIELDS, options
