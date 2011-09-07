@@ -22,29 +22,26 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::BarrierRequest do
-  context "when an instance is created" do
-    it "should automatically allocate a transaction ID" do
-      barrier_request = Trema::BarrierRequest.new
-      barrier_request.transaction_id.should be_a_kind_of( Integer )
-      barrier_request.transaction_id.should >= 0
-    end
-    
-    
-    it "should have a valid transaction ID" do
-      barrier_request = Trema::BarrierRequest.new( 1234 )
-      barrier_request.transaction_id.should == 1234
-    end
+describe BarrierRequest do
+  context "when an instance is created with no arguments" do
+    its( :transaction_id ) { should be_a_kind_of( Integer ) }
+    its( :transaction_id ) { should >= 0 }
   end
   
   
-  context "when #barrier_request is sent" do
-    it "should receive #barrier_reply" do
+  context "when an instance is created with transaction_id" do
+    subject { BarrierRequest.new( 1234 ) }
+    its( :transaction_id ) { should == 1234 }
+  end
+
+  
+  context "when #barrier_request" do
+    it "should #barrier_reply" do
       class BarrierController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        barrier_request = Trema::BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         controller( "BarrierController" ).should_receive( :barrier_reply )
       }
@@ -52,17 +49,17 @@ describe Trema::BarrierRequest do
   end
   
   
-  context "when #barrier_request is sent with transaction_id" do
-    it "should receive #barrier_reply with valid transaction_id" do
+  context "when #barrier_request with transaction_id" do
+    it "should #barrier_reply with valid transaction_id" do
       class BarrierController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        barrier_request = Trema::BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
-        controller( "BarrierController" ).should_receive( :barrier_reply ) do | arg |
-          arg.datapath_id.should == 0xabc
-          arg.transaction_id.should == 1234
+        controller( "BarrierController" ).should_receive( :barrier_reply ) do | message |
+          message.datapath_id.should == 0xabc
+          message.transaction_id.should == 1234
         end
       }
     end

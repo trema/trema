@@ -22,29 +22,31 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionSetTpDst do
+describe ActionSetTpDst do
   context "when an instance is created" do
-    it "should have a valid tp_dst attribute" do
-      action_set_tp_dst = Trema::ActionSetTpDst.new( 5555 )
-      action_set_tp_dst.tp_dst.should == 5555
+    subject { ActionSetTpDst.new( 5555 ) }
+    its( :tp_dst ) { should == 5555 }
+    it { should respond_to( :to_s ) }
+    it "should print its attributes" do
+      subject.to_s.should == "#<Trema::ActionSetTpDst> tp_port = 5555"
+    end
+    
+    it "should append its action to a list of actions" do
+      openflow_actions = double()
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
+
+  
+    context "when tp_dst argument is not supplied" do
+      it "should raise an error" do
+        lambda do
+          ActionSetTpDst.new
+        end.should raise_error ArgumentError
+      end
     end
   end
-  
-  
-  it "should respond to #to_s and return a string" do
-    action_set_tp_dst = Trema::ActionSetTpDst.new( 5555 )
-    action_set_tp_dst.should respond_to :to_s 
-    action_set_tp_dst.to_s.should == "#<Trema::ActionSetTpDst> tp_port = 5555"
-  end 
-  
-  
-  it "should append its tp_dst attribute to a list of actions" do
-    action_set_tp_dst = Trema::ActionSetTpDst.new( 5555 )
-    openflow_actions = double( )
-    action_set_tp_dst.should_receive( :append ).with( openflow_actions )
-    action_set_tp_dst.append( openflow_actions )
-  end
-  
+
   
   context "when sending #flow_mod(add) message with action set to tp dst" do
     it "should have a flow with action set to mod_tp_dst" do
@@ -55,7 +57,7 @@ describe Trema::ActionSetTpDst do
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => ActionSetTpDst.new( 5555 ) )
         switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ ) 
+        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
       }
     end
   end

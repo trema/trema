@@ -1,5 +1,5 @@
 /*
- * Ruby wrapper class for OFPT_SET_CONFIG message.
+ * Ruby wrapper class for OFPT_BARRIER_REQUEST message.
  *
  * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
@@ -24,7 +24,6 @@
 #define BARRIER_REQUEST_H
 
 
-
 #include "ruby.h"
 
 
@@ -43,4 +42,3 @@ void Init_barrier_request( void );
  * indent-tabs-mode: nil
  * End:
  */
-
