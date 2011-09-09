@@ -23,7 +23,6 @@ Trema relies on the following third-party software.
   GCC
   GNU Make
   Ruby
-  RubyGems
   SQLite
   Sudo
   libpcap
@@ -33,8 +32,7 @@ them as follows. Other packages than listed below should have been
 installed by default operating system installation or will be installed
 automatically due to install dependencies.
 
-  # apt-get install gcc make ruby ruby-dev rubygems sudo libpcap-dev \
-  libsqlite3-dev
+  # apt-get install gcc make ruby ruby-dev sudo libpcap-dev libsqlite3-dev
 
 
 How to build and install
@@ -69,13 +67,15 @@ networks.
 Before running the script, the following software packages are required.
 
   Cucumber
-  RSpec
   RCov
+  RSpec
   Rake
+  RubyGems
 
 If you are using Ubuntu or Debian GNU/Linux 6.0,  you can install them
 as follows:
 
+  $ sudo apt-get install rubygems
   $ sudo gem install cucumber rspec rcov rake --remote
 
 To execute the script, simply type as follows:
