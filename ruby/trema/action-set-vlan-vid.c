@@ -73,13 +73,13 @@ action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_vlan_vid_to_s( VALUE self ) {
+action_set_vlan_vid_inspect( VALUE self ) {
   char str[ 64 ];
   uint16_t vlan_vid = ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) );
-  sprintf( str, "#<%s> vlan_vid = %u", rb_obj_classname( self ), vlan_vid );
+  sprintf( str, "#<%s vlan_vid=%u>", rb_obj_classname( self ), vlan_vid );
   return rb_str_new2( str );
 }
 
@@ -90,7 +90,7 @@ Init_action_set_vlan_vid() {
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, 1 );
   rb_define_method( cActionSetVlanVid, "vlan_vid", action_get_vlan_vid, 0 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
-  rb_define_method( cActionSetVlanVid, "to_s", action_set_vlan_vid_to_s, 0 );
+  rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
 }
 
 
