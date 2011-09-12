@@ -73,13 +73,13 @@ action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_nw_tos_to_s( VALUE self ) {
+action_set_nw_tos_inspect( VALUE self ) {
   char str[ 64 ];
   uint8_t nw_tos = ( uint8_t ) NUM2UINT( action_get_nw_tos( self ) );
-  sprintf( str, "#<%s> nw_tos = %u", rb_obj_classname( self ), nw_tos );
+  sprintf( str, "#<%s nw_tos=%u>", rb_obj_classname( self ), nw_tos );
   return rb_str_new2( str );
 }
 
@@ -90,7 +90,7 @@ Init_action_set_nw_tos() {
   rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, 1 );
   rb_define_method( cActionSetNwTos, "nw_tos", action_get_nw_tos, 0 );
   rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
-  rb_define_method( cActionSetNwTos, "to_s", action_set_nw_tos_to_s, 0 );
+  rb_define_method( cActionSetNwTos, "inspect", action_set_nw_tos_inspect, 0 );
 }
 
 
