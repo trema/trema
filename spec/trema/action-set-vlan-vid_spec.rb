@@ -26,13 +26,12 @@ describe ActionSetVlanVid do
   context "when an instance is created" do
     subject { ActionSetVlanVid.new( 1024 ) }
     its( :vlan_vid ) { should == 1024 }
-    it { should respond_to( :to_s ) }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionSetVlanVid> vlan_vid = 1024"
+      subject.inspect.should == "#<Trema::ActionSetVlanVid vlan_vid=1024>"
     end
     
     it "should append its action to a list of actions" do
-      openflow_actions = double()
+      openflow_actions = double
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
