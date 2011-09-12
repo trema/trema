@@ -109,12 +109,12 @@ action_output_append( VALUE self, VALUE action_ptr ) {
  * (see ActionEnqueue#to_s)
  */
 static VALUE
-action_output_to_s( VALUE self ) {
+action_output_inspect( VALUE self ) {
   uint16_t port = ( uint16_t ) NUM2UINT( action_output_port( self ) );
   uint16_t max_len = ( uint16_t ) NUM2UINT( action_output_max_len( self ) );
 
   char str[ 64 ];
-  sprintf( str, "#<%s> port = %u, max_len = %u", rb_obj_classname( self ), port, max_len );
+  sprintf( str, "#<%s port=%u,max_len=%u>", rb_obj_classname( self ), port, max_len );
   return rb_str_new2( str );
 }
 
@@ -126,7 +126,7 @@ Init_action_output() {
   rb_define_method( cActionOutput, "port", action_output_port, 0 );
   rb_define_method( cActionOutput, "max_len", action_output_max_len, 0 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );
-  rb_define_method( cActionOutput, "to_s", action_output_to_s, 0 );
+  rb_define_method( cActionOutput, "inspect", action_output_inspect, 0 );
 }
 
 
