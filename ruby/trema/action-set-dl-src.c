@@ -82,15 +82,15 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_dl_src_to_s( VALUE self ) {
+action_set_dl_src_inspect( VALUE self ) {
   VALUE mac_obj = action_get_dl_src( self );
   
   VALUE dl_src_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
   char str[ 64 ];
-  sprintf( str, "#<%s> dl_src = %s", rb_obj_classname( self ), RSTRING_PTR( dl_src_str ) );
+  sprintf( str, "#<%s dl_src=%s>", rb_obj_classname( self ), RSTRING_PTR( dl_src_str ) );
   return rb_str_new2( str );
 }
 
@@ -101,7 +101,7 @@ Init_action_set_dl_src() {
   rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
   rb_define_method( cActionSetDlSrc, "dl_src", action_get_dl_src, 0 );
   rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
-  rb_define_method( cActionSetDlSrc, "to_s", action_set_dl_src_to_s, 0 );
+  rb_define_method( cActionSetDlSrc, "inspect", action_set_dl_src_inspect, 0 );
 }
 
 
