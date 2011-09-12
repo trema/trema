@@ -26,9 +26,9 @@ describe ActionSetDlDst do
   context "when an instance is created" do
     subject { ActionSetDlDst.new( Mac.new( "52:54:00:a8:ad:8c" ) ) }
     its( :dl_dst ) { should be_an_instance_of( Mac ) }
-    it { should respond_to( :to_s ) }
+    it { should respond_to( :inspect ) }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionSetDlDst> dl_dst = 52:54:00:a8:ad:8c"
+      subject.inspect.should == "#<Trema::ActionSetDlDst dl_dst=52:54:00:a8:ad:8c>"
     end
     
     it "should append its action to a list of actions" do
