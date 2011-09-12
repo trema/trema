@@ -27,9 +27,9 @@ describe ActionEnqueue do
     subject { ActionEnqueue.new( 1, 123 ) }
     its ( :port ) { should == 1 }
     its ( :queue_id ) { should == 123 }
-    it { should respond_to :to_s }
+    it { should respond_to :inspect }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionEnqueue> port = 1, queue_id = 123"
+      subject.inspect.should == "#<Trema::ActionEnqueue port=1,queue_id=123>"
     end
     
     it "should append its attributes to a list of actions" do
