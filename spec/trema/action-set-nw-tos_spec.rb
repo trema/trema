@@ -26,13 +26,12 @@ describe ActionSetNwTos do
   context "when an instance is created" do
     subject { ActionSetNwTos.new( 4 ) }
     its( :nw_tos ) { should == 4 }
-    it { should respond_to( :to_s ) }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionSetNwTos> nw_tos = 4"
+      subject.inspect.should == "#<Trema::ActionSetNwTos nw_tos=4>"
     end
     
     it "should append its action to a list of actions" do
-      openflow_actions = double()
+      openflow_actions = double
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
