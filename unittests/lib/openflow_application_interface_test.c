@@ -141,7 +141,7 @@ static const uint32_t PORT_FEATURES = ( OFPPF_10MB_HD | OFPPF_10MB_FD | OFPPF_10
 static struct ofp_match MATCH = { OFPFW_ALL, 1,
                                   { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
                                   { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
-                                  1, 1, { 0 }, 0x800, 1, 0x6, { 0, 0 },
+                                  1, 1, { 0 }, 0x800, 0xfc, 0x6, { 0, 0 },
                                   0x0a090807, 0x0a090807, 1024, 2048 };
 #define USER_DATA_LEN 64
 static uint8_t USER_DATA[ USER_DATA_LEN ];

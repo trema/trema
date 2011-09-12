@@ -59,7 +59,7 @@ extern void mock_debug( const char *format, ... );
 
 #define VLAN_VID_MASK 0x0fff // 12 bits
 #define VLAN_PCP_MASK 0x07   // 3 bits
-#define NW_TOS_MASK 0x3f     // 6 bits
+#define NW_TOS_MASK 0xfc     // upper 6 bits
 #define ARP_OP_MASK 0x00ff   // 8 bits
 
 #define PORT_CONFIG ( OFPPC_PORT_DOWN | OFPPC_NO_STP | OFPPC_NO_RECV      \
