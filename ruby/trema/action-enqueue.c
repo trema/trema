@@ -96,12 +96,12 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
  * @return [String] 
  */
 static VALUE
-action_enqueue_to_s( VALUE self ) {
+action_enqueue_inspect( VALUE self ) {
   uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_get_queue_id( self ) );
   uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_get_port( self ) );
   
   char str[ 64 ];
-  sprintf( str, "#<%s> port = %u, queue_id = %u", rb_obj_classname( self ), port,
+  sprintf( str, "#<%s port=%u,queue_id=%u>", rb_obj_classname( self ), port,
           queue_id );
   return rb_str_new2( str );
 }
@@ -114,7 +114,7 @@ Init_action_enqueue() {
   rb_define_method( cActionEnqueue, "port", action_enqueue_get_port, 0 );
   rb_define_method( cActionEnqueue, "queue_id", action_enqueue_get_queue_id, 0 );
   rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );
-  rb_define_method( cActionEnqueue, "to_s", action_enqueue_to_s, 0 );
+  rb_define_method( cActionEnqueue, "inspect", action_enqueue_inspect, 0 );
 }
 
 
