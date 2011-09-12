@@ -106,7 +106,7 @@ action_output_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
 action_output_inspect( VALUE self ) {
