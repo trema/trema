@@ -81,13 +81,13 @@ action_set_nw_src_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_nw_src_to_s( VALUE self ) {
+action_set_nw_src_inspect( VALUE self ) {
   char str[ 64 ];
 
-  sprintf( str, "#<%s> nw_src = %s", rb_obj_classname( self ), RSTRING_PTR( nw_addr_to_s( action_get_nw_src( self ) ) ) );
+  sprintf( str, "#<%s nw_src=%s>", rb_obj_classname( self ), RSTRING_PTR( nw_addr_to_s( action_get_nw_src( self ) ) ) );
   return rb_str_new2( str );
 }
 
@@ -110,7 +110,7 @@ Init_action_set_nw_src() {
   rb_define_method( cActionSetNwSrc, "initialize", action_set_nw_src_init, 1 );
   rb_define_method( cActionSetNwSrc, "nw_src", action_get_nw_src, 0 );
   rb_define_method( cActionSetNwSrc, "append", action_set_nw_src_append, 1 );
-  rb_define_method( cActionSetNwSrc, "to_s", action_set_nw_src_to_s, 0 );
+  rb_define_method( cActionSetNwSrc, "inspect", action_set_nw_src_inspect, 0 );
   rb_define_method( cActionSetNwSrc, "to_i", action_set_nw_src_to_i, 0 );
 }
 
