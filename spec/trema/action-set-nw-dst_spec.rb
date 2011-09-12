@@ -27,17 +27,16 @@ describe ActionSetNwDst do
   context "when an instance is created" do
     subject { ActionSetNwDst.new( IP.new( "192.168.1.1" ) ) }
     its( :nw_dst ) { should be_an_instance_of Trema::IP  }
-    it { should respond_to( :to_s ) }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionSetNwDst> nw_dst = 192.168.1.1"
+      subject.inspect.should == "#<Trema::ActionSetNwDst nw_dst=192.168.1.1>"
     end
     it { should respond_to( :to_i ) }
-    it "should respond to #to_i and return an Integer" do
+    it "should return an Integer" do
       subject.nw_dst.to_i.should == 3232235777
     end
     
     it "should append its action to a list of actions" do
-      openflow_actions = double()
+      openflow_actions = double
       subject.should_receive( :append ).with( openflow_actions )
       subject.append( openflow_actions )
     end
