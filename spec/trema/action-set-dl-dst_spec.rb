@@ -27,7 +27,7 @@ describe ActionSetDlDst do
     subject { ActionSetDlDst.new( Mac.new( "52:54:00:a8:ad:8c" ) ) }
     its( :dl_dst ) { should be_an_instance_of( Mac ) }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionSetDlDst> dl_dst = 52:54:00:a8:ad:8c"
+      subject.inspect.should == "#<Trema::ActionSetDlDst dl_dst=52:54:00:a8:ad:8c>"
     end
 
 
