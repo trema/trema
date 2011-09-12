@@ -85,12 +85,12 @@ action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
  * (see ActionEnqueue#to_s)
  */
 static VALUE
-action_set_dl_dst_to_s( VALUE self ) {
+action_set_dl_dst_inspect( VALUE self ) {
   VALUE mac_obj = action_get_dl_dst( self );
   VALUE dl_dst_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
   
   char str[ 64 ];
-  sprintf( str, "#<%s> dl_dst = %s", rb_obj_classname( self ), RSTRING_PTR( dl_dst_str ) );
+  sprintf( str, "#<%s dl_dst=%s>", rb_obj_classname( self ), RSTRING_PTR( dl_dst_str ) );
   return rb_str_new2( str );
 }
 
@@ -101,7 +101,7 @@ Init_action_set_dl_dst() {
   rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, 1 );
   rb_define_method( cActionSetDlDst, "dl_dst", action_get_dl_dst, 0 );
   rb_define_method( cActionSetDlDst, "append", action_set_dl_dst_append, 1 );
-  rb_define_method( cActionSetDlDst, "to_s", action_set_dl_dst_to_s, 0 );
+  rb_define_method( cActionSetDlDst, "inspect", action_set_dl_dst_inspect, 0 );
 }
 
 
