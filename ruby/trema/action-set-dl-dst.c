@@ -82,7 +82,7 @@ action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
 action_set_dl_dst_inspect( VALUE self ) {
