@@ -70,13 +70,13 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_vendor_to_s( VALUE self ) {
+action_vendor_inspect( VALUE self ) {
   uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
   char str[ 64 ];
-  sprintf( str, "#<%s> vendor = %u", rb_obj_classname( self ), vendor );
+  sprintf( str, "#<%s vendor=%u>", rb_obj_classname( self ), vendor );
   return rb_str_new2( str );
 }
 
@@ -87,7 +87,7 @@ Init_action_vendor() {
   rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
   rb_define_method( cActionVendor, "vendor", action_get_vendor, 0 );
   rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
-  rb_define_method( cActionVendor, "to_s", action_vendor_to_s, 0 );
+  rb_define_method( cActionVendor, "inspect", action_vendor_inspect, 0 );
 }
 
 
