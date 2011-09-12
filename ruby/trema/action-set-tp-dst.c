@@ -78,7 +78,7 @@ static VALUE
 action_set_tp_dst_inspect( VALUE self ) {
   char str[ 64 ];
   sprintf( str, "#<%s tp_port=%u>", rb_obj_classname( self ),
-          ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
+    ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
   return rb_str_new2( str );
 }
 
