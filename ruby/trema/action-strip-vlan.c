@@ -58,9 +58,9 @@ action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
  */
 static VALUE
 action_strip_vlan_inspect( VALUE self ) {
-	char str[ 64 ];
+  char str[ 64 ];
   sprintf( str, "#<%s>", rb_obj_classname( self ) );
-	return rb_str_new2( str );
+  return rb_str_new2( str );
 }
 
 
