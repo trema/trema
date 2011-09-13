@@ -29,7 +29,7 @@ VALUE cPortStatus;
 
 /*
  * An object that is implemented to wrap the details of the +OFPT_PORT_STATUS+
- * asynchronous message. This message is sent when a state transition on any 
+ * asynchronous message. This message is sent when a state transition on any
  * physical port is detected.
  *
  * @overload initialize(options={})
