@@ -20,9 +20,24 @@
 
 module Trema
   class StatsHelper
+
+    
+    # Invoked by each StatsReply subclass to assign their instance attributes 
+    # to a value.
+    #
+    # @overload initialize(fields, options={})
+    #
+    # @param [Array] fields
+    #   an array of attribute names.
+    #
+    # @param [Hash] options
+    #   key/value pairs of attributes to match against the fields to set.
+    #
+    # @return [void]
+    #
     def initialize fields, options
-      fields.each do | each |
-        instance_variable_set "@#{ each }", options[ each.intern ]
+      fields.each do |field|
+        instance_variable_set( "@#{field}", options[field.intern] )
       end
     end
 
@@ -33,8 +48,8 @@ module Trema
     #
     def to_s
       str = super.to_s + "\n"
-      instance_variables.sort.each do | each |
-        str += "#{ each[ 1..each.length ] }: #{ instance_variable_get( each ).to_s }\n"
+      instance_variables.sort.each do |var|
+        str += "#{var[1..var.length]}: #{instance_variable_get( var ).to_s}\n"
       end
       str
     end
