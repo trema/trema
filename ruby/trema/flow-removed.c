@@ -26,7 +26,7 @@ extern VALUE mTrema;
 VALUE cFlowRemoved;
 
 
-/* 
+/*
  * When a flow is deleted or expired a +OFPT_FLOW_REMOVED+ message is sent as long
  * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during
  * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
