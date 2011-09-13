@@ -101,7 +101,7 @@ action_set_nw_dst_to_i( VALUE self ) {
 
 void
 Init_action_set_nw_dst() {
-	rb_require( "trema/ip" );
+  rb_require( "trema/ip" );
   cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", rb_cObject );
   rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
   rb_define_method( cActionSetNwDst, "nw_dst", action_get_nw_dst, 0 );
