@@ -128,12 +128,12 @@ Init_get_config_reply() {
  */
 void
 handle_get_config_reply(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint16_t flags,
-        uint16_t miss_send_len,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint16_t flags,
+  uint16_t miss_send_len,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "get_config_reply" ) ) == Qfalse ) {
     return;
