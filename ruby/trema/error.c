@@ -110,6 +110,9 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       break;
   }
   buffer *error = create_error( xid, type, code, data );
+  if ( data != NULL ) {
+    free_buffer( data );
+  }
   return Data_Wrap_Struct( klass, NULL, free_buffer, error );
 }
 
@@ -188,7 +191,7 @@ Init_error() {
   rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-
+  
   rb_define_const( cError, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
   rb_define_const( cError, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
 
