@@ -79,10 +79,10 @@ action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
  */
 static VALUE
 action_set_vlan_pcp_inspect( VALUE self ) {
-	char str[ 64 ];
+  char str[ 64 ];
   uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( action_get_vlan_pcp( self ) );
-	sprintf(str, "#<%s vlan_pcp=%u>", rb_obj_classname( self ), vlan_pcp );
-	return rb_str_new2( str );
+  sprintf(str, "#<%s vlan_pcp=%u>", rb_obj_classname( self ), vlan_pcp );
+  return rb_str_new2( str );
 }
 
 
