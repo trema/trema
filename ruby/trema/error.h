@@ -1,5 +1,5 @@
 /*
- * Ruby wrapper class for OFPT_SET_CONFIG message.
+ * Ruby wrapper class for OFPT_ERROR message.
  *
  * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
