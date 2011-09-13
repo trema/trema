@@ -1,5 +1,5 @@
 /*
- * Prototype for switch disconnect event handler.
+ * Prototype for queue get configuration reply.
  *
  * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
