@@ -171,17 +171,17 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem != Qnil ) {
-      flags = flags || OFPFF_SEND_FLOW_REM;
+      flags |= OFPFF_SEND_FLOW_REM;
     }
 
     VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
     if ( opt_check_overlap != Qnil ) {
-      flags = flags || OFPFF_CHECK_OVERLAP;
+      flags |= OFPFF_CHECK_OVERLAP;
     }
 
     VALUE opt_emerg = rb_hash_aref( options, ID2SYM( rb_intern( "emerg" ) ) );
     if ( opt_emerg != Qnil ) {
-      flags = flags || OFPFF_EMERG;
+      flags |= OFPFF_EMERG;
     }
 
     VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
