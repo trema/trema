@@ -53,8 +53,8 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *features_request;
   Data_Get_Struct( self, buffer, features_request );
 
-  VALUE xid_ruby;
   uint32_t xid;
+  VALUE xid_ruby;
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
     xid = get_transaction_id();
   }
