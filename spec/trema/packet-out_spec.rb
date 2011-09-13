@@ -70,6 +70,54 @@ describe "packet-out" do
       }
     end
   end
+
+
+  context "when data argment is string type" do
+    it "should #packet_out" do
+      network {
+        vswitch( "packet-out" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) {
+          ip "192.168.0.2"
+          netmask "255.255.0.0"
+          mac "00:00:00:00:00:02"
+        }
+        link "host1", "packet-out"
+        link "host2", "packet-out"
+      }.run( PacketOutController ) {
+        data = [
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          0x08, 0x00, # ether type
+          # ipv4
+          0x45, 0x00, # version
+          0x00, 0x32, # length
+          0x00, 0x00,
+          0x00, 0x00,
+          0x40,       # ttl
+          0x11,       # protocol
+          0xf9, 0x67, # checksum
+          0xc0, 0xa8, 0x00, 0x01, # src
+          0xc0, 0xa8, 0x00, 0x02, # dst
+          # udp
+          0x00, 0x01, # src port
+          0x00, 0x01, # dst port
+          0x00, 0x1e, # length
+          0x00, 0x00, # checksum
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ].pack( "C*" )
+        controller( "PacketOutController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( 1 )
+	)
+        sleep 2
+        host( "host2" ).rx_stats.n_pkts.should == 1
+      }
+    end
+  end
 end
 
 
