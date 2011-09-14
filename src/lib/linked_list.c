@@ -18,20 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Linked lists containing pointers to data, limited to
- * iterating over the list in one direction.
- *
- * Each element in the list contains a piece of data, together with a
- * pointer which links to the next element in the list. Using this
- * pointer it is possible to move through the list in one direction
- * only (unlike the Doubly-Linked Lists which allow movement in both
- * directions).
- */
-
-
 #include <assert.h>
 #include "linked_list.h"
 #include "wrapper.h"

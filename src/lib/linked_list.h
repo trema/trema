@@ -1,6 +1,4 @@
 /*
- * Linked list library.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -25,6 +23,20 @@
 
 
 #include "bool.h"
+
+
+/**
+ * @file
+ *
+ * @brief Linked lists containing pointers to data, limited to
+ * iterating over the list in one direction.
+ *
+ * Each element in the list contains a piece of data, together with a
+ * pointer which links to the next element in the list. Using this
+ * pointer it is possible to move through the list in one direction
+ * only (unlike the Doubly-Linked Lists which allow movement in both
+ * directions).
+ */
 
 
 /**
