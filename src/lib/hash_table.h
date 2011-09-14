@@ -22,7 +22,7 @@
 /**
  * @file 
  *
- * @brief Contain type definations and function declarations of hash_table
+ * @brief Function declarations and type definitions of Hash table implementation
  */
 
 #ifndef HASH_TABLE_H
@@ -37,7 +37,7 @@ typedef bool ( *compare_function )( const void *x, const void *y );
 
 
 /**
- * This is the type that specifies individual entry in hash table
+ * Individual entry in hash table
  */
 typedef struct {
   void *key;
@@ -46,7 +46,7 @@ typedef struct {
 
 
 /**
- * This is the type that specifies parameters associated with a hash table
+ * Parameters associated with a hash table
  */
 typedef struct {
   unsigned int number_of_buckets; /*!<Total number of buckets allocated in hash table*/
@@ -59,7 +59,7 @@ typedef struct {
 
 
 /**
- * This is the type that specifies parameters used to iterate over hash table
+ * Parameters used to iterate over hash table
  */
 typedef struct {
   list_element **buckets; /*!<Pointer to buckets in hash table*/
