@@ -20,8 +20,10 @@
  */
 
 
+
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 #include <pcap.h>
 #include "checks.h"
 #include "cmockery_trema.h"
@@ -30,67 +32,80 @@
 #include "wrapper.h"
 
 
-
 /******************************************************************************
- * Callback function for pcap_dispatch().
+ * 
  ******************************************************************************/
 
-static void *
-store_packet_to_buffer( u_char *user_data,
-                        const struct pcap_pkthdr *header,
-                        const u_char *length ) {
-  assert( user_data != NULL );
-  assert( header != NULL );
-  assert( length != NULL );
+static bool
+store_packet_to_buffer( buffer *buffer, const char *filename ) {
+  assert( buffer != NULL );
+  assert( filename != NULL );
 
-  buffer *buffer0 = ( buffer * )user_data;
+  FILE *fp = fopen( filename, "r" );
+  if ( fp == NULL ) {
+    // "Can't open a file of test data."
+    return false;
+  }
 
-  buffer0->length = header->len;
-  buffer0->data = xcalloc( 1, header->len );
-  memcpy( buffer0->data, header + 1, header->len );
+  struct pcap_file_header dummy_buffer;
+  size_t size = fread( &dummy_buffer, 1, 
+                       sizeof( struct pcap_file_header ), fp );
+  if ( size < sizeof( struct pcap_file_header ) ) {
+    return false;
+  }  
+  
+  uint32_t dummy_buffer2[4];
+  size = fread( &dummy_buffer2, 1, sizeof( dummy_buffer2 ), fp );
+  if ( size < sizeof( dummy_buffer2 ) ) {
+    return false;
+  }  
 
-  return NULL;
+  buffer->length = dummy_buffer2[2];
+  buffer->data = xcalloc( 1, buffer->length );
+  size = fread( buffer->data, 1, buffer->length, fp );
+  if ( size < buffer->length ) {
+    return false;
+  }  
+
+  return true;
 }
 
 
 /******************************************************************************
  * Setup and teardown function.
  ******************************************************************************/
+
 static buffer *
 setup_dummy_ether_arp_packet() {
   buffer *arp_buffer = alloc_buffer();
 
-  char error[ PCAP_ERRBUF_SIZE ];
-  pcap_t *pcap = pcap_open_offline( "./test_packets/arp.cap", error );
-  assert( pcap != NULL );
+  store_packet_to_buffer( arp_buffer, "./unittests/lib/test_packets/arp.cap" );
   
-  int count = pcap_dispatch( pcap, 1, store_packet_to_buffer, arp_buffer );
-  assert( count == 1 );
-
   return arp_buffer;
 }
 
 
-/********************************************************************************
+/******************************************************************************
  * ether arp Tests.
- ********************************************************************************/
+ ******************************************************************************/
 
 static void
 test_parse_packet_ether_arp_succeeds() {
-  buffer *arp_buffer = setup_dummy_ether_arp_packet( );
+  buffer *arp_buffer = setup_dummy_ether_arp_packet();
 
   assert_true( parse_packet( arp_buffer ) );
 
-  packet_info packet_info0 = ( packet_info * )buf->user_data;
+  packet_info *packet_info0 = arp_buffer->user_data;
+  assert_true( packet_info0->eth_type == ETH_ETHTYPE_ARP );
 
   free_buffer( arp_buffer );
 }
 
 
 
-/********************************************************************************
+/******************************************************************************
  * Run tests.
- ********************************************************************************/
+ ******************************************************************************/
 
 int
 main() {

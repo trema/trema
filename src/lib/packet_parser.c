@@ -26,10 +26,14 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <net/ethernet.h>
 #include <netinet/ip.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
+
+#define REMAINED_BUFFER_LENGTH( buf, ptr )  \
+  ( buf->length - ( size_t ) ( ( char * ) ptr - ( char * ) buf->data ) )
 
 
 /**
@@ -44,25 +48,23 @@ parse_ether( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer
-  size_t length = buf->length - 
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( ether_header_t ) ) {
     return;
   }
 
   // Ethernet header
-  ether_header_t *ether_header = ptr;
-  memcpy( packet_info0->eth_macsa, ether_header->macsa, ETH_ADDRLEN );
-  memcpy( packet_info0->eth_macda, ether_header->macda, ETH_ADDRLEN );
-  packet_info0->eth_type = ntohs( ether_header->type );
+  struct ether_header *ether_header = ptr;
+  memcpy( packet_info0->eth_macsa, ether_header->ether_shost, ETH_ADDRLEN );
+  memcpy( packet_info0->eth_macda, ether_header->ether_dhost, ETH_ADDRLEN );
+  packet_info0->eth_type = ntohs( ether_header->ether_type );
 
   ptr = ( void * ) ( ether_header + 1 ); 
 
   // vlan tag 
   if ( packet_info0->eth_type == ETH_ETHTYPE_TPID ) {
     // Check the length of remained buffer
-    size_t length = buf->length -
-      ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( vlantag_header_t ) ) {
       return;
     }
@@ -85,8 +87,7 @@ parse_ether( buffer *buf ) {
   // Skip nested vlan headers.
   while (  packet_info0->eth_type == ETH_ETHTYPE_TPID ) { 
     // Check the length of remained buffer
-    size_t length = buf->length -
-      ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( vlantag_header_t ) ) {
       return;
     }
@@ -100,8 +101,7 @@ parse_ether( buffer *buf ) {
   // snap header.
   if ( packet_info0->eth_type <= ETH_MTU ) {
     // Check the length of remained buffer 
-    size_t length = buf->length -
-      ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( snap_header_t ) ) {
       return;
     }
@@ -137,8 +137,7 @@ parse_arp( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer
-  size_t length = buf->length -
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( arp_header_t ) ) {
     return;
   }
@@ -173,8 +172,7 @@ parse_ipv4( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer for an ipv4 header without options.
-  size_t length = buf->length -
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( ipv4_header_t ) ) {
     return;
   }
@@ -220,8 +218,7 @@ parse_icmp( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer
-  size_t length = buf->length -
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( icmp_header_t ) ) {
     return;
   }
@@ -265,8 +262,7 @@ parse_udp( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer
-  size_t length = buf->length -
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( udp_header_t ) ) {
     return;
   }
@@ -299,8 +295,7 @@ parse_tcp( buffer *buf ) {
   assert( ptr != NULL );
 
   // Check the length of remained buffer for a tcp header without options
-  size_t length = buf->length -
-    ( size_t ) ( ( char * ) ptr - ( char * ) buf->data );
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( tcp_header_t ) ) {
     return;
   }
