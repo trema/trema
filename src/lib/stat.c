@@ -17,13 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file
  *
  * @brief Trema Statistics Management layer
  *
- * This file provides various functions for creating a generic statistics management service, 
+ * File containing various functions for creating a generic statistics management service,
  * which can be used by Trema application to manage stats for arbitrary parameters.
  *
  * @code
@@ -43,6 +42,7 @@
  * // Finish stats parameter recording or tracking
  * finalize_stat();
  */
+
 #include <assert.h>
 #include <inttypes.h>
 #include <pthread.h>
@@ -210,7 +210,7 @@ add_stat_entry( const char *key ) {
 
 
 /**
- * Increment the stat counter for the specified Parameter by 1
+ * Increment the stat counter for the specified Parameter by 1.
  * @param key Identifier for parameter
  * @return None
  */
@@ -239,7 +239,7 @@ increment_stat( const char *key ) {
 
 
 /**
- * Dump the statistics onto screen (or stream specified by info function)
+ * Dump the statistics onto screen (or stream specified by info function).
  * @param None
  * @return None
  */
