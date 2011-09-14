@@ -22,9 +22,8 @@
 /**
  * @file 
  *
- * @brief Single Linked List Implementation.
+ * @brief Function declarations and type definitions for Single Linked List Implementation
  */
-
 
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
@@ -34,8 +33,7 @@
 
 
 /**
- * The list_element struct is used for each element in the linked
- * list.
+ * Representation of a Linked list node.
  */
 typedef struct list_element {
   struct list_element *next; /**< Contains the link to the next element in the list. */

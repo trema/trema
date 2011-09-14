@@ -17,13 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file 
  *
  * @brief Linked List Implementation
  *
- * File contains various functions for Single Linked List implemenation.
+ * File containing various functions for Single Linked List implemenation.
  * Helper functions for insertion, deletion and modification of elements are provided.
  *
  * @code 
@@ -46,15 +45,13 @@
  * @endcode
  */
 
-
 #include <assert.h>
 #include "linked_list.h"
 #include "wrapper.h"
 
 
 /**
- * This function initializes the value of a new list HEAD to NULL. In case
- * any faulty HEAD pointer is passed (NULL), die is called.
+ * Creates list and initializes the value of its HEAD to NULL.
  * @param list Double pointer to list_element
  * @return bool True on successful completion, else False
  */
@@ -70,8 +67,8 @@ create_list( list_element **list ) {
 
 
 /** 
- * This function inserts the element (of type list_element) at head of the
- * list. In case the passed HEAD is NULL, die is called
+ * Inserts the element (of type list_element) at head of the list. Error is
+ * reported if passed HEAD is NULL.
  * @param head Double pointer to head of the list
  * @param data Pointer to data to be inserted in the list
  * @return bool True on successful completion, else False
@@ -93,7 +90,7 @@ insert_in_front( list_element **head, void *data ) {
 
 
 /** 
- * This function inserts a new element(of type list_element) before element which has data as sibling
+ * Inserts new element(of type list_element) before element which has data as sibling.
  * @param head Double pointer to head of the list
  * @param sibling Pointer to data before which new element needs to be inserted
  * @param data Pointer to data which is to be added in the new element inserted
@@ -123,7 +120,7 @@ insert_before( list_element **head, const void *sibling, void *data ) {
 
 
 /** 
- * This function inserts element (of type list_element) at the end of list
+ * Inserts an element (of type list_element) at the end of list.
  * @param head Double pointer to head of the list
  * @param data Pointer to the data which needs to be added to the list
  * @return bool True if element is inserted successfully, else False
@@ -152,7 +149,7 @@ append_to_tail( list_element **head, void *data ) {
 
 
 /** 
- * This function calculates the total number of elements in the list
+ * Calculates the total number of elements in the list.
  * @param head Pointer to head of the list
  * @return unsigned int Length of list
  */
@@ -168,8 +165,8 @@ list_length_of( const list_element *head ) {
 
 
 /** 
- * This function releases the element which has data element same as 
- * data parameter of the function
+ * Releases the element which has data element same as data parameter
+ * of the function.
  * @param head Double pointer to head of the list
  * @param data Pointer to data which needs to be freed from the list
  * @return bool True if data is freed successfuly, else False
@@ -203,7 +200,7 @@ delete_element( list_element **head, const void *data ) {
 
 
 /** 
- * This function releases each entry of type list_element from the list
+ * Releases memory allocated to each entry of type list_element from the list.
  * @param head Pointer to head of the list
  * @return bool True if deletion of list is successful, else False
  */
