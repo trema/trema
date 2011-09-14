@@ -18,29 +18,33 @@
  */
 
 /**
- * @file doubly_linked_list.c
- * Source file containing functions for doubly linked list implementation. It
- * has functions for insertion, deletion and search of elements.
+ * @file
+ *
+ * @brief Doubly linked list implementation
+
+ * File containing functions for doubly linked list implementation i.e,
+ * functions for insertion, deletion and search of elements in a doubly
+ * linked list.
  * @code
- *     // Create a doubly linked list
- *     dlistelement_p = create_dlist();
+ * // Create a doubly linked list
+ * dlistelement_p = create_dlist();
+ * ...
+ * // Add element "ABCD" at the HEAD of the created list
+ * dlistelement_p = insert_before_dlist( get_first_element( dlistelement_p ), "ABCD" );
+ * //Add another element "EFGH" after the previously inserted element "ABCD"
+ * dlistelement_p = insert_after_dlist( dlistelement_p, "EFGH" );
+ * ...
+ * // Doubly list looks like: (pointer from EFGH)->ABCD<->EFGH<-(Pointer from ABCD)
+ * ...
+ * // Find element "ABCD" from the list, where dlistelement_p can be pointing to any element of
+ * // list.
+ * dlistelement_p1 = find_element( dlistelement_p, "ABCD" );
  *     ...
- *     // Add element "ABCD" at the HEAD of the created list
- *     dlistelement_p = insert_before_dlist( get_first_element( dlistelement_p ), "ABCD" );
- *     //Add another element "EFGH" after the previously inserted element "ABCD"
- *     dlistelement_p = insert_after_dlist( dlistelement_p, "EFGH" );
- *     ...
- *     // Doubly list looks like: (pointer from EFGH)->ABCD<->EFGH<-(Pointer from ABCD)
- *     ...
- *     // Find element "ABCD" from the list, where dlistelement_p can be pointing to any element of
- *     // list.
- *     dlistelement_p1 = find_element( dlistelement_p, "ABCD" );
- *     ...
- *     // Delete element "EFGH" from the list. dlistelement_p, in this case, points to the element to be deleted
+ * // Delete element "EFGH" from the list. dlistelement_p, in this case, points to the element to be deleted
  *     delete_dlist_element( dlistelement_p );
- *     ...
- *     // Delete entire list
- *     delete_dlist( dlistelement_p );
+ * ...
+ * // Delete entire list
+ * delete_dlist( dlistelement_p );
  * @endcode
  */
 
@@ -68,8 +72,7 @@ typedef struct private_dlist_element {
 
 /**
  * Allocates memory to structure of type private_dlist_element, elements of
- * which are initialized to NULL apart from mutex which is assigned the value
- * pointed by mutex pointer passed to this function.
+ * which are initialized to NULL.
  * @param mutex Pointer of type pthread_mutex_t
  * @return dlist_element* Pointer to dlist_element type which holds the allocated area with its members appropriately initialized
  */
@@ -88,9 +91,7 @@ create_dlist_with_mutex( pthread_mutex_t *mutex ) {
 
 /**
  * Allocates memory to empty dlist_element type structure which can be used for
- * representing allocated area. It does so by wrapping dlist_element type into
- * private_dlist_element type. It would also initialize the mutex element of
- * private_dlist_element type structure.
+ * representing allocated area.
  * @param None
  * @return dlist_element*  Pointer to dlist_element type, which is embedded into private_dlist_element type
  */
