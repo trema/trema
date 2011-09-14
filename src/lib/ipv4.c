@@ -20,7 +20,14 @@
 /**
  * @file
  *
- * @brief Functions for handling IPv4 type packets.
+ * @brief Functions for handling IPv4 type packets
+ * @code
+ * // Parses Ethernet header
+ * if ( !parse_ipv4( buf ) ) {
+ *     warn( "Failed to parse IpV4 header." );
+ *     return false;
+ * ....
+ * @endcode
  */
 
 #include <arpa/inet.h>
@@ -46,8 +53,8 @@ void mock_debug( const char *format, ... );
 
 
 /**
- * This function validates if the packet header is valid IPv4 header. This is
- * wrapped around by parse_ipv4 function.
+ * Validates if the packet header is valid IPv4 header. This is wrapped around
+ * by parse_ipv4 function.
  * @param buf Pointer to buffer containing packet header to verify for being ipv4 header
  * @param packet_len Length of packet passed in the buffer
  * @return bool True if the packet header is a valid IPv4 header, else False
@@ -83,8 +90,8 @@ valid_ipv4_packet_header( buffer *buf, uint32_t packet_len ) {
 
 
 /**
- * This function extracts fragment offset and IP packet length of IPv4 packet
- * and validates if packet's length is valid. This is wrapped around by parse_ipv4 function.
+ * Extracts fragment offset and IP packet length of IPv4 packet and validates
+ * if packet's length is valid. This is wrapped around by parse_ipv4 function.
  * @param buf Pointer to buffer containing IPv4 packet header
  * @param packet_len Length of packet passed in the buffer
  * @return bool True if the packet length is valid IPv4 packet length, else False
@@ -118,8 +125,8 @@ valid_ipv4_packet_more_fragments( buffer *buf, uint32_t packet_len ) {
 
 
 /**
- * This function extracts source and destination address of IPv4 packet and
- * validates them. This is wrapped around by parse_ipv4 function.
+ * Extracts source and destination address of IPv4 packet and validates them.
+ * This is wrapped around by parse_ipv4 function.
  * @param buf Pointer to buffer containing IPv4 packet header
  * @return bool True if source and destination address of IPv4 packet header are valid, else False
  * @see bool parse_ipv4( buffer *buf )
@@ -159,7 +166,7 @@ valid_ipv4_packet_ip_address( buffer *buf ) {
 
 
 /**
- * This function parses the IPv4 packet for being valid IPv4 packet.
+ * Parses the IPv4 packet for being valid IPv4 packet.
  * @param buf Pointer to buffer containing IPv4 packet
  * @return bool True if the buffer contains valid IPv4 packet, else False
  */

@@ -22,7 +22,7 @@
 /**
  * @file
  *
- * @brief Contain type definitions and function declarations of IPv4
+ * @brief Function declarations and type definitions of IPv4 type packets
  */
 
 #ifndef IPV4_H
@@ -34,7 +34,7 @@
 
 
 /**
- * This is the type that specifies IP header definitions
+ * IP header definitions
  * @see RFC 791 for detailed protocol description
  * @see http://www.ietf.org/rfc/rfc791.txt
  */
