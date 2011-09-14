@@ -31,9 +31,9 @@
 
 
 /**
- * This function is to find if a packet contained in passed buffer is a valid
- * ARP Packet or not. It does so by matching the incoming buffer against the ARP
- * Header specifications as defined by RFC 826
+ * Verifies if a packet contained in passed buffer is a valid ARP Packet or not.
+ * It does so by matching the incoming buffer against the ARP Header
+ * specifications as defined by RFC 826
  * @param buf Buffer containing packet to verify for being ARP message
  * @return bool True if buffer contains valid ARP message, else False
  */
