@@ -73,13 +73,13 @@ action_set_tp_src_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_tp_src_to_s( VALUE self ) {
+action_set_tp_src_inspect( VALUE self ) {
   char str[ 64 ];
   uint16_t tp_src = ( uint16_t ) NUM2UINT( action_get_tp_src( self ) );
-  sprintf( str, "#<%s> tp_port = %u", rb_obj_classname( self ), tp_src );
+  sprintf( str, "#<%s tp_port=%u>", rb_obj_classname( self ), tp_src );
   return rb_str_new2( str );
 }
 
@@ -90,7 +90,7 @@ Init_action_set_tp_src() {
   rb_define_method( cActionSetTpSrc, "initialize", action_set_tp_src_init, 1 );
   rb_define_method( cActionSetTpSrc, "tp_src", action_get_tp_src, 0 );
   rb_define_method( cActionSetTpSrc, "append", action_set_tp_src_append, 1 );
-  rb_define_method( cActionSetTpSrc, "to_s", action_set_tp_src_to_s, 0 );
+  rb_define_method( cActionSetTpSrc, "inspect", action_set_tp_src_inspect, 0 );
 }
 
 

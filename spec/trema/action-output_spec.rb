@@ -28,7 +28,7 @@ describe ActionOutput do
     its( :port ) { should  == 1 }
     its( :max_len ) { should == 65535 }
     it "should print its attributes" do
-      subject.to_s.should == "#<Trema::ActionOutput> port = 1, max_len = 65535"
+      subject.inspect.should == "#<Trema::ActionOutput port=1,max_len=65535>"
     end
     
     it "should append its attributes to a list of actions" do

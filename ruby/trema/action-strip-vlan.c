@@ -54,13 +54,13 @@ action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_strip_vlan_to_s( VALUE self ) {
-	char str[ 64 ];
+action_strip_vlan_inspect( VALUE self ) {
+  char str[ 64 ];
   sprintf( str, "#<%s>", rb_obj_classname( self ) );
-	return rb_str_new2( str );
+  return rb_str_new2( str );
 }
 
 
@@ -69,7 +69,7 @@ Init_action_strip_vlan() {
   cActionStripVlan = rb_define_class_under( mTrema, "ActionStripVlan", rb_cObject );
   rb_define_method( cActionStripVlan, "initialize", action_strip_vlan_init, 0 );
   rb_define_method( cActionStripVlan, "append", action_strip_vlan_append, 1 );
-  rb_define_method( cActionStripVlan, "to_s", action_strip_vlan_to_s, 0 );
+  rb_define_method( cActionStripVlan, "inspect", action_strip_vlan_inspect, 0 );
 }
 
 

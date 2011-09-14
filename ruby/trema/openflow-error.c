@@ -26,37 +26,100 @@ extern VALUE mTrema;
 VALUE cOpenflowError;
 
 
+/*
+ * The occurence of reported errors/exceptions manifested as an instance - a
+ * {OpenflowError} object. The user would not explicitly instantiate 
+ * a {OpenflowError} but would be created while parsing the +OFPT_ERROR+ message.
+ *
+ * @overload initialize(options={})
+ *
+ *   @example
+ *     OpenflowError.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 123,
+ *       :type => OFPET_BAD_REQUEST,
+ *       :code => OFPBRC_BAD_SUBTYPE,
+ *       :data => data
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :datapath_id
+ *     message originator identifier. This idenfier is typed as a 64-bit number
+ *     and must be unique in a given domain of application deployment.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     the transaction_id of the offended message.
+ *
+ *   @option options [Symbol] :type
+ *     the command or action that failed signifies the kind of error.
+ *
+ *   @option options [Symbol] :code
+ *     the reason of the failed type error.
+ *
+ *   @option options [Symbol] :data
+ *     variable length data interpreted based on type and code.
+ *
+ * @return [OpenflowError] self
+ *   an object that encapsulates the +OFPT_ERROR+ openflow message.
+ */
 static VALUE
-openflow_error_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+openflow_error_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ *  Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 openflow_error_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * The transaction_id of the offended message.
+ *
+ * @return [Number] the value of attribute transaction_id.
+ */
 static VALUE
 openflow_error_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * The command or action that failed.
+ *
+ * @return [Number] the value of attribute type.
+ */
 static VALUE
 openflow_error_type( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "type" ) ) );
 }
 
 
+/*
+ * The reason of the failed type error.
+ *
+ * @return [Number] the value of attribute code.
+ */
 static VALUE
 openflow_error_code( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "code" ) ) );
 }
 
 
+/*
+ * Variable length data interpreted based on type and code.
+ *
+ * @return [String] if error type is +OFPET_HELLO_FAILED+.
+ * @return [Array] an array of bytes of the offending message for any other error type.
+ */
 static VALUE
 openflow_error_data( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "data" ) ) );
@@ -64,7 +127,7 @@ openflow_error_data( VALUE self ) {
 
 
 void
-Init_openflow_error( ) {
+Init_openflow_error() {
   cOpenflowError = rb_define_class_under( mTrema, "OpenflowError", rb_cObject );
   rb_define_method( cOpenflowError, "initialize", openflow_error_init, 1 );
   rb_define_method( cOpenflowError, "datapath_id", openflow_error_datapath_id, 0 );
@@ -77,18 +140,18 @@ Init_openflow_error( ) {
 
 void
 handle_openflow_error(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint16_t type,
-        uint16_t code,
-        buffer *body,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint16_t type,
+  uint16_t code,
+  buffer *body,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "openflow_error" ) ) == Qfalse ) {
     return;
   }
-  VALUE attributes = rb_hash_new( );
+  VALUE attributes = rb_hash_new();
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
@@ -113,10 +176,10 @@ handle_openflow_error(
     case OFPET_PORT_MOD_FAILED:
     case OFPET_QUEUE_OP_FAILED:
     {
-      uint32_t i;
       if ( body != NULL )
         if ( body->length ) {
           VALUE data_arr = rb_ary_new2( ( int32_t ) body->length );
+          uint32_t i;
           uint8_t *buf = ( uint8_t* ) body->data;
           for ( i = 0; i < body->length; i++ ) {
             rb_ary_push( data_arr, INT2FIX( buf[i] ) );
@@ -126,7 +189,7 @@ handle_openflow_error(
     }
       break;
     default:
-      critical( "Unhandled error type ( type = %u ),", type );
+      critical( "Un-handled error type ( type = %u ),", type );
       break;
   }
   VALUE openflow_error = rb_funcall( cOpenflowError, rb_intern( "new" ), 1, attributes );
@@ -140,4 +203,3 @@ handle_openflow_error(
  * indent-tabs-mode: nil
  * End:
  */
-

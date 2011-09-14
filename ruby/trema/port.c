@@ -26,93 +26,192 @@ extern VALUE mTrema;
 VALUE cPort;
 
 
+/*
+ * Creates a {Port} instance that encapsulates the properties of a physical port.
+ * The newly-created instance is initialized from an options hash.
+ *
+ * @overload initialize(options={})
+ *
+ *   @example
+ *     Port.new(
+ *       :number => 1,
+ *       :hw_addr => Mac.new( "4e:1e:9a:7a:44:be" ),
+ *       :name => "trema0-0",
+ *       :config => 0,
+ *       :state => 0,
+ *       :curr => 192,
+ *       :advertised => 0,
+ *       :supported => 0,
+ *       :peer => 0
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :number
+ *     the port's unique number.
+ *
+ *   @option options [Symbol] :hw_addr
+ *     the port's Ethernet address expressed as a {Mac} object.
+ *
+ *   @option options [Symbol] :name
+ *     the port's human readable defined name.
+ *
+ *   @option options [Symbol] :config
+ *     the port's configuration as a 32-bit bitmap.
+ *
+ *   @option options [Symbol] :state
+ *     the port's state as a 32-bit bitmap.
+ * 
+ *   @option options [Symbol] :curr
+ *      the port's current features as a 32-bit bitmap.
+ * 
+ *   @option options [Symbol] :advertised
+ *     the port's advertised features as a 32-bit bitmap.
+ * 
+ *   @option options [Symbol] :supported
+ *     the port's supported features as a 32-bit bitmap.
+ * 
+ *   @option options [Symbol] :peer
+ *     the features advertised by the peer connected to the port as a 32-bit bitmap.
+ *
+ * @return [Port] self
+ */
 static VALUE
-port_init( VALUE self, VALUE attributes ) {
-  VALUE number = rb_hash_aref( attributes, ID2SYM( rb_intern( "number" ) ) );
+port_init( VALUE self, VALUE options ) {
+  VALUE number = rb_hash_aref( options, ID2SYM( rb_intern( "number" ) ) );
   rb_iv_set( self, "@number", number );
 
-  VALUE hw_addr = rb_hash_aref( attributes, ID2SYM( rb_intern( "hw_addr" ) ) );
+  VALUE hw_addr = rb_hash_aref( options, ID2SYM( rb_intern( "hw_addr" ) ) );
   rb_iv_set( self, "@hw_addr", hw_addr );
 
-  VALUE name = rb_hash_aref( attributes, ID2SYM( rb_intern( "name" ) ) );
+  VALUE name = rb_hash_aref( options, ID2SYM( rb_intern( "name" ) ) );
   rb_iv_set( self, "@name", name );
   
-  VALUE config = rb_hash_aref( attributes, ID2SYM( rb_intern( "config" ) ) );
+  VALUE config = rb_hash_aref( options, ID2SYM( rb_intern( "config" ) ) );
   rb_iv_set( self, "@config", config );
 
-  VALUE state = rb_hash_aref( attributes, ID2SYM( rb_intern( "state" ) ) );
+  VALUE state = rb_hash_aref( options, ID2SYM( rb_intern( "state" ) ) );
   rb_iv_set( self, "@state", state );
 
-  VALUE curr = rb_hash_aref( attributes, ID2SYM( rb_intern( "curr" ) ) );
+  VALUE curr = rb_hash_aref( options, ID2SYM( rb_intern( "curr" ) ) );
   rb_iv_set( self, "@curr", curr );
 
-  VALUE advertised = rb_hash_aref( attributes, ID2SYM( rb_intern( "advertised" ) ) );
+  VALUE advertised = rb_hash_aref( options, ID2SYM( rb_intern( "advertised" ) ) );
   rb_iv_set( self, "@advertised", advertised );
 
-  VALUE supported = rb_hash_aref( attributes, ID2SYM( rb_intern( "supported" ) ) );
+  VALUE supported = rb_hash_aref( options, ID2SYM( rb_intern( "supported" ) ) );
   rb_iv_set( self, "@supported", supported );
 
-  VALUE peer = rb_hash_aref( attributes, ID2SYM( rb_intern( "peer" ) ) );
+  VALUE peer = rb_hash_aref( options, ID2SYM( rb_intern( "peer" ) ) );
   rb_iv_set( self, "@peer", peer );
-  
   return self;
 }
 
 
+/*
+ * The port's unique number.
+ *
+ * @return [Number] the value of attribute number.
+ */
 static VALUE
 port_number( VALUE self ) {
   return rb_iv_get( self, "@number" );
 }
 
 
+/*
+ * The port's Ethernet address expressed as a {Mac} object.
+ *
+ * @return [Mac] the value of attribute hw_addr.
+ */
 static VALUE
 port_hw_addr( VALUE self ) {
   return rb_iv_get( self, "@hw_addr" );
 }
 
 
+/*
+ * The port's human readable defined name.
+ *
+ * @return [String] the value of attribute name.
+ */
 static VALUE
 port_name( VALUE self ) {
   return rb_iv_get( self, "@name" );
 }
 
 
+/*
+ * The port's configuration as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute config.
+ */
 static VALUE
 port_config( VALUE self ) {
   return rb_iv_get( self, "@config" );
 }
 
 
+/*
+ * The port's state as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute state.
+ */
 static VALUE
 port_state( VALUE self ) {
   return rb_iv_get( self, "@state" );
 }
 
 
+/*
+ * The port's current features as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute curr.
+ */
 static VALUE
 port_curr( VALUE self ) {
   return rb_iv_get( self, "@curr" );
 }
 
 
+/*
+ * The port's advertised features as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute advertised.
+ */
 static VALUE
 port_advertised( VALUE self ) {
   return rb_iv_get( self, "@advertised" );
 }
 
 
+/*
+ * The port's supported features as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute supported.
+ */
 static VALUE 
 port_supported( VALUE self ) {
   return rb_iv_get( self, "@supported" );
 }
 
 
+/*
+ * The features advertised by the peer connected to the port as a 32-bit bitmap.
+ *
+ * @return [Number] the value of attribute peer.
+ */
 static VALUE
 port_peer( VALUE self ) {
   return rb_iv_get( self, "@peer" );
 }
 
 
+/*
+ * Tests if the port is up.
+ *
+ * @return [Boolean] true if port is up otherwise false.
+ */
 static VALUE
 port_up( VALUE self ) {
   uint32_t config = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@config" ) );
@@ -127,17 +226,27 @@ port_up( VALUE self ) {
 }
 
 
+/*
+ * Tests if the port is down.
+ *
+ * @return [Boolean] true if port is down otherwise false.
+ */
 static VALUE
 port_down( VALUE self ) {
   return port_up( self ) == Qfalse ? Qtrue : Qfalse;
 }
 
 
+/*
+ * Compares two ports by substracting their unique numbers.
+ *
+ * @return [Number] the result of the substraction. Zero ports are equal.
+ */
 static VALUE
 port_compare( VALUE self, VALUE other ) {
   uint16_t a = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@number" ) );
   uint16_t b = ( uint16_t ) NUM2UINT( rb_iv_get( other, "@number" ) );
-  return UINT2NUM( a - b );
+  return UINT2NUM( ( uint16_t ) ( a - b ) );
 }
 
 

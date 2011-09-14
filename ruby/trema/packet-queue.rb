@@ -1,27 +1,34 @@
-require "singleton"
-
-
 class Queue
-  include Singleton
-  
+  class << self
+    # @param [PacketQueue] queue
+    #  the {PacketQueue} to append to the list.
+    attr_accessor :queues
+  end
 
-  # @param [PacketQueue] queue
-  #   the {PacketQueue} to append to the list.
-  def append queue
-    @@queues ||= []
-    @@queues << queue
+  
+  # Add queue to list.
+  # @param [PacketQueue] queue a {PacketQueue} instance.
+  def self.append queue
+    @queues ||= []
+    @queues << queue
   end
   
   
   # @return [Array]
   #   an array of {PacketQueue} objects.
-  def queues
-    @@queues
+  def self.queues
+    @queues
+  end
+  
+
+  # Iterate over each {PacketQueue} item.
+  # @return [Array] a list of {PacketQueue} items.
+  def self.each &block
+    @queues.each do | each |
+      block.call each
+    end
   end
 end
-
-
-QUEUE = Queue.instance
 
 
 class PacketQueue
@@ -68,7 +75,7 @@ class PacketQueue
     @properties.each do | each |
       str += each.to_s
     end
-    str
+     str
   end
 end
 
@@ -126,7 +133,7 @@ class MinRateQueue < QueueProperty
     super property, len
     @rate = rate
     packet_queue.append self
-    QUEUE.append packet_queue
+    Queue.append packet_queue
   end
 
 

@@ -33,12 +33,13 @@
 #include "bool.h"
 
 
-/** 
- * This is the type that specifies a node for linked list
+/**
+ * The list_element struct is used for each element in the linked
+ * list.
  */
 typedef struct list_element {
-  struct list_element *next; /*!< pointer to next list_element*/
-  void *data; /*!< pointer to data*/
+  struct list_element *next; /**< Contains the link to the next element in the list. */
+  void *data; /**< Holds the element's data, which can be a pointer to any kind of data. */
 } list_element;
 
 

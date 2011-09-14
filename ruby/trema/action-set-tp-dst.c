@@ -72,13 +72,13 @@ action_set_tp_dst_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_tp_dst_to_s( VALUE self ) {
+action_set_tp_dst_inspect( VALUE self ) {
   char str[ 64 ];
-  sprintf( str, "#<%s> tp_port = %u", rb_obj_classname( self ),
-          ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
+  sprintf( str, "#<%s tp_port=%u>", rb_obj_classname( self ),
+    ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
   return rb_str_new2( str );
 }
 
@@ -89,7 +89,7 @@ Init_action_set_tp_dst() {
   rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, 1 );
   rb_define_method( cActionSetTpDst, "tp_dst", action_get_tp_dst, 0 );
   rb_define_method( cActionSetTpDst, "append", action_set_tp_dst_append, 1 );
-  rb_define_method( cActionSetTpDst, "to_s", action_set_tp_dst_to_s, 0 );
+  rb_define_method( cActionSetTpDst, "inspect", action_set_tp_dst_inspect, 0 );
 }
 
 

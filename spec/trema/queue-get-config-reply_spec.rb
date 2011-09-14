@@ -32,7 +32,7 @@ describe QueueGetConfigReply do
       qr = QueueGetConfigReply.new( :datapath_id => 0xabc,
         :transaction_id => 123,
         :port => 1,
-        :queues => QUEUE.queues
+        :queues => Queue.queues
       )
       qr.datapath_id.should == 0xabc
       qr.transaction_id.should == 123
@@ -52,8 +52,8 @@ describe QueueGetConfigReply do
   
   
   context "when a MinRateQueue instance is created" do
-    it "should have valid attributes"  do
-      pq = PacketQueue.new( :queue_id => 123, :len => 64 )
+    it "should have valid attributes" do
+     pq = PacketQueue.new( :queue_id => 123, :len => 64 )
       mr = MinRateQueue.new( 1, 64, 1024, pq )
       mr.property.should == 1
       mr.len.should == 64
@@ -64,7 +64,7 @@ describe QueueGetConfigReply do
   
   context "when multiple PacketQueue instances created" do
     it "should support multiplicity of queues" do
-      QUEUE.should have(3).queues
+      Queue.should have( 3 ).queues
     end
   end
 end

@@ -78,12 +78,12 @@ action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
 
 
 /*
- * (see ActionEnqueue#to_s)
+ * (see ActionEnqueue#inspect)
  */
 static VALUE
-action_set_nw_dst_to_s( VALUE self ) {
+action_set_nw_dst_inspect( VALUE self ) {
   char str[ 64 ];
-  sprintf( str, "#<%s> nw_dst = %s", rb_obj_classname( self ), RSTRING_PTR( nw_addr_to_s( action_get_nw_dst( self ) ) ) );
+  sprintf( str, "#<%s nw_dst=%s>", rb_obj_classname( self ), RSTRING_PTR( nw_addr_to_s( action_get_nw_dst( self ) ) ) );
   return rb_str_new2( str );
 }
 
@@ -101,12 +101,12 @@ action_set_nw_dst_to_i( VALUE self ) {
 
 void
 Init_action_set_nw_dst() {
-	rb_require( "trema/ip" );
+  rb_require( "trema/ip" );
   cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", rb_cObject );
   rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
   rb_define_method( cActionSetNwDst, "nw_dst", action_get_nw_dst, 0 );
   rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
-  rb_define_method( cActionSetNwDst, "to_s", action_set_nw_dst_to_s, 0 );
+  rb_define_method( cActionSetNwDst, "inspect", action_set_nw_dst_inspect, 0 );
   rb_define_method( cActionSetNwDst, "to_i", action_set_nw_dst_to_i, 0 );
 }
 
