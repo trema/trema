@@ -81,7 +81,7 @@ enum {
 };
 
 
-typedef struct packet_info {
+typedef struct {
   uint32_t format;
   
   uint8_t eth_macda[ ETH_ADDRLEN ];
@@ -146,13 +146,12 @@ typedef struct packet_info {
   void *l3_header;
   void *l4_header;
   void *l4_data;
-
 } packet_info;
 
 
 bool parse_packet( buffer *buf );
 
-void alloc_packet_info( buffer *frame );
+void calloc_packet_info( buffer *frame );
 void free_packet_info( buffer *frame );
 packet_info get_packet_info( const buffer *frame );
 

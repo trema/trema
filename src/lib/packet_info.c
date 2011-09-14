@@ -58,7 +58,7 @@ free_packet_info( buffer *buf ) {
  * @return None
  */
 void
-alloc_packet_info( buffer *buf ) {
+calloc_packet_info( buffer *buf ) {
   assert( buf != NULL );
 
   void *user_data = xcalloc( 1, sizeof( packet_info ) );
