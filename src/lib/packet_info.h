@@ -145,7 +145,7 @@ typedef struct {
   void *l2_header;
   void *l3_header;
   void *l4_header;
-  void *l4_data;
+  void *l4_payload;
 } packet_info;
 
 
