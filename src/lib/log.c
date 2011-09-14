@@ -72,14 +72,7 @@ static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
 /** 
- * Definition of array containing all available Priority levels. Available logging levels, in order
- * of their priority are: 
- * crit or critical, 
- * err or error, 
- * warn or warning,
- * notice,
- * info or information,
- * dbg or debug.
+ * Definition of array containing all available Priority levels.
  */
 static priority priorities[][ 3 ] = {
   {
@@ -136,7 +129,7 @@ priority_name_from( int level ) {
 static const size_t max_message_length = 1024;
 
 /**
- * Main logging routine. This is responsible for writing the log message to the log file.
+ * Main logging routine. Writes log message to the log file.
  * @param priority Priority of the message
  * @param format Pointer to the specifier string defining format of variable argument list
  * @param ap Variable argument list
@@ -164,7 +157,7 @@ log_file( int priority, const char *format, va_list ap ) {
 
 
 /**
- * Logging to Output Stream (terminal). It is called in case the logger has not been daemonized.
+ * Logging to Output Stream (terminal).
  * This is wrapped around by the do_log function.
  * @param format Specifier string for format of the variable arguments
  * @param ap variable argument list
@@ -196,7 +189,7 @@ open_log( const char *ident, const char *log_directory ) {
 
 
 /**
- * Initializing the Logger. This would create the log file to which logging would be done.
+ * Initializing the Logger. Creates the log file to which logging would be done.
  * @param ident Name of the log file, used as an identifier
  * @param log_directory Name of the directory in which file with name ident would be created
  * @param run_as_daemon Boolean variable defining if logging should be reported to terminal as well
@@ -295,7 +288,7 @@ started() {
 
 
 /**
- * Check the state of the Logger. If the logger has not been initialized, trema_abort is called.
+ * Check the state of the Logger. If the logger has not been initialized, it aborts.
  * @param None
  * @return None
  */
@@ -309,8 +302,7 @@ check_initialized() {
 
 
 /**
- * Set the logging level, over-riding any which has been previously set. This accepts name of the Logging
- * level to be set.
+ * Set the logging level, over-riding any which has been previously set.
  * @param name Name of the logging level to be set
  * @return bool True if the logging level was successfully updated, else False
  */
@@ -332,8 +324,7 @@ set_logging_level( const char *name ) {
 
 
 /**
- * Get the logging level which is currently set. In case an environment variable for level 
- * is set, update the saved logging level.
+ * Gets the logging level which is currently set.
  * @param None
  * @return int Logging level currently prevalent
  */
@@ -354,8 +345,6 @@ int ( *get_logging_level )( void ) = _get_logging_level;
 
 /**
  * Main logging routine which writes the log messages to the file as well as the standard output.
- * Logging to standard output is done only when the logger has been daemonized. This is called using
- * the DO_LOG macro.
  * @param priority Priority level of the log
  * @param format Specifier string for the variable argument list
  * @param ap Variable argument list
@@ -373,8 +362,7 @@ do_log( int priority, const char *format, va_list ap ) {
 
 
 /**
- * Macro for log writer. This acts as external visible logging routine. This invokes the internal do_log function.
- * Applicable mutex is acquired and hence this is thread safe.
+ * Macro for log writer. This acts as external visible logging routine. Invokes the internal do_log function.
  * @param _priority Priority Level
  * @param _format Specifier string containing format string and variable argument list
  * @return None
