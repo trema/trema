@@ -20,7 +20,6 @@
 
 #include <string.h>
 #include "buffer.h"
-#include "rbuffer.h"
 #include "ruby.h"
 #include "trema.h"
 
@@ -127,18 +126,12 @@ packet_in_total_len( VALUE self ) {
  * A {Buffer} object that holds the entire or portion of the received frame.
  * Length of data, total_len - 20 bytes.
  *
- * @return [Buffer] the value of attribute data.
+ * @return [String] the value of attribute data.
  */
 static VALUE
 packet_in_data( VALUE self ) {
-  buffer *to;
-
-  VALUE rbuffer = rb_funcall( cBuffer, rb_intern( "new" ), 0 );
-  Data_Get_Struct( rbuffer, buffer, to );
-  memcpy( to, get_packet_in( self )->data, sizeof( buffer ) );
-  to->user_data_free_function = NULL;
-
-  return rbuffer;
+  buffer *buf = get_packet_in( self )->data;
+  return rb_str_new( buf->data, buf->length );
 }
 
 

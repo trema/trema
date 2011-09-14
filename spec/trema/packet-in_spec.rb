@@ -61,7 +61,7 @@ describe Trema::PacketIn do
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
            # packet_in expected to have data portion.
           message.total_len.should > 20
-          message.data.should be_instance_of( Trema::Buffer )
+          message.data.should be_instance_of( String )
           message.buffered?.should be_false
         end
         send_and_wait

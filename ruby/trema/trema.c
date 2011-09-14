@@ -29,7 +29,6 @@
 #include "logger.h"
 #include "packet_in.h"
 #include "port.h"
-#include "rbuffer.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
 #include "action-enqueue.h"
@@ -89,7 +88,6 @@ Init_trema() {
   Init_action_vendor();
   Init_echo_request();
   Init_error();
-  Init_buffer();
   Init_logger();
   Init_controller();
   Init_features_reply();
