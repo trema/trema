@@ -24,8 +24,7 @@
  *
  * @brief Internet Control Message Protocol(ICMP) header
  *
- * This header file contain type definitions, type codes, error codes of
- * Internet Control Message Protocol(ICMP)
+ * Type definitions, type codes, error codes of Internet Control Message Protocol(ICMP).
  */
 
 #ifndef ICMP_H
@@ -33,7 +32,7 @@
 
 
 /**
- * This is the type that specifies ICMP header information
+ * ICMP header information
  */
 typedef struct icmp_header {
   uint8_t type; /*!<ICMP error type*/
