@@ -21,6 +21,15 @@
  * @file
  *
  * @brief Handling Ethernet headers
+ * @code
+ * // Parses Ethernet header
+ * if ( !parse_ether( buf ) ) {
+ *     warn( "Failed to parse Ethernet header." );
+ *     return false;
+ * ...
+ * // Fills padding to Ethernet header
+ * fill_ether_padding( buffer *buf );
+ * @endcode
  */
 
 #include <assert.h>
@@ -41,8 +50,8 @@ void mock_debug( const char *format, ... );
 
 
 /**
- * This function pads the buffer containing Ethernet header, in case the length
- * of buffer is less than 64bytes including CRC
+ * Pads the buffer containing Ethernet header, in case the length of buffer is
+ * less than 64bytes including CRC.
  * @param buf Buffer containing Ethernet header
  * @return size_t Length of the padding
  */
@@ -61,8 +70,7 @@ fill_ether_padding( buffer *buf ) {
 
 
 /**
- * This function is to find if Ethernet header contained in passed buffer is
- * valid Ethernet header or not.
+ * Parses Ethernet header contained in passed buffer.
  * @param buf Buffer containing header to verify for being valid Ethernet header
  * @return bool True if buffer contains valid Ethernet header, else False
  */

@@ -22,9 +22,7 @@
 /**
  * @file
  *
- * @brief Ethernet header and function declarations
- *
- * Contains type definitions, type codes of Ethernet header and function declarations.
+ * @brief Function declarations and type definitions for Ethernet header implementation
  */
 
 #ifndef ETHER_H
@@ -53,7 +51,7 @@
 
 
 /**
- * This is the type that specifies Ethernet header definitions
+ * Ethernet header definitions
  * @see http://www.ieee802.org/3/
  * @see http://www.ieee802.org/1/
  */
@@ -65,7 +63,7 @@ typedef struct ether_headr {
 } ether_header_t;
 
 /**
- * This is the type that specifies VLAN tagging header definitions
+ * VLAN tagging header definitions
  */
 typedef struct vlantag_header {
   uint16_t tci;
@@ -73,7 +71,7 @@ typedef struct vlantag_header {
 } vlantag_header_t;
 
 /**
- * This is the type that specifies Tag Control Information(TCI) definitions
+ * Tag Control Information(TCI) definitions
  */
 typedef struct vlantag_tci {
 #if ( __BYTE_ORDER == __BIG_ENDIAN )
@@ -88,7 +86,7 @@ typedef struct vlantag_tci {
 } vlantag_tci_t;
 
 /**
- * This is the type that specifies Subnetwork Access Protocol header definitions
+ * Subnetwork Access Protocol header definitions
  */
 typedef struct snap_header {
   uint8_t llc[ 3 ];
