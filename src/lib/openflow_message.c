@@ -20,7 +20,7 @@
 /**
  * @file
  *
- * @brief OpenFlow message handling. Creates messages for openflow communications.
+ * @brief OpenFlow message handling. Creates messages for OpenFlow communications.
  *
  * Provides function which creates OpenFlow messages.
  *
@@ -70,7 +70,7 @@ extern pid_t mock_getpid( void );
 
 /**
  * Redirect debug to a function in the test application so it is
- * possible to test if debug messages are generated expectedly. 
+ * possible to test if debug messages are generated explicitly. 
  */
 #ifdef debug
 #undef debug
@@ -106,7 +106,7 @@ static pthread_mutex_t cookie_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
 /**
- * Initializes openflow message by acquiring lock on transaction id, cookie.
+ * Initializes OpenFlow message by acquiring lock on transaction id, cookie.
  * @param None
  * @return bool True
  */
@@ -561,7 +561,7 @@ create_flow_removed( const uint32_t transaction_id, const struct ofp_match match
  * Creates port status message.
  * @param transaction_id Id associated with packet
  * @param reason Reason packet is being sent (one of OFPR_*)
- * @param desc Discription of physical port
+ * @param desc Description of physical port
  * @return buffer* Pointer to location where get port status is stored
  */ 
 buffer *
@@ -826,7 +826,7 @@ create_port_mod( const uint32_t transaction_id, const uint16_t port_no,
 
 
 /**
- * Creates statastics request message.
+ * Creates statistics request message.
  * @param transaction_id Id associated with packet
  * @param type Type of statastics request
  * @param length Length of request
@@ -854,10 +854,10 @@ create_stats_request( const uint32_t transaction_id, const uint16_t type,
 
 
 /**
- * Creates description statastics request message.
+ * Creates description statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
- * @return buffer* Pointer to location where description statatsics request is stored
+ * @return buffer* Pointer to location where description statistics request is stored
  */
 buffer *
 create_desc_stats_request( const uint32_t transaction_id, const uint16_t flags ) {
@@ -870,13 +870,13 @@ create_desc_stats_request( const uint32_t transaction_id, const uint16_t flags )
 
 
 /**
- * Creates flow statastics request message.
+ * Creates flow statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param match Fields to match against flows
  * @param table_id Set next table in the lookup pipeline
  * @param out_port Output switch port
- * @return buffer* Pointer to location where flow statastics request is stored
+ * @return buffer* Pointer to location where flow statistics request is stored
  */
 buffer *
 create_flow_stats_request( const uint32_t transaction_id, const uint16_t flags,
@@ -912,13 +912,13 @@ create_flow_stats_request( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates aggregated statastics request message.
+ * Creates aggregated statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param match Fields to match against flows
  * @param table_id Set next table in the lookup pipeline
  * @param out_port Output switch port
- * @return buffer* Pointer to location where aggegate stats request is stored
+ * @return buffer* Pointer to location where aggregate stats request is stored
  */
 buffer *
 create_aggregate_stats_request( const uint32_t transaction_id,
@@ -954,7 +954,7 @@ create_aggregate_stats_request( const uint32_t transaction_id,
 
 
 /**
- * Creates table statastics request message.
+ * Creates table statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @return buffer* Pointer to location where table stats request is stored
@@ -969,7 +969,7 @@ create_table_stats_request( const uint32_t transaction_id, const uint16_t flags 
 
 
 /**
- * Creates port statastics request message.
+ * Creates port statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param port_no Port number 
@@ -1000,7 +1000,7 @@ create_port_stats_request( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates queue statastics request message.
+ * Creates queue statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param port_number Port number
@@ -1033,7 +1033,7 @@ create_queue_stats_request( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates vendor statastics request message.
+ * Creates vendor statistics request message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param vendor Vendor identification
@@ -1078,12 +1078,12 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
 
 
 /**
- * Creates statastics reply message.
+ * Creates statistics reply message.
  * @param transaction_id Id associated with packet
- * @param type Type of statastics reply
- * @param length length of statastics reply
+ * @param type Type of statistics reply
+ * @param length length of statistics reply
  * @param flags OFPC_* flags
- * @return buffer* Pointer to location where statastics reply is stored
+ * @return buffer* Pointer to location where statistics reply is stored
  */
 static buffer *
 create_stats_reply( const uint32_t transaction_id, const uint16_t type,
@@ -1106,15 +1106,15 @@ create_stats_reply( const uint32_t transaction_id, const uint16_t type,
 
 
 /**
- * Creates description statastics reply message.
+ * Creates description statistics reply message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param mfr_desc Manufacturer description
  * @param hw_desc Hardware description
  * @param sw_desc Software description
  * @param serial_num Serial number
- * @param dp_desc Human readible description os datapath
- * @return buffer* Pointer to location where description statastics reply is stored
+ * @param dp_desc Human readable description os datapath
+ * @return buffer* Pointer to location where description statistics reply is stored
  */
 buffer *
 create_desc_stats_reply( const uint32_t transaction_id, const uint16_t flags,
@@ -1150,7 +1150,7 @@ create_desc_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates flow statastics reply message.
+ * Creates flow statistics reply message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param flow_stats_head Head of flow stats list
@@ -1209,7 +1209,7 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates aggregate statastics reply message.
+ * Creates aggregate statistics reply message.
  * @param transaction_id Id associated with packet
  * @param packet_count Number of packets in flow
  * @param byte_count Number of bytes in flow
@@ -1246,11 +1246,11 @@ create_aggregate_stats_reply( const uint32_t transaction_id, const uint16_t flag
 
 
 /**
- * Creates table statastics reply message. 
+ * Creates table statistics reply message. 
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
- * @param table_stats_head Head of statastics table
- * @return buffer* Pointer to location where table statastics reply is stored
+ * @param table_stats_head Head of statistics table
+ * @return buffer* Pointer to location where table statistics reply is stored
  */
 buffer *
 create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
@@ -1303,11 +1303,11 @@ create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates port statastics reply message.
+ * Creates port statistics reply message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
- * @param port_stats_head Head of port statastics list
- * @return buffer* Pointer to location where port statastics reply is stored
+ * @param port_stats_head Head of port statistics list
+ * @return buffer* Pointer to location where port statistics reply is stored
  */
 buffer *
 create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
@@ -1360,11 +1360,11 @@ create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates queue statastics reply message.
+ * Creates queue statistics reply message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param queue_stats_head Head of queue statastics list
- * @return buffer* Pointer to location where queue statastics reply is stored
+ * @return buffer* Pointer to location where queue statistics reply is stored
  */
 buffer *
 create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
@@ -1417,12 +1417,12 @@ create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
 
 
 /**
- * Creates vendor statastics reply message.
+ * Creates vendor statistics reply message.
  * @param transaction_id Id associated with packet
  * @param flags OFPC_* flags
  * @param vendor Vendor information
  * @param body User data
- * @return buffer* Pointer to location where vendor statastics reply is stored
+ * @return buffer* Pointer to location where vendor statistics reply is stored
  */
 buffer *
 create_vendor_stats_reply( const uint32_t transaction_id, const uint16_t flags,
@@ -1511,7 +1511,7 @@ create_queue_get_config_request( const uint32_t transaction_id, const uint16_t p
 
 
 /**
- * Creates queue configuraiton reply message.
+ * Creates queue configuration reply message.
  * @param transaction_id Id associated with packet
  * @param ports List of ports 
  * @param queues List of queues
@@ -1849,7 +1849,7 @@ append_action_set_dl_src( openflow_actions *actions, const uint8_t hw_addr[ OFP_
  * Appends dl_dst to supported action list.
  * @param actions Actions supported by switch
  * @param hw_addr Hardware address
- * @return bool True sucessfully appends a set dl_src/dl_dst action, Else false
+ * @return bool True successfully appends a set dl_src/dl_dst action, Else false
  */
 bool
 append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_ETH_ALEN ] ) {
@@ -1866,7 +1866,7 @@ append_action_set_dl_dst( openflow_actions *actions, const uint8_t hw_addr[ OFP_
  * @param actions Actions supported by switch
  * @param type Type of network address
  * @param nw_addr IP address
- * @return bool True sucessfully appended to tail, Else false
+ * @return bool True successfully appended to tail, Else false
  */
 static bool
 append_action_set_nw_addr( openflow_actions *actions, const uint16_t type, const uint32_t nw_addr ) {
@@ -1900,7 +1900,7 @@ append_action_set_nw_addr( openflow_actions *actions, const uint16_t type, const
  * Appends nw_src to supported action list.
  * @param actions Actions supported by switch
  * @param nw_addr IP address
- * @return bool True sucessfully append action set network address, Else false
+ * @return bool True successfully append action set network address, Else false
  */
 bool
 append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr ) {
@@ -1921,7 +1921,7 @@ append_action_set_nw_src( openflow_actions *actions, const uint32_t nw_addr ) {
  * Appends nw_dst to supported action list.
  * @param actions Actions supported by switch
  * @param nw_addr IP address
- * @return bool True sucessfully append action set network address, Else false
+ * @return bool True successfully append action set network address, Else false
  */
 bool
 append_action_set_nw_dst( openflow_actions *actions, const uint32_t nw_addr ) {
@@ -2096,7 +2096,7 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
 
 
 /**
- * Validates header of meaasge and returns appropriate error from header.
+ * Validates header of message and returns appropriate error from header.
  * @param message Message to validate
  * @param type Type of header
  * @param min_length Minimum header length
@@ -2840,7 +2840,7 @@ validate_port_mod( const buffer *message ) {
 
 
 /**
- * Validates description statastics request message.
+ * Validates description statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -2871,7 +2871,7 @@ validate_desc_stats_request( const buffer *message ) {
 
 
 /**
- * Validates flow statastics request message.
+ * Validates flow statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -2923,7 +2923,7 @@ validate_flow_stats_request( const buffer *message ) {
 
 
 /**
- * Validates aggregate statastics request message.
+ * Validates aggregate statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -2974,7 +2974,7 @@ validate_aggregate_stats_request( const buffer *message ) {
 
 
 /**
- * Validates table statastics request message.
+ * Validates table statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3005,7 +3005,7 @@ validate_table_stats_request( const buffer *message ) {
 
 
 /**
- * Validates port statastics request message.
+ * Validates port statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3053,7 +3053,7 @@ validate_port_stats_request( const buffer *message ) {
 
 
 /**
- * Validates queue statastics request message.
+ * Validates queue statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3096,7 +3096,7 @@ validate_queue_stats_request( const buffer *message ) {
 
 
 /**
- * Validates vendor statastics request message.
+ * Validates vendor statistics request message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3129,8 +3129,8 @@ validate_vendor_stats_request( const buffer *message ) {
 
 
 /**
- * Validates statastics request message. It selects the request and calls suitable 
- * statastics request. 
+ * Validates statistics request message. It selects the request and calls suitable 
+ * statistics request. 
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3168,7 +3168,7 @@ validate_stats_request( const buffer *message ) {
 
 
 /**
- * Validates description statastics reply message.
+ * Validates description statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3196,7 +3196,7 @@ validate_desc_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates flow statastics reply message.
+ * Validates flow statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3275,7 +3275,7 @@ validate_flow_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates aggregate statastics reply message.
+ * Validates aggregate statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3312,7 +3312,7 @@ validate_aggregate_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates table statastics reply message.
+ * Validates table statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3372,7 +3372,7 @@ validate_table_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates port statastics reply message.
+ * Validates port statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3438,7 +3438,7 @@ validate_port_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates queue statastics reply message.
+ * Validates queue statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3495,7 +3495,7 @@ validate_queue_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates vendor statastics reply message.
+ * Validates vendor statistics reply message.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
@@ -3536,8 +3536,8 @@ validate_vendor_stats_reply( const buffer *message ) {
 
 
 /**
- * Validates statastics reply message. It selects the suitable message and 
- * calls respective statastics reply.
+ * Validates statistics reply message. It selects the suitable message and 
+ * calls respective statistics reply.
  * @param message Message to validate
  * @return int Returns 0 in case of no error, returns error code in case of error
  */
