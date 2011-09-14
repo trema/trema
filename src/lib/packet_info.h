@@ -113,7 +113,6 @@ typedef struct packet_info {
   uint8_t ipv4_tos;
   uint16_t ipv4_tot_len;
   uint16_t ipv4_id;
-  uint8_t ipv4_flags;
   uint16_t ipv4_frag_off;
   uint8_t ipv4_ttl;
   uint8_t ipv4_protocol;

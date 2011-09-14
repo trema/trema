@@ -1,7 +1,7 @@
 /*
  * Unit tests for packet_parser functions and macros.
  *
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <pcap.h>
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "packet_info.h"
@@ -29,95 +30,44 @@
 #include "wrapper.h"
 
 
-const char macda[] = {
-    ( char ) 0xff, ( char ) 0xff, ( char ) 0xff, 
-    ( char ) 0xff, ( char ) 0xff, ( char ) 0xff
-};
-const char macsa[] = {
-    ( char ) 0x00, ( char ) 0xd0, ( char ) 0x09, 
-    ( char ) 0x20, ( char ) 0x09, ( char ) 0xF7
-};
-const char sntp_data[] = {
-    ( char ) 0xaa, ( char ) 0xaa, ( char ) 0x03, ( char ) 0x00, 
-    ( char ) 0x00, ( char ) 0x00, ( char ) 0x08, ( char ) 0x00
-};
 
+/******************************************************************************
+ * Callback function for pcap_dispatch().
+ ******************************************************************************/
 
-/*
- * add padding data to arp/ipv4 header size forcibly to be able to adapt
- * itself to the minimum size of the ethernet packet (= 46 byte).
- */
-const unsigned int ipv4_padding_size = 46 - sizeof( ipv4_header_t );
-const unsigned int arp_padding_size = 46 - sizeof( arp_header_t );
+static void *
+store_packet_to_buffer( u_char *user_data,
+                        const struct pcap_pkthdr *header,
+                        const u_char *length ) {
+  assert( user_data != NULL );
+  assert( header != NULL );
+  assert( length != NULL );
 
+  buffer *buffer0 = ( buffer * )user_data;
 
-/********************************************************************************
- * Setup and teardown function.
- ********************************************************************************/
+  buffer0->length = header->len;
+  buffer0->data = xcalloc( 1, header->len );
+  memcpy( buffer0->data, header + 1, header->len );
 
-static buffer *
-setup_dummy_ether_packet( size_t length, uint16_t type ) {
-  buffer *buf = alloc_buffer_with_length( length );
-  alloc_packet( buf );
-  append_back_buffer( buf, length );
-  packet_info( buf )->l2_data.eth = buf->data;
-  packet_info( buf )->ethtype = type;
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ether->type = htons( type );
-
-  memcpy( ( char * ) ether->macda, macda, ETH_ADDRLEN );
-  memcpy( ( char * ) ether->macsa, macsa, ETH_ADDRLEN );
-
-  packet_info( buf )->l3_data.l3 = ( char * ) packet_info( buf )->l2_data.l2 + sizeof( ether_header_t );
-  vlantag_header_t *vtag = ( vlantag_header_t * ) ( ( void * ) ( ether + 1 ) );
-  packet_info( buf )->vtag = vtag;
-
-  return buf;
+  return NULL;
 }
 
 
+/******************************************************************************
+ * Setup and teardown function.
+ ******************************************************************************/
 static buffer *
 setup_dummy_ether_arp_packet() {
-  buffer *arp_buffer = setup_dummy_ether_packet( sizeof( ether_header_t ) + sizeof( arp_header_t ) + arp_padding_size, ETH_ETHTYPE_ARP );
+  buffer *arp_buffer = alloc_buffer();
 
-  arp_header_t *arp = packet_info( arp_buffer )->l3_data.arp;
-  arp->ar_hrd = htons( ARPHRD_ETHER );
-  arp->ar_pro = htons( ETH_ETHTYPE_IPV4 );
-  arp->ar_hln = ETH_ADDRLEN;
-  arp->ar_pln = IPV4_ADDRLEN;
-  arp->ar_op = htons( ARPOP_REPLY );
-
-  xfree( arp_buffer->user_data );
-  arp_buffer->user_data = NULL;
-
-  remove_front_buffer( arp_buffer, ETH_PREPADLEN );
+  char error[ PCAP_ERRBUF_SIZE ];
+  pcap_t *pcap = pcap_open_offline( "./test_packets/arp.cap", error );
+  assert( pcap != NULL );
+  
+  int count = pcap_dispatch( pcap, 1, store_packet_to_buffer, arp_buffer );
+  assert( count == 1 );
 
   return arp_buffer;
-}
-
-
-static buffer *
-setup_dummy_ether_ipv4_packet() {
-  buffer *ipv4_buffer = setup_dummy_ether_packet( sizeof( ether_header_t ) + sizeof( ipv4_header_t ) + ipv4_padding_size, ETH_ETHTYPE_IPV4 );
-
-  ipv4_header_t *ipv4 = packet_info( ipv4_buffer )->l3_data.ipv4;
-  ipv4->version = IPVERSION;
-  ipv4->ihl = sizeof( ipv4_header_t ) / 4;
-  ipv4->tot_len = htons( sizeof( ipv4_header_t ) );
-  ipv4->ttl = 0;
-  ipv4->check = 0;
-  ipv4->protocol = IPPROTO_UDP;
-  ipv4->saddr = htonl( 0xC0A80067 );
-  ipv4->daddr = htonl( 0xC0A80036 );
-  ipv4->frag_off = htons( 0 );
-  ipv4->check = get_checksum( ( uint16_t * ) packet_info( ipv4_buffer )->l3_data.ipv4, sizeof( ipv4_header_t ) );
-
-  xfree( ipv4_buffer->user_data );
-  ipv4_buffer->user_data = NULL;
-
-  remove_front_buffer( ipv4_buffer, ETH_PREPADLEN );
-
-  return ipv4_buffer;
 }
 
 
@@ -137,20 +87,6 @@ test_parse_packet_ether_arp_succeeds() {
 }
 
 
-/********************************************************************************
- * ether ipv4 Tests.
- ********************************************************************************/
-
-static void
-test_parse_packet_ether_ipv4_succeeds() {
-  buffer *ipv4_buffer = setup_dummy_ether_ipv4_packet( );
-
-  assert_true( parse_packet( ipv4_buffer ) );
-  
-
-  free_buffer( ipv4_buffer );
-}
-
 
 /********************************************************************************
  * Run tests.
@@ -161,7 +97,6 @@ main() {
   UnitTest tests[] = {
     unit_test( test_parse_packet_ether_arp_succeeds ),
 
-    unit_test( test_parse_packet_ether_ipv4_succeeds ),
   };
   stub_logger();
   return run_tests( tests );

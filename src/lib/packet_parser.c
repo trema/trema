@@ -360,7 +360,8 @@ parse_packet( buffer *buf ) {
   assert( buf->data != NULL );
 
   alloc_packet_info( buf );
-  if ( buf->user_data != NULL ) {
+  if ( buf->user_data == NULL ) {
+    error( "Can't alloc packet_info." );
     return false;
   }
 
@@ -381,7 +382,7 @@ parse_packet( buffer *buf ) {
     break;
 
   default:
-    //    warn( "" );
+    return true;
     break;
   }
     
@@ -408,10 +409,11 @@ parse_packet( buffer *buf ) {
     break;
     
   default:
-    //    warn( "" );
     break;
   }
+
   return true;
+
 }
 
 
