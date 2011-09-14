@@ -1,22 +1,4 @@
 /*
- * Functions for accessing commnly-used header fields values.
- *
- * Usage:
- *
- *   // Parse an Ethernet frame stored in eth_frame. Now the frame is
- *   // parsed and the results are stored in a newly allocated memory area.
- *   parse_packet( eth_frame );
- *
- *   // Now you can refer to the header field values like follows.
- *   switch ( packet_info( eth_frame )->ethtype ) {
- *     case ETH_ETHTYPE_IPV4:
- *       ...
- *     case ETH_ETHTYPE_ARP:
- *      ...
- *
- *   // Finally free the buffer.
- *   free_buffer( eth_frame );
- *
  * Author: Naoyoshi Tada
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -36,9 +18,12 @@
  */
 
 /**
- * @file packet_info.h
- * Header file containing type definitions and function declarations of packet_info.c file
- * @see packet_info.c
+ * @file
+ *
+ * @brief Packet Header Information handling implementation
+ *
+ * File containing function declarations and type definitions for accessing
+ * commonly-used header fields values
  */
 
 #ifndef PACKET_INFO_H
