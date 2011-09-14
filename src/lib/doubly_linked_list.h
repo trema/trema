@@ -20,9 +20,10 @@
  */
 
 /**
- * @file doubly_linked_list.h
- * Header file containing function declarations and type definitions of doubly_linked_list.c
- * @see doubly_linked_list.c
+ * @file
+ *
+ * @brief File containing function declarations and type definitions for doubly
+ * linked list implementation
  */
 
 #ifndef DOUBLY_LINKED_LIST_H
