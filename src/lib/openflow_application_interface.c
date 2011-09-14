@@ -23,11 +23,11 @@
  *
  * @brief Implementation of OpenFlow Application Interfaces
  *
- * Provides funciton for openflow interface applicaiton intialization
+ * Provides function for OpenFlow interface application initialization
  * which includes handling of various switch handling events.
  *
  * @code
- * // Intializes OpenFlow application interface.
+ * // Initializes OpenFlow application interface.
  * init_openflow_application_interface( "Learning Switch application" );
  * // "Learning Switch Application" being name of the Application to be created
  *
@@ -174,7 +174,7 @@ static void handle_list_switches_reply( uint16_t message_type, void *dpid, size_
 
 
 /**
- * Enemurator for Message direction description. Used for printing direction of message for
+ * Enumerator for Message direction description. Used for printing direction of message for
  * logging and statistics.
  */
 enum {
@@ -184,7 +184,7 @@ enum {
 
 
 /**
- * Check whether OpenFlow Application Interface was initialized by the Appplication before being used.
+ * Check whether OpenFlow Application Interface was initialized by the Application before being used.
  * @param None
  * @return bool True if OpenFlow Application was initialized by calling application, else False
  */
@@ -210,9 +210,9 @@ maybe_init_openflow_application_interface() {
 
 
 /**
- * Intializes OpenFlow application interface. 
- * @param custome_service_name Pointer to string contaning name of trema applicaiton
- * @return bool True if properly intialized, false if either application is already initialized or service name is too long (32) 
+ * Initializes OpenFlow application interface. 
+ * @param custome_service_name Pointer to string containing name of trema application
+ * @return bool True if properly initialized, false if either application is already initialized or service name is too long (32) 
  */
 bool
 init_openflow_application_interface( const char *custom_service_name ) {
@@ -555,7 +555,7 @@ set_stats_reply_handler( stats_reply_handler callback, void *user_data ) {
 
 
 /**
- * Sets callback function for handling reponses of Barrier requests made to switch.
+ * Sets callback function for handling responses of Barrier requests made to switch.
  * @param callback Callback function to handle responses of barrier request
  * @param user_data Pointer to user data
  * @return bool Always returns true
@@ -1392,7 +1392,7 @@ handle_queue_get_config_reply( const uint64_t datapath_id, buffer *data ) {
 /**
  * Updates switch event statistics. 
  * @param type Type of message
- * @param send_receive Wether send or receive
+ * @param send_receive Whether send or receive
  * @param bool Was the transaction successful or not
  * @return None
  */
@@ -1524,7 +1524,7 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
 /**
  * Updated the OpenFlow header message in key. 
  * @param type Type of event i.e. connected, ready or disconnected
- * @param send_receive Wether message is send or received  
+ * @param send_receive Whether message is send or received  
  * @param result message succeeded or failed
  * @return None
  */
@@ -1722,7 +1722,7 @@ handle_openflow_message( void *data, size_t length ) {
  * Handles incoming messages from switch by differentiating between messages or event updates.
  * @param type Message type
  * @param data Pointer to user data
- * @param length Length of openflow service header 
+ * @param length Length of OpenFlow service header 
  * @return None
  */
 static void
@@ -1813,7 +1813,7 @@ handle_list_switches_reply( uint16_t message_type, void *data, size_t length, vo
  * Interface for sending OpenFlow message to other entities.
  * @param datapath_id Datapath unique ID
  * @param message Pointer to message
- * @return ret Returns true for sucessful handling, else false
+ * @return ret Returns true for successful handling, else false
  */
 bool
 send_openflow_message( const uint64_t datapath_id, buffer *message ) {
