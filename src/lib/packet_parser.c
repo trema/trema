@@ -359,9 +359,9 @@ parse_packet( buffer *buf ) {
   assert( buf != NULL );
   assert( buf->data != NULL );
 
-  alloc_packet_info( buf );
+  calloc_packet_info( buf );
   if ( buf->user_data == NULL ) {
-    error( "Can't alloc packet_info." );
+    error( "Can't alloc memory for packet_info." );
     return false;
   }
 
