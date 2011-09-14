@@ -18,9 +18,22 @@
  */
 
 /**
- * @file packet_parser.c
- * Source file containing functions for handling packets. This file contains functions for 
- * parsing a packet to find its type (whether IPv4, or ARP) and peform checksum if required.
+ * @file
+ *
+ * @brief Packet parsing implementation
+ *
+ * File containing functions for handling packets i.e, parsing a packet to find
+ * its type (whether IPv4, or ARP) and calculating checksum if required.
+ * @code
+ * // Calculates checksum
+ * get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len )
+ * ...
+ * // Validates packet header information
+ * bool parse_ok = parse_packet( body );
+ * if ( !parse_ok ) {
+ * error( "Failed to parse a packet." );
+ * ...
+ * @endcode
  */
 
 #include <assert.h>
