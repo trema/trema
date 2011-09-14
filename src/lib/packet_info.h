@@ -219,7 +219,7 @@ typedef struct packet_header_info {
 
 
 void free_packet( buffer *frame ) DEPRECATED;
-#define alloc_packet( buf )  alloc_packet_info( buf )
+#define alloc_packet( buf )  calloc_packet_info( buf )
 
 #endif // PACKET_INFO_H
 
