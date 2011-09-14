@@ -355,7 +355,7 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *     frame is not buffered, and the entire frame must be passed in
  *     :data.
  *
- *   @option options [Buffer, String, nil] :data (nil)
+ *   @option options [String, nil] :data (nil)
  *     The entire Ethernet frame. Should be of length 0 if buffer_id
  *     is 0xffffffff, and should be of length >0 otherwise.
  *
@@ -373,8 +373,8 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   uint32_t buffer_id = UINT32_MAX;
   uint16_t in_port = OFPP_NONE;
   openflow_actions *actions = create_actions();
-  const buffer *data = NULL;
-  buffer *string_data = NULL;
+  buffer *data = NULL;
+  buffer *allocated_data = NULL;
 
   if ( options != Qnil ) {
     VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
@@ -382,9 +382,11 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
       packet_in *message;
       Data_Get_Struct( opt_message, packet_in, message );
 
-      buffer_id = message->buffer_id;
-      in_port = message->in_port;
-      data = UINT32_MAX ? message->data : NULL;
+      if ( NUM2ULL( datapath_id ) == message->datapath_id ) {
+        buffer_id = message->buffer_id;
+        in_port = message->in_port;
+      }
+      data = ( buffer_id == UINT32_MAX ? message->data : NULL );
     }
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
@@ -404,15 +406,11 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
     VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
     if ( opt_data != Qnil ) {
-      if ( TYPE( opt_data ) == T_STRING ) {
-        uint16_t length = ( u_int16_t ) RSTRING_LEN( opt_data );
-        string_data = alloc_buffer_with_length( length );
-        memcpy( append_back_buffer( string_data, length ), RSTRING_PTR( opt_data ), length );
-        data = string_data;
-      }
-      else {
-        Data_Get_Struct( opt_data, buffer, data );
-      }
+      Check_Type( opt_data, T_STRING );
+      uint16_t length = ( u_int16_t ) RSTRING_LEN( opt_data );
+      allocated_data = alloc_buffer_with_length( length );
+      memcpy( append_back_buffer( allocated_data, length ), RSTRING_PTR( opt_data ), length );
+      data = allocated_data;
     }
   }
 
@@ -425,8 +423,8 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   );
   send_openflow_message( NUM2ULL( datapath_id ), packet_out );
 
-  if ( string_data != NULL ) {
-    free_buffer( string_data );
+  if ( allocated_data != NULL ) {
+    free_buffer( allocated_data );
   }
   free_buffer( packet_out );
   delete_actions( actions );
