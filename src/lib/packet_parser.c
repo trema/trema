@@ -202,6 +202,8 @@ parse_ipv4( buffer *buf ) {
   packet_info0->l4_header = ( char * ) packet_info0->l3_header +
     packet_info0->ipv4_ihl * 4;
 
+  packet_info0->format |= NW_IPV4;
+
   return;
 }
 
@@ -244,6 +246,7 @@ parse_icmp( buffer *buf ) {
       break;
   }
 
+  packet_info0->format ^= NW_IPV4;
   packet_info0->format |= NW_ICMPV4;
 
   return;
