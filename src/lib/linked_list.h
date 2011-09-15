@@ -18,12 +18,6 @@
  */
 
 /**
- * @file 
- *
- * @brief Function declarations and type definitions for Single Linked List Implementation
- */
-
-/**
  * @file
  *
  * @brief Linked lists containing pointers to data, limited to
