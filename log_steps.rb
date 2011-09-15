@@ -50,6 +50,11 @@ Then /^the log file "([^"]*)" should include:$/ do | log_name, string |
 end
 
 
+Then /^the log file "([^"]*)" should match:$/ do | log_name, string |
+  IO.read( cucumber_log log_name ).should match( Regexp.new string )
+end
+
+
 Then /^the log file "([^"]*)" should include "([^"]*)" x (\d+)$/ do | log, message, n |
   IO.read( cucumber_log log ).split( "\n" ).inject( 0 ) do | matched, each |
     matched += 1 if each.include?( message )
