@@ -1,6 +1,4 @@
 /*
- * Doubly linked list library.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -19,12 +17,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 /**
  * @file
  *
- * @brief File containing function declarations and type definitions for doubly
- * linked list implementation
+ * @brief linked lists containing pointers to data, with the ability
+ * to iterate over the list in both directions.
+ *
+ * Each element in the list contains a piece of data, together with
+ * pointers which link to the previous and next elements in the
+ * list. Using these pointers it is possible to move through the list
+ * in both directions (unlike the linked-list which only allows
+ * movement through the list in the forward direction).
+ *
+ * @code
+ * // Create a doubly linked list ("alpha" <=> "bravo" <=> "charlie")
+ * dlist_element *alpha = create_dlist();
+ * dlist_element *bravo = insert_after_dlist( alpha, "bravo" );
+ * dlist_element *charlie = insert_after_dlist( bravo, "charlie" );
+ * ...
+ * // Find element "charlie" from the list
+ * find_element( alpha, "charlie" ); // => charlie
+ * find_element( alpha, "delta" ); // => NULL
+ *
+ * // Delete element "bravo" from the list
+ * delete_dlist_element( bravo ); // => true
+ *
+ * // Delete entire list
+ * delete_dlist( alpha );
+ * @endcode
  */
+
 
 #ifndef DOUBLY_LINKED_LIST_H
 #define DOUBLY_LINKED_LIST_H
@@ -34,12 +57,13 @@
 
 
 /**
- * Specifies node of doubly linked list
+ * The dlist_element struct is used for each element in a
+ * doubly-linked list.
  */
 typedef struct dlist_element {
-  void *data;
-  struct dlist_element *prev;
-  struct dlist_element *next;
+  void *data; /**< Holds the element's data, which can be a pointer to any kind of data. */
+  struct dlist_element *prev; /**< Contains the link to the previous element in the list. */
+  struct dlist_element *next; /**< Contains the link to the next element in the list. */
 } dlist_element;
 
 
