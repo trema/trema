@@ -55,15 +55,6 @@ typedef struct private_dlist_element {
 } private_dlist_element;
 
 
-<<<<<<< HEAD
-/**
- * Allocates memory to structure of type private_dlist_element, elements of
- * which are initialized to NULL.
- * @param mutex Pointer of type pthread_mutex_t
- * @return dlist_element* Pointer to dlist_element type which holds the allocated area with its members appropriately initialized
- */
-=======
->>>>>>> 4f0b5a5bf9c5844c269576b1bf0592925bcb713e
 static dlist_element *
 create_dlist_with_mutex( pthread_mutex_t *mutex ) {
   private_dlist_element *element = xmalloc( sizeof( private_dlist_element ) );
@@ -78,16 +69,9 @@ create_dlist_with_mutex( pthread_mutex_t *mutex ) {
 
 
 /**
-<<<<<<< HEAD
- * Allocates memory to empty dlist_element type structure which can be used for
- * representing allocated area.
- * @param None
- * @return dlist_element*  Pointer to dlist_element type, which is embedded into private_dlist_element type
-=======
  * Allocates space for one dlist_element.
  *
  * @return a pointer to the newly-allocated dlist_element.
->>>>>>> 4f0b5a5bf9c5844c269576b1bf0592925bcb713e
  */
 dlist_element *
 create_dlist() {
