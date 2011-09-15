@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+#
+# Monitor switch on/off
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -18,13 +21,40 @@
 #
 
 
-Given /^I terminated all trema services$/ do
-  run "./trema killall"
+class SwitchMonitor < Controller
+  periodic_timer_event :show_switches, 10
+
+
+  def start
+    @switches = []
+  end
+
+
+  def switch_ready datapath_id
+    dpid_hex = "%#x" % datapath_id
+    @switches << dpid_hex
+    info "Switch #{ dpid_hex } is UP"
+  end
+
+
+  def switch_disconnected datapath_id
+    dpid_hex = "%#x" % datapath_id
+    @switches -= [ dpid_hex ]
+    info "Switch #{ dpid_hex } is DOWN"
+  end
+
+
+  private
+
+
+  def show_switches
+    info "All switches = " + @switches.sort.join( ", " )
+  end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
