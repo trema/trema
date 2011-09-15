@@ -32,7 +32,9 @@ def method_for sub_command
   case sub_command
     when "run", "start"
       return :run
-    when "killall", "kill", "stop"
+    when "kill", "stop", "off"
+      return :kill 
+    when "killall"
       return :killall
     when "send_packets"
       return :send_packets

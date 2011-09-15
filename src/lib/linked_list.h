@@ -1,6 +1,4 @@
 /*
- * Linked list library.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -24,6 +22,35 @@
  *
  * @brief Function declarations and type definitions for Single Linked List Implementation
  */
+
+/**
+ * @file
+ *
+ * @brief Linked lists containing pointers to data, limited to
+ * iterating over the list in one direction.
+ *
+ * Each element in the list contains a piece of data, together with a
+ * pointer which links to the next element in the list. Using this
+ * pointer it is possible to move through the list in one direction
+ * only (unlike the Doubly-Linked Lists which allow movement in both
+ * directions).
+ *
+ * @code
+ * // Create a linked list ("alpha" => "bravo" => "charlie")
+ * list_element *list;
+ * create_list( &list );
+ * append_to_tail( &list, "alpha" );
+ * append_to_tail( &list, "bravo" );
+ * append_to_tail( &list, "charlie" );
+ *
+ * // Delete element "bravo" from the list
+ * delete_element( &list, "bravo" ); // => true
+ *
+ * // Delete entire list
+ * delete_list( list );
+ * @endcode
+ */
+
 
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
