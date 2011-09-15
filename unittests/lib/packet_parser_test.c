@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <pcap.h>
+#include <netinet/ip.h>
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "packet_info.h"
@@ -36,69 +37,132 @@
  * 
  ******************************************************************************/
 
-static bool
-store_packet_to_buffer( buffer *buffer, const char *filename ) {
-  assert( buffer != NULL );
+static buffer *
+store_packet_to_buffer( const char *filename ) {
   assert( filename != NULL );
 
   FILE *fp = fopen( filename, "r" );
   if ( fp == NULL ) {
     // "Can't open a file of test data."
-    return false;
+    return NULL;
   }
-
-  struct pcap_file_header dummy_buffer;
-  size_t size = fread( &dummy_buffer, 1, 
-                       sizeof( struct pcap_file_header ), fp );
-  if ( size < sizeof( struct pcap_file_header ) ) {
-    return false;
+  
+  // Skip
+  if ( fseek( fp, sizeof( struct pcap_file_header ) + sizeof( uint32_t ) * 2,
+              SEEK_CUR ) != 0 ) {
+    fclose( fp );
+    return NULL;
   }  
   
-  uint32_t dummy_buffer2[4];
-  size = fread( &dummy_buffer2, 1, sizeof( dummy_buffer2 ), fp );
-  if ( size < sizeof( dummy_buffer2 ) ) {
-    return false;
+  uint32_t len[2];
+  size_t size = fread( &len, 1, sizeof( len ), fp );
+  if ( size < sizeof( len ) ) {
+    fclose( fp );
+    return NULL;
   }  
 
-  buffer->length = dummy_buffer2[2];
+  buffer *buffer = alloc_buffer();
+  if ( buffer == NULL ) {
+    fclose( fp );
+    return NULL;
+  }
+  buffer->length = len[0];
   buffer->data = xcalloc( 1, buffer->length );
   size = fread( buffer->data, 1, buffer->length, fp );
   if ( size < buffer->length ) {
-    return false;
+    free_buffer( buffer );
+    fclose( fp );
+    return NULL;
   }  
 
-  return true;
+  fclose( fp );
+  return buffer;
 }
-
-
-/******************************************************************************
- * Setup and teardown function.
- ******************************************************************************/
-
-static buffer *
-setup_dummy_ether_arp_packet() {
-  buffer *arp_buffer = alloc_buffer();
-
-  store_packet_to_buffer( arp_buffer, "./unittests/lib/test_packets/arp.cap" );
-  
-  return arp_buffer;
-}
-
 
 /******************************************************************************
  * ether arp Tests.
  ******************************************************************************/
 
 static void
-test_parse_packet_ether_arp_succeeds() {
-  buffer *arp_buffer = setup_dummy_ether_arp_packet();
+test_parse_packet_snap_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/ipx.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
 
-  assert_true( parse_packet( arp_buffer ) );
+  assert_true( parse_packet( buffer ) );
 
-  packet_info *packet_info0 = arp_buffer->user_data;
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_true( packet_info0->format == ETH_8023_SNAP );
+  
+  assert_true( packet_info0->eth_type < ETH_MTU );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_arp_request_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/arp_req.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_true( packet_info0->format == ETH_ARP );
+
   assert_true( packet_info0->eth_type == ETH_ETHTYPE_ARP );
 
-  free_buffer( arp_buffer );
+  assert_true( packet_info0->arp_ar_hrd == 0x0001 );
+  assert_true( packet_info0->arp_ar_pro == 0x0800 );
+  assert_true( packet_info0->arp_ar_hln == 6 );
+  assert_true( packet_info0->arp_ar_pln == 4 );
+  assert_true( packet_info0->arp_ar_op == 1 );
+  assert_true( packet_info0->arp_spa == 0xc0a8642c );
+  assert_true( packet_info0->arp_tpa == 0xc0a8642b );
+
+  free_buffer( buffer );
+}
+
+static void
+test_parse_packet_udp_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/udp.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_true( packet_info0->format == ETH_IPV4_UDP );
+
+  assert_true( packet_info0->eth_type == ETH_ETHTYPE_IPV4 );
+
+  assert_true( packet_info0->ipv4_protocol == IPPROTO_UDP );
+
+  assert_true( packet_info0->udp_src_port = 61616 );
+  assert_true( packet_info0->udp_dst_port = 23499 );
+
+  free_buffer( buffer );
+}
+
+static void
+test_parse_packet_icmpv4_echo_request_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/icmp_echo_req.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_true( packet_info0->format == ETH_IPV4_ICMPV4 );
+  assert_true( packet_info0->eth_type == ETH_ETHTYPE_IPV4 );
+  assert_true( packet_info0->ipv4_protocol == IPPROTO_ICMP );
+
+  assert_true( packet_info0->icmpv4_type == ICMP_TYPE_ECHOREQ );
+  assert_true( packet_info0->icmpv4_code == 0 );
+  assert_true( packet_info0->icmpv4_id == 1076 );
+  assert_true( packet_info0->icmpv4_seq == 1 );
+  free_buffer( buffer );
 }
 
 
@@ -110,7 +174,10 @@ test_parse_packet_ether_arp_succeeds() {
 int
 main() {
   UnitTest tests[] = {
-    unit_test( test_parse_packet_ether_arp_succeeds ),
+    unit_test( test_parse_packet_snap_succeeds ),
+    unit_test( test_parse_packet_arp_request_succeeds ),
+    unit_test( test_parse_packet_udp_succeeds ),
+    unit_test( test_parse_packet_icmpv4_echo_request_succeeds ),
 
   };
   stub_logger();
