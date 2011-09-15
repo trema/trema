@@ -21,9 +21,12 @@
 
 
 /**
- * @file bool.h
- * This is a utility file containing enumerator for Boolean type, defining 0 for FALSE
- * and 1 for TRUE. This is being widely used within the TREMA code for function
+ * @file
+ *
+ * @brief Utility file containing enumerator for Boolean type 
+ *
+ * Utility file containing enumerator for Boolean type, defines FALSE as 0 and 1
+ * as TRUE. This is being widely used within the TREMA code for function
  * returning boolean types.
  */
 

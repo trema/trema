@@ -21,31 +21,8 @@
 /**
  * @file
  *
- * @brief linked lists containing pointers to data, with the ability
- * to iterate over the list in both directions.
- *
- * Each element in the list contains a piece of data, together with
- * pointers which link to the previous and next elements in the
- * list. Using these pointers it is possible to move through the list
- * in both directions (unlike the linked-list which only allows
- * movement through the list in the forward direction).
- *
- * @code
- * // Create a doubly linked list ("alpha" <=> "bravo" <=> "charlie")
- * dlist_element *alpha = create_dlist();
- * dlist_element *bravo = insert_after_dlist( alpha, "bravo" );
- * dlist_element *charlie = insert_after_dlist( bravo, "charlie" );
- *
- * // Find element "charlie" from the list
- * find_element( alpha, "charlie" ); // => charlie
- * find_element( alpha, "delta" ); // => NULL
- *
- * // Delete element "bravo" from the list
- * delete_dlist_element( bravo ); // => true
- *
- * // Delete entire list
- * delete_dlist( alpha );
- * @endcode
+ * @brief File containing function declarations and type definitions for doubly
+ * linked list implementation
  */
 
 

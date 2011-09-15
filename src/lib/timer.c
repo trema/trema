@@ -19,9 +19,27 @@
 
 
 /**
- * @timer.c
- * Contains functions which handles timer functionality.
+ * @file
+ *
+ * @brief Contains functions which handles timer functionality.
+ *
+ * Provides timer functionality to OpenFlow
+ *
+ * @code
+ * // Intializes timer
+ * init_timer();
+ *
+ * // Adds, deletes, executes timer.
+ * add_timer_event_callback( &interval, timer_event_callback, ( void * ) self );
+ * executes_timer_events();
+ * delete_timer_event_callback( timer_event_callback );
+ *
+ * // Finalizes OpenFlow application interface.
+ * finalize_timer();
+ *
+ * @endcode
  */
+
 #include <assert.h>
 #include <errno.h>
 #include "doubly_linked_list.h"

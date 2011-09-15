@@ -17,6 +17,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Flow Table implementation
+ *
+ * File containing functions for handling flow tables in an OpenFlow Switch.
+ * @code
+ * // Initialize match table
+ * init_match_table();
+ * ...
+ * // Insert match entry
+ * insert_match_entry( &ofp_match, priority, service_name, entry_name );
+ * ...
+ * // Lookup match entry
+ * match_entry *match_entry = lookup_match_entry( &ofp_match );
+ * ...
+ * // Delete match entry
+ * delete_match_entry( struct ofp_match *ofp_match );
+ * ...
+ * // Finalize match table
+ * finalize_match_table();
+ * @endcode
+ */
 
 #include <assert.h>
 #include <pthread.h>
@@ -45,6 +68,14 @@ typedef struct match_table {
 static match_table match_table_head;
 
 
+/**
+ * Compare function for compairing structures of type ofp_match which contains
+ * fields to match against flows. It is wrapped around by init_match_table.
+ * @param x A void type pointer to constant identifier
+ * @param y A void type pointer to constant identifier
+ * @return bool True if equal, else False
+ * @see init_match_table
+ */
 static bool
 compare_match_entry( const void *x, const void *y ) {
   const struct ofp_match *xofp_match = x;
@@ -54,6 +85,12 @@ compare_match_entry( const void *x, const void *y ) {
 }
 
 
+/**
+ * Generates hash for flow table. It is wrapped around by init_match_table.
+ * @param key Pointer to constant key identifier
+ * @return unsigned int hash
+ * @see init_match_table
+ */
 static unsigned int
 hash_match_entry( const void *key ) {
   const struct ofp_match *ofp_match = key;
@@ -78,6 +115,15 @@ hash_match_entry( const void *key ) {
 }
 
 
+/**
+ * Allocates space to structure of type match entry. Members of the structure are initialized to
+ * values passed as arguments to the function.
+ * @param ofp_match Pointer to structure containing fields to match against flows
+ * @param priority Priority order
+ * @param service_name Pointer to application service name of messenger
+ * @param entry_name Pointer to name of match entry
+ * @return match_entry* Pointer to newly allocated match entry
+ */
 static match_entry *
 allocate_match_entry( struct ofp_match *ofp_match, uint16_t priority ) {
   match_entry *new_entry;
@@ -91,6 +137,13 @@ allocate_match_entry( struct ofp_match *ofp_match, uint16_t priority ) {
 }
 
 
+/**
+ * Releases the memory allocated to the match entry. It is wrapped around by
+ * free_match_table_walker.
+ * @param match_entry Pointer to structure (of type match entry), memory allocated to which needs to be freed
+ * @return None
+ * @see free_match_table_walker
+ */
 static void
 free_match_entry( match_entry *free_entry ) {
   assert( free_entry != NULL );
@@ -130,6 +183,15 @@ services_name_length_of( match_entry *entry ) {
 }
 
 
+/**
+ * Releases the memory allocated to each match entry. It is wrapped around by
+ * finalize_match_table.
+ * @param key Pointer to constant key identifier
+ * @param value Pointer to associated data
+ * @param user_data A void pointer to user data
+ * @return None
+ * @see finalize_match_table
+ */
 static void
 free_match_table_walker( void *key, void *value, void *user_data ) {
   match_entry *entry = value;
@@ -141,6 +203,13 @@ free_match_table_walker( void *key, void *value, void *user_data ) {
 }
 
 
+/**
+ * Initializes match_table_head (of type match_table) i.e, creates an exact table,
+ * wildcard table and initialize all there members to NULL. It would also
+ * initialize the mutex element of match_table_head.
+ * @param None
+ * @return None
+ */
 void
 init_match_table( void ) {
   match_table_head.exact_table = create_hash( compare_match_entry, hash_match_entry );
@@ -154,6 +223,12 @@ init_match_table( void ) {
 }
 
 
+/**
+ * Finalizes match table (of type match_table) i.e, it frees all the memory
+ * allocated to the associated match_table_head structure (of type match_table).
+ * @param None
+ * @return None
+ */
 void
 finalize_match_table( void ) {
   list_element *list;
@@ -177,6 +252,14 @@ finalize_match_table( void ) {
 }
 
 
+/**
+ * Inserts a new match entry (of type match_entry)in a flow table.
+ * @param ofp_match Pointer to structure containing fields to match against flows
+ * @param priority Priority order
+ * @param service_name Pointer to application service name of messenger
+ * @param entry_name Pointer to name of match entry
+ * @return None
+ */
 void
 insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name ) {
   assert( ofp_match != NULL );
@@ -228,6 +311,11 @@ insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *
 }
 
 
+/**
+ * Deletes a match entry referred by the ofp_match in the flow table.
+ * @param ofp_match Pointer to structure containing fields to match against flows
+ * @return None
+ */
 void
 delete_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name ) {
   assert( ofp_match != NULL );
@@ -273,6 +361,12 @@ delete_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *
 }
 
 
+/**
+ * Performs lookup for a value associated with match entry (of type match_entry)
+ * in flow table.
+ * @param ofp_match Pointer to structure containing fields to match against flows
+ * @return match_entry* Pointer to found match entry else NULL
+ */
 match_entry *
 lookup_match_entry( struct ofp_match *ofp_match ) {
   match_entry *entry;

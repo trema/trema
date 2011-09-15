@@ -20,8 +20,9 @@
  */
 
 /**
- * @file udp.h
- * Header file containing definitions of User Datagram Protocol (UDP) header
+ * @file
+ *
+ * @brief Definitions of User Datagram Protocol (UDP) header
  */
 
 #ifndef UDP_H

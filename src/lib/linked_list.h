@@ -17,6 +17,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file 
+ *
+ * @brief Function declarations and type definitions for Single Linked List Implementation
+ */
 
 /**
  * @file
@@ -55,8 +60,7 @@
 
 
 /**
- * The list_element struct is used for each element in the linked
- * list.
+ * Representation of a Linked list node.
  */
 typedef struct list_element {
   struct list_element *next; /**< Contains the link to the next element in the list. */

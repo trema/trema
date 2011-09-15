@@ -18,6 +18,30 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Implementation of Messaging in OpenFlow
+ *
+ * Provides functions which handles OpenFlow messaging.
+ *
+ * @code
+ * // Initializes OpenFlow messenger.
+ * init_messenger(" Working directory ");
+ *
+ * // Adds, deletes, renames callbacks and sends message
+ * add_message_callback( service_name, MESSAGE_TYPE, callback );
+ * add_message_received_callback( service_name, callback_hello );
+ * delete_message_callback( service_name, MESSAGE_TYPE, callback );
+ * rename_message_received_callback( "Trema service name", new_service_name );
+ * send_message( remote_service_name, MESSENGER_TYPE, buffer->data, buffer->length );
+ *
+ * // Finalizes OpenFlow messenger.
+ * finalize_messenger();
+ *
+ * @endcode
+ */
+
 #include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
@@ -147,14 +171,20 @@ enum {
   MESSAGE_TYPE_REPLY,
 };
 
+/**
+ * Message header
+ */
 typedef struct message_header {
-  uint8_t version;         // version = 0 (unused)
-  uint8_t message_type;    // MESSAGE_TYPE_
-  uint16_t tag;            // user defined
-  uint32_t message_length; // message length including header
+  uint8_t version;         /*!< version = 0 (unused) */
+  uint8_t message_type;    /*!< MESSAGE_TYPE_ */
+  uint16_t tag;            /*!< user defined */
+  uint32_t message_length; /*!< message length including header */
   uint8_t value[ 0 ];
 } message_header;
 
+/**
+ * Message buffer
+ */
 typedef struct message_buffer {
   void *buffer;
   size_t data_length;
@@ -162,21 +192,33 @@ typedef struct message_buffer {
   size_t head_offset;
 } message_buffer;
 
+/**
+ * Message socket
+ */
 typedef struct messenger_socket {
   int fd;
 } messenger_socket;
 
+/**
+ * Message context
+ */
 typedef struct messenger_context {
   uint32_t transaction_id;
   int life_count;
   void *user_data;
 } messenger_context;
 
+/**
+ * Callback description for Message receive queue
+ */
 typedef struct receive_queue_callback {
   void  *function;
   uint8_t message_type;
 } receive_queue_callback;
 
+/**
+ * Receive Queue description
+ */
 typedef struct receive_queue {
   char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   dlist_element *message_callbacks;
@@ -186,6 +228,9 @@ typedef struct receive_queue {
   message_buffer *buffer;
 } receive_queue;
 
+/**
+ * Send Queue description
+ */
 typedef struct send_queue {
   char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   int server_socket;
@@ -216,6 +261,13 @@ static uint32_t last_transaction_id = 0;
 static void ( *external_callback )( void ) = NULL;
 
 
+/**
+ * Deletes context from the Message context Hash Table.
+ * @param key Transaction ID which is used as key for deletion
+ * @param value Context to be deleted
+ * @param user_data User data
+ * @return None
+ */
 static void
 _delete_context( void *key, void *value, void *user_data ) {
   assert( value != NULL );
@@ -231,6 +283,11 @@ _delete_context( void *key, void *value, void *user_data ) {
 }
 
 
+/**
+ * Wrapper to _delete_context.
+ * @param context Context to be deleted
+ * @return None
+ */
 static void
 delete_context( messenger_context *context ) {
   assert( context != NULL );
@@ -239,6 +296,13 @@ delete_context( messenger_context *context ) {
 }
 
 
+/**
+ * Removing contexts from Hash table if they have expired.
+ * @param key Transaction ID
+ * @param value Messenger context
+ * @param user_data User Data
+ * @return None
+ */
 static void
 _age_context( void *key, void *value, void *user_data ) {
   assert( value != NULL );
@@ -252,6 +316,11 @@ _age_context( void *key, void *value, void *user_data ) {
 }
 
 
+/**
+ * Aging the contexts stored in Context Hash DB.
+ * @param user_data User Data
+ * @return None
+ */
 static void
 age_context_db( void *user_data ) {
   UNUSED( user_data );
@@ -262,6 +331,11 @@ age_context_db( void *user_data ) {
 }
 
 
+/**
+ * Initializes the Messaging Service.
+ * @param working_directory Working directory
+ * @return bool True when messenger is initialized, else False
+ */
 bool
 init_messenger( const char *working_directory ) {
   assert( working_directory != NULL );
@@ -284,6 +358,11 @@ init_messenger( const char *working_directory ) {
 }
 
 
+/**
+ * Deletes context hash table.
+ * @param None
+ * @return None
+ */
 static void
 delete_context_db( void ) {
   debug( "Deleting context database ( context_db = %p ).", context_db );
@@ -296,6 +375,11 @@ delete_context_db( void ) {
 }
 
 
+/**
+ * Releases the Message buffer.
+ * @param buf Message buffer to release
+ * @return None
+ */
 static void
 free_message_buffer( message_buffer *buf ) {
   assert( buf != NULL );
@@ -305,12 +389,22 @@ free_message_buffer( message_buffer *buf ) {
 }
 
 
+/**
+ * Returning the head of the unconsumed part of the message.
+ * @param buf Message buffer
+ * @return None
+ */
 static void*
 get_message_buffer_head( message_buffer *buf ) {
   return ( char * ) buf->buffer + buf->head_offset;
 }
 
 
+/**
+ * Deletes a send queue.
+ * @param sq Pointer to send queue
+ * @return None
+ */
 static void
 delete_send_queue( send_queue *sq ) {
   assert( NULL != sq );
@@ -331,6 +425,11 @@ delete_send_queue( send_queue *sq ) {
 }
 
 
+/**
+ * Deletes all send queues.
+ * @param None
+ * @return None
+ */
 static void
 delete_all_send_queues() {
   hash_iterator iter;
@@ -352,6 +451,14 @@ delete_all_send_queues() {
 }
 
 
+/**
+ * Sends a message to Dump Service.
+ * @param dump_type Dump message type
+ * @param service_name Name of service
+ * @param data Dump data
+ * @param data_len Length of data
+ * @return None
+ */
 static void
 send_dump_message( uint16_t dump_type, const char *service_name, const void *data, uint32_t data_len ) {
   assert( service_name != NULL );
@@ -413,7 +520,11 @@ send_dump_message( uint16_t dump_type, const char *service_name, const void *dat
 
 
 /**
- * closes accepted sockets and listening socket, and releases memories.
+ * Closes accepted sockets and listening socket, and releases memories.
+ * @param service_name Name of service
+ * @param _rq Pointer to receive queue
+ * @param user_data User Data
+ * @return None
  */
 static void
 delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
@@ -457,6 +568,11 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
 }
 
 
+/**
+ * Deletes all receive queues.
+ * @para None
+ * @param None
+ */
 static void
 delete_all_receive_queues() {
   debug( "Deleting all receive queues ( receive_queues = %p ).", receive_queues );
@@ -472,6 +588,11 @@ delete_all_receive_queues() {
 }
 
 
+/**
+ * Finalizes messenger by closing all queues and services.
+ * @param None
+ * @return bool True when sucessfully finalized, else False
+ */
 bool
 finalize_messenger() {
   debug( "Finalizing messenger." );
@@ -509,6 +630,12 @@ finalize_messenger() {
 }
 
 
+/**
+ * Creates a Message buffer.
+ * @param size Size of buffer to be created
+ * @param messenger_buffer Pointer to created messenger buffer
+ * @return message_buffer* Pointer to message buffer
+ */
 static message_buffer *
 create_message_buffer( size_t size ) {
   message_buffer *buf = xmalloc( sizeof( message_buffer ) );
@@ -522,6 +649,11 @@ create_message_buffer( size_t size ) {
 }
 
 
+/**
+ * Creates receive queue.
+ * @param service_name Name of service
+ * @return receive_queue* Pointer to receive queue
+ */
 static receive_queue *
 create_receive_queue( const char *service_name ) {
   assert( service_name != NULL );
@@ -591,6 +723,14 @@ create_receive_queue( const char *service_name ) {
 }
 
 
+/**
+ * Generic routine which adds a callback to be called when messages are received for a particular service. 
+ * This function is being used by various other routines which specify the type of message.
+ * @param service_name Name of service 
+ * @param message_type Type of message 
+ * @param callback Callback function 
+ * @return bool True when message is successfully added, else False
+ */
 static bool
 add_message_callback( const char *service_name, uint8_t message_type, void *callback ) {
   assert( receive_queues != NULL );
@@ -619,6 +759,13 @@ add_message_callback( const char *service_name, uint8_t message_type, void *call
 }
 
 
+/**
+ * Adds callback for message receive event.
+ * @param service_name Name of service
+ * @param callback Callback function
+ * @return bool True when message is successfully added, else False
+ * @see add_message_callback
+ */
 bool
 add_message_received_callback( const char *service_name, const callback_message_received callback ) {
   assert( service_name != NULL );
@@ -631,6 +778,13 @@ add_message_received_callback( const char *service_name, const callback_message_
 }
 
 
+/**
+ * Adds callback for message request event.
+ * @param service_name Name of service
+ * @param callback Callback function
+ * @return bool True when message is successfully added, else False
+ * @see add_message_callback
+ */
 bool
 add_message_requested_callback( const char *service_name,
                                 void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
@@ -644,6 +798,12 @@ add_message_requested_callback( const char *service_name,
 }
 
 
+/**
+ * Adds callback for message replied events.
+ * @param callback Callback function 
+ * @return bool True when message is successfully added, else False
+ * @see add_message_callback
+ */
 bool
 add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
@@ -656,6 +816,13 @@ add_message_replied_callback( const char *service_name, void ( *callback )( uint
 }
 
 
+/**
+ * Deletes message callback from the message callback list.
+ * @param service_name Name of service
+ * @param message_type Type of message
+ * @param callback Callback function 
+ * @return bool True when message is successfully deleted, else False
+ */
 static bool
 delete_message_callback( const char *service_name, uint8_t message_type, void ( *callback ) ) {
   assert( service_name != NULL );
@@ -695,6 +862,13 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
 }
 
 
+/**
+ * Deletes message received callback from message callback list.
+ * @param service_name Name of service
+ * @param callback Callback function 
+ * @return bool True when message is successfully deleted, else False
+ * @see delete_message_callback
+ */
 bool
 delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
@@ -707,6 +881,13 @@ delete_message_received_callback( const char *service_name, void ( *callback )( 
 }
 
 
+/**
+ * Deletes message request callback from message_callback list.
+ * @param service_name Name of service
+ * @param callback Callback function 
+ * @return bool True when message is successfully deleted, else False
+ * @see delete_message_callback
+ */
 bool
 delete_message_requested_callback( const char *service_name,
   void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
@@ -720,6 +901,13 @@ delete_message_requested_callback( const char *service_name,
 }
 
 
+/**
+ * Deletes message replied callback from message_callback list.
+ * @param service_name Name of service
+ * @param callback Callback function 
+ * @return bool True when message is successfully deleted, else False
+ * @see delete_message_callback
+ */
 bool
 delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
@@ -732,6 +920,12 @@ delete_message_replied_callback( const char *service_name, void ( *callback )( u
 }
 
 
+/**
+ * Renames message received callback from message_callback list.
+ * @param service_name Name of service
+ * @param callback Callback function 
+ * @return bool True when message received callback is renamed successfully, else False
+ */
 bool
 rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
   assert( old_service_name != NULL );
@@ -766,6 +960,11 @@ rename_message_received_callback( const char *old_service_name, const char *new_
 }
 
 
+/**
+ * Calculates remaining bytes of message buffer.
+ * @param message_buffer Message buffer
+ * @return size_t Remaining bytes
+ */
 static size_t
 message_buffer_remain_bytes( message_buffer *buf ) {
   assert( buf != NULL );
@@ -775,8 +974,9 @@ message_buffer_remain_bytes( message_buffer *buf ) {
 
 
 /**
- * connects send_queue to the service
- * return value: -1:error, 0:refused (retry), 1:connected
+ * Connects the Send queue of a service.
+ * @param sq Pointer to send queue
+ * @return int -1:error, 0:refused (retry), 1:connected
  */
 static int
 send_queue_connect( send_queue *sq ) {
@@ -843,7 +1043,9 @@ send_queue_connect( send_queue *sq ) {
 
 
 /**
- * creates send_queue and connects to specified service name.
+ * Creates a Send queue and connects to specified service name.
+ * @param service_name Name of service
+ * @return send_queue* Pointer to send queue
  */
 static send_queue *
 create_send_queue( const char *service_name ) {
@@ -890,6 +1092,13 @@ create_send_queue( const char *service_name ) {
 }
 
 
+/**
+ * Writes data to message buffer.
+ * @param buf Message buffer
+ * @param data Data to be written 
+ * @param len length of data
+ * @return bool True when message is written to buffer, else False
+ */
 static bool
 write_message_buffer( message_buffer *buf, const void *data, size_t len ) {
   assert( buf != NULL );
@@ -912,6 +1121,15 @@ write_message_buffer( message_buffer *buf, const void *data, size_t len ) {
 }
 
 
+/**
+ * Pushes message to send queue.
+ * @param service_name Name of service
+ * @param message_type Type of message
+ * @param tag Tag
+ * @param data Data to be pushed
+ * @param len Length of data
+ * @return bool True when message is successfully pushed, else False
+ */
 static bool
 push_message_to_send_queue( const char *service_name, const uint8_t message_type, const uint16_t tag, const void *data, size_t len ) {
   assert( service_name != NULL );
@@ -951,6 +1169,14 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 }
 
 
+/**
+ * Sends message by pushing to send queue.
+ * @param service_name Name of service
+ * @param tag Tag
+ * @param data Data to send
+ * @param len Data length
+ * @return bool True when message is successfully pushed, else False
+ */
 bool
 send_message( const char *service_name, const uint16_t tag, const void *data, size_t len ) {
   assert( service_name != NULL );
@@ -962,6 +1188,11 @@ send_message( const char *service_name, const uint16_t tag, const void *data, si
 }
 
 
+/**
+ * Inserts a new context into hash table.
+ * @param user_data User Data
+ * @return messenger_context* Pointer to message context
+ */
 static messenger_context *
 insert_context( void *user_data ) {
   messenger_context *context = xmalloc( sizeof( messenger_context ) );
@@ -979,6 +1210,16 @@ insert_context( void *user_data ) {
 }
 
 
+/**
+ * Sends request message and pushes the message to send queue.
+ * @param to_service_name Name of service to which message is send
+ * @param from_service_name Name of service from where message is received
+ * @param tag Tag
+ * @param data Data to send
+ * @param len Length of data
+ * @param user_data User Data
+ * @return bool True when message is successfully pushed, else False 
+ */
 bool
 send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) {
   assert( to_service_name != NULL );
@@ -1012,6 +1253,14 @@ send_request_message( const char *to_service_name, const char *from_service_name
 }
 
 
+/**
+ * Creates a reply message and pushes the message to send queue.
+ * @param handle Message handle
+ * @param tag Tag
+ * @param data Data to send as reply
+ * @param len Length of data
+ * @return bool True when message is successfully pushed, else False
+ */
 bool
 send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) {
   assert( handle != NULL );
@@ -1038,6 +1287,14 @@ send_reply_message( const messenger_context_handle *handle, const uint16_t tag, 
 }
 
 
+/**
+ * Checks queue status.
+ * @param connected_count Number of queues connected 
+ * @param sending_count Number of queues sending
+ * @param reconnecting_count Number of queues reconnecting
+ * @param closed_count Number of queues closed
+ * @return None
+ */
 static void
 number_of_send_queue( int *connected_count, int *sending_count, int *reconnecting_count, int *closed_count ) {
   assert( connected_count != NULL );
@@ -1086,6 +1343,11 @@ number_of_send_queue( int *connected_count, int *sending_count, int *reconnectin
 }
 
 
+/**
+ * Initializing the Pipe for communicating for Receive Queue.
+ * @param read_set Pointer to fd_set
+ * @return None
+ */
 static void
 set_recv_queue_fd_set( fd_set *read_set ) {
   assert( read_set != NULL );
@@ -1120,6 +1382,12 @@ set_recv_queue_fd_set( fd_set *read_set ) {
 }
 
 
+/**
+ * Adds a client file descriptor receive queue.
+ * @param rq Pointer to receive queue
+ * @param fd File descriptor  
+ * @return None
+ */
 static void
 add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   assert( rq != NULL );
@@ -1135,6 +1403,12 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
 }
 
 
+/**
+ * Accepts and sets SO_RCV_BUFFORCE or O_NONBLOCK to the provided File Descriptor (fd).
+ * @param rq Pointer to receive queue
+ * @param fd File descriptor
+ * @return None
+ */
 static void
 on_accept( int fd, receive_queue *rq ) {
   assert( rq != NULL );
@@ -1170,6 +1444,12 @@ on_accept( int fd, receive_queue *rq ) {
 }
 
 
+/**
+ * Deletes client file descriptor from receive queue. 
+ * @param rq Pointer to receive queue
+ * @param fd File descriptor
+ * @return int 0 when successfully deleted receive queue, else 1 
+ */
 static int
 del_recv_queue_client_fd( receive_queue *rq, int fd ) {
   assert( rq != NULL );
@@ -1194,6 +1474,12 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
 }
 
 
+/**
+ * Truncates message buffer.
+ * @param buf Message buffer
+ * @param len Length of message buffer
+ * @return None
+ */
 static void
 truncate_message_buffer( message_buffer *buf, size_t len ) {
   assert( buf != NULL );
@@ -1218,8 +1504,14 @@ truncate_message_buffer( message_buffer *buf, size_t len ) {
 
 
 /**
- * pulls message data from recv_queue.
- * returns 1 if succeeded, otherwise 0.
+ * Pulls message data from receive queue.
+ * @param rq Pointer to receive queue
+ * @param message_type Type of message
+ * @param tag Tag
+ * @param data Data to pull
+ * @param len Length of data
+ * @param maxlen max data length
+ * @returns 1 if succeeded, else 0.
  */
 static int
 pull_from_recv_queue( receive_queue *rq, uint8_t *message_type, uint16_t *tag, void *data, size_t *len, size_t maxlen ) {
@@ -1261,6 +1553,11 @@ pull_from_recv_queue( receive_queue *rq, uint8_t *message_type, uint16_t *tag, v
 }
 
 
+/**
+ * Lookup a context from hash entry.
+ * @param transaction_id Transaction ID
+ * @return messenger_context* Pointer to message context
+ */
 static messenger_context *
 get_context( uint32_t transaction_id ) {
   debug( "Looking up a context ( transaction_id = %#x ).", transaction_id );
@@ -1269,6 +1566,15 @@ get_context( uint32_t transaction_id ) {
 }
 
 
+/**
+ * Calls message callbacks. Selects from message type and respective callback is issued.
+ * @param rq Pointer to receive queue
+ * @param message_type Type of message
+ * @param tag Tag
+ * @param data Data 
+ * @param len Data length
+ * @return None
+ */
 static void
 call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uint16_t tag, void *data, size_t len ) {
   assert( rq != NULL );
@@ -1350,6 +1656,12 @@ call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uin
 }
 
 
+/**
+ * Receives data from remote.
+ * @param fd File descriptor 
+ * @param rq Pointer to receive queue
+ * @return None
+ */
 static void
 on_recv( int fd, receive_queue *rq ) {
   assert( rq != NULL );
@@ -1403,7 +1715,11 @@ on_recv( int fd, receive_queue *rq ) {
   }
 }
 
-
+/**
+ * Checks fd_set for data received from remote.
+ * @param read_set Pointer to read set
+ * @return None
+ */
 static void
 check_recv_queue_fd_isset( fd_set *read_set ) {
   assert( read_set != NULL );
@@ -1434,6 +1750,12 @@ check_recv_queue_fd_isset( fd_set *read_set ) {
 }
 
 
+/**
+ * Sets send queue to fd_set.
+ * @param read_set Pointer to read set
+ * @param write_set Pointer to write set
+ * @return None
+ */
 static void
 set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
   hash_iterator iter;
@@ -1481,6 +1803,12 @@ set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
 }
 
 
+/**
+ * Sends data to remote.
+ * @param fd File descriptor
+ * @param sq Pointer to send queue
+ * @return None
+ */
 static void
 on_send( int fd, send_queue *sq ) {
   assert( sq != NULL );
@@ -1529,6 +1857,12 @@ on_send( int fd, send_queue *sq ) {
 }
 
 
+/**
+ * Checks fd_sets for send/receive data to/from remote.
+ * @param read_set Pointer to read set
+ * @param write_set Pointer to write set
+ * @return None
+ */
 static void
 check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) {
   hash_iterator iter;
@@ -1560,6 +1894,11 @@ check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) {
 }
 
 
+/**
+ * Function which is used for flushing all pending events.
+ * @param None
+ * @return None
+ */
 static bool
 run_once( void ) {
   fd_set read_set, write_set;
@@ -1609,6 +1948,11 @@ run_once( void ) {
 }
 
 
+/**
+ * Flushes the messenger.
+ * @param None
+ * @return None
+ */
 int
 flush_messenger() {
   int connected_count, sending_count, reconnecting_count, closed_count;
@@ -1625,6 +1969,11 @@ flush_messenger() {
 }
 
 
+/**
+ * Starts messenger.
+ * @param None
+ * @return None
+ */
 bool
 start_messenger() {
   debug( "Starting messenger." );
@@ -1645,6 +1994,11 @@ start_messenger() {
 }
 
 
+/**
+ * Terminates the messenger.
+ * @param None
+ * @return None
+ */
 bool
 stop_messenger() {
   running = false;
@@ -1655,12 +2009,18 @@ stop_messenger() {
 }
 
 
+/**
+ * Starts messenger dump.
+ * @param dump_app_name Dump application name
+ * @param dump_service_name Dump service name
+ * @return None
+ */
 void
 start_messenger_dump( const char *dump_app_name, const char *dump_service_name ) {
   assert( dump_app_name != NULL );
   assert( dump_service_name != NULL );
 
-  debug( "Starting a message dumper ( dump_app_name = %s, dump_service_name = %s ).",
+  debug( "Starting a message dumper ( dhead of the unconsumed part of the messagedump_service_name = %s ).",
          dump_app_name, dump_service_name );
 
   if ( messenger_dump_enabled() ) {
@@ -1671,6 +2031,11 @@ start_messenger_dump( const char *dump_app_name, const char *dump_service_name )
 }
 
 
+/**
+ * Stops messenger dump.
+ * @param None
+ * @return None
+ */
 void
 stop_messenger_dump( void ) {
   assert( _dump_service_name != NULL );
@@ -1693,6 +2058,11 @@ stop_messenger_dump( void ) {
 }
 
 
+/**
+ * Enables messenger dump.
+ * @param None
+ * @return bool
+ */
 bool
 messenger_dump_enabled( void ) {
   if ( _dump_service_name != NULL && _dump_app_name != NULL ) {
@@ -1703,6 +2073,11 @@ messenger_dump_enabled( void ) {
 }
 
 
+/**
+ * Sets external fd_set callback.
+ * @param callback Callback function
+ * @return None
+ */
 void
 set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
   debug( "Setting an external FD_SET callback ( callback = %p ).", callback );
@@ -1711,6 +2086,11 @@ set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) )
 }
 
 
+/**
+ * Sets external fd_isset callback.
+ * @param callback Callback function
+ * @return None
+ */
 void
 set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
   debug( "Setting an external FD_ISSET callback ( callback = %p ).", callback );
@@ -1719,6 +2099,11 @@ set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write
 }
 
 
+/**
+ * Sets external callback which can be called when the Messenger initializes or terminates.
+ * @param callback Callback function
+ * @return bool
+ */
 bool
 set_external_callback( void ( *callback ) ( void ) ) {
   if ( external_callback != NULL ) {

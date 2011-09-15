@@ -20,9 +20,9 @@
  */
 
 /**
- * @file ipv4.h
- * This header file contain type definitions and function declarations of ipv4.c file
- * @see ipv4.c
+ * @file
+ *
+ * @brief Function declarations and type definitions of IPv4 type packets
  */
 
 #ifndef IPV4_H
@@ -34,7 +34,7 @@
 
 
 /**
- * This is the type that specifies IP header definitions
+ * IP header definitions
  * @see RFC 791 for detailed protocol description
  * @see http://www.ietf.org/rfc/rfc791.txt
  */

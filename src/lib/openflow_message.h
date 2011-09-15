@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+* @file
+*
+* File containing function definations to create OpenFlow message.
+*/
 
 #ifndef OPENFLOW_MESSAGE_H
 #define OPENFLOW_MESSAGE_H
@@ -32,17 +37,23 @@
 #include "packet_info.h"
 
 
-// A structure for storing OpenFlow actions
+/**
+ *  A structure for storing OpenFlow actions
+ */
 typedef struct openflow_actions {
   int n_actions;
   list_element *list;
 } openflow_actions;
 
 
-// Initialization
+/**
+ *  Initialization
+ */
 bool init_openflow_message( void );
 
-// Functions for creating OpenFlow messages
+/**
+ *  Functions for creating OpenFlow messages
+ */
 buffer *create_hello( const uint32_t transaction_id );
 buffer *create_error( const uint32_t transaction_id, const uint16_t type,
                       const uint16_t code, const buffer *data );
@@ -149,7 +160,9 @@ bool append_action_vendor( openflow_actions *actions, const uint32_t vendor,
                            const buffer *data );
 
 
-// Return code definitions indicating the result of OpenFlow message validation.
+/**
+ *  Return code definitions indicating the result of OpenFlow message validation.
+ */
 enum {
   SUCCESS = 0,
   ERROR_UNSUPPORTED_VERSION = -60,
@@ -216,7 +229,9 @@ enum {
 };
 
 
-// Functions for validating OpenFlow messages
+/**
+ *  Functions for validating OpenFlow messages
+ */
 int validate_hello( const buffer *message );
 int validate_error( const buffer *message );
 int validate_echo_request( const buffer *message );
@@ -270,7 +285,9 @@ int validate_action_vendor( const struct ofp_action_vendor_header *action );
 int validate_openflow_message( const buffer *message );
 bool valid_openflow_message( const buffer *message );
 
-// Utility functions
+/**
+ *  Utility functions
+ */
 bool get_error_type_and_code( const uint8_t type, const int error_no,
                               uint16_t *error_type, uint16_t *error_code );
 void set_match_from_packet( struct ofp_match *match, const uint16_t in_port,

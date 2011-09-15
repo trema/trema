@@ -19,6 +19,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Extern declaration of wrappers for basic library functions
+ *
+ */
 
 #ifndef TREMA_WRAPPER_H
 #define TREMA_WRAPPER_H

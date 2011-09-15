@@ -19,6 +19,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Match Table hash entry handling macros
+ *
+ * File containing macro definitions used for handling flow tables in an OpenFlow Switch.
+ */
 
 #ifndef MATCH_H
 #define MATCH_H
@@ -46,6 +53,10 @@
   }                                                                                \
   )
 
+/**
+ * Macro to compare structures (of type ofp_match) which contains fields to
+ * match against flows
+ */
 #define compare_match( _x, _y )                                                    \
   ( {                                                                              \
     uint32_t _w = ( _x )->wildcards | ( _y )->wildcards;                           \

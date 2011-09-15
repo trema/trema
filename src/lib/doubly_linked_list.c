@@ -17,6 +17,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Doubly linked list implementation
+
+ * File containing functions for doubly linked list implementation i.e,
+ * functions for insertion, deletion and search of elements in a doubly
+ * linked list.
+ * @code
+ * // Create a doubly linked list ("alpha" <=> "bravo" <=> "charlie")
+ * dlist_element *alpha = create_dlist();
+ * dlist_element *bravo = insert_after_dlist( alpha, "bravo" );
+ * dlist_element *charlie = insert_after_dlist( bravo, "charlie" );
+ *
+ * // Find element "charlie" from the list
+ * find_element( alpha, "charlie" ); // => charlie
+ * find_element( alpha, "delta" ); // => NULL
+ *
+ * // Delete element "bravo" from the list
+ * delete_dlist_element( bravo ); // => true
+ *
+ * // Delete entire list
+ * delete_dlist( alpha );
+ * @endcode
+ */
 
 #include <assert.h>
 #include <pthread.h>

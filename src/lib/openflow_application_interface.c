@@ -18,6 +18,30 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Implementation of OpenFlow Application Interfaces
+ *
+ * Provides function for OpenFlow interface application initialization
+ * which includes handling of various switch handling events.
+ *
+ * @code
+ * // Initializes OpenFlow application interface.
+ * init_openflow_application_interface( "Learning Switch application" );
+ * // "Learning Switch Application" being name of the Application to be created
+ *
+ * // Sets callbacks event handlers.
+ * _set_switch_ready_handler( handle_switch_ready, NULL );
+ * set_switch_disconnected_handler( switch_disconnected, NULL );
+ * set_features_reply_handler( switch_features_reply, NULL );
+ * set_port_status_handler( port_status, NULL );
+ *
+ * // Finalizes OpenFlow application interface.
+ * finalize_openflow_application_interface();
+ *
+ * @endcode
+ */
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -149,18 +173,32 @@ static void handle_message( uint16_t message_type, void *data, size_t length );
 static void handle_list_switches_reply( uint16_t message_type, void *dpid, size_t length, void *user_data );
 
 
+/**
+ * Enumerator for Message direction description. Used for printing direction of message for
+ * logging and statistics.
+ */
 enum {
-  OPENFLOW_MESSAGE_SEND = 0,
-  OPENFLOW_MESSAGE_RECEIVE,
+  OPENFLOW_MESSAGE_SEND = 0, /*!<Sending a message to Switch */
+  OPENFLOW_MESSAGE_RECEIVE,  /*!<Receiving a message from switch */
 };
 
 
+/**
+ * Check whether OpenFlow Application Interface was initialized by the Application before being used.
+ * @param None
+ * @return bool True if OpenFlow Application was initialized by calling application, else False
+ */
 bool
 openflow_application_interface_is_initialized() {
   return openflow_application_interface_initialized;
 }
 
 
+/**
+ * Initializes OpenFlow application interface if it is not already initialized.
+ * @param None 
+ * @return bool Always returns true
+ */ 
 static bool
 maybe_init_openflow_application_interface() {
   if ( !openflow_application_interface_is_initialized() ) {
@@ -171,6 +209,11 @@ maybe_init_openflow_application_interface() {
 }
 
 
+/**
+ * Initializes OpenFlow application interface. 
+ * @param custome_service_name Pointer to string containing name of trema application
+ * @return bool True if properly initialized, false if either application is already initialized or service name is too long (32) 
+ */
 bool
 init_openflow_application_interface( const char *custom_service_name ) {
   assert( custom_service_name != NULL );
@@ -204,6 +247,12 @@ init_openflow_application_interface( const char *custom_service_name ) {
 }
 
 
+/**
+ * Finalizes OpenFlow application interface.
+ * @param None
+ * @return bool Always returns true
+ * @see delete_application_interface_initialized
+ */
 bool
 finalize_openflow_application_interface() {
   debug( "Finalizing OpenFlow Application Interface." );
@@ -222,6 +271,12 @@ finalize_openflow_application_interface() {
 }
 
 
+/**
+ * Sets callback function for OpenFlow related events.
+ * @param handlers OpenFlow event handlers 
+ * @return bool Always returns true
+ * @see  
+ */
 bool
 set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
   maybe_init_openflow_application_interface();
@@ -233,6 +288,14 @@ set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
 }
 
 
+/**
+ * Sets callback function for switch ready events. It sets switch ready 
+ * callback and switch ready user data in event_handler object.
+ * @param simple_callback Argument to decide if callback is simple type or not 
+ * @param callback Pointer to callback
+ * @param user_data Pointer to user data
+ * @return bool Always returns true 
+ */
 bool
 _set_switch_ready_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -254,6 +317,12 @@ _set_switch_ready_handler( bool simple_callback, void *callback, void *user_data
 }
 
 
+/**
+ * Handles the switch state when switch is disconnected. 
+ * @param callback Callback to handle switch disconnected status
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_switch_disconnected_handler( switch_disconnected_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -274,6 +343,12 @@ set_switch_disconnected_handler( switch_disconnected_handler callback, void *use
 }
 
 
+/**
+ * Handles the error events of a switch. 
+ * @param callback Callback to handle error 
+ * @param user_data Pointer to user data 
+ * @return bool Always returns true
+ */
 bool
 set_error_handler( error_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -294,6 +369,12 @@ set_error_handler( error_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Handles the Switch vendor reception event.
+ * @param callback Callback to handle vendor information reception 
+ * @param user_data Pointer to user data 
+ * @return bool Always returns true
+ */
 bool
 set_vendor_handler( vendor_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -314,6 +395,13 @@ set_vendor_handler( vendor_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Handles reply of supported features (datapath_id, transaction_id, n_buffers, 
+ * n_tables, capabilities, actions, phy_ports, controller) from switch.
+ * @param callback Callback to function for feature handling reply
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */ 
 bool
 set_features_reply_handler( features_reply_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -334,6 +422,12 @@ set_features_reply_handler( features_reply_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Sets config reply handler against a configuration request.
+ * @param callback Callback function to handle get config reply 
+ * @param user_data Pointer to user data
+ * @return bool Always returns true 
+ */
 bool
 set_get_config_reply_handler( get_config_reply_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -354,6 +448,13 @@ set_get_config_reply_handler( get_config_reply_handler callback, void *user_data
 }
 
 
+/**
+ * Sets callback for handling incoming packets from switch.
+ * @param simple_bool Argument to decide if callback is simple type or not
+ * @param callback Callback function to set packet in handler
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -375,6 +476,12 @@ _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) 
 }
 
 
+/**
+ * Sets callback function for handling flow removal events from switch.
+ * @param callback Callback function to flow removed handler
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_flow_removed_handler( flow_removed_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -395,6 +502,12 @@ set_flow_removed_handler( flow_removed_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Sets callback function for port status event from switch.
+ * @param callback Callback function for handling port status messages
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_port_status_handler( port_status_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -415,6 +528,12 @@ set_port_status_handler( port_status_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Sets callback function for statistics reply events from switch.
+ * @param callback Callback function to handle the response from switch for switch statistics
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_stats_reply_handler( stats_reply_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -435,6 +554,12 @@ set_stats_reply_handler( stats_reply_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Sets callback function for handling responses of Barrier requests made to switch.
+ * @param callback Callback function to handle responses of barrier request
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_barrier_reply_handler( barrier_reply_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -455,6 +580,12 @@ set_barrier_reply_handler( barrier_reply_handler callback, void *user_data ) {
 }
 
 
+/**
+ * Sets callback function for handling the response of Queue Configuration request made to switch.
+ * @param callback Callback function for handling Queue Configuration response
+ * @param user_data Pointer to user data
+ * @return bool Always returns true
+ */
 bool
 set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, void *user_data ) {
   if ( callback == NULL ) {
@@ -493,6 +624,13 @@ set_list_switches_reply_handler( list_switches_reply_handler callback ) {
 }
 
 
+/**
+ * Handles messages from switch denoting any error. Calls error_callback with datapath_id and all information in 
+ * event handlers.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing error information
+ * @return None
+ */
 static void
 handle_error( const uint64_t datapath_id, buffer *data ) {
   uint16_t type, code;
@@ -538,6 +676,12 @@ handle_error( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles the messages sent from switch denoting the Vendor information.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing vendor information
+ * @return None
+ */
 static void
 handle_vendor( const uint64_t datapath_id, buffer *data ) {
   uint16_t body_length;
@@ -590,6 +734,13 @@ handle_vendor( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Replies with capabilities of switch. Calls feature reply callback 
+ * event handler.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing switch features information
+ * @return None
+ */
 static void
 handle_features_reply( const uint64_t datapath_id, buffer *data ) {
   char description[ 1024 ];
@@ -677,6 +828,12 @@ handle_features_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles messages from switch denoting the Configuration response against a request from controller.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing configuration reply information
+ * @return None
+ */
 static void
 handle_get_config_reply( const uint64_t datapath_id, buffer *data ) {
   uint16_t flags, miss_send_len;
@@ -714,12 +871,23 @@ handle_get_config_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Checks if the buffer passed as argument is a valid buffer.
+ * @param data Pointer to network packet containing configuration reply information
+ * @return bool True when data is NULL and length is zero, else False
+ */
 static bool
 empty( const buffer *data ) {
   return ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) );
 }
 
 
+/**
+ * Handles packet in message which is send from switch to controller. 
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing packet information
+ * @return None
+ */
 static void
 handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   if ( empty( data ) ) {
@@ -804,6 +972,12 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles the response message received against controllers request to notify when flow timer expires.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing packet in information
+ * @return None
+ */
 static void
 handle_flow_removed( const uint64_t datapath_id, buffer *data ) {
   char match_string[ 1024 ];
@@ -865,6 +1039,12 @@ handle_flow_removed( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles the messages from switch defining events when ports are added, modified or removed.
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing port status information
+ * @return None
+ */
 static void
 handle_port_status( const uint64_t datapath_id, buffer *data ) {
   char description[ 1024 ];
@@ -906,6 +1086,12 @@ handle_port_status( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles stats response when switch is queried for its current state. 
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing stats reply information
+ * @return None
+ */
 static void
 handle_stats_reply( const uint64_t datapath_id, buffer *data ) {
   uint16_t type, flags, body_length;
@@ -1086,6 +1272,14 @@ handle_stats_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles barrier reply messages, which are used by controller to ensure 
+ * message dependencies have been met or to receive notification for complete 
+ * operations. 
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing barrier reply information
+ * @return None
+ */
 static void
 handle_barrier_reply( const uint64_t datapath_id, buffer *data ) {
   uint32_t transaction_id;
@@ -1117,6 +1311,12 @@ handle_barrier_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Handles queue configuration reply. It is the reply against controllers request for configured queues on a port. 
+ * @param datapath_id Datapath unique ID
+ * @param data Pointer to network packet containing configuration reply information
+ * @return None
+ */
 static void
 handle_queue_get_config_reply( const uint64_t datapath_id, buffer *data ) {
   uint16_t port, queues_length;
@@ -1189,6 +1389,13 @@ handle_queue_get_config_reply( const uint64_t datapath_id, buffer *data ) {
 }
 
 
+/**
+ * Updates switch event statistics. 
+ * @param type Type of message
+ * @param send_receive Whether send or receive
+ * @param bool Was the transaction successful or not
+ * @return None
+ */
 static void
 update_switch_event_stats( uint16_t type, int send_receive, bool result ) {
   char key[ STAT_KEY_LENGTH ];
@@ -1237,6 +1444,12 @@ update_switch_event_stats( uint16_t type, int send_receive, bool result ) {
 }
 
 
+/**
+ * Handles switch ready events. Calls switch ready callback with 
+ * unique datapath ID.
+ * @param datapath_id Datapath unique ID
+ * @return None
+ */
 static void
 handle_switch_ready( uint64_t datapath_id ) {
   if ( event_handlers.switch_ready_callback == NULL ) {
@@ -1261,6 +1474,13 @@ handle_switch_ready( uint64_t datapath_id ) {
 }
 
 
+/**
+ * Handles switch event reception.
+ * @param type Type of event i.e. connected, ready or disconnected
+ * @patam data User Data
+ * @param length Length of OpenFlow service header 
+ * @return None
+ */
 static void
 handle_switch_events( uint16_t type, void *data, size_t length ) {
   uint64_t datapath_id;
@@ -1301,6 +1521,13 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
 }
 
 
+/**
+ * Updated the OpenFlow header message in key. 
+ * @param type Type of event i.e. connected, ready or disconnected
+ * @param send_receive Whether message is send or received  
+ * @param result message succeeded or failed
+ * @return None
+ */
 static void
 update_openflow_stats( uint8_t type, int send_receive, bool result ) {
   char key[ STAT_KEY_LENGTH ];
@@ -1406,6 +1633,12 @@ update_openflow_stats( uint8_t type, int send_receive, bool result ) {
 }
 
 
+/**
+ * Handles OpenFlow messages. 
+ * @param data User data
+ * @param length Length of OpenFlow service header 
+ * @return None
+ */
 static void
 handle_openflow_message( void *data, size_t length ) {
   void *p;
@@ -1485,6 +1718,13 @@ handle_openflow_message( void *data, size_t length ) {
 }
 
 
+/**
+ * Handles incoming messages from switch by differentiating between messages or event updates.
+ * @param type Message type
+ * @param data Pointer to user data
+ * @param length Length of OpenFlow service header 
+ * @return None
+ */
 static void
 handle_message( uint16_t type, void *data, size_t length ) {
   assert( data != NULL );
@@ -1569,6 +1809,12 @@ handle_list_switches_reply( uint16_t message_type, void *data, size_t length, vo
 }
 
 
+/**
+ * Interface for sending OpenFlow message to other entities.
+ * @param datapath_id Datapath unique ID
+ * @param message Pointer to message
+ * @return ret Returns true for successful handling, else false
+ */
 bool
 send_openflow_message( const uint64_t datapath_id, buffer *message ) {
   bool ret;

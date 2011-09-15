@@ -19,6 +19,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Wrapper definitions for basic library functions
+ *
+ */
 
 #ifndef WRAPPER_H
 #define WRAPPER_H
