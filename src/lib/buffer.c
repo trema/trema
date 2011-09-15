@@ -217,19 +217,10 @@ buffer *
 alloc_buffer_with_length( size_t length ) {
   assert( length != 0 );
 
-  private_buffer *new_buf = xcalloc( 1, sizeof( private_buffer ) );
+  private_buffer *new_buf = alloc_private_buffer();
   new_buf->public.data = xmalloc( length );
-  new_buf->public.length = 0;
-  new_buf->public.user_data = NULL;
-  new_buf->public.user_data_free_function = NULL;
   new_buf->top = new_buf->public.data;
   new_buf->real_length = length;
-
-  pthread_mutexattr_t attr;
-  pthread_mutexattr_init( &attr );
-  pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE_NP );
-  new_buf->mutex = xmalloc( sizeof( pthread_mutex_t ) );
-  pthread_mutex_init( new_buf->mutex, &attr );
 
   return ( buffer * ) new_buf;
 }
