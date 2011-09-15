@@ -35,7 +35,7 @@
  * dlist_element *alpha = create_dlist();
  * dlist_element *bravo = insert_after_dlist( alpha, "bravo" );
  * dlist_element *charlie = insert_after_dlist( bravo, "charlie" );
- * ...
+ *
  * // Find element "charlie" from the list
  * find_element( alpha, "charlie" ); // => charlie
  * find_element( alpha, "delta" ); // => NULL
