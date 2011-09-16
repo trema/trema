@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Match Table declarations
+ */
 
 #ifndef MATCH_TABLE_H
 #define MATCH_TABLE_H
@@ -28,8 +33,11 @@
 #include "hash_table.h"
 
 
+/**
+ * Specifies element of flow table
+ */
 typedef struct match_entry {
-  struct ofp_match ofp_match; // match data. host byte order
+  struct ofp_match ofp_match; /*!< match data. host byte order */
   uint16_t priority;
   list_element *services_name; // application service name of messenger
 } match_entry;

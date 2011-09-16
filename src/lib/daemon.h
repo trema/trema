@@ -19,6 +19,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Daemonization supporting functions for Trema Applications
+ *
+ */
 
 #ifndef DAEMON_H
 #define DAEMON_H

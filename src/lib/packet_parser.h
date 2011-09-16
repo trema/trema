@@ -20,9 +20,10 @@
  */
 
 /**
- * @file packet_parser.h
- * Header file containing function declarations of packet_parser.c file
- * @see packet_parser.c
+ * @file
+ *
+ * @brief Function declarations of Packet parsing implementation
+ *
  */
 
 #ifndef PACKET_PARSER_H

@@ -17,6 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Definitions for error checking codes
+ *
+ */
 
 #ifndef CHECKS_H
 #define CHECKS_H

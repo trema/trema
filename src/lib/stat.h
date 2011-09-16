@@ -20,6 +20,11 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Declaration of Statistics Management Functions
+ */
 #ifndef STAT_H
 
 

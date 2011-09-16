@@ -23,6 +23,15 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Loggger Implementation
+ *
+ * Logger Implementation routines and variables. Defines the various Logging priority
+ * level and functions declarations used for Logging information.
+ */
+ 
 #ifndef LOG_H
 #define LOG_H
 
@@ -30,6 +39,9 @@
 #include "bool.h"
 
 
+/**
+ * Enumerator defining Logging Priority Levels.
+ */
 enum {
   LOG_CRITICAL,
   LOG_ERROR,

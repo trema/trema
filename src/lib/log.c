@@ -18,6 +18,30 @@
  */
 
 
+/**
+ * @file
+ *
+ * @brief Logging Function Implementation
+ *
+ * File containing various Logging related functions. 
+ * @code
+ * //Open the log file
+ * init_log( "log.file", "log_directory", 0 );
+ * // Setting last argument as 0 would make the logger write all log messages to terminal.
+ *
+ * // Log a message with Critical priority
+ * critical( "This is a critical level log message with ID: %d\n", 0 );
+ * // Log a message with Notice priority
+ * notice( "This is a notice level log message with ID: %d\n", 3 );
+ *
+ * // Read the current logging level
+ * int log_level = get_logging_level();
+ *
+ * // Close the log file
+ * finalize_log();
+ * @endcode
+ */
+
 #include <assert.h>
 #include <ctype.h>
 #include <linux/limits.h>
@@ -32,6 +56,9 @@
 #include "wrapper.h"
 
 
+/**
+ * Structure for defining Log Level priorities
+ */
 typedef struct {
   const char *name;
   const int value;
@@ -44,6 +71,9 @@ static bool daemonized = false;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
+/** 
+ * Definition of array containing all available Priority levels.
+ */
 static priority priorities[][ 3 ] = {
   {
     { .name = "critical", .value = LOG_CRITICAL },
@@ -82,6 +112,11 @@ static priority priorities[][ 3 ] = {
 };
 
 
+/**
+ * Convert Log Priority Level into Priority Name.
+ * @param level Integer value of level
+ * @return char* String representing the name of the Level
+ */
 static char *
 priority_name_from( int level ) {
   assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
@@ -93,6 +128,13 @@ priority_name_from( int level ) {
 
 static const size_t max_message_length = 1024;
 
+/**
+ * Main logging routine. Writes log message to the log file.
+ * @param priority Priority of the message
+ * @param format Pointer to the specifier string defining format of variable argument list
+ * @param ap Variable argument list
+ * @return None
+ */
 static void
 log_file( int priority, const char *format, va_list ap ) {
   time_t tm = time( NULL );
@@ -114,6 +156,14 @@ log_file( int priority, const char *format, va_list ap ) {
 }
 
 
+/**
+ * Logging to Output Stream (terminal).
+ * This is wrapped around by the do_log function.
+ * @param format Specifier string for format of the variable arguments
+ * @param ap variable argument list
+ * @return None
+ * @see do_log
+ */
 static void
 log_stdout( const char *format, va_list ap ) {
   char format_newline[ strlen( format ) + 2 ];
@@ -124,6 +174,12 @@ log_stdout( const char *format, va_list ap ) {
 }
 
 
+/**
+ * Open the Log file.
+ * @param ident Name of the log file
+ * @param log_directory Path of the directory in which Log file would be created
+ * @return FILE* Object to the file opened, if successful, else NULL is returned
+ */
 static FILE*
 open_log( const char *ident, const char *log_directory ) {
   char pathname[ PATH_MAX ];
@@ -132,6 +188,13 @@ open_log( const char *ident, const char *log_directory ) {
 }
 
 
+/**
+ * Initializing the Logger. Creates the log file to which logging would be done.
+ * @param ident Name of the log file, used as an identifier
+ * @param log_directory Name of the directory in which file with name ident would be created
+ * @param run_as_daemon Boolean variable defining if logging should be reported to terminal as well
+ * @return bool True always
+ */
 bool
 init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
@@ -146,6 +209,11 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 }
 
 
+/**
+ * Close the log file.
+ * @param None
+ * @return bool True always
+ */
 bool
 finalize_log() {
   pthread_mutex_lock( &mutex );
@@ -162,6 +230,11 @@ finalize_log() {
 }
 
 
+/**
+ * Converts a string into its lower case equivalent.
+ * @param string String to convert into lower case
+ * @return char* String converted into lower case
+ */
 static char *
 lower( const char *string ) {
   char *new_string = xstrdup( string );
@@ -172,6 +245,11 @@ lower( const char *string ) {
 }
 
 
+/**
+ * Get integer Priority value from the Priority Name.
+ * @param name String containing name of the Priority Level
+ * @return int Integer representation of the priority level
+ */
 static int
 priority_value_from( const char *name ) {
   assert( name != NULL );
@@ -192,6 +270,12 @@ priority_value_from( const char *name ) {
 }
 
 
+/**
+ * Check if the logger has been started or not. Applicable for interfaces which need to know loggers
+ * state before any configuration or logging has to be performed.
+ * @param None
+ * @return bool True if the Log file is open/active, else False
+ */
 static bool
 started() {
   if ( fd == NULL ) {
@@ -203,6 +287,11 @@ started() {
 }
 
 
+/**
+ * Check the state of the Logger. If the logger has not been initialized, it aborts.
+ * @param None
+ * @return None
+ */
 static void
 check_initialized() {
   if ( !started() ) {
@@ -212,6 +301,11 @@ check_initialized() {
 }
 
 
+/**
+ * Set the logging level, over-riding any which has been previously set.
+ * @param name Name of the logging level to be set
+ * @return bool True if the logging level was successfully updated, else False
+ */
 bool
 set_logging_level( const char *name ) {
   check_initialized();
@@ -229,6 +323,11 @@ set_logging_level( const char *name ) {
 }
 
 
+/**
+ * Gets the logging level which is currently set.
+ * @param None
+ * @return int Logging level currently prevalent
+ */
 static int
 _get_logging_level() {
   check_initialized();
@@ -244,6 +343,13 @@ _get_logging_level() {
 int ( *get_logging_level )( void ) = _get_logging_level;
 
 
+/**
+ * Main logging routine which writes the log messages to the file as well as the standard output.
+ * @param priority Priority level of the log
+ * @param format Specifier string for the variable argument list
+ * @param ap Variable argument list
+ * @return None
+ */
 static void
 do_log( int priority, const char *format, va_list ap ) {
   assert( started() );
@@ -255,6 +361,12 @@ do_log( int priority, const char *format, va_list ap ) {
 }
 
 
+/**
+ * Macro for log writer. This acts as external visible logging routine. Invokes the internal do_log function.
+ * @param _priority Priority Level
+ * @param _format Specifier string containing format string and variable argument list
+ * @return None
+ */
 #define DO_LOG( _priority, _format )                \
   do {                                              \
     if ( _format == NULL ) {                        \
@@ -271,45 +383,105 @@ do_log( int priority, const char *format, va_list ap ) {
   } while ( 0 )
 
 
+/**
+ * Internal function for writing a critical priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None. 
+ */
 static void
 _critical( const char *format, ... ) {
   DO_LOG( LOG_CRITICAL, format );
 }
+/**
+ * Log a critical priority level message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *critical )( const char *format, ... ) = _critical;
 
 
+/**
+ * Internal function for writing a Error priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 static void
 _error( const char *format, ... ) {
   DO_LOG( LOG_ERROR, format );
 }
+/**
+ * Log a Error (err) priority level message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *error )( const char *format, ... ) = _error;
 
 
+/**
+ * Internal function for writing a Warning priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 static void
 _warn( const char *format, ... ) {
   DO_LOG( LOG_WARN, format );
 }
+/**
+ * Log a Warning (warn) priority level message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *warn )( const char *format, ... ) = _warn;
 
 
+/**
+ * Internal function for writing a Notice priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 static void
 _notice( const char *format, ... ) {
   DO_LOG( LOG_NOTICE, format );
 }
+/**
+ * Log a Notification (notice) priority level message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *notice )( const char *format, ... ) = _notice;
 
 
+/**
+ * Internal function for writing a Information priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 static void
 _info( const char *format, ... ) {
   DO_LOG( LOG_INFO, format );
 }
+/**
+ * Log a Information (info) priority level message. 
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *info )( const char *format, ... ) = _info;
 
 
+/**
+ * Internal function for writing a Debug priority level log message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 static void
 _debug( const char *format, ... ) {
   DO_LOG( LOG_DEBUG, format );
 }
+/**
+ * Log a Debug (dbg) priority level message.
+ * @param format Variable list specifying format and their arguments
+ * @return None
+ */
 void ( *debug )( const char *format, ... ) = _debug;
 
 

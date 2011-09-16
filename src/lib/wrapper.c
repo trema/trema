@@ -17,6 +17,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Wrappers for basic library functions
+ *
+ * @code
+ * // Memory allocation using malloc
+ * new_entry = xmalloc( sizeof( match_entry ) );
+ * // Memory allocation using calloc
+ * packet_header_info *header_info = xcalloc( 1, sizeof( packet_header_info ) );
+ * // Free allocated memory
+ * xfree( trema_name );
+ * // Duplicate string in memory
+ * trema_name = xstrdup( name );
+ * @endcode
+ */
 
 #include <linux/limits.h>
 #include <stdarg.h>
@@ -27,6 +43,13 @@
 #include "wrapper.h"
 
 
+/**
+ * Allocates a block of buffer. It is wrapped around by xmalloc.
+ * @param size Bytes of buffer to be allocated
+ * @param error_message Message to be displayed if error occurs
+ * @return void* Pointer to allocated block of memory
+ * @see xmalloc
+ */
 static void *
 _trema_malloc( size_t size, const char *error_message ) {
   void *ret = trema_malloc( size );
@@ -37,6 +60,11 @@ _trema_malloc( size_t size, const char *error_message ) {
 }
 
 
+/**
+ * Allocates a buffer and initializes it.
+ * @param size Bytes of memory to be allocated
+ * @return void* Pointer to allocated block of memory
+ */
 void *
 xmalloc( size_t size ) {
   void *ret = _trema_malloc( size, "Out of memory, xmalloc failed" );
@@ -45,6 +73,12 @@ xmalloc( size_t size ) {
 }
 
 
+/**
+ * Allocates, and initializes a buffer to 0. Extension of trema_calloc
+ * @param nmemb Number of memory blocks to be allocated
+ * @param size Size of each memory block
+ * @return void* Pointer to allocated block of memory
+ */
 void *
 xcalloc( size_t nmemb, size_t size ) {
   void *ret = trema_calloc( nmemb, size );
@@ -55,12 +89,24 @@ xcalloc( size_t nmemb, size_t size ) {
 }
 
 
+/**
+ * Frees an allocated buffer.
+ * @param ptr Pointer to the buffer which is to be freed
+ * @return None
+ */
 void
 xfree( void *ptr ) {
   trema_free( ptr );
 }
 
 
+/**
+ * Allocates and duplicates a string into memory. It is wrapped around by xstrdup.
+ * @param s Pointer to constant string
+ * @param error_message Message to be displayed if error occurs
+ * @return char* Pointer to duplicated string
+ * @see xstrdup
+ */
 static char *
 _xstrdup( const char *s, const char *error_message ) {
   size_t len = strlen( s ) + 1;
@@ -70,12 +116,25 @@ _xstrdup( const char *s, const char *error_message ) {
 }
 
 
+/**
+ * Allocates and duplicates a string into memory. If sufficient memory is not
+ * available, exits with an error.
+ * @param s Pointer to constant string
+ * @return char* Pointer to duplicated string
+ */
 char *
 xstrdup( const char *s ) {
   return _xstrdup( s, "Out of memory, xstrdup failed" );
 }
 
 
+/**
+ * Allocates a string large enough to hold the output including the terminating
+ * null byte. If sufficient memory is not available, exits with an error.
+ * @param format Pointer to constant string
+ * @param ... Variable argument list
+ * @return char* Pointer to string
+ */
 char *
 xasprintf( const char *format, ... ) {
   const char error[] = "Out of memory, xasprintf failed";

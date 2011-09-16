@@ -21,9 +21,12 @@
 
 
 /**
- * @file buffer.h
- * This file contains function and type declarations for functions defined in buffer.c file
- * @see buffer.c
+ * @file
+ *
+ * @brief Buffer management implementation
+ *
+ * File containing function declarations and type declarations for Buffer
+ * management.
  */
 
 #ifndef BUFFER_H
@@ -34,9 +37,9 @@
 
 
 /**
- * This type is used for representing an allocated space. It holds the pointer to the space on which
- * data can be stored, and has members to define the length of data. It can be used either in local
- * context (data allocation and usage) or for User's data.
+ * Represents an allocated space. Holds the pointer to the space on which data
+ * can be stored, and has members to define the length of data. It can be used
+ * either in local context (data allocation and usage) or for User's data.
  */
 typedef struct buffer {
   void *data;

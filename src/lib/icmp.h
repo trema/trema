@@ -20,9 +20,11 @@
  */
 
 /**
- * @file icmp.h
- * This header file contain type definitions, type codes, error codes of
- * Internet Control Message Protocol(ICMP)
+ * @file
+ *
+ * @brief Internet Control Message Protocol(ICMP) header
+ *
+ * Type definitions, type codes, error codes of Internet Control Message Protocol(ICMP).
  */
 
 #ifndef ICMP_H
@@ -30,7 +32,7 @@
 
 
 /**
- * This is the type that specifies ICMP header information
+ * ICMP header information
  */
 typedef struct icmp_header {
   uint8_t type; /*!<ICMP error type*/

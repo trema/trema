@@ -20,8 +20,12 @@
  */
 
 /**
- * @byteorder.h
- * Fucntions to convert network host byteorder and vice versa.
+ * @file
+ *
+ * @brief Byte order conversion implementation
+ *
+ * File containing function definitions to convert network byteorder to host
+ * byteorder and vice versa.
  */
 #ifndef BYTEORDER_H
 #define BYTEORDER_H

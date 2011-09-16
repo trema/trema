@@ -17,6 +17,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ *
+ * @brief Daemonization supporting utility functions.
+ *
+ * File contains functions for daemonization of a Trema binary and controlling it (using PID). This 
+ * currently being internally used by the trema binary in case 'd' command line argument is passed to it.
+ * @code
+ * ...
+ * // Send the current instance to background (daemon) by closing any terminal I/O streams
+ * daemonize( get_trema_home() );
+ * // Writes Process ID to file in Trema temporary directory
+ * write_pid( get_trema_tmp(), get_trema_name() );
+ * ...
+ * // Unlinks Process ID from file in Trema temporary directory
+ * unlink_pid( get_trema_tmp(), get_trema_name() );
+ * ...
+ * // Gets Process ID from name
+ * return read_pid( get_trema_tmp(), name );
+ * ...
+ * @endcode
+ */
 
 #include <assert.h>
 #include <errno.h>
@@ -140,6 +162,11 @@ extern void mock_warn( const char *format, ... );
 #endif // UNIT_TESTING
 
 
+/**
+ * Daemonizes the calling process. Used with initialization steps of Trema.
+ * @param home Pointer to Trema home directory
+ * @return None
+ */
 void
 daemonize( const char *home ) {
   assert( home != NULL );
@@ -174,6 +201,13 @@ daemonize( const char *home ) {
 
 static const int PID_STRING_LENGTH = 10;
 
+/**
+ * Called by a daemonized Trema application to write the daemon's pid into a file. This can be
+ * used for controlling (killing, sending signal) the daemon process.
+ * @param directory Pointer to temporary directory used in Trema Application
+ * @param name Pointer to ID of Trema Applicaiton
+ * @return None
+ */
 void
 write_pid( const char *directory, const char *name ) {
   assert( directory != NULL );
@@ -199,6 +233,12 @@ write_pid( const char *directory, const char *name ) {
 }
 
 
+/**
+ * Removes the PID file associated with a daemon process.
+ * @param directory Pointer to temporary directory used in Trema Application
+ * @param name Pointer to ID of Trema Application
+ * @return
+ */
 void
 unlink_pid( const char *directory, const char *name ) {
   assert( directory != NULL );
@@ -215,6 +255,12 @@ unlink_pid( const char *directory, const char *name ) {
 }
 
 
+/**
+ * Reads process ID from PID file and checks if that process is running or not.
+ * @param directory Pointer to temporary directory used in Trema Application
+ * @param name Pointer to ID of Trema Applicaiton
+ * @return pid_t Process ID of Trema
+ */
 pid_t
 read_pid( const char *directory, const char *name ) {
   assert( directory != NULL );
@@ -270,6 +316,13 @@ read_pid( const char *directory, const char *name ) {
 }
 
 
+/**
+ * Renames the Trema Process name from old to new name.
+ * @param directory Pointer to temporary directory used in Trema Application
+ * @param old Pointer to old Process ID name
+ * @param new Pointer to new Process ID name
+ * @return None
+ */
 void
 rename_pid( const char *directory, const char *old, const char *new ) {
   assert( directory != NULL );
