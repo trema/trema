@@ -148,7 +148,7 @@ def cbench options
     sys trema_cbench_command
     sys "#{ cbench_command } #{ options }"
   ensure
-    sys "./trema kill"
+    sys "./trema killall"
   end
 end
 
@@ -161,7 +161,7 @@ def cbench_profile options
     sys "#{ valgrind } #{ trema_cbench_command }"
     sys "#{ cbench_command } #{ options }"
   ensure
-    sys "./trema kill"
+    sys "./trema killall"
   end
 end
 
