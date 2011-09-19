@@ -23,6 +23,24 @@
  * @file
  *
  * @brief Match Table declarations
+ *
+ * File contains functions declaration for handling flow tables in an OpenFlow Switch.
+ * @code
+ * // Initialize match table
+ * init_match_table();
+ * ...
+ * // Insert match entry
+ * insert_match_entry( &ofp_match, priority, service_name, entry_name );
+ * ...
+ * // Lookup match entry
+ * match_entry *match_entry = lookup_match_entry( &ofp_match );
+ * ...
+ * // Delete match entry
+ * delete_match_entry( struct ofp_match *ofp_match );
+ * ...
+ * // Finalize match table
+ * finalize_match_table();
+ * @endcode
  */
 
 #ifndef MATCH_TABLE_H
