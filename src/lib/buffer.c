@@ -18,31 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Buffer management implementation
- *
- * File containing functions for buffer management, including allocation,
- * deallocation.
- * @code
- * // Allocates buffer type structure and assigns it length bytes of space
- * body_h = alloc_buffer_with_length( body_length );
- * ...
- * // Adds free space in front of already allocated buffer
- * data = append_front_buffer( buffer, header_length );
- * ...
- * // Duplicates buffer
- * body = duplicate_buffer( data );
- * ...
- * // Removes some space from the top part of an already allocated buffer
- * remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
- * ...
- * // Releases the allocated buffer
- * free_buffer( body );
- * @endcode
- */
-
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -122,7 +97,7 @@ alloc_new_data( private_buffer *pbuf, size_t length ) {
  * Allocates an empty private_buffer type, and initializes its members to 0 or
  * NULL (as per the case) before returning.
  * @param None
- * @return private_buffer Pointer to the newly allocated private_buffer type structure, members initialized to 0/NULL
+ * @return private_buffer Pointer to the newly allocated private_buffer type structure
  */
 static private_buffer *
 alloc_private_buffer() {
@@ -148,7 +123,7 @@ alloc_private_buffer() {
 /**
  * Adds/Appends more data space at the front side of an already allocated
  * buffer. It is wrapped around by append_front_buffer.
- * @param pbuf Pointer to private_buffer type structure which represents the old buffer to be appended
+ * @param pbuf Pointer to private_buffer type structure, containing old buffer to be appended
  * @param length Addition length of data to be appended at front of the present buffer
  * @return private_buffer Pointer to the updated private_buffer type structure, containing front appended buffer
  * @see append_front_buffer
@@ -173,7 +148,7 @@ append_front( private_buffer *pbuf, size_t length ) {
 /**
  * Adds/Appends more data space at the back end of an already allocated buffer.
  * It is wrapped around by append_back_buffer.
- * @param pbuf Pointer to private_buffer type structure which represents the old buffer to be appended
+ * @param pbuf Pointer to private_buffer type structure, containing the old buffer to be appended
  * @param length Addition length of data to be appended at back of the present buffer
  * @return private_buffer Pointer to the updated private_buffer type structure, containing back appended buffer
  * @see append_back_buffer
@@ -211,7 +186,7 @@ alloc_buffer() {
  * Allocates buffer type structure and assigns it length bytes of space. It
  * initializes all internal data members.
  * @param length Length of allocated buffer requested
- * @return buffer Pointer to buffer type which holds the allocated area, and its members appropriately initialized
+ * @return buffer Pointer to buffer type which holds the allocated area
  */
 buffer *
 alloc_buffer_with_length( size_t length ) {
@@ -238,7 +213,7 @@ alloc_buffer_with_length( size_t length ) {
 /**
  * Releases the allocated buffer as well as the private_buffer structure which
  * was allocated to represent this buffer.
- * @param buf Pointer to buffer type, which is internally mapped to private_buffer type
+ * @param buf Pointer to buffer type
  * @return None
  */
 void
@@ -328,7 +303,7 @@ remove_front_buffer( buffer *buf, size_t length ) {
  * Adds free space at the back of already allocated buffer.
  * @param buf Pointer to buffer type to which extra space has to be allocated
  * @param length Length of the extra buffer to be appended
- * @return void* Pointer to allocated buffer which appended space
+ * @return void* Pointer to allocated buffer
  * @see append_back
  */
 void *
@@ -363,7 +338,7 @@ append_back_buffer( buffer *buf, size_t length ) {
  * Makes exact replica of the buffer type passed as argument, includes copying
  * of the data and initializing the buffer type members.
  * @param buf Pointer to buffer type which holds the allocated space and other members to manage this space
- * @return buffer* Pointer to freshly allocated buffer type which is replica of argument passed
+ * @return buffer* Pointer to freshly allocated buffer
  */
 buffer *
 duplicate_buffer( const buffer *buf ) {

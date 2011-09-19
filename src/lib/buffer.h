@@ -19,7 +19,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file
  *
@@ -27,6 +26,22 @@
  *
  * File containing function declarations and type declarations for Buffer
  * management.
+ * @code
+ * // Allocates buffer type structure and assigns it length bytes of space
+ * body_h = alloc_buffer_with_length( body_length );
+ * ...
+ * // Adds free space in front of already allocated buffer
+ * data = append_front_buffer( buffer, header_length );
+ * ...
+ * // Duplicates buffer
+ * body = duplicate_buffer( data );
+ * ...
+ * // Removes some space from the top part of an already allocated buffer
+ * remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
+ * ...
+ * // Releases the allocated buffer
+ * free_buffer( body );
+ * @endcode
  */
 
 #ifndef BUFFER_H
