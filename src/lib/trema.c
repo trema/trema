@@ -17,27 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Trema Application implementation
- *
- * File containing functions for handling Trema Application.
- * @code
- * // Initialize the Trema World
- * init_trema( int *argc, char ***argv );
- * ...
- * // Start Trema World i,e. run the main loop
- * start_trema();
- * ...
- * // Rename service name of messenger to "ABCD"
- * rename_message_received_callback( get_trema_name(), "ABCD" );
- * ...
- * set_trema_name( "ABCD" );
- * // Stop Trema World i,e. exit the main loop
- * stop_trema();
- * @endcode
- */
 
 
 #include <assert.h>
@@ -379,7 +358,7 @@ finalize_trema() {
 
 
 /**
- * Checks if trema temporary directory does not exist, calls get_trema_tmp.
+ * Checks if trema temporary directory does not exist.
  * It is wrapped around by init_trema.
  * @param None
  * @return None
@@ -503,8 +482,7 @@ ignore_sigpipe() {
 
 
 /**
- * Sets exit handler, such that when SIGINT or SIGTERM signals are encountered
- * call to stop_trema is made. It is wrapped around by init_trema.
+ * Sets termination signal handler,(SIGINT or SIGTERM).
  * @param None
  * @return None
  * @see init_trema

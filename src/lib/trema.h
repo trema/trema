@@ -22,7 +22,23 @@
 /**
  * @file
  *
- * File containing function definitions of Trema Application.
+ * @brief Trema Application implementation
+ *
+ * File containing functions for handling Trema Application.
+ * @code
+ * // Initialize the Trema World
+ * init_trema( int *argc, char ***argv );
+ * ...
+ * // Start Trema World i,e. run the main loop
+ * start_trema();
+ * ...
+ * // Rename service name of messenger to "ABCD"
+ * rename_message_received_callback( get_trema_name(), "ABCD" );
+ * ...
+ * set_trema_name( "ABCD" );
+ * // Stop Trema World i,e. exit the main loop
+ * stop_trema();
+ * @endcode
  */
 
 #ifndef TREMA_H
