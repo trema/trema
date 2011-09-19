@@ -258,7 +258,7 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
   struct ofp_switch_features *switch_features;
   struct ofp_phy_port *phy_port;
   struct ofp_phy_port pn;
-  list_element *p, *port;
+  list_element *p = NULL, *port;
 
   debug( "Creating a features reply "
          "( xid = %#x, datapath_id = %#" PRIx64 ", n_buffers = %u, n_tables = %u, capabilities = %#x, actions = %#x ).",
