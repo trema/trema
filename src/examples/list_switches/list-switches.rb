@@ -21,7 +21,7 @@
 
 
 class ListSwitches < Controller
-  periodic_timer_event :send_list_switches_request, 1
+  periodic_timer_event :send_list_switches_request, 2
   periodic_timer_event :timeout, 30
 
 
