@@ -165,14 +165,14 @@ secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
   if ( switch_info.secure_channel_fd < 0 ) {
     return;
   }
-  if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
-    if ( recv_from_secure_channel( &switch_info ) < 0 ) {
+  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
+    if ( flush_secure_channel( &switch_info ) < 0 ) {
       switch_event_disconnected( &switch_info );
       return;
     }
   }
-  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
-    if ( flush_secure_channel( &switch_info ) < 0 ) {
+  if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
+    if ( recv_from_secure_channel( &switch_info ) < 0 ) {
       switch_event_disconnected( &switch_info );
       return;
     }

@@ -27,6 +27,7 @@ Feature: control multiple openflow switches using multi learning switch controll
       link "multi_learning3", "multi_learning4"
       """
       And wait until "multi_learning_switch" is up
+      And *** sleep 1 ***
 
     When I send 2 packets from host1 to host2
     Then the total number of tx packets should be:
@@ -91,6 +92,7 @@ Feature: control multiple openflow switches using multi learning switch controll
       link "multi_learning3", "multi_learning4"
       """
       And wait until "MultiLearningSwitch" is up
+      And *** sleep 1 ***
 
     When I send 2 packets from host1 to host2
     Then the total number of tx packets should be:

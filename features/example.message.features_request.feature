@@ -11,6 +11,7 @@ Feature: Send a features request message
       vswitch("features_request") { datapath_id "0xabc" }
       """
       And wait until "features_request" is up
+      And *** sleep 1 ***
       And I terminated all trema services
     Then the output should include:
     """

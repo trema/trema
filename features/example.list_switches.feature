@@ -15,6 +15,7 @@ Feature: Get the list of openflow switches with list_switches
       """
       And *** sleep 1 ***
       And wait until "list_switches" is up
+      And *** sleep 1 ***
       And I terminated all trema services
     Then the output should include:
       """
@@ -31,6 +32,7 @@ Feature: Get the list of openflow switches with list_switches
       """
       And *** sleep 1 ***
       And wait until "ListSwitches" is up
+      And *** sleep 1 ***
       And I terminated all trema services
     Then the output should include:
       """
