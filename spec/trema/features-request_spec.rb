@@ -54,11 +54,12 @@ describe Trema::FeaturesRequest do
         vswitch { datapath_id 0xabc }
       }.run( FeaturesController ) {
         features_request = Trema::FeaturesRequest.new( 1234 )
-        controller( "FeaturesController" ).send_message( 0xabc, features_request )
         controller( "FeaturesController" ).should_receive( :features_reply ) do | arg |
           arg.datapath_id.should == 0xabc
           arg.transaction_id.should == 1234
         end
+        controller( "FeaturesController" ).send_message( 0xabc, features_request )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
