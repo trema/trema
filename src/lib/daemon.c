@@ -17,28 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Daemonization supporting utility functions.
- *
- * File contains functions for daemonization of a Trema binary and controlling it (using PID). This 
- * currently being internally used by the trema binary in case 'd' command line argument is passed to it.
- * @code
- * ...
- * // Send the current instance to background (daemon) by closing any terminal I/O streams
- * daemonize( get_trema_home() );
- * // Writes Process ID to file in Trema temporary directory
- * write_pid( get_trema_tmp(), get_trema_name() );
- * ...
- * // Unlinks Process ID from file in Trema temporary directory
- * unlink_pid( get_trema_tmp(), get_trema_name() );
- * ...
- * // Gets Process ID from name
- * return read_pid( get_trema_tmp(), name );
- * ...
- * @endcode
- */
 
 #include <assert.h>
 #include <errno.h>
@@ -202,8 +180,7 @@ daemonize( const char *home ) {
 static const int PID_STRING_LENGTH = 10;
 
 /**
- * Called by a daemonized Trema application to write the daemon's pid into a file. This can be
- * used for controlling (killing, sending signal) the daemon process.
+ * Called by a daemonized Trema application to write the daemon's pid into a file.
  * @param directory Pointer to temporary directory used in Trema Application
  * @param name Pointer to ID of Trema Applicaiton
  * @return None
