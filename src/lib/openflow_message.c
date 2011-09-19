@@ -17,26 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief OpenFlow message handling. Creates messages for OpenFlow communications.
- *
- * Provides function which creates OpenFlow messages.
- *
- * @code
- * // Initializes OpenFlow message.
- * init_openflow_message( );
- *
- * // Creates messages.
- * crete_hello( ' trasaction ID' );
- * create_error( transaction ID, error_type, error_code, user_data );
- *
- * // Validates OpenFlow message.
- * validate_openflow_message( "Pointer to location containing message" );
- *
- * @endcode
- */
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -3666,7 +3646,7 @@ validate_queue_property( const struct ofp_queue_prop_header *property ) {
 
 
 /**
- * Validates_queue_properties. Calls validate queue property for each member. 
+ * Updates property set of a queue.
  * @param property Common description for queue
  * @param properties_length Number of properties to validate 
  * @return int Returns 0 in case of no error, returns error code in case of error
@@ -4689,8 +4669,8 @@ static struct error_map {
 
 
 /**
- * Gets error type and code 
- * @param type
+ * Gets error type and code.
+ * @param type Type of error
  * @param error_no Error number
  * @param error_type Error type
  * @param error_code Error code
@@ -4720,7 +4700,7 @@ get_error_type_and_code( const uint8_t type, const int error_no,
 
 
 /**
- * Sets match from packet
+ * Sets match from packet.
  * @param match Match structure
  * @param in_port Input switch port
  * @param wildcards Wildcard field

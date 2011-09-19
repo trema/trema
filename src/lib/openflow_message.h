@@ -20,10 +20,23 @@
  */
 
 /**
-* @file
-*
-* File containing function definations to create OpenFlow message.
-*/
+ * @file
+ *  
+ * @brief OpenFlow message handling. Creates messages for OpenFlow communications.
+ *
+ * Provides function which creates OpenFlow messages.
+ * @code
+ * // Initializes OpenFlow message.
+ * init_openflow_message( );
+ * ...
+ * // Creates messages.
+ * crete_hello( ' trasaction ID' );
+ * create_error( transaction ID, error_type, error_code, user_data );
+ * ...
+ * // Validates OpenFlow message.
+ * validate_openflow_message( "Pointer to location containing message" );
+ * @endcode
+ */
 
 #ifndef OPENFLOW_MESSAGE_H
 #define OPENFLOW_MESSAGE_H
