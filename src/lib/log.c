@@ -18,30 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Logging Function Implementation
- *
- * File containing various Logging related functions. 
- * @code
- * //Open the log file
- * init_log( "log.file", "log_directory", 0 );
- * // Setting last argument as 0 would make the logger write all log messages to terminal.
- *
- * // Log a message with Critical priority
- * critical( "This is a critical level log message with ID: %d\n", 0 );
- * // Log a message with Notice priority
- * notice( "This is a notice level log message with ID: %d\n", 3 );
- *
- * // Read the current logging level
- * int log_level = get_logging_level();
- *
- * // Close the log file
- * finalize_log();
- * @endcode
- */
-
 #include <assert.h>
 #include <ctype.h>
 #include <linux/limits.h>
