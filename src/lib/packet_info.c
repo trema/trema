@@ -17,31 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Packet Header Information handling implementation
- *
- * File containing functions for handling packet header information. The
- * packets can be of any of the following type : Ethernet packet, ARP packet,
- * IPv4 packet, TCP packet, UDP packet, ICMP packet.
- * @code
- * // Allocates memory to structure which contains packet header information
- * alloc_packet( buf );
- * ...
- * // Parse an Ethernet frame stored in eth_frame. Now the frame is
- * // parsed and the results are stored in a newly allocated memory area.
- * parse_packet( eth_frame );
- * // Now you can refer to the header field values like follows.
- * switch ( packet_info( eth_frame )->ethtype ) {
- * case ETH_ETHTYPE_IPV4:
- * ...
- * case ETH_ETHTYPE_ARP:
- * ...
- * // Finally free the buffer.
- * free_buffer( eth_frame );
- * @endcode
- */
 
 #include <assert.h>
 #include "packet_info.h"
@@ -49,9 +24,7 @@
 
 
 /**
- * Releases the memory allocated to structure of type packet_header_info which
- * contains packet header information. Pointer to this structure is stored in
- * user_data element of buffer type structure.
+ * Releases the memory allocated to structure of type packet_header_info.
  * @param buf Pointer to buffer type structure
  * @return None
  */
@@ -67,10 +40,7 @@ free_packet_header_info( buffer *buf ) {
 
 
 /**
- * Allocates memory to structure of type packet_header_info which contains
- * packet header information and initializes its elements to either NULL or 0.
- * Also, user_data element of buffer type structure is initialized to pointer
- * to this structure.
+ * Allocates memory to structure of type packet_header_info.
  * @param buf Pointer to buffer type structure
  * @return None
  */
@@ -96,9 +66,7 @@ alloc_packet( buffer *buf ) {
 /**
  * This function is deprecated.
  *
- * Releases the memory allocated to structure of type buffer and also to
- * structure of type packet_header_info, pointer to which is contained in
- * user_data element of this buffer type structure.
+ * Releases the memory allocated to structure of type buffer.
  * @param buf Pointer to buffer type structure
  * @return None
  */

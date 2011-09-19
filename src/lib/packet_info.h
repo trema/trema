@@ -20,10 +20,27 @@
 /**
  * @file
  *
- * @brief Packet Header Information handling implementation
+ * @brief Function declarations and type definitions for accessing commonly-used header fields values
  *
- * File containing function declarations and type definitions for accessing
- * commonly-used header fields values
+ * File containing functions for handling packet header information. The
+ * packets can be of any of the following type : Ethernet packet, ARP packet,
+ * IPv4 packet, TCP packet, UDP packet, ICMP packet.
+ * @code
+ * // Allocates memory to structure which contains packet header information
+ * alloc_packet( buf );
+ * ...
+ * // Parse an Ethernet frame stored in eth_frame. Now the frame is
+ * // parsed and the results are stored in a newly allocated memory area.
+ * parse_packet( eth_frame );
+ * // Now you can refer to the header field values like follows.
+ * switch ( packet_info( eth_frame )->ethtype ) {
+ * case ETH_ETHTYPE_IPV4:
+ * ...
+ * case ETH_ETHTYPE_ARP:
+ * ...
+ * // Finally free the buffer.
+ * free_buffer( eth_frame );
+ * @endcode
  */
 
 #ifndef PACKET_INFO_H
