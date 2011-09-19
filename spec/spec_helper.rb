@@ -87,7 +87,7 @@ class Network
     @th_controller = Thread.start do
       controller.run!
     end
-    sleep 2  # FIXME: wait until controller.up?
+    sleep 3  # FIXME: wait until controller.up?
   end
   
 
