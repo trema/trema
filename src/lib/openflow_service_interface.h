@@ -26,7 +26,6 @@
  *
  * Message type and header definitions for sending/receiving OpenFlow messages
  * via messenger
- *
  */
 
 #ifndef OPENFLOW_SERVICE_INTERFACE_H
