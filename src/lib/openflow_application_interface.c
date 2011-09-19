@@ -18,30 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Implementation of OpenFlow Application Interfaces
- *
- * Provides function for OpenFlow interface application initialization
- * which includes handling of various switch handling events.
- *
- * @code
- * // Initializes OpenFlow application interface.
- * init_openflow_application_interface( "Learning Switch application" );
- * // "Learning Switch Application" being name of the Application to be created
- *
- * // Sets callbacks event handlers.
- * _set_switch_ready_handler( handle_switch_ready, NULL );
- * set_switch_disconnected_handler( switch_disconnected, NULL );
- * set_features_reply_handler( switch_features_reply, NULL );
- * set_port_status_handler( port_status, NULL );
- *
- * // Finalizes OpenFlow application interface.
- * finalize_openflow_application_interface();
- *
- * @endcode
- */
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -289,8 +265,7 @@ set_openflow_event_handlers( const openflow_event_handlers_t handlers ) {
 
 
 /**
- * Sets callback function for switch ready events. It sets switch ready 
- * callback and switch ready user data in event_handler object.
+ * Sets callback function for switch ready events. 
  * @param simple_callback Argument to decide if callback is simple type or not 
  * @param callback Pointer to callback
  * @param user_data Pointer to user data
@@ -555,7 +530,7 @@ set_stats_reply_handler( stats_reply_handler callback, void *user_data ) {
 
 
 /**
- * Sets callback function for handling responses of Barrier requests made to switch.
+ * Sets callback function for handling responses of barrier requests made to switch.
  * @param callback Callback function to handle responses of barrier request
  * @param user_data Pointer to user data
  * @return bool Always returns true
@@ -581,7 +556,7 @@ set_barrier_reply_handler( barrier_reply_handler callback, void *user_data ) {
 
 
 /**
- * Sets callback function for handling the response of Queue Configuration request made to switch.
+ * Sets callback function for handling the response of queue configuration request made to switch.
  * @param callback Callback function for handling Queue Configuration response
  * @param user_data Pointer to user data
  * @return bool Always returns true
@@ -625,8 +600,7 @@ set_list_switches_reply_handler( list_switches_reply_handler callback ) {
 
 
 /**
- * Handles messages from switch denoting any error. Calls error_callback with datapath_id and all information in 
- * event handlers.
+ * Handles messages from switch denoting any error. 
  * @param datapath_id Datapath unique ID
  * @param data Pointer to network packet containing error information
  * @return None
@@ -735,8 +709,7 @@ handle_vendor( const uint64_t datapath_id, buffer *data ) {
 
 
 /**
- * Replies with capabilities of switch. Calls feature reply callback 
- * event handler.
+ * Replies with capabilities of switch. 
  * @param datapath_id Datapath unique ID
  * @param data Pointer to network packet containing switch features information
  * @return None
@@ -1312,7 +1285,7 @@ handle_barrier_reply( const uint64_t datapath_id, buffer *data ) {
 
 
 /**
- * Handles queue configuration reply. It is the reply against controllers request for configured queues on a port. 
+ * Handles queue configuration reply. 
  * @param datapath_id Datapath unique ID
  * @param data Pointer to network packet containing configuration reply information
  * @return None
@@ -1445,8 +1418,7 @@ update_switch_event_stats( uint16_t type, int send_receive, bool result ) {
 
 
 /**
- * Handles switch ready events. Calls switch ready callback with 
- * unique datapath ID.
+ * Handles switch ready events. 
  * @param datapath_id Datapath unique ID
  * @return None
  */
@@ -1747,6 +1719,12 @@ handle_message( uint16_t type, void *data, size_t length ) {
 }
 
 
+/**
+ * Inserts dpid.
+ * @param head Head of element list
+ * @param dpid Data pointer ID
+ * @return None
+ */
 static void
 insert_dpid( list_element **head, uint64_t *dpid ) {
   assert( head != NULL );
@@ -1770,6 +1748,14 @@ insert_dpid( list_element **head, uint64_t *dpid ) {
 }
 
 
+/**
+ * Handles list switch reply.
+ * @param message_type Message type
+ * @param data Pointer to user data
+ * @param length Length of OpenFlow service header 
+ * @param user_data User data
+ * @return None
+ */
 static void
 handle_list_switches_reply( uint16_t message_type, void *data, size_t length, void *user_data ) {
   UNUSED( message_type );
@@ -1871,6 +1857,11 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
 }
 
 
+/**
+ * Sends list switch request.
+ * @param user_data User data
+ * @return ret Returns true for successful handling, else false
+ */
 bool
 send_list_switches_request( void *user_data ) {
   uint16_t message_type = 0;

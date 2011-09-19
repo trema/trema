@@ -19,12 +19,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file
  *
- * @brief Trema Event Handling Interfaces
+ * @brief Trema event handling interface 
+ *
+ * Provides function declarations for OpenFlow interface application initialization
+ * which includes handling of various switch handling events.
+ * @code
+ * // Initializes OpenFlow application interface.
+ * init_openflow_application_interface( "Learning Switch application" );
+ * // "Learning Switch Application" being name of the Application to be created
+ * ...
+ * // Sets callbacks event handlers.
+ * _set_switch_ready_handler( handle_switch_ready, NULL );
+ * set_switch_disconnected_handler( switch_disconnected, NULL );
+ * set_features_reply_handler( switch_features_reply, NULL );
+ * set_port_status_handler( port_status, NULL );
+ * ...
+ * // Finalizes OpenFlow application interface.
+ * finalize_openflow_application_interface();
+ * @endcode
  */
+
 #ifndef OPENFLOW_APPLICATION_INTERFACE_H
 #define OPENFLOW_APPLICATION_INTERFACE_H
 
