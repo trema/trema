@@ -20,11 +20,24 @@
  */
 
 /**
-* @file
-*
-* @brief Implementation of messaging in OpenFlow
-*
-*/
+ * @file
+ *
+ * @brief Implementation of Messaging in OpenFlow
+ *
+ * Function declarations of functions handling OpenFlow messaging.
+ * @code
+ * // Initializes OpenFlow messenger.
+ * init_messenger(" Working directory ");
+ * // Adds, deletes, renames callbacks and sends message
+ * add_message_callback( service_name, MESSAGE_TYPE, callback );
+ * add_message_received_callback( service_name, callback_hello );
+ * delete_message_callback( service_name, MESSAGE_TYPE, callback );
+ * rename_message_received_callback( "Trema service name", new_service_name );
+ * send_message( remote_service_name, MESSENGER_TYPE, buffer->data, buffer->length );
+ * // Finalizes OpenFlow messenger.
+ * finalize_messenger();
+ * @endcode
+ */
 
 #ifndef MESSENGER_H
 #define MESSENGER_H

@@ -18,30 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Implementation of Messaging in OpenFlow
- *
- * Provides functions which handles OpenFlow messaging.
- *
- * @code
- * // Initializes OpenFlow messenger.
- * init_messenger(" Working directory ");
- *
- * // Adds, deletes, renames callbacks and sends message
- * add_message_callback( service_name, MESSAGE_TYPE, callback );
- * add_message_received_callback( service_name, callback_hello );
- * delete_message_callback( service_name, MESSAGE_TYPE, callback );
- * rename_message_received_callback( "Trema service name", new_service_name );
- * send_message( remote_service_name, MESSENGER_TYPE, buffer->data, buffer->length );
- *
- * // Finalizes OpenFlow messenger.
- * finalize_messenger();
- *
- * @endcode
- */
-
 #include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
@@ -724,8 +700,7 @@ create_receive_queue( const char *service_name ) {
 
 
 /**
- * Generic routine which adds a callback to be called when messages are received for a particular service. 
- * This function is being used by various other routines which specify the type of message.
+ * Adds a callback to be called when messages are received for a particular service. 
  * @param service_name Name of service 
  * @param message_type Type of message 
  * @param callback Callback function 
@@ -1344,7 +1319,7 @@ number_of_send_queue( int *connected_count, int *sending_count, int *reconnectin
 
 
 /**
- * Initializing the Pipe for communicating for Receive Queue.
+ * Initializing the pipe for communicating for Receive Queue.
  * @param read_set Pointer to fd_set
  * @return None
  */
