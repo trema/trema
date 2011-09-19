@@ -19,12 +19,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file
  *
- * @brief Declaration of Statistics Management Functions
+ * @brief Function declaraions for Trema Statistics Management 
+ *
+ * File containing various functions for creating a generic statistics management service,
+ * which can be used by Trema application to manage stats for arbitrary parameters.
+ * @code
+ * // Initialize the Statistics layer
+ * init_stat();
+ * // Add an arbitrary parameter to track its statistics
+ * add_stat_entry( "count_of_apples" );
+ * ...
+ * // Increment the number of apples we have by 1
+ * increment_stat( "count_of_apples" );
+ * ...
+ * // Dump all the current parameters with their stats
+ * dump_stats();
+ * // Which would output the following
+ * count_of_apples: 1
+ * ...
+ * // Finish stats parameter recording or tracking
+ * finalize_stat();
+ * @endcode
  */
+
 #ifndef STAT_H
 
 
