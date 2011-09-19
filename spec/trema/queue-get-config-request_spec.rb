@@ -52,10 +52,10 @@ describe QueueGetConfigRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( QueueGetConfigController ) {
+        controller( "QueueGetConfigController" ).should_receive( :queue_get_config_reply )
         queue_get_config_request = QueueGetConfigRequest.new( 123, 1 )
         controller( "QueueGetConfigController" ).send_message( 0xabc, queue_get_config_request )
         sleep 2 # FIXME: wait to send_message
-        controller( "QueueGetConfigController" ).should_receive( :queue_get_config_reply )
       }
     end
   end

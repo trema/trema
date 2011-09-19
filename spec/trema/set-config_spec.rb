@@ -97,12 +97,13 @@ describe Trema::SetConfig do
       network {
         vswitch { datapath_id 0xabc }
       }.run( SetConfigController ) {
-        set_config = SetConfig.new( 123, 0, 0 )
         controller( "SetConfigController" ).should_receive( :get_config_reply ) do | arg |
           arg.flags.should == 0
           arg.miss_send_len.should == 0
         end
+        set_config = SetConfig.new( 123, 0, 0 )
         controller( "SetConfigController" ).send_message( 0xabc, set_config )
+        sleep 2 # FIXME: wait to send_message
         controller( "SetConfigController" ).send_message( 0xabc, GetConfigRequest.new )
         sleep 2 # FIXME: wait to send_message
       }

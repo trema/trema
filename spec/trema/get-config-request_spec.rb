@@ -67,14 +67,13 @@ describe GetConfigRequest do
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( 1234 )
-        sleep 1 # FIXME
-        controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
         controller( "GetConfigController" ).should_receive( :get_config_reply ) do | message |
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234
           message.flags.should >= 0 and message.flags.should <= 3
           message.miss_send_len.should == 65535
         end
+        controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
         sleep 2 # FIXME: wait to send_message
       }
     end
