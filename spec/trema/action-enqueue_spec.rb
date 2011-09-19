@@ -65,6 +65,7 @@ describe ActionEnqueue do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionEnqueue.new( 1, 123 ) )
+        sleep 2 # FIXME: wait to send_flow_mod
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /enqueue:1q123/ )
       }
