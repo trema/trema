@@ -86,6 +86,7 @@ describe Trema::SetConfig do
         sleep 1 # FIXME
         controller( "SetConfigController" ).send_message( 0xabc, set_config )
         controller( "SetConfigController" ).should_not_receive( :set_config_reply )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
@@ -105,6 +106,7 @@ describe Trema::SetConfig do
           arg.flags.should == 0
           arg.miss_send_len.should == 0
         end
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
