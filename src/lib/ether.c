@@ -17,20 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Handling Ethernet headers
- * @code
- * // Parses Ethernet header
- * if ( !parse_ether( buf ) ) {
- *     warn( "Failed to parse Ethernet header." );
- *     return false;
- * ...
- * // Fills padding to Ethernet header
- * fill_ether_padding( buffer *buf );
- * @endcode
- */
 
 #include <assert.h>
 #include "log.h"

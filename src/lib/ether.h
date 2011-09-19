@@ -22,7 +22,18 @@
 /**
  * @file
  *
- * @brief Function declarations and type definitions for Ethernet header implementation
+ * @brief Handling Ethernet headers
+ *
+ * Function declarations and type definitions for Ethernet header implementation
+ * @code
+ * // Parses Ethernet header
+ * if ( !parse_ether( buf ) ) {
+ *     warn( "Failed to parse Ethernet header." );
+ *     return false;
+ * ...
+ * // Fills padding to Ethernet header
+ * fill_ether_padding( buffer *buf );
+ * @endcode
  */
 
 #ifndef ETHER_H
