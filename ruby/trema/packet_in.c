@@ -130,8 +130,8 @@ packet_in_total_len( VALUE self ) {
  */
 static VALUE
 packet_in_data( VALUE self ) {
-  buffer *buf = get_packet_in( self )->data;
-  return rb_str_new( buf->data, buf->length );
+  const buffer *buf = get_packet_in( self )->data;
+  return rb_str_new( buf->data, ( long ) buf->length );
 }
 
 
