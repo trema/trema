@@ -33,7 +33,7 @@ describe SwitchDisconnected do
       }.run( SwitchDisconnected ) {
         controller( "SwitchDisconnected" ).should_receive( :switch_disconnected )
         switch( "switch-disconnect" ).shutdown!
-        sleep 2 # FIXME: wait to shutdown
+        sleep 3 # FIXME: wait to shutdown
       }
     end
 
@@ -44,7 +44,7 @@ describe SwitchDisconnected do
       }.run( SwitchDisconnected ) {
         controller( "SwitchDisconnected" ).should_receive( :switch_disconnected ).with( 0xabc )
         switch( "switch-disconnect" ).shutdown!
-        sleep 2 # FIXME: wait to shutdown
+        sleep 3 # FIXME: wait to shutdown
       }
     end
   end
