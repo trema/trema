@@ -26,7 +26,21 @@
  *
  * File containing function definitions to convert network byteorder to host
  * byteorder and vice versa.
+ * @code
+ * //  Converts network byteorder to host byteorder for match entry
+ * ntoh_match( &match, &flow_removed->match );
+ * ...
+ * // Converts network byteorder to host byteorder for phy port.
+ * ntoh_phy_port( &phy_port, &port_status->desc );
+ * ...
+ * // Converts packet queue from host to network byteorder.
+ * hton_packet_queue( packet_queue, pq );
+ * ...
+ * // Converts the flow stats from host byteorder to network byteorder.
+ * hton_flow_stats( flow_stats, fs );
+ * @endcode
  */
+
 #ifndef BYTEORDER_H
 #define BYTEORDER_H
 

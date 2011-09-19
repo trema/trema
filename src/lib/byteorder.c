@@ -17,27 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Byte order conversion implementation
- *
- * File containing functions to convert network byteorder to host byteorder
- * and vice versa.
- * @code
- * //  Converts network byteorder to host byteorder for match entry
- * ntoh_match( &match, &flow_removed->match );
- * ...
- * // Converts network byteorder to host byteorder for phy port.
- * ntoh_phy_port( &phy_port, &port_status->desc );
- * ...
- * // Converts packet queue from host to network byteorder.
- * hton_packet_queue( packet_queue, pq );
- * ...
- * // Converts the flow stats from host byteorder to network byteorder.
- * hton_flow_stats( flow_stats, fs );
- * @endcode
- */
+
 #include <assert.h>
 #include <arpa/inet.h>
 #include <stddef.h>
@@ -47,8 +27,7 @@
 #include "wrapper.h"
 
 /**
- * Converts network byteorder to host byteorder for match entry. It is called when 
- * validation of flow occurs.
+ * Converts network byteorder to host byteorder for match entry.
  * @param dst Pointer to open flow match compatible with host machine
  * @param src Pointer to open flow match compatible with network
  * @return None
@@ -79,8 +58,7 @@ ntoh_match( struct ofp_match *dst, const struct ofp_match *src ) {
 
 
 /**
- * Converts network byteorder to host byteorder for phy port. It is called in process
- * of validating phy port.
+ * Converts network byteorder to host byteorder for phy port.
  * @param dst Pointer to phy port compatible with host machine
  * @param src Pointer to phy port compatible with network 
  * @return None
