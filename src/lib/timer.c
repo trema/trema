@@ -18,27 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Contains functions which handles timer functionality.
- *
- * Provides timer functionality to OpenFlow
- *
- * @code
- * // Intializes timer
- * init_timer();
- *
- * // Adds, deletes, executes timer.
- * add_timer_event_callback( &interval, timer_event_callback, ( void * ) self );
- * executes_timer_events();
- * delete_timer_event_callback( timer_event_callback );
- *
- * // Finalizes OpenFlow application interface.
- * finalize_timer();
- *
- * @endcode
- */
 
 #include <assert.h>
 #include <errno.h>
@@ -205,7 +184,6 @@ execute_timer_events() {
 
 /**
  * Adds a timer event callback in the event list.
- * add_perodic_event_callback acts as wrapper to this function from which the interval value is specified.
  * @param interval Time interval specification
  * @param callback Pointer to callback function  
  * @param user_data Pointer string which would be passed as it is to callback function
@@ -327,7 +305,7 @@ add_periodic_event_callback( const time_t seconds, void ( *callback )( void *use
 
 
 /**
- * Wrapper around the delete_timer_callback function which is used for deleting timer event from 
+ * Wrapper around the delete_timer_callback function.
  * event list.
  * @param callback Pointer to callback function 
  * @return bool True if timer event is successfully deleted, else False
