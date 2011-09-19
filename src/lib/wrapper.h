@@ -22,8 +22,17 @@
 /**
  * @file
  *
- * @brief Wrapper definitions for basic library functions
- *
+ * @brief Wrapper definitons for basic library functions
+ * @code
+ * // Memory allocation using malloc
+ * new_entry = xmalloc( sizeof( match_entry ) );
+ * // Memory allocation using calloc
+ * packet_header_info *header_info = xcalloc( 1, sizeof( packet_header_info ) );
+ * // Free allocated memory
+ * xfree( trema_name );
+ * // Duplicate string in memory
+ * trema_name = xstrdup( name );
+ * @endcode
  */
 
 #ifndef WRAPPER_H

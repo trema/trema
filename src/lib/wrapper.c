@@ -17,22 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Wrappers for basic library functions
- *
- * @code
- * // Memory allocation using malloc
- * new_entry = xmalloc( sizeof( match_entry ) );
- * // Memory allocation using calloc
- * packet_header_info *header_info = xcalloc( 1, sizeof( packet_header_info ) );
- * // Free allocated memory
- * xfree( trema_name );
- * // Duplicate string in memory
- * trema_name = xstrdup( name );
- * @endcode
- */
 
 #include <linux/limits.h>
 #include <stdarg.h>
