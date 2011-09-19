@@ -17,20 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file
- *
- * @brief Utility functions for basic library function
- *
- * @code
- * // Use of compare_string and hash_string
- * send_queues = create_hash( compare_string, hash_string );
- * // Converts flow entry to string
- * match_to_string( &m, match_str, sizeof( match_str ) );
- * // Converts Physical port to string
- * phy_port_to_string( port->data, port_str, sizeof( port_str ) );
- * @endcode
- */
 
 #include <arpa/inet.h>
 #include <assert.h>
