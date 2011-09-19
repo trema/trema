@@ -68,9 +68,9 @@ describe Trema::PortStatus do
         link "host1", "port-status"
         link "host2", "port-status"
       }.run( PortStatusController ) {
-        controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
         controller( "PortStatusController" ).should_receive( :port_status )
-        sleep 1 # FIXME: wait to receive port_status
+        controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
+        sleep 2 # FIXME: wait to receive port_status
       }
     end
   end

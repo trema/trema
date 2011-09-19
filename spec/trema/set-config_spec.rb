@@ -83,9 +83,8 @@ describe Trema::SetConfig do
         vswitch { datapath_id 0xabc }
       }.run( SetConfigController ) {
         set_config = SetConfig.new( 123, 0, 128 )
-        sleep 1 # FIXME
-        controller( "SetConfigController" ).send_message( 0xabc, set_config )
         controller( "SetConfigController" ).should_not_receive( :set_config_reply )
+        controller( "SetConfigController" ).send_message( 0xabc, set_config )
         sleep 2 # FIXME: wait to send_message
       }
     end
@@ -99,13 +98,12 @@ describe Trema::SetConfig do
         vswitch { datapath_id 0xabc }
       }.run( SetConfigController ) {
         set_config = SetConfig.new( 123, 0, 0 )
-        sleep 1 # FIXME
-        controller( "SetConfigController" ).send_message( 0xabc, set_config )
-        controller( "SetConfigController" ).send_message( 0xabc, GetConfigRequest.new )
         controller( "SetConfigController" ).should_receive( :get_config_reply ) do | arg |
           arg.flags.should == 0
           arg.miss_send_len.should == 0
         end
+        controller( "SetConfigController" ).send_message( 0xabc, set_config )
+        controller( "SetConfigController" ).send_message( 0xabc, GetConfigRequest.new )
         sleep 2 # FIXME: wait to send_message
       }
     end

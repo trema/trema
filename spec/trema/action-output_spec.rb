@@ -61,7 +61,6 @@ describe ActionOutput do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        sleep 1 # FIXME
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionOutput.new( 1 ) )
         sleep 2 # FIXME: wait to send_flow_mod_add
@@ -78,7 +77,6 @@ describe ActionOutput do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        sleep 1 # FIXME
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => [ ActionOutput.new( 1 ), ActionOutput.new( 2 ) ] )
         sleep 2 # FIXME: wait to send_flow_mod_add
