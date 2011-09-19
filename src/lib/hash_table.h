@@ -29,7 +29,7 @@
 #define HASH_TABLE_H
 
 
-#include "linked_list.h"
+#include "doubly_linked_list.h"
 
 
 typedef unsigned int ( *hash_function )( const void *key );
@@ -53,8 +53,8 @@ typedef struct {
   compare_function compare; /*!<Function pointer to compare items*/
   hash_function hash; /*!<Pointer to hash function*/
   unsigned int length; /*!<Total number of entries in hash table*/
-  list_element **buckets; /*!<Pointer to buckets in hash table*/
-  list_element *nonempty_bucket_index; /*!<List of non-empty buckets in hash table*/
+  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
+  dlist_element *nonempty_bucket_index; /*!<List of non-empty buckets in hash table*/
 } hash_table;
 
 
@@ -62,10 +62,10 @@ typedef struct {
  * Parameters used to iterate over hash table
  */
 typedef struct {
-  list_element **buckets; /*!<Pointer to buckets in hash table*/
-  list_element *bucket_index; /*!<Pointer to non-empty bucket index */
-  list_element *next_bucket_index; /*!<Pointer to next non-empty bucket index*/
-  list_element *element; /*!<Pointer to hash entries in a bucket*/
+  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
+  dlist_element *bucket_index; /*!<Pointer to non-empty bucket index */
+  dlist_element *next_bucket_index; /*!<Pointer to next non-empty bucket index*/
+  dlist_element *element; /*!<Pointer to hash entries in a bucket*/
 } hash_iterator;
 
 

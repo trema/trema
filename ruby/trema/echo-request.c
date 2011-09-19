@@ -109,7 +109,7 @@ echo_request_user_data( VALUE self ) {
   Data_Get_Struct( self, buffer, echo_request );
   if ( echo_request->length > sizeof( struct ofp_header ) ) {
     return rb_str_new( ( char * ) echo_request->data + sizeof( struct ofp_header ),
-                       echo_request->length - sizeof( struct ofp_header ) );
+                       ( long ) ( echo_request->length - sizeof( struct ofp_header ) ) );
   }
   return Qnil;
 }

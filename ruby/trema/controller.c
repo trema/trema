@@ -373,7 +373,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   uint32_t buffer_id = UINT32_MAX;
   uint16_t in_port = OFPP_NONE;
   openflow_actions *actions = create_actions();
-  buffer *data = NULL;
+  const buffer *data = NULL;
   buffer *allocated_data = NULL;
 
   if ( options != Qnil ) {

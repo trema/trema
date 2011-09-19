@@ -11,4 +11,5 @@ Feature: Send echo reply messages
       vswitch("echo_reply") { datapath_id "0xabc" }
       """
       And wait until "echo_reply" is up
+      And *** sleep 2 ***
     Then the log file "openflowd.echo_reply.log" should include "received: OFPT_ECHO_REPLY" x 10

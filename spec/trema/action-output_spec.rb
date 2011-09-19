@@ -63,6 +63,7 @@ describe ActionOutput do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionOutput.new( 1 ) )
+        sleep 2 # FIXME: wait to send_flow_mod_add
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /output:1/ )
       }
@@ -78,6 +79,7 @@ describe ActionOutput do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
           :actions => [ ActionOutput.new( 1 ), ActionOutput.new( 2 ) ] )
+        sleep 2 # FIXME: wait to send_flow_mod_add
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /output:1\/output:2/ )
       }

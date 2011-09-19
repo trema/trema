@@ -45,6 +45,7 @@ describe RepeaterHub do
       controller( "RepeaterHub" ).should_receive( :packet_in )
 
       send_packets "host1", "host2"
+      sleep 2 # FIXME: wait to send_packets
     end
 
 
@@ -52,6 +53,7 @@ describe RepeaterHub do
       controller( "RepeaterHub" ).should_receive( :send_flow_mod_add )
 
       send_packets "host1", "host2"
+      sleep 2 # FIXME: wait to send_packets
     end
 
 

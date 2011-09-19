@@ -94,6 +94,7 @@ class Network
   def trema_kill
     cleanup_current_session
     @th_controller.join if @th_controller
+    sleep 2  # FIXME: wait until switch_manager.down?
   end
 
 

@@ -41,9 +41,10 @@ describe BarrierRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
+        controller( "BarrierController" ).should_receive( :barrier_reply )
         barrier_request = BarrierRequest.new( 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
-        controller( "BarrierController" ).should_receive( :barrier_reply )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
@@ -55,12 +56,13 @@ describe BarrierRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        barrier_request = BarrierRequest.new( 1234 )
-        controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         controller( "BarrierController" ).should_receive( :barrier_reply ) do | message |
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234
         end
+        barrier_request = BarrierRequest.new( 1234 )
+        controller( "BarrierController" ).send_message( 0xabc, barrier_request )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end

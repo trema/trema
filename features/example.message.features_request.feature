@@ -8,9 +8,10 @@ Feature: Send a features request message
   Scenario: Send a features request 
     When I try trema run "./objects/examples/openflow_message/features_request" with following configuration (backgrounded):
       """
-      vswitch("features_request") { datapath_id "0xabc" }
+      vswitch( "features_request" ) { datapath_id "0xabc" }
       """
       And wait until "features_request" is up
+      And *** sleep 3 ***
       And I terminated all trema services
     Then the output should include:
     """
