@@ -42,6 +42,7 @@ describe BarrierRequest do
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
         barrier_request = BarrierRequest.new( 1234 )
+        sleep 1 # FIXME
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         sleep 2 # FIXME: wait to send_message
         controller( "BarrierController" ).should_receive( :barrier_reply )
@@ -57,6 +58,7 @@ describe BarrierRequest do
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
         barrier_request = BarrierRequest.new( 1234 )
+        sleep 1 # FIXME
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         sleep 2 # FIXME: wait to send_message
         controller( "BarrierController" ).should_receive( :barrier_reply ) do | message |

@@ -53,8 +53,8 @@ describe GetConfigRequest do
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( 1234 )
+        sleep 1 # FIXME
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
-        sleep 2 # FIXME: wait to send_message
         controller( "GetConfigController" ).should_receive( :get_config_reply )
       }
     end
@@ -66,6 +66,7 @@ describe GetConfigRequest do
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( 1234 )
+        sleep 1 # FIXME
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
         sleep 2 # FIXME: wait to send_message
         controller( "GetConfigController" ).should_receive( :get_config_reply ) do | message |
