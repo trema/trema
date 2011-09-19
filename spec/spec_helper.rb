@@ -87,13 +87,14 @@ class Network
     @th_controller = Thread.start do
       controller.run!
     end
-    sleep 3  # FIXME: wait until controller.up?
+    sleep 2  # FIXME: wait until controller.up?
   end
   
 
   def trema_kill
     cleanup_current_session
     @th_controller.join if @th_controller
+    sleep 2  # FIXME: wait until switch_manager.down?
   end
 
 
