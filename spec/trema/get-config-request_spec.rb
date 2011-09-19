@@ -54,6 +54,7 @@ describe GetConfigRequest do
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( 1234 )
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
+        sleep 2 # FIXME: wait to send_message
         controller( "GetConfigController" ).should_receive( :get_config_reply )
       }
     end
