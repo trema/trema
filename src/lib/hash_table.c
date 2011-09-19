@@ -18,33 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Hash table implementation
- *
- * Provides APIs through which various hash table related operations can be
- * performed. For example, creation, deletion and searching of data in a hash table.
- * @code 
- * // Create a hash table with default hash and compare function
- * hash_table *table = create_hash( NULL, NULL );
- *
- * // Insert key:value pairs into the created hash table
- * insert_hash_entry( table, "A", "Apple" );
- * insert_hash_entry( table, "B", "Bat" );
- * insert_hash_entry( table, "C", "Cat" );
- *
- * // Find some data
- * void *apple = lookup_hash_entry( table, "A" );
- * void *bat = lookup_hash_entry( table, "B" );
- * void *cat = lookup_hash_entry( table, "C" );
- *
- * // Delete the table
- * delete_hash( table );
- * @endcode
- */
-
-
 #include <assert.h>
 #include <pthread.h>
 #include <string.h>
@@ -92,8 +65,8 @@ hash_atom( const void *key ) {
 
 /**
  * Creates a hash table and initialize it to NULL.
- * @param compare Function Pointer to compare_function
- * @param hash Function Pointer to hash_function
+ * @param compare Function pointer to compare_function
+ * @param hash Function pointer to hash_function
  * @return hash_table* Pointer to created hash table
  */
 hash_table *
@@ -227,7 +200,7 @@ lookup_hash_entry( hash_table *table, const void *key ) {
 
 
 /**
- * Deletes an entry referred to by the key in the hash_table table.
+ * Deletes an entry referred to by the key in the hash table.
  * @param table Pointer to hash table from which element is to be deleted
  * @param key Pointer to element's key which is to be deleted
  * @return void* Pointer to data that was associated with the key, else NULL

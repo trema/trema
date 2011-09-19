@@ -22,7 +22,26 @@
 /**
  * @file 
  *
- * @brief Function declarations and type definitions of Hash table implementation
+ * @brief Hash table implementation
+ *
+ * Function declarations and type definitions of Hash table implementation
+ * @code
+ * // Create a hash table with default hash and compare function
+ * hash_table *table = create_hash( NULL, NULL );
+ *
+ * // Insert key:value pairs into the created hash table
+ * insert_hash_entry( table, "A", "Apple" );
+ * insert_hash_entry( table, "B", "Bat" );
+ * insert_hash_entry( table, "C", "Cat" );
+ *
+ * // Find some data
+ * void *apple = lookup_hash_entry( table, "A" );
+ * void *bat = lookup_hash_entry( table, "B" );
+ * void *cat = lookup_hash_entry( table, "C" );
+ *
+ * // Delete the table
+ * delete_hash( table );
+ * @endcode
  */
 
 #ifndef HASH_TABLE_H
