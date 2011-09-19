@@ -19,11 +19,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /**
  * @file
  *
- * @brief Contains types for defining a ARP packet
+ * @brief ARP type message handling Implementation
+ *
+ * File containing function declarations and type definitions for ARP type
+ * message handling Implementation.
+ * @code
+ * // Parses ARP header
+ * if ( !valid_arp_packet( buf ) ) {
+ * warn( "Failed to parse ARP header." );
+ * return false;
+ * @endcode
  */
 
 #ifndef ARP_H
@@ -37,8 +45,8 @@
 
 
 /**
- * ARP Header Specification
- * For protocol details, please refer RFC 826 at http://tools.ietf.org/html/rfc826
+ * ARP Header Specification.
+ * @see RFC 826 at http://tools.ietf.org/html/rfc826
  */
 typedef struct arp_header {
   uint16_t ar_hrd;

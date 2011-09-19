@@ -18,12 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Functions for handling ARP type messages
- */
-
 #include <assert.h>
 #include "log.h"
 #include "packet_info.h"
