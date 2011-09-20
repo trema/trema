@@ -79,6 +79,9 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
     }
   }
   echo_request = create_echo_request( xid, body );
+  if ( body != NULL ) {
+    free_buffer( body );
+  }
   return Data_Wrap_Struct( klass, NULL, free_buffer, echo_request );
 }
 
