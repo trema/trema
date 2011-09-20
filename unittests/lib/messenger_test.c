@@ -48,14 +48,6 @@ enum {
   MESSAGE_TYPE_REPLY,
 };
 
-typedef struct message_header {
-  uint8_t version;         // version = 0 (unused) 
-  uint8_t message_type;    // MESSAGE_TYPE_
-  uint16_t tag;            // user defined 
-  uint32_t message_length; // message length including header 
-  uint8_t  value[0];
-} message_header;
-
 typedef struct message_buffer {
   void *buffer;
   size_t data_length;
