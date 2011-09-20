@@ -54,7 +54,7 @@ relay_string( buffer *string ) {
   mdh->sent_time.nsec = htonl( ( uint32_t ) now.tv_nsec );
   mdh->app_name_length = htons( 0 );
   mdh->service_name_length = htons( service_name_length );
-  mdh->data_length = htonl( sizeof( text_dump_header ) + string->length + 1 );
+  mdh->data_length = htonl( ( uint32_t ) ( sizeof( text_dump_header ) + string->length + 1 ) );
   void *svn = append_back_buffer( buf, service_name_length );
   memcpy( svn, service_name, service_name_length );
   xfree( service_name );

@@ -56,7 +56,7 @@ relay_syslog_message( buffer *message ) {
   mdh->sent_time.nsec = htonl( ( uint32_t ) now.tv_nsec );
   mdh->app_name_length = htons( 0 );
   mdh->service_name_length = htons( service_name_length );
-  mdh->data_length = htonl( sizeof( syslog_dump_header ) + message->length );
+  mdh->data_length = htonl( ( uint32_t ) ( sizeof( syslog_dump_header ) + message->length ) );
   void *svn = append_back_buffer( buf, service_name_length );
   memcpy( svn, service_name, service_name_length );
   xfree( service_name );

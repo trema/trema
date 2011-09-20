@@ -56,7 +56,7 @@ handle_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *pac
   mdh->sent_time.nsec = htonl( ( uint32_t ) ( header->ts.tv_usec * 1000 ) );
   mdh->app_name_length = htons( app_name_length );
   mdh->service_name_length = htons( service_name_length );
-  mdh->data_length = htonl( sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr ) + header->caplen );
+  mdh->data_length = htonl( ( uint32_t ) ( sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr ) + header->caplen ) );
   void *apn = append_back_buffer( buf, app_name_length );
   memcpy( apn, app_name, app_name_length );
   void *svn = append_back_buffer( buf, service_name_length );
