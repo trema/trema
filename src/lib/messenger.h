@@ -24,6 +24,7 @@
 #define MESSENGER_H
 
 
+#include <net/if.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
@@ -34,6 +35,14 @@
 #define MESSENGER_SERVICE_NAME_LENGTH 32
 
 
+typedef struct message_header {
+  uint8_t version;         // version = 0 (unused)
+  uint8_t message_type;    // MESSAGE_TYPE_
+  uint16_t tag;            // user defined
+  uint32_t message_length; // message length including header
+  uint8_t value[ 0 ];
+} message_header;
+
 typedef struct messenger_context_handle {
   uint32_t transaction_id;
   uint16_t service_name_len;
@@ -41,13 +50,11 @@ typedef struct messenger_context_handle {
   char service_name[ 0 ];
 } messenger_context_handle;
 
-
 /* message dump format:
  * +-------------------+--------+------------+----+
  * |message_dump_header|app_name|service_name|data|
  * +-------------------+--------+------------+----+
  */
-
 typedef struct message_dump_header {
   struct {   // same as struct timespec but fixed length
     uint32_t sec;
@@ -68,7 +75,37 @@ enum {
   MESSENGER_DUMP_SEND_REFUSED,
   MESSENGER_DUMP_SEND_OVERFLOW,
   MESSENGER_DUMP_SEND_CLOSED,
+  MESSENGER_DUMP_LOGGER, 
+  MESSENGER_DUMP_PCAP,
+  MESSENGER_DUMP_SYSLOG,
+  MESSENGER_DUMP_TEXT,
 };
+
+typedef struct pcap_dump_header {
+  uint32_t datalink;
+  uint8_t interface[ IF_NAMESIZE ];
+} pcap_dump_header;
+
+typedef struct logger_dump_header {
+  struct {
+    uint32_t sec;
+    uint32_t nsec;
+  } sent_time;
+} logger_dump_header;
+
+typedef struct syslog_dump_header {
+  struct {
+    uint32_t sec;
+    uint32_t nsec;
+  } sent_time;
+} syslog_dump_header;
+
+typedef struct text_dump_header {
+  struct {
+    uint32_t sec;
+    uint32_t nsec;
+  } sent_time;
+} text_dump_header;
 
 
 typedef void ( *callback_message_received )( uint16_t tag, void *data, size_t len );

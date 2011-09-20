@@ -1,7 +1,5 @@
 /*
- * tremashark: A bridge for printing Trema IPC messages on Wireshark
- * 
- * Author: Yasunori Nakazawa
+ * Author: Yasunori Nakazawa, Yasunobu Chiba
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,51 +18,45 @@
  */
 
 
-#include <stdio.h>
 #include <assert.h>
-#include "linked_list.h"
+#include <pcap.h>
 #include "pcap_queue.h"
-#include "wrapper.h"
+#include "queue.h"
+#include "trema.h"
 
 
-#define QUEUE_LIMIT 4096
-
-
-static list_element *packet_queue = NULL;
-static uint16_t amount_of_packet = 0;
-
-
-void
-create_queue() {
-  assert( packet_queue == NULL );
-  assert( amount_of_packet == 0 );
-
-  create_list( &packet_queue );
-  return;
-}
+static int QUEUE_LIMIT = 4096;
+static queue *packet_queue = NULL;
 
 
 bool
-delete_queue() {
-  buffer *p;
+create_pcap_queue( void ) {
+  assert( packet_queue == NULL );
 
-  while ( amount_of_packet > 0 ) {
-    pop_pcap_packet( &p );
-    delete_pcap_packet( p );
+  packet_queue = create_queue();
+  if ( packet_queue == NULL ) {
+    return false;
   }
-
-  delete_list( packet_queue );
-  packet_queue = NULL;
-  amount_of_packet = 0;
 
   return true;
 }
 
 
-buffer*
-create_pcap_packet( void* pcap_header, size_t pcap_len,
-               void* dump_header, size_t dump_len,
-               void* data, size_t data_len ) {
+bool
+delete_pcap_queue( void ) {
+  assert( packet_queue != NULL );
+
+  bool ret = delete_queue( packet_queue );
+  if ( !ret ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+buffer *
+create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_t dump_len, void* data, size_t data_len ) {
   size_t length = pcap_len + dump_len + data_len;
   assert( length != 0 );
   assert( pcap_header != NULL && dump_header != NULL );
@@ -99,49 +91,92 @@ delete_pcap_packet( buffer *packet ) {
   assert( packet != NULL );
   
   free_buffer( packet );
+
   return true;
 }
 
 
-queue_return
-push_pcap_packet( buffer *packet ) {
-  if ( amount_of_packet >= QUEUE_LIMIT ) {
+queue_status
+enqueue_pcap_packet( buffer *packet ) {
+  if ( packet_queue->length >= QUEUE_LIMIT ) {
     return QUEUE_FULL;
   }
 
-  append_to_tail( &packet_queue, packet );
-  amount_of_packet++;
+  enqueue( packet_queue, packet );
 
   return QUEUE_SUCCESS;
 }
 
 
-queue_return
-push_pcap_packet_in_front( buffer *packet ) {
-  if ( amount_of_packet >= QUEUE_LIMIT ) {
-    return QUEUE_FULL;
-  }
-
-  insert_in_front( &packet_queue, packet );
-  amount_of_packet++;
-  
-  return QUEUE_SUCCESS;
-}
-
-
-queue_return
-pop_pcap_packet( buffer **packet ) {
+queue_status
+peek_pcap_packet( buffer **packet ) {
   assert( packet != NULL );
 
   if ( packet_queue == NULL ) {
     return QUEUE_EMPTY;
   }
 
-  *packet = packet_queue->data;
-  delete_element( &packet_queue, *packet );
-  amount_of_packet--;
+  *packet = peek( packet_queue );
+  if ( *packet == NULL ) {
+    return QUEUE_EMPTY;
+  }
 
   return QUEUE_SUCCESS;
+}
+
+
+queue_status
+dequeue_pcap_packet( buffer **packet ) {
+  assert( packet != NULL );
+
+  if ( packet_queue == NULL ) {
+    return QUEUE_EMPTY;
+  }
+
+  *packet = dequeue( packet_queue );
+  if ( *packet == NULL ) {
+    return QUEUE_EMPTY;
+  }
+
+  return QUEUE_SUCCESS;
+}
+
+
+static bool
+compare_timestamp( const buffer *x, const buffer *y ) {
+  struct pcap_pkthdr *px = x->data;
+  struct pcap_pkthdr *py = y->data;
+
+  if ( ( px->ts.tv_sec > py->ts.tv_sec ) ||
+       ( px->ts.tv_sec == py->ts.tv_sec && px->ts.tv_usec > py->ts.tv_usec ) ) {
+    return true;
+  }
+
+  return false;
+}
+
+
+bool
+sort_pcap_queue( void ) {
+  assert( packet_queue != NULL );
+
+  return sort_queue( packet_queue, compare_timestamp );
+}
+
+
+void
+set_max_pcap_queue_length( int length ) {
+  assert( length >= 0 );
+
+  QUEUE_LIMIT = length;
+}
+
+
+int
+get_pcap_queue_length( void ) {
+  assert( packet_queue != NULL );
+
+  return packet_queue->length;
 }
 
 

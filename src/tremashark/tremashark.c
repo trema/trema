@@ -1,5 +1,5 @@
 /*
- * tremashark: A bridge for printing Trema IPC messages on Wireshark
+ * tremashark: A bridge for printing various events on Wireshark
  * 
  * Author: Yasunobu Chiba, Yasunori Nakazawa
  *
@@ -37,14 +37,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "trema.h"
-#include "buffer.h"
 #include "pcap_queue.h"
 
 
 #define FIFO_NAME "tremashark"
 #define WIRESHARK "wireshark"
 #define TSHARK "tshark"
-#define FLUSH_INTERVAL 100000  // nano seconds
+#define FLUSH_INTERVAL 500000000 // nanoseconds
+#define MESSAGE_BUFFER_LENGTH 100000 // microseconds
 
 #define WRITE_SUCCESS 0
 #define WRITE_BUSY 1
@@ -56,13 +56,16 @@ static char pcap_file_pathname[ PATH_MAX ];
 static bool output_to_pcap_file = false;
 static bool launch_wireshark = true;
 static bool launch_tshark = false;
+static bool trust_remote_clocks = true;
+static bool use_circular_buffer = false;
+static int circular_buffer_length = 1024;
 static int outfile_fd = -1;
 static uint64_t total = 0;
 static uint64_t lost = 0;
 
 
 // Special purpose header for telling extra information to wireshark
-typedef struct message_pcap_dump_header {
+typedef struct {
   uint16_t dump_type;
   struct {
     uint32_t sec;
@@ -74,16 +77,6 @@ typedef struct message_pcap_dump_header {
 } __attribute__( ( packed ) ) message_pcap_dump_header;
 
 
-// Structure defined in messenger.c
-typedef struct message_header {
-  uint8_t version;         // version = 0 (unused)
-  uint8_t message_type;    // MESSAGE_TYPE_
-  uint16_t tag;            // user defined
-  uint32_t message_length; // message length including header
-  uint8_t value[ 0 ];
-} message_header;
-
-
 static void
 init_fifo_pathname() {
   assert( strlen( get_trema_tmp() ) + strlen( FIFO_NAME ) + 1 <= PATH_MAX );
@@ -92,13 +85,9 @@ init_fifo_pathname() {
 }
 
 
-/**
- *  Write message to file.
- *  If it failed in writing whole message, param "packet" might be updated for remained.
- */
 static int
 write_to_file( buffer *packet ) {
-  assert( packet != NULL && packet->data != NULL && packet->length != 0 );
+  assert( packet != NULL && packet->data != NULL && packet->length > 0 );
   assert( outfile_fd >= 0 );
 
   ssize_t ret = write( outfile_fd, packet->data, packet->length );
@@ -107,8 +96,7 @@ write_to_file( buffer *packet ) {
     if ( err == EAGAIN || err == EWOULDBLOCK ) {
       return WRITE_BUSY;
     }
-    
-    error( "write error. errno = %d\n", err );
+    error( "write error ( errno = %s [%d] ).", strerror( err), err );
     return WRITE_ERROR;
   }
 
@@ -117,25 +105,24 @@ write_to_file( buffer *packet ) {
     packet->length = packet->length - ( unsigned int ) ret;
     return WRITE_BUSY;
   }
+
   return WRITE_SUCCESS;
 }
 
 
-/**
- *  callback function to receive message from messenger.
- */
 static void
 dump_message( uint16_t tag, void *data, size_t len ) {
   char *app_name, *service_name;
   const char *type_str[] = { "sent", "received", "recv-connected", "recv-overflow", "recv-closed",
-                             "send-connected", "send-refused", "send-overflow", "send-closed" };
+                             "send-connected", "send-refused", "send-overflow", "send-closed",
+                             "logger", "pcap", "syslog", "text" };
   size_t pcap_dump_header_length;
   struct pcap_pkthdr pcap_header;
   message_dump_header *dump_hdr;
   message_pcap_dump_header *pcap_dump_hdr;
   message_header *hdr;
   buffer *packet;
-  queue_return ret;
+  queue_status status;
 
   assert( outfile_fd >= 0 );
 
@@ -145,16 +132,15 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   service_name = app_name + ntohs( dump_hdr->app_name_length );
   hdr = ( message_header * ) ( service_name + ntohs( dump_hdr->service_name_length ) );
 
-  debug( "app: %s type: %s service_name: %s",
-         app_name, type_str[ tag ], service_name );
+  debug( "app: %s type: %s service_name: %s", app_name, type_str[ tag ], service_name );
 
   if ( ntohl( dump_hdr->data_length ) > 0 ) {
     debug( "message type: %d, length: %u", tag, ntohl( dump_hdr->data_length ) );
   }
 
   size_t dump_header_length = ( sizeof( message_dump_header ) +
-                                 ntohs( dump_hdr->app_name_length ) +
-                                 ntohs( dump_hdr->service_name_length ) );
+                                ntohs( dump_hdr->app_name_length ) +
+                                ntohs( dump_hdr->service_name_length ) );
 
   pcap_dump_header_length = ( sizeof( message_pcap_dump_header ) +
                               ntohs( dump_hdr->app_name_length ) +
@@ -170,12 +156,20 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   pcap_dump_hdr->data_len = dump_hdr->data_length;
 
   char *pcap_dump_app_name = ( char * ) ( pcap_dump_hdr + 1 );
-  char *pcap_dump_service_name = pcap_dump_app_name + ntohs( pcap_dump_hdr->app_name_len );
   memcpy( pcap_dump_app_name, app_name, ntohs( pcap_dump_hdr->app_name_len ) );
-  memcpy( pcap_dump_service_name, service_name, ntohs( pcap_dump_hdr->service_name_len ) );
+  if ( ntohs( pcap_dump_hdr->service_name_len ) > 0 ) {
+    char *pcap_dump_service_name = pcap_dump_app_name + ntohs( pcap_dump_hdr->app_name_len );
+    memcpy( pcap_dump_service_name, service_name, ntohs( pcap_dump_hdr->service_name_len ) );
+  }
 
   memset( &pcap_header, 0, sizeof( struct pcap_pkthdr ) );
-  gettimeofday( &pcap_header.ts, NULL );
+  if ( trust_remote_clocks ) {
+    pcap_header.ts.tv_sec = ( time_t ) ntohl( dump_hdr->sent_time.sec );
+    pcap_header.ts.tv_usec = ( suseconds_t ) ( ntohl( dump_hdr->sent_time.nsec ) / 1000 );
+  }
+  else {
+    gettimeofday( &pcap_header.ts, NULL );
+  }
 
   len -= dump_header_length;
 
@@ -185,46 +179,69 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr ),
                                pcap_dump_hdr, pcap_dump_header_length,
                                hdr, ntohl( pcap_dump_hdr->data_len ) );
-  ret = push_pcap_packet( packet );
-  if ( ret == QUEUE_FULL ) {
-    error( "tremashark queue is full. packet is discarded.\n" );
+
+  xfree( pcap_dump_hdr );
+
+  if ( use_circular_buffer ) {
+    buffer *dummy;
+    while ( get_pcap_queue_length() >= circular_buffer_length ) {
+      dummy = NULL;
+      dequeue_pcap_packet( &dummy );
+      if ( dummy != NULL ) {
+        delete_pcap_packet( dummy );
+      }
+    }
+  }
+
+  status = enqueue_pcap_packet( packet );
+  if ( status == QUEUE_FULL ) {
+    warn( "tremashark queue is full. packet is discarded." );
     delete_pcap_packet( packet );
     lost++;
   }
   total++;
-
-  fsync( outfile_fd );
-
-  xfree( pcap_dump_hdr );
 }
 
 
-/**
- *  callback function to write pcap packets.
- */
 static void
 write_pcap_packet( void *user_data ) {
   UNUSED( user_data );
 
+  sort_pcap_queue();
+
+  struct timeval now;
+  gettimeofday( &now, NULL );
+  struct timeval buffer_length;
+  buffer_length.tv_sec = 0;
+  buffer_length.tv_usec = MESSAGE_BUFFER_LENGTH;
+  struct timeval threshold;
+
+  timersub( &now, &buffer_length, &threshold );
+
   for ( ; ; ) {
     buffer *packet;
-    queue_return q_ret = pop_pcap_packet( &packet );
-    if ( q_ret == QUEUE_EMPTY ) {
+    queue_status status = peek_pcap_packet( &packet );
+    if ( status == QUEUE_EMPTY ) {
+      break;
+    }
+
+    struct pcap_pkthdr *p = packet->data;
+    if ( ( p->ts.tv_sec > threshold.tv_sec ) ||
+         ( p->ts.tv_sec == threshold.tv_sec && p->ts.tv_usec > threshold.tv_usec ) ) {
       break;
     }
 
     int ret = write_to_file( packet );
     switch ( ret ) {
     case WRITE_SUCCESS:
-      delete_pcap_packet( packet );
+      status = dequeue_pcap_packet( &packet );
+      if ( status == QUEUE_SUCCESS && packet != NULL ) {
+        delete_pcap_packet( packet );
+      }
       break;
 
     case WRITE_BUSY:
-      push_pcap_packet_in_front( packet );
-      return;
-
     case WRITE_ERROR:
-      push_pcap_packet_in_front( packet );
       return;
 
     default:
@@ -232,12 +249,53 @@ write_pcap_packet( void *user_data ) {
     }
   }
 
+  fsync( outfile_fd );
+
   return;
 }
 
 
 static void
+write_circular_buffer( void ) {
+  sort_pcap_queue();
+
+  buffer *packet = NULL;
+  for ( ; ; ) {
+    packet = NULL;
+    dequeue_pcap_packet( &packet );
+    if ( packet == NULL ) {
+      break;
+    }
+
+    int ret = write_to_file( packet );
+    delete_pcap_packet( packet );
+    if ( ret != WRITE_SUCCESS ) {
+      break;
+    }
+  }
+
+  fsync( outfile_fd );
+
+  return;
+}
+
+
+static void
+set_signal_handler( void ) {
+  // Note that this overrides a default signal handler set by Trema.
+  struct sigaction signal_usr2;
+  memset( &signal_usr2, 0, sizeof( struct sigaction ) );
+  signal_usr2.sa_handler = ( void * ) write_circular_buffer;
+  sigaction( SIGUSR2, &signal_usr2, NULL );
+}
+
+
+static void
 set_timer_event() {
+  if ( use_circular_buffer ) {
+    return;
+  }
+
   struct itimerspec interval;
 
   interval.it_value.tv_sec = 0;
@@ -335,36 +393,45 @@ start_wireshark() {
 }
 
 
-static void
-print_usage_and_exit() {
-  fprintf( stderr, "Usage: tremashark [-p] [-t] [-w filename] [-s SERVICE_NAME]\n" );
-  fprintf( stderr, "  Options:\n" );
-  fprintf( stderr, "    -p: do not launch wireshark or tshark\n" );
-  fprintf( stderr, "    -t: launch tshark instead of wireshark\n" );
-  fprintf( stderr, "    -w: save messages to a pcap file\n" );
-  fprintf( stderr, "    -s: specify service name\n" );
-  exit( -1 );
+void
+usage( void ) {
+  printf(
+    "Usage: tremashark [OPTION]...\n"
+    "\n"
+    "  -t                          launch tshark instead of wireshark\n"
+    "  -w FILE_TO_SAVE             save messages to pcap file\n"
+    "  -p                          do not launch wireshark nor tshark\n"
+    "  -r                          do not trust remote clock\n"
+    "  -c [NUMBER_OF_MESSAGES]     save messages to circular buffer\n"
+    "  -s DUMP_SERVICE_NAME        dump service name\n"
+    "  -n, --name=SERVICE_NAME     service name\n"
+    "  -d, --daemonize             run in the background\n"
+    "  -l, --logging_level=LEVEL   set logging level\n"
+    "  -h, --help                  display this help and exit\n"
+  );
 }
 
 
-int
-main( int argc, char *argv[] ) {
+static void
+print_usage_and_exit( void ) {
+  usage();
+  exit( EXIT_FAILURE );
+}
+
+
+static void
+parse_options( int *argc, char **argv[] ) {
   char *service_name = NULL;
   int opt;
 
-  init_fifo_pathname();
+  while ( 1 ) {
+    opt = getopt( *argc, *argv, "c:s:tw:p" );
 
-  // Initialize the Trema world
-  init_trema( &argc, &argv );
-
-  while( 1 ) {
-    opt = getopt( argc, argv, "s:tw:p" );
-
-    if( opt < 0 ){
+    if ( opt < 0 ) {
       break;
     }
 
-    switch ( opt ){
+    switch ( opt ) {
     case 'p':
       launch_wireshark = false;
       launch_tshark = false;
@@ -375,8 +442,12 @@ main( int argc, char *argv[] ) {
       launch_tshark = true;
       break;
 
+    case 'r':
+      trust_remote_clocks = false;
+      break;
+
     case 's':
-      if( optarg && service_name == NULL ){
+      if ( optarg && service_name == NULL ) {
         service_name = xmalloc( strlen( optarg ) + 1 );
         strcpy( service_name, optarg );
       }
@@ -386,7 +457,7 @@ main( int argc, char *argv[] ) {
       break;
 
     case 'w':
-      if( optarg ){
+      if ( optarg ) {
         // Save packets to a pcap file
         strncpy( pcap_file_pathname, optarg, PATH_MAX );
         output_to_pcap_file = true;
@@ -398,9 +469,30 @@ main( int argc, char *argv[] ) {
       }
       break;
 
+    case 'c':
+      use_circular_buffer = true;
+      launch_wireshark = false;
+      launch_tshark = false;
+      if ( optarg ) {
+        int n = atoi( optarg );
+        if ( n > 0 ) {
+          circular_buffer_length = n;
+          set_max_pcap_queue_length( circular_buffer_length );
+        }
+        else {
+          print_usage_and_exit();
+        }
+      }
+      break;
+
     default:
       print_usage_and_exit();
     }
+  }
+
+  if ( use_circular_buffer && !output_to_pcap_file ) {
+    printf( "-w FILE_NAME option must be specified in conjunction with -c.\n" );
+    print_usage_and_exit();
   }
 
   // Set an event handler
@@ -411,9 +503,18 @@ main( int argc, char *argv[] ) {
     add_message_received_callback( service_name, dump_message );
     xfree( service_name );
   }
+}
 
-  // create queue for storing pcap packet
-  create_queue();
+
+int
+main( int argc, char *argv[] ) {
+  // Initialize the Trema world
+  init_trema( &argc, &argv );
+  parse_options( &argc, &argv );
+  init_fifo_pathname();
+
+  // create queue for storing pcap packets
+  create_pcap_queue();
 
   // Initialize an interface to wireshark
   init_pcap();
@@ -421,18 +522,21 @@ main( int argc, char *argv[] ) {
   // Start wireshark/tshark if necessary
   start_wireshark();
 
-  // start timer event to write packet
+  // Set timer event to write packet
   set_timer_event();
-  
+
+  // Set signal handler to dump circular buffer
+  set_signal_handler();
+
   // Main loop
   start_trema();
 
   // Cleanup
   finalize_pcap();
-  delete_queue();
+  delete_pcap_queue();
 
   if ( lost > 0 ) {
-    error( "%" PRIu64 "/%" PRIu64 " messages lost.", lost, total );
+    warn( "%" PRIu64 "/%" PRIu64 " messages lost.", lost, total );
   }
 
   return 0;

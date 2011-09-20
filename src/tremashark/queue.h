@@ -1,7 +1,7 @@
 /*
- * Queue implementation for keeping pcap formatted packets.
- * 
- * Author: Yasunori Nakazawa, Yasunobu Chiba
+ * Queue implementation.
+ *
+ * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,33 +20,35 @@
  */
 
 
-#ifndef PCAP_QUEUE_H
-#define PCAP_QUEUE_H
+#ifndef QUEUE_H
+#define QUEUE_H
 
 
 #include "trema.h"
 
 
-typedef enum {
-  QUEUE_SUCCESS,
-  QUEUE_FULL,
-  QUEUE_EMPTY
-} queue_status;
+typedef struct queue_element {
+  buffer *data;
+  struct queue_element *next;
+} queue_element;
+
+typedef struct queue {
+  queue_element *head;
+  queue_element *divider;
+  queue_element *tail;
+  int length;
+} queue;
 
 
-bool create_pcap_queue( void );
-bool delete_pcap_queue( void );
-buffer* create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_t dump_len, void* data, size_t data_len );
-bool delete_pcap_packet( buffer *packet );
-queue_status enqueue_pcap_packet( buffer *packet );
-queue_status peek_pcap_packet( buffer **packet );
-queue_status dequeue_pcap_packet( buffer **packet );
-bool sort_pcap_queue( void );
-void set_max_pcap_queue_length( int length );
-int get_pcap_queue_length( void );
+queue *create_queue( void );
+bool delete_queue( queue *queue );
+bool enqueue( queue *queue, buffer *data );
+buffer *dequeue( queue *queue );
+buffer *peek( queue *queue );
+bool sort_queue( queue *queue, bool compare( const buffer *x, const buffer *y ) );
 
 
-#endif // PCAP_QUEUE_H
+#endif // QUEUE_H
 
 
 /*

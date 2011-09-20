@@ -29,6 +29,21 @@ class Trema::Executables
   end
 
 
+  def self.packet_capture
+    File.join Trema.objects, "tremashark/packet_capture"
+  end
+
+
+  def self.syslog_relay
+    File.join Trema.objects, "tremashark/syslog_relay"
+  end
+
+
+  def self.stdin_relay
+    File.join Trema.objects, "tremashark/stdin_relay"
+  end
+
+
   def self.switch_manager
     File.join Trema.objects, "switch_manager/switch_manager"
   end

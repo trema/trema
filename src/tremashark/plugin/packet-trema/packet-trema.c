@@ -33,6 +33,7 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
+#include <pcap/pcap.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include "trema.h"
@@ -43,6 +44,8 @@
 
 #define NO_STRINGS NULL
 #define NO_MASK 0x0
+
+#define UDP_PORT_SYSLOG 514
 
 
 // Macro for debug use
@@ -68,15 +71,6 @@ typedef struct message_pcap_dump_header {
   uint32_t data_len;
 }  __attribute__( ( packed ) ) message_pcap_dump_header;
 
-// Structure and enum definitions defined in messenger.c
-typedef struct message_header {
-  uint8_t version;         // version = 0 (unused)
-  uint8_t message_type;    // MESSAGE_TYPE_
-  uint16_t tag;            // user defined
-  uint32_t message_length; // message length including header
-  uint8_t value[ 0 ];
-} message_header;
-
 typedef struct stream_id {
   gchar *app_name;
   guint16 app_name_length;
@@ -101,8 +95,23 @@ typedef struct packet_status_info {
 } packet_status_info;
 
 
-// Try to find the OpenFlow dissector to dissect encapsulated OpenFlow message
-static dissector_handle_t data_openflow;
+// OpenFlow dissector
+static dissector_handle_t openflow_handle = NULL;
+
+// Ethernet dissector
+static dissector_handle_t ethernet_handle = NULL;
+
+// PPP dissector
+static dissector_handle_t ppp_handle = NULL;
+
+// IPv4 dissector
+static dissector_handle_t ip_handle = NULL;
+
+// Linux SLL dissector table
+static dissector_table_t sll_dissector_table = NULL;
+
+// UDP dissector table
+static dissector_table_t udp_dissector_table = NULL;
 
 // Fragment tables
 static GHashTable *trema_fragment_table = NULL;
@@ -134,6 +143,19 @@ static gint hf_service_name_length = -1;
 static gint hf_service_name = -1;
 static gint hf_transaction_id = -1;
 static gint hf_hex_dump = -1;
+static gint hf_pcap_dump_header = -1;
+static gint hf_pcap_dump_datalink = -1;
+static gint hf_pcap_dump_interface = -1;
+static gint hf_pcap_pkthdr = -1;
+static gint hf_pcap_pkthdr_ts = -1;
+static gint hf_pcap_pkthdr_caplen = -1;
+static gint hf_pcap_pkthdr_len = -1;
+static gint hf_syslog_dump_header = -1;
+static gint hf_syslog_dump_receive_time = -1;
+static gint hf_syslog_dump_message = -1;
+static gint hf_text_dump_header = -1;
+static gint hf_text_dump_receive_time = -1;
+static gint hf_text_dump_string = -1;
 
 // Subtrees
 static gint ett_trema = -1;
@@ -141,6 +163,10 @@ static gint ett_dump_header = -1;
 static gint ett_message_header = -1;
 static gint ett_service_header = -1;
 static gint ett_context_handle = -1;
+static gint ett_pcap_dump_header = -1;
+static gint ett_pcap_pkthdr = -1;
+static gint ett_syslog_dump_header = -1;
+static gint ett_text_dump_header = -1;
 
 // Fragment subtrees
 static gint ett_trema_fragment = -1;
@@ -180,6 +206,10 @@ static const value_string names_dump_type[] = {
   { MESSENGER_DUMP_SEND_REFUSED, "Send Refused" },
   { MESSENGER_DUMP_SEND_OVERFLOW, "Send Overflow" },
   { MESSENGER_DUMP_SEND_CLOSED, "Send Closed" },
+  { MESSENGER_DUMP_LOGGER, "Log Message" },
+  { MESSENGER_DUMP_PCAP, "Packet Capture" },
+  { MESSENGER_DUMP_SYSLOG, "Syslog" },
+  { MESSENGER_DUMP_TEXT, "Text" },
   { 0, NULL },
 };
 
@@ -195,6 +225,15 @@ static const value_string names_service_tag[] = {
   { MESSENGER_OPENFLOW_CONNECTED, "Switch Connected" },
   { MESSENGER_OPENFLOW_READY, "Switch Ready" },
   { MESSENGER_OPENFLOW_DISCONNECTED, "Switch Disconnected" },
+  { 0, NULL },
+};
+
+// Names to bind to various datalink type values
+static const value_string names_datalink_type[] = {
+  { DLT_EN10MB, "Ethernet (10Mb)" },
+  { DLT_PPP, "Point-to-point protocol" },
+  { DLT_RAW, "Raw IP" },
+  { DLT_LINUX_SLL, "Linux cooked sockets" },
   { 0, NULL },
 };
 
@@ -744,7 +783,7 @@ init_trema_fragment() {
 
 
 static gint
-dissect_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
+dissect_message_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree, guint16 *dump_type ) {
   /*
     +------------------------+--------+------------+----+
     |message_pcap_dump_header|app_name|service_name|data|
@@ -764,13 +803,13 @@ dissect_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_t
 
   gchar *src, *dst;
   gint offset = 0;
-  guint16 dump_type = tvb_get_ntohs( tvb, 0 );
+  *dump_type = tvb_get_ntohs( tvb, 0 );
   guint16 app_name_len = tvb_get_ntohs( tvb, offsetof( message_pcap_dump_header, app_name_len ) );
   guint16 service_name_len = tvb_get_ntohs( tvb, offsetof( message_pcap_dump_header, service_name_len ) );
 
   if ( check_col( pinfo->cinfo, COL_DEF_SRC ) ) {
     src = tvb_format_text( tvb, sizeof( message_pcap_dump_header ), app_name_len - 1 );
-    if ( dump_type != MESSENGER_DUMP_RECEIVED ) {
+    if ( *dump_type != MESSENGER_DUMP_RECEIVED ) {
       col_add_str( pinfo->cinfo, COL_DEF_SRC, src );
     }
   }
@@ -780,14 +819,45 @@ dissect_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_t
     col_add_str( pinfo->cinfo, COL_DEF_DST, dst );
   }
 
-  if( check_col( pinfo->cinfo, COL_INFO ) ) {
-    if ( g_strcasecmp( src, dst ) == 0 ) {
-      col_add_fstr( pinfo->cinfo, COL_INFO, "%s (%s)",
-                    src, names_dump_type[ dump_type ].strptr );
-    }
-    else {
-      col_add_fstr( pinfo->cinfo, COL_INFO, "%s > %s (%s)",
-                    src, dst, names_dump_type[ dump_type ].strptr );
+  if ( check_col( pinfo->cinfo, COL_INFO ) ) {
+    switch ( *dump_type ) {
+      case MESSENGER_DUMP_SENT:
+      case MESSENGER_DUMP_RECEIVED:
+      case MESSENGER_DUMP_RECV_CONNECTED:
+      case MESSENGER_DUMP_RECV_OVERFLOW:
+      case MESSENGER_DUMP_RECV_CLOSED:
+      case MESSENGER_DUMP_SEND_CONNECTED:
+      case MESSENGER_DUMP_SEND_REFUSED:
+      case MESSENGER_DUMP_SEND_OVERFLOW:
+      case MESSENGER_DUMP_SEND_CLOSED:
+      {
+        if ( g_strcasecmp( src, dst ) == 0 ) {
+          col_add_fstr( pinfo->cinfo, COL_INFO, "%s (%s)",
+                        src, names_dump_type[ *dump_type ].strptr );
+        }
+        else {
+          col_add_fstr( pinfo->cinfo, COL_INFO, "%s > %s (%s)",
+                        src, dst, names_dump_type[ *dump_type ].strptr );
+        }
+      }
+      break;
+
+      case MESSENGER_DUMP_PCAP:
+      {
+        col_add_fstr( pinfo->cinfo, COL_INFO, "%s (%s)",
+                      src, names_dump_type[ *dump_type ].strptr );
+      }
+      break;
+
+      case MESSENGER_DUMP_LOGGER:
+      case MESSENGER_DUMP_SYSLOG:
+      case MESSENGER_DUMP_TEXT:
+      {
+        col_add_fstr( pinfo->cinfo, COL_INFO, "(%s)", names_dump_type[ *dump_type ].strptr );
+      }
+      break;
+      default:
+      break;
     }
   }
 
@@ -808,16 +878,22 @@ dissect_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_t
     proto_tree_add_time( dump_header_tree, hf_dump_event_time, tvb, offset, 8, &sent_time );
     offset += 8;
     proto_tree_add_item( dump_header_tree, hf_dump_app_name_length, tvb, offset, 2, FALSE );
+    guint16 app_name_len = tvb_get_ntohs( tvb, offset );
     offset += 2;
     proto_tree_add_item( dump_header_tree, hf_dump_service_name_length, tvb, offset, 2, FALSE );
+    guint16 service_name_len = tvb_get_ntohs( tvb, offset );
     offset += 2;
     proto_tree_add_item( dump_header_tree, hf_dump_data_length, tvb, offset, 4, FALSE );
     offset += 4;
 
-    proto_tree_add_item( trema_tree, hf_dump_app_name, tvb, offset, app_name_len, FALSE );
-    offset += app_name_len;
-    proto_tree_add_item( trema_tree, hf_dump_service_name, tvb, offset, service_name_len, FALSE );
-    offset += service_name_len;
+    if ( app_name_len > 0 ) {
+      proto_tree_add_item( trema_tree, hf_dump_app_name, tvb, offset, app_name_len, FALSE );
+      offset += app_name_len;
+    }
+    if ( service_name_len > 0 ) {
+      proto_tree_add_item( trema_tree, hf_dump_service_name, tvb, offset, service_name_len, FALSE );
+      offset += service_name_len;
+    }
   }
 
   return offset;
@@ -854,7 +930,7 @@ dissect_openflow_service_header( tvbuff_t *tvb, gint offset, proto_tree *trema_t
 
 static void
 dissect_openflow( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
-  if ( data_openflow ) {
+  if ( openflow_handle != NULL ) {
     if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
       col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
     }
@@ -866,7 +942,7 @@ dissect_openflow( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
     col_set_fence( pinfo->cinfo, COL_PROTOCOL );
     col_set_fence( pinfo->cinfo, COL_INFO );
 
-    call_dissector( data_openflow, tvb, pinfo, trema_tree );
+    call_dissector( openflow_handle, tvb, pinfo, trema_tree );
   }
   else {
     // FIXME: do something here...
@@ -912,7 +988,9 @@ dissect_message_dump( tvbuff_t *tvb, gint offset, proto_tree *trema_tree ) {
 
   PRINTF( "dissect_message_dump()\n" );
 
-  proto_tree_add_item( trema_tree, hf_hex_dump, tvb, offset, length, FALSE );
+  if ( length > 0 ) {
+    proto_tree_add_item( trema_tree, hf_hex_dump, tvb, offset, length, FALSE );
+  }
 
   return length;
 }
@@ -978,7 +1056,7 @@ dissect_message_header( tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tr
          tag <= MESSENGER_OPENFLOW_DISCONNECTED ) {
       offset += dissect_openflow_service_header( tvb, offset, trema_tree );
 
-      if ( tag == MESSENGER_OPENFLOW_MESSAGE && data_openflow ) {
+      if ( tag == MESSENGER_OPENFLOW_MESSAGE && openflow_handle != NULL ) {
         guint16 total_len = tvb_reported_length_remaining( tvb, offset );
         if ( total_len > 0 ) {
           tvbuff_t *next_tvb = tvb_new_subset( tvb, offset, -1, total_len );
@@ -1003,44 +1081,11 @@ dissect_message_header( tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tr
 
 
 static void
-dissect_trema( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  gboolean visited = TRUE;
-  gint offset = 0;
+dissect_trema_ipc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *trema_tree,
+                   gint offset, gboolean visited, stream_id *stream_name ) {
   gint remaining_length = 0;
-  proto_tree *trema_tree = NULL;
-  proto_item *ti = NULL;
   tvbuff_t *messages_tvb;
   tvbuff_t *next_tvb;
-  stream_id names;
-  stream_id *stream_name = &names;
-
-  PRINTF( "----- start %u\n", pinfo->fd->num );
-  
-  if ( tree == NULL ) {   // TODO: is this OK?
-    PRINTF( "----- end %u  (tree is NULL)\n", pinfo->fd->num );
-    return;
-  }
-  
-  if ( check_packet_status( pinfo->fd->num ) == FALSE ) {
-    visited = FALSE;
-    update_packet_status( pinfo->fd->num, 0 );
-  }
-
-  if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
-    col_set_str( pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_TREMA );
-  }
-
-  ti = proto_tree_add_item( tree, proto_trema, tvb, 0, -1, FALSE );
-  trema_tree = proto_item_add_subtree( ti, ett_trema );
-
-  get_stream_id( tvb, stream_name );
-  PRINTF( " app [%s]  service [%s]\n", stream_name->app_name, stream_name->service_name );
-
-  offset = dissect_pcap_dump_header( tvb, pinfo, trema_tree );
-  if ( tvb_length_remaining( tvb, offset ) <= 0 ) {
-    PRINTF( "----- end %u  (message_pcap_dump_header only)\n", pinfo->fd->num );
-    return;
-  }
 
   if ( visited ) {
     packet_status_info *packet_status = NULL;
@@ -1148,15 +1193,296 @@ dissect_trema( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
     remaining_length = tvb_length_remaining( messages_tvb, offset );
   } // end of while
+}
+
+
+static gint
+dissect_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree, gint offset, guint32 *datalink ) {
+  /*
+    typedef struct pcap_dump_header {
+      uint32_t datalink;
+      uint8_t interface[ IF_NAMESIZE ];
+    } pcap_dump_header;
+  */
+  gint head = offset;
+
+  *datalink = tvb_get_ntohl( tvb, offset );
+
+  if ( trema_tree != NULL ) {
+    proto_tree *pcap_dump_header_tree = NULL;
+    proto_item *ti = NULL;
+
+    ti = proto_tree_add_item( trema_tree, hf_pcap_dump_header, tvb, offset, sizeof( pcap_dump_header ), FALSE );
+    pcap_dump_header_tree = proto_item_add_subtree( ti, ett_pcap_dump_header );
+
+    proto_tree_add_item( pcap_dump_header_tree, hf_pcap_dump_datalink, tvb, offset, 4, FALSE );
+    offset += 4;
+    proto_tree_add_item( pcap_dump_header_tree, hf_pcap_dump_interface, tvb, offset, IF_NAMESIZE, FALSE );
+    offset += IF_NAMESIZE;
+  }
+
+  return ( offset - head );
+}
+
+
+static gint
+dissect_pcap_pkthdr( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree, gint offset ) {
+  /*
+    struct pcap_pkthdr {
+      struct timeval ts;
+      bpf_u_int32 caplen;
+      bpf_u_int32 len;
+    };
+  */
+  gint head = offset;
+
+  if ( trema_tree != NULL ) {
+    proto_tree *pcap_pkthdr_tree = NULL;
+    proto_item *ti = NULL;
+
+    ti = proto_tree_add_item( trema_tree, hf_pcap_pkthdr, tvb, offset, sizeof( struct pcap_pkthdr ), FALSE );
+    pcap_pkthdr_tree = proto_item_add_subtree( ti, ett_pcap_pkthdr );
+
+    nstime_t ts;
+    ts.secs = tvb_get_ntohl( tvb, offset );
+    ts.nsecs = tvb_get_ntohl( tvb, offset + 4 ) * 1000;
+    proto_tree_add_time( pcap_pkthdr_tree, hf_pcap_pkthdr_ts, tvb, offset, sizeof( nstime_t ), &ts );
+    offset += sizeof( nstime_t );
+    proto_tree_add_item( pcap_pkthdr_tree, hf_pcap_pkthdr_caplen, tvb, offset, 4, FALSE );
+    offset += 4;
+    proto_tree_add_item( pcap_pkthdr_tree, hf_pcap_pkthdr_len, tvb, offset, 4, FALSE );
+    offset += 4;
+  }
+
+  return ( offset - head );
+}
+
+
+static void
+dissect_ethernet( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
+  if ( ethernet_handle != NULL ) {
+    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
+      col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
+    }
+
+    if( check_col( pinfo->cinfo, COL_INFO ) ) {
+        col_append_str( pinfo->cinfo, COL_INFO, " => " );
+    }
+
+    col_set_fence( pinfo->cinfo, COL_PROTOCOL );
+    col_set_fence( pinfo->cinfo, COL_INFO );
+
+    call_dissector( ethernet_handle, tvb, pinfo, trema_tree );
+  }
+  else {
+    // FIXME: do something here
+  }
+}
+
+
+static void
+dissect_pcap_dump( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *trema_tree,
+                   gint offset, gboolean visited, stream_id *stream_name ) {
+  guint32 datalink = 0;
+
+  offset += dissect_pcap_dump_header( tvb, pinfo, trema_tree, offset, &datalink );
+  offset += dissect_pcap_pkthdr( tvb, pinfo, trema_tree, offset );
+  if ( datalink == DLT_EN10MB ) {
+    guint16 remaining_len = tvb_reported_length_remaining( tvb, offset );
+    if ( remaining_len > 0 ) {
+      tvbuff_t *next_tvb = tvb_new_subset( tvb, offset, -1, remaining_len );
+      dissect_ethernet( next_tvb, pinfo, trema_tree );
+    }
+    offset += remaining_len;
+  }
+  dissect_message_dump( tvb, offset, trema_tree );
+}
+
+
+static gint
+dissect_syslog_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree, gint offset ) {
+  /*
+    typedef struct syslog_dump_header {
+      struct {
+        uint32_t sec;
+        uint32_t nsec;
+      } sent_time;
+    } syslog_dump_header;
+  */
+  gint head = offset;
+
+  if ( trema_tree != NULL ) {
+    proto_tree *syslog_dump_header_tree = NULL;
+    proto_item *ti = NULL;
+
+    ti = proto_tree_add_item( trema_tree, hf_syslog_dump_header, tvb, offset, sizeof( syslog_dump_header ), FALSE );
+    syslog_dump_header_tree = proto_item_add_subtree( ti, ett_syslog_dump_header );
+
+    nstime_t receive_time;
+    receive_time.secs = tvb_get_ntohl( tvb, offset );
+    receive_time.nsecs = tvb_get_ntohl( tvb, offset + 4 );
+    proto_tree_add_time( syslog_dump_header_tree, hf_syslog_dump_receive_time, tvb, offset, 8, &receive_time );
+    offset += sizeof( syslog_dump_header );
+  }
+
+  return ( offset - head );
+}
+
+
+static void
+dissect_syslog( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
+  if ( udp_dissector_table != NULL ) {
+    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
+      col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
+    }
+
+    if( check_col( pinfo->cinfo, COL_INFO ) ) {
+        col_append_str( pinfo->cinfo, COL_INFO, " => " );
+    }
+
+    col_set_fence( pinfo->cinfo, COL_PROTOCOL );
+    col_set_fence( pinfo->cinfo, COL_INFO );
+
+    dissector_try_port( udp_dissector_table, UDP_PORT_SYSLOG, tvb, pinfo, trema_tree );
+  }
+  else {
+    gint length = tvb_length_remaining( tvb, 0 );
+    if ( length > 0 ) {
+      proto_tree_add_item( trema_tree, hf_syslog_dump_message, tvb, 0, length, FALSE );
+    }
+  }
+}
+
+
+static void
+dissect_syslog_dump( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *trema_tree,
+                     gint offset, gboolean visited, stream_id *stream_name ) {
+
+  offset += dissect_syslog_dump_header( tvb, pinfo, trema_tree, offset );
+  guint16 remaining_len = tvb_reported_length_remaining( tvb, offset );
+  if ( remaining_len > 0 ) {
+    tvbuff_t *next_tvb = tvb_new_subset( tvb, offset, -1, remaining_len );
+    dissect_syslog( next_tvb, pinfo, trema_tree );
+  }
+}
+
+
+static gint
+dissect_text_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree, gint offset ) {
+  /*
+    typedef struct text_dump_header {
+      struct {
+        uint32_t sec;
+        uint32_t nsec;
+      } sent_time;
+    } text_dump_header;
+  */
+  gint head = offset;
+
+  if ( trema_tree != NULL ) {
+    proto_tree *text_dump_header_tree = NULL;
+    proto_item *ti = NULL;
+
+    ti = proto_tree_add_item( trema_tree, hf_text_dump_header, tvb, offset, sizeof( text_dump_header ), FALSE );
+    text_dump_header_tree = proto_item_add_subtree( ti, ett_text_dump_header );
+
+    nstime_t receive_time;
+    receive_time.secs = tvb_get_ntohl( tvb, offset );
+    receive_time.nsecs = tvb_get_ntohl( tvb, offset + 4 );
+    proto_tree_add_time( text_dump_header_tree, hf_text_dump_receive_time, tvb, offset, 8, &receive_time );
+    offset += sizeof( text_dump_header );
+  }
+
+  return ( offset - head );
+}
+
+
+static void
+dissect_text_dump( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *trema_tree,
+                   gint offset, gboolean visited, stream_id *stream_name ) {
+
+  offset += dissect_text_dump_header( tvb, pinfo, trema_tree, offset );
+  guint16 remaining_len = tvb_reported_length_remaining( tvb, offset );
+  if ( remaining_len > 0 ) {
+    proto_tree_add_item( trema_tree, hf_text_dump_string, tvb, offset, -1, FALSE );
+
+    gchar *string = tvb_format_text( tvb, offset, remaining_len - 1 );
+
+    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
+      col_append_str( pinfo->cinfo, COL_PROTOCOL, "+TEXT" );
+    }
+
+    if( check_col( pinfo->cinfo, COL_INFO ) && string != NULL ) {
+      col_append_str( pinfo->cinfo, COL_INFO, " => " );
+      col_append_str( pinfo->cinfo, COL_INFO, string );
+    }
+
+    col_set_fence( pinfo->cinfo, COL_PROTOCOL );
+    col_set_fence( pinfo->cinfo, COL_INFO );
+  }
+}
+
+
+static void
+dissect_trema( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+  gboolean visited = TRUE;
+  gint offset = 0;
+  guint16 dump_type = 0;
+  proto_tree *trema_tree = NULL;
+  proto_item *ti = NULL;
+  stream_id stream_name;
+
+  PRINTF( "----- start %u\n", pinfo->fd->num );
   
+  if ( tree == NULL ) {   // FIXME: is it okay to return here?
+    PRINTF( "----- end %u  (tree is NULL)\n", pinfo->fd->num );
+    return;
+  }
+
+  if ( check_packet_status( pinfo->fd->num ) == FALSE ) {
+    visited = FALSE;
+    update_packet_status( pinfo->fd->num, 0 );
+  }
+
+  if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
+    col_set_str( pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_TREMA );
+  }
+
+  ti = proto_tree_add_item( tree, proto_trema, tvb, 0, -1, FALSE );
+  trema_tree = proto_item_add_subtree( ti, ett_trema );
+
+  get_stream_id( tvb, &stream_name );
+  PRINTF( " app [%s]  service [%s]\n", stream_name.app_name, stream_name.service_name );
+
+  offset = dissect_message_pcap_dump_header( tvb, pinfo, trema_tree, &dump_type );
+  if ( tvb_length_remaining( tvb, offset ) <= 0 ) {
+    PRINTF( "----- end %u  (message_pcap_dump_header only)\n", pinfo->fd->num );
+    return;
+  }
+
+  if ( dump_type >= MESSENGER_DUMP_SENT && dump_type <= MESSENGER_DUMP_SEND_CLOSED ) {
+    dissect_trema_ipc( tvb, pinfo, tree, trema_tree, offset, visited, &stream_name );
+  }
+  else if ( dump_type == MESSENGER_DUMP_PCAP ) {
+    dissect_pcap_dump( tvb, pinfo, tree, trema_tree, offset, visited, &stream_name );
+  }
+  else if ( dump_type == MESSENGER_DUMP_SYSLOG ) {
+    dissect_syslog_dump( tvb, pinfo, tree, trema_tree, offset, visited, &stream_name );
+  }
+  else if ( dump_type == MESSENGER_DUMP_TEXT ) {
+    dissect_text_dump( tvb, pinfo, tree, trema_tree, offset, visited, &stream_name );
+  }
+  else {
+    // FIXME
+    dissect_message_dump( tvb, offset, trema_tree );
+  }
+
   PRINTF( "----- end %u\n", pinfo->fd->num );
 }
 
 
 void
 proto_register_trema() {
-  data_openflow = find_dissector( "openflow" );
-
   static hf_register_info hf[] = {
     { &hf_dump_header,
       { "Dump header", "trema.dump_header",
@@ -1165,8 +1491,8 @@ proto_register_trema() {
       { "Type", "trema.dump_type",
         FT_UINT16, BASE_DEC, VALS( names_dump_type ), NO_MASK, "Type", HFILL }},
     { &hf_dump_event_time,
-      { "Event Occurred At", "trema.dump_event_time",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NO_STRINGS, NO_MASK, "Event Occurred At", HFILL }},
+      { "Event occurred at", "trema.dump_event_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NO_STRINGS, NO_MASK, "Event Occurred at", HFILL }},
     { &hf_dump_app_name_length,
       { "Application name length", "trema.dump_app_name_length",
         FT_UINT16, BASE_DEC, NO_STRINGS, NO_MASK, "Application name length", HFILL }},
@@ -1219,6 +1545,55 @@ proto_register_trema() {
       { "[Unknown data]", "trema.hex_dump",
         FT_NONE, BASE_NONE, NO_STRINGS, NO_MASK, "Hex dump", HFILL }},
 
+    // pcap_dump_header
+    { &hf_pcap_dump_header,
+      { "PCAP dump header", "trema.pcap_dump_header",
+        FT_NONE, BASE_NONE, NO_STRINGS, NO_MASK, "PCAP dump header", HFILL }},
+    { &hf_pcap_dump_datalink,
+      { "Datalink", "trema.pcap_dump_datalink",
+        FT_UINT32, BASE_DEC, VALS( names_datalink_type ), NO_MASK, "Datalink", HFILL }},
+    { &hf_pcap_dump_interface,
+      { "Interface", "trema.pcap_dump_interface",
+        FT_STRING, BASE_NONE, NO_STRINGS, NO_MASK, "Inerface", HFILL }},
+
+    // pcap_pkthdr
+    { &hf_pcap_pkthdr,
+      { "PCAP packet header", "trema.pcap_pkthdr",
+        FT_NONE, BASE_NONE, NO_STRINGS, NO_MASK, "PCAP packet header", HFILL }},
+    { &hf_pcap_pkthdr_ts,
+      { "Captured at", "trema.pcap_pkthdr_ts",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NO_STRINGS, NO_MASK, "Captured at", HFILL }},
+    { &hf_pcap_pkthdr_caplen,
+      { "Capture length", "trema.pcap_pkthdr_caplen",
+        FT_UINT32, BASE_DEC, NO_STRINGS, NO_MASK, "Capture length", HFILL }},
+    { &hf_pcap_pkthdr_len,
+      { "Frame length", "trema.pcap_pkthdr_len",
+        FT_UINT32, BASE_DEC, NO_STRINGS, NO_MASK, "Frame length", HFILL }},
+
+    // syslog_dump_header
+    { &hf_syslog_dump_header,
+      { "Syslog dump header", "trema.syslog_dump_header",
+        FT_NONE, BASE_NONE, NO_STRINGS, NO_MASK, "Syslog dump header", HFILL }},
+    { &hf_syslog_dump_receive_time,
+      { "Received at", "trema.syslog_dump_receive_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NO_STRINGS, NO_MASK, "Received at", HFILL }},
+
+    // text_dump_header
+    { &hf_text_dump_header,
+      { "Text dump header", "trema.text_dump_header",
+        FT_NONE, BASE_NONE, NO_STRINGS, NO_MASK, "Text dump header", HFILL }},
+    { &hf_text_dump_receive_time,
+      { "Received at", "trema.text_dump_receive_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NO_STRINGS, NO_MASK, "Received at", HFILL }},
+    { &hf_text_dump_string,
+      { "Text string", "trema.text_dump_string",
+        FT_STRING, BASE_NONE, NO_STRINGS, NO_MASK, "Text string", HFILL }},
+
+    // raw syslog message
+    { &hf_syslog_dump_message,
+      { "Raw syslog message", "trema.syslog_message",
+        FT_STRING, BASE_NONE, NO_STRINGS, NO_MASK, "Raw syslog message", HFILL }},
+
     // Fragment fields
     { &hf_trema_fragments,
       { "Trema fragments", "trema.fragments",
@@ -1257,9 +1632,13 @@ proto_register_trema() {
     &ett_context_handle,
     &ett_trema_fragment,
     &ett_trema_fragments,
+    &ett_pcap_dump_header,
+    &ett_pcap_pkthdr,
+    &ett_syslog_dump_header,
+    &ett_text_dump_header,
   };
 
-  proto_trema = proto_register_protocol( "Trema IPC message", "TREMA", "trema" );
+  proto_trema = proto_register_protocol( "Trema Universal Event Dumper", "TREMA", "trema" );
   proto_register_field_array( proto_trema, hf, array_length( hf ) );
   proto_register_subtree_array( ett, array_length( ett ) );
   register_dissector( "trema", dissect_trema, proto_trema );
@@ -1270,10 +1649,12 @@ proto_register_trema() {
 
 void
 proto_reg_handoff_trema() {
-  /*
-  trema_handle = create_dissector_handle( dissect_trema, proto_trema );
-  dissector_add( wtap_encap, WTAP_ENCAP_USER0, trema_handle );
-  */
+  ethernet_handle = find_dissector( "eth" );
+  ppp_handle = find_dissector( "ppp" );
+  ip_handle = find_dissector( "ip" );
+  openflow_handle = find_dissector( "openflow" );
+  sll_dissector_table = find_dissector_table( "sll.ltype" );
+  udp_dissector_table = find_dissector_table( "udp.port" );
 }
 
 
