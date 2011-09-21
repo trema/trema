@@ -181,14 +181,15 @@ describe StatsReply do
           :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )
         send_packets "host1", "host2", :n_pkts => 2
         sleep 2 # FIXME: wait to send_packets
-        match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
-        controller( "FlowStatsController" ).send_message( 0xabc,
-          FlowStatsRequest.new( :match => match ).to_packet.buffer )
         controller( "FlowStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 1
           message.stats[0].packet_count.should == 2
           message.stats[0].should respond_to :to_s
         end
+        match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
+        controller( "FlowStatsController" ).send_message( 0xabc,
+          FlowStatsRequest.new( :match => match ).to_packet.buffer )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end

@@ -121,6 +121,7 @@ log_stdout( const char *format, va_list ap ) {
   va_list new_ap;
   va_copy( new_ap, ap );
   trema_vprintf( format_newline, new_ap );
+  fflush( stdout );
 }
 
 
