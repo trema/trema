@@ -189,7 +189,8 @@ typedef struct send_queue {
 
 
 #define MESSENGER_RECV_BUFFER 100000
-static const uint32_t messenger_send_queue_length = 100000;
+static const uint32_t messenger_send_queue_length = 400000;
+static const int messenge_chunk = 2;
 static const uint32_t messenger_recv_queue_length = 200000;
 static const uint32_t messenger_recv_queue_reserved = 2000;
 
@@ -1473,6 +1474,25 @@ set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
 }
 
 
+static size_t
+get_send_data( send_queue *sq, size_t offset ) {
+  assert( sq != NULL );
+
+  message_header *header;
+  int i = 0;
+  size_t length = 0;
+  while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
+    header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
+    length += header->message_length;
+    if ( ++i == messenge_chunk ) {
+      break;
+    }
+    offset += header->message_length;
+  }
+  return length;
+}
+
+
 static void
 on_send( int fd, send_queue *sq ) {
   assert( sq != NULL );
@@ -1485,16 +1505,14 @@ on_send( int fd, send_queue *sq ) {
     return;
   }
 
-  message_header *header;
+  void *data;
   size_t send_len;
   ssize_t sent_len;
   size_t sent_total = 0;
-  int sent_count = 0;
 
-  while ( ( ( sq->buffer->data_length - sent_total ) >= sizeof( message_header ) ) && ( sent_count < 128 ) ) {
-    header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + sent_total );
-    send_len = ( size_t ) header->message_length;
-    sent_len = send( fd, header, send_len, MSG_DONTWAIT );
+  while ( ( send_len = get_send_data( sq, sent_total ) ) > 0 ) {
+    data = ( ( char * ) get_message_buffer_head( sq->buffer ) + sent_total );
+    sent_len = send( fd, data, send_len, MSG_DONTWAIT );
     if ( sent_len == -1 ) {
       int err = errno;
       if ( err != EAGAIN && err != EWOULDBLOCK ) {
@@ -1513,9 +1531,8 @@ on_send( int fd, send_queue *sq ) {
       return;
     }
     assert( sent_len != 0 );
-    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, header, ( uint32_t ) sent_len );
+    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, data, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
-    sent_count++;
   }
   truncate_message_buffer( sq->buffer, sent_total );
 }

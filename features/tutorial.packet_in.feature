@@ -18,6 +18,7 @@ Feature: Tutorial: Handling packet_in events example
       """
       And wait until "packet_in" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
+      And *** sleep 2 ***
       And I terminated all trema services
     Then the output should include:
       """
@@ -38,6 +39,7 @@ Feature: Tutorial: Handling packet_in events example
       """
       And wait until "PacketinDumper" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
+      And *** sleep 2 ***
       And I terminated all trema services
     Then the output should include:
       """
