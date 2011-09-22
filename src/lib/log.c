@@ -256,19 +256,19 @@ do_log( int priority, const char *format, va_list ap ) {
 }
 
 
-#define DO_LOG( _priority, _format )                \
-  do {                                              \
-    if ( _format == NULL ) {                        \
-      die( "Log message must not be NULL" );        \
-    }                                               \
-    if ( get_logging_level() >= _priority ) {       \
-      pthread_mutex_lock( &mutex );                 \
-      va_list _args;                                \
-      va_start( _args, _format );                   \
-      do_log( _priority, _format, _args );          \
-      va_end( _args );                              \
-      pthread_mutex_unlock( &mutex );               \
-    }                                               \
+#define DO_LOG( _priority, _format )            \
+  do {                                          \
+    if ( _format == NULL ) {                    \
+      trema_abort();                            \
+    }                                           \
+    if ( get_logging_level() >= _priority ) {   \
+      pthread_mutex_lock( &mutex );             \
+      va_list _args;                            \
+      va_start( _args, _format );               \
+      do_log( _priority, _format, _args );      \
+      va_end( _args );                          \
+      pthread_mutex_unlock( &mutex );           \
+    }                                           \
   } while ( 0 )
 
 

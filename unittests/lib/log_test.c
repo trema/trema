@@ -201,7 +201,6 @@ test_critical_logs_if_logging_level_is_ERROR() {
 
 void
 test_critical_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( critical( NULL ) );
 }
 
@@ -237,7 +236,6 @@ test_error_logs_if_logging_level_is_WARNING() {
 
 void
 test_error_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( error( NULL ) );
 }
 
@@ -273,7 +271,6 @@ test_warn_logs_if_logging_level_is_NOTICE() {
 
 void
 test_warn_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( warn( NULL ) );
 }
 
@@ -309,7 +306,6 @@ test_notice_logs_if_logging_level_is_INFO() {
 
 void
 test_notice_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( notice( NULL ) );
 }
 
@@ -345,7 +341,6 @@ test_info_logs_if_logging_level_is_DEBUG() {
 
 void
 test_info_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( info( NULL ) );
 }
 
@@ -372,7 +367,6 @@ test_DEBUG_logs_if_logging_level_is_DEBUG() {
 
 void
 test_debug_fail_if_NULL() {
-  expect_string( mock_die, output, "Log message must not be NULL" );
   expect_assert_failure( debug( NULL ) );
 }
 
