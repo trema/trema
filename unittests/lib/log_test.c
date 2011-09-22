@@ -166,14 +166,7 @@ test_set_logging_level_succeed() {
 
 void
 test_set_logging_level_fail_with_invalid_value() {
-  expect_string( mock_die, output, "Invalid logging level: INVALID_LEVEL" );
   expect_assert_failure( set_logging_level( "INVALID_LEVEL" ) );
-}
-
-
-void
-test_set_logging_level_die_if_no_init() {
-  expect_assert_failure( set_logging_level( "DEBUG" ) );
 }
 
 
@@ -400,8 +393,6 @@ main() {
                               setup_logger, teardown ),
     unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
                               setup_logger, teardown ),
-    unit_test_setup_teardown( test_set_logging_level_die_if_no_init,
-                              setup, teardown ),
 
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_CRITICAL,
                               setup_daemon_logger, teardown ),

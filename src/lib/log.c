@@ -144,6 +144,11 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   pthread_mutex_lock( &mutex );
 
   level = LOG_INFO;
+  char *level_string = getenv( "LOGGING_LEVEL" );
+  if ( level_string != NULL ) {
+    set_logging_level( level_string );
+  }
+
   daemonized = run_as_daemon;
   fd = open_log( ident, log_directory );
 
@@ -210,23 +215,12 @@ started() {
 }
 
 
-static void
-check_initialized() {
-  if ( !started() ) {
-    // We can't call die() here because die() calls critical() internally.
-    trema_abort();
-  }
-}
-
-
 bool
 set_logging_level( const char *name ) {
-  check_initialized();
-
   int new_level = priority_value_from( name );
   if ( new_level == -1 ) {
-    unsetenv( "LOGGING_LEVEL" );; // avoid an infinite loop
-    die( "Invalid logging level: %s", name );
+    fprintf( stderr, "Invalid logging level: %s\n", name );
+    trema_abort();
   }
   pthread_mutex_lock( &mutex );
   level = new_level;
@@ -238,13 +232,6 @@ set_logging_level( const char *name ) {
 
 static logging_level
 _get_logging_level() {
-  check_initialized();
-
-  char *level_string = getenv( "LOGGING_LEVEL" );
-  if ( level_string != NULL ) {
-    set_logging_level( level_string );
-  }
-
   return level;
 }
 logging_level ( *get_logging_level )( void ) = _get_logging_level;
