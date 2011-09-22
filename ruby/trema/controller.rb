@@ -54,6 +54,21 @@ module Trema
     def name
       self.class.to_s.split( "::" ).last
     end
+
+    #
+    # Runs as a daemon
+    #
+    def daemonize!
+      fork do
+        ::Process.setsid
+        fork do
+          STDIN.close()
+          STDOUT.reopen( "/dev/null", "a" )
+          STDERR.reopen( "/dev/null", "a" )
+          self.run!
+        end
+      end
+    end
   end
 end
 
