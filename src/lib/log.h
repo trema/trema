@@ -38,6 +38,9 @@
 #include "bool.h"
 
 
+/**
+ * Constants specifying the level of log messages.
+ */
 typedef enum {
   LOG_CRITICAL,
   LOG_ERROR,
