@@ -190,7 +190,7 @@ priority_value_from( const char *name ) {
 
   for ( int i = 0; i <= LOG_DEBUG; i++ ) {
     for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
-      if ( strcmp( p->name, name_lower ) == 0 ) {
+      if ( strncmp( p->name, name_lower, 20 ) == 0 ) {
         level_value = p->value;
         break;
       }
