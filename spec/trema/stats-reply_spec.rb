@@ -179,6 +179,8 @@ describe StatsReply do
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
           :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )
+        sleep 1 # FIXME: wait to send_flow_mod_add
+        # send two packets
         send_packets "host1", "host2", :n_pkts => 2
         sleep 2 # FIXME: wait to send_packets
 
@@ -212,7 +214,8 @@ describe StatsReply do
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
           :actions => ActionOutput.new( AggregateStatsController::OFPP_FLOOD ) )
-        # send two packets
+        sleep 1 # FIXME: wait to send_flow_mod_add
+        # send ten packets
         send_packets "host1", "host2", :n_pkts => 10
         sleep 2 # FIXME: wait to send_packets
 

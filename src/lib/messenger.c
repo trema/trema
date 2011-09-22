@@ -190,9 +190,9 @@ typedef struct send_queue {
 
 #define MESSENGER_RECV_BUFFER 100000
 static const uint32_t messenger_send_queue_length = 400000;
-static const int messenge_chunk = 2;
+static const uint32_t messenger_bucket_size = 2000;
 static const uint32_t messenger_recv_queue_length = 200000;
-static const uint32_t messenger_recv_queue_reserved = 2000;
+static const uint32_t messenger_recv_queue_reserved = 4000;
 
 char socket_directory[ PATH_MAX ];
 static bool running = false;
@@ -1474,19 +1474,18 @@ set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
 }
 
 
-static size_t
+static uint32_t
 get_send_data( send_queue *sq, size_t offset ) {
   assert( sq != NULL );
 
   message_header *header;
-  int i = 0;
-  size_t length = 0;
+  uint32_t length = 0;
   while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
     header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
-    length += header->message_length;
-    if ( ++i == messenge_chunk ) {
+    if ( length + header->message_length > messenger_bucket_size ) {
       break;
     }
+    length += header->message_length;
     offset += header->message_length;
   }
   return length;
