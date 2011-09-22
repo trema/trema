@@ -82,11 +82,11 @@ static priority priorities[][ 3 ] = {
 };
 
 
-static char *
+static const char *
 priority_name_from( logging_level level ) {
   const char *name = priorities[ level ][ 0 ].name;
   assert( name != NULL );
-  return xstrdup( name );
+  return name;
 }
 
 
@@ -99,7 +99,7 @@ log_file( logging_level priority, const char *format, va_list ap ) {
   asctime_r( localtime( &tm ), now );
   now[ 24 ] = '\0'; // chomp
 
-  char *priority_name = priority_name_from( priority );
+  const char *priority_name = priority_name_from( priority );
 
   char message[ max_message_length ];
   va_list new_ap;
@@ -108,8 +108,6 @@ log_file( logging_level priority, const char *format, va_list ap ) {
 
   trema_fprintf( fd, "%s [%s] %s\n", now, priority_name, message );
   fflush( fd );
-
-  xfree( priority_name );
 }
 
 
