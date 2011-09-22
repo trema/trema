@@ -126,9 +126,18 @@ log_stdout( const char *format, va_list ap ) {
 
 static FILE*
 open_log( const char *ident, const char *log_directory ) {
+  assert( ident != NULL );
+  assert( log_directory != NULL );
+
   char pathname[ PATH_MAX ];
   sprintf( pathname, "%s/%s.log", log_directory, ident );
-  return fopen( pathname, "w" );
+  FILE *log = fopen( pathname, "w" );
+  if ( log == NULL ) {
+    perror( "fopen" );
+    trema_abort();
+  }
+
+  return log;
 }
 
 
