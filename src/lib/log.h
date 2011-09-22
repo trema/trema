@@ -30,21 +30,21 @@
 #include "bool.h"
 
 
-enum {
+typedef enum {
   LOG_CRITICAL,
   LOG_ERROR,
   LOG_WARN,
   LOG_NOTICE,
   LOG_INFO,
   LOG_DEBUG,
-};
+} logging_level;
 
 
 bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );
-extern int ( *get_logging_level )( void );
+extern logging_level ( *get_logging_level )( void );
 
 extern void ( *critical )( const char *format, ... );
 extern void ( *error )( const char *format, ... );

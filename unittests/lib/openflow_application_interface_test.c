@@ -468,7 +468,7 @@ mock_critical( char *format, ... ) {
 }
 
 
-static int
+static logging_level
 mock_get_logging_level() {
   return LOG_DEBUG;
 }

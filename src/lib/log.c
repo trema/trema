@@ -34,12 +34,12 @@
 
 typedef struct {
   const char *name;
-  const int value;
+  const logging_level value;
 } priority;
 
 
 static FILE *fd = NULL;
-static int level = -1;
+static logging_level level = -1;
 static bool daemonized = false;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -83,8 +83,7 @@ static priority priorities[][ 3 ] = {
 
 
 static char *
-priority_name_from( int level ) {
-  assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
+priority_name_from( logging_level level ) {
   const char *name = priorities[ level ][ 0 ].name;
   assert( name != NULL );
   return xstrdup( name );
@@ -94,7 +93,7 @@ priority_name_from( int level ) {
 static const size_t max_message_length = 1024;
 
 static void
-log_file( int priority, const char *format, va_list ap ) {
+log_file( logging_level priority, const char *format, va_list ap ) {
   time_t tm = time( NULL );
   char now[ 26 ];
   asctime_r( localtime( &tm ), now );
@@ -230,7 +229,7 @@ set_logging_level( const char *name ) {
 }
 
 
-static int
+static logging_level
 _get_logging_level() {
   check_initialized();
 
@@ -239,14 +238,13 @@ _get_logging_level() {
     set_logging_level( level_string );
   }
 
-  assert( level >= LOG_CRITICAL && level <= LOG_DEBUG );
   return level;
 }
-int ( *get_logging_level )( void ) = _get_logging_level;
+logging_level ( *get_logging_level )( void ) = _get_logging_level;
 
 
 static void
-do_log( int priority, const char *format, va_list ap ) {
+do_log( logging_level priority, const char *format, va_list ap ) {
   assert( started() );
 
   log_file( priority, format, ap );
@@ -256,19 +254,19 @@ do_log( int priority, const char *format, va_list ap ) {
 }
 
 
-#define DO_LOG( _priority, _format )            \
-  do {                                          \
-    if ( _format == NULL ) {                    \
-      trema_abort();                            \
-    }                                           \
-    if ( get_logging_level() >= _priority ) {   \
-      pthread_mutex_lock( &mutex );             \
-      va_list _args;                            \
-      va_start( _args, _format );               \
-      do_log( _priority, _format, _args );      \
-      va_end( _args );                          \
-      pthread_mutex_unlock( &mutex );           \
-    }                                           \
+#define DO_LOG( _priority, _format )                    \
+  do {                                                  \
+    if ( _format == NULL ) {                            \
+      trema_abort();                                    \
+    }                                                   \
+    if ( ( int ) get_logging_level() >= _priority ) {   \
+      pthread_mutex_lock( &mutex );                     \
+      va_list _args;                                    \
+      va_start( _args, _format );                       \
+      do_log( _priority, _format, _args );              \
+      va_end( _args );                                  \
+      pthread_mutex_unlock( &mutex );                   \
+    }                                                   \
   } while ( 0 )
 
 
