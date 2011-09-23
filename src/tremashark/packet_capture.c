@@ -85,6 +85,8 @@ handle_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *pac
 
 static void *
 capture_main( void *args ) {
+  UNUSED( args );
+
   info( "Starting packet capture ( interface_name = %s ).", interface_name );
 
   packet_queue = create_queue();
@@ -110,17 +112,16 @@ capture_main( void *args ) {
     goto error;
   }
 
-  const char *filter = args;
-  if ( filter != NULL ) {
+  if ( filter_expression != NULL ) {
     struct bpf_program fp;
-    ret = pcap_compile( cd, &fp, filter, 0, net );
+    ret = pcap_compile( cd, &fp, filter_expression, 0, net );
     if ( ret < 0 ) {
-      error( "Failed to parse filter `%s' ( error = %s ).", filter, pcap_geterr( cd ) );
+      error( "Failed to parse filter `%s' ( error = %s ).", filter_expression, pcap_geterr( cd ) );
       goto error;
     }
     ret = pcap_setfilter( cd, &fp );
     if ( ret < 0 ) {
-      error( "Failed to set filter `%s' ( error = %s ).", filter, pcap_geterr( cd ) );
+      error( "Failed to set filter `%s' ( error = %s ).", filter_expression, pcap_geterr( cd ) );
       goto error;
     }
   }
@@ -142,14 +143,12 @@ error:
 
 
 static void
-start_capture( void *user_data ) {
+start_capture( void ) {
   pthread_attr_t attr;
   pthread_attr_init( &attr );
   pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
   capture_thread = xmalloc( sizeof( pthread_t ) );
-  pthread_create( capture_thread, &attr, capture_main, user_data );
-
-  delete_timer_event_callback( start_capture );
+  pthread_create( capture_thread, &attr, capture_main, NULL );
 }
 
 
@@ -193,7 +192,7 @@ flush_packet_buffer( void *user_data ) {
 
 
 static void
-set_timer_events( void ) {
+set_timer_event( void ) {
   struct itimerspec ts;
 
   ts.it_value.tv_sec = 0;
@@ -204,20 +203,6 @@ set_timer_events( void ) {
   bool ret = add_timer_event_callback( &ts, flush_packet_buffer, NULL );
   if ( !ret ) {
     error( "Failed to set queue flush timer." );
-  }
-
-  /*
-   * since this application may be daemonized in start_trema(),
-   * we need to create a new thread after daemonized.
-   */
-  ts.it_value.tv_sec = 1;
-  ts.it_value.tv_nsec = 0;
-  ts.it_interval.tv_sec = 0;
-  ts.it_interval.tv_nsec = 0;
-
-  ret = add_timer_event_callback( &ts, start_capture, filter_expression );
-  if ( !ret ) {
-    error( "Failed to set timer for starting a packet capture thread." );
   }
 }
 
@@ -314,7 +299,8 @@ init_packet_capture( int *argc, char **argv[] ) {
 
 static void
 start_packet_capture( void ) {
-  set_timer_events();
+  set_timer_event();
+  set_external_callback( start_capture );
 }
 
 
