@@ -33,17 +33,35 @@ features_request_alloc( VALUE klass ) {
 }
 
 
+/* 
+ * A features request message is sent upon TLS session establishment to obtain 
+ * switch's supported capabilities. Creates an object that encapsulates the
+ * +OFPT_FEATURES_REQUEST+ openflow message.
+ *
+ * @overload initialize(transaction_id=nil)
+ *
+ * @param [Number] transaction_id
+ *   any positive number, same value should be attached to the +OFPT_FEATURES_REPLY+ 
+ *   message. If not specified is auto-generated.
+ *
+ * @raise [ArgumentError] if transaction id is negative.
+ *
+ * @return [FeaturesRequest] self
+ */
 static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *features_request;
   Data_Get_Struct( self, buffer, features_request );
 
-  VALUE xid_ruby;
   uint32_t xid;
+  VALUE xid_ruby;
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
     xid = get_transaction_id();
   }
   else {
+    if ( NUM2INT( xid_ruby ) < 0 ) {
+      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( features_request->data ) )->xid = htonl( xid );
@@ -51,6 +69,11 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 features_request_transaction_id( VALUE self ) {
   buffer *features_request;

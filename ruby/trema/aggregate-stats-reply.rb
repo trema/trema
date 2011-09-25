@@ -1,28 +1,69 @@
+#
+# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
+#
+# Copyright (C) 2008-2011 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+  
 require "trema/stats-helper"
 
+
 module Trema
-  #
-  # AggregateStatsReply class
-  #  attributes mapped to ofp_stats_aggregate_reply
-  #
   class AggregateStatsReply < StatsHelper
     FIELDS = %w(packet_count byte_count flow_count)
-
     FIELDS.each { |field| attr_reader field.intern }
 
 
+    # Aggregate counters for flows.
+    # A user would not explicitly instantiate a {AggregateStatsReply} object but
+    # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_AGGREGATE)
+    # message.
     #
-    # Initialize the fields(attributes) from the options hash
+    # @overload initialize(options={})
     #
-    # @example AggregateStatsReply.new :packet_count => 1, :byte_count => 64, 
-    # :flow_count => 1
+    #   @example 
+    #     AggregateStatsReply.new(
+    #       :packet_count => 10,
+    #       :byte_count => 640,
+    #       :flow_count => 2
+    #     )
     #
-    # @returns AggregateStatsReply instance
+    #   @param [Hash] options the options hash.
     #
-    # @api public
+    #   @option options [Symbol] :packet_count
+    #     the total number of packets that matched.
+    #
+    #   @option options [Symbol] :byte_count
+    #     the total number of bytes from packets that matched.
+    #
+    #   @option options [Symbol] :flow_count
+    #     the total number of flows that matched.
+    #
+    # @return [AggregateStatsReply]
+    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) openFlow message.
     #
     def initialize options
       super FIELDS, options
     end
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

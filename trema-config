@@ -48,7 +48,7 @@ FileUtils.cd Trema.home do
     output << "-I#{ Trema.home }/src/lib -I#{ Trema.openflow }"
   end
   if $libs
-    output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread"
+    output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread -lsqlite3 -ldl"
   end
   print output.join( " " )
 end

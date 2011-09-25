@@ -35,13 +35,26 @@ def error_exit message
 end
 
 
-unless find_library( "rt", "clock_gettime" )
-  error_exit <<-EOF
-ERROR: librt not found!
+def error_lib_missing lib, package
+  return <<-EOF
+ERROR: #{ lib } not found!
 
-Please install libc6-dev with following command:
-% sudo apt-get install libc6-dev
+Please install #{ package } with following command:
+% sudo apt-get install #{ package }
 EOF
+end
+
+
+unless find_library( "rt", "clock_gettime" )
+  error_exit error_lib_missing( "librt", "libc6-dev" )
+end
+
+unless find_library( "dl", "dlopen" )
+  error_exit error_lib_missing( "libdl", "libc6-dev" )
+end
+
+unless find_library( "sqlite3", "sqlite3_open" )
+  error_exit error_lib_missing( "libsqlite3", "libsqlite3-dev" )
 end
 
 unless find_library( "trema", "create_hello" )
@@ -49,7 +62,7 @@ unless find_library( "trema", "create_hello" )
 ERROR: Trema is not compiled yet!
 
 Please try the following command:
-% rake
+% ./build.rb
 EOF
 end
 

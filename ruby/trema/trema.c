@@ -29,7 +29,6 @@
 #include "logger.h"
 #include "packet_in.h"
 #include "port.h"
-#include "rbuffer.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
 #include "action-enqueue.h"
@@ -42,6 +41,8 @@
 #include "action-set-vlan-pcp.h"
 #include "action-strip-vlan.h"
 #include "action-vendor.h"
+#include "echo-request.h"
+#include "error.h"
 #include "stats-request.h"
 #include "flow-removed.h"
 #include "port-status.h"
@@ -65,7 +66,6 @@ VALUE mTrema;
 void
 Init_trema() {
   mTrema = rb_define_module( "Trema" );
-  init_log( NULL, "/tmp", false );
 
   rb_require( "trema/host" );
   rb_require( "trema/path" );
@@ -85,7 +85,8 @@ Init_trema() {
   Init_action_set_vlan_pcp();
   Init_action_strip_vlan();
   Init_action_vendor();
-  Init_buffer();
+  Init_echo_request();
+  Init_error();
   Init_logger();
   Init_controller();
   Init_features_reply();
@@ -118,4 +119,3 @@ Init_trema() {
  * indent-tabs-mode: nil
  * End:
  */
-

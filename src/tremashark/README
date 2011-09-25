@@ -12,9 +12,11 @@ What is tremashark?
 ===================
 
 "tremashark" provides a wireshark (http://www.wireshark.org/) plugin and a
-bridge between the Trema world and wireshark to display any Trema IPC events on
-wireshark. You can see any IPC events in realtime. It should be useful for
-learning the Trema world and debugging your applications that use Trema IPCs.
+bridge between the Trema world and wireshark to display various events on
+wireshark. You can monitor any IPC events among Trema modules, packets on
+network interfaces/links, or log messages in realtime. It should be useful
+for learning the Trema world and debugging your OpenFlow controller
+applications.
 
 
 How to build and install?
@@ -37,8 +39,8 @@ Also, you may need to install several software packages.
 Build and install
 -----------------
 
-Before building tremashark, you should compile Trema (see INSTALL) first. Then
-build the plugin as follows:
+Before building tremashark, you should compile Trema (see INSTALL) first.
+Then build the plugin as follows:
 
   $ cd [trema]/src/tremashark/plugin
   $ tar xvf /somewhere/wireshark-X.Y.Z.tar.bz2
@@ -60,14 +62,14 @@ How to run?
   use_tremashark
 
   vswitch {
-    datapath_id "0xe0"
+    datapath_id "0x1"
   }
   ...
 
 2. Send SIGUSR2 to processes to be monitored by tremashark. e.g.,
 
   $ sudo kill -USR2 `cat tmp/learning_switch.pid`
-  $ sudo kill -USR2 `cat tmp/switch.abc.pid`
+  $ sudo kill -USR2 `cat tmp/switch.1.pid`
 
 Known issue
 ===========

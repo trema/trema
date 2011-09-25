@@ -67,6 +67,8 @@ extern void dump_buf( const buffer *data );
 extern void handle_switch_events( uint16_t type, void *data, size_t length );
 extern void handle_openflow_message( void *data, size_t length );
 extern void handle_message( uint16_t type, void *data, size_t length );
+extern void insert_dpid( list_element **head, uint64_t *dpid );
+extern void handle_list_switches_reply( uint16_t message_type, void *data, size_t length, void *user_data );
 
 
 #define SWITCH_READY_HANDLER ( ( void * ) 0x00020001 )
@@ -93,6 +95,8 @@ extern void handle_message( uint16_t type, void *data, size_t length );
 #define BARRIER_REPLY_USER_DATA ( ( void * ) 0x00010091 )
 #define QUEUE_GET_CONFIG_REPLY_HANDLER ( ( void * ) 0x0001000a )
 #define QUEUE_GET_CONFIG_REPLY_USER_DATA ( ( void * ) 0x000100a1 )
+#define LIST_SWITCHES_REPLY_HANDLER ( ( void * ) 0x0001000b )
+#define LIST_SWITCHES_REPLY_USER_DATA ( ( void * ) 0x000100b1 )
 
 static const pid_t PID = 12345;
 static char SERVICE_NAME[] = "learning switch application 0";
@@ -107,7 +111,8 @@ static openflow_event_handlers_t NULL_EVENT_HANDLERS = { false, ( void * ) 0, ( 
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
-                                                         ( void * ) 0, ( void * ) 0 };
+                                                         ( void * ) 0, ( void * ) 0,
+                                                         ( void * ) 0 };
 static openflow_event_handlers_t EVENT_HANDLERS = {
   false, SWITCH_READY_HANDLER, SWITCH_READY_USER_DATA,
   SWITCH_DISCONNECTED_HANDLER, SWITCH_DISCONNECTED_USER_DATA,
@@ -120,7 +125,8 @@ static openflow_event_handlers_t EVENT_HANDLERS = {
   PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA,
   STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA,
   BARRIER_REPLY_HANDLER, BARRIER_REPLY_USER_DATA,
-  QUEUE_GET_CONFIG_REPLY_HANDLER, QUEUE_GET_CONFIG_REPLY_USER_DATA
+  QUEUE_GET_CONFIG_REPLY_HANDLER, QUEUE_GET_CONFIG_REPLY_USER_DATA,
+  LIST_SWITCHES_REPLY_HANDLER
 };
 static uint64_t DATAPATH_ID = 0x0102030405060708ULL;
 static char REMOTE_SERVICE_NAME[] = "switch.102030405060708";
@@ -135,7 +141,7 @@ static const uint32_t PORT_FEATURES = ( OFPPF_10MB_HD | OFPPF_10MB_FD | OFPPF_10
 static struct ofp_match MATCH = { OFPFW_ALL, 1,
                                   { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
                                   { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
-                                  1, 1, { 0 }, 0x800, 1, 0x6, { 0, 0 },
+                                  1, 1, { 0 }, 0x800, 0xfc, 0x6, { 0, 0 },
                                   0x0a090807, 0x0a090807, 1024, 2048 };
 #define USER_DATA_LEN 64
 static uint8_t USER_DATA[ USER_DATA_LEN ];
@@ -177,6 +183,16 @@ mock_add_message_received_callback( char *service_name,
 
 
 bool
+mock_add_message_replied_callback( char *service_name,
+                                   void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
+  check_expected( service_name );
+  check_expected( callback );
+
+  return ( bool ) mock();
+}
+
+
+bool
 mock_send_message( char *service_name, uint16_t tag, void *data, size_t len ) {
   uint32_t tag32 = tag;
 
@@ -190,8 +206,34 @@ mock_send_message( char *service_name, uint16_t tag, void *data, size_t len ) {
 
 
 bool
+mock_send_request_message( char *to_service_name, char *from_service_name, uint16_t tag,
+                           void *data, size_t len, void *user_data ) {
+  uint32_t tag32 = tag;
+
+  check_expected( to_service_name );
+  check_expected( from_service_name );
+  check_expected( tag32 );
+  check_expected( data );
+  check_expected( len );
+  check_expected( user_data );
+
+  return ( bool ) mock();
+}
+
+
+bool
 mock_delete_message_received_callback( char *service_name,
                                        void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
+  check_expected( service_name );
+  check_expected( callback );
+
+  return ( bool ) mock();
+}
+
+
+bool
+mock_delete_message_replied_callback( char *service_name,
+                                      void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   check_expected( service_name );
   check_expected( callback );
 
@@ -369,6 +411,26 @@ mock_queue_get_config_reply_handler( uint64_t datapath_id, uint32_t transaction_
 }
 
 
+static void
+mock_handle_list_switches_reply( const list_element *switches, void *user_data ) {
+  uint64_t *dpid1, *dpid2, *dpid3;
+
+  if ( switches != NULL ) {
+    dpid1 = switches->data;
+    check_expected( *dpid1 );
+    if ( switches->next != NULL ) {
+      dpid2 = switches->next->data;
+      check_expected( *dpid2 );
+      if ( switches->next->next != NULL ) {
+        dpid3 = switches->next->next->data;
+        check_expected( *dpid3 );
+      }
+    }
+  }
+  check_expected( user_data );
+}
+
+
 void
 mock_die( char *format, ... ) {
   check_expected( format );
@@ -406,7 +468,7 @@ mock_critical( char *format, ... ) {
 }
 
 
-static int
+static logging_level
 mock_get_logging_level() {
   return LOG_DEBUG;
 }
@@ -445,6 +507,10 @@ init() {
   expect_value( mock_add_message_received_callback, callback, handle_message );
   will_return( mock_add_message_received_callback, true );
 
+  expect_string( mock_add_message_replied_callback, service_name, SERVICE_NAME );
+  expect_value( mock_add_message_replied_callback, callback, handle_list_switches_reply );
+  will_return( mock_add_message_replied_callback, true );
+
   init_stat();
 
   ret = init_openflow_application_interface( SERVICE_NAME );
@@ -469,6 +535,10 @@ test_init_openflow_application_interface_with_valid_custom_service_name() {
   expect_string( mock_add_message_received_callback, service_name, SERVICE_NAME );
   expect_value( mock_add_message_received_callback, callback, handle_message );
   will_return( mock_add_message_received_callback, true );
+
+  expect_string( mock_add_message_replied_callback, service_name, SERVICE_NAME );
+  expect_value( mock_add_message_replied_callback, callback, handle_list_switches_reply );
+  will_return( mock_add_message_replied_callback, true );
 
   ret = init_openflow_application_interface( SERVICE_NAME );
 
@@ -531,6 +601,10 @@ test_finalize_openflow_application_interface() {
   expect_string( mock_delete_message_received_callback, service_name, SERVICE_NAME );
   expect_value( mock_delete_message_received_callback, callback, handle_message );
   will_return( mock_delete_message_received_callback, true );
+
+  expect_string( mock_delete_message_replied_callback, service_name, SERVICE_NAME );
+  expect_value( mock_delete_message_replied_callback, callback, handle_list_switches_reply );
+  will_return( mock_delete_message_replied_callback, true );
 
   ret = finalize_openflow_application_interface();
 
@@ -1095,6 +1169,26 @@ static void
 test_set_queue_get_config_reply_handler_if_handler_is_NULL() {
   expect_string( mock_die, format, "Callback function ( queue_get_config_reply_handler ) must not be NULL." );
   expect_assert_failure( set_queue_get_config_reply_handler( NULL, NULL ) );
+  assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
+}
+
+
+/********************************************************************************
+ * set_list_switches_reply_handler() tests.
+ ********************************************************************************/
+
+
+static void
+test_set_list_switches_reply_handler() {
+  assert_true( set_list_switches_reply_handler( LIST_SWITCHES_REPLY_HANDLER ) );
+  assert_int_equal( event_handlers.list_switches_reply_callback, LIST_SWITCHES_REPLY_HANDLER );
+}
+
+
+static void
+test_set_list_switches_reply_handler_if_handler_is_NULL() {
+  expect_string( mock_die, format, "Callback function ( list_switches_reply_handler ) must not be NULL." );
+  expect_assert_failure( set_list_switches_reply_handler( NULL ) );
   assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
 }
 
@@ -2352,6 +2446,107 @@ test_handle_queue_get_config_reply_if_message_length_is_zero() {
 
 
 /********************************************************************************
+ * handle_list_switches_reply() tests.
+ ********************************************************************************/
+
+static void
+test_insert_dpid() {
+  list_element *head;
+  create_list( &head );
+  uint64_t alice = 0x1;
+  uint64_t bob = 0x2;
+  uint64_t carol = 0x3;
+
+  insert_dpid( &head, &carol );
+  insert_dpid( &head, &alice );
+  insert_dpid( &head, &bob );
+
+  list_element *element = head;
+  assert_true( element != NULL );
+  assert_true( element->data != NULL );
+  assert_true( alice == *( uint64_t * ) element->data );
+
+  element = element->next;
+  assert_true( element != NULL );
+  assert_true( element->data != NULL );
+  assert_true( bob == *( uint64_t * ) element->data );
+
+  element = element->next;
+  assert_true( element != NULL );
+  assert_true( element->data != NULL );
+  assert_true( carol == *( uint64_t * ) element->data );
+
+  element = element->next;
+  assert_true( element == NULL );
+
+  delete_list( head );
+}
+
+
+static void
+test_insert_dpid_if_head_is_NULL() {
+  uint64_t dpid = 0x1;
+
+  expect_assert_failure( insert_dpid( NULL, &dpid ) );
+}
+
+
+static void
+test_insert_dpid_if_dpid_is_NULL() {
+  list_element *head;
+  create_list( &head );
+
+  expect_assert_failure( insert_dpid( &head, NULL ) );
+
+  delete_list( head );
+}
+
+
+static void
+test_handle_list_switches_reply() {
+  uint16_t message_type = 0;
+  uint64_t alice = 0x1;
+  uint64_t bob = 0x2;
+  uint64_t carol = 0x3;
+  uint64_t dpid[] = { htonll( bob ), htonll( carol ), htonll( alice ) };
+  size_t length = sizeof( dpid );
+  void *user_data = LIST_SWITCHES_REPLY_USER_DATA;
+
+  expect_value( mock_handle_list_switches_reply, *dpid1, alice );
+  expect_value( mock_handle_list_switches_reply, *dpid2, bob );
+  expect_value( mock_handle_list_switches_reply, *dpid3, carol );
+  expect_value( mock_handle_list_switches_reply, user_data, LIST_SWITCHES_REPLY_USER_DATA );
+
+  set_list_switches_reply_handler( mock_handle_list_switches_reply );
+  handle_list_switches_reply( message_type, dpid, length, user_data );
+}
+
+
+static void
+test_handle_list_switches_reply_if_data_is_NULL() {
+  uint16_t message_type = 0;
+  size_t length = 64;
+  void *user_data = LIST_SWITCHES_REPLY_USER_DATA;
+
+  set_list_switches_reply_handler( mock_handle_list_switches_reply );
+  expect_assert_failure( handle_list_switches_reply( message_type, NULL, length, user_data ) );
+}
+
+
+static void
+test_handle_list_switches_reply_if_length_is_zero() {
+  uint16_t message_type = 0;
+  uint64_t dpid[] = { 0 };
+  void *user_data = LIST_SWITCHES_REPLY_USER_DATA;
+
+  expect_value( mock_handle_list_switches_reply, user_data, LIST_SWITCHES_REPLY_USER_DATA );
+
+  set_list_switches_reply_handler( mock_handle_list_switches_reply );
+  handle_list_switches_reply( message_type, dpid, 0, user_data );
+}
+
+
+/********************************************************************************
  * handle_switch_events() tests.
  ********************************************************************************/
 
@@ -3096,6 +3291,9 @@ main() {
     unit_test_setup_teardown( test_set_queue_get_config_reply_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_queue_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
 
+    unit_test_setup_teardown( test_set_list_switches_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_list_switches_reply_handler_if_handler_is_NULL, init, cleanup ),
+
     unit_test_setup_teardown( test_send_openflow_message, init, cleanup ),
     unit_test_setup_teardown( test_send_openflow_message_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_send_openflow_message_if_message_length_is_zero, init, cleanup ),
@@ -3166,6 +3364,13 @@ main() {
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_message_length_is_zero, init, cleanup ),
+
+    unit_test_setup_teardown( test_insert_dpid, init, cleanup ),
+    unit_test_setup_teardown( test_insert_dpid_if_head_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_insert_dpid_if_dpid_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_list_switches_reply, init, cleanup ),
+    unit_test_setup_teardown( test_handle_list_switches_reply_if_data_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_list_switches_reply_if_length_is_zero, init, cleanup ),
 
     unit_test_setup_teardown( test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_CONNECTED, init, cleanup ),
     unit_test_setup_teardown( test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED, init, cleanup ),

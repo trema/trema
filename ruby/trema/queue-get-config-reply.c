@@ -26,31 +26,84 @@ extern VALUE mTrema;
 VALUE cQueueGetConfigReply;
 
 
+/*
+ * A reply instance of {QueueGetConfigReply} constructed when
+ * +OFPT_QUEUE_GET_CONFIG_REPLY+ message received.
+ *
+ * @overload initialize(options={})
+ *
+ *   @example
+ *     QueueGetConfigReply.new(
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 1
+ *       :port => 1,
+ *       :queues => [ PacketQueue ]
+ *     )
+ *
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :datapath_id
+ *     a unique name that identifies an OpenVSwitch, the message originator.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     value copied from +OPFT_QUEUE_SET_CONFIG_REQUEST+ message.
+ *  
+ *   @option options [Symbol] :port
+ *     the port the queue is attached to.
+ *
+ *   @option options [Symbol] :queues
+ *     an array of {PacketQueue} objects.
+ *
+ * @return [QueueGetConfigReply]
+ *   an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ openflow message.
+ */
 static VALUE
-queue_get_config_reply_init( VALUE self, VALUE attribute ) {
-  rb_iv_set( self, "@attribute", attribute );
+queue_get_config_reply_init( VALUE self, VALUE options ) {
+  rb_iv_set( self, "@attribute", options );
   return self;
 }
 
 
+/*
+ * Message originator identifier.
+ *
+ * @return [Number] the value of attribute datapath_id.
+ */
 static VALUE
 queue_get_config_reply_datapath_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "datapath_id" ) ) );
 }
 
 
+/*
+ * Transaction ids, message sequence numbers matching requests to replies.
+ *
+ * @return [Number] the value of attribute transaction id.
+ */
 static VALUE
 queue_get_config_reply_transaction_id( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "transaction_id" ) ) );
 }
 
 
+/*
+ * The port the queue is attached to.
+ *
+ * @return [Number] the value of attribute port.
+ */
 static VALUE
 queue_get_config_reply_port( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "port" ) ) );
 }
 
 
+/*
+ * An array of {PacketQueue} objects. A packet queue is further classified
+ * depending on its properties. Currently only a minimum-rate type queue 
+ * supported.
+ *
+ * @return [Array<PacketQueue>] the value of attribute queues.
+ */
 static VALUE
 queue_get_config_reply_queues( VALUE self ) {
   return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "queues" ) ) );
@@ -58,7 +111,7 @@ queue_get_config_reply_queues( VALUE self ) {
 
 
 void
-Init_queue_get_config_reply( ) {
+Init_queue_get_config_reply() {
   rb_require( "trema/packet-queue" );
   cQueueGetConfigReply = rb_define_class_under( mTrema, "QueueGetConfigReply", rb_cObject );
   rb_define_method( cQueueGetConfigReply, "initialize", queue_get_config_reply_init, 1 );
@@ -71,23 +124,20 @@ Init_queue_get_config_reply( ) {
 
 static void
 get_property( struct ofp_packet_queue *pq, VALUE packet_queue ) {
-  size_t offset;
-  uint16_t properties_length;
+  size_t offset = offsetof( struct ofp_packet_queue, properties );
   struct ofp_queue_prop_header *qph;
-  struct ofp_queue_prop_min_rate *qpmr;
-
-  offset = offsetof( struct ofp_packet_queue, properties );
   qph = ( struct ofp_queue_prop_header * ) ( ( char * ) pq + offset );
 
-  properties_length = ( uint16_t ) ( pq->len - offset );
+  uint16_t properties_length = ( uint16_t ) ( pq->len - offset );
+  struct ofp_queue_prop_min_rate *qpmr;
   while ( properties_length > 0 ) {
     if ( qph->property == OFPQT_MIN_RATE ) {
       qpmr = ( struct ofp_queue_prop_min_rate * ) qph;
       rb_funcall( rb_eval_string( "Trema::MinRateQueue" ), rb_intern( "new" ), 4,
-              UINT2NUM( qph->property ),
-              UINT2NUM( qph->len ),
-              UINT2NUM( qpmr->rate ),
-              packet_queue );
+        UINT2NUM( qph->property ),
+        UINT2NUM( qph->len ),
+        UINT2NUM( qpmr->rate ),
+        packet_queue );
     }
     properties_length = ( uint16_t ) ( properties_length - pq->len );
     if ( properties_length > 0 ) {
@@ -99,22 +149,22 @@ get_property( struct ofp_packet_queue *pq, VALUE packet_queue ) {
 
 void
 handle_queue_get_config_reply(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint16_t port,
-        list_element *queues,
-        void *user_data
-        ) {
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint16_t port,
+  list_element *queues,
+  void *user_data
+) {
   VALUE controller = ( VALUE ) user_data;
   if ( rb_respond_to( controller, rb_intern( "queue_get_config_reply" ) ) == Qfalse ) {
     return;
   }
 
-  VALUE attributes = rb_hash_new( );
+  VALUE attributes = rb_hash_new();
 
   list_element *queue = NULL;
   struct ofp_packet_queue *pq;
-  VALUE pq_attributes = rb_hash_new( );
+  VALUE pq_attributes = rb_hash_new();
   VALUE packet_queue;
 
 

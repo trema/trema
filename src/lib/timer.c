@@ -141,6 +141,7 @@ on_timer( timer_callback *callback ) {
     else {
       callback->expires_at.tv_sec = 0;
       callback->expires_at.tv_nsec = 0;
+      callback->function = NULL;
     }
     debug( "Set expires_at value to %u.%09u.", callback->expires_at.tv_sec, callback->expires_at.tv_nsec );
   }

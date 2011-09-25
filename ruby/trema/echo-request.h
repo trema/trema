@@ -1,5 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -18,26 +18,20 @@
  */
 
 
-#include "trema.h"
+#ifndef ECHO_REQUEST_H
+#define ECHO_REQUEST_H
+
+
 #include "ruby.h"
 
 
-extern VALUE mTrema;
-VALUE cBuffer;
+extern VALUE cEchoRequest;
 
 
-static VALUE
-buffer_alloc( VALUE klass ) {
-  buffer *buf = alloc_buffer();
-  return Data_Wrap_Struct( klass, NULL, free_buffer, buf );
-}
+void Init_echo_request( void );
 
 
-void
-Init_buffer() {
-  cBuffer = rb_define_class_under( mTrema, "Buffer", rb_cObject );
-  rb_define_alloc_func( cBuffer, buffer_alloc );
-}
+#endif // ECHO_REQUEST_H
 
 
 /*

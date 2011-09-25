@@ -1,5 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -18,20 +18,18 @@
  */
 
 
-#ifndef RBUFFER_H
-#define RBUFFER_H
+#ifndef LIST_SWITCHES_REPLY_H
+#define LIST_SWITCHES_REPLY_H
 
 
 #include "ruby.h"
+#include "trema.h"
 
 
-extern VALUE cBuffer;
+void handle_list_switches_reply( const list_element *switches, void *user_data );
 
 
-void Init_buffer( void );
-
-
-#endif // RBUFFER_H
+#endif // LIST_SWITCHES_REPLY_H
 
 
 /*

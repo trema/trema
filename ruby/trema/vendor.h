@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper class of OpenFlow flow removed message.
- *
  * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -32,6 +30,7 @@ extern VALUE cVendor;
 
 
 void Init_vendor( void );
+
 
 void handle_vendor(
         uint64_t datapath_id,

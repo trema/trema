@@ -138,6 +138,22 @@ update_flowmod_cookie( buffer *buf, char *service_name ) {
 
   case OFPFC_MODIFY:
   case OFPFC_MODIFY_STRICT:
+  {
+    cookie_entry_t *entry = lookup_cookie_entry_by_application( &cookie, service_name );
+    if ( entry != NULL ) {
+      flow_mod->cookie = htonll( entry->cookie );
+    }
+    else {
+      uint64_t *new_cookie = insert_cookie_entry( &cookie, service_name, flags );
+      if ( new_cookie == NULL ) {
+        return -1;
+      }
+      flow_mod->cookie = htonll( *new_cookie );
+    }
+    flow_mod->flags = htons( flags | OFPFF_SEND_FLOW_REM );
+  }
+  break;
+
   case OFPFC_DELETE:
   case OFPFC_DELETE_STRICT:
   {

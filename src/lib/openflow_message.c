@@ -58,7 +58,7 @@ extern void mock_debug( const char *format, ... );
 
 #define VLAN_VID_MASK 0x0fff // 12 bits
 #define VLAN_PCP_MASK 0x07   // 3 bits
-#define NW_TOS_MASK 0x3f     // 6 bits
+#define NW_TOS_MASK 0xfc     // upper 6 bits
 #define ARP_OP_MASK 0x00ff   // 8 bits
 
 #define PORT_CONFIG ( OFPPC_PORT_DOWN | OFPPC_NO_STP | OFPPC_NO_RECV      \
@@ -257,7 +257,7 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
   struct ofp_switch_features *switch_features;
   struct ofp_phy_port *phy_port;
   struct ofp_phy_port pn;
-  list_element *p, *port;
+  list_element *p = NULL, *port;
 
   debug( "Creating a features reply "
          "( xid = %#x, datapath_id = %#" PRIx64 ", n_buffers = %u, n_tables = %u, capabilities = %#x, actions = %#x ).",
@@ -904,14 +904,17 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
   int n_flows = 0;
   uint16_t length = 0;
   buffer *buffer;
-  list_element *f, *flow;
+  list_element *f = NULL;
+  list_element *flow = NULL;
   struct ofp_stats_reply *stats_reply;
   struct ofp_flow_stats *fs, *flow_stats;
 
   debug( "Creating a flow stats reply ( xid = %#x, flags = %#x ).", transaction_id, flags );
 
-  f = ( list_element * ) xmalloc( sizeof( list_element ) );
-  memcpy( f, flows_stats_head, sizeof( list_element ) );
+  if ( flows_stats_head != NULL ) {
+    f = ( list_element * ) xmalloc( sizeof( list_element ) );
+    memcpy( f, flows_stats_head, sizeof( list_element ) );
+  }
 
   flow = f;
   while ( flow != NULL ) {
@@ -939,7 +942,9 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     flow = flow->next;
   }
 
-  xfree( f );
+  if ( f != NULL ) {
+    xfree( f );
+  }
 
   return buffer;
 }
@@ -980,14 +985,17 @@ create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
   uint16_t length;
   uint16_t n_tables = 0;
   buffer *buffer;
-  list_element *t, *table;
+  list_element *t = NULL;
+  list_element *table = NULL;
   struct ofp_stats_reply *stats_reply;
   struct ofp_table_stats *ts, *table_stats;
 
   debug( "Creating a table stats reply ( xid = %#x, flags = %#x ).", transaction_id, flags );
 
-  t = ( list_element * ) xmalloc( sizeof( list_element ) );
-  memcpy( t, table_stats_head, sizeof( list_element ) );
+  if ( table_stats_head != NULL ) {
+    t = ( list_element * ) xmalloc( sizeof( list_element ) );
+    memcpy( t, table_stats_head, sizeof( list_element ) );
+  }
 
   table = t;
   while ( table != NULL ) {
@@ -1013,7 +1021,9 @@ create_table_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     table_stats++;
   }
 
-  xfree( t );
+  if ( t != NULL ) {
+    xfree( t );
+  }
 
   return buffer;
 }
@@ -1025,14 +1035,18 @@ create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
   uint16_t length;
   uint16_t n_ports = 0;
   buffer *buffer;
-  list_element *p, *port;
+  list_element *p = NULL;
+  list_element *port = NULL;
   struct ofp_stats_reply *stats_reply;
   struct ofp_port_stats *ps, *port_stats;
 
   debug( "Creating a port stats reply ( xid = %#x, flags = %#x ).", transaction_id, flags );
 
-  p = ( list_element * ) xmalloc( sizeof( list_element ) );
-  memcpy( p, port_stats_head, sizeof( list_element ) );
+  if ( port_stats_head != NULL ) {
+    p = ( list_element * ) xmalloc( sizeof( list_element ) );
+    memcpy( p, port_stats_head, sizeof( list_element ) );
+  }
+
   port = p;
   while ( port != NULL ) {
     n_ports++;
@@ -1042,7 +1056,7 @@ create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
   debug( "# of ports = %u.", n_ports );
 
   length = ( uint16_t ) ( offsetof( struct ofp_stats_reply, body )
-                        + sizeof( struct ofp_port_stats ) * n_ports );
+                          + sizeof( struct ofp_port_stats ) * n_ports );
   buffer = create_stats_reply( transaction_id, OFPST_PORT, length, flags );
   assert( buffer != NULL );
 
@@ -1057,7 +1071,9 @@ create_port_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     port_stats++;
   }
 
-  xfree( p );
+  if ( p != NULL ) {
+    xfree( p );
+  }
 
   return buffer;
 }
@@ -1069,14 +1085,17 @@ create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
   uint16_t length;
   uint16_t n_queues = 0;
   buffer *buffer;
-  list_element *q, *queue;
+  list_element *q = NULL;
+  list_element *queue = NULL;
   struct ofp_stats_reply *stats_reply;
   struct ofp_queue_stats *qs, *queue_stats;
 
   debug( "Creating a queue stats reply ( xid = %#x, flags = %#x ).", transaction_id, flags );
 
-  q = ( list_element * ) xmalloc( sizeof( list_element ) );
-  memcpy( q, queue_stats_head, sizeof( list_element ) );
+  if ( queue_stats_head != NULL ) {
+    q = ( list_element * ) xmalloc( sizeof( list_element ) );
+    memcpy( q, queue_stats_head, sizeof( list_element ) );
+  }
 
   queue = q;
   while ( queue != NULL ) {
@@ -1102,7 +1121,9 @@ create_queue_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     queue_stats++;
   }
 
-  xfree( q );
+  if ( q != NULL ) {
+    xfree( q );
+  }
 
   return buffer;
 }
@@ -2790,7 +2811,7 @@ validate_queue_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_queue_stats ),
+                         offsetof( struct ofp_stats_reply, body ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
@@ -2802,7 +2823,7 @@ validate_queue_stats_reply( const buffer *message ) {
   }
 
   queues_length = ( uint16_t ) ( ntohs( stats_reply->header.length )
-                               - offsetof( struct ofp_stats_reply, body ) );
+                                 - offsetof( struct ofp_stats_reply, body ) );
   if ( queues_length % sizeof( struct ofp_queue_stats ) != 0 ) {
     return ERROR_INVALID_LENGTH;
   }

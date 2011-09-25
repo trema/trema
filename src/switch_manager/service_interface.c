@@ -19,6 +19,7 @@
 
 
 #include <string.h>
+#include <inttypes.h>
 #include "ofpmsg_send.h"
 #include "openflow_service_interface.h"
 #include "service_interface.h"
@@ -100,7 +101,8 @@ handle_openflow_message( uint64_t *datapath_id, char *service_name, buffer *buf 
   ret = validate_openflow_message( buf );
   if ( ret != 0 ) {
     header = buf->data;
-    debug( "Validation error. type %u, errno %d", header->type, ret );
+    notice( "Validation error. dpid = %#" PRIx64 ", type %u, errno %d, service_name = %s",
+            *datapath_id, header->type, ret, service_name );
     free_buffer( buf );
 
     return;

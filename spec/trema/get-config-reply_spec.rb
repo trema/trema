@@ -22,17 +22,26 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::FeaturesRequest do
-  it "should automatically allocate a transaction ID" do
-    features_request = Trema::FeaturesRequest.new
-    features_request.transaction_id.should be_a_kind_of( Integer )
-    features_request.transaction_id.should >= 0
-  end
+module Trema
+  describe GetConfigReply do
+    it "should have datapath_id" do
+      GetConfigReply.new( :datapath_id => 123 ).datapath_id.should == 123
+    end
 
 
-  it "should be created by specifying its transaction ID" do
-    features_request = Trema::FeaturesRequest.new( 1234 )
-    features_request.transaction_id.should == 1234
+    it "should have transaction_id" do
+      GetConfigReply.new( :transaction_id => 1234 ).transaction_id.should == 1234
+    end
+
+
+    it "should have flags" do
+      GetConfigReply.new( :flags => 1 ).flags.should == 1
+    end
+
+
+    it "should have miss_send_len" do
+      GetConfigReply.new( :miss_send_len => 1024 ).miss_send_len.should == 1024
+    end
   end
 end
 

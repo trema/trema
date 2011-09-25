@@ -102,6 +102,12 @@ EOF
   end
 
 
+  def kill
+    switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
+    switch.shutdown!
+  end
+  
+
   def send_packets
     sanity_check
 
@@ -257,6 +263,7 @@ Type '#{ $0 } help <COMMAND>' for help on a specific command.
 
 Available commands:
   run            - runs a trema application.
+  kill           - terminates a trema process.
   killall        - terminates all trema processes.
   send_packets   - sends UDP packets to destination host.
   show_stats     - shows stats of packets.

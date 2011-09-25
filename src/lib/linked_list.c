@@ -18,25 +18,17 @@
  */
 
 
-/**
- * @file linked_list.c
- * This file contains functions for linked list implementation. This is a 
- * singly linked list implementation, for which this file contains various
- * helper functions for insertion, deletion and modification of elements as
- * well as the List (head).
- */
-
-
 #include <assert.h>
 #include "linked_list.h"
 #include "wrapper.h"
 
 
 /**
- * This function initializes the value of a new list HEAD to NULL. In case
- * any faulty HEAD pointer is passed (NULL), die is called.
- * @param list Double pointer to list_element
- * @return bool True on successful completion, else False
+ * Initializes a new list by passing the head of the list. Note that
+ * the head element should be allocated on caller's stack or heap.
+ *
+ * @param list the head of the list.
+ * @return true on success; false otherwise.
  */
 bool
 create_list( list_element **list ) {
@@ -49,12 +41,12 @@ create_list( list_element **list ) {
 }
 
 
-/** 
- * This function inserts the element (of type list_element) at head of the
- * list. In case the passed HEAD is NULL, die is called
- * @param head Double pointer to head of the list
- * @param data Pointer to data to be inserted in the list
- * @return bool True on successful completion, else False
+/**
+ * Inserts a new element at the head of the list.
+ *
+ * @param head the head of the list. This will be updated to the new element.
+ * @param data the data for the new element.
+ * @return true on success; false otherwise.
  */
 bool
 insert_in_front( list_element **head, void *data ) {
@@ -72,12 +64,13 @@ insert_in_front( list_element **head, void *data ) {
 }
 
 
-/** 
- * This function inserts a new element(of type list_element) before element which has data as sibling
- * @param head Double pointer to head of the list
- * @param sibling Pointer to data before which new element needs to be inserted
- * @param data Pointer to data which is to be added in the new element inserted
- * @return bool True if element is inserted successfully, else False
+/**
+ * Inserts a node before \e sibling containing \e data.
+ *
+ * @param head the head of the list.
+ * @param sibling node to insert \e data before.
+ * @param data data to put in the newly-inserted node.
+ * @return true on success; false otherwise.
  */
 bool
 insert_before( list_element **head, const void *sibling, void *data ) {
@@ -85,12 +78,9 @@ insert_before( list_element **head, const void *sibling, void *data ) {
     die( "head must not be NULL" );
   }
 
-  list_element *e;
-  list_element *new_element;
-
-  for ( e = *head; e->next != NULL; e = e->next ) {
+  for ( list_element *e = *head; e->next != NULL; e = e->next ) {
     if ( e->next->data == sibling ) {
-      new_element = xmalloc( sizeof( list_element ) );
+      list_element *new_element = xmalloc( sizeof( list_element ) );
       new_element->next = e->next;
       new_element->data = data;
       e->next = new_element;
@@ -102,11 +92,12 @@ insert_before( list_element **head, const void *sibling, void *data ) {
 }
 
 
-/** 
- * This function inserts element (of type list_element) at the end of list
- * @param head Double pointer to head of the list
- * @param data Pointer to the data which needs to be added to the list
- * @return bool True if element is inserted successfully, else False
+/**
+ * Adds a new element on to the end of the list.
+ *
+ * @param head the head of the list.
+ * @param data the data for the new element.
+ * @return true on success; false otherwise.
  */
 bool
 append_to_tail( list_element **head, void *data ) {
@@ -114,9 +105,7 @@ append_to_tail( list_element **head, void *data ) {
     die( "head must not be NULL" );
   }
 
-  list_element *e;
   list_element *new_tail = xmalloc( sizeof( list_element ) );
-
   new_tail->data = data;
   new_tail->next = NULL;
 
@@ -125,16 +114,18 @@ append_to_tail( list_element **head, void *data ) {
     return true;
   }
 
+  list_element *e;
   for ( e = *head; e->next != NULL; e = e->next );
   e->next = new_tail;
   return true;
 }
 
 
-/** 
- * This function calculates the total number of elements in the list
- * @param head Pointer to head of the list
- * @return unsigned int Length of list
+/**
+ * Gets the number of elements in a list.
+ *
+ * @param head the head of the list.
+ * @return the number of elements in the list.
  */
 unsigned int
 list_length_of( const list_element *head ) {
@@ -147,12 +138,14 @@ list_length_of( const list_element *head ) {
 }
 
 
-/** 
- * This function releases the element which has data element same as 
- * data parameter of the function
- * @param head Double pointer to head of the list
- * @param data Pointer to data which needs to be freed from the list
- * @return bool True if data is freed successfuly, else False
+/**
+ * Removes an element from a list. If two elements contain the same
+ * data, only the first is removed. If none of the elements contain
+ * the data, the list is unchanged.
+ *
+ * @param head the head of the list.
+ * @param data the data of the element to remove.
+ * @return true on success; false otherwise.
  */
 bool
 delete_element( list_element **head, const void *data ) {
@@ -161,7 +154,6 @@ delete_element( list_element **head, const void *data ) {
   }
 
   list_element *e = *head;
-  list_element *delete_me;
 
   if ( e->data == data ) {
     *head = e->next;
@@ -171,7 +163,7 @@ delete_element( list_element **head, const void *data ) {
 
   for ( ; e->next != NULL; e = e->next ) {
     if ( e->next->data == data ) {
-      delete_me = e->next;
+      list_element *delete_me = e->next;
       e->next = e->next->next;
       xfree( delete_me );
       return true;
@@ -182,18 +174,16 @@ delete_element( list_element **head, const void *data ) {
 }
 
 
-/** 
- * This function releases each entry of type list_element from the list
- * @param head Pointer to head of the list
- * @return bool True if deletion of list is successful, else False
+/**
+ * Removes all elements from a list.
+ *
+ * @param head the head of the list.
+ * @return true on success; false otherwise.
  */
 bool
 delete_list( list_element *head ) {
-  list_element *e;
-  list_element *delete_me;
-
-  for ( e = head; e != NULL; ) {
-    delete_me = e;
+  for ( list_element *e = head; e != NULL; ) {
+    list_element *delete_me = e;
     e = e->next;
     xfree( delete_me );
   }

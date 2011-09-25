@@ -1,7 +1,7 @@
 /*
- * tremashark: A bridge for printing Trema IPC messages on Wireshark
+ * Queue implementation for keeping pcap formatted packets.
  * 
- * Author: Yasunori Nakazawa
+ * Author: Yasunori Nakazawa, Yasunobu Chiba
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,32 +20,33 @@
  */
 
 
-#ifndef TREMASHARK_QUEUE_H
-#define TREMASHARK_QUEUE_H
+#ifndef PCAP_QUEUE_H
+#define PCAP_QUEUE_H
 
 
-#include <stdint.h>
-#include "buffer.h"
+#include "trema.h"
 
-typedef enum queue_return {
-  QUEUE_SUCCESS = 0,
+
+typedef enum {
+  QUEUE_SUCCESS,
   QUEUE_FULL,
   QUEUE_EMPTY
-} queue_return;
+} queue_status;
 
 
-void create_queue();
-bool delete_queue();
-buffer* create_pcap_packet( void* pcap_header, size_t pcap_len,
-                       void* dump_header, size_t dump_len,
-                       void* data, size_t data_len );
+bool create_pcap_queue( void );
+bool delete_pcap_queue( void );
+buffer* create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_t dump_len, void* data, size_t data_len );
 bool delete_pcap_packet( buffer *packet );
-queue_return push_pcap_packet( buffer *packet );
-queue_return push_pcap_packet_in_front( buffer *packet );
-queue_return pop_pcap_packet( buffer **packet );
+queue_status enqueue_pcap_packet( buffer *packet );
+queue_status peek_pcap_packet( buffer **packet );
+queue_status dequeue_pcap_packet( buffer **packet );
+bool sort_pcap_queue( void );
+void set_max_pcap_queue_length( int length );
+int get_pcap_queue_length( void );
 
 
-#endif // TREMASHARK_QUEUE_H
+#endif // PCAP_QUEUE_H
 
 
 /*

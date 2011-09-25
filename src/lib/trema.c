@@ -38,6 +38,7 @@
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "timer.h"
+#include "trema_private.h"
 #include "utility.h"
 #include "wrapper.h"
 
@@ -241,15 +242,11 @@ void mock_dump_stats();
 #endif // not UNIT_TESTING
 
 
-static const char TREMA_HOME[] = "TREMA_HOME";
-static const char TREMA_TMP[] = "TREMA_TMP";
 static bool initialized = false;
 static bool trema_started = false;
 static bool run_as_daemon = false;
 static char *trema_name = NULL;
 static char *executable_name = NULL;
-static char *trema_home = NULL;
-static char *trema_tmp = NULL;
 static char *trema_log = NULL;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -281,98 +278,6 @@ usage() {
     "  -h, --help                  display this help and exit\n",
     executable_name
   );
-}
-
-
-static bool
-expand( const char *path, char *absolute_path ) {
-  assert( path != NULL );
-  assert( absolute_path != NULL );
-
-  char buf[ 256 ];
-  char *result = realpath( path, absolute_path );
-  if ( result == NULL ) {
-    fprintf( stderr, "Could not get the absolute path of %s: %s.\n", path, strerror_r( errno, buf, sizeof( buf ) ) );
-    return false;
-  }
-
-  return true;
-}
-
-
-static void
-set_trema_home() {
-  pthread_mutex_lock( &mutex );
-
-  if ( getenv( TREMA_HOME ) == NULL ) {
-    setenv( TREMA_HOME, "/", 1 );
-    trema_home = xstrdup( "/" );
-  }
-  else {
-    char absolute_path[ PATH_MAX ];
-    if ( !expand( getenv( TREMA_HOME ), absolute_path ) ) {
-      fprintf( stderr, "Falling back TREMA_HOME to \"/\".\n" );
-      strncpy( absolute_path, "/", 2 );
-    }
-    setenv( TREMA_HOME, absolute_path, 1 );
-    trema_home = xstrdup( absolute_path );
-  }
-
-  pthread_mutex_unlock( &mutex );
-}
-
-
-/**
- * Returns trema home directory used in your trema session.
- */
-const char *
-get_trema_home() {
-  if ( trema_home == NULL ) {
-    set_trema_home();
-  }
-  return trema_home;
-}
-
-
-static void
-set_trema_tmp() {
-  pthread_mutex_lock( &mutex );
-
-  char path[ PATH_MAX ];
-
-  if ( getenv( TREMA_TMP ) == NULL ) {
-    const char *trema_home = get_trema_home();
-    if ( trema_home[ strlen( trema_home ) - 1 ] == '/' ) {
-      snprintf( path, PATH_MAX, "%stmp", trema_home );
-    }
-    else {
-      snprintf( path, PATH_MAX, "%s/tmp", trema_home );
-    }
-    path[ PATH_MAX - 1 ] = '\0';
-  }
-  else {
-    if ( !expand( getenv( TREMA_TMP ), path ) ) {
-      fprintf( stderr, "Falling back TREMA_TMP to \"/tmp\".\n" );
-      strncpy( path, "/tmp", 5 );
-    }
-  }
-
-  trema_tmp = xstrdup( path );
-  setenv( TREMA_TMP, trema_tmp, 1 );
-
-  pthread_mutex_lock( &mutex );
-}
-
-
-/**
- * Returns temporary directory used in your Trema session.
- */
-const char *
-get_trema_tmp() {
-  if ( trema_tmp == NULL ) {
-    set_trema_tmp();
-  }
-  return trema_tmp;
 }
 
 
@@ -419,10 +324,10 @@ finalize_trema() {
   trema_name = NULL;
   xfree( executable_name );
   executable_name = NULL;
-  xfree( trema_home );
-  trema_home = NULL;
-  xfree( trema_tmp );
-  trema_tmp = NULL;
+
+  unset_trema_home();
+  unset_trema_tmp();
+
   xfree( trema_log );
   trema_log = NULL;
 
@@ -599,7 +504,6 @@ init_trema( int *argc, char ***argv ) {
   pthread_mutex_lock( &mutex );
 
   trema_name = NULL;
-  trema_tmp = NULL;
   trema_log = NULL;
   executable_name = NULL;
   initialized = false;

@@ -11,4 +11,5 @@ Feature: Send echo request messages
       vswitch("echo_request") { datapath_id "0xabc" }
       """
       And wait until "echo_request" is up
+      And *** sleep 2 ***
     Then the log file "openflowd.echo_request.log" should include "received: OFPT_ECHO_REQUEST" x 10

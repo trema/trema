@@ -22,28 +22,40 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::ActionEnqueue, "A new enqueue action" do
-  it "should be specified by its port and queue id attributes" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    action_enqueue.port.should == 1
-    action_enqueue.queue_id.should == 123
-  end
+describe ActionEnqueue do
+  context "when a new instance is created" do
+    subject { ActionEnqueue.new( 1, 123 ) }
+    its ( :port ) { should == 1 }
+    its ( :queue_id ) { should == 123 }
+    it "should print its attributes" do
+      subject.inspect.should == "#<Trema::ActionEnqueue port=1,queue_id=123>"
+    end
+    
+    it "should append its attributes to a list of actions" do
+      openflow_actions = double()
+      subject.should_receive( :append ).with( openflow_actions )
+      subject.append( openflow_actions )
+    end
 
+    
+    context "when only one argument is supplied" do
+      it "should raise an error" do
+        lambda do
+          ActionEnqueue.new( 1 )
+        end.should raise_error ArgumentError
+      end
+    end 
 
-  it "should respond to #to_s and return a string" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    action_enqueue.should respond_to :to_s 
-    action_enqueue.to_s.should == "#<Trema::ActionEnqueue> port = 1, queue_id = 123"
-  end 
-  
-  
-  it "appends its attributes to a list of actions" do
-    action_enqueue = Trema::ActionEnqueue.new( 1, 123 )
-    openflow_actions = double( )
-    action_enqueue.should_receive( :append ).with( openflow_actions )
-    action_enqueue.append( openflow_actions )
-  end
-  
+    
+    context "when no argument supplied" do
+      it "should raise an error" do
+        lambda do
+          ActionEnqueue.new
+        end.should raise_error ArgumentError
+      end
+    end
+  end    
+
   
   context "when sending #flow_mod(add) with action set to enqueue" do
     it "should have a flow with action set to enqueue" do
@@ -53,6 +65,7 @@ describe Trema::ActionEnqueue, "A new enqueue action" do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionEnqueue.new( 1, 123 ) )
+        sleep 2 # FIXME: wait to send_flow_mod
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /enqueue:1q123/ )
       }

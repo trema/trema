@@ -61,14 +61,14 @@ static const uint32_t VENDOR_ID = 0x00004cff;
 static const uint16_t VENDOR_STATS_FLAG = 0xaabb;
 static const uint8_t HW_ADDR[ OFP_ETH_ALEN ] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
 static const uint32_t NW_ADDR = 0x12345678;
-static const uint8_t NW_TOS = 0x01;
+static const uint8_t NW_TOS = 0xfc;
 static const uint16_t MAX_LENGTH_OF_SEND_PACKET = 128;
 static const uint16_t SHORT_DATA_LENGTH = 32;
 static const uint16_t LONG_DATA_LENGTH = 64;
 static const struct ofp_match MATCH = { 0, 1,
                                         { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
                                         { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
-                                        1, 1, { 0 }, 0x800, 1, 0x6, { 0, 0 },
+                                        1, 1, { 0 }, 0x800, 0xfc, 0x6, { 0, 0 },
                                         0x0a090807, 0x0a090807, 1024, 2048 };
 static const uint32_t PORT_FEATURES = ( OFPPF_10MB_HD | OFPPF_10MB_FD | OFPPF_100MB_HD |
                                         OFPPF_100MB_FD | OFPPF_1GB_HD | OFPPF_1GB_FD |
@@ -99,7 +99,7 @@ mock_debug( char *format, ... ) {
 }
 
 
-static int
+static logging_level
 mock_get_logging_level() {
   return LOG_DEBUG;
 }
@@ -1083,7 +1083,7 @@ test_append_action_set_nw_dst() {
 static void
 test_append_action_set_nw_tos() {
   openflow_actions *actions = NULL;
-  uint8_t nw_tos = 0x01;
+  uint8_t nw_tos = 0xfc;
   struct ofp_action_nw_tos *action_nw_tos;
   bool ret;
 
@@ -1094,7 +1094,7 @@ test_append_action_set_nw_tos() {
 
   expect_assert_failure( append_action_set_nw_tos( actions, nw_tos ) );
 
-  nw_tos = 0x01;
+  nw_tos = 0xfc;
 
   ret = append_action_set_nw_tos( actions, nw_tos );
   assert_true( ret );

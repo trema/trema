@@ -1,5 +1,5 @@
 /*
- * Ruby wrapper class for OFPT_SET_CONFIG message.
+ * Ruby wrapper class for OFPT_GET_CONFIG_REQUEST message.
  *
  * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
@@ -42,4 +42,3 @@ void Init_get_config_request( void );
  * indent-tabs-mode: nil
  * End:
  */
-

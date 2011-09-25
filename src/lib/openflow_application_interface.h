@@ -178,6 +178,12 @@ typedef void ( *queue_get_config_reply_handler )(
 );
 
 
+typedef void ( *list_switches_reply_handler )(
+  const list_element *switches,
+  void *user_data
+);
+
+
 typedef struct openflow_event_handlers {
   bool simple_switch_ready_callback;
   void *switch_ready_callback;
@@ -216,6 +222,8 @@ typedef struct openflow_event_handlers {
 
   queue_get_config_reply_handler queue_get_config_reply_callback;
   void *queue_get_config_reply_user_data;
+
+  list_switches_reply_handler list_switches_reply_callback;
 } openflow_event_handlers_t;
 
 
@@ -265,12 +273,16 @@ bool set_stats_reply_handler( stats_reply_handler callback, void *user_data );
 bool set_barrier_reply_handler( barrier_reply_handler callback, void *user_data );
 bool set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, void *user_data );
 
+bool set_list_switches_reply_handler( list_switches_reply_handler callback );
+
 
 /********************************************************************************
  * Function for sending an OpenFlow message to an OpenFlow switch.
  ********************************************************************************/
 
 bool send_openflow_message( const uint64_t datapath_id, buffer *message );
+
+bool send_list_switches_request( void *user_data );
 
 
 #endif // OPENFLOW_APPLICATION_INTERFACE_H

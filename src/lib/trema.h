@@ -38,6 +38,7 @@
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "packet_info.h"
+#include "persistent_storage.h"
 #include "stat.h"
 #include "utility.h"
 #include "wrapper.h"

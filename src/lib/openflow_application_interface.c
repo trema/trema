@@ -48,6 +48,13 @@ const char *mock_get_trema_name( void );
 #define send_message mock_send_message
 bool mock_send_message( char *service_name, uint16_t tag, void *data, size_t len );
 
+#ifdef send_request_message
+#undef send_request_message
+#endif
+#define send_request_message mock_send_request_message
+bool mock_send_request_message( const char *to_service_name, char *from_service_name, uint16_t tag,
+                                void *data, size_t len, void *user_data );
+
 #ifdef init_openflow_message
 #undef init_openflow_message
 #endif
@@ -59,14 +66,28 @@ bool mock_init_openflow_message( void );
 #endif
 #define add_message_received_callback mock_add_message_received_callback
 bool mock_add_message_received_callback( char *service_name,
-                                                void ( *callback )( uint16_t tag, void *data, size_t len ) );
+                                         void ( *callback )( uint16_t tag, void *data, size_t len ) );
+
+#ifdef add_message_replied_callback
+#undef add_message_replied_callback
+#endif
+#define add_message_replied_callback mock_add_message_replied_callback
+bool mock_add_message_replied_callback( char *service_name,
+                                        void ( *callback )( uint16_t tag, void *data, size_t len, void *yser_data ) );
 
 #ifdef delete_message_received_callback
 #undef delete_message_received_callback
 #endif
 #define delete_message_received_callback mock_delete_message_received_callback
 bool mock_delete_message_received_callback( char *service_name,
-                                                   void ( *callback )( uint16_t tag, void *data, size_t len ) );
+                                            void ( *callback )( uint16_t tag, void *data, size_t len ) );
+
+#ifdef delete_message_replied_callback
+#undef delete_message_replied_callback
+#endif
+#define delete_message_replied_callback mock_delete_message_replied_callback
+bool mock_delete_message_replied_callback( char *service_name,
+                                           void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
 
 #ifdef getpid
 #undef getpid
@@ -124,6 +145,7 @@ static char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
 
 
 static void handle_message( uint16_t message_type, void *data, size_t length );
+static void handle_list_switches_reply( uint16_t message_type, void *dpid, size_t length, void *user_data );
 
 
 enum {
@@ -162,15 +184,18 @@ init_openflow_application_interface( const char *custom_service_name ) {
   memset( &event_handlers, 0, sizeof( openflow_event_handlers_t ) );
   memset( service_name, '\0', sizeof( service_name ) );
 
-  if ( strlen( custom_service_name ) + 1 > MESSENGER_SERVICE_NAME_LENGTH ) {
+  size_t length = strlen( custom_service_name ) + 1;
+  if ( length > MESSENGER_SERVICE_NAME_LENGTH ) {
     error( "Too long custom service name ( %s ).", custom_service_name );
     return false;
   }
-  memcpy( service_name, custom_service_name, sizeof( service_name ) );
+  assert( length <= sizeof( service_name ) );
+  memcpy( service_name, custom_service_name, length );
 
   init_openflow_message();
 
   add_message_received_callback( service_name, handle_message );
+  add_message_replied_callback( service_name, handle_list_switches_reply );
 
   openflow_application_interface_initialized = true;
 
@@ -185,6 +210,7 @@ finalize_openflow_application_interface() {
   assert( openflow_application_interface_initialized );
 
   delete_message_received_callback( service_name, handle_message );
+  delete_message_replied_callback( service_name, handle_list_switches_reply );
 
   memset( &event_handlers, 0, sizeof( openflow_event_handlers_t ) );
   memset( service_name, '\0', sizeof( service_name ) );
@@ -443,6 +469,24 @@ set_queue_get_config_reply_handler( queue_get_config_reply_handler callback, voi
 
   event_handlers.queue_get_config_reply_callback = callback;
   event_handlers.queue_get_config_reply_user_data = user_data;
+
+  return true;
+}
+
+
+bool
+set_list_switches_reply_handler( list_switches_reply_handler callback ) {
+  if ( callback == NULL ) {
+    die( "Callback function ( list_switches_reply_handler ) must not be NULL." );
+  }
+  assert( callback != NULL );
+
+  maybe_init_openflow_application_interface();
+  assert( openflow_application_interface_initialized );
+
+  debug( "Setting a list switches reply handler ( callback = %p ).", callback );
+
+  event_handlers.list_switches_reply_callback = callback;
 
   return true;
 }
@@ -1462,6 +1506,68 @@ handle_message( uint16_t type, void *data, size_t length ) {
 }
 
 
+static void
+insert_dpid( list_element **head, uint64_t *dpid ) {
+  assert( head != NULL );
+  assert( dpid != NULL );
+
+  list_element *element;
+  for ( element = *head; element != NULL; element = element->next ) {
+    if ( *dpid <= *( uint64_t * ) element->data ) {
+      break;
+    }
+  }
+  if ( element == NULL ) {
+    append_to_tail( head, dpid );
+  }
+  else if ( element == *head ) {
+    insert_in_front( head, dpid );
+  }
+  else {
+    insert_before( head, element->data, dpid );
+  }
+}
+
+
+static void
+handle_list_switches_reply( uint16_t message_type, void *data, size_t length, void *user_data ) {
+  UNUSED( message_type );
+  assert( data != NULL );
+
+  uint64_t *dpid = ( uint64_t *) data;
+  size_t num_switch = length / sizeof( uint64_t );
+
+  debug( "A list switches reply message is received ( number of switches = %u ).",
+         num_switch );
+
+  if ( event_handlers.list_switches_reply_callback == NULL ) {
+    debug( "Callback function for list switches reply events is not set." );
+    return;
+  }
+
+  list_element *switches;
+  create_list( &switches );
+
+  unsigned int i;
+  for ( i = 0; i < num_switch; ++i ) {
+    uint64_t *datapath_id = ( uint64_t *) xmalloc( sizeof( uint64_t ) );
+    *datapath_id = ntohll( dpid[ i ] );
+    insert_dpid( &switches, datapath_id );
+  }
+
+  debug( "Calling list switches reply handler ( callback = %p ).",
+         event_handlers.list_switches_reply_callback );
+
+  event_handlers.list_switches_reply_callback( switches, user_data );
+
+  list_element *element;
+  for ( element = switches; element != NULL; element = element->next ) {
+    xfree( element->data );
+  }
+  delete_list( switches );
+}
+
+
 bool
 send_openflow_message( const uint64_t datapath_id, buffer *message ) {
   bool ret;
@@ -1515,6 +1621,22 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
   update_openflow_stats( ofp->type, OPENFLOW_MESSAGE_SEND, ret );
 
   return ret;
+}
+
+
+bool
+send_list_switches_request( void *user_data ) {
+  uint16_t message_type = 0;
+  void *data = NULL;
+  size_t data_length = 0;
+
+  maybe_init_openflow_application_interface();
+  assert( openflow_application_interface_initialized );
+
+  debug( "Sending a list switches request ( service_name = %s ).", service_name );
+
+  return send_request_message( "switch_manager", service_name, message_type,
+                               data, data_length, user_data );
 }
 
 

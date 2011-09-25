@@ -26,6 +26,20 @@ extern VALUE mTrema;
 VALUE cActionSetVlanVid;
 
 
+/*
+ * An action to modify the VLAN id of a packet. The VLAN id is 16-bits long but 
+ * the actual VID(VLAN Identifier) of the IEEE 802.1Q frame is 12-bits.
+ *
+ * @overload initialize(vlan_vid)
+ *
+ * @param [Number] vlan_vid
+ *   the VLAN id to set to. Only the lower 12-bits are used.
+ *
+ * @raise [ArgumentError] if vlan_vid argument is not supplied.
+ *
+ * @return [ActionSetVlanVid]
+ *   an object that encapsulates this action.
+ */
 static VALUE
 action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
   rb_iv_set( self, "@vlan_vid", vlan_vid );
@@ -33,40 +47,50 @@ action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
 }
 
 
+/*
+ * The VLAN id value.
+ *
+ * @return [Number] the value of attribute vlan_vid.
+ */
 static VALUE
 action_get_vlan_vid( VALUE self ) {
   return rb_iv_get( self, "@vlan_vid" );
 }
 
 
+/*
+ * Appends its action(vlan_vid) to the list of actions.
+ *
+ * @return [ActionSetVlanVid] self
+ */
 static VALUE
 action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
-
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) ) );
-
   return self;
 }
 
 
+/*
+ * (see ActionEnqueue#inspect)
+ */
 static VALUE
-action_set_vlan_vid_to_s( VALUE self ) {
+action_set_vlan_vid_inspect( VALUE self ) {
   char str[ 64 ];
   uint16_t vlan_vid = ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) );
-
-  sprintf( str, "#<%s> vlan_vid = %u", rb_obj_classname( self ), vlan_vid );
+  sprintf( str, "#<%s vlan_vid=%u>", rb_obj_classname( self ), vlan_vid );
   return rb_str_new2( str );
 }
 
 
 void
-Init_action_set_vlan_vid( ) {
+Init_action_set_vlan_vid() {
   cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_cObject );
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, 1 );
   rb_define_method( cActionSetVlanVid, "vlan_vid", action_get_vlan_vid, 0 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
-  rb_define_method( cActionSetVlanVid, "to_s", action_set_vlan_vid_to_s, 0 );
+  rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
 }
 
 

@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include "cmockery_trema.h"
 #include "trema.h"
+#include "trema_private.h"
 
 
 /********************************************************************************
@@ -44,8 +45,6 @@ void parse_argv( int *argc, char ***argv );
 
 extern bool initialized;
 extern bool trema_started;
-extern char *trema_home;
-extern char *trema_tmp;
 extern char *trema_log;
 extern char *trema_name;
 extern char *executable_name;
@@ -320,13 +319,14 @@ reset_trema() {
   unsetenv( "TREMA_HOME" );
   unsetenv( "TREMA_TMP" );
 
+  unset_trema_home();
+  unset_trema_tmp();
+
   logger_initialized = false;
   messenger_initialized = false;
   initialized = false;
   trema_name = NULL;
   executable_name = NULL;
-  trema_home = NULL;
-  trema_tmp = NULL;
   run_as_daemon = false;
 
   daemonized = false;
@@ -354,11 +354,11 @@ test_init_trema_initializes_submodules_in_right_order() {
   assert_true( messenger_initialized );
   assert_true( initialized );
   assert_true( stat_initialized );
-  assert_string_equal( trema_home, "/" );
-  assert_string_equal( trema_tmp, "/tmp" );
+  assert_string_equal( _get_trema_home(), "/" );
+  assert_string_equal( _get_trema_tmp(), "/tmp" );
 
-  xfree( trema_home );
-  xfree( trema_tmp );
+  unset_trema_home();
+  unset_trema_tmp();
   xfree( trema_log );
   xfree( trema_name );
   xfree( executable_name );
@@ -373,8 +373,8 @@ test_init_trema_dies_if_trema_tmp_does_not_exist() {
 
   expect_assert_failure( init_trema( &default_argc, &default_argv ) );
 
-  xfree( trema_home );
-  xfree( trema_tmp );
+  unset_trema_home();
+  unset_trema_tmp();
   xfree( trema_name );
   xfree( executable_name );
 }
@@ -475,8 +475,8 @@ test_finalize_trema_finalizes_submodules_in_right_order() {
   assert_false( messenger_initialized );
   assert_false( initialized );
   assert_false( stat_initialized );
-  assert_true( trema_home == NULL );
-  assert_true( trema_tmp == NULL );
+  assert_true( _get_trema_home() == NULL );
+  assert_true( _get_trema_tmp() == NULL );
 }
 
 
@@ -695,123 +695,6 @@ test_parse_h_option() {
 
 
 /********************************************************************************
- * get_trema_home() tests.
- *******************************************************************************/
-
-static void
-test_get_trema_home() {
-  setenv( "TREMA_HOME", "/var", 1 );
-
-  assert_string_equal( "/var", get_trema_home() );
-
-  xfree( trema_home );
-}
-
-
-static void
-test_get_trema_home_when_TREMA_HOME_is_NOT_set() {
-  assert_string_equal( "/", get_trema_home() );
-
-  xfree( trema_home );
-}
-
-
-static void
-test_get_trema_home_falls_back_to_ROOT_if_TREMA_HOME_is_invalid() {
-  setenv( "TREMA_HOME", "NO_SUCH_DIRECTORY", 1 );
-
-  errno = ENOENT;
-
-  assert_string_equal( "/", get_trema_home() );
-
-  xfree( trema_home );
-}
-
-
-/********************************************************************************
- * get_trema_tmp() tests.
- *******************************************************************************/
-
-static void
-test_get_trema_tmp() {
-  setenv( "TREMA_HOME", "/var", 1 );
-
-  assert_string_equal( "/var/tmp", get_trema_tmp() );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_when_TREMA_HOME_is_ROOT() {
-  setenv( "TREMA_HOME", "/", 1 );
-
-  assert_string_equal( "/tmp", get_trema_tmp() );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_falls_back_to_default_if_TREMA_HOME_is_invalid() {
-  setenv( "TREMA_HOME", "NO_SUCH_DIRECTORY", 1 );
-
-  errno = ENOENT;
-
-  assert_string_equal( "/tmp", get_trema_tmp() );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_when_TREMA_HOME_is_NOT_set() {
-  assert_string_equal( "/tmp", get_trema_tmp() );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_when_TREMA_TMP_is_set() {
-  setenv( "TREMA_TMP", "/", 1 );
-
-  assert_string_equal( "/", get_trema_tmp() );
-
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set() {
-  setenv( "TREMA_HOME", "/var", 1 );
-  setenv( "TREMA_TMP", "/", 1 );
-
-  assert_string_equal( "/var", get_trema_home() );
-  assert_string_equal( "/", get_trema_tmp() );
-
-  xfree( trema_home );
-  xfree( trema_tmp );
-}
-
-
-static void
-test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid() {
-  setenv( "TREMA_TMP", "NO_SUCH_DIRECTORY", 1 );
-
-  errno = ENOENT;
-
-  assert_string_equal( "/tmp", get_trema_tmp() );
-
-  xfree( trema_tmp );
-}
-
-
-/********************************************************************************
  * set_trema_name() tests.
  *******************************************************************************/
 
@@ -857,8 +740,8 @@ test_get_executable_name() {
 
   assert_string_equal( "trema_cat", get_executable_name() );
 
-  xfree( trema_home );
-  xfree( trema_tmp );
+  unset_trema_home();
+  unset_trema_tmp();
   xfree( trema_log );
   xfree( trema_name );
   xfree( executable_name );
@@ -882,7 +765,7 @@ test_get_trema_process_from_name() {
   // Go
   pid_t pid = get_trema_process_from_name( NAME );
   assert_true( pid == PID );
-  xfree( trema_tmp );
+  unset_trema_tmp();
 }
 
 
@@ -1014,20 +897,6 @@ main() {
     unit_test_setup_teardown( test_parse_l_option, reset_trema, reset_trema ),
     unit_test_setup_teardown( test_parse_help_option, reset_trema, reset_trema ),
     unit_test_setup_teardown( test_parse_h_option, reset_trema, reset_trema ),
-
-    // get_trema_home() tests.
-    unit_test_setup_teardown( test_get_trema_home, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_home_when_TREMA_HOME_is_NOT_set, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_home_falls_back_to_ROOT_if_TREMA_HOME_is_invalid, reset_trema, reset_trema ),
-
-    // get_trema_tmp() tests.
-    unit_test_setup_teardown( test_get_trema_tmp, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_is_ROOT, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_falls_back_to_default_if_TREMA_HOME_is_invalid, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_is_NOT_set, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_TMP_is_set, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set, reset_trema, reset_trema ),
-    unit_test_setup_teardown( test_get_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid, reset_trema, reset_trema ),
 
     // set_trema_name() test.
     unit_test_setup_teardown( test_set_trema_name_when_first_call, reset_trema, reset_trema ),

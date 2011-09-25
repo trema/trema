@@ -29,6 +29,8 @@
 #include "ether.h"
 #include "log.h"
 #include "match_table.h"
+#include "linked_list.h"
+#include "utility.h"
 
 
 typedef struct match_table {
@@ -45,27 +47,24 @@ extern match_table match_table_head;
  * Setup and teardown function.                                          
  *************************************************************************/
 
+static void ( *original_die )( const char *format, ... );
+
+static void
+mock_die( const char *format, ... ) {
+  UNUSED( format );
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
 
 static void
 setup() {
-  // FIXME: fake logging!
-  init_log( "match_table_test", "/tmp", true );
+  original_die = die;
+  die = mock_die;
 }
 
 
 static void
 teardown() {
-}
-
-
-/*************************************************************************
- * Mock
- *************************************************************************/
-
-
-void
-mock_die( char *format, ... ) {
-  UNUSED( format );
+  die = original_die;
 }
 
 
@@ -117,22 +116,21 @@ set_ipv4_match_entry( struct ofp_match *match ) {
 
 #define ANY_MATCH_PRIORITY 0x0
 #define ANY_MATCH_SERVICE_NAME "service-name-any"
-#define ANY_MATCH_ENTRY_NAME "entry-name-any"
 
 #define LLDP_MATCH_PRIORITY 0x8000
 #define LLDP_MATCH_SERVICE_NAME "service-name-lldp"
-#define LLDP_MATCH_ENTRY_NAME "entry-name-lldp"
 
 #define IPV4_MATCH_PRIORITY 0x4000
 #define IPV4_MATCH_SERVICE_NAME "service-name-ipv4"
-#define IPV4_MATCH_ENTRY_NAME "entry-name-ipv4"
+#define IPV4_MATCH_SERVICE_NAME_1 "service-name-ipv4-1"
+#define IPV4_MATCH_SERVICE_NAME_2 "service-name-ipv4-2"
 
 static void
 intsert_any_match_entry() {
   struct ofp_match match;
 
   set_any_match_entry( &match );
-  insert_match_entry( &match, ANY_MATCH_PRIORITY, ANY_MATCH_SERVICE_NAME, ANY_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, ANY_MATCH_PRIORITY, ANY_MATCH_SERVICE_NAME );
 }
 
 
@@ -141,7 +139,7 @@ delete_any_match_entry() {
   struct ofp_match match;
 
   set_any_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, ANY_MATCH_PRIORITY, ANY_MATCH_SERVICE_NAME );
 }
 
 
@@ -150,7 +148,7 @@ intsert_lldp_match_entry() {
   struct ofp_match match;
 
   set_lldp_match_entry( &match );
-  insert_match_entry( &match, LLDP_MATCH_PRIORITY, LLDP_MATCH_SERVICE_NAME, LLDP_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, LLDP_MATCH_PRIORITY, LLDP_MATCH_SERVICE_NAME );
 }
 
 
@@ -159,7 +157,7 @@ delete_lldp_match_entry() {
   struct ofp_match match;
 
   set_lldp_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, LLDP_MATCH_PRIORITY, LLDP_MATCH_SERVICE_NAME );
 }
 
 
@@ -168,7 +166,7 @@ intsert_ipv4_match_entry() {
   struct ofp_match match;
 
   set_ipv4_match_entry( &match );
-  insert_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME, IPV4_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME );
 }
 
 
@@ -177,7 +175,7 @@ delete_ipv4_match_entry() {
   struct ofp_match match;
 
   set_ipv4_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME );
 }
 
 
@@ -200,8 +198,52 @@ test_insert_and_lookup_of_wildcard_any_entry() {
   set_any_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == ANY_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, ANY_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ANY_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ANY_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
+
+  finalize_match_table();
+
+  teardown();
+}
+
+
+static void
+test_insert_and_lookup_of_duplicate_ipv4_entry() {
+  setup();
+
+  struct ofp_match match, lookup_match;
+  match_entry *match_entry;
+
+  init_match_table();
+
+  set_ipv4_match_entry( &match );
+  insert_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME_1 );
+  insert_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME_2 );
+
+  memset( &lookup_match, 0, sizeof( struct ofp_match ) );
+  lookup_match.dl_type = ETHERTYPE_IP;
+  match_entry = lookup_match_entry( &lookup_match );
+  assert_true( match_entry != NULL );
+
+  assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
+  assert_true( match_entry->priority == IPV4_MATCH_PRIORITY );
+  assert_string_equal( ( char * ) match_entry->services_name->data, IPV4_MATCH_SERVICE_NAME_1 );
+  assert_string_equal( ( char * ) match_entry->services_name->next->data, IPV4_MATCH_SERVICE_NAME_2 );
+  assert_true( match_entry->services_name->next->next == NULL );
+
+  delete_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME_1 );
+
+  match_entry = lookup_match_entry( &lookup_match );
+  assert_true( match_entry != NULL );
+  assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
+  assert_true( match_entry->priority == IPV4_MATCH_PRIORITY );
+  assert_string_equal( ( char * ) match_entry->services_name->data, IPV4_MATCH_SERVICE_NAME_2 );
+  assert_true( match_entry->services_name->next == NULL );
+
+  delete_match_entry( &match, IPV4_MATCH_PRIORITY, IPV4_MATCH_SERVICE_NAME_1 );
+  memset( &lookup_match, 0, sizeof( struct ofp_match ) );
+  match_entry = lookup_match_entry( &lookup_match );
+  assert_true( match_entry == NULL );
 
   finalize_match_table();
 
@@ -229,8 +271,8 @@ test_insert_and_lookup_of_wildcard_any_lldp_entry() {
   set_any_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == ANY_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, ANY_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ANY_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char *) match_entry->services_name->data, ANY_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -258,8 +300,8 @@ test_insert_and_lookup_of_wildcard_lldp_any_entry() {
   set_any_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == ANY_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, ANY_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ANY_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ANY_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -288,8 +330,8 @@ test_insert_and_lookup_of_wildcard_any_lldp_ipv4_entry() {
   set_any_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == ANY_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, ANY_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ANY_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ANY_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -317,8 +359,8 @@ test_insert_and_lookup_of_wildcard_lldp_entry() {
   set_lldp_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == LLDP_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, LLDP_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, LLDP_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, LLDP_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -436,8 +478,8 @@ test_insert_and_delete_of_wildcard_any_lldp_ipv4_entry() {
   set_lldp_match_entry( &match );
   assert_memory_equal( &match_entry->ofp_match, &match, sizeof( struct ofp_match ) );
   assert_true( match_entry->priority == LLDP_MATCH_PRIORITY );
-  assert_string_equal( match_entry->service_name, LLDP_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, LLDP_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, LLDP_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   delete_lldp_match_entry();
 
@@ -485,26 +527,22 @@ set_carol_match_entry( struct ofp_match *match ) {
 
 #define ALICE_MATCH_PRIORITY 0x0
 #define ALICE_MATCH_SERVICE_NAME "service-name-alice"
-#define ALICE_MATCH_ENTRY_NAME "entry-name-alice"
 
 #define BOB_MATCH_PRIORITY 0x0
 #define BOB_MATCH_SERVICE_NAME "service-name-bob"
-#define BOB_MATCH_ENTRY_NAME "entry-name-bob"
 
 #define CAROL_MATCH_PRIORITY 0x0
 #define CAROL_MATCH_SERVICE_NAME "service-name-carol"
-#define CAROL_MATCH_ENTRY_NAME "entry-name-carol"
 
 #define MALLORY_MATCH_PRIORITY 0x0
 #define MALLORY_MATCH_SERVICE_NAME "service-name-mallory"
-#define MALLORY_MATCH_ENTRY_NAME "entry-name-mallory"
 
 static void
 intsert_alice_match_entry() {
   struct ofp_match match;
 
   set_alice_match_entry( &match );
-  insert_match_entry( &match, ALICE_MATCH_PRIORITY, ALICE_MATCH_SERVICE_NAME, ALICE_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, ALICE_MATCH_PRIORITY, ALICE_MATCH_SERVICE_NAME );
 }
 
 
@@ -513,7 +551,7 @@ delete_alice_match_entry() {
   struct ofp_match match;
 
   set_alice_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, ALICE_MATCH_PRIORITY, ALICE_MATCH_SERVICE_NAME );
 }
 
 
@@ -522,7 +560,7 @@ intsert_bob_match_entry() {
   struct ofp_match match;
 
   set_bob_match_entry( &match );
-  insert_match_entry( &match, BOB_MATCH_PRIORITY, BOB_MATCH_SERVICE_NAME, BOB_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, BOB_MATCH_PRIORITY, BOB_MATCH_SERVICE_NAME );
 }
 
 
@@ -531,7 +569,7 @@ delete_bob_match_entry() {
   struct ofp_match match;
 
   set_bob_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, BOB_MATCH_PRIORITY, BOB_MATCH_SERVICE_NAME );
 }
 
 
@@ -540,7 +578,7 @@ intsert_carol_match_entry() {
   struct ofp_match match;
 
   set_carol_match_entry( &match );
-  insert_match_entry( &match, CAROL_MATCH_PRIORITY, CAROL_MATCH_SERVICE_NAME, CAROL_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, CAROL_MATCH_PRIORITY, CAROL_MATCH_SERVICE_NAME );
 }
 
 
@@ -549,7 +587,7 @@ delete_carol_match_entry() {
   struct ofp_match match;
 
   set_carol_match_entry( &match );
-  delete_match_entry( &match );
+  delete_match_entry( &match, CAROL_MATCH_PRIORITY, CAROL_MATCH_SERVICE_NAME );
 }
 
 
@@ -558,7 +596,7 @@ intsert_mallory_match_entry() {
   struct ofp_match match;
 
   set_alice_match_entry( &match );
-  insert_match_entry( &match, MALLORY_MATCH_PRIORITY, MALLORY_MATCH_SERVICE_NAME, MALLORY_MATCH_ENTRY_NAME );
+  insert_match_entry( &match, MALLORY_MATCH_PRIORITY, MALLORY_MATCH_SERVICE_NAME );
 }
 
 
@@ -579,8 +617,8 @@ test_insert_and_lookup_of_exact_alice_entry() {
   assert_true( match_entry != NULL );
 
   assert_memory_equal( &match_entry->ofp_match, &lookup_match, sizeof( struct ofp_match ) );
-  assert_string_equal( match_entry->service_name, ALICE_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ALICE_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ALICE_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -606,8 +644,9 @@ test_insert_and_lookup_of_exact_alice_entry_conflict() {
   assert_true( match_entry != NULL );
 
   assert_memory_equal( &match_entry->ofp_match, &lookup_match, sizeof( struct ofp_match ) );
-  assert_string_equal( match_entry->service_name, ALICE_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ALICE_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ALICE_MATCH_SERVICE_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->next->data, MALLORY_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next->next == NULL );
 
   finalize_match_table();
 
@@ -634,8 +673,8 @@ test_insert_and_lookup_of_exact_all_entry() {
   assert_true( match_entry != NULL );
 
   assert_memory_equal( &match_entry->ofp_match, &lookup_match, sizeof( struct ofp_match ) );
-  assert_string_equal( match_entry->service_name, ALICE_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, ALICE_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, ALICE_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   set_bob_match_entry( &lookup_match );
 
@@ -643,8 +682,8 @@ test_insert_and_lookup_of_exact_all_entry() {
   assert_true( match_entry != NULL );
 
   assert_memory_equal( &match_entry->ofp_match, &lookup_match, sizeof( struct ofp_match ) );
-  assert_string_equal( match_entry->service_name, BOB_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, BOB_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, BOB_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   set_carol_match_entry( &lookup_match );
 
@@ -652,8 +691,8 @@ test_insert_and_lookup_of_exact_all_entry() {
   assert_true( match_entry != NULL );
 
   assert_memory_equal( &match_entry->ofp_match, &lookup_match, sizeof( struct ofp_match ) );
-  assert_string_equal( match_entry->service_name, CAROL_MATCH_SERVICE_NAME );
-  assert_string_equal( match_entry->entry_name, CAROL_MATCH_ENTRY_NAME );
+  assert_string_equal( ( char * ) match_entry->services_name->data, CAROL_MATCH_SERVICE_NAME );
+  assert_true( match_entry->services_name->next == NULL );
 
   finalize_match_table();
 
@@ -761,6 +800,7 @@ main() {
   const UnitTest tests[] = {
     unit_test( test_init_and_finalize_match_table_successed ),
     unit_test( test_insert_and_lookup_of_wildcard_any_entry ),
+    unit_test( test_insert_and_lookup_of_duplicate_ipv4_entry ),
     unit_test( test_insert_and_lookup_of_wildcard_any_lldp_entry ),
     unit_test( test_insert_and_lookup_of_wildcard_any_lldp_ipv4_entry ),
     unit_test( test_insert_and_lookup_of_wildcard_lldp_any_entry ),

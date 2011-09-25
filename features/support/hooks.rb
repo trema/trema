@@ -1,8 +1,8 @@
 Before do
-  run "./trema kill"
+  run "./trema killall"
 end
 
 
 After do
-  run "./trema kill"
+  run "./trema killall"
 end

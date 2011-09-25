@@ -26,19 +26,38 @@ extern VALUE mTrema;
 VALUE cActionVendor;
 
 
+/*
+ * An action to set vendor specific extensions. 
+ *
+ * @overload initialize(vendor_id)
+ *
+ * @param [Number] vendor
+ *   the vendor id this action refers to.
+ *
+ * @return [ActionVendor] an object that encapsulates this action.
+ */
 static VALUE
 action_vendor_init( VALUE self, VALUE vendor ) {
   rb_iv_set( self, "@vendor", vendor );
   return self;
 }
 
-
+/*
+ * The vendor id of this action.
+ *
+ * @return [Number] the value of attribute vendor.
+ */
 static VALUE
 action_get_vendor( VALUE self ) {
   return rb_iv_get( self, "@vendor" );
 }
 
 
+/*
+ * Appends its action(vendor) to the list of actions.
+ *
+ * @return [ActionVendor] self
+ */
 static VALUE
 action_vendor_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
@@ -46,28 +65,29 @@ action_vendor_append( VALUE self, VALUE action_ptr ) {
 
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_vendor( actions, vendor, NULL );
-
   return self;
 }
 
 
+/*
+ * (see ActionEnqueue#inspect)
+ */
 static VALUE
-action_vendor_to_s( VALUE self ) {
-  char str[ 64 ];
+action_vendor_inspect( VALUE self ) {
   uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
-
-  sprintf( str, "#<%s> vendor = %u", rb_obj_classname( self ), vendor );
+  char str[ 64 ];
+  sprintf( str, "#<%s vendor=%u>", rb_obj_classname( self ), vendor );
   return rb_str_new2( str );
 }
 
 
 void
-Init_action_vendor( ) {
+Init_action_vendor() {
   cActionVendor = rb_define_class_under( mTrema, "ActionVendor", rb_cObject );
   rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
   rb_define_method( cActionVendor, "vendor", action_get_vendor, 0 );
   rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
-  rb_define_method( cActionVendor, "to_s", action_vendor_to_s, 0 );
+  rb_define_method( cActionVendor, "inspect", action_vendor_inspect, 0 );
 }
 
 

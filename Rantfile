@@ -40,6 +40,9 @@ task :default => [
   :switch,
   :packetin_filter,
   :tremashark,
+  :packet_capture,
+  :syslog_relay,
+  :stdin_relay,
   :vendor,
   :examples,
 ]
@@ -148,7 +151,7 @@ def cbench options
     sys trema_cbench_command
     sys "#{ cbench_command } #{ options }"
   ensure
-    sys "./trema kill"
+    sys "./trema killall"
   end
 end
 
@@ -161,7 +164,7 @@ def cbench_profile options
     sys "#{ valgrind } #{ trema_cbench_command }"
     sys "#{ cbench_command } #{ options }"
   ensure
-    sys "./trema kill"
+    sys "./trema killall"
   end
 end
 
@@ -420,7 +423,7 @@ end
 desc "Build switch manager."
 task :switch_manager => Trema::Executables.switch_manager
 file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -441,7 +444,7 @@ end
 desc "Build switch."
 task :switch => Trema::Executables.switch
 file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -466,13 +469,15 @@ end
 desc "Build packetin filter."
 task :packetin_filter => Trema::Executables.packetin_filter
 file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
 ################################################################################
 # tremashark
 ################################################################################
+
+tremashark_objects_dir = objects( "tremashark" )
 
 gen C::Dependencies, dependency( "tremashark" ),
   :search => [ "src/tremashark", trema_include ], :sources => sys[ "src/tremashark/*.c" ]
@@ -482,16 +487,65 @@ gen Action do
 end
 
 
-gen Directory, objects( "tremashark" )
+gen Directory, tremashark_objects_dir
 
-objects = gen DirectedRule, objects( "tremashark" ) => [ "src/tremashark" ], :o => :c do | t |
+gen DirectedRule, tremashark_objects_dir => [ "src/tremashark" ], :o => :c do | t |
   sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+tremashark_objects = [
+  "pcap_queue.o",
+  "queue.o",
+  "tremashark.o",
+].collect do | each |
+  File.join tremashark_objects_dir, each
 end
 
 desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
-file Trema::Executables.tremashark => objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+file Trema::Executables.tremashark => tremashark_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+end
+
+
+packet_capture_objects = [
+  "packet_capture.o",
+  "queue.o",
+].collect do | each |
+  File.join tremashark_objects_dir, each
+end
+
+desc "Build packet_capture."
+task :packet_capture => Trema::Executables.packet_capture
+file Trema::Executables.packet_capture => packet_capture_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+end
+
+
+syslog_relay_objects = [
+  "syslog_relay.o",
+].collect do | each |
+  File.join tremashark_objects_dir, each
+end
+
+desc "Build syslog_relay."
+task :syslog_relay => Trema::Executables.syslog_relay
+file Trema::Executables.syslog_relay => syslog_relay_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+end
+
+
+stdin_relay_objects = [
+  "stdin_relay.o",
+].collect do | each |
+  File.join tremashark_objects_dir, each
+end
+
+desc "Build stdin_relay."
+task :stdin_relay => Trema::Executables.stdin_relay
+file Trema::Executables.stdin_relay => stdin_relay_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
 end
 
 
@@ -533,7 +587,7 @@ standalone_examples.each do | each |
   desc "Build #{ each } example."
   task "examples:#{ each }" => target
   file target => objects.candidates + [ libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lrt"
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -572,7 +626,7 @@ openflow_messages.each do | each |
   target = File.join( openflow_message_objects_dir, each )
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lrt"
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -585,16 +639,14 @@ def libtrema_unit_tests
   {
     :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
     :daemon_test => [],
-    :ether_test => [ :buffer, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
-#    :ipv4_test => [ :arp, :buffer, :ether, :log, :packet_info, :packet_parser, :utility, :wrapper, :trema_wrapper ],
-    :match_table_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
+    :match_table_test => [ :hash_table, :doubly_linked_list, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
     :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper, :log, :trema_wrapper ],
-    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
-    :stat_test => [ :hash_table, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
+    :stat_test => [ :hash_table, :doubly_linked_list, :log, :utility, :wrapper, :trema_wrapper ],
     :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper ],
-    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_wrapper ],
+    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper ],
   }
 end
 
@@ -635,7 +687,7 @@ libtrema_unit_tests.keys.each do | each |
   task :build_old_unittests => target
   task target => "vendor:cmockery"
   file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
-    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lpthread --coverage --static"
+    sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lsqlite3 -ldl -lpthread --coverage --static"
   end
 end
 
@@ -649,6 +701,8 @@ tests = [
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
   "objects/unittests/packet_parser_test",
+  "objects/unittests/persistent_storage_test",
+  "objects/unittests/trema_private_test",
   "objects/unittests/utility_test",
   "objects/unittests/wrapper_test",
 ]
@@ -664,7 +718,7 @@ tests.each do | each |
   task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
   file each do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
-    sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lpthread --static"
+    sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
   end
 end
 

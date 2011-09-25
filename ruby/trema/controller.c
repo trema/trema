@@ -33,6 +33,7 @@
 #include "barrier-reply.h"
 #include "vendor.h"
 #include "queue-get-config-reply.h"
+#include "list-switches-reply.h"
 #include "trema.h"
 
 
@@ -67,6 +68,13 @@ controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   buffer *buf;
   Data_Get_Struct( message, buffer, buf );
   send_openflow_message( NUM2ULL( datapath_id ), buf );
+  return self;
+}
+
+
+static VALUE
+controller_send_list_switches_request( VALUE self ) {
+  send_list_switches_request( ( void * ) self );
   return self;
 }
 
@@ -117,9 +125,10 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
   // Defaults
-  struct ofp_match *match = malloc( sizeof( struct ofp_match ) );
-  memset( match, 0, sizeof( struct ofp_match ) );
-  match->wildcards = OFPFW_ALL;
+  struct ofp_match default_match;
+  memset( &default_match, 0, sizeof( struct ofp_match ) );
+  default_match.wildcards = OFPFW_ALL;
+  struct ofp_match *match = &default_match;
   uint64_t cookie = get_cookie();
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
@@ -157,22 +166,22 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     if ( opt_buffer_id != Qnil ) {
-      buffer_id = NUM2ULONG( opt_buffer_id );
+      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem != Qnil ) {
-      flags = flags || OFPFF_SEND_FLOW_REM;
+      flags |= OFPFF_SEND_FLOW_REM;
     }
 
     VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
     if ( opt_check_overlap != Qnil ) {
-      flags = flags || OFPFF_CHECK_OVERLAP;
+      flags |= OFPFF_CHECK_OVERLAP;
     }
 
     VALUE opt_emerg = rb_hash_aref( options, ID2SYM( rb_intern( "emerg" ) ) );
     if ( opt_emerg != Qnil ) {
-      flags = flags || OFPFF_EMERG;
+      flags |= OFPFF_EMERG;
     }
 
     VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
@@ -209,7 +218,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *
  *   @example
  *     def packet_in datapath_id, message
- *       send_flow_mod_add datapath_id, :match => ExactMatch.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
+ *       send_flow_mod_add datapath_id, :match => Match.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
  *     end
  *
  *
@@ -224,10 +233,15 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     A {Match} object describing the fields of the flow.
  *
  *   @option options [Number] :idle_timeout (0)
- *     The idle time in seconds before discarding.
+ *     The idle time in seconds before discarding. 
+ *     Zero means flow never expires.
+ *
+ *   @option options [Number] :cookie
+ *     An opaque issued identifier.
  *
  *   @option options [Number] :hard_timeout (0)
- *     The maximum time before discarding in seconds.
+ *     The maximum time before discarding in seconds. 
+ *     Zero means flow never expires.
  *
  *   @option options [Number] :priority (0xffff)
  *     The priority level of the flow entry.
@@ -235,7 +249,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *   @option options [Number] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
- *     applied the flow actions.
+ *     applied to flow actions.
  *
  *   @option options [Boolean] :send_flow_rem (false)
  *     If true, send a flow_removed message when the flow expires or
@@ -257,24 +271,21 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  */
 static VALUE
 controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
-	uint16_t command = OFPFC_ADD;
-
-	return controller_send_flow_mod( command, argc, argv, self );
+  return controller_send_flow_mod( OFPFC_ADD, argc, argv, self );
 }
 
 
 /*
- * call-seq :
- * send_flow_mod_modify(datapath, options={})
- * 
- * Sends a flow_mod message to either modify or modify strict a flow from the datapath.
- * The flow_mod modify/modify_strict command would be used to modify flow actions.
+ * @overload send_flow_mod_modify(datapath, options={})
+ *   Sends a flow_mod message to either modify or modify strict a flow from datapath.
+ *   Both flow_mod modify and flow_mod modify strict commands would modify 
+ *   matched flow actions. The strict option adds the flow priority to the 
+ *   matched criteria. Accepts the same options as #send_flow_mod_add with the
+ *   following additional option.
  *
- * Options:
- *
- * <code>strict</code>::
- * The strict option if set to true modify_strict command is invoked.
- * If not set or set to false modify command is invoked.
+ *   @option options [Symbol] :strict
+ *     If set to true modify_strict command is invoked otherwise the modify 
+ *     command is invoked.
  */
 static VALUE
 controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
@@ -287,6 +298,18 @@ controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * @overload send_flow_mod_delete(datapath_id, options={})
+ *   Sends a flow_mod_delete message to delete all matching flows.
+ *   Both flow_mod delete and flow_mod delete strict commands would delete matched flows.
+ *   The strict option adds the flow priority to the matched criteria.
+ *   Accepts the same options as #send_flow_mod_add with the following additional
+ *   option.
+ *
+ *   @option options [Symbol] :strict
+ *     If set to true delete_strict command is invoked otherwise the delete
+ *     command is invoked.
+ */
 static VALUE
 controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
   uint16_t command = OFPFC_DELETE;
@@ -332,7 +355,7 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *     frame is not buffered, and the entire frame must be passed in
  *     :data.
  *
- *   @option options [Buffer, nil] :data (nil)
+ *   @option options [String, nil] :data (nil)
  *     The entire Ethernet frame. Should be of length 0 if buffer_id
  *     is 0xffffffff, and should be of length >0 otherwise.
  *
@@ -351,6 +374,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   uint16_t in_port = OFPP_NONE;
   openflow_actions *actions = create_actions();
   const buffer *data = NULL;
+  buffer *allocated_data = NULL;
 
   if ( options != Qnil ) {
     VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
@@ -358,14 +382,16 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
       packet_in *message;
       Data_Get_Struct( opt_message, packet_in, message );
 
-      buffer_id = message->buffer_id;
-      in_port = message->in_port;
-      data = UINT32_MAX ? message->data : NULL;
+      if ( NUM2ULL( datapath_id ) == message->datapath_id ) {
+        buffer_id = message->buffer_id;
+        in_port = message->in_port;
+      }
+      data = ( buffer_id == UINT32_MAX ? message->data : NULL );
     }
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
     if ( opt_buffer_id != Qnil ) {
-      buffer_id = NUM2ULONG( opt_buffer_id );
+      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
     VALUE opt_in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
@@ -380,7 +406,11 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
     VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
     if ( opt_data != Qnil ) {
-      Data_Get_Struct( opt_data, buffer, data );
+      Check_Type( opt_data, T_STRING );
+      uint16_t length = ( u_int16_t ) RSTRING_LEN( opt_data );
+      allocated_data = alloc_buffer_with_length( length );
+      memcpy( append_back_buffer( allocated_data, length ), RSTRING_PTR( opt_data ), length );
+      data = allocated_data;
     }
   }
 
@@ -393,6 +423,9 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   );
   send_openflow_message( NUM2ULL( datapath_id ), packet_out );
 
+  if ( allocated_data != NULL ) {
+    free_buffer( allocated_data );
+  }
   free_buffer( packet_out );
   delete_actions( actions );
   return self;
@@ -400,9 +433,6 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * call-seq:
- *   run()  => self
- *
  * Starts this controller. Usually you do not need to invoke
  * explicitly, because this is called implicitly by "trema run"
  * command.
@@ -415,12 +445,13 @@ controller_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
-  char **argv = malloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
   argv[ 3 ] = NULL; 
   init_trema( &argc, &argv );
+  xfree( argv );
 
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   set_features_reply_handler( handle_features_reply, ( void * ) self );
@@ -434,6 +465,7 @@ controller_run( VALUE self ) {
   set_barrier_reply_handler( handle_barrier_reply, ( void * ) self );
   set_vendor_handler( handle_vendor, ( void * ) self );
   set_queue_get_config_reply_handler( handle_queue_get_config_reply, ( void * ) self );
+  set_list_switches_reply_handler( handle_list_switches_reply );
 
   struct itimerspec interval;
   interval.it_interval.tv_sec = 1;
@@ -452,6 +484,10 @@ controller_run( VALUE self ) {
 }
 
 
+/*
+ * @overload shutdown!
+ *   In the context of trema framework stops this controller and its applications.
+ */
 static VALUE
 controller_shutdown( VALUE self ) {
   stop_trema();
@@ -461,11 +497,14 @@ controller_shutdown( VALUE self ) {
 
 static void
 thread_pass( void *user_data ) {
-	UNUSED( user_data );
+  UNUSED( user_data );
   rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
 }
 
 
+/*
+ * In the context of trema framework invokes the scheduler to start its applications. 
+ */
 static VALUE
 controller_start_trema( VALUE self ) {
   struct itimerspec interval;
@@ -481,7 +520,6 @@ controller_start_trema( VALUE self ) {
 }
 
 /********************************************************************************
->>>>>>> flow mod messages, actions, asynchronous event handlers
  * Init Controller module.
  ********************************************************************************/
 
@@ -492,9 +530,22 @@ Init_controller() {
   cController = rb_define_class_under( mTrema, "Controller", cApp );
   rb_include_module( cController, mLogger );
 
+  rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
+  rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
+  rb_define_const( cController, "OFPP_TABLE", INT2NUM( OFPP_TABLE ) );
+  rb_define_const( cController, "OFPP_NORMAL", INT2NUM( OFPP_NORMAL ) );
   rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
+  rb_define_const( cController, "OFPP_ALL", INT2NUM( OFPP_ALL ) );
+  rb_define_const( cController, "OFPP_CONTROLLER", INT2NUM( OFPP_CONTROLLER ) );
+  rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
+  rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
+
+  rb_define_const( cController, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
+  rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
+  rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
+  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );  
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_flow_mod_modify", controller_send_flow_mod_modify, -1 );
   rb_define_method( cController, "send_flow_mod_delete", controller_send_flow_mod_delete, -1 );
@@ -516,4 +567,3 @@ Init_controller() {
  * indent-tabs-mode: nil
  * End:
  */
-

@@ -67,9 +67,7 @@ static const char *TABLE_NAME = "flow table 1";
 
 static struct ofp_action_output *
 create_action_output() {
-  struct ofp_action_output *action;
-
-  action = xmalloc( sizeof( struct ofp_action_output ) );
+  struct ofp_action_output *action = xmalloc( sizeof( struct ofp_action_output ) );
   memset( action, 0, sizeof( struct ofp_action_output ) );
 
   action->type = htons( OFPAT_OUTPUT );
@@ -83,9 +81,7 @@ create_action_output() {
 
 static struct ofp_action_vlan_vid *
 create_action_vlan_vid() {
-  struct ofp_action_vlan_vid *action;
-
-  action = xmalloc( sizeof( struct ofp_action_vlan_vid ) );
+  struct ofp_action_vlan_vid *action = xmalloc( sizeof( struct ofp_action_vlan_vid ) );
   memset( action, 0, sizeof( struct ofp_action_vlan_vid ) );
 
   action->type = htons( OFPAT_SET_VLAN_VID );
@@ -98,9 +94,7 @@ create_action_vlan_vid() {
 
 static struct ofp_action_vlan_pcp *
 create_action_vlan_pcp() {
-  struct ofp_action_vlan_pcp *action;
-
-  action = xmalloc( sizeof( struct ofp_action_vlan_pcp ) );
+  struct ofp_action_vlan_pcp *action = xmalloc( sizeof( struct ofp_action_vlan_pcp ) );
   memset( action, 0, sizeof( struct ofp_action_vlan_pcp ) );
 
   action->type = htons( OFPAT_SET_VLAN_PCP );
@@ -113,9 +107,7 @@ create_action_vlan_pcp() {
 
 static struct ofp_action_header *
 create_action_strip_vlan() {
-  struct ofp_action_header *action;
-
-  action = xmalloc( sizeof( struct ofp_action_header ) );
+  struct ofp_action_header *action = xmalloc( sizeof( struct ofp_action_header ) );
   memset( action, 0, sizeof( struct ofp_action_header ) );
 
   action->type = htons( OFPAT_STRIP_VLAN );
@@ -127,9 +119,7 @@ create_action_strip_vlan() {
 
 static struct ofp_action_dl_addr *
 create_action_dl_addr() {
-  struct ofp_action_dl_addr *action;
-
-  action = xmalloc( sizeof( struct ofp_action_dl_addr ) );
+  struct ofp_action_dl_addr *action = xmalloc( sizeof( struct ofp_action_dl_addr ) );
   memset( action, 0, sizeof( struct ofp_action_dl_addr ) );
 
   action->type = htons( OFPAT_SET_DL_SRC );
@@ -142,9 +132,7 @@ create_action_dl_addr() {
 
 static struct ofp_action_nw_addr *
 create_action_nw_addr() {
-  struct ofp_action_nw_addr *action;
-
-  action = xmalloc( sizeof( struct ofp_action_nw_addr ) );
+  struct ofp_action_nw_addr *action = xmalloc( sizeof( struct ofp_action_nw_addr ) );
   memset( action, 0, sizeof( struct ofp_action_nw_addr ) );
 
   action->type = htons( OFPAT_SET_NW_SRC );
@@ -157,9 +145,7 @@ create_action_nw_addr() {
 
 static struct ofp_action_nw_tos *
 create_action_nw_tos() {
-  struct ofp_action_nw_tos *action;
-
-  action = xmalloc( sizeof( struct ofp_action_nw_tos ) );
+  struct ofp_action_nw_tos *action = xmalloc( sizeof( struct ofp_action_nw_tos ) );
   memset( action, 0, sizeof( struct ofp_action_nw_tos ) );
 
   action->type = htons( OFPAT_SET_NW_TOS );
@@ -172,9 +158,7 @@ create_action_nw_tos() {
 
 static struct ofp_action_tp_port *
 create_action_tp_port() {
-  struct ofp_action_tp_port *action;
-
-  action = xmalloc( sizeof( struct ofp_action_tp_port ) );
+  struct ofp_action_tp_port *action = xmalloc( sizeof( struct ofp_action_tp_port ) );
   memset( action, 0, sizeof( struct ofp_action_tp_port ) );
 
   action->type = htons( OFPAT_SET_TP_SRC );
@@ -187,9 +171,7 @@ create_action_tp_port() {
 
 static struct ofp_action_enqueue *
 create_action_enqueue() {
-  struct ofp_action_enqueue *action;
-
-  action = xmalloc( sizeof( struct ofp_action_enqueue ) );
+  struct ofp_action_enqueue *action = xmalloc( sizeof( struct ofp_action_enqueue ) );
   memset( action, 0, sizeof( struct ofp_action_enqueue ) );
 
   action->type = htons( OFPAT_ENQUEUE );
@@ -203,9 +185,7 @@ create_action_enqueue() {
 
 static struct ofp_action_vendor_header *
 create_action_vendor() {
-  struct ofp_action_vendor_header *action;
-
-  action = xmalloc( sizeof( struct ofp_action_vendor_header ) );
+  struct ofp_action_vendor_header *action = xmalloc( sizeof( struct ofp_action_vendor_header ) );
   memset( action, 0, sizeof( struct ofp_action_vendor_header ) );
 
   action->type = htons( OFPAT_VENDOR );
@@ -222,7 +202,8 @@ create_action_vendor() {
 
 void
 test_ntoh_match() {
-  struct ofp_match dst, src;
+  struct ofp_match dst;
+  struct ofp_match src;
 
   memset( &src, 0, sizeof( struct ofp_match ) );
   memset( &dst, 0, sizeof( struct ofp_match ) );
@@ -265,7 +246,8 @@ test_ntoh_match() {
 
 void
 test_ntoh_phy_port() {
-  struct ofp_phy_port dst, src;
+  struct ofp_phy_port dst;
+  struct ofp_phy_port src;
 
   memset( &src, 0, sizeof( struct ofp_phy_port ) );
   memset( &dst, 0, sizeof( struct ofp_phy_port ) );
@@ -301,11 +283,11 @@ test_ntoh_phy_port() {
 
 void
 test_ntoh_action_output() {
-  struct ofp_action_output dst, *src;
+  struct ofp_action_output dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_output ) );
 
-  src = create_action_output();
+  struct ofp_action_output *src = create_action_output();
 
   ntoh_action_output( &dst, src );
 
@@ -324,11 +306,11 @@ test_ntoh_action_output() {
 
 void
 test_ntoh_action_vlan_vid() {
-  struct ofp_action_vlan_vid dst, *src;
+  struct ofp_action_vlan_vid dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_vlan_vid ) );
 
-  src = create_action_vlan_vid();
+  struct ofp_action_vlan_vid *src = create_action_vlan_vid();
 
   ntoh_action_vlan_vid( &dst, src );
 
@@ -346,11 +328,11 @@ test_ntoh_action_vlan_vid() {
 
 void
 test_ntoh_action_vlan_pcp() {
-  struct ofp_action_vlan_pcp dst, *src;
+  struct ofp_action_vlan_pcp dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_vlan_pcp ) );
 
-  src = create_action_vlan_pcp();
+  struct ofp_action_vlan_pcp *src = create_action_vlan_pcp();
 
   ntoh_action_vlan_pcp( &dst, src );
 
@@ -368,11 +350,11 @@ test_ntoh_action_vlan_pcp() {
 
 void
 test_ntoh_action_strip_vlan() {
-  struct ofp_action_header dst, *src;
+  struct ofp_action_header dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_header ) );
 
-  src = create_action_strip_vlan();
+  struct ofp_action_header *src = create_action_strip_vlan();
 
   ntoh_action_strip_vlan( &dst, src );
 
@@ -389,11 +371,11 @@ test_ntoh_action_strip_vlan() {
 
 void
 test_ntoh_action_dl_addr() {
-  struct ofp_action_dl_addr dst, *src;
+  struct ofp_action_dl_addr dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_dl_addr ) );
 
-  src = create_action_dl_addr();
+  struct ofp_action_dl_addr *src = create_action_dl_addr();
 
   ntoh_action_dl_addr( &dst, src );
 
@@ -411,11 +393,11 @@ test_ntoh_action_dl_addr() {
 
 void
 test_ntoh_action_nw_addr() {
-  struct ofp_action_nw_addr dst, *src;
+  struct ofp_action_nw_addr dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_nw_addr ) );
 
-  src = create_action_nw_addr();
+  struct ofp_action_nw_addr *src = create_action_nw_addr();
 
   ntoh_action_nw_addr( &dst, src );
 
@@ -433,11 +415,11 @@ test_ntoh_action_nw_addr() {
 
 void
 test_ntoh_action_nw_tos() {
-  struct ofp_action_nw_tos dst, *src;
+  struct ofp_action_nw_tos dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_nw_tos ) );
 
-  src = create_action_nw_tos();
+  struct ofp_action_nw_tos *src = create_action_nw_tos();
 
   ntoh_action_nw_tos( &dst, src );
 
@@ -455,11 +437,11 @@ test_ntoh_action_nw_tos() {
 
 void
 test_ntoh_action_tp_port() {
-  struct ofp_action_tp_port dst, *src;
+  struct ofp_action_tp_port dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_tp_port ) );
 
-  src = create_action_tp_port();
+  struct ofp_action_tp_port *src = create_action_tp_port();
 
   ntoh_action_tp_port( &dst, src );
 
@@ -477,11 +459,11 @@ test_ntoh_action_tp_port() {
 
 void
 test_ntoh_action_enqueue() {
-  struct ofp_action_enqueue dst, *src;
+  struct ofp_action_enqueue dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_enqueue ) );
 
-  src = create_action_enqueue();
+  struct ofp_action_enqueue *src = create_action_enqueue();
 
   ntoh_action_enqueue( &dst, src );
 
@@ -500,11 +482,11 @@ test_ntoh_action_enqueue() {
 
 void
 test_ntoh_action_vendor() {
-  struct ofp_action_vendor_header dst, *src;
+  struct ofp_action_vendor_header dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
 
-  src = create_action_vendor();
+  struct ofp_action_vendor_header *src = create_action_vendor();
 
   ntoh_action_vendor( &dst, src );
 
@@ -523,14 +505,13 @@ test_ntoh_action_vendor() {
 void
 test_ntoh_action() {
   {
-    struct ofp_action_output dst, *src;
+    struct ofp_action_output dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_output ) );
 
-    src = create_action_output();
+    struct ofp_action_output *src = create_action_output();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -541,14 +522,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_vlan_vid dst, *src;
+    struct ofp_action_vlan_vid dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vlan_vid ) );
 
-    src = create_action_vlan_vid();
+    struct ofp_action_vlan_vid *src = create_action_vlan_vid();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -558,14 +538,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_vlan_pcp dst, *src;
+    struct ofp_action_vlan_pcp dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vlan_pcp ) );
 
-    src = create_action_vlan_pcp();
+    struct ofp_action_vlan_pcp *src = create_action_vlan_pcp();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -575,14 +554,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_header dst, *src;
+    struct ofp_action_header dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_header ) );
 
-    src = create_action_strip_vlan();
+    struct ofp_action_header *src = create_action_strip_vlan();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( &dst, src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -591,14 +569,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_dl_addr dst, *src;
+    struct ofp_action_dl_addr dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_dl_addr ) );
 
-    src = create_action_dl_addr();
+    struct ofp_action_dl_addr *src = create_action_dl_addr();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -608,14 +585,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_nw_addr dst, *src;
+    struct ofp_action_nw_addr dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_nw_addr ) );
 
-    src = create_action_nw_addr();
+    struct ofp_action_nw_addr *src = create_action_nw_addr();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -625,14 +601,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_nw_tos dst, *src;
+    struct ofp_action_nw_tos dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_nw_tos ) );
 
-    src = create_action_nw_tos();
+    struct ofp_action_nw_tos *src = create_action_nw_tos();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -642,14 +617,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_tp_port dst, *src;
+    struct ofp_action_tp_port dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_tp_port ) );
 
-    src = create_action_tp_port();
+    struct ofp_action_tp_port *src = create_action_tp_port();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -659,14 +633,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_enqueue dst, *src;
+    struct ofp_action_enqueue dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_enqueue ) );
 
-    src = create_action_enqueue();
+    struct ofp_action_enqueue *src = create_action_enqueue();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -677,14 +650,13 @@ test_ntoh_action() {
   }
 
   {
-    struct ofp_action_vendor_header dst, *src;
+    struct ofp_action_vendor_header dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
 
-    src = create_action_vendor();
+    struct ofp_action_vendor_header *src = create_action_vendor();
 
-    ntoh_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -697,16 +669,16 @@ test_ntoh_action() {
 
 void
 test_ntoh_action_with_undefined_action_type() {
-  struct ofp_action_output dst, *src;
+  struct ofp_action_output dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_output ) );
 
-  src = create_action_output();
+  struct ofp_action_output *src = create_action_output();
 
   src->type = htons( OFPAT_ENQUEUE + 1 );
   
-  expect_assert_failure( ntoh_action( ( struct ofp_action_header * ) &dst,
-                                      ( struct ofp_action_header * ) src ) );
+  expect_assert_failure( ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
+
   xfree( src );
 }
 
@@ -718,15 +690,14 @@ test_ntoh_action_with_undefined_action_type() {
 void
 test_hton_action() {
   {
-    struct ofp_action_output dst, *src;
+    struct ofp_action_output dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_output ) );
 
-    src = create_action_output();
+    struct ofp_action_output *src = create_action_output();
     ntoh_action_output( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -737,15 +708,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_vlan_vid dst, *src;
+    struct ofp_action_vlan_vid dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vlan_vid ) );
 
-    src = create_action_vlan_vid();
+    struct ofp_action_vlan_vid *src = create_action_vlan_vid();
     ntoh_action_vlan_vid( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -755,15 +725,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_vlan_pcp dst, *src;
+    struct ofp_action_vlan_pcp dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vlan_pcp ) );
 
-    src = create_action_vlan_pcp();
+    struct ofp_action_vlan_pcp *src = create_action_vlan_pcp();
     ntoh_action_vlan_pcp( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -773,15 +742,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_header dst, *src;
+    struct ofp_action_header dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_header ) );
 
-    src = create_action_strip_vlan();
+    struct ofp_action_header *src = create_action_strip_vlan();
     ntoh_action_strip_vlan( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( &dst, src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -790,15 +758,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_dl_addr dst, *src;
+    struct ofp_action_dl_addr dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_dl_addr ) );
 
-    src = create_action_dl_addr();
+    struct ofp_action_dl_addr *src = create_action_dl_addr();
     ntoh_action_dl_addr( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -808,15 +775,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_nw_addr dst, *src;
+    struct ofp_action_nw_addr dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_nw_addr ) );
 
-    src = create_action_nw_addr();
+    struct ofp_action_nw_addr *src = create_action_nw_addr();
     ntoh_action_nw_addr( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -826,15 +792,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_nw_tos dst, *src;
+    struct ofp_action_nw_tos dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_nw_tos ) );
 
-    src = create_action_nw_tos();
+    struct ofp_action_nw_tos *src = create_action_nw_tos();
     ntoh_action_nw_tos( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -844,15 +809,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_tp_port dst, *src;
+    struct ofp_action_tp_port dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_tp_port ) );
 
-    src = create_action_tp_port();
+    struct ofp_action_tp_port *src = create_action_tp_port();
     ntoh_action_tp_port( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -862,15 +826,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_enqueue dst, *src;
+    struct ofp_action_enqueue dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_enqueue ) );
 
-    src = create_action_enqueue();
+    struct ofp_action_enqueue *src = create_action_enqueue();
     ntoh_action_enqueue( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -881,15 +844,14 @@ test_hton_action() {
   }
 
   {
-    struct ofp_action_vendor_header dst, *src;
+    struct ofp_action_vendor_header dst;
 
     memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
 
-    src = create_action_vendor();
+    struct ofp_action_vendor_header *src = create_action_vendor();
     ntoh_action_vendor( src, src );
 
-    hton_action( ( struct ofp_action_header * ) &dst,
-                 ( struct ofp_action_header * ) src );
+    hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
@@ -902,17 +864,17 @@ test_hton_action() {
 
 void
 test_hton_action_with_undefined_action_type() {
-  struct ofp_action_output dst, *src;
+  struct ofp_action_output dst;
 
   memset( &dst, 0, sizeof( struct ofp_action_output ) );
 
-  src = create_action_output();
+  struct ofp_action_output *src = create_action_output();
   ntoh_action_output( src, src );
 
   src->type = OFPAT_ENQUEUE + 1;
   
-  expect_assert_failure( hton_action( ( struct ofp_action_header * ) &dst,
-                                      ( struct ofp_action_header * ) src ) );
+  expect_assert_failure( hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
+
   xfree( src );
 }
 
@@ -923,13 +885,10 @@ test_hton_action_with_undefined_action_type() {
 
 void
 test_ntoh_flow_stats_without_action() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -967,15 +926,10 @@ test_ntoh_flow_stats_without_action() {
 
 void
 test_ntoh_flow_stats_with_single_output_action() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
-  struct ofp_action_output *act_dst, *act_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) + sizeof( struct ofp_action_output ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) +
-                          sizeof( struct ofp_action_output ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -991,7 +945,7 @@ test_ntoh_flow_stats_with_single_output_action() {
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
   src->byte_count= htonll( BYTE_COUNT );
-  act_src = ( struct ofp_action_output * ) src->actions;
+  struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = htons( OFPAT_OUTPUT );
   act_src->len = htons( 8 );
   act_src->port = htons( 1 );
@@ -999,7 +953,7 @@ test_ntoh_flow_stats_with_single_output_action() {
 
   ntoh_flow_stats( dst, src );
 
-  act_dst = ( struct ofp_action_output * ) dst->actions;
+  struct ofp_action_output *act_dst = ( struct ofp_action_output * ) dst->actions;
 
   assert_int_equal( htons( dst->length ), src->length );
   assert_int_equal( dst->table_id, src->table_id );
@@ -1024,15 +978,10 @@ test_ntoh_flow_stats_with_single_output_action() {
 
 void
 test_ntoh_flow_stats_with_two_output_actions() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
-  struct ofp_action_output *act_dst[ 2 ], *act_src[ 2 ];
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) + sizeof( struct ofp_action_output ) * 2 );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) +
-                          sizeof( struct ofp_action_output ) * 2 );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -1048,13 +997,13 @@ test_ntoh_flow_stats_with_two_output_actions() {
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
   src->byte_count= htonll( BYTE_COUNT );
+  struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = htons( OFPAT_OUTPUT );
   act_src[ 0 ]->len = htons( 8 );
   act_src[ 0 ]->port = htons( 1 );
   act_src[ 0 ]->max_len = htons( 2048 );
-  act_src[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) src->actions +
-                                                  sizeof( struct ofp_action_output ) );
+  act_src[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) src->actions + sizeof( struct ofp_action_output ) );
   act_src[ 1 ]->type = htons( OFPAT_OUTPUT );
   act_src[ 1 ]->len = htons( 8 );
   act_src[ 1 ]->port = htons( 2 );
@@ -1062,9 +1011,9 @@ test_ntoh_flow_stats_with_two_output_actions() {
 
   ntoh_flow_stats( dst, src );
 
+  struct ofp_action_output *act_dst[ 2 ];
   act_dst[ 0 ] = ( struct ofp_action_output * ) dst->actions;
-  act_dst[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) dst->actions +
-                                                  sizeof( struct ofp_action_output ) );
+  act_dst[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) dst->actions + sizeof( struct ofp_action_output ) );
 
   assert_int_equal( htons( dst->length ), src->length );
   assert_int_equal( dst->table_id, src->table_id );
@@ -1097,13 +1046,10 @@ test_ntoh_flow_stats_with_two_output_actions() {
 
 void
 test_hton_flow_stats_without_action() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -1145,15 +1091,10 @@ test_hton_flow_stats_without_action() {
 
 void
 test_hton_flow_stats_with_single_output_action() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
-  struct ofp_action_output *act_dst, *act_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) + sizeof( struct ofp_action_output ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) +
-                          sizeof( struct ofp_action_output ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -1169,7 +1110,7 @@ test_hton_flow_stats_with_single_output_action() {
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
   src->byte_count= BYTE_COUNT;
-  act_src = ( struct ofp_action_output * ) src->actions;
+  struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = OFPAT_OUTPUT;
   act_src->len = 8;
   act_src->port = 1;
@@ -1177,7 +1118,7 @@ test_hton_flow_stats_with_single_output_action() {
 
   hton_flow_stats( dst, src );
 
-  act_dst = ( struct ofp_action_output * ) dst->actions;
+  struct ofp_action_output *act_dst = ( struct ofp_action_output * ) dst->actions;
 
   assert_int_equal( dst->length, htons( src->length ) );
   assert_int_equal( dst->table_id, src->table_id );
@@ -1206,15 +1147,10 @@ test_hton_flow_stats_with_single_output_action() {
 
 void
 test_hton_flow_stats_with_two_output_actions() {
-  uint16_t length;
-  struct ofp_flow_stats *dst, *src;
-  struct ofp_action_output *act_dst[ 2 ], *act_src[ 2 ];
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) + sizeof( struct ofp_action_output ) * 2 );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_flow_stats, actions ) +
-                          sizeof( struct ofp_action_output ) * 2 );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_flow_stats *src = xmalloc( length );
+  struct ofp_flow_stats *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
@@ -1230,13 +1166,13 @@ test_hton_flow_stats_with_two_output_actions() {
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
   src->byte_count= BYTE_COUNT;
+  struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = OFPAT_OUTPUT;
   act_src[ 0 ]->len = 8;
   act_src[ 0 ]->port = 1;
   act_src[ 0 ]->max_len = 2048;
-  act_src[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) src->actions +
-                                                  sizeof( struct ofp_action_output ) );
+  act_src[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) src->actions + sizeof( struct ofp_action_output ) );
   act_src[ 1 ]->type = OFPAT_OUTPUT;
   act_src[ 1 ]->len = 8;
   act_src[ 1 ]->port = 2;
@@ -1244,9 +1180,9 @@ test_hton_flow_stats_with_two_output_actions() {
 
   hton_flow_stats( dst, src );
 
+  struct ofp_action_output *act_dst[ 2 ];
   act_dst[ 0 ] = ( struct ofp_action_output * ) dst->actions;
-  act_dst[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) dst->actions +
-                                                  sizeof( struct ofp_action_output ) );
+  act_dst[ 1 ] = ( struct ofp_action_output * ) ( ( char * ) dst->actions + sizeof( struct ofp_action_output ) );
 
   assert_int_equal( htons( dst->length ), src->length );
   assert_int_equal( dst->table_id, src->table_id );
@@ -1283,7 +1219,8 @@ test_hton_flow_stats_with_two_output_actions() {
 
 void
 test_ntoh_aggregate_stats() {
-  struct ofp_aggregate_stats_reply dst, src;
+  struct ofp_aggregate_stats_reply dst;
+  struct ofp_aggregate_stats_reply src;
 
   memset( &src, 0, sizeof( struct ofp_aggregate_stats_reply ) );
   memset( &dst, 0, sizeof( struct ofp_aggregate_stats_reply ) );
@@ -1306,14 +1243,14 @@ test_ntoh_aggregate_stats() {
 
 void
 test_ntoh_table_stats() {
-  uint64_t lookup_count, matched_count;
-  struct ofp_table_stats dst, src;
+  struct ofp_table_stats dst;
+  struct ofp_table_stats src;
 
   memset( &src, 0, sizeof( struct ofp_table_stats ) );
   memset( &dst, 0, sizeof( struct ofp_table_stats ) );
 
-  lookup_count = 100000000;
-  matched_count = 10000000;
+  uint64_t lookup_count = 100000000;
+  uint64_t matched_count = 10000000;
 
   src.table_id = 1;
   memset( &src.name, '\0', OFP_MAX_TABLE_NAME_LEN );
@@ -1342,26 +1279,24 @@ test_ntoh_table_stats() {
 
 void
 test_ntoh_port_stats() {
-  uint64_t rx_packets, tx_packets, rx_bytes, tx_bytes,
-    rx_dropped, tx_dropped, rx_errors, tx_errors,
-    rx_frame_err, rx_over_err, rx_crc_err, collisions;
-  struct ofp_port_stats dst, src;
+  struct ofp_port_stats dst;
+  struct ofp_port_stats src;
 
   memset( &src, 0, sizeof( struct ofp_port_stats ) );
   memset( &dst, 0, sizeof( struct ofp_port_stats ) );
 
-  rx_packets = 8000;
-  tx_packets = 7000;
-  rx_bytes = 6000;
-  tx_bytes = 5000;
-  rx_dropped = 4000;
-  tx_dropped = 3000;
-  rx_errors = 2000;
-  tx_errors = 1000;
-  rx_frame_err = 900;
-  rx_over_err = 100;
-  rx_crc_err = 10;
-  collisions = 1;
+  uint64_t rx_packets = 8000;
+  uint64_t tx_packets = 7000;
+  uint64_t rx_bytes = 6000;
+  uint64_t tx_bytes = 5000;
+  uint64_t rx_dropped = 4000;
+  uint64_t tx_dropped = 3000;
+  uint64_t rx_errors = 2000;
+  uint64_t tx_errors = 1000;
+  uint64_t rx_frame_err = 900;
+  uint64_t rx_over_err = 100;
+  uint64_t rx_crc_err = 10;
+  uint64_t collisions = 1;
 
   src.port_no = htons( 1 );
   src.rx_packets = htonll( rx_packets );
@@ -1376,7 +1311,6 @@ test_ntoh_port_stats() {
   src.rx_over_err = htonll( rx_over_err );
   src.rx_crc_err = htonll( rx_crc_err );
   src.collisions = htonll( collisions );
-
 
   ntoh_port_stats( &dst, &src );
 
@@ -1402,15 +1336,15 @@ test_ntoh_port_stats() {
 
 void
 test_ntoh_queue_stats() {
-  uint64_t tx_bytes, tx_packets, tx_errors;
-  struct ofp_queue_stats dst, src;
+  struct ofp_queue_stats dst;
+  struct ofp_queue_stats src;
 
   memset( &src, 0, sizeof( struct ofp_queue_stats ) );
   memset( &dst, 0, sizeof( struct ofp_queue_stats ) );
 
-  tx_bytes = 10000000;
-  tx_packets = 10000;
-  tx_errors = 1;
+  uint64_t tx_bytes = 10000000;
+  uint64_t tx_packets = 10000;
+  uint64_t tx_errors = 1;
 
   src.port_no = htons( 1 );
   src.queue_id = htonl( 3 );
@@ -1434,7 +1368,8 @@ test_ntoh_queue_stats() {
 
 void
 test_ntoh_queue_property_with_OFPQT_NONE() {
-  struct ofp_queue_prop_header dst, src;
+  struct ofp_queue_prop_header dst;
+  struct ofp_queue_prop_header src;
 
   memset( &src, 0, sizeof( struct ofp_queue_prop_header ) );
   memset( &dst, 0, sizeof( struct ofp_queue_prop_header ) );
@@ -1451,7 +1386,8 @@ test_ntoh_queue_property_with_OFPQT_NONE() {
 
 void
 test_ntoh_queue_property_with_OFPQT_MIN_RATE() {
-  struct ofp_queue_prop_min_rate dst, src;
+  struct ofp_queue_prop_min_rate dst;
+  struct ofp_queue_prop_min_rate src;
 
   memset( &src, 0, sizeof( struct ofp_queue_prop_min_rate ) );
   memset( &dst, 0, sizeof( struct ofp_queue_prop_min_rate ) );
@@ -1460,8 +1396,7 @@ test_ntoh_queue_property_with_OFPQT_MIN_RATE() {
   src.prop_header.len = htons( 16 );
   src.rate = htons( 500 );
 
-  ntoh_queue_property( ( struct ofp_queue_prop_header * ) &dst,
-                       ( struct ofp_queue_prop_header * ) &src );
+  ntoh_queue_property( ( struct ofp_queue_prop_header * ) &dst, ( struct ofp_queue_prop_header * ) &src );
 
   assert_int_equal( htons( dst.prop_header.property ), src.prop_header.property );
   assert_int_equal( htons( dst.prop_header.len ), src.prop_header.len );
@@ -1475,7 +1410,8 @@ test_ntoh_queue_property_with_OFPQT_MIN_RATE() {
 
 void
 test_hton_queue_property_with_OFPQT_NONE() {
-  struct ofp_queue_prop_header dst, src;
+  struct ofp_queue_prop_header dst;
+  struct ofp_queue_prop_header src;
 
   memset( &src, 0, sizeof( struct ofp_queue_prop_header ) );
   memset( &dst, 0, sizeof( struct ofp_queue_prop_header ) );
@@ -1492,7 +1428,8 @@ test_hton_queue_property_with_OFPQT_NONE() {
 
 void
 test_hton_queue_property_with_OFPQT_MIN_RATE() {
-  struct ofp_queue_prop_min_rate dst, src;
+  struct ofp_queue_prop_min_rate dst;
+  struct ofp_queue_prop_min_rate src;
 
   memset( &src, 0, sizeof( struct ofp_queue_prop_min_rate ) );
   memset( &dst, 0, sizeof( struct ofp_queue_prop_min_rate ) );
@@ -1501,8 +1438,7 @@ test_hton_queue_property_with_OFPQT_MIN_RATE() {
   src.prop_header.len = 16;
   src.rate = 500;
 
-  hton_queue_property( ( struct ofp_queue_prop_header * ) &dst,
-                       ( struct ofp_queue_prop_header * ) &src );
+  hton_queue_property( ( struct ofp_queue_prop_header * ) &dst, ( struct ofp_queue_prop_header * ) &src );
 
   assert_int_equal( dst.prop_header.property, htons( src.prop_header.property ) );
   assert_int_equal( dst.prop_header.len, htons( src.prop_header.len ) );
@@ -1516,28 +1452,23 @@ test_hton_queue_property_with_OFPQT_MIN_RATE() {
 
 void
 test_ntoh_packet_queue_with_single_OFPQT_NONE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_header *ph_dst, *ph_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_header ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = htonl( 3 );
   src->len = htons( length );
-  ph_src = src->properties;
+  struct ofp_queue_prop_header *ph_src = src->properties;
   ph_src->property = htons( OFPQT_NONE );
   ph_src->len = htons( 8 );
 
   ntoh_packet_queue( dst, src );
 
-  ph_dst = dst->properties;
+  struct ofp_queue_prop_header *ph_dst = dst->properties;
 
   assert_int_equal( ( int ) htonl( dst->queue_id ), ( int ) src->queue_id );
   assert_int_equal( htons( dst->len ), src->len );
@@ -1551,36 +1482,29 @@ test_ntoh_packet_queue_with_single_OFPQT_NONE() {
 
 void
 test_ntoh_packet_queue_with_single_OFPQT_MIN_RATE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_min_rate *pm_dst, *pm_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_min_rate ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_min_rate ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = htonl( 3 );
   src->len = htons( length );
-  pm_src = ( struct ofp_queue_prop_min_rate * ) src->properties;
+  struct ofp_queue_prop_min_rate *pm_src = ( struct ofp_queue_prop_min_rate * ) src->properties;
   pm_src->prop_header.property = htons( OFPQT_MIN_RATE );
   pm_src->prop_header.len = htons( 16 );
   pm_src->rate = htons( 500 );
 
   ntoh_packet_queue( dst, src );
 
-  pm_dst = ( struct ofp_queue_prop_min_rate * ) dst->properties;
+  struct ofp_queue_prop_min_rate *pm_dst = ( struct ofp_queue_prop_min_rate * ) dst->properties;
 
   assert_int_equal( ( int ) htonl( dst->queue_id ), ( int ) src->queue_id );
   assert_int_equal( htons( dst->len ), src->len );
-  assert_int_equal( htons( pm_dst->prop_header.property ),
-                    pm_src->prop_header.property );
-  assert_int_equal( htons( pm_dst->prop_header.len ),
-                    pm_src->prop_header.len );
+  assert_int_equal( htons( pm_dst->prop_header.property ), pm_src->prop_header.property );
+  assert_int_equal( htons( pm_dst->prop_header.len ), pm_src->prop_header.len );
   assert_int_equal( htons( pm_dst->rate ), pm_src->rate );
 
   xfree( src );
@@ -1590,39 +1514,28 @@ test_ntoh_packet_queue_with_single_OFPQT_MIN_RATE() {
 
 void
 test_ntoh_packet_queue_with_OFPQT_NONE_and_OFPQT_MIN_RATE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_header *ph_dst, *ph_src;
-  struct ofp_queue_prop_min_rate *pm_dst, *pm_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header ) + sizeof( struct ofp_queue_prop_min_rate ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_header ) +
-                          sizeof( struct ofp_queue_prop_min_rate ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = htonl( 3 );
   src->len = htons( length );
-  ph_src = src->properties;
+  struct ofp_queue_prop_header *ph_src = src->properties;
   ph_src->property = htons( OFPQT_NONE );
   ph_src->len = htons( 8 );
-  pm_src =
-    ( struct ofp_queue_prop_min_rate * ) ( ( char * ) src->properties +
-                                           sizeof( struct ofp_queue_prop_header ) );
+  struct ofp_queue_prop_min_rate *pm_src = ( struct ofp_queue_prop_min_rate * ) ( ( char * ) src->properties + sizeof( struct ofp_queue_prop_header ) );
   pm_src->prop_header.property = htons( OFPQT_MIN_RATE );
   pm_src->prop_header.len = htons( 16 );
   pm_src->rate = htons( 500 );
 
   ntoh_packet_queue( dst, src );
 
-  ph_dst = dst->properties;
-  pm_dst =
-    ( struct ofp_queue_prop_min_rate * ) ( ( char * ) dst->properties +
-                                           sizeof( struct ofp_queue_prop_header ) );
+  struct ofp_queue_prop_header *ph_dst = dst->properties;
+  struct ofp_queue_prop_min_rate *pm_dst = ( struct ofp_queue_prop_min_rate * ) ( ( char * ) dst->properties + sizeof( struct ofp_queue_prop_header ) );
 
   assert_int_equal( ( int ) htonl( dst->queue_id ), ( int ) src->queue_id );
   assert_int_equal( htons( dst->len ), src->len );
@@ -1645,28 +1558,23 @@ test_ntoh_packet_queue_with_OFPQT_NONE_and_OFPQT_MIN_RATE() {
 
 void
 test_hton_packet_queue_with_single_OFPQT_NONE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_header *ph_dst, *ph_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_header ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = 3;
   src->len = length;
-  ph_src = src->properties;
+  struct ofp_queue_prop_header *ph_src = src->properties;
   ph_src->property = OFPQT_NONE;
   ph_src->len = 8;
 
   hton_packet_queue( dst, src );
 
-  ph_dst = dst->properties;
+  struct ofp_queue_prop_header *ph_dst = dst->properties;
 
   assert_int_equal( ( int ) dst->queue_id, ( int ) htonl( src->queue_id ) );
   assert_int_equal( dst->len, htons( src->len ) );
@@ -1680,36 +1588,29 @@ test_hton_packet_queue_with_single_OFPQT_NONE() {
 
 void
 test_hton_packet_queue_with_single_OFPQT_MIN_RATE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_min_rate *pm_dst, *pm_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_min_rate ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_min_rate ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = 3;
   src->len = length;
-  pm_src = ( struct ofp_queue_prop_min_rate * ) src->properties;
+  struct ofp_queue_prop_min_rate *pm_src = ( struct ofp_queue_prop_min_rate * ) src->properties;
   pm_src->prop_header.property = OFPQT_MIN_RATE;
   pm_src->prop_header.len = 16;
   pm_src->rate = 500;
 
   hton_packet_queue( dst, src );
 
-  pm_dst = ( struct ofp_queue_prop_min_rate * ) dst->properties;
+  struct ofp_queue_prop_min_rate *pm_dst = ( struct ofp_queue_prop_min_rate * ) dst->properties;
 
   assert_int_equal( ( int ) dst->queue_id, ( int ) htonl( src->queue_id ) );
   assert_int_equal( dst->len, htons( src->len ) );
-  assert_int_equal( pm_dst->prop_header.property,
-                    htons( pm_src->prop_header.property ) );
-  assert_int_equal( pm_dst->prop_header.len,
-                    htons( pm_src->prop_header.len ) );
+  assert_int_equal( pm_dst->prop_header.property, htons( pm_src->prop_header.property ) );
+  assert_int_equal( pm_dst->prop_header.len, htons( pm_src->prop_header.len ) );
   assert_int_equal( pm_dst->rate, htons( pm_src->rate ) );
 
   xfree( src );
@@ -1719,39 +1620,28 @@ test_hton_packet_queue_with_single_OFPQT_MIN_RATE() {
 
 void
 test_hton_packet_queue_with_OFPQT_NONE_and_OFPQT_MIN_RATE() {
-  uint16_t length;
-  struct ofp_packet_queue *dst, *src;
-  struct ofp_queue_prop_header *ph_dst, *ph_src;
-  struct ofp_queue_prop_min_rate *pm_dst, *pm_src;
+  uint16_t length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) + sizeof( struct ofp_queue_prop_header ) + sizeof( struct ofp_queue_prop_min_rate ) );
 
-  length = ( uint16_t ) ( offsetof( struct ofp_packet_queue, properties ) +
-                          sizeof( struct ofp_queue_prop_header ) +
-                          sizeof( struct ofp_queue_prop_min_rate ) );
-
-  src = xmalloc( length );
-  dst = xmalloc( length );
+  struct ofp_packet_queue *src = xmalloc( length );
+  struct ofp_packet_queue *dst = xmalloc( length );
 
   memset( src, 0, length );
   memset( dst, 0, length );
 
   src->queue_id = 3;
   src->len = length;
-  ph_src = src->properties;
+  struct ofp_queue_prop_header *ph_src = src->properties;
   ph_src->property = OFPQT_NONE;
   ph_src->len = 8;
-  pm_src =
-    ( struct ofp_queue_prop_min_rate * ) ( ( char * ) src->properties +
-                                           sizeof( struct ofp_queue_prop_header ) );
+  struct ofp_queue_prop_min_rate *pm_src = ( struct ofp_queue_prop_min_rate * ) ( ( char * ) src->properties + sizeof( struct ofp_queue_prop_header ) );
   pm_src->prop_header.property = OFPQT_MIN_RATE;
   pm_src->prop_header.len = 16;
   pm_src->rate = 500;
 
   hton_packet_queue( dst, src );
 
-  ph_dst = dst->properties;
-  pm_dst =
-    ( struct ofp_queue_prop_min_rate * ) ( ( char * ) dst->properties +
-                                           sizeof( struct ofp_queue_prop_header ) );
+  struct ofp_queue_prop_header *ph_dst = dst->properties;
+  struct ofp_queue_prop_min_rate *pm_dst = ( struct ofp_queue_prop_min_rate * ) ( ( char * ) dst->properties + sizeof( struct ofp_queue_prop_header ) );
 
   assert_int_equal( ( int ) dst->queue_id, ( int ) htonl( src->queue_id ) );
   assert_int_equal( dst->len, htons( src->len ) );
