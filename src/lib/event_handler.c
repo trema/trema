@@ -116,20 +116,38 @@ delete_fd_event( int fd ) {
 
 void
 notify_readable_event( int fd, bool state ) {
+  if ( event_fd_set[fd] == NULL || event_fd_set[fd]->read_callback == NULL ) {
+    critical( "Invalid fd fo notify_readable_event call; %i.", fd );
+    return;
+  }
+
+  if ( state )
+    FD_SET( fd, event_read_set );
+  else
+    FD_CLR( fd, event_read_set );
 }
 
 void
 notify_writable_event( int fd, bool state ) {
+  if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
+    critical( "Invalid fd fo notify_writeable_event call; %i.", fd );
+    return;
+  }
+
+  if ( state )
+    FD_SET( fd, event_write_set );
+  else
+    FD_CLR( fd, event_write_set );
 }
 
 bool
 is_notifying_readable_event( int fd ) {
-  return FD_ISSET( fd, read_set );
+  return FD_ISSET( fd, event_read_set );
 }
 
 bool
 is_notifying_writable_event( int fd ) {
-  return FD_ISSET( fd, write_set );
+  return FD_ISSET( fd, event_write_set );
 }
 
 /*
