@@ -22,6 +22,7 @@
 
 #include <inttypes.h>
 #include <time.h>
+#include <assert.h>
 #include "trema.h"
 
 
@@ -252,11 +253,13 @@ handle_packet_in( packet_in packet_in ) {
     warn( "Unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
     return;
   }
-
-  uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
+  
+  packet_info *packet_info0 = packet_in.data->user_data;
+  assert( packet_info0 != NULL );
+  uint8_t *macsa = packet_info0->eth_macsa;
   learn( sw->forwarding_db, packet_in.in_port, macsa );
 
-  uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
+  uint8_t *macda = packet_info0->eth_macda;
   forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, macda );
 
   if ( destination == NULL ) {
