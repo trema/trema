@@ -30,13 +30,16 @@
 
 
 const char macda[] = {
-    ( char ) 0xff, ( char ) 0xff, ( char ) 0xff, ( char ) 0xff, ( char ) 0xff, ( char ) 0xff
+    ( char ) 0xff, ( char ) 0xff, ( char ) 0xff, 
+    ( char ) 0xff, ( char ) 0xff, ( char ) 0xff
 };
 const char macsa[] = {
-    ( char ) 0x00, ( char ) 0xd0, ( char ) 0x09, ( char ) 0x20, ( char ) 0x09, ( char ) 0xF7
+    ( char ) 0x00, ( char ) 0xd0, ( char ) 0x09, 
+    ( char ) 0x20, ( char ) 0x09, ( char ) 0xF7
 };
 const char sntp_data[] = {
-    ( char ) 0xaa, ( char ) 0xaa, ( char ) 0x03, ( char ) 0x00, ( char ) 0x00, ( char ) 0x00, ( char ) 0x08, ( char ) 0x00
+    ( char ) 0xaa, ( char ) 0xaa, ( char ) 0x03, ( char ) 0x00, 
+    ( char ) 0x00, ( char ) 0x00, ( char ) 0x08, ( char ) 0x00
 };
 
 
@@ -126,31 +129,11 @@ static void
 test_parse_packet_ether_arp_succeeds() {
   buffer *arp_buffer = setup_dummy_ether_arp_packet( );
 
-  assert_int_equal( parse_packet( arp_buffer ), true );
+  assert_true( parse_packet( arp_buffer ) );
+
+  packet_info packet_info0 = ( packet_info * )buf->user_data;
 
   free_buffer( arp_buffer );
-}
-
-
-static void
-test_parse_packet_fails_if_packet_size_is_short_ethernet_size() {
-  buffer *arp_short_ethernet_size = setup_dummy_ether_arp_packet( );
-  arp_short_ethernet_size->length = sizeof( ether_header_t ) - ETH_ADDRLEN;
-
-  assert_int_equal( parse_packet( arp_short_ethernet_size ), false );
-
-  free_buffer( arp_short_ethernet_size );
-}
-
-
-static void
-test_parse_packet_fails_if_arp_hw_type_is_no_ethernet_type() {
-  buffer *arp_hw_type = setup_dummy_ether_arp_packet( );
-  ( ( arp_header_t * ) ( ( char * ) ( arp_hw_type->data ) + sizeof( ether_header_t ) ) )->ar_hrd = ARPHRD_ETHER;
-
-  assert_int_equal( parse_packet( arp_hw_type ), false );
-
-  free_buffer( arp_hw_type );
 }
 
 
@@ -162,54 +145,8 @@ static void
 test_parse_packet_ether_ipv4_succeeds() {
   buffer *ipv4_buffer = setup_dummy_ether_ipv4_packet( );
 
-  assert_int_equal( parse_packet( ipv4_buffer ), true );
-
-  free_buffer( ipv4_buffer );
-}
-
-
-void
-test_parse_ether_fails_if_version_is_no_ipv4() {
-  buffer *ip_version = setup_dummy_ether_ipv4_packet( );
-  ( ( ipv4_header_t * ) ( ( char * ) ( ip_version->data ) + sizeof( ether_header_t ) ) )->version = 6;
-
-  assert_int_equal( parse_packet( ip_version ), false );
-
-  free_buffer( ip_version );
-}
-
-
-/********************************************************************************
- * get_checksum Tests.
- ********************************************************************************/
-
-static void
-test_get_checksum_succeeds_if_size_even_number() {
-  buffer *ipv4_buffer = setup_dummy_ether_ipv4_packet( );
-  ipv4_header_t *even_number = ( ipv4_header_t * ) ( ( char * ) ( ipv4_buffer->data ) + sizeof( ether_header_t ) );
-
-  even_number->check = 0;
-  even_number->check = get_checksum( ( uint16_t * ) even_number, sizeof( ipv4_header_t ) );
-  assert_true( even_number->check != 0 );
-
-  even_number->check = get_checksum( ( uint16_t * ) even_number, sizeof( ipv4_header_t ) );
-  assert_true( even_number->check == 0 );
-
-  free_buffer( ipv4_buffer );
-}
-
-
-static void
-test_get_checksum_succeeds_if_size_odd_number() {
-  buffer *ipv4_buffer = setup_dummy_ether_ipv4_packet( );
-  ipv4_header_t *odd_number = ( ipv4_header_t * ) ( ( char * ) ( ipv4_buffer->data ) + sizeof( ether_header_t ) );
-
-  odd_number->check = 0;
-  odd_number->check = get_checksum( ( uint16_t * ) odd_number, sizeof( ipv4_header_t ) - 1  );
-  assert_true( odd_number->check != 0 );
-
-  odd_number->check = get_checksum( ( uint16_t * ) odd_number, sizeof( ipv4_header_t ) - 1 );
-  assert_true( odd_number->check == 0 );
+  assert_true( parse_packet( ipv4_buffer ) );
+  
 
   free_buffer( ipv4_buffer );
 }
@@ -223,14 +160,8 @@ int
 main() {
   UnitTest tests[] = {
     unit_test( test_parse_packet_ether_arp_succeeds ),
-    unit_test( test_parse_packet_fails_if_packet_size_is_short_ethernet_size ),
-    unit_test( test_parse_packet_fails_if_arp_hw_type_is_no_ethernet_type ),
 
     unit_test( test_parse_packet_ether_ipv4_succeeds ),
-    unit_test( test_parse_ether_fails_if_version_is_no_ipv4 ),
-
-    unit_test( test_get_checksum_succeeds_if_size_even_number ),
-    unit_test( test_get_checksum_succeeds_if_size_odd_number ),
   };
   stub_logger();
   return run_tests( tests );
