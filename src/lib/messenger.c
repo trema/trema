@@ -1221,6 +1221,7 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
     socket = element->data;
     if ( socket->fd == fd ) {
       notify_readable_event( fd, false );
+      delete_fd_event( fd );
 
       debug( "Deleting fd ( %d ).", fd );
       delete_dlist_element( element );

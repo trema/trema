@@ -105,7 +105,7 @@ add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_c
 
 void
 delete_fd_event( int fd ) {
-  info( "Deleting event handler for fd %i.", fd, read_callback, write_callback );
+  info( "Deleting event handler for fd %i.", fd );
   
   event_fd* event = event_list;
 
