@@ -32,6 +32,8 @@
 
 extern void ( *die )( const char *format, ... );
 
+unsigned int hash_core( const void *key, int size );
+
 bool compare_string( const void *x, const void *y );
 unsigned int hash_string( const void *key );
 

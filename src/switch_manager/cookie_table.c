@@ -61,9 +61,7 @@ compare_cookie( const void *x, const void *y ) {
 
 static unsigned int
 hash_cookie_entry( const void *key ) {
-  const uint64_t *cookie = key;
-
-  return ( unsigned int )( ( *cookie >> 32 ) ^ *cookie );
+  return hash_core( key, ( int ) sizeof( uint64_t ) );
 }
 
 
