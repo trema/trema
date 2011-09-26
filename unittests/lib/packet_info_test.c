@@ -36,7 +36,7 @@ test_alloc_packet_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
 
   alloc_packet( buf );
-  assert_true( packet_info( buf ) != NULL );
+  assert_true( buf->user_data  != NULL );
 
   free_buffer( buf );
 }

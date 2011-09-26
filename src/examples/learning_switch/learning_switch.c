@@ -21,6 +21,7 @@
 
 
 #include <time.h>
+#include <assert.h>
 #include "trema.h"
 
 
@@ -167,13 +168,16 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 static void
 handle_packet_in( packet_in packet_in ) {
   struct key new_key;
-  memcpy( new_key.mac, packet_info( packet_in.data )->l2_data.eth->macsa, OFP_ETH_ALEN );
+  packet_info *packet_info0 = packet_in.data->user_data;
+  assert( packet_info0 != NULL );
+
+  memcpy( new_key.mac, packet_info0->eth_macsa, OFP_ETH_ALEN );
   new_key.datapath_id = packet_in.datapath_id;
   hash_table *forwarding_db = packet_in.user_data;
   learn( forwarding_db, new_key, packet_in.in_port );
 
   struct key search_key;
-  memcpy( search_key.mac, packet_info( packet_in.data )->l2_data.eth->macda, OFP_ETH_ALEN );
+  memcpy( search_key.mac, packet_info0->eth_macda, OFP_ETH_ALEN );
   search_key.datapath_id = packet_in.datapath_id;
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 

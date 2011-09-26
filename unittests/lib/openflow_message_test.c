@@ -5210,7 +5210,7 @@ setup_snap_packet( uint16_t type ) {
   buffer *buf = setup_ether_packet( sizeof( ether_header_t ) + sizeof( snap_header_t ), type );
   packet_info *packet_info0 = buf->user_data;
 
-  size_t length = sizeof( ether_header_t ) + sizeof( snap_header_t ) - ETH_PREPADLEN;
+  size_t length = sizeof( ether_header_t ) + sizeof( snap_header_t );
   ether_header_t *ether = packet_info0->l2_header;
   if ( type == ETH_ETHTYPE_TPID ) {
     length += sizeof( vlantag_header_t );
