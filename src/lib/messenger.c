@@ -211,6 +211,25 @@ static void ( *external_callback )( void ) = NULL;
 
 
 static void
+dummy_read_listening( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+}
+
+static void
+dummy_read_normal( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+}
+
+static void
+dummy_write_normal( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+}
+
+
+static void
 _delete_context( void *key, void *value, void *user_data ) {
   assert( value != NULL );
   UNUSED( key );
@@ -315,6 +334,10 @@ delete_send_queue( send_queue *sq ) {
 
   free_message_buffer( sq->buffer );
   if ( sq->server_socket != -1 ) {
+    notify_readable_event( sq->server_socket, false );
+    notify_writable_event( sq->server_socket, false );
+    delete_fd_event( sq->server_socket );
+
     close( sq->server_socket );
   }
   if ( send_queues != NULL ) {
@@ -433,11 +456,17 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
 
     debug( "Closing a client socket ( fd = %d ).", client_socket->fd );
 
+    notify_readable_event( client_socket->fd, false );
+    delete_fd_event( client_socket->fd );
+
     close( client_socket->fd );
     xfree( client_socket );
     send_dump_message( MESSENGER_DUMP_RECV_CLOSED, rq->service_name, NULL, 0 );
   }
   delete_dlist( rq->client_sockets );
+
+  notify_readable_event( rq->listen_socket, false );
+  delete_fd_event( rq->listen_socket );
 
   close( rq->listen_socket );
   free_message_buffer( rq->buffer );
@@ -578,6 +607,9 @@ create_receive_queue( const char *service_name ) {
     xfree( rq );
     return NULL;
   }
+
+  add_fd_event( rq->listen_socket, &dummy_read_listening, NULL );
+  notify_readable_event( rq->listen_socket, true );
 
   rq->message_callbacks = create_dlist();
   rq->client_sockets = create_dlist();
@@ -826,6 +858,10 @@ send_queue_connect( send_queue *sq ) {
 
     return 0;
   }
+
+  add_fd_event( sq->server_socket, &dummy_read_normal, &dummy_write_normal );
+  notify_readable_event( sq->server_socket, true );
+  notify_writable_event( sq->server_socket, true );
 
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
@@ -1130,6 +1166,9 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   socket = xmalloc( sizeof( messenger_socket ) );
   socket->fd = fd;
   insert_after_dlist( rq->client_sockets, socket );
+
+  add_fd_event( fd, &dummy_read_normal, NULL );
+  notify_readable_event( fd, true );
 }
 
 
@@ -1181,6 +1220,8 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
   for ( element = rq->client_sockets->next; element; element = element->next ) {
     socket = element->data;
     if ( socket->fd == fd ) {
+      notify_readable_event( fd, false );
+
       debug( "Deleting fd ( %d ).", fd );
       delete_dlist_element( element );
       xfree( socket );
@@ -1523,6 +1564,11 @@ on_send( int fd, send_queue *sq ) {
         error( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
                sq->service_name, fd, strerror( err ), err );
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+
+        notify_readable_event( sq->server_socket, false );
+        notify_writable_event( sq->server_socket, false );
+        delete_fd_event( sq->server_socket );
+
         close( sq->server_socket );
         sq->server_socket = -1;
         sq->refused_count = 0;
@@ -1561,6 +1607,11 @@ check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) {
       char buf[ 256 ];
       if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+
+        notify_readable_event( sq->server_socket, false );
+        notify_writable_event( sq->server_socket, false );
+        delete_fd_event( sq->server_socket );
+
         close( sq->server_socket );
         sq->server_socket = -1;
         continue;
@@ -1590,6 +1641,17 @@ run_once( void ) {
   FD_ZERO( &write_set );
   set_recv_queue_fd_set( &read_set );
   set_send_queue_fd_set( &read_set, &write_set );
+
+  fd_set new_read_set, new_write_set;
+  set_event_handler_fd_set( &new_read_set, &new_write_set );
+
+  if ( memcmp( &read_set, &new_read_set, sizeof( fd_set ) ) != 0 ||
+       memcmp( &write_set, &new_write_set, sizeof( fd_set ) ) != 0 ) {
+    critical( "New and old fd_set do not match. " );
+    /* running = false; */
+    /* return false; */
+  }
+
   if ( external_fd_set ) {
     external_fd_set( &read_set, &write_set );
   }

@@ -23,6 +23,8 @@
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
+#include <sys/types.h>
+
 #include "checks.h"
 #include "bool.h"
 
@@ -30,6 +32,9 @@ typedef void ( *event_fd_callback )( int, void* data );
 
 void init_event_handler();
 void finalize_event_handler();
+
+// Temporary until we add event loop.
+void set_event_handler_fd_set( fd_set* read_set, fd_set* write_set );
 
 void add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_callback );
 void delete_fd_event( int fd );

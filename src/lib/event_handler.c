@@ -20,7 +20,6 @@
 #include "event_handler.h"
 
 #include <sys/time.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -55,14 +54,30 @@ init_event_handler() {
 void
 finalize_event_handler() {
   if ( event_last != event_list ) {
-    warn( "Event Handler finalized with still active fd event handlers." );
+    warn( "Event Handler finalized with %i fd event handlers still active. (%i, ...)",
+          (event_last - event_list), (event_last > event_list ? event_list->fd : -1) );
     return;
   }
 }
 
 void
+set_event_handler_fd_set( fd_set* read_set, fd_set* write_set ) {
+  memcpy( read_set, &event_read_set, sizeof( fd_set ) );
+  memcpy( write_set, &event_write_set, sizeof( fd_set ) );
+}
+
+/* void */
+/* set_event_handler_fd_set( fdset* read_set, fdset* write_set ) { */
+/*   event_fd *event_itr = event_list; */
+
+/*   while ( event_itr != event_last ) { */
+    
+/*   } */
+/* } */
+
+void
 add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_callback ) {
-  debug( "Adding event handler for fd %i.", fd );
+  info( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
   
   // Currently just issue critical warnings instead of killing the
   // program."
@@ -90,6 +105,8 @@ add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_c
 
 void
 delete_fd_event( int fd ) {
+  info( "Deleting event handler for fd %i.", fd, read_callback, write_callback );
+  
   event_fd* event = event_list;
 
   while (event != event_last && event->fd != fd) {
