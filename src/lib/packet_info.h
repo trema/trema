@@ -24,9 +24,9 @@
 #define PACKET_INFO_H
 
 
+#include "arp.h"
 #include "checks.h"
 #include "bool.h"
-#include "arp.h"
 #include "ether.h"
 #include "icmp.h"
 #include "ipv4.h"
