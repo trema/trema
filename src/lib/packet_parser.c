@@ -72,7 +72,7 @@ parse_ether( buffer *buf ) {
 
     packet_info0->vlan_tci = ntohs( vlantag_header->tci );
     packet_info0->vlan_tpid = packet_info0->eth_type;
-    packet_info0->vlan_prio = TCI_GET_PRIO( packet_info0->vlan_tci );
+    packet_info0->vlan_prio =TCI_GET_PRIO( packet_info0->vlan_tci );
     packet_info0->vlan_cfi = TCI_GET_CFI( packet_info0->vlan_tci );
     packet_info0->vlan_vid = TCI_GET_VID( packet_info0->vlan_tci );
 

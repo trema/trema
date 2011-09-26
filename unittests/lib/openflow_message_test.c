@@ -5012,24 +5012,43 @@ setup_ether_packet( size_t length, uint16_t type ) {
     l2_length += sizeof( vlantag_header_t );
   }
 
+  /* Create the packet for test. */
   buffer *buf = alloc_buffer_with_length( length );
   alloc_packet( buf );
   append_back_buffer( buf, length );
-  packet_info( buf )->l2_data.eth = buf->data;
-  packet_info( buf )->ethtype = type;
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ether->type = htons( type );
 
+  ether_header_t *ether = buf->data;
+  ether->type = htons( type );
   memcpy( ( char * ) ether->macda, macda, ETH_ADDRLEN );
   memcpy( ( char * ) ether->macsa, macsa, ETH_ADDRLEN );
 
-  packet_info( buf )->l3_data.l3 = ( char * ) packet_info( buf )->l2_data.l2 + l2_length;
-  vlantag_header_t *vtag = ( vlantag_header_t * ) ( ( void * ) ( ether + 1 ) );
-  packet_info( buf )->vtag = vtag;
-
+  vlantag_header_t *vtag = ( vlantag_header_t * ) ( ether + 1 );
   if ( type == ETH_ETHTYPE_TPID ) {
-    packet_info( buf )->nvtags = 1;
-    vtag->tci = 20483; // prio(3bit):010,cfi(1bit):1,vid(12bit):000000000011
+    vtag->tci = htons( 20483 ); // prio(3bit):010,cfi(1bit):1,vid(12bit):000000000011
+  }
+
+  /* Create the pakcet_info data for verification. */
+  if ( buf->user_data == NULL ) {
+    calloc_packet_info( buf );
+  }
+  packet_info *packet_info0 = buf->user_data;
+  memcpy( packet_info0->eth_macda, macda, ETH_ADDRLEN );
+  memcpy( packet_info0->eth_macsa, macsa, ETH_ADDRLEN );
+  packet_info0->eth_type = type;
+  packet_info0->vlan_tci = 20483;
+  packet_info0->vlan_tpid = type;
+  packet_info0->vlan_prio = 2;
+  packet_info0->vlan_cfi = 1;
+  packet_info0->vlan_vid = 3;
+  packet_info0->format |= ETH_DIX;
+
+  packet_info0->l2_header = buf->data;
+  if ( type == ETH_ETHTYPE_TPID ) {
+    packet_info0->l3_header = ( void * ) ( vtag + 1 );
+    packet_info0->format |= ETH_8021Q;
+  } 
+  else { 
+    packet_info0->l3_header = ( void * ) ( ether + 1 );
   }
 
   return buf;
@@ -5039,37 +5058,90 @@ setup_ether_packet( size_t length, uint16_t type ) {
 static buffer *
 setup_ipv4_packet( size_t length, uint16_t type ) {
   buffer *buf = setup_ether_packet( length, type );
+  packet_info *packet_info0 = buf->user_data;
 
-  packet_info( buf )->ethtype = ETH_ETHTYPE_IPV4;
-  packet_info( buf )->ipproto = ( uint8_t ) type;
-  packet_info( buf )->l4_data.l4 = ( char * ) packet_info( buf )->l3_data.l3 + sizeof( ipv4_header_t );
-
+  /* Fill arp values into the test packet. */
   if ( type == ETH_ETHTYPE_TPID ) {
-    vlantag_header_t *vtag = packet_info( buf )->vtag;
+    ether_header_t *ether = packet_info0->l2_header;
+    vlantag_header_t *vtag = ( vlantag_header_t * ) ( ether + 1 );
     vtag->type = htons( ETH_ETHTYPE_IPV4 );
   }
 
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
   ipv4->version = IPVERSION;
   ipv4->ihl = sizeof( ipv4_header_t ) / 4;
+  ipv4->tos = 0;
   ipv4->tot_len = htons( sizeof( ipv4_header_t ) );
   ipv4->ttl = 0;
   ipv4->check = 0;
-  ipv4->saddr = ntohl( 0xC0A80067 );
-  ipv4->daddr = ntohl( 0xC0A80036 );
+  ipv4->saddr = htonl( 0xC0A80067 );
+  ipv4->daddr = htonl( 0xC0A80036 );
   ipv4->frag_off = htons( 0 );
-  ipv4->protocol = ( uint8_t ) type;
+  packet_info0->l4_header = ( void * ) ( ipv4 + 1 );
 
-  if ( type == IPPROTO_ICMP ) {
-    icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-    icmp->type = ICMP_TYPE_UNREACH;
-    icmp->code = ICMP_CODE_PORTUNREACH;
-  } else {
-    udp_header_t *udp = packet_info( buf )->l4_data.udp;
+  switch ( type ) {
+  case IPPROTO_ICMP:
+    ipv4->protocol = ( uint8_t ) IPPROTO_ICMP;    
+    icmp_header_t *icmpv4 = packet_info0->l4_header;
+    icmpv4->type = ICMP_TYPE_UNREACH;
+    icmpv4->code = ICMP_CODE_PORTUNREACH;
+    break;
+
+  case IPPROTO_UDP:
+    ipv4->protocol = ( uint8_t ) IPPROTO_UDP;
+    udp_header_t *udp = packet_info0->l4_header;
     udp->src_port = ntohs( src_port );
     udp->dst_port = ntohs( dst_port );
+    break;
+ 
+  case IPPROTO_TCP:
+    ipv4->protocol = ( uint8_t ) IPPROTO_TCP;
+    tcp_header_t *tcp = packet_info0->l4_header;
+    tcp->src_port = ntohs( src_port );
+    tcp->dst_port = ntohs( dst_port );
+    break;
+
+  default:
+    break;
   }
 
+  /* Fill ipv4/icmp/udp values into the packet_info data for verification. */
+  packet_info0->eth_type = ETH_ETHTYPE_IPV4;
+  packet_info0->ipv4_version = IPVERSION;
+  packet_info0->ipv4_ihl = sizeof( ipv4_header_t ) / 4;
+  packet_info0->ipv4_tos = 0;
+  packet_info0->ipv4_tot_len = sizeof( ipv4_header_t );
+  packet_info0->ipv4_ttl = 0;
+  packet_info0->ipv4_checksum = 0;
+  packet_info0->ipv4_saddr = 0xC0A80067;
+  packet_info0->ipv4_daddr = 0xC0A80036;
+  packet_info0->ipv4_frag_off = 0;
+  packet_info0->ipv4_protocol = ( uint8_t ) type;
+  packet_info0->format |= NW_IPV4;
+
+  switch ( type ) {
+  case IPPROTO_ICMP:
+    packet_info0->icmpv4_type = ICMP_TYPE_UNREACH;
+    packet_info0->icmpv4_code = ICMP_CODE_PORTUNREACH;
+    packet_info0->format |= NW_ICMPV4;
+    break;
+
+  case IPPROTO_UDP:
+    packet_info0->udp_src_port = src_port;
+    packet_info0->udp_dst_port = dst_port;
+    packet_info0->format |= TP_UDP;
+    break;
+
+  case IPPROTO_TCP:
+    packet_info0->tcp_src_port = src_port;
+    packet_info0->tcp_dst_port = dst_port;
+    packet_info0->format |= TP_TCP;
+    break;
+
+  default:
+    break;
+  }
+  
   return buf;
 }
 
@@ -5077,15 +5149,15 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
 static buffer *
 setup_arp_packet( uint16_t type ) {
   buffer *buf = setup_ether_packet( sizeof( ether_header_t ) + sizeof( arp_header_t ), type );
-
-  packet_info( buf )->ethtype = ETH_ETHTYPE_ARP;
-
+  packet_info *packet_info0 = buf->user_data;
+  
+  /* Fill arp values into the test packet. */
   if ( type == ETH_ETHTYPE_TPID ) {
-    vlantag_header_t *vtag = packet_info( buf )->vtag;
+    ether_header_t *ether = packet_info0->l2_header;
+    vlantag_header_t *vtag = ( vlantag_header_t * ) ( ether + 1 );
     vtag->type = htons( ETH_ETHTYPE_ARP );
   }
-
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  arp_header_t *arp = packet_info0->l3_header;
   arp->ar_hrd = htons( ARPHRD_ETHER );
   arp->ar_pro = htons( ETH_ETHTYPE_IPV4 );
   arp->ar_hln = ETH_ADDRLEN;
@@ -5106,6 +5178,29 @@ setup_arp_packet( uint16_t type ) {
   arp->tha[ 5 ] = 0x0b;
   arp->tip = htonl( 0x05060708 );
 
+  /* Fill arp values into the packet_info data for verification. */
+  packet_info0->eth_type = ETH_ETHTYPE_ARP;
+  packet_info0->arp_ar_hrd = ARPHRD_ETHER;
+  packet_info0->arp_ar_pro = ETH_ETHTYPE_IPV4;
+  packet_info0->arp_ar_hln = ETH_ADDRLEN;
+  packet_info0->arp_ar_pln = IPV4_ADDRLEN;
+  packet_info0->arp_ar_op = ARPOP_REPLY;
+  packet_info0->arp_sha[ 0 ] = 0x00;
+  packet_info0->arp_sha[ 1 ] = 0x01;
+  packet_info0->arp_sha[ 2 ] = 0x02;
+  packet_info0->arp_sha[ 3 ] = 0x03;
+  packet_info0->arp_sha[ 4 ] = 0x04;
+  packet_info0->arp_sha[ 5 ] = 0x05;
+  packet_info0->arp_spa = 0x01020304;
+  packet_info0->arp_tha[ 0 ] = 0x06;
+  packet_info0->arp_tha[ 1 ] = 0x07;
+  packet_info0->arp_tha[ 2 ] = 0x08;
+  packet_info0->arp_tha[ 3 ] = 0x09;
+  packet_info0->arp_tha[ 4 ] = 0x0a;
+  packet_info0->arp_tha[ 5 ] = 0x0b;
+  packet_info0->arp_tpa = 0x05060708;
+  packet_info0->format |= NW_ARP;
+
   return buf;
 }
 
@@ -5113,13 +5208,20 @@ setup_arp_packet( uint16_t type ) {
 static buffer *
 setup_snap_packet( uint16_t type ) {
   buffer *buf = setup_ether_packet( sizeof( ether_header_t ) + sizeof( snap_header_t ), type );
+  packet_info *packet_info0 = buf->user_data;
 
-  ( packet_info( buf )->l2_data.eth )->type = htons( sizeof( ether_header_t ) + sizeof( snap_header_t ) - ETH_PREPADLEN );
-  snap_header_t *snap = ( snap_header_t * ) packet_info( buf )->vtag;
-
+  size_t length = sizeof( ether_header_t ) + sizeof( snap_header_t ) - ETH_PREPADLEN;
+  ether_header_t *ether = packet_info0->l2_header;
   if ( type == ETH_ETHTYPE_TPID ) {
-    snap = ( snap_header_t * ) ( ( char * ) snap +  sizeof ( vlantag_header_t ) );
+    length += sizeof( vlantag_header_t );
+    vlantag_header_t *vtag = ( void * ) ( ether + 1 );
+    vtag->type = htons( ( uint16_t ) length );
+  }  
+  else {
+    ether->type = htons( ( uint16_t ) length );
   }
+
+  snap_header_t *snap = ( snap_header_t * ) packet_info0->l3_header;
   memcpy( ( char * ) snap, snap_data, sizeof( snap_header_t ) );
 
   return buf;
@@ -5129,22 +5231,21 @@ setup_snap_packet( uint16_t type ) {
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_arp_tag_and_wildcards_is_zero() {
   buffer *buf = setup_arp_packet( ETH_ETHTYPE_TPID );
-  vlantag_header_t *vtag = packet_info( buf )->vtag;
-  vtag->type = htons( ETH_ETHTYPE_ARP );
 
   uint16_t expected_in_port = 1;
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5161,14 +5262,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_zero() {
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5185,13 +5287,14 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_IN
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_IN_PORT, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_IN_PORT );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5208,13 +5311,14 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5231,13 +5335,14 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_DL_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5254,13 +5359,14 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_DL_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5277,7 +5383,8 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_TYPE, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_DL_TYPE );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
@@ -5296,14 +5403,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_PROTO, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_NW_PROTO );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
 
@@ -5319,14 +5427,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_TP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_TP_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5343,14 +5452,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_TP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_TP_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5367,14 +5477,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_SRC_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_NW_SRC_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   uint32_t ip_source_address_flag = ntohl( arp->sip ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
   assert_int_equal( ( int ) match.nw_src, ( int ) ip_source_address_flag );
@@ -5392,14 +5503,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_DST_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_NW_DST_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   uint32_t ip_destination_address_flag = ntohl( arp->tip ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
@@ -5417,14 +5529,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_DL
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN_PCP, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN_PCP );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5441,14 +5554,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_arp_and_wildcards_is_OFPFW_NW
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_TOS, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  arp_header_t *arp = packet_info( buf )->l3_data.arp;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  arp_header_t *arp = packet_info0->l3_header;
   assert_int_equal( ( int ) match.wildcards, OFPFW_NW_TOS );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_proto, ntohs( arp->ar_op ) & ARP_OP_MASK );
   assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( arp->sip ) );
   assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( arp->tip ) );
@@ -5485,19 +5599,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_tag_and_wildcards_is
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
   assert_int_equal( match.in_port, expected_in_port );
   assert_int_equal( ( int ) match.wildcards, 0 );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -5511,19 +5626,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_zer
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5539,18 +5655,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_IN_PORT, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_IN_PORT );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_IN_PORT );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5566,18 +5683,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5593,18 +5711,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5620,18 +5739,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5647,8 +5767,9 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_TYPE, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_TYPE );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_TYPE );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
@@ -5666,17 +5787,18 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_PROTO, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_PROTO );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_PROTO );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -5690,19 +5812,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
   free_buffer( buf );
@@ -5717,19 +5840,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
 
   free_buffer( buf );
@@ -5744,20 +5868,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_SRC_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_SRC_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_SRC_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ip_source_address_flag );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5773,20 +5898,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_DST_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_DST_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_DST_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
   uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, ip_destination_address_flag );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5802,19 +5928,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN_PCP, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN_PCP );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN_PCP );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5830,18 +5957,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_TOS, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  udp_header_t *udp = packet_info( buf )->l4_data.udp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_TOS );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  udp_header_t *udp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_TOS );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -5857,13 +5985,13 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_ALL, buf );
 
-  assert_int_equal( ( int ) match.wildcards, OFPFW_ALL );
+  assert_int_equal( match.wildcards, OFPFW_ALL );
   assert_int_equal( match.in_port, 0 );
   assert_int_equal( match.dl_type, 0 );
   assert_int_equal( match.nw_tos, 0 );
   assert_int_equal( match.nw_proto, 0 );
-  assert_int_equal( ( int ) match.nw_src, 0 );
-  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( match.nw_src, 0 );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
@@ -5874,29 +6002,37 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_tag_and_wildcards_is_zero() {
   buffer *buf = setup_ipv4_packet( ipv4_length + sizeof( tcp_header_t ), ETH_ETHTYPE_TPID );
-  packet_info( buf )->ipproto = IPPROTO_TCP;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
+  packet_info *packet_info0 = buf->user_data;
+
+  /* Add a tcp data into the test packet */
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
   ipv4->protocol = IPPROTO_TCP;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
+  tcp_header_t *tcp = packet_info0->l4_header;
   tcp->src_port = ntohs( src_port );
   tcp->dst_port = ntohs( dst_port );
 
+  /* Add the tcp data into the packet_info data for verification. */
+  packet_info0->ipv4_protocol = IPPROTO_TCP;
+  packet_info0->tcp_src_port = src_port;
+  packet_info0->tcp_dst_port = dst_port;
+  packet_info0->format |= TP_TCP;
+  
   uint16_t expected_in_port = 1;
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -5910,19 +6046,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_zer
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -5938,18 +6075,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_IN_PORT, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_IN_PORT );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_IN_PORT );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -5965,18 +6103,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -5992,18 +6131,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6019,18 +6159,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6046,8 +6187,9 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_TYPE, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_TYPE );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_TYPE );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
@@ -6065,17 +6207,18 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_PROTO, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_PROTO );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_PROTO );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -6089,19 +6232,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
   free_buffer( buf );
@@ -6116,19 +6260,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
 
   free_buffer( buf );
@@ -6143,20 +6288,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_SRC_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_SRC_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_SRC_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ip_source_address_flag );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6172,20 +6318,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_DST_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_DST_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_DST_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
   uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, ip_destination_address_flag );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6201,19 +6348,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN_PCP, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN_PCP );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN_PCP );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6229,18 +6377,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_TOS, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  tcp_header_t *tcp = packet_info( buf )->l4_data.tcp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_TOS );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  tcp_header_t *tcp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_TOS );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6256,13 +6405,13 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_ALL, buf );
 
-  assert_int_equal( ( int ) match.wildcards, OFPFW_ALL );
+  assert_int_equal( match.wildcards, OFPFW_ALL );
   assert_int_equal( match.in_port, 0 );
   assert_int_equal( match.dl_type, 0 );
   assert_int_equal( match.nw_tos, 0 );
   assert_int_equal( match.nw_proto, 0 );
-  assert_int_equal( ( int ) match.nw_src, 0 );
-  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( match.nw_src, 0 );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
@@ -6273,29 +6422,36 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_tag_and_wildcards_is_zero() {
   buffer *buf = setup_ipv4_packet( ipv4_length + sizeof( icmp_header_t ), ETH_ETHTYPE_TPID );
-  packet_info( buf )->ipproto = IPPROTO_ICMP;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
+  packet_info *packet_info0 = buf->user_data;
+
+  /* Add a icmp data into the test packet. */
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
   ipv4->protocol = IPPROTO_ICMP;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  icmp->type = ICMP_TYPE_UNREACH;
-  icmp->code = ICMP_CODE_PORTUNREACH;
+  icmp_header_t *icmpv4 = packet_info0->l4_header;    
+  icmpv4->type = ICMP_TYPE_UNREACH;
+  icmpv4->code = ICMP_CODE_PORTUNREACH;
+  /* Add the icmp data into the packet_info data for verification. */
+  packet_info0->ipv4_protocol = IPPROTO_ICMP;
+  packet_info0->icmpv4_type = ICMP_TYPE_UNREACH;
+  packet_info0->icmpv4_code = ICMP_CODE_PORTUNREACH;
+  packet_info0->format |= NW_ICMPV4;
 
   uint16_t expected_in_port = 1;
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -6309,19 +6465,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_ze
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6337,18 +6494,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_IN_PORT, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_IN_PORT );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_IN_PORT );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6364,18 +6522,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6391,18 +6550,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6418,18 +6578,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6445,8 +6606,9 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_TYPE, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_TYPE );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_TYPE );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
@@ -6464,17 +6626,18 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_PROTO, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_PROTO );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_PROTO );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
 
   free_buffer( buf );
 }
@@ -6488,19 +6651,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_SRC, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_SRC );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_SRC );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_code, icmp->code );
 
   free_buffer( buf );
@@ -6515,19 +6679,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_TP_DST, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_TP_DST );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_TP_DST );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
 
   free_buffer( buf );
@@ -6542,20 +6707,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_SRC_ALL, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_SRC_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_SRC_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ip_source_address_flag );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6571,21 +6737,21 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_DST_ALL, buf );
 
-
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_DST_ALL );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_DST_ALL );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
   uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, ip_destination_address_flag );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6601,19 +6767,20 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_DL_VLAN_PCP, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_DL_VLAN_PCP );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_DL_VLAN_PCP );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6629,18 +6796,19 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_NW_TOS, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  ipv4_header_t *ipv4 = packet_info( buf )->l3_data.ipv4;
-  icmp_header_t *icmp = packet_info( buf )->l4_data.icmp;
-  assert_int_equal( ( int ) match.wildcards, OFPFW_NW_TOS );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  ipv4_header_t *ipv4 = packet_info0->l3_header;
+  icmp_header_t *icmp = packet_info0->l4_header;
+  assert_int_equal( match.wildcards, OFPFW_NW_TOS );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
-  assert_int_equal( match.nw_proto, packet_info( buf )->ipproto );
-  assert_int_equal( ( int ) match.nw_src, ( int ) ntohl( ipv4->saddr ) );
-  assert_int_equal( ( int ) match.nw_dst, ( int ) ntohl( ipv4->daddr ) );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
+  assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
+  assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
+  assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 
@@ -6656,13 +6824,13 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, OFPFW_ALL, buf );
 
-  assert_int_equal( ( int ) match.wildcards, OFPFW_ALL );
+  assert_int_equal( match.wildcards, OFPFW_ALL );
   assert_int_equal( match.in_port, 0 );
   assert_int_equal( match.dl_type, 0 );
   assert_int_equal( match.nw_tos, 0 );
   assert_int_equal( match.nw_proto, 0 );
-  assert_int_equal( ( int ) match.nw_src, 0 );
-  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( match.nw_src, 0 );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.tp_src, 0 );
   assert_int_equal( match.tp_dst, 0 );
 
@@ -6678,14 +6846,15 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_tag_and_wildcar
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }
@@ -6694,8 +6863,11 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_tag_and_wildcar
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_tag_and_wildcards_is_zero() {
   buffer *buf = setup_snap_packet( ETH_ETHTYPE_TPID );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  vlantag_header_t *vtag = ( vlantag_header_t * ) ( ether + 1 );
 
-  snap_header_t *snap = ( snap_header_t * ) packet_info( buf )->vtag;
+  snap_header_t *snap = ( snap_header_t * ) ( vtag + 1 );
   snap->llc[ 0 ] = 0xF0;
   snap->llc[ 1 ] = 0xF0;
 
@@ -6703,14 +6875,13 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_tag_and_wild
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }
@@ -6719,8 +6890,11 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_tag_and_wild
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_tag_and_wildcards_is_zero() {
   buffer *buf = setup_snap_packet( ETH_ETHTYPE_TPID );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  vlantag_header_t *vtag = ( vlantag_header_t * ) ( ether + 1 );
 
-  snap_header_t *snap = ( snap_header_t * ) packet_info( buf )->vtag;
+  snap_header_t *snap = ( snap_header_t * ) ( vtag + 1 );
   snap->llc[ 0 ] = 0xFF;
   snap->llc[ 1 ] = 0xFF;
 
@@ -6728,14 +6902,13 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_tag_and_wild
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
-  assert_int_equal( match.dl_vlan, TCI_GET_VID( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_vlan_pcp, TCI_GET_PRIO( ntohs( packet_info( buf )->vtag->tci ) ) );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_vlan, packet_info0->vlan_vid );
+  assert_int_equal( match.dl_vlan_pcp, packet_info0->vlan_prio );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }
@@ -6749,13 +6922,14 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_and_wildcards_i
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }
@@ -6764,8 +6938,10 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_snap_and_wildcards_i
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcards_is_zero() {
   buffer *buf = setup_snap_packet( 0 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
 
-  snap_header_t *snap = ( snap_header_t * ) packet_info( buf )->vtag;
+  snap_header_t *snap = ( snap_header_t * ) ( ether + 1 );
   snap->llc[ 0 ] = 0xF0;
   snap->llc[ 1 ] = 0xF0;
 
@@ -6773,13 +6949,12 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcard
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }
@@ -6788,8 +6963,10 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcard
 static void
 test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcards_is_zero() {
   buffer *buf = setup_snap_packet( 1 );
+  packet_info *packet_info0 = buf->user_data;
+  ether_header_t *ether = packet_info0->l2_header;
 
-  snap_header_t *snap = ( snap_header_t * ) packet_info( buf )->vtag;
+  snap_header_t *snap = ( snap_header_t * ) ( ether + 1 );
   snap->llc[ 0 ] = 0x00;
   snap->llc[ 1 ] = 0x00;
 
@@ -6797,13 +6974,12 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcard
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
 
-  ether_header_t *ether = packet_info( buf )->l2_data.eth;
-  assert_int_equal( ( int ) match.wildcards, 0 );
+  assert_int_equal( match.wildcards, 0 );
   assert_int_equal( match.in_port, expected_in_port );
   assert_memory_equal( match.dl_src, ether->macsa, ETH_ADDRLEN );
   assert_memory_equal( match.dl_dst, ether->macda, ETH_ADDRLEN );
   assert_int_equal( match.dl_vlan, UINT16_MAX );
-  assert_int_equal( match.dl_type, packet_info( buf )->ethtype );
+  assert_int_equal( match.dl_type, packet_info0->eth_type );
 
   free_buffer( buf );
 }

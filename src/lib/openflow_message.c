@@ -3934,6 +3934,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   // Note that wildcards must be filled before calling this function.
 
   assert( packet != NULL );
+  assert( packet->user_data != NULL );
 
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = wildcards;
@@ -3949,7 +3950,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   }
   if ( !( wildcards & OFPFW_DL_VLAN ) ) {
     if ( packet_type_eth_vtag( packet ) ) {
-      match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_tci;
+      match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
     }
     else {
       match->dl_vlan = UINT16_MAX;
@@ -3995,12 +3996,19 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       }
       break;
     case IPPROTO_TCP:
-    case IPPROTO_UDP:
       if ( !( wildcards & OFPFW_TP_SRC ) ) {
         match->tp_src = ( ( packet_info * ) packet->user_data )->tcp_src_port;
       }
       if ( !( wildcards & OFPFW_TP_DST ) ) {
         match->tp_dst = ( ( packet_info * ) packet->user_data )->tcp_dst_port;
+      }
+      break;
+    case IPPROTO_UDP:
+      if ( !( wildcards & OFPFW_TP_SRC ) ) {
+        match->tp_src = ( ( packet_info * ) packet->user_data )->udp_src_port;
+      }
+      if ( !( wildcards & OFPFW_TP_DST ) ) {
+        match->tp_dst = ( ( packet_info * ) packet->user_data )->udp_dst_port;
       }
       break;
 
