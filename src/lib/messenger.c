@@ -861,7 +861,10 @@ send_queue_connect( send_queue *sq ) {
 
   add_fd_event( sq->server_socket, &dummy_read_normal, &dummy_write_normal );
   notify_readable_event( sq->server_socket, true );
-  notify_writable_event( sq->server_socket, true );
+
+  if ( sq->buffer->data_length >= sizeof( message_header ) ) {
+    notify_writable_event( sq->server_socket, true );
+  }
 
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
@@ -980,6 +983,8 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 
   write_message_buffer( sq->buffer, &header, sizeof( message_header ) );
   write_message_buffer( sq->buffer, data, len );
+
+  notify_writable_event( sq->server_socket, true );
 
   return true;
 }
@@ -1548,6 +1553,7 @@ on_send( int fd, send_queue *sq ) {
          fd, sq->service_name, get_message_buffer_head( sq->buffer ), sq->buffer->data_length );
 
   if ( sq->buffer->data_length < sizeof( message_header ) ) {
+    notify_writable_event( sq->server_socket, false );
     return;
   }
 
@@ -1585,6 +1591,8 @@ on_send( int fd, send_queue *sq ) {
     send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, data, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
   }
+
+  notify_writable_event( sq->server_socket, false );
   truncate_message_buffer( sq->buffer, sent_total );
 }
 
