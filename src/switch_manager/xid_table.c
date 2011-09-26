@@ -81,22 +81,10 @@ free_xid_entry( xid_entry_t *free_entry ) {
 }
 
 
-static bool
-compare_xid( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof( uint32_t ) ) == 0 ) ? true : false );
-}
-
-
-static unsigned int
-hash_xid( const void *key ) {
-  return ( unsigned int ) *( ( const uint32_t * ) key );
-}
-
-
 void
 init_xid_table( void ) {
   memset( &xid_table, 0, sizeof( xid_table_t ) );
-  xid_table.hash = create_hash( compare_xid, hash_xid );
+  xid_table.hash = create_hash( compare_uint32, hash_uint32 );
   xid_table.next_index = 0;
 }
 

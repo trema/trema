@@ -2572,7 +2572,7 @@ class Rant::RantApp
 	    msg "No described tasks."
 	    return
 	end
-	prefix = "rant "
+	prefix = "./build.rb "
 	infix = "  # "
         name_length = (tlist.map{ |t| t.to_s.length } << 7).max
 	cmd_length = prefix.length + name_length

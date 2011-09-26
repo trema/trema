@@ -23,7 +23,7 @@
 class HelloController < Controller
   def switch_ready datapath_id
     info "Hello %#x from #{ ARGV[ 0 ] }!" % datapath_id
-    stop
+    shutdown!
   end
 end
 
