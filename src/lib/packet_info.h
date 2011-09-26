@@ -145,8 +145,10 @@ typedef struct packet_info {
 } packet_info;
 
 
-void alloc_packet( buffer *frame );
-void free_packet( buffer *frame ) DEPRECATED;
+bool parse_packet( buffer *buf );
+
+void alloc_packet_info( buffer *frame );
+void free_packet_info( buffer *frame );
 packet_info get_packet_info( const buffer *frame );
 
 bool packet_type_eth_dix( const buffer *frame );
@@ -210,6 +212,9 @@ typedef struct packet_header_info {
 
 #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
 /*!<Returns pointer to structure of type packet_header_info*/
+
+
+void free_packet( buffer *frame ) DEPRECATED;
 
 
 #endif // PACKET_INFO_H

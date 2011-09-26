@@ -36,8 +36,8 @@
  * @param buf Pointer to buffer type structure
  * @return None
  */
-static void
-free_packet_header_info( buffer *buf ) {
+void
+free_packet_info( buffer *buf ) {
   assert( buf != NULL );
   assert( buf->user_data != NULL );
 
@@ -56,7 +56,7 @@ free_packet_header_info( buffer *buf ) {
  * @return None
  */
 void
-alloc_packet( buffer *buf ) {
+alloc_packet_info( buffer *buf ) {
   assert( buf != NULL );
 
   packet_info *packet_info = xcalloc( 1, sizeof( packet_info ) );
@@ -65,8 +65,7 @@ alloc_packet( buffer *buf ) {
   memset( packet_info, 0, sizeof( packet_info ) );
 
   buf->user_data = packet_info;
-  // REVISIT
-  buf->user_data_free_function = free_packet_header_info;
+  buf->user_data_free_function = free_packet_info;
 }
 
 
@@ -83,7 +82,7 @@ void
 free_packet( buffer *buf ) {
   assert( buf != NULL );
 
-  free_packet_header_info( buf );
+  free_packet_info( buf );
   free_buffer( buf );
 }
 
@@ -96,6 +95,12 @@ get_packet_info( const buffer *frame ) {
   
   return *( packet_info *)frame->user_data;
 }
+
+/**
+ *
+ */
+
+
 
 /*
  * Local variables:
