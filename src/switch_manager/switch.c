@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include "trema.h"
 #include "cookie_table.h"
+#include "event_handler.h"
 #include "management_interface.h"
 #include "message_queue.h"
 #include "messenger.h"
@@ -147,6 +148,42 @@ service_send_state( struct switch_info *sw_info, uint64_t *dpid, uint16_t tag ) 
   service_send_to_application( sw_info->state_service_name_list, tag, dpid, NULL );
 }
 
+
+static void
+secure_channel_read( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+
+  if ( recv_from_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
+  }
+
+  if ( switch_info.recv_queue->length > 0 ) {
+    int ret = handle_messages_from_secure_channel( &switch_info );
+    if ( ret < 0 ) {
+      stop_messenger();
+    }
+  }
+}
+
+static void
+secure_channel_write( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+
+  if ( flush_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
+  }
+
+  if ( switch_info.recv_queue->length > 0 ) {
+    int ret = handle_messages_from_secure_channel( &switch_info );
+    if ( ret < 0 ) {
+      stop_messenger();
+    }
+  }
+}
 
 static void
 secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
@@ -367,6 +404,10 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
 
   if ( sw_info->secure_channel_fd >= 0 ) {
+    notify_readable_event( switch_info.secure_channel_fd, false );
+    notify_writable_event( switch_info.secure_channel_fd, false );
+    delete_fd_event( switch_info.secure_channel_fd );
+
     close( sw_info->secure_channel_fd );
     sw_info->secure_channel_fd = -1;
   }
@@ -488,6 +529,11 @@ main( int argc, char *argv[] ) {
   }
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
+
+  add_fd_event( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
+  notify_readable_event( switch_info.secure_channel_fd, true );
+  notify_writable_event( switch_info.secure_channel_fd, true );
+
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;
   switch_info.miss_send_len = UINT16_MAX;

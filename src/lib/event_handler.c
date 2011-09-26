@@ -20,6 +20,7 @@
 #include "event_handler.h"
 
 #include <sys/time.h>
+#include <errno.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -31,14 +32,20 @@ typedef struct event_fd {
   int fd;
   event_fd_callback read_callback;
   event_fd_callback write_callback;
+  void* read_data;
+  void* write_data;
 } event_fd;
 
 event_fd event_list[FD_SETSIZE];
 event_fd *event_last;
 
 event_fd *event_fd_set[FD_SETSIZE];
+
 fd_set event_read_set;
 fd_set event_write_set;
+fd_set current_read_set;
+fd_set current_write_set;
+
 
 void
 init_event_handler() {
@@ -66,17 +73,48 @@ set_event_handler_fd_set( fd_set* read_set, fd_set* write_set ) {
   memcpy( write_set, &event_write_set, sizeof( fd_set ) );
 }
 
-/* void */
-/* set_event_handler_fd_set( fdset* read_set, fdset* write_set ) { */
-/*   event_fd *event_itr = event_list; */
+bool
+run_event_handler_once() {
+  struct timeval timeout = { 0, 100 * 1000 };
 
-/*   while ( event_itr != event_last ) { */
-    
-/*   } */
-/* } */
+  set_event_handler_fd_set( &current_read_set, &current_write_set );
+
+  // Don't us FD_SETSIZE here...
+  int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );
+
+  if ( set_count == -1 ) {
+    if ( errno == EINTR ) {
+      return true;
+    }
+    error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno );
+    return false;
+
+  } else if ( set_count == 0 ) {
+    // timed out
+    return true;
+  }
+
+  event_fd *event_itr = event_list;
+
+  while ( event_itr != event_last ) {
+    event_fd current_event = *event_itr;
+
+    if ( FD_ISSET( current_event.fd, &current_read_set ) ) {
+      (*current_event.read_callback)( current_event.fd, current_event.read_data );
+    }
+
+    if ( FD_ISSET( current_event.fd, &current_write_set ) ) {
+      (*current_event.write_callback)( current_event.fd, current_event.write_data );
+    }
+  }
+
+  return true;
+}
 
 void
-add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_callback ) {
+add_fd_event( int fd,
+              event_fd_callback read_callback, void* read_data,
+              event_fd_callback write_callback, void* write_data ) {
   info( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
   
   // Currently just issue critical warnings instead of killing the
@@ -99,6 +137,8 @@ add_fd_event( int fd, event_fd_callback read_callback, event_fd_callback write_c
   event_last->fd = fd;
   event_last->read_callback = read_callback;
   event_last->write_callback = write_callback;
+  event_last->read_data = read_data;
+  event_last->write_data = write_data;
   
   event_fd_set[fd] = event_last++;
 }
@@ -130,6 +170,9 @@ delete_fd_event( int fd ) {
     FD_CLR( fd, &event_write_set );
   }
 
+  FD_CLR( fd, &current_read_set );
+  FD_CLR( fd, &current_write_set );
+
   event_fd_set[fd] = NULL;
 
   if ( event != --event_last ) {
@@ -143,27 +186,31 @@ delete_fd_event( int fd ) {
 void
 notify_readable_event( int fd, bool state ) {
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->read_callback == NULL ) {
-    critical( "Invalid fd fo notify_readable_event call; %i.", fd );
+    critical( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd]->read_callback );
     return;
   }
 
-  if ( state )
+  if ( state ) {
     FD_SET( fd, &event_read_set );
-  else
+  } else {
     FD_CLR( fd, &event_read_set );
+    FD_CLR( fd, &current_read_set );
+  }
 }
 
 void
 notify_writable_event( int fd, bool state ) {
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
-    critical( "Invalid fd fo notify_writeable_event call; %i.", fd );
+    critical( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd]->write_callback );
     return;
   }
 
-  if ( state )
+  if ( state ) {
     FD_SET( fd, &event_write_set );
-  else
+  } else {
     FD_CLR( fd, &event_write_set );
+    FD_CLR( fd, &current_write_set );
+  }
 }
 
 bool

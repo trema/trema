@@ -210,22 +210,44 @@ static uint32_t last_transaction_id = 0;
 static void ( *external_callback )( void ) = NULL;
 
 
+static void on_accept( int fd, receive_queue *rq );
+static void on_recv( int fd, receive_queue *rq );
+static void on_send( int fd, send_queue *sq );
+static void send_dump_message( uint16_t dump_type, const char *service_name, const void *data, uint32_t data_len );
+
 static void
 dummy_read_listening( int fd, void* data ) {
-  UNUSED( fd );
-  UNUSED( data );
+  on_accept( fd, (receive_queue*)data );
 }
 
 static void
-dummy_read_normal( int fd, void* data ) {
-  UNUSED( fd );
-  UNUSED( data );
+dummy_read_recv( int fd, void* data ) {
+  on_recv( fd, data );
 }
 
 static void
-dummy_write_normal( int fd, void* data ) {
+dummy_read_send( int fd, void* data ) {
   UNUSED( fd );
-  UNUSED( data );
+
+  send_queue *sq = (send_queue*)data;
+
+  char buf[256];
+
+  if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
+    send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+
+    notify_readable_event( sq->server_socket, false );
+    notify_writable_event( sq->server_socket, false );
+    delete_fd_event( sq->server_socket );
+
+    close( sq->server_socket );
+    sq->server_socket = -1;
+  }
+}
+
+static void
+dummy_write_send( int fd, void* data ) {
+  on_send( fd, data );
 }
 
 
@@ -608,7 +630,7 @@ create_receive_queue( const char *service_name ) {
     return NULL;
   }
 
-  add_fd_event( rq->listen_socket, &dummy_read_listening, NULL );
+  add_fd_event( rq->listen_socket, &dummy_read_listening, rq, NULL, NULL );
   notify_readable_event( rq->listen_socket, true );
 
   rq->message_callbacks = create_dlist();
@@ -859,7 +881,7 @@ send_queue_connect( send_queue *sq ) {
     return 0;
   }
 
-  add_fd_event( sq->server_socket, &dummy_read_normal, &dummy_write_normal );
+  add_fd_event( sq->server_socket, &dummy_read_send, sq, &dummy_write_send, sq );
   notify_readable_event( sq->server_socket, true );
 
   if ( sq->buffer->data_length >= sizeof( message_header ) ) {
@@ -1125,38 +1147,38 @@ number_of_send_queue( int *connected_count, int *sending_count, int *reconnectin
 }
 
 
-static void
-set_recv_queue_fd_set( fd_set *read_set ) {
-  assert( read_set != NULL );
+/* static void */
+/* set_recv_queue_fd_set( fd_set *read_set ) { */
+/*   assert( read_set != NULL ); */
 
-  debug( "Setting fds to a fd_set ( read_set = %p ).", read_set );
+/*   debug( "Setting fds to a fd_set ( read_set = %p ).", read_set ); */
 
-  hash_iterator iter;
-  hash_entry *e;
+/*   hash_iterator iter; */
+/*   hash_entry *e; */
 
-  assert( receive_queues != NULL );
+/*   assert( receive_queues != NULL ); */
 
-  init_hash_iterator( receive_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    receive_queue *rq = e->value;
-    dlist_element *element;
-    /*
-     * A hacky workaround to avoid the bug of glibc (#431)
-     * See also: http://www.linuxquestions.org/questions/programming-9/impossible-to-use-gcc-with-wconversion-and-standard-socket-macros-841935/
-     */
-    debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", rq->listen_socket, read_set );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-    FD_SET( rq->listen_socket, read_set );
-#undef sizeof
-    for ( element = rq->client_sockets->next; element; element = element->next ) {
-      messenger_socket *socket_item = element->data;
-      debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", socket_item->fd, read_set );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-      FD_SET( socket_item->fd, read_set );
-#undef sizeof
-    }
-  }
-}
+/*   init_hash_iterator( receive_queues, &iter ); */
+/*   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) { */
+/*     receive_queue *rq = e->value; */
+/*     dlist_element *element; */
+/*     /\* */
+/*      * A hacky workaround to avoid the bug of glibc (#431) */
+/*      * See also: http://www.linuxquestions.org/questions/programming-9/impossible-to-use-gcc-with-wconversion-and-standard-socket-macros-841935/ */
+/*      *\/ */
+/*     debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", rq->listen_socket, read_set ); */
+/* #define sizeof( X ) ( ( int ) sizeof( X ) ) */
+/*     FD_SET( rq->listen_socket, read_set ); */
+/* #undef sizeof */
+/*     for ( element = rq->client_sockets->next; element; element = element->next ) { */
+/*       messenger_socket *socket_item = element->data; */
+/*       debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", socket_item->fd, read_set ); */
+/* #define sizeof( X ) ( ( int ) sizeof( X ) ) */
+/*       FD_SET( socket_item->fd, read_set ); */
+/* #undef sizeof */
+/*     } */
+/*   } */
+/* } */
 
 
 static void
@@ -1172,7 +1194,7 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   socket->fd = fd;
   insert_after_dlist( rq->client_sockets, socket );
 
-  add_fd_event( fd, &dummy_read_normal, NULL );
+  add_fd_event( fd, &dummy_read_recv, rq, NULL, NULL );
   notify_readable_event( fd, true );
 }
 
@@ -1449,81 +1471,81 @@ on_recv( int fd, receive_queue *rq ) {
 }
 
 
-static void
-check_recv_queue_fd_isset( fd_set *read_set ) {
-  assert( read_set != NULL );
+/* static void */
+/* check_recv_queue_fd_isset( fd_set *read_set ) { */
+/*   assert( read_set != NULL ); */
 
-  hash_iterator iter;
-  hash_entry *e;
+/*   hash_iterator iter; */
+/*   hash_entry *e; */
 
-  debug( "Checking a fd_set for receiving data from remotes ( read_set = %p ).", read_set );
+/*   debug( "Checking a fd_set for receiving data from remotes ( read_set = %p ).", read_set ); */
 
-  assert( receive_queues != NULL );
+/*   assert( receive_queues != NULL ); */
 
-  init_hash_iterator( receive_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    receive_queue *rq = e->value;
-    if ( FD_ISSET( rq->listen_socket, read_set ) ) {
-      on_accept( rq->listen_socket, rq );
-    }
-    dlist_element *element = rq->client_sockets->next, *next_element;
-    while ( element != NULL ) {
-      next_element = element->next;
-      messenger_socket *socket_item = element->data;
-      if ( FD_ISSET( socket_item->fd, read_set ) ) {
-        on_recv( socket_item->fd, rq );
-      }
-      element = next_element;
-    }
-  }
-}
+/*   init_hash_iterator( receive_queues, &iter ); */
+/*   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) { */
+/*     receive_queue *rq = e->value; */
+/*     if ( FD_ISSET( rq->listen_socket, read_set ) ) { */
+/*       on_accept( rq->listen_socket, rq ); */
+/*     } */
+/*     dlist_element *element = rq->client_sockets->next, *next_element; */
+/*     while ( element != NULL ) { */
+/*       next_element = element->next; */
+/*       messenger_socket *socket_item = element->data; */
+/*       if ( FD_ISSET( socket_item->fd, read_set ) ) { */
+/*         on_recv( socket_item->fd, rq ); */
+/*       } */
+/*       element = next_element; */
+/*     } */
+/*   } */
+/* } */
 
 
-static void
-set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
-  hash_iterator iter;
-  hash_entry *e;
+/* static void */
+/* set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) { */
+/*   hash_iterator iter; */
+/*   hash_entry *e; */
 
-  debug( "Setting fds to fd_sets ( read_set = %p, write_set = %p ).", read_set, write_set );
+/*   debug( "Setting fds to fd_sets ( read_set = %p, write_set = %p ).", read_set, write_set ); */
 
-  assert( send_queues != NULL );
+/*   assert( send_queues != NULL ); */
 
-  init_hash_iterator( send_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    send_queue *sq = e->value;
-    int ret_val = 1;
-    struct timespec now;
+/*   init_hash_iterator( send_queues, &iter ); */
+/*   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) { */
+/*     send_queue *sq = e->value; */
+/*     int ret_val = 1; */
+/*     struct timespec now; */
 
-    assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 );
+/*     assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 ); */
 
-    if ( ( sq->refused_count > 0 ) && ( sq->reconnect_at.tv_sec > now.tv_sec ) ) {
-      continue;
-    }
+/*     if ( ( sq->refused_count > 0 ) && ( sq->reconnect_at.tv_sec > now.tv_sec ) ) { */
+/*       continue; */
+/*     } */
 
-    if ( sq->server_socket == -1 ) {
-      ret_val = send_queue_connect( sq );
-    }
-    switch ( ret_val ) {
-    case 0: // refused
-      break;
+/*     if ( sq->server_socket == -1 ) { */
+/*       ret_val = send_queue_connect( sq ); */
+/*     } */
+/*     switch ( ret_val ) { */
+/*     case 0: // refused */
+/*       break; */
 
-    case 1: // connected
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-      FD_SET( sq->server_socket, read_set ); // for disconnect detection.
-#undef sizeof
-      if ( sq->buffer->data_length > 0 ) {
-        debug( "Adding a fd ( %d ) to fd_sets.", sq->server_socket );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-        FD_SET( sq->server_socket, write_set );
-#undef sizeof
-      }
-      break;
+/*     case 1: // connected */
+/* #define sizeof( X ) ( ( int ) sizeof( X ) ) */
+/*       FD_SET( sq->server_socket, read_set ); // for disconnect detection. */
+/* #undef sizeof */
+/*       if ( sq->buffer->data_length > 0 ) { */
+/*         debug( "Adding a fd ( %d ) to fd_sets.", sq->server_socket ); */
+/* #define sizeof( X ) ( ( int ) sizeof( X ) ) */
+/*         FD_SET( sq->server_socket, write_set ); */
+/* #undef sizeof */
+/*       } */
+/*       break; */
 
-    case -1: // error
-      return;
-    }
-  }
-}
+/*     case -1: // error */
+/*       return; */
+/*     } */
+/*   } */
+/* } */
 
 
 static uint32_t
@@ -1597,47 +1619,47 @@ on_send( int fd, send_queue *sq ) {
 }
 
 
-static void
-check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  hash_iterator iter;
-  hash_entry *e;
+/* static void */
+/* check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) { */
+/*   hash_iterator iter; */
+/*   hash_entry *e; */
 
-  debug( "Checking fd_sets for sending/receiving data to/from remotes ( read_set = %p, write_set = %p ).", read_set, write_set );
+/*   debug( "Checking fd_sets for sending/receiving data to/from remotes ( read_set = %p, write_set = %p ).", read_set, write_set ); */
 
-  assert( send_queues != NULL );
+/*   assert( send_queues != NULL ); */
 
-  init_hash_iterator( send_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    send_queue *sq = e->value;
-    if ( sq->server_socket == -1 ) {
-      continue;
-    }
-    if ( FD_ISSET( sq->server_socket, read_set ) ) {
-      char buf[ 256 ];
-      if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
-        send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+/*   init_hash_iterator( send_queues, &iter ); */
+/*   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) { */
+/*     send_queue *sq = e->value; */
+/*     if ( sq->server_socket == -1 ) { */
+/*       continue; */
+/*     } */
+/*     if ( FD_ISSET( sq->server_socket, read_set ) ) { */
+/*       char buf[ 256 ]; */
+/*       if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) { */
+/*         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 ); */
 
-        notify_readable_event( sq->server_socket, false );
-        notify_writable_event( sq->server_socket, false );
-        delete_fd_event( sq->server_socket );
+/*         notify_readable_event( sq->server_socket, false ); */
+/*         notify_writable_event( sq->server_socket, false ); */
+/*         delete_fd_event( sq->server_socket ); */
 
-        close( sq->server_socket );
-        sq->server_socket = -1;
-        continue;
-      }
-    }
-    if ( FD_ISSET( sq->server_socket, write_set ) ) {
-      on_send( sq->server_socket, sq );
-    }
-  }
-}
+/*         close( sq->server_socket ); */
+/*         sq->server_socket = -1; */
+/*         continue; */
+/*       } */
+/*     } */
+/*     if ( FD_ISSET( sq->server_socket, write_set ) ) { */
+/*       on_send( sq->server_socket, sq ); */
+/*     } */
+/*   } */
+/* } */
 
 
 static bool
 run_once( void ) {
-  fd_set read_set, write_set;
-  struct timeval timeout;
-  int set_count;
+  /* fd_set read_set, write_set; */
+  /* struct timeval timeout; */
+  /* int set_count; */
 
   execute_timer_events();
 
@@ -1646,50 +1668,52 @@ run_once( void ) {
     external_callback = NULL;
   }
 
-  FD_ZERO( &read_set );
-  FD_ZERO( &write_set );
-  set_recv_queue_fd_set( &read_set );
-  set_send_queue_fd_set( &read_set, &write_set );
+  /* FD_ZERO( &read_set ); */
+  /* FD_ZERO( &write_set ); */
+  /* set_recv_queue_fd_set( &read_set ); */
+  /* set_send_queue_fd_set( &read_set, &write_set ); */
 
-  fd_set new_read_set, new_write_set;
-  set_event_handler_fd_set( &new_read_set, &new_write_set );
+  /* fd_set new_read_set, new_write_set; */
+  /* set_event_handler_fd_set( &new_read_set, &new_write_set ); */
 
-  if ( external_fd_set ) {
-    external_fd_set( &read_set, &write_set );
-  }
+  /* if ( external_fd_set ) { */
+  /*   external_fd_set( &read_set, &write_set ); */
+  /* } */
 
-  if ( memcmp( &read_set, &new_read_set, sizeof( fd_set ) ) != 0 ||
-       memcmp( &write_set, &new_write_set, sizeof( fd_set ) ) != 0 ) {
-    info( "New and old fd_set do not match after adding external fd_set. " );
-    /* running = false; */
-    /* return false; */
-  }
+  /* if ( memcmp( &read_set, &new_read_set, sizeof( fd_set ) ) != 0 || */
+  /*      memcmp( &write_set, &new_write_set, sizeof( fd_set ) ) != 0 ) { */
+  /*   info( "New and old fd_set do not match after adding external fd_set. " ); */
+  /*   /\* running = false; *\/ */
+  /*   /\* return false; *\/ */
+  /* } */
 
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 100 * 1000;
+  /* timeout.tv_sec = 0; */
+  /* timeout.tv_usec = 100 * 1000; */
 
-  set_count = select( FD_SETSIZE, &read_set, &write_set, NULL, &timeout );
+  /* set_count = select( FD_SETSIZE, &read_set, &write_set, NULL, &timeout ); */
 
-  if ( set_count == -1 ) {
-    if ( errno == EINTR ) {
-      return true;
-    }
-    error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno );
-    running = false;
-    return false;
-  }
-  else if ( set_count == 0 ) {
-    // timed out
-    return true;
-  }
+  /* if ( set_count == -1 ) { */
+  /*   if ( errno == EINTR ) { */
+  /*     return true; */
+  /*   } */
+  /*   error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno ); */
+  /*   running = false; */
+  /*   return false; */
+  /* } */
+  /* else if ( set_count == 0 ) { */
+  /*   // timed out */
+  /*   return true; */
+  /* } */
 
-  check_send_queue_fd_isset( &read_set, &write_set );
-  check_recv_queue_fd_isset( &read_set );
-  if ( external_check_fd_isset ) {
-    external_check_fd_isset( &read_set, &write_set );
-  }
+  /* check_send_queue_fd_isset( &read_set, &write_set ); */
+  /* check_recv_queue_fd_isset( &read_set ); */
+  /* if ( external_check_fd_isset ) { */
+  /*   external_check_fd_isset( &read_set, &write_set ); */
+  /* }*/
+  
+  running = run_event_handler_once();
 
-  return true;
+  return running;
 }
 
 

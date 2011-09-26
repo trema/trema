@@ -459,7 +459,7 @@ main( int argc, char *argv[] ) {
     exit( EXIT_FAILURE );
   }
 
-  add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL );
+  add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL, NULL, NULL );
   notify_readable_event( listener_info.listen_fd, true );
 
   start_trema();
