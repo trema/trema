@@ -232,11 +232,8 @@ packet_type_eth_vtag_dix( const buffer *frame ) {
     die( "illegal argument to %s", __func__ );
   }
 
-  if ( if_packet_type( frame, ETH_DIX ) 
-       & if_packet_type( frame, ETH_8021Q ) ) 
-    return true;
-  else 
-    return false;
+  return ( if_packet_type( frame, ETH_DIX ) &
+           if_packet_type( frame, ETH_8021Q ) );
 }
 
 
@@ -254,11 +251,8 @@ packet_type_eth_vtag_raw( const buffer *frame ) {
     die( "illegal argument to %s", __func__ );
   }
 
-  if ( if_packet_type( frame, ETH_8023_RAW ) 
-       & if_packet_type( frame, ETH_8021Q ) ) 
-    return true;
-  else 
-    return false;
+  return ( if_packet_type( frame, ETH_8023_RAW ) &
+           if_packet_type( frame, ETH_8021Q ) );
 }
 
 
@@ -276,11 +270,8 @@ packet_type_eth_vtag_llc( const buffer *frame ) {
     die( "illegal argument to %s", __func__ );
   }
 
-  if ( if_packet_type( frame, ETH_8023_LLC ) 
-       & if_packet_type( frame, ETH_8021Q ) ) 
-    return true;
-  else 
-    return false;
+  return ( if_packet_type( frame, ETH_8023_LLC ) &
+           if_packet_type( frame, ETH_8021Q ) );
 }
 
 
@@ -298,11 +289,8 @@ packet_type_eth_vtag_snap( const buffer *frame ) {
     die( "illegal argument to %s", __func__ );
   }
 
-  if ( if_packet_type( frame, ETH_8023_SNAP ) 
-       & if_packet_type( frame, ETH_8021Q ) ) 
-    return true;
-  else 
-    return false;
+  return ( if_packet_type( frame, ETH_8023_SNAP ) &
+           if_packet_type( frame, ETH_8021Q ) );
 }
 
 
