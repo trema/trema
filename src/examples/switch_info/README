@@ -1,0 +1,13 @@
+This directory includes examples that shows how to get switch information using features-request message.
+
+
+# How to run (C version)
+
+  % ./trema run ./objects/examples/switch_info/switch_info -c src/examples/switch_info/switch_info.conf
+
+# How to run (Ruby version)
+
+  % ./trema run ./src/examples/switch_info/switch_info.rb -c src/examples/switch_info/switch_info.conf
+
+
+Enjoy!
