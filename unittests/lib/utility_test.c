@@ -87,6 +87,15 @@ test_die() {
 
 
 static void
+test_hash_core() {
+  unsigned char bin1[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+  unsigned char bin2[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+  assert_true( hash_core( bin1, sizeof( bin1 ) ) == hash_core( bin2, sizeof( bin2 ) ) );
+}
+
+
+static void
 test_compare_string() {
   char hello1[] = "Hello World";
   char hello2[] = "Hello World";
@@ -255,6 +264,8 @@ int
 main() {
   const UnitTest tests[] = {
     unit_test_setup_teardown( test_die, setup, teardown ),
+
+    unit_test( test_hash_core ),
 
     unit_test( test_compare_string ),
     unit_test( test_hash_string ),

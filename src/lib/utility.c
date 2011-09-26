@@ -57,25 +57,30 @@ compare_string( const void *x, const void *y ) {
 
 
 /**
- * Generates a hash value from a string.
+ * Generates a hash value
  *
  * FNV-1a is used for hashing. See http://isthe.com/chongo/tech/comp/fnv/index.html.
  */
 unsigned int
-hash_string( const void *key ) {
+hash_core( const void *key, int size ) {
   // 32 bit offset_basis
   uint32_t hash_value = 0x811c9dc5UL;
   // 32 bit FNV_prime
   const uint32_t prime = 0x01000193UL;
-  const char *skey = key;
-  int key_size = ( int ) strlen( skey );
+  const unsigned char *c = key;
 
-  for ( int i = 0; i < key_size; i++ ) {
-    hash_value ^= ( unsigned char ) skey[ i ];
+  for ( int i = 0; i < size; i++ ) {
+    hash_value ^= ( unsigned char ) c[ i ];
     hash_value *= prime;
   }
 
   return ( unsigned int ) hash_value;
+}
+
+
+unsigned int
+hash_string( const void *key ) {
+  return hash_core( key, ( int ) strlen( key ) );
 }
 
 
@@ -85,16 +90,9 @@ compare_mac( const void *x, const void *y ) {
 }
 
 
-// The lowest 4 bytes of the mac address is used as a hash value.
 unsigned int
 hash_mac( const void *mac ) {
-  uint8_t mac_copy[ OFP_ETH_ALEN ];
-  unsigned int value;
-
-  memcpy( mac_copy, mac, sizeof( uint8_t ) * OFP_ETH_ALEN );
-  memcpy( &value, ( char * ) mac_copy + 2, sizeof( value ) );
-
-  return value;
+  return hash_core( mac, OFP_ETH_ALEN );
 }
 
 
@@ -129,8 +127,7 @@ compare_datapath_id( const void *x, const void *y ) {
 
 unsigned int
 hash_datapath_id( const void *key ) {
-  const uint32_t *datapath_id = ( const uint32_t * ) key;
-  return ( unsigned int ) datapath_id[ 0 ] ^ datapath_id[ 1 ];
+  return hash_core( key, ( int ) sizeof( uint64_t ) );
 }
 
 
