@@ -3934,7 +3934,6 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   // Note that wildcards must be filled before calling this function.
 
   assert( packet != NULL );
-  assert( packet_info( packet ) != NULL );
 
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = wildcards;
@@ -3943,65 +3942,65 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     match->in_port = in_port;
   }
   if ( !( wildcards & OFPFW_DL_SRC ) ) {
-    memcpy( match->dl_src, packet_info( packet )->l2_data.eth->macsa, OFP_ETH_ALEN );
+    memcpy( match->dl_src, ( ( packet_info * ) packet->user_data )->eth_macsa, OFP_ETH_ALEN );
   }
   if ( !( wildcards & OFPFW_DL_DST ) ) {
-    memcpy( match->dl_dst, packet_info( packet )->l2_data.eth->macda, OFP_ETH_ALEN );
+    memcpy( match->dl_dst, ( ( packet_info * ) packet->user_data )->eth_macda, OFP_ETH_ALEN );
   }
   if ( !( wildcards & OFPFW_DL_VLAN ) ) {
-    if ( packet_info( packet )->nvtags > 0 ) {
-      match->dl_vlan = TCI_GET_VID( ntohs( packet_info( packet )->vtag->tci ) );
+    if ( packet_type_eth_vtag( packet ) ) {
+      match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_tci;
     }
     else {
       match->dl_vlan = UINT16_MAX;
     }
   }
   if ( !( wildcards & OFPFW_DL_VLAN_PCP ) ) {
-    if ( packet_info( packet )->nvtags > 0 ) {
-      match->dl_vlan_pcp = TCI_GET_PRIO( ntohs( packet_info( packet )->vtag->tci ) );
+    if ( packet_type_eth_vtag( packet ) ) {
+      match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
     }
   }
   if ( !( wildcards & OFPFW_DL_TYPE ) ) {
-    match->dl_type = packet_info( packet )->ethtype;
+    match->dl_type = ( ( packet_info * ) packet->user_data )->eth_type;
   }
   if ( match->dl_type == ETH_ETHTYPE_IPV4 ) {
     if ( !( wildcards & OFPFW_NW_TOS ) ) {
-      match->nw_tos = packet_info( packet )->l3_data.ipv4->tos;
+      match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
     }
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
-      match->nw_proto = packet_info( packet )->ipproto;
+      match->nw_proto = ( ( packet_info * ) packet->user_data )->ipv4_protocol;
     }
     if ( ( wildcards & OFPFW_NW_SRC_MASK ) == 0 ) {
-      match->nw_src = ntohl( packet_info( packet )->l3_data.ipv4->saddr );
+      match->nw_src = ( ( packet_info * ) packet->user_data )->ipv4_saddr;
     }
     else {
-      match->nw_src = ntohl( packet_info( packet )->l3_data.ipv4->saddr )
-        & ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
+      match->nw_src = ( ( packet_info * ) packet->user_data )->ipv4_saddr &
+        ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
     }
     if ( ( wildcards & OFPFW_NW_DST_MASK ) == 0 ) {
-      match->nw_dst = ntohl( packet_info( packet )->l3_data.ipv4->daddr );
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->ipv4_daddr;
     }
     else {
-      match->nw_dst = ntohl( packet_info( packet )->l3_data.ipv4->daddr )
-        & ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->ipv4_daddr &
+        ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
     }
 
     switch ( match->nw_proto ) {
     case IPPROTO_ICMP:
       if ( !( wildcards & OFPFW_ICMP_TYPE ) ) {
-        match->icmp_type = packet_info( packet )->l4_data.icmp->type;
+        match->icmp_type = ( ( packet_info * ) packet->user_data )->icmpv4_type;
       }
       if ( !( wildcards & OFPFW_ICMP_CODE ) ) {
-        match->icmp_code = packet_info( packet )->l4_data.icmp->code;
+        match->icmp_code = ( ( packet_info * ) packet->user_data )->icmpv4_code;
       }
       break;
     case IPPROTO_TCP:
     case IPPROTO_UDP:
       if ( !( wildcards & OFPFW_TP_SRC ) ) {
-        match->tp_src = ntohs( packet_info( packet )->l4_data.tcp->src_port );
+        match->tp_src = ( ( packet_info * ) packet->user_data )->tcp_src_port;
       }
       if ( !( wildcards & OFPFW_TP_DST ) ) {
-        match->tp_dst = ntohs( packet_info( packet )->l4_data.tcp->dst_port );
+        match->tp_dst = ( ( packet_info * ) packet->user_data )->tcp_dst_port;
       }
       break;
 
@@ -4011,21 +4010,19 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   }
   if ( match->dl_type == ETH_ETHTYPE_ARP ) {
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
-      match->nw_proto = ( uint8_t ) ( ntohs( packet_info( packet )->l3_data.arp->ar_op ) & ARP_OP_MASK );
+      match->nw_proto = ( uint8_t ) ( ( ( packet_info * ) packet->user_data )->arp_ar_op & ARP_OP_MASK );
     }
     if ( ( wildcards & OFPFW_NW_SRC_MASK ) == 0 ) {
-      match->nw_src = ntohl( packet_info( packet )->l3_data.arp->sip );
+      match->nw_src = ( ( packet_info * ) packet->user_data )->arp_spa;
     }
     else {
-      match->nw_src = ntohl( packet_info( packet )->l3_data.arp->sip )
-                      & ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
+      match->nw_src = ( ( packet_info * ) packet->user_data )->arp_spa & ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
     }
     if ( ( wildcards & OFPFW_NW_DST_MASK ) == 0 ) {
-      match->nw_dst = ntohl( packet_info( packet )->l3_data.arp->tip );
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa;
     }
     else {
-      match->nw_dst = ntohl( packet_info( packet )->l3_data.arp->tip )
-                      & ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa & ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
     }
   }
 }

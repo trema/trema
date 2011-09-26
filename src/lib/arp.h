@@ -52,9 +52,6 @@ typedef struct arp_header {
 } __attribute__((packed)) arp_header_t;
 
 
-bool valid_arp_packet( const buffer *buf );
-
-
 #endif // ARP_H
 
 

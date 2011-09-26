@@ -695,7 +695,6 @@ end
 
 # new unittest
 tests = [
-  "objects/unittests/arp_test",
   "objects/unittests/buffer_test",
   "objects/unittests/doubly_linked_list_test",
   "objects/unittests/hash_table_test",
