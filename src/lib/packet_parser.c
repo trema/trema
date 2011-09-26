@@ -232,18 +232,18 @@ parse_icmp( buffer *buf ) {
   packet_info0->icmpv4_checksum = ntohs( icmp_header->csum );
 
   switch ( packet_info0->icmpv4_type ) {
-    case ICMP_TYPE_ECHOREP:
-    case ICMP_TYPE_ECHOREQ:
-      packet_info0->icmpv4_id = ntohs( icmp_header->icmp_data.echo.ident );
-      packet_info0->icmpv4_seq = ntohs( icmp_header->icmp_data.echo.seq );
-      break;
+  case ICMP_TYPE_ECHOREP:
+  case ICMP_TYPE_ECHOREQ:
+    packet_info0->icmpv4_id = ntohs( icmp_header->icmp_data.echo.ident );
+    packet_info0->icmpv4_seq = ntohs( icmp_header->icmp_data.echo.seq );
+    break;
 
-    case ICMP_TYPE_REDIRECT:
-      packet_info0->icmpv4_gateway = ntohl( icmp_header->icmp_data.gateway );
-      break;
+  case ICMP_TYPE_REDIRECT:
+    packet_info0->icmpv4_gateway = ntohl( icmp_header->icmp_data.gateway );
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 
   packet_info0->format ^= NW_IPV4;
@@ -356,16 +356,16 @@ parse_packet( buffer *buf ) {
   
   // Parse a L3 header.
   switch ( packet_info0->eth_type ) {
-    case ETH_ETHTYPE_ARP:
-      parse_arp( buf );
-      break;
+  case ETH_ETHTYPE_ARP:
+    parse_arp( buf );
+    break;
       
-    case ETH_ETHTYPE_IPV4:
-      parse_ipv4( buf );
-      break;
+  case ETH_ETHTYPE_IPV4:
+    parse_ipv4( buf );
+    break;
       
-    default:
-      return true;
+  default:
+    return true;
   }
     
   if ( !( packet_info0->format & NW_IPV4 ) ) {
@@ -379,20 +379,20 @@ parse_packet( buffer *buf ) {
 
   // Parse a L4 header.
   switch ( packet_info0->ipv4_protocol ) {
-    case IPPROTO_ICMP:
-      parse_icmp( buf );
-      break;
+  case IPPROTO_ICMP:
+    parse_icmp( buf );
+    break;
+    
+  case IPPROTO_TCP:
+    parse_tcp( buf );
+    break;
       
-    case IPPROTO_TCP:
-      parse_tcp( buf );
-      break;
+  case IPPROTO_UDP:
+    parse_udp( buf );
+    break;
       
-    case IPPROTO_UDP:
-      parse_udp( buf );
-      break;
-      
-    default:
-      break;
+  default:
+    break;
   }
 
   return true;

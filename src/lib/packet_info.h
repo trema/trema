@@ -214,7 +214,7 @@ typedef struct packet_header_info {
 } packet_header_info;
 
 
-#define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
+// #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
 /*!<Returns pointer to structure of type packet_header_info*/
 
 
