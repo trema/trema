@@ -27,6 +27,7 @@ require "trema/common-commands"
 require "trema/dsl"
 require "trema/ofctl"
 require "trema/util"
+require "trema/version"
 
 
 include Trema::Util
@@ -247,6 +248,11 @@ EOF
     @options.parse! ARGV
 
     puts Trema::Ofctl.new.dump_flows( switch )
+  end
+
+
+  def version
+    puts "trema version #{ Trema::VERSION }"
   end
 
 
