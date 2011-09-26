@@ -1,0 +1,11 @@
+This directory includes some small examples that sends a single type
+of OpenFlow messages. These examples are mainly used for testing Trema
+itself, but maybe useful for the reference of Trema API.
+
+
+# How to run
+
+See features/example.message.*.feature 
+
+
+Enjoy!
