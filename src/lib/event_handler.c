@@ -19,6 +19,15 @@
 
 #include "event_handler.h"
 
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+
+#include "log.h"
+#include "timer.h"
+
+
 typedef struct event_fd {
   int fd;
   event_fd_callback read_callback;
@@ -34,7 +43,7 @@ fd_set event_write_set;
 
 void
 init_event_handler() {
-  event_fd_last = event_fd_set;
+  event_last = event_list;
 
   memset(event_list, 0, sizeof(struct event_fd) * FD_SETSIZE);
   memset(event_fd_set, 0, sizeof(struct event_fd*) * FD_SETSIZE);
@@ -45,7 +54,7 @@ init_event_handler() {
 
 void
 finalize_event_handler() {
-  if ( event_last != event_set ) {
+  if ( event_last != event_list ) {
     warn( "Event Handler finalized with still active fd event handlers." );
     return;
   }
@@ -92,16 +101,16 @@ delete_fd_event( int fd ) {
     return;
   }
 
-  if ( FD_ISSET(fd, read_set) ) {
+  if ( FD_ISSET(fd, &event_read_set) ) {
     critical( "Tried to delete an fd event handler with active read notification." );
     //    return;
-    FD_CLR( fd, read_set );
+    FD_CLR( fd, &event_read_set );
   }
 
-  if ( FD_ISSET(fd, write_set) ) {
+  if ( FD_ISSET(fd, &event_write_set) ) {
     critical( "Tried to delete an fd event handler with active write notification." );
     //    return;
-    FD_CLR( fd, write_set );
+    FD_CLR( fd, &event_write_set );
   }
 
   event_fd_set[fd] = NULL;
@@ -122,9 +131,9 @@ notify_readable_event( int fd, bool state ) {
   }
 
   if ( state )
-    FD_SET( fd, event_read_set );
+    FD_SET( fd, &event_read_set );
   else
-    FD_CLR( fd, event_read_set );
+    FD_CLR( fd, &event_read_set );
 }
 
 void
@@ -135,19 +144,19 @@ notify_writable_event( int fd, bool state ) {
   }
 
   if ( state )
-    FD_SET( fd, event_write_set );
+    FD_SET( fd, &event_write_set );
   else
-    FD_CLR( fd, event_write_set );
+    FD_CLR( fd, &event_write_set );
 }
 
 bool
 is_notifying_readable_event( int fd ) {
-  return FD_ISSET( fd, event_read_set );
+  return FD_ISSET( fd, &event_read_set );
 }
 
 bool
 is_notifying_writable_event( int fd ) {
-  return FD_ISSET( fd, event_write_set );
+  return FD_ISSET( fd, &event_write_set );
 }
 
 /*

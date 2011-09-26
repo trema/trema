@@ -23,6 +23,9 @@
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
+#include "checks.h"
+#include "bool.h"
+
 typedef void ( *event_fd_callback )( int, void* data );
 
 void init_event_handler();
@@ -34,8 +37,8 @@ void delete_fd_event( int fd );
 void notify_readable_event( int fd, bool state );
 void notify_writable_event( int fd, bool state );
 
-void is_notifying_readable_event( int fd, bool state );
-void is_notifying_writable_event( int fd, bool state );
+bool is_notifying_readable_event( int fd );
+bool is_notifying_writable_event( int fd );
 
 
 #endif // EVENT_HANDLER_H
