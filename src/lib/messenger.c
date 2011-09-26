@@ -1654,15 +1654,15 @@ run_once( void ) {
   fd_set new_read_set, new_write_set;
   set_event_handler_fd_set( &new_read_set, &new_write_set );
 
-  if ( memcmp( &read_set, &new_read_set, sizeof( fd_set ) ) != 0 ||
-       memcmp( &write_set, &new_write_set, sizeof( fd_set ) ) != 0 ) {
-    critical( "New and old fd_set do not match. " );
-    /* running = false; */
-    /* return false; */
-  }
-
   if ( external_fd_set ) {
     external_fd_set( &read_set, &write_set );
+  }
+
+  if ( memcmp( &read_set, &new_read_set, sizeof( fd_set ) ) != 0 ||
+       memcmp( &write_set, &new_write_set, sizeof( fd_set ) ) != 0 ) {
+    info( "New and old fd_set do not match after adding external fd_set. " );
+    /* running = false; */
+    /* return false; */
   }
 
   timeout.tv_sec = 0;

@@ -161,7 +161,6 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
 
   listener_info->listen_fd = listen_fd;
 
-
   return true;
 }
 

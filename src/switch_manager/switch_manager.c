@@ -33,6 +33,7 @@
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
 #include "dpid_table.h"
+#include "event_handler.h"
 
 
 #ifdef UNIT_TESTING
@@ -228,6 +229,14 @@ secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
 }
 
 
+static void
+secure_channel_accept_wrapper( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+
+  secure_channel_accept( &listener_info );
+}
+
 static char *
 xconcatenate_path( const char *dir, const char *file ) {
   size_t len;
@@ -285,6 +294,9 @@ finalize_listener_info(  struct listener_info *listener_info ) {
     listener_info->switch_daemon = NULL;
   }
   if ( listener_info->listen_fd >= 0 ) {
+    notify_readable_event( listener_info->listen_fd, false );
+    delete_fd_event( listener_info->listen_fd );
+
     close( listener_info->listen_fd );
     listener_info->listen_fd = -1;
   }
@@ -446,6 +458,9 @@ main( int argc, char *argv[] ) {
     finalize_listener_info( &listener_info );
     exit( EXIT_FAILURE );
   }
+
+  add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL );
+  notify_readable_event( listener_info.listen_fd, true );
 
   start_trema();
 
