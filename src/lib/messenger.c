@@ -30,6 +30,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include "doubly_linked_list.h"
+#include "event_handler.h"
 #include "hash_table.h"
 #include "log.h"
 #include "messenger.h"
@@ -264,6 +265,8 @@ init_messenger( const char *working_directory ) {
     return true;
   }
 
+  init_event_handler();
+
   strcpy( socket_directory, working_directory );
 
   receive_queues = create_hash( compare_string, hash_string );
@@ -497,6 +500,8 @@ finalize_messenger() {
   running = false;
   initialized = false;
   finalized = true;
+
+  finalize_event_handler();
 
   return true;
 }
