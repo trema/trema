@@ -19,11 +19,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file hash_table.h
- * This header file contain type definitions and function declarations of hash_table.c file
- * @see hash_table.c
- */
 
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
@@ -36,36 +31,27 @@ typedef unsigned int ( *hash_function )( const void *key );
 typedef bool ( *compare_function )( const void *x, const void *y );
 
 
-/**
- * This is the type that specifies individual entry in hash table
- */
 typedef struct {
   void *key;
   void *value;
 } hash_entry;
 
 
-/**
- * This is the type that specifies parameters associated with a hash table
- */
 typedef struct {
-  unsigned int number_of_buckets; /*!<Total number of buckets allocated in hash table*/
-  compare_function compare; /*!<Function pointer to compare items*/
-  hash_function hash; /*!<Pointer to hash function*/
-  unsigned int length; /*!<Total number of entries in hash table*/
-  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
-  dlist_element *nonempty_bucket_index; /*!<List of non-empty buckets in hash table*/
+  unsigned int number_of_buckets;
+  compare_function compare;
+  hash_function hash;
+  unsigned int length;
+  dlist_element **buckets;
+  dlist_element *nonempty_bucket_index;
 } hash_table;
 
 
-/**
- * This is the type that specifies parameters used to iterate over hash table
- */
 typedef struct {
-  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
-  dlist_element *bucket_index; /*!<Pointer to non-empty bucket index */
-  dlist_element *next_bucket_index; /*!<Pointer to next non-empty bucket index*/
-  dlist_element *element; /*!<Pointer to hash entries in a bucket*/
+  dlist_element **buckets;
+  dlist_element *bucket_index;
+  dlist_element *next_bucket_index;
+  dlist_element *element;
 } hash_iterator;
 
 

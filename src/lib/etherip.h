@@ -19,33 +19,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file etherip.h
- * This source file contain functions for handling EtherIP type packets.
- * @see rfc3378
- */
 
 #ifndef ETHERIP_H
 #define ETHERIP_H
 
 
-/**
- * Protocol NUmbers
- * @see http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
- */
-#define IPPROTO_ETHERIP 97 /*!<Ethernet-within-IP Encapsulation*/
+#define IPPROTO_ETHERIP 97
 
 
-/**
- * This is the type that specifies EtherIP header definitions
- * @see rfc3378
- */
 typedef struct etherip_headr {
   uint16_t version;
 } etherip_header;
 
 
-#define ETHERIP_VERSION ( 0x3 << 12 ) /*!<Protocol version (included reserved field)*/
+#define ETHERIP_VERSION ( 0x3 << 12 )
+
 
 #endif // ETHERIP_H
 

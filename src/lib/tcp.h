@@ -19,10 +19,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file tcp.h
- * Header file containing definitions of Transmission Control Protocol (TCP) header
- */
 
 #ifndef TCP_H
 #define TCP_H
@@ -31,9 +27,6 @@
 #include <endian.h>
 
 
-/**
- * TCP header information definitions
- */
 typedef struct tcp_header {
   uint16_t src_port;
   uint16_t dst_port;
@@ -53,14 +46,14 @@ typedef struct tcp_header {
 } tcp_header_t;
 
 
-#define TCP_FLAG_FIN ( 1 << 0 ) /*!<Final flag*/
-#define TCP_FLAG_SYN ( 1 << 1 ) /*!<Synchronization flag*/
-#define TCP_FLAG_RST ( 1 << 2 ) /*!<Reset flag*/
-#define TCP_FLAG_PSH ( 1 << 3 ) /*!<Push flag*/
-#define TCP_FLAG_ACK ( 1 << 4 ) /*!<Acknowledgement flag*/
-#define TCP_FLAG_URG ( 1 << 5 ) /*!<Urgent flag*/
-#define TCP_FLAG_ECE ( 1 << 6 ) /*!<Explicit Congestion Notification(ECN) Echo flag*/
-#define TCP_FLAG_CWR ( 1 << 7 ) /*!<Congestion Window Reduced flag*/
+#define TCP_FLAG_FIN ( 1 << 0 )
+#define TCP_FLAG_SYN ( 1 << 1 )
+#define TCP_FLAG_RST ( 1 << 2 )
+#define TCP_FLAG_PSH ( 1 << 3 )
+#define TCP_FLAG_ACK ( 1 << 4 )
+#define TCP_FLAG_URG ( 1 << 5 )
+#define TCP_FLAG_ECE ( 1 << 6 )
+#define TCP_FLAG_CWR ( 1 << 7 )
 
 
 #endif // TCP_H

@@ -28,10 +28,6 @@
 #include "bool.h"
 
 
-/**
- * Functions called within [trema]/src/lib.
- */
-
 void set_trema_home( void );
 const char *get_trema_home( void );
 void unset_trema_home( void );
@@ -40,10 +36,6 @@ void set_trema_tmp( void );
 const char *get_trema_tmp( void );
 void unset_trema_tmp( void );
 
-
-/**
- * Functions defined only for unit tests.
- */
 
 const char *_get_trema_home( void );
 const char *_get_trema_tmp( void );

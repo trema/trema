@@ -20,11 +20,6 @@
  */
 
 
-/**
- * @file arp.h
- * This header file contains types for defining a ARP packet
- */
-
 #ifndef ARP_H
 #define ARP_H
 
@@ -38,6 +33,9 @@
 /**
  * ARP Header Specification
  * For protocol details, please refer RFC 826 at http://tools.ietf.org/html/rfc826
+ *
+ * TODO: Move the following type definition into packet_info.h and
+ *       remove this file.
  */
 typedef struct arp_header {
   uint16_t ar_hrd;
