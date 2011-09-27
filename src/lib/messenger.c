@@ -847,7 +847,7 @@ send_queue_connect( send_queue *sq ) {
   add_fd_event( sq->server_socket, &on_send_read, sq, &on_send_write, sq );
   notify_readable_event( sq->server_socket, true );
 
-  if ( sq->buffer->data_length >= sizeof( message_header ) ) {
+  if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
     notify_writable_event( sq->server_socket, true );
   }
 
@@ -894,6 +894,7 @@ create_send_queue( const char *service_name ) {
   sprintf( sq->server_addr.sun_path, "%s/trema.%s.sock", socket_directory, service_name );
   debug( "Set sun_path to %s.", sq->server_addr.sun_path );
 
+  sq->buffer = NULL;
   sq->refused_count = 0;
   sq->reconnect_at.tv_sec = 0;
   sq->reconnect_at.tv_nsec = 0;
