@@ -246,7 +246,6 @@ parse_icmp( buffer *buf ) {
     break;
   }
 
-  packet_info0->format ^= NW_IPV4;
   packet_info0->format |= NW_ICMPV4;
 
   return;
