@@ -215,6 +215,38 @@ phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size 
 }
 
 
+/**
+ * Calculates checksum. Following code snippet explains how
+ * @code
+ * //Calling get_checksum to calculate checksum over ipv4 header, which is stored in a buf pointer
+ * if ( get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ){
+ * //Registering "checksum verification error" if calculated checksum is not equal to 0
+ * debug( "Corrupted IPv4 header ( checksum verification error )." );
+ * }
+ * @endcode
+ * @param pos Pointer of type uint16_t
+ * @param size Variable of type uint32_t
+ * @return uint16_t Checksum
+ */
+uint16_t
+get_checksum( uint16_t *pos, uint32_t size ) {
+  assert( pos != NULL );
+
+  uint32_t csum = 0;
+  for (; 2 <= size; pos++, size -= 2 ) {
+    csum += *pos;
+  }
+  if ( size == 1 ) {
+    csum += *( unsigned char * ) pos;
+  }
+  while ( csum & 0xffff0000 ) {
+    csum = ( csum & 0x0000ffff ) + ( csum >> 16 );
+  }
+
+  return ( uint16_t ) ~csum;
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2
