@@ -1506,9 +1506,9 @@ run_once( void ) {
     external_callback = NULL;
   }
   
-  running = run_event_handler_once();
+  bool result = run_event_handler_once();
 
-  return running;
+  return running && result;
 }
 
 
