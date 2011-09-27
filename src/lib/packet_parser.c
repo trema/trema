@@ -17,12 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file packet_parser.c
- * Source file containing functions for handling packets. This file contains functions for 
- * parsing a packet to find its type (whether IPv4, or ARP) and peform checksum if required.
- */
-
 
 #include <assert.h>
 #include <stdint.h>
@@ -32,13 +26,11 @@
 #include "log.h"
 #include "wrapper.h"
 
+
 #define REMAINED_BUFFER_LENGTH( buf, ptr )  \
   ( buf->length - ( size_t ) ( ( char * ) ptr - ( char * ) buf->data ) )
 
 
-/**
- * Parses an Ethernet header in buf->data and places in buf->user_data.
- */
 static void 
 parse_ether( buffer *buf ) {
   assert( buf != NULL );
@@ -125,9 +117,6 @@ parse_ether( buffer *buf ) {
 }
 
 
-/**
- * Parses an ARP header in buf->data and places in buf->user_data.
- */
 static void 
 parse_arp( buffer *buf ) {
   assert( buf != NULL );
@@ -160,9 +149,6 @@ parse_arp( buffer *buf ) {
 };
 
 
-/**
- * Parses an IPv4 header in buf->data and places in buf->user_data.
- */
 static void 
 parse_ipv4( buffer *buf ) {
   assert( buf != NULL );
@@ -208,9 +194,6 @@ parse_ipv4( buffer *buf ) {
 }
 
 
-/**
- * Parses an ICMP header in buf->data and places in buf->user_data.
- */
 static void 
 parse_icmp( buffer *buf ) {
   assert( buf != NULL );
@@ -252,9 +235,6 @@ parse_icmp( buffer *buf ) {
 };
 
 
-/**
- * Parses a UDP header in buf->data and places in buf->user_data.
- */
 static void
 parse_udp( buffer *buf ) {
   assert( buf != NULL );
@@ -285,9 +265,6 @@ parse_udp( buffer *buf ) {
 };
 
 
-/**
- * Parses a TCP header in buf->data and places in buf->user_data.
- */
 static void
 parse_tcp( buffer *buf ) {
   assert( buf != NULL );
@@ -331,11 +308,6 @@ parse_tcp( buffer *buf ) {
 };
 
 
-/**
- * Parses a packet in buf->data and place in buf->user_data.
- * @param buf Pointer to buffer type structure, user_data element of which points to structure of type packet_info
- * @return bool True on success, else False
- */
 bool
 parse_packet( buffer *buf ) {
   assert( buf != NULL );
