@@ -17,13 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file packet_info.c
- * Source file containing functions for handling packet header information. The
- * packets can be of any of the following type : Ethernet packet, ARP packet,
- * IPv4 packet, TCP packet, UDP packet, ICMP packet.
- */
-
 
 #include <assert.h>
 #include "packet_info.h"
@@ -31,13 +24,6 @@
 #include "trema.h"
 
 
-/**
- * Releases the memory allocated to structure of type packet_header_info which
- * contains packet header information. Pointer to this structure is stored in
- * user_data element of buffer type structure.
- * @param buf Pointer to buffer type structure
- * @return None
- */
 void
 free_packet_info( buffer *buf ) {
   assert( buf != NULL );
@@ -49,14 +35,6 @@ free_packet_info( buffer *buf ) {
 }
 
 
-/**
- * Allocates memory to structure of type packet_header_info which contains
- * packet header information and initializes its elements to either NULL or 0.
- * Also, user_data element of buffer type structure is initialized to pointer
- * to this structure.
- * @param buf Pointer to buffer type structure
- * @return None
- */
 void
 calloc_packet_info( buffer *buf ) {
   assert( buf != NULL );
@@ -71,12 +49,6 @@ calloc_packet_info( buffer *buf ) {
 }
 
 
-/**
- * Return packet information stored in user_data element of
- * buffer type structure.
- * @param frame Pointer to buffer type structure
- * @return packet_info Packet information stored in frame
- */
 packet_info 
 get_packet_info( const buffer *frame ) {
   assert( frame != NULL );
@@ -93,11 +65,6 @@ get_packet_info( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is dix or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is dix
- */
 static bool
 if_packet_type( const buffer *frame, uint32_t type ) {
   assert( frame != NULL );
@@ -110,11 +77,6 @@ if_packet_type( const buffer *frame, uint32_t type ) {
 }
 
 
-/**
- * Checks whether packet type is dix or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is dix
-*/
 bool 
 packet_type_eth_dix( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -128,11 +90,6 @@ packet_type_eth_dix( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet has vtag or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet has vtag
- */
 bool 
 packet_type_eth_vtag( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -146,11 +103,6 @@ packet_type_eth_vtag( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 raw or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 raw
- */
 bool 
 packet_type_eth_raw( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -164,11 +116,6 @@ packet_type_eth_raw( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 llc or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 llc
- */
 bool 
 packet_type_eth_llc( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -182,11 +129,6 @@ packet_type_eth_llc( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 snap or not.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 snap
- */
 bool 
 packet_type_eth_snap( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -200,11 +142,6 @@ packet_type_eth_snap( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is dix with vtag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is dix with vtag
- */
 bool 
 packet_type_eth_vtag_dix( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -219,11 +156,6 @@ packet_type_eth_vtag_dix( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 raw with vtag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 raw with vtag
- */
 bool 
 packet_type_eth_vtag_raw( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -238,11 +170,6 @@ packet_type_eth_vtag_raw( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 llc with vtag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 llc with vtag
- */
 bool 
 packet_type_eth_vtag_llc( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -257,11 +184,6 @@ packet_type_eth_vtag_llc( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is 802.3 snap with vtag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is 802.3 snap with vtag
- */
 bool 
 packet_type_eth_vtag_snap( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -276,11 +198,6 @@ packet_type_eth_vtag_snap( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is ARP
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is arp
- */
 bool 
 packet_type_eth_arp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -294,11 +211,6 @@ packet_type_eth_arp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4
- */
 bool 
 packet_type_eth_ipv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -312,11 +224,6 @@ packet_type_eth_ipv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and ICMPv4
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and icmpv4.
- */
 bool 
 packet_type_eth_ipv4_icmpv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -331,11 +238,6 @@ packet_type_eth_ipv4_icmpv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and TCP
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and tcp.
- */
 bool 
 packet_type_eth_ipv4_tcp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -350,11 +252,6 @@ packet_type_eth_ipv4_tcp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and UDP
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and udp.
- */
 bool 
 packet_type_eth_ipv4_udp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -369,11 +266,6 @@ packet_type_eth_ipv4_udp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is ARP with 802.1q tag.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is arp with 802.1q tag.
- */
 bool 
 packet_type_eth_vtag_arp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -388,11 +280,6 @@ packet_type_eth_vtag_arp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 with 802.1q tag.
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 with 802.1q tag.
- */
 bool 
 packet_type_eth_vtag_ipv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -407,11 +294,6 @@ packet_type_eth_vtag_ipv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and ICMPv4 with 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and icmpv4 with 802.1q tag.
- */
 bool 
 packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -427,11 +309,6 @@ packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and TCP with 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and tcp with 802.1q tag.
- */
 bool 
 packet_type_eth_vtag_ipv4_tcp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -447,11 +324,6 @@ packet_type_eth_vtag_ipv4_tcp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and UDP with 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and udp with 802.1q tag.
- */
 bool 
 packet_type_eth_vtag_ipv4_udp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -467,11 +339,6 @@ packet_type_eth_vtag_ipv4_udp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is ARP with snap header
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ARP with snap header.
- */
 bool 
 packet_type_eth_snap_arp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -486,11 +353,6 @@ packet_type_eth_snap_arp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 with snap header
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 with snap header.
- */
 bool packet_type_eth_snap_ipv4( const buffer *frame ) {
   if ( frame == NULL ) {
     die( "illegal argument to %s", __func__ );
@@ -504,11 +366,6 @@ bool packet_type_eth_snap_ipv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and ICMPv4 with snap header
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and icmpv4 with snap header.
- */
 bool 
 packet_type_eth_snap_ipv4_icmpv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -524,11 +381,6 @@ packet_type_eth_snap_ipv4_icmpv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and TCP with snap header
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and tcp  with snap header.
- */
 bool 
 packet_type_eth_snap_ipv4_tcp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -544,11 +396,6 @@ packet_type_eth_snap_ipv4_tcp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and UDP with snap header
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and udp with snap header.
- */
 bool 
 packet_type_eth_snap_ipv4_udp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -564,11 +411,6 @@ packet_type_eth_snap_ipv4_udp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is ARP with snap and 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is arp with snap and 802.1q tag
- */
 bool 
 packet_type_eth_snap_vtag_arp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -584,11 +426,6 @@ packet_type_eth_snap_vtag_arp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 with snap and 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 with snap and 802.1q tag
- */
 bool 
 packet_type_eth_snap_vtag_ipv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -604,11 +441,6 @@ packet_type_eth_snap_vtag_ipv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and ICMPv4 with snap and 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and icmpv4 with snap and 802.1q tag
- */
 bool 
 packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -625,11 +457,6 @@ packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and TCP
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and tcp with snap and 802.1q tag
- */
 bool 
 packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -646,11 +473,6 @@ packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame ) {
 }
 
 
-/**
- * Checks whether packet type is IPv4 and UDP with snap and 802.1q tag
- * @param buf Pointer to buffer type structure
- * @return bool true if packet type is ipv4 and udp with snap and 802.1q tag
- */
 bool 
 packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame ) {
   if ( frame == NULL ) {
@@ -665,7 +487,6 @@ packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame ) {
            if_packet_type( frame, ETH_8021Q ) &
            if_packet_type( frame, ETH_8023_SNAP ) );
 }
-
 
 
 /*
