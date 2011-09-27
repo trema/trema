@@ -28,6 +28,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "trema.h"
+#include "event_handler.h"
 
 
 static char *dump_service_name = NULL;
@@ -78,20 +79,24 @@ relay_syslog_message( buffer *message ) {
 }
 
 
-static bool
-recv_syslog_message( void ) {
-  if ( syslog_fd < 0 ) {
-    return false;
-  }
+static void
+recv_syslog_message( int fd, void *data ) {
+  UNUSED( fd );
+  UNUSED( data );
 
   char buf[ 1024 ];
   ssize_t ret = read( syslog_fd, buf, sizeof( buf ) );
+
   if ( ret < 0 ) {
     if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
-      return true;
+      return;
     }
+
     error( "Receive error ( errno = %s [%d] ).", strerror( errno ), errno );
-    return false;
+
+    notify_readable_event( syslog_fd, false );
+    delete_fd_event( syslog_fd );
+    return;
   }
 
   buffer *message = alloc_buffer_with_length( ( size_t ) ret );
@@ -101,32 +106,6 @@ recv_syslog_message( void ) {
   relay_syslog_message( message );
 
   free_buffer( message );
-
-  return true;
-}
-
-
-static void
-syslog_fd_set( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( syslog_fd < 0 ) {
-    return;
-  }
-  FD_SET( syslog_fd, read_set );
-}
-
-
-static void
-syslog_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( syslog_fd < 0 ) {
-    return;
-  }
-  if ( FD_ISSET( syslog_fd, read_set ) ) {
-    recv_syslog_message();
-  }
 }
 
 
@@ -222,6 +201,9 @@ init_syslog_relay( int *argc, char **argv[] ) {
     return false;
   }
 
+  add_fd_event( syslog_fd, &recv_syslog_message, NULL, NULL, NULL );
+  notify_readable_event( syslog_fd, true );
+
   return true;
 }
 
@@ -229,6 +211,9 @@ init_syslog_relay( int *argc, char **argv[] ) {
 static bool
 finalize_syslog_relay( void ) {
   if ( syslog_fd >= 0 ) {
+    notify_readable_event( syslog_fd, false );
+    delete_fd_event( syslog_fd );
+
     close( syslog_fd );
     syslog_fd = -1;
   }
@@ -245,10 +230,6 @@ main( int argc, char *argv[] ) {
   // Initialize the Trema world
   init_trema( &argc, &argv );
   init_syslog_relay( &argc, &argv );
-
-  // Set external fd event handlers
-  set_fd_set_callback( syslog_fd_set );
-  set_check_fd_isset_callback( syslog_fd_isset );
 
   // Main loop
   start_trema();
