@@ -167,6 +167,7 @@ secure_channel_read( int fd, void* data ) {
   }
 }
 
+
 static void
 secure_channel_write( int fd, void* data ) {
   UNUSED( fd );
@@ -175,44 +176,6 @@ secure_channel_write( int fd, void* data ) {
   if ( flush_secure_channel( &switch_info ) < 0 ) {
     switch_event_disconnected( &switch_info );
     return;
-  }
-
-  if ( switch_info.recv_queue->length > 0 ) {
-    int ret = handle_messages_from_secure_channel( &switch_info );
-    if ( ret < 0 ) {
-      stop_messenger();
-    }
-  }
-}
-
-static void
-secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
-    return;
-  }
-  FD_SET( switch_info.secure_channel_fd, read_set );
-  if ( switch_info.send_queue != NULL && switch_info.send_queue->length > 0 ) {
-    FD_SET( switch_info.secure_channel_fd, write_set );
-  }
-}
-
-
-static void
-secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
-    return;
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
-    if ( flush_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
-    if ( recv_from_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
   }
 
   if ( switch_info.recv_queue->length > 0 ) {
@@ -545,8 +508,6 @@ main( int argc, char *argv[] ) {
   init_xid_table();
   init_cookie_table();
 
-  set_fd_set_callback( secure_channel_fd_set );
-  set_check_fd_isset_callback( secure_channel_fd_isset );
   add_message_received_callback( get_trema_name(), service_recv );
 
   snprintf( management_service_name , MESSENGER_SERVICE_NAME_LENGTH,

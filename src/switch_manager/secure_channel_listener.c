@@ -32,6 +32,7 @@
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
+#include "event_handler.h"
 
 
 const int LISTEN_SOCK_MAX = 128;
@@ -160,6 +161,9 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
   }
 
   listener_info->listen_fd = listen_fd;
+
+  // add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL, NULL, NULL );
+  // notify_readable_event( listener_info.listen_fd, true );
 
   return true;
 }

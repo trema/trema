@@ -206,36 +206,15 @@ handle_sigchld( int signum ) {
 
 
 static void
-secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( listener_info.listen_fd < 0 ) {
-    return;
-  }
-  FD_SET( listener_info.listen_fd, read_set );
-}
-
-
-static void
-secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( listener_info.listen_fd < 0 ) {
-    return;
-  }
-  if ( FD_ISSET( listener_info.listen_fd, read_set ) ) {
-    secure_channel_accept( &listener_info );
-  }
-}
-
-
-static void
 secure_channel_accept_wrapper( int fd, void* data ) {
   UNUSED( fd );
   UNUSED( data );
 
+  info( "Got secure channel accept event on fd %i.", fd );
+
   secure_channel_accept( &listener_info );
 }
+
 
 static char *
 xconcatenate_path( const char *dir, const char *file ) {
@@ -449,8 +428,6 @@ main( int argc, char *argv[] ) {
   free( startup_dir );
 
   catch_sigchild();
-  set_fd_set_callback( secure_channel_fd_set );
-  set_check_fd_isset_callback( secure_channel_fd_isset );
 
   // listener start (listen socket binding and listen)
   ret = secure_channel_listen_start( &listener_info );

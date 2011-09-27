@@ -58,6 +58,7 @@ init_event_handler() {
   FD_ZERO( &event_write_set );
 }
 
+
 void
 finalize_event_handler() {
   if ( event_last != event_list ) {
@@ -67,11 +68,13 @@ finalize_event_handler() {
   }
 }
 
+
 void
 set_event_handler_fd_set( fd_set* read_set, fd_set* write_set ) {
   memcpy( read_set, &event_read_set, sizeof( fd_set ) );
   memcpy( write_set, &event_write_set, sizeof( fd_set ) );
 }
+
 
 bool
 run_event_handler_once() {
@@ -96,7 +99,7 @@ run_event_handler_once() {
 
   event_fd *event_itr = event_list;
 
-  while ( event_itr != event_last ) {
+  while ( event_itr < event_last ) {
     event_fd current_event = *event_itr;
 
     if ( FD_ISSET( current_event.fd, &current_read_set ) ) {
@@ -106,10 +109,16 @@ run_event_handler_once() {
     if ( FD_ISSET( current_event.fd, &current_write_set ) ) {
       (*current_event.write_callback)( current_event.fd, current_event.write_data );
     }
+
+    // In the rare cases the current fd is closed, a new one is opened
+    // with the same fd and is put in the same location we can just
+    // wait for the next select call.
+    event_itr = event_itr + ( current_event.fd == event_itr->fd );
   }
 
   return true;
 }
+
 
 void
 add_fd_event( int fd,
@@ -181,7 +190,9 @@ delete_fd_event( int fd ) {
   }
 
   memset( event_last, 0, sizeof(struct event_fd) );
+  event_last->fd = -1;
 }
+
 
 void
 notify_readable_event( int fd, bool state ) {
@@ -198,6 +209,7 @@ notify_readable_event( int fd, bool state ) {
   }
 }
 
+
 void
 notify_writable_event( int fd, bool state ) {
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
@@ -213,15 +225,18 @@ notify_writable_event( int fd, bool state ) {
   }
 }
 
+
 bool
 is_notifying_readable_event( int fd ) {
   return FD_ISSET( fd, &event_read_set );
 }
 
+
 bool
 is_notifying_writable_event( int fd ) {
   return FD_ISSET( fd, &event_write_set );
 }
+
 
 /*
  * Local variables:
