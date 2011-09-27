@@ -642,7 +642,7 @@ def libtrema_unit_tests
     :ether_test => [ :buffer, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
     :ipv4_test => [ :arp, :buffer, :ether, :log, :packet_info, :packet_parser, :utility, :wrapper, :trema_wrapper ],
     :match_table_test => [ :hash_table, :doubly_linked_list, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
-    :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :log, :trema_wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :timer, :wrapper, :log, :trema_wrapper ],
     :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],

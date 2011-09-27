@@ -28,6 +28,43 @@
 #include "timer.h"
 
 
+#ifdef UNIT_TESTING
+
+#define static
+
+#ifdef error
+#undef error
+#endif
+#define error mock_error
+extern void mock_error( const char *format, ... );
+
+#ifdef debug
+#undef debug
+#endif
+#define debug mock_debug
+extern void mock_debug( const char *format, ... );
+
+#ifdef warn
+#undef warn
+#endif
+#define warn mock_warn
+extern void mock_warn( const char *format, ... );
+
+#ifdef add_periodic_event_callback
+#undef add_periodic_event_callback
+#endif
+#define add_periodic_event_callback mock_add_periodic_event_callback
+extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
+
+#ifdef execute_timer_events
+#undef execute_timer_events
+#endif
+#define execute_timer_events mock_execute_timer_events
+extern void mock_execute_timer_events( void );
+
+#endif // UNIT_TESTING
+
+
 typedef struct event_fd {
   int fd;
   event_fd_callback read_callback;
@@ -35,6 +72,15 @@ typedef struct event_fd {
   void* read_data;
   void* write_data;
 } event_fd;
+
+enum {
+  EVENT_HANDLER_INITIALIZED = 0x1,
+  EVENT_HANDLER_RUNNING = 0x2,
+  EVENT_HANDLER_STOP = 0x4,
+  EVENT_HANDLER_FINALIZED = 0x8
+};
+
+int event_handler_state = 0;
 
 event_fd event_list[FD_SETSIZE];
 event_fd *event_last;
@@ -46,14 +92,6 @@ fd_set event_write_set;
 fd_set current_read_set;
 fd_set current_write_set;
 
-enum {
-  EVENT_HANDLER_INITIALIZED = 0x1,
-  EVENT_HANDLER_RUNNING = 0x2,
-  EVENT_HANDLER_STOP = 0x4,
-  EVENT_HANDLER_FINALIZED = 0x8
-};
-
-int event_handler_state = 0;
 
 void
 init_event_handler() {
@@ -158,22 +196,22 @@ void
 add_fd_event( int fd,
               event_fd_callback read_callback, void* read_data,
               event_fd_callback write_callback, void* write_data ) {
-  info( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
+  debug( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
   
   // Currently just issue critical warnings instead of killing the
   // program."
   if ( event_fd_set[fd] != NULL ) {
-    critical( "Tried to add an already active fd event handler." );
+    error( "Tried to add an already active fd event handler." );
     return;
   }
 
   if ( fd < 0 || fd >= FD_SETSIZE) {
-    critical( "Tried to add an invalid fd." );
+    error( "Tried to add an invalid fd." );
     return;
   }
 
   if ( event_last >= event_list + FD_SETSIZE ) {
-    critical( "Event handler list in invalid state." );
+    error( "Event handler list in invalid state." );
     return;
   }
 
@@ -188,7 +226,7 @@ add_fd_event( int fd,
 
 void
 delete_fd_event( int fd ) {
-  info( "Deleting event handler for fd %i.", fd );
+  debug( "Deleting event handler for fd %i.", fd );
   
   event_fd* event = event_list;
 
@@ -197,18 +235,18 @@ delete_fd_event( int fd ) {
   }
 
   if ( event >= event_last || event_fd_set[fd] == NULL ) {
-    critical( "Tried to delete an inactive fd event handler." );
+    error( "Tried to delete an inactive fd event handler." );
     return;
   }
 
   if ( FD_ISSET(fd, &event_read_set) ) {
-    critical( "Tried to delete an fd event handler with active read notification." );
+    error( "Tried to delete an fd event handler with active read notification." );
     //    return;
     FD_CLR( fd, &event_read_set );
   }
 
   if ( FD_ISSET(fd, &event_write_set) ) {
-    critical( "Tried to delete an fd event handler with active write notification." );
+    error( "Tried to delete an fd event handler with active write notification." );
     //    return;
     FD_CLR( fd, &event_write_set );
   }
@@ -231,7 +269,7 @@ delete_fd_event( int fd ) {
 void
 notify_readable_event( int fd, bool state ) {
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->read_callback == NULL ) {
-    critical( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd]->read_callback );
+    error( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd]->read_callback );
     return;
   }
 
@@ -247,7 +285,7 @@ notify_readable_event( int fd, bool state ) {
 void
 notify_writable_event( int fd, bool state ) {
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
-    critical( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd]->write_callback );
+    error( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd]->write_callback );
     return;
   }
 

@@ -36,7 +36,6 @@ void finalize_event_handler();
 bool start_event_handler();
 void stop_event_handler();
 
-// Temporary until we add event loop.
 bool run_event_handler_once();
 
 void add_fd_event( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data );
