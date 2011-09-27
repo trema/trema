@@ -101,7 +101,7 @@ typedef struct snap_header {
 
 #define TCI_GET_CFI( _tci ) ( uint8_t )( ( ( _tci ) >> 12 ) & 1 )
 
-#define TCI_GET_VID( _tci ) ( uint8_t )( ( _tci ) & 0x0FFF )
+#define TCI_GET_VID( _tci ) ( uint16_t )( ( _tci ) & 0x0FFF )
 
 #define TCI_CREATE( _prio, _cfi, _vid )         \
   ( uint16_t )( ( ( ( _prio ) & 7 ) << 13 ) |   \

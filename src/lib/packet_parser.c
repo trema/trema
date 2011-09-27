@@ -246,6 +246,9 @@ parse_icmp( buffer *buf ) {
     break;
   }
 
+  packet_info0->l4_payload = ( char * ) packet_info0->l4_header +
+    sizeof( icmp_header_t );
+
   packet_info0->format |= NW_ICMPV4;
 
   return;
@@ -276,7 +279,7 @@ parse_udp( buffer *buf ) {
   packet_info0->udp_len = ntohs( udp_header->len );
   packet_info0->udp_checksum = ntohs( udp_header->csum );
 
-  packet_info0->l4_payload = ( char * )packet_info0->l4_header +
+  packet_info0->l4_payload = ( char * ) packet_info0->l4_header +
     sizeof( udp_header_t );
 
   packet_info0->format |= TP_UDP;
