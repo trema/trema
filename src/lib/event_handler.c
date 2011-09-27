@@ -46,10 +46,19 @@ fd_set event_write_set;
 fd_set current_read_set;
 fd_set current_write_set;
 
+enum {
+  EVENT_HANDLER_INITIALIZED = 0x1,
+  EVENT_HANDLER_RUNNING = 0x2,
+  EVENT_HANDLER_STOP = 0x4,
+  EVENT_HANDLER_FINALIZED = 0x8
+};
+
+int event_handler_state = 0;
 
 void
 init_event_handler() {
   event_last = event_list;
+  event_handler_state = EVENT_HANDLER_INITIALIZED;
 
   memset(event_list, 0, sizeof(struct event_fd) * FD_SETSIZE);
   memset(event_fd_set, 0, sizeof(struct event_fd*) * FD_SETSIZE);
@@ -66,13 +75,37 @@ finalize_event_handler() {
           (event_last - event_list), (event_last > event_list ? event_list->fd : -1) );
     return;
   }
+
+  event_handler_state = EVENT_HANDLER_FINALIZED;
+}
+
+
+bool
+start_event_handler() {
+  debug( "Starting event handler." );
+
+  event_handler_state |= EVENT_HANDLER_RUNNING;
+
+  while ( !( event_handler_state & EVENT_HANDLER_STOP ) ) {
+    execute_timer_events();
+
+    if ( !run_event_handler_once() ) {
+      error( "Failed to run main loop." );
+      return false;
+    }
+  }
+  
+  event_handler_state &= ~EVENT_HANDLER_RUNNING;
+
+  debug( "Event handler terminated." );
+  return true;
 }
 
 
 void
-set_event_handler_fd_set( fd_set* read_set, fd_set* write_set ) {
-  memcpy( read_set, &event_read_set, sizeof( fd_set ) );
-  memcpy( write_set, &event_write_set, sizeof( fd_set ) );
+stop_event_handler() {
+  debug( "Terminating event handler." );
+  event_handler_state |= EVENT_HANDLER_STOP;
 }
 
 
@@ -80,7 +113,8 @@ bool
 run_event_handler_once() {
   struct timeval timeout = { 0, 100 * 1000 };
 
-  set_event_handler_fd_set( &current_read_set, &current_write_set );
+  memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
+  memcpy( &current_write_set, &event_write_set, sizeof( fd_set ) );
 
   // Don't us FD_SETSIZE here...
   int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );

@@ -196,7 +196,6 @@ static const uint32_t messenger_recv_queue_length = 200000;
 static const uint32_t messenger_recv_queue_reserved = 4000;
 
 char socket_directory[ PATH_MAX ];
-static bool running = false;
 static bool initialized = false;
 static bool finalized = false;
 static hash_table *receive_queues = NULL;
@@ -204,10 +203,7 @@ static hash_table *send_queues = NULL;
 static hash_table *context_db = NULL;
 static char *_dump_service_name = NULL;
 static char *_dump_app_name = NULL;
-static void ( *external_fd_set )( fd_set *read_set, fd_set *write_set ) = NULL;
-static void ( *external_check_fd_isset )( fd_set *read_set, fd_set *write_set ) = NULL;
 static uint32_t last_transaction_id = 0;
-static void ( *external_callback )( void ) = NULL;
 
 static void on_accept( int fd, void *data );
 static void on_recv( int fd, void *data );
@@ -508,10 +504,6 @@ finalize_messenger() {
     delete_context_db();
   }
 
-  set_fd_set_callback( NULL );
-  set_check_fd_isset_callback( NULL );
-
-  running = false;
   initialized = false;
   finalized = true;
 
@@ -1498,19 +1490,13 @@ on_send_write( int fd, void *data ) {
 }
 
 
-static bool
-run_once( void ) {
-  execute_timer_events();
-
-  if ( external_callback != NULL ) {
-    external_callback();
-    external_callback = NULL;
-  }
-  
-  bool result = run_event_handler_once();
-
-  return running && result;
-}
+/* static bool */
+/* run_once( void ) { */
+/*   if ( external_callback != NULL ) { */
+/*     external_callback(); */
+/*     external_callback = NULL; */
+/*   } */
+/* } */
 
 
 int
@@ -1524,7 +1510,7 @@ flush_messenger() {
     if ( sending_count == 0 ) {
       return reconnecting_count;
     }
-    run_once();
+    run_event_handler_once();
   }
 }
 
@@ -1534,14 +1520,7 @@ start_messenger() {
   debug( "Starting messenger." );
 
   add_periodic_event_callback( 10, age_context_db, NULL );
-
-  running = true;
-  while ( running ) {
-    if ( !run_once() ) {
-      error( "Failed to run main loop." );
-      return false;
-    }
-  }
+  start_event_handler();
 
   debug( "Messenger terminated." );
 
@@ -1551,9 +1530,8 @@ start_messenger() {
 
 bool
 stop_messenger() {
-  running = false;
-
   debug( "Terminating messenger." );
+  stop_event_handler();
 
   return true;
 }
@@ -1607,29 +1585,16 @@ messenger_dump_enabled( void ) {
 }
 
 
-void
-set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
-  debug( "Setting an external FD_SET callback ( callback = %p ).", callback );
-
-  external_fd_set = callback;
-}
-
-
-void
-set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
-  debug( "Setting an external FD_ISSET callback ( callback = %p ).", callback );
-
-  external_check_fd_isset = callback;
-}
-
-
 bool
 set_external_callback( void ( *callback ) ( void ) ) {
-  if ( external_callback != NULL ) {
-    return false;
-  }
+  UNUSED( callback );
 
-  external_callback = callback;
+  /* if ( external_callback != NULL ) { */
+  /*   return false; */
+  /* } */
+
+  // Use a timer event instead...
+  //  external_callback = callback;
 
   return true;
 }

@@ -33,9 +33,10 @@ typedef void ( *event_fd_callback )( int, void* data );
 void init_event_handler();
 void finalize_event_handler();
 
-// Temporary until we add event loop.
-void set_event_handler_fd_set( fd_set* read_set, fd_set* write_set );
+bool start_event_handler();
+void stop_event_handler();
 
+// Temporary until we add event loop.
 bool run_event_handler_once();
 
 void add_fd_event( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data );
