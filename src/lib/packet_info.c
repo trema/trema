@@ -94,24 +94,6 @@ get_packet_info( const buffer *frame ) {
 
 
 /**
- * This function is deprecated.
- *
- * Releases the memory allocated to structure of type buffer and also to
- * structure of type packet_header_info, pointer to which is contained in
- * user_data element of this buffer type structure.
- * @param buf Pointer to buffer type structure
- * @return None
- */
-void
-free_packet( buffer *buf ) {
-  assert( buf != NULL );
-
-  free_packet_info( buf );
-  free_buffer( buf );
-}
-
-
-/**
  * Checks whether packet type is dix or not.
  * @param buf Pointer to buffer type structure
  * @return bool true if packet type is dix

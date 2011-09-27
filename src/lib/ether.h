@@ -59,7 +59,6 @@
  * @see http://www.ieee802.org/1/
  */
 typedef struct ether_headr {
-//  uint16_t prepad;
   uint8_t macda[ ETH_ADDRLEN ];
   uint8_t macsa[ ETH_ADDRLEN ];
   uint16_t type;

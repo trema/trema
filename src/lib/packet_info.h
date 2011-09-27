@@ -186,40 +186,8 @@ bool packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame );
 
 
-// DEPRECATED
-/**
- * Packet header information definitions
- */
-typedef struct packet_header_info {
-  uint16_t ethtype;
-  uint8_t nvtags;
-  uint8_t ipproto;
-  uint32_t nexthop;
-  union {
-    void *l2;
-    ether_header_t *eth;
-  } l2_data;
-  vlantag_header_t *vtag;
-  union {
-    void *l3;
-    arp_header_t *arp;
-    ipv4_header_t *ipv4;
-  } l3_data;
-  union {
-    void *l4;
-    icmp_header_t *icmp;
-    tcp_header_t *tcp;
-    udp_header_t *udp;
-  } l4_data;
-} packet_header_info;
-
-
-// #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
-/*!<Returns pointer to structure of type packet_header_info*/
-
-
-void free_packet( buffer *frame ) DEPRECATED;
 #define alloc_packet( buf )  calloc_packet_info( buf )
+
 
 #endif // PACKET_INFO_H
 
