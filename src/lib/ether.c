@@ -17,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file ether.c
- * This source file contains functions for handling Ethernet headers
- */
 
 #include <assert.h>
 #include "log.h"
@@ -39,12 +35,6 @@ void mock_debug( const char *format, ... );
 #endif // UNIT_TESTING
 
 
-/**
- * This function pads the buffer containing Ethernet header, in case the length
- * of buffer is less than 64bytes including CRC
- * @param buf Buffer containing Ethernet header
- * @return size_t Length of the padding
- */
 uint16_t
 fill_ether_padding( buffer *buf ) {
   assert( buf != NULL );
