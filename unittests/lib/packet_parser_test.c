@@ -140,6 +140,7 @@ test_parse_packet_arp_request_succeeds() {
   free_buffer( buffer );
 }
 
+
 static void
 test_parse_packet_udp_succeeds() {
   const char filename[] = "./unittests/lib/test_packets/udp.cap";
@@ -176,6 +177,173 @@ test_parse_packet_udp_succeeds() {
 
   free_buffer( buffer );
 }
+
+
+static void
+test_parse_packet_udp_fragmented_head_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/udp_frag_head.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_int_equal( packet_info0->format, ETH_IPV4_UDP );
+
+  u_char macda[] = { 0x8c, 0x89, 0xa5, 0x15, 0x84, 0xcb };
+  u_char macsa[] = { 0x8c, 0x89, 0xa5, 0x16, 0x22, 0x09 };
+  assert_memory_equal( packet_info0->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info0->eth_macsa, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info0->eth_type, ETH_ETHTYPE_IPV4 );
+  
+  assert_int_equal( packet_info0->ipv4_version, 4 );
+  assert_int_equal( packet_info0->ipv4_ihl, 5 );
+  assert_int_equal( packet_info0->ipv4_tos, 0 );
+  assert_int_equal( packet_info0->ipv4_tot_len, 0x05dc );
+  assert_int_equal( packet_info0->ipv4_id, 0x2b33 );
+  assert_int_equal( packet_info0->ipv4_frag_off, 0x2000 );
+  assert_int_equal( packet_info0->ipv4_ttl, 0x40 );
+  assert_int_equal( packet_info0->ipv4_protocol, IPPROTO_UDP );
+  assert_int_equal( packet_info0->ipv4_checksum, 0xe035 );
+  assert_int_equal( packet_info0->ipv4_saddr, 0xc0a8642c );
+  assert_int_equal( packet_info0->ipv4_daddr, 0xc0a8642b );
+
+  assert_int_equal( packet_info0->udp_src_port, 0xa2c7 );
+  assert_int_equal( packet_info0->udp_dst_port, 0x1f90 );
+  assert_int_equal( packet_info0->udp_len, 0x2330 );
+  assert_int_equal( packet_info0->udp_checksum, 0x8749 );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_udp_fragmented_next_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/udp_frag_next.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_int_equal( packet_info0->format, ETH_IPV4 );
+
+  u_char macda[] = { 0x8c, 0x89, 0xa5, 0x15, 0x84, 0xcb };
+  u_char macsa[] = { 0x8c, 0x89, 0xa5, 0x16, 0x22, 0x09 };
+  assert_memory_equal( packet_info0->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info0->eth_macsa, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info0->eth_type, ETH_ETHTYPE_IPV4 );
+  
+  assert_int_equal( packet_info0->ipv4_version, 4 );
+  assert_int_equal( packet_info0->ipv4_ihl, 5 );
+  assert_int_equal( packet_info0->ipv4_tos, 0 );
+  assert_int_equal( packet_info0->ipv4_tot_len, 0x05dc );
+  assert_int_equal( packet_info0->ipv4_id, 0x2b33 );
+  assert_int_equal( packet_info0->ipv4_frag_off, 0x20b9 );
+  assert_int_equal( packet_info0->ipv4_ttl, 0x40 );
+  assert_int_equal( packet_info0->ipv4_protocol, IPPROTO_UDP );
+  assert_int_equal( packet_info0->ipv4_checksum, 0xdf7c );
+  assert_int_equal( packet_info0->ipv4_saddr, 0xc0a8642c );
+  assert_int_equal( packet_info0->ipv4_daddr, 0xc0a8642b );
+
+  // L4 parsing phase is skipped for fragmented packets.
+  assert_int_equal( packet_info0->udp_src_port, 0 );
+  assert_int_equal( packet_info0->udp_dst_port, 0 );
+  assert_int_equal( packet_info0->udp_len, 0 );
+  assert_int_equal( packet_info0->udp_checksum, 0 );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_tcp_syn_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/tcp_syn.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_int_equal( packet_info0->format, ETH_IPV4_TCP );
+
+  u_char macda[] = { 0x00, 0x16, 0x17, 0x00, 0x43, 0xf3 };
+  u_char macsa[] = { 0x8c, 0x89, 0xa5, 0x15, 0x84, 0xcb };
+  assert_memory_equal( packet_info0->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info0->eth_macsa, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info0->eth_type, ETH_ETHTYPE_IPV4 );
+  
+  assert_int_equal( packet_info0->ipv4_version, 4 );
+  assert_int_equal( packet_info0->ipv4_ihl, 5 );
+  assert_int_equal( packet_info0->ipv4_tos, 0x10 );
+  assert_int_equal( packet_info0->ipv4_tot_len, 0x003c );
+  assert_int_equal( packet_info0->ipv4_id, 0x5551 );
+  assert_int_equal( packet_info0->ipv4_frag_off, 0x4000 );
+  assert_int_equal( packet_info0->ipv4_ttl, 0x40 );
+  assert_int_equal( packet_info0->ipv4_protocol, IPPROTO_TCP );
+  assert_int_equal( packet_info0->ipv4_checksum, 0x9afd );
+  assert_int_equal( packet_info0->ipv4_saddr, 0xc0a8642b );
+  assert_int_equal( packet_info0->ipv4_daddr, 0xc0a864e1 );
+
+  assert_int_equal( packet_info0->tcp_src_port, 0xad49 );
+  assert_int_equal( packet_info0->tcp_dst_port, 0x0050 );
+  assert_int_equal( packet_info0->tcp_seq_no, 0x51de9851 );
+  assert_int_equal( packet_info0->tcp_ack_no, 0 );
+  assert_int_equal( packet_info0->tcp_offset, 0xa );
+  assert_int_equal( packet_info0->tcp_flags, 0x02 );
+  assert_int_equal( packet_info0->tcp_window, 0x16d0 );
+  assert_int_equal( packet_info0->tcp_checksum, 0x76bb );
+  assert_int_equal( packet_info0->tcp_urgent, 0 );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_tcp_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/tcp.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info0 = buffer->user_data;
+
+  assert_int_equal( packet_info0->format, ETH_IPV4_TCP );
+
+  u_char macda[] = { 0x8c, 0x89, 0xa5, 0x15, 0x84, 0xcb };
+  u_char macsa[] = { 0x00, 0x16, 0x17, 0x00, 0x43, 0xf3 };
+  assert_memory_equal( packet_info0->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info0->eth_macsa, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info0->eth_type, ETH_ETHTYPE_IPV4 );
+  
+  assert_int_equal( packet_info0->ipv4_version, 4 );
+  assert_int_equal( packet_info0->ipv4_ihl, 5 );
+  assert_int_equal( packet_info0->ipv4_tos, 0 );
+  assert_int_equal( packet_info0->ipv4_tot_len, 0x01dd );
+  assert_int_equal( packet_info0->ipv4_id, 0x0399 );
+  assert_int_equal( packet_info0->ipv4_frag_off, 0x4000 );
+  assert_int_equal( packet_info0->ipv4_ttl, 0x40 );
+  assert_int_equal( packet_info0->ipv4_protocol, IPPROTO_TCP );
+  assert_int_equal( packet_info0->ipv4_checksum, 0xeb24 );
+  assert_int_equal( packet_info0->ipv4_saddr, 0xc0a864e1 );
+  assert_int_equal( packet_info0->ipv4_daddr, 0xc0a8642b );
+
+  assert_int_equal( packet_info0->tcp_src_port, 0x0050 );
+  assert_int_equal( packet_info0->tcp_dst_port, 0xad49 );
+  assert_int_equal( packet_info0->tcp_seq_no, 0x20656b68 );
+  assert_int_equal( packet_info0->tcp_ack_no, 0x51de986e );
+  assert_int_equal( packet_info0->tcp_offset, 0x8 );
+  assert_int_equal( packet_info0->tcp_flags, 0x18 );
+  assert_int_equal( packet_info0->tcp_window, 0x2086 );
+  assert_int_equal( packet_info0->tcp_checksum, 0x4c2d );
+  assert_int_equal( packet_info0->tcp_urgent, 0 );
+
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info0->l4_payload );
+  assert_int_equal( sample, 0x4854 );
+
+  free_buffer( buffer );
+}
+
 
 static void
 test_parse_packet_icmpv4_echo_request_succeeds() {
@@ -214,7 +382,6 @@ test_parse_packet_icmpv4_echo_request_succeeds() {
 }
 
 
-
 /******************************************************************************
  * Run tests.
  ******************************************************************************/
@@ -223,10 +390,17 @@ int
 main() {
   UnitTest tests[] = {
     unit_test( test_parse_packet_snap_succeeds ),
-    unit_test( test_parse_packet_arp_request_succeeds ),
-    unit_test( test_parse_packet_udp_succeeds ),
-    unit_test( test_parse_packet_icmpv4_echo_request_succeeds ),
 
+    unit_test( test_parse_packet_arp_request_succeeds ),
+
+    unit_test( test_parse_packet_udp_succeeds ),
+    unit_test( test_parse_packet_udp_fragmented_head_succeeds ),
+    unit_test( test_parse_packet_udp_fragmented_next_succeeds ),
+
+    unit_test( test_parse_packet_tcp_syn_succeeds ),
+    unit_test( test_parse_packet_tcp_succeeds ),
+
+    unit_test( test_parse_packet_icmpv4_echo_request_succeeds ),
   };
   stub_logger();
   return run_tests( tests );
