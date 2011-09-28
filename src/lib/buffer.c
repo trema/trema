@@ -29,7 +29,7 @@
 #include "wrapper.h"
 
 
-typedef struct private_buffer {
+typedef struct {
   buffer public;
   size_t real_length;
   void *top;
