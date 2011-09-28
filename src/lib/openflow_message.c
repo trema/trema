@@ -103,19 +103,18 @@ init_openflow_message( void ) {
 
 static buffer *
 create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t length ) {
-  debug( "Creating an OpenFlow header ( version = %#x, type = %#x, length = %u, xid = %#x ).",
+  debug( "Creating an OpenFlow header (version = %#x, type = %#x, length = %u, xid = %#x).",
          OFP_VERSION, type, length, transaction_id );
 
   assert( length >= sizeof( struct ofp_header ) );
 
-  buffer *buffer = alloc_buffer_with_length( length );
+  buffer *buffer = alloc_buffer();
   assert( buffer != NULL );
 
-  void *data = append_back_buffer( buffer, length );
-  assert( data != NULL );
-  memset( data, 0, length );
+  struct ofp_header *header = append_back_buffer( buffer, length );
+  assert( header != NULL );
+  memset( header, 0, length );
 
-  struct ofp_header *header = data;
   header->version = OFP_VERSION;
   header->type = type;
   header->length = htons( length );
