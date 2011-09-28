@@ -265,7 +265,11 @@ init_messenger( const char *working_directory ) {
     return true;
   }
 
-  init_event_handler();
+  if ( init_event_handler == NULL ) {
+    set_select_event_handler();
+  }
+
+  init_event_handler();  
 
   strcpy( socket_directory, working_directory );
 
