@@ -71,6 +71,17 @@ packet_in_datapath_id( VALUE self ) {
 
 
 /*
+ * For this asynchronous message the transaction_id is set to zero.
+ *
+ * @return [Number] the value of attribute transaction_id.
+ */
+static VALUE
+packet_in_transaction_id( VALUE self ) {
+  return ULONG2NUM( get_packet_in( self )->transaction_id );
+}
+
+
+/*
  * Buffer id value signifies if the entire frame (packet is not buffered) or 
  * portion of it (packet is buffered) is included in the data field of 
  * this +OFPT_PACKET_IN+ message.
@@ -123,7 +134,7 @@ packet_in_total_len( VALUE self ) {
 
 
 /*
- * A {Buffer} object that holds the entire or portion of the received frame.
+ * A String that holds the entire or portion of the received frame.
  * Length of data, total_len - 20 bytes.
  *
  * @return [String] the value of attribute data.
@@ -185,6 +196,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "initialize", packet_in_init, 0 );
 #endif  
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
+  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );  
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
