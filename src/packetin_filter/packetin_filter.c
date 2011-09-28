@@ -20,6 +20,7 @@
  */
 
 
+#include <assert.h>
 #include <getopt.h>
 #include <openflow.h>
 #include <stdio.h>
@@ -191,9 +192,9 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   }
   match_to_string( &ofp_match, match_str, sizeof( match_str ) );
 
-  match_entry *match_entry = lookup_match_entry( &ofp_match );
-  if ( match_entry == NULL ) {
-    debug( "No match entry found." );
+  list_element *services = lookup_match_entry( ofp_match );
+  if ( services == NULL ) {
+    debug( "match entry not found" );
     return;
   }
 
@@ -205,7 +206,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   message->datapath_id = htonll( datapath_id );
   message->service_name_length = htons( 0 );
   list_element *element;
-  for ( element = match_entry->services_name; element != NULL; element = element->next ) {
+  for ( element = services; element != NULL; element = element->next ) {
     const char *service_name = element->data;
     if ( !send_message( service_name, MESSENGER_OPENFLOW_MESSAGE,
                         buf->data, buf->length ) ) {
@@ -222,23 +223,63 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
 
 static void
-register_dl_type_filter( uint16_t dl_type, uint16_t priority, const char *service_name ) {
-  struct ofp_match ofp_match;
-  memset( &ofp_match, 0, sizeof( struct ofp_match ) );
-  ofp_match.wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE;
-  ofp_match.dl_type = dl_type;
+init_packetin_match_table( void ) {
+  init_match_table();
+}
 
-  insert_match_entry( &ofp_match, priority, service_name );
+
+static void
+free_user_data_entry( struct ofp_match match, uint16_t priority, void *services ) {
+  UNUSED( match );
+  UNUSED( priority );
+
+  list_element *element;
+  for ( element = services; element != NULL; element = element->next ) {
+    xfree( element->data );
+    element->data = NULL;
+  }
+  delete_list( services );
+}
+
+
+static void
+finalize_packetin_match_table( void ) {
+  foreach_match_table( free_user_data_entry );
+  finalize_match_table();
+}
+
+
+static void
+add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
+  bool ( *insert_or_update_match_entry ) ( struct ofp_match, uint16_t, void * ) = update_match_entry;
+  list_element *services = lookup_match_strict_entry( match, priority );
+  if ( services == NULL ) {
+    insert_or_update_match_entry = insert_match_entry;
+    create_list( &services );
+  }
+  append_to_tail( &services, xstrdup( service_name ) );
+  insert_or_update_match_entry( match, priority, services );
+}
+
+
+static void
+register_dl_type_filter( uint16_t dl_type, uint16_t priority, const char *service_name ) {
+  struct ofp_match match;
+  memset( &match, 0, sizeof( struct ofp_match ) );
+  match.wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE;
+  match.dl_type = dl_type;
+
+  add_packetin_match_entry( match, priority, service_name );
 }
 
 
 static void
 register_any_filter( uint16_t priority, const char *service_name ) {
-  struct ofp_match ofp_match;
-  memset( &ofp_match, 0, sizeof( struct ofp_match ) );
-  ofp_match.wildcards = OFPFW_ALL;
+  struct ofp_match match;
+  memset( &match, 0, sizeof( struct ofp_match ) );
+  match.wildcards = OFPFW_ALL;
 
-  insert_match_entry( &ofp_match, priority, service_name );
+  add_packetin_match_entry( match, priority, service_name );
 }
 
 
@@ -281,12 +322,12 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  init_match_table();
+  init_packetin_match_table();
 
   // built-in packetin-filter-rule
   if ( !set_match_type( argc, argv ) ) {
     usage();
-    finalize_match_table();
+    finalize_packetin_match_table();
     exit( EXIT_FAILURE );
   }
 
@@ -294,7 +335,7 @@ main( int argc, char *argv[] ) {
 
   start_trema();
 
-  finalize_match_table();
+  finalize_packetin_match_table();
 
   return 0;
 }
