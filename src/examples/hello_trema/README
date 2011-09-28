@@ -1,0 +1,13 @@
+This directory includes minimum examples of Trema controller in C and Ruby.
+
+
+# How to run (C version)
+
+  % ./trema run ./objects/examples/hello_trema/hello_trema -c src/examples/hello_trema/hello_trema.conf
+
+# How to run (Ruby version)
+
+  % ./trema run ./src/examples/hello_trema/hello_trema.rb -c src/examples/hello_trema/hello_trema.conf
+
+
+Enjoy!
