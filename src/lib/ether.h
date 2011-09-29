@@ -1,7 +1,7 @@
 /*
  * Ethernet header definitions
  *
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -43,6 +43,7 @@
 #define ETH_ETHTYPE_IPV4 0x0800
 #define ETH_ETHTYPE_ARP 0x0806
 #define ETH_ETHTYPE_TPID 0x8100
+#define ETH_ETHTYPE_IPV6 0x86DD
 #define ETH_ETHTYPE_EAPOL 0x88c7
 #define ETH_ETHTYPE_LLDP 0x88cc
 #define ETH_ETHTYPE_UKNOWN 0xffff
@@ -59,19 +60,6 @@ typedef struct vlantag_header {
   uint16_t tci;
   uint16_t type;
 } vlantag_header_t;
-
-
-typedef struct vlantag_tci {
-#if ( __BYTE_ORDER == __BIG_ENDIAN )
-  uint16_t prio:3,
-           cfi:1,
-           vid:12;
-#else // __LITTLE_ENDIAN
-  uint16_t vid:12,
-           cfi:1,
-           prio:3;
-#endif
-} vlantag_tci_t;
 
 
 typedef struct snap_header {

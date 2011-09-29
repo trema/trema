@@ -1,5 +1,5 @@
 /*
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -22,17 +22,6 @@
 #include "log.h"
 #include "packet_info.h"
 #include "wrapper.h"
-
-
-#ifdef UNIT_TESTING
-
-#ifdef debug
-#undef debug
-#endif
-#define debug mock_debug
-void mock_debug( const char *format, ... );
-
-#endif // UNIT_TESTING
 
 
 uint16_t

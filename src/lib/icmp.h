@@ -1,7 +1,7 @@
 /*
  * ICMP header definitions
  *
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *

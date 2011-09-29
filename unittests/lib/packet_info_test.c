@@ -81,7 +81,8 @@ test_calloc_packet_info_succeeds() {
 
 void
 test_calloc_packet_info_fails_if_buffer_is_NULL() {
-  expect_string( mock_die, output, "illegal argument to calloc_packet_info" );
+  expect_string( mock_die, output, 
+                 "Argument of calloc_packet_info must not be NULL." );
   expect_assert_failure( calloc_packet_info( NULL ) ) ;
 }
 
@@ -101,7 +102,8 @@ test_free_buffer_succeeds() {
 
 void 
 test_packet_type_eth_dix_fails() {
-  expect_string( mock_die, output, "illegal argument to packet_type_eth_dix" );
+  expect_string( mock_die, output, 
+                 "Argument of packet_type_eth_dix must not be NULL." );
   expect_assert_failure( packet_type_eth_dix( NULL ) ) ;
 }
 
@@ -109,7 +111,6 @@ test_packet_type_eth_dix_fails() {
 void 
 test_packet_type_eth_dix() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_eth_dix( buf ) );
@@ -128,7 +129,6 @@ test_packet_type_eth_dix() {
 void 
 test_packet_type_eth_vtag() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_eth_vtag( buf ) );
@@ -168,7 +168,6 @@ test_packet_type_eth_vtag() {
 void 
 test_packet_type_eth_raw() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_eth_raw( buf ) );
@@ -187,7 +186,6 @@ test_packet_type_eth_raw() {
 void 
 test_packet_type_eth_llc() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_eth_llc( buf ) );
@@ -206,7 +204,6 @@ test_packet_type_eth_llc() {
 void 
 test_packet_type_eth_snap() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_eth_snap( buf ) );
@@ -225,7 +222,6 @@ test_packet_type_eth_snap() {
 void 
 test_packet_type_ether() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_ether( buf ) );
@@ -254,7 +250,6 @@ test_packet_type_ether() {
 void 
 test_packet_type_arp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_arp( buf ) );
@@ -270,7 +265,6 @@ test_packet_type_arp() {
 void 
 test_packet_type_ipv4() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_ipv4( buf ) );
@@ -286,7 +280,6 @@ test_packet_type_ipv4() {
 void 
 test_packet_type_icmpv4() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_icmpv4( buf ) );
@@ -305,7 +298,6 @@ test_packet_type_icmpv4() {
 void 
 test_packet_type_ipv4_udp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_ipv4_udp( buf ) );
@@ -324,7 +316,6 @@ test_packet_type_ipv4_udp() {
 void 
 test_packet_type_ipv4_tcp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
   calloc_packet_info( buf );
 
   assert_false( packet_type_ipv4_tcp( buf ) );

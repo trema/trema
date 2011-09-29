@@ -5014,7 +5014,6 @@ setup_ether_packet( size_t length, uint16_t type ) {
 
   /* Create the packet for test. */
   buffer *buf = alloc_buffer_with_length( length );
-  alloc_packet( buf );
   append_back_buffer( buf, length );
 
   ether_header_t *ether = buf->data;

@@ -170,9 +170,6 @@ bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
 
 
-#define alloc_packet( buf )  calloc_packet_info( buf )
-
-
 #endif // PACKET_INFO_H
 
 

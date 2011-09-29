@@ -243,7 +243,7 @@ mock_delete_message_replied_callback( char *service_name,
 
 bool
 mock_parse_packet( buffer *buf ) {
-  alloc_packet( buf );
+  calloc_packet_info( buf );
   return ( bool ) mock();
 }
 
@@ -927,7 +927,7 @@ test_handle_packet_in() {
   uint16_t in_port = 1;
   uint32_t buffer_id = 0x01020304;
   buffer *data = alloc_buffer_with_length( 64 );
-  alloc_packet( data );
+  calloc_packet_info( data );
   append_back_buffer( data, 64 );
   memset( data->data, 0x01, 64 );
   uint16_t total_len = ( uint16_t ) data->length;
@@ -958,7 +958,7 @@ test_handle_packet_in_with_simple_handler() {
   uint16_t in_port = 1;
   uint32_t buffer_id = 0x01020304;
   buffer *data = alloc_buffer_with_length( 64 );
-  alloc_packet( data );
+  calloc_packet_info( data );
   append_back_buffer( data, 64 );
   memset( data->data, 0x01, 64 );
   uint16_t total_len = ( uint16_t ) data->length;
@@ -988,7 +988,7 @@ test_handle_packet_in_with_malformed_packet() {
   uint16_t in_port = 1;
   uint32_t buffer_id = 0x01020304;
   buffer *data = alloc_buffer_with_length( 64 );
-  alloc_packet( data );
+  calloc_packet_info( data );
   append_back_buffer( data, 64 );
   memset( data->data, 0x01, 64 );
   uint16_t total_len = ( uint16_t ) data->length;
