@@ -106,6 +106,9 @@ test_parse_packet_snap_succeeds() {
   assert_memory_equal( packet_info0->snap_oui, oui, SNAP_OUI_LENGTH );
   assert_int_equal( packet_info0->snap_type, 0xb700 );
 
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info0->l2_payload );
+  assert_int_equal( sample, 0x0400 );
+
   free_buffer( buffer );
 }
 
@@ -252,11 +255,16 @@ test_parse_packet_udp_fragmented_next_succeeds() {
   assert_int_equal( packet_info0->ipv4_saddr, 0xc0a8642c );
   assert_int_equal( packet_info0->ipv4_daddr, 0xc0a8642b );
 
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info0->l3_payload );
+  assert_int_equal( sample, 0x9102 );
+
   // L4 parsing phase is skipped for fragmented packets.
   assert_int_equal( packet_info0->udp_src_port, 0 );
   assert_int_equal( packet_info0->udp_dst_port, 0 );
   assert_int_equal( packet_info0->udp_len, 0 );
   assert_int_equal( packet_info0->udp_checksum, 0 );
+
+  assert_int_equal( packet_info0->l4_payload, NULL );
 
   free_buffer( buffer );
 }

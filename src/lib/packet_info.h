@@ -143,7 +143,9 @@ typedef struct {
   uint16_t udp_checksum;
 
   void *l2_header;
+  void *l2_payload;
   void *l3_header;
+  void *l3_payload;
   void *l4_header;
   void *l4_payload;
 } packet_info;
@@ -160,31 +162,12 @@ bool packet_type_eth_vtag( const buffer *frame );
 bool packet_type_eth_raw( const buffer *frame );
 bool packet_type_eth_llc( const buffer *frame );
 bool packet_type_eth_snap( const buffer *frame );
-bool packet_type_eth_vtag_dix( const buffer *frame );
-bool packet_type_eth_vtag_raw( const buffer *frame );
-bool packet_type_eth_vtag_llc( const buffer *frame );
-bool packet_type_eth_vtag_snap( const buffer *frame );
-bool packet_type_eth_arp( const buffer *frame );
-bool packet_type_eth_ipv4( const buffer *frame );
-bool packet_type_eth_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_ipv4_udp( const buffer *frame );
-bool packet_type_eth_vtag_arp( const buffer *frame );
-bool packet_type_eth_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_udp( const buffer *frame );
-bool packet_type_eth_snap_arp( const buffer *frame );
-bool packet_type_eth_snap_ipv4( const buffer *frame );
-bool packet_type_eth_snap_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_snap_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_snap_ipv4_udp( const buffer *frame );
-bool packet_type_eth_snap_vtag_arp( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame );
 bool packet_type_ether( const buffer *frame );
+bool packet_type_arp( const buffer *frame );
+bool packet_type_ipv4( const buffer *frame );
+bool packet_type_icmpv4( const buffer *frame );
+bool packet_type_ipv4_tcp( const buffer *frame );
+bool packet_type_ipv4_udp( const buffer *frame );
 
 
 #define alloc_packet( buf )  calloc_packet_info( buf )

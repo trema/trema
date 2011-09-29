@@ -44,7 +44,7 @@ free_packet_info( buffer *buf ) {
 
 void
 calloc_packet_info( buffer *buf ) {
-  assert( buf != NULL );
+  check_null( buf );
 
   void *user_data = xcalloc( 1, sizeof( packet_info ) );
   assert( user_data != NULL );
@@ -73,377 +73,92 @@ get_packet_info( const buffer *frame ) {
 
 
 static bool
-if_packet_type( const uint32_t format, const uint32_t type ) {
-  return ( ( format & type ) == type );
+if_packet_type( const buffer *frame, const uint32_t type ) {
+  assert( frame != NULL );
+  packet_info packet_info = get_packet_info( frame );
+  return ( ( packet_info.format & type ) == type );
 }
 
 
 bool 
 packet_type_eth_dix( const buffer *frame ) {
   check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, ETH_DIX );
+  return if_packet_type( frame, ETH_DIX );
 }
 
 
 bool 
 packet_type_eth_vtag( const buffer *frame ) {
   check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, ETH_8021Q );
+  return if_packet_type( frame, ETH_8021Q );
 }
 
 
 bool 
 packet_type_eth_raw( const buffer *frame ) {
   check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, ETH_8023_RAW );
+  return if_packet_type( frame, ETH_8023_RAW );
 }
 
 
 bool 
 packet_type_eth_llc( const buffer *frame ) {
   check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, ETH_8023_LLC );
-}
-
-
-bool 
-packet_type_eth_snap( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, ETH_8023_SNAP );
-}
-
-
-bool 
-packet_type_eth_vtag_dix( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, ETH_DIX ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_raw( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, ETH_8023_RAW ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_llc( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, ETH_8023_LLC ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_snap( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, ETH_8023_SNAP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_arp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, NW_ARP );
-}
-
-
-bool 
-packet_type_eth_ipv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return if_packet_type( packet_info.format, NW_IPV4 );
-}
-
-
-bool 
-packet_type_eth_ipv4_icmpv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, NW_ICMPV4 ) );
-}
-
-
-bool 
-packet_type_eth_ipv4_tcp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_TCP ) );
-}
-
-
-bool 
-packet_type_eth_ipv4_udp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_UDP ) );
-}
-
-
-bool 
-packet_type_eth_vtag_arp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_ARP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_ipv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, NW_ICMPV4 ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_ipv4_tcp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_TCP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_vtag_ipv4_udp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_UDP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) );
-}
-
-
-bool 
-packet_type_eth_snap_arp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_ARP ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_ipv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_ipv4_icmpv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, NW_ICMPV4 ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_ipv4_tcp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_TCP ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_ipv4_udp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_TCP ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_vtag_arp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_ARP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_vtag_ipv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, NW_ICMPV4 ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_TCP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
-}
-
-
-bool 
-packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame ) {
-  check_null( frame );
-  check_null( frame->user_data );
-
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
-           if_packet_type( packet_info.format, TP_UDP ) &
-           if_packet_type( packet_info.format, ETH_8021Q ) &
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
+  return if_packet_type( frame, ETH_8023_LLC );
 }
 
 
 bool
 packet_type_ether( const buffer *frame ) {
   check_null( frame );
-  
-  packet_info packet_info = get_packet_info( frame );
-
-  return ( if_packet_type( packet_info.format, ETH_DIX ) |
-           if_packet_type( packet_info.format, ETH_8023_RAW ) |
-           if_packet_type( packet_info.format, ETH_8023_LLC ) |
-           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
+  return ( if_packet_type( frame, ETH_DIX ) |
+           if_packet_type( frame, ETH_8023_RAW ) | 
+           if_packet_type( frame, ETH_8023_LLC ) |
+           if_packet_type( frame, ETH_8023_SNAP ) );
 }
+
+
+bool
+packet_type_eth_snap( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, ETH_8023_SNAP );
+}
+
+
+bool 
+packet_type_arp( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, NW_ARP );
+}
+
+
+bool 
+packet_type_ipv4( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, NW_IPV4 );
+}
+
+
+bool 
+packet_type_icmpv4( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, NW_ICMPV4 );
+}
+
+
+bool 
+packet_type_ipv4_tcp( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, NW_IPV4 | TP_TCP );
+}
+
+
+bool 
+packet_type_ipv4_udp( const buffer *frame ) {
+  check_null( frame );
+  return if_packet_type( frame, NW_IPV4 | TP_UDP );
+}
+
 
 
 /*

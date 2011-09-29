@@ -22,9 +22,46 @@
 
 #include <assert.h>
 #include <netinet/ip.h>
+#include <stdio.h>
 #include "checks.h"
 #include "cmockery_trema.h"
+#include "utility.h"
 #include "packet_info.h"
+
+
+/********************************************************************************
+ * Mocks.
+ ********************************************************************************/
+
+static void ( *original_die )( const char *format, ... );
+
+static void
+mock_die( const char *format, ... ) {
+  char output[ 256 ];
+  va_list args;
+  va_start( args, format );
+  vsprintf( output, format, args );
+  va_end( args );
+  check_expected( output );
+
+  mock_assert( false, "mock_die", __FILE__, __LINE__ ); } // Hoaxes gcov.
+
+
+/********************************************************************************
+ * Setup and teardown.
+ ********************************************************************************/
+
+static void
+setup() {
+  original_die = die;
+  die = mock_die;
+}
+
+
+static void
+teardown() { 
+  die = original_die;
+} 
 
 
 /********************************************************************************
@@ -32,30 +69,50 @@
  ********************************************************************************/
 
 void
-test_alloc_packet_succeeds() {
+test_calloc_packet_info_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
 
-  alloc_packet( buf );
-  assert_true( buf->user_data  != NULL );
+  calloc_packet_info( buf );
+  assert_true( buf->user_data != NULL );
 
   free_buffer( buf );
 }
 
 
 void
-test_alloc_packet_fails_if_buffer_is_NULL() {
-  expect_assert_failure( alloc_packet( NULL ) ) ;
+test_calloc_packet_info_fails_if_buffer_is_NULL() {
+  expect_string( mock_die, output, "illegal argument to calloc_packet_info" );
+  expect_assert_failure( calloc_packet_info( NULL ) ) ;
 }
 
 
 void
 test_free_buffer_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
-  alloc_packet( buf );
+  calloc_packet_info( buf );
   assert_true( buf->user_data_free_function != NULL );
   ( *buf->user_data_free_function )( buf );
   assert_true( buf->user_data == NULL );
   assert_true( buf->user_data_free_function == NULL );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_eth_dix() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_eth_dix( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_DIX;
+  assert_true( packet_type_eth_dix( buf ) );
+
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_eth_dix( buf ) );
 
   free_buffer( buf );
 }
@@ -67,35 +124,92 @@ test_packet_type_eth_vtag() {
   alloc_packet( buf );
   calloc_packet_info( buf );
 
-  assert_false( packet_type_ether( buf ) );
+  assert_false( packet_type_eth_vtag( buf ) );
   packet_info *packet_info = buf->user_data;
   packet_info->format |= ETH_8021Q;
-  assert_true( packet_type_ether( buf ) );
+  assert_true( packet_type_eth_vtag( buf ) );
   packet_info->format = 0;
 
   packet_info->format |= ETH_DIX;
-  assert_false( packet_type_ether( buf ) );
+  assert_false( packet_type_eth_vtag( buf ) );
   packet_info->format |= ETH_8021Q;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
 
   packet_info->format |= ETH_8023_RAW;
-  assert_false( packet_type_ether( buf ) );
+  assert_false( packet_type_eth_vtag( buf ) );
   packet_info->format |= ETH_8021Q;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
 
   packet_info->format |= ETH_8023_LLC;
-  assert_false( packet_type_ether( buf ) );
+  assert_false( packet_type_eth_vtag( buf ) );
   packet_info->format |= ETH_8021Q;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
   
   packet_info->format |= ETH_8023_SNAP;
-  assert_false( packet_type_ether( buf ) );
+  assert_false( packet_type_eth_vtag( buf ) );
   packet_info->format |= ETH_8021Q;
-  assert_true( packet_type_ether( buf ) );
+  assert_true( packet_type_eth_vtag( buf ) );
   packet_info->format = 0;
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_eth_raw() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_eth_raw( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_8023_RAW;
+  assert_true( packet_type_eth_raw( buf ) );
+
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_eth_raw( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_eth_llc() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_eth_llc( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_8023_LLC;
+  assert_true( packet_type_eth_llc( buf ) );
+
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_eth_llc( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_eth_snap() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_eth_snap( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_8023_SNAP;
+  assert_true( packet_type_eth_snap( buf ) );
+
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_eth_snap( buf ) );
 
   free_buffer( buf );
 }
@@ -130,6 +244,94 @@ test_packet_type_ether() {
 }
 
 
+void 
+test_packet_type_arp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_arp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= NW_ARP;
+  assert_true( packet_type_arp( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_ipv4() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ipv4( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= NW_IPV4;
+  assert_true( packet_type_ipv4( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_icmpv4() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_icmpv4( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= NW_ICMPV4;
+  assert_true( packet_type_icmpv4( buf ) );
+
+  packet_info->format |= NW_IPV4;
+  assert_true( packet_type_icmpv4( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_ipv4_udp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ipv4_udp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= TP_UDP;
+  assert_false( packet_type_ipv4_udp( buf ) );
+
+  packet_info->format |= NW_IPV4;
+  assert_true( packet_type_ipv4_udp( buf ) );
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_ipv4_tcp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ipv4_tcp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= TP_TCP;
+  assert_false( packet_type_ipv4_tcp( buf ) );
+
+  packet_info->format |= NW_IPV4;
+  assert_true( packet_type_ipv4_tcp( buf ) );
+
+  free_buffer( buf );
+}
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -137,12 +339,26 @@ test_packet_type_ether() {
 int
 main() {
   UnitTest tests[] = {
-    unit_test( test_alloc_packet_succeeds ),
-    unit_test( test_alloc_packet_fails_if_buffer_is_NULL ),
-
+    unit_test( test_calloc_packet_info_succeeds ),
+    unit_test_setup_teardown( test_calloc_packet_info_fails_if_buffer_is_NULL,
+                              setup, teardown ),
+    
     unit_test( test_free_buffer_succeeds ),
 
+    unit_test( test_packet_type_eth_dix ),
+    unit_test( test_packet_type_eth_vtag ),
+    unit_test( test_packet_type_eth_raw ),
+    unit_test( test_packet_type_eth_llc ),
+    unit_test( test_packet_type_eth_snap ),
     unit_test( test_packet_type_ether ),
+
+    unit_test( test_packet_type_arp ),
+    unit_test( test_packet_type_ipv4 ),
+    unit_test( test_packet_type_icmpv4 ),
+
+    unit_test( test_packet_type_ipv4_udp ),
+    unit_test( test_packet_type_ipv4_tcp ),
+
   };
   return run_tests( tests );
 }
