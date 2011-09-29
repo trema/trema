@@ -1,7 +1,7 @@
 /*
  * Unit tests for packet_info functions and macros.
  *
- * Author: Naoyoshi Tada
+ * Author: Naoyoshi Tada, Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -61,6 +61,75 @@ test_free_buffer_succeeds() {
 }
 
 
+void 
+test_packet_type_eth_vtag() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ether( buf ) );
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  packet_info->format |= ETH_DIX;
+  assert_false( packet_type_ether( buf ) );
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  packet_info->format |= ETH_8023_RAW;
+  assert_false( packet_type_ether( buf ) );
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  packet_info->format |= ETH_8023_LLC;
+  assert_false( packet_type_ether( buf ) );
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+  
+  packet_info->format |= ETH_8023_SNAP;
+  assert_false( packet_type_ether( buf ) );
+  packet_info->format |= ETH_8021Q;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  free_buffer( buf );
+}
+
+
+void 
+test_packet_type_ether() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  alloc_packet( buf );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ether( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= ETH_DIX;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  packet_info->format |= ETH_8023_RAW;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  packet_info->format |= ETH_8023_LLC;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+  
+  packet_info->format |= ETH_8023_SNAP;
+  assert_true( packet_type_ether( buf ) );
+  packet_info->format = 0;
+
+  free_buffer( buf );
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -72,6 +141,8 @@ main() {
     unit_test( test_alloc_packet_fails_if_buffer_is_NULL ),
 
     unit_test( test_free_buffer_succeeds ),
+
+    unit_test( test_packet_type_ether ),
   };
   return run_tests( tests );
 }

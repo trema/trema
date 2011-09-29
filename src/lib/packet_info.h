@@ -184,6 +184,7 @@ bool packet_type_eth_snap_vtag_ipv4( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame );
 bool packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame );
+bool packet_type_ether( const buffer *frame );
 
 
 #define alloc_packet( buf )  calloc_packet_info( buf )

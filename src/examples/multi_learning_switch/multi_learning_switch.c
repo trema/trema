@@ -254,13 +254,10 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
     return;
   }
   
-  packet_info *packet_info0 = message.data->user_data;
-  assert( packet_info0 != NULL );
-  uint8_t *macsa = packet_info0->eth_macsa;
-  learn( sw->forwarding_db, message.in_port, macsa );
-
-  uint8_t *macda = packet_info0->eth_macda;
-  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, macda );
+  packet_info packet_info = get_packet_info( message.data );
+  learn( sw->forwarding_db, message.in_port, packet_info.eth_macsa );
+  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, 
+                                                     packet_info.eth_macda );
 
   if ( destination == NULL ) {
     do_flooding( message );

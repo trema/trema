@@ -167,17 +167,19 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 static void
 handle_packet_in( uint64_t datapath_id, packet_in message ) {
-  struct key new_key;
-  packet_info *packet_info0 = message.data->user_data;
-  assert( packet_info0 != NULL );
+  if ( !packet_type_ether( message.data ) ) {
+    return;
+  }
 
-  memcpy( new_key.mac, packet_info0->eth_macsa, OFP_ETH_ALEN );
+  struct key new_key;
+  packet_info packet_info = get_packet_info( message.data );
+  memcpy( new_key.mac, packet_info.eth_macsa, OFP_ETH_ALEN );
   new_key.datapath_id = datapath_id;
   hash_table *forwarding_db = message.user_data;
   learn( forwarding_db, new_key, message.in_port );
 
   struct key search_key;
-  memcpy( search_key.mac, packet_info0->eth_macda, OFP_ETH_ALEN );
+  memcpy( search_key.mac, packet_info.eth_macda, OFP_ETH_ALEN );
   search_key.datapath_id = datapath_id;
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 

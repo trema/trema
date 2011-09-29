@@ -24,6 +24,13 @@
 #include "trema.h"
 
 
+#define check_null( data )                              \
+  {                                                     \
+    if ( data == NULL )                                 \
+      die( "illegal argument to %s", __func__ );        \
+  }
+
+
 void
 free_packet_info( buffer *buf ) {
   assert( buf != NULL );
@@ -56,7 +63,7 @@ get_packet_info( const buffer *frame ) {
   packet_info info;
   
   if ( frame->user_data != NULL ) {
-    info = *( packet_info *)frame->user_data;
+    info = *( packet_info * ) frame->user_data;
   } else {
     memset( &info, 0, sizeof( info ) );
   }
@@ -66,426 +73,376 @@ get_packet_info( const buffer *frame ) {
 
 
 static bool
-if_packet_type( const buffer *frame, uint32_t type ) {
-  assert( frame != NULL );
-  assert( frame->user_data != NULL );
-
-  packet_info *packet_info0 = ( packet_info * )frame->user_data;
-  
-  return ( ( packet_info0->format & type ) != 0 );
-  
+if_packet_type( const uint32_t format, const uint32_t type ) {
+  return ( ( format & type ) == type );
 }
 
 
 bool 
 packet_type_eth_dix( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return if_packet_type( frame, ETH_DIX );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, ETH_DIX );
 }
 
 
 bool 
 packet_type_eth_vtag( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return if_packet_type( frame, ETH_8021Q );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, ETH_8021Q );
 }
 
 
 bool 
 packet_type_eth_raw( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return if_packet_type( frame, ETH_8023_RAW );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, ETH_8023_RAW );
 }
 
 
 bool 
 packet_type_eth_llc( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return if_packet_type( frame, ETH_8023_LLC );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, ETH_8023_LLC );
 }
 
 
 bool 
 packet_type_eth_snap( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return if_packet_type( frame, ETH_8023_SNAP );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, ETH_8023_SNAP );
 }
 
 
 bool 
 packet_type_eth_vtag_dix( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, ETH_DIX ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, ETH_DIX ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_raw( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, ETH_8023_RAW ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, ETH_8023_RAW ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_llc( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, ETH_8023_LLC ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, ETH_8023_LLC ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_snap( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, ETH_8023_SNAP ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, ETH_8023_SNAP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_arp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_ARP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, NW_ARP );
 }
 
 
 bool 
 packet_type_eth_ipv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return if_packet_type( packet_info.format, NW_IPV4 );
 }
 
 
 bool 
 packet_type_eth_ipv4_icmpv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, NW_ICMPV4 ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, NW_ICMPV4 ) );
 }
 
 
 bool 
 packet_type_eth_ipv4_tcp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_TCP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_TCP ) );
 }
 
 
 bool 
 packet_type_eth_ipv4_udp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_UDP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_UDP ) );
 }
 
 
 bool 
 packet_type_eth_vtag_arp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_ARP ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_ARP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_ipv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, NW_ICMPV4 ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, NW_ICMPV4 ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_ipv4_tcp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_TCP ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_TCP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_vtag_ipv4_udp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_UDP ) &
-           if_packet_type( frame, ETH_8021Q ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_UDP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) );
 }
 
 
 bool 
 packet_type_eth_snap_arp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_ARP ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_ARP ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
-bool packet_type_eth_snap_ipv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+bool 
+packet_type_eth_snap_ipv4( const buffer *frame ) {
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_ipv4_icmpv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, NW_ICMPV4 ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, NW_ICMPV4 ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_ipv4_tcp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_TCP ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_TCP ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_ipv4_udp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_TCP ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_TCP ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_vtag_arp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_ARP ) &
-           if_packet_type( frame, ETH_8021Q ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_ARP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_vtag_ipv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, ETH_8021Q ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, NW_ICMPV4 ) &
-           if_packet_type( frame, ETH_8021Q ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, NW_ICMPV4 ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_TCP ) &
-           if_packet_type( frame, ETH_8021Q ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_TCP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
 bool 
 packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame ) {
-  if ( frame == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
-  if ( frame->user_data == NULL ) {
-    die( "illegal argument to %s", __func__ );
-  }
+  check_null( frame );
+  check_null( frame->user_data );
 
-  return ( if_packet_type( frame, NW_IPV4 ) &
-           if_packet_type( frame, TP_UDP ) &
-           if_packet_type( frame, ETH_8021Q ) &
-           if_packet_type( frame, ETH_8023_SNAP ) );
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, NW_IPV4 ) &
+           if_packet_type( packet_info.format, TP_UDP ) &
+           if_packet_type( packet_info.format, ETH_8021Q ) &
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
+}
+
+
+bool
+packet_type_ether( const buffer *frame ) {
+  check_null( frame );
+  
+  packet_info packet_info = get_packet_info( frame );
+
+  return ( if_packet_type( packet_info.format, ETH_DIX ) |
+           if_packet_type( packet_info.format, ETH_8023_RAW ) |
+           if_packet_type( packet_info.format, ETH_8023_LLC ) |
+           if_packet_type( packet_info.format, ETH_8023_SNAP ) );
 }
 
 
