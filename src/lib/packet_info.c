@@ -24,16 +24,16 @@
 #include "trema.h"
 
 
-#define check_null( data )                              \
-  if ( data == NULL ) {                                 \
-    die( "illegal argument to %s", __func__ );          \
+#def die_if_NULL( data )                                 \
+  if ( data == NULL ) {                                  \
+    die( "Argument of %s must not be NULL.", __func__ ); \
   }
 
 
 void
 free_packet_info( buffer *buf ) {
-  assert( buf != NULL );
-  assert( buf->user_data != NULL );
+  die_if_NULL( buf );
+  die_if_NULL( buf->user_data );
 
   xfree( buf->user_data );
   buf->user_data = NULL;
@@ -43,7 +43,7 @@ free_packet_info( buffer *buf ) {
 
 void
 calloc_packet_info( buffer *buf ) {
-  check_null( buf );
+  die_if_NULL( buf );
 
   void *user_data = xcalloc( 1, sizeof( packet_info ) );
   assert( user_data != NULL );
@@ -55,9 +55,9 @@ calloc_packet_info( buffer *buf ) {
 }
 
 
-packet_info 
+packet_info
 get_packet_info( const buffer *frame ) {
-  assert( frame != NULL );
+  die_if_NULL( frame );
 
   packet_info info;
   
@@ -74,45 +74,45 @@ get_packet_info( const buffer *frame ) {
 
 static bool
 if_packet_type( const buffer *frame, const uint32_t type ) {
-  check_null( frame );
+  die_if_NULL( frame );
   packet_info packet_info = get_packet_info( frame );
   return ( ( packet_info.format & type ) == type );
 }
 
 
-bool 
+bool
 packet_type_eth_dix( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, ETH_DIX );
 }
 
 
-bool 
+bool
 packet_type_eth_vtag( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, ETH_8021Q );
 }
 
 
-bool 
+bool
 packet_type_eth_raw( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, ETH_8023_RAW );
 }
 
 
-bool 
+bool
 packet_type_eth_llc( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, ETH_8023_LLC );
 }
 
 
 bool
 packet_type_ether( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return ( if_packet_type( frame, ETH_DIX ) |
-           if_packet_type( frame, ETH_8023_RAW ) | 
+           if_packet_type( frame, ETH_8023_RAW ) |
            if_packet_type( frame, ETH_8023_LLC ) |
            if_packet_type( frame, ETH_8023_SNAP ) );
 }
@@ -120,42 +120,42 @@ packet_type_ether( const buffer *frame ) {
 
 bool
 packet_type_eth_snap( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, ETH_8023_SNAP );
 }
 
 
-bool 
+bool
 packet_type_arp( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, NW_ARP );
 }
 
 
-bool 
+bool
 packet_type_ipv4( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, NW_IPV4 );
 }
 
 
-bool 
+bool
 packet_type_icmpv4( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, NW_ICMPV4 );
 }
 
 
-bool 
+bool
 packet_type_ipv4_tcp( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, NW_IPV4 | TP_TCP );
 }
 
 
-bool 
+bool
 packet_type_ipv4_udp( const buffer *frame ) {
-  check_null( frame );
+  die_if_NULL( frame );
   return if_packet_type( frame, NW_IPV4 | TP_UDP );
 }
 
