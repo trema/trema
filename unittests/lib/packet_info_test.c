@@ -1,7 +1,7 @@
 /*
  * Unit tests for packet_info functions and macros.
  *
- * Author: Naoyoshi Tada, Kazuya Suzuki
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -96,6 +96,13 @@ test_free_buffer_succeeds() {
   assert_true( buf->user_data_free_function == NULL );
 
   free_buffer( buf );
+}
+
+
+void 
+test_packet_type_eth_dix_fails() {
+  expect_string( mock_die, output, "illegal argument to packet_type_eth_dix" );
+  expect_assert_failure( packet_type_eth_dix( NULL ) ) ;
 }
 
 
@@ -345,6 +352,8 @@ main() {
     
     unit_test( test_free_buffer_succeeds ),
 
+    unit_test_setup_teardown( test_packet_type_eth_dix_fails,
+                              setup, teardown ),
     unit_test( test_packet_type_eth_dix ),
     unit_test( test_packet_type_eth_vtag ),
     unit_test( test_packet_type_eth_raw ),

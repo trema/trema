@@ -1,5 +1,5 @@
 /*
- * Author: Kazuya Suzuki, Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -25,9 +25,8 @@
 
 
 #define check_null( data )                              \
-  {                                                     \
-    if ( data == NULL )                                 \
-      die( "illegal argument to %s", __func__ );        \
+  if ( data == NULL ) {                                 \
+    die( "illegal argument to %s", __func__ );          \
   }
 
 
@@ -64,7 +63,8 @@ get_packet_info( const buffer *frame ) {
   
   if ( frame->user_data != NULL ) {
     info = *( packet_info * ) frame->user_data;
-  } else {
+  } 
+  else {
     memset( &info, 0, sizeof( info ) );
   }
   
@@ -74,7 +74,7 @@ get_packet_info( const buffer *frame ) {
 
 static bool
 if_packet_type( const buffer *frame, const uint32_t type ) {
-  assert( frame != NULL );
+  check_null( frame );
   packet_info packet_info = get_packet_info( frame );
   return ( ( packet_info.format & type ) == type );
 }
