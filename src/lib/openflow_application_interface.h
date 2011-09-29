@@ -113,7 +113,7 @@ typedef struct {
   void *user_data;
 } packet_in;
 
-typedef void ( simple_packet_in_handler )( packet_in event );
+typedef void ( simple_packet_in_handler )( packet_in message );
 
 typedef void ( packet_in_handler )(
   uint64_t datapath_id,

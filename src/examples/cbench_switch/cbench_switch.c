@@ -24,12 +24,12 @@
 
 
 static void
-handle_packet_in( packet_in event ) {
+handle_packet_in( packet_in message ) {
   openflow_actions *actions = create_actions();
-  append_action_output( actions, ( uint16_t ) ( event.in_port + 1 ), UINT16_MAX );
+  append_action_output( actions, ( uint16_t ) ( message.in_port + 1 ), UINT16_MAX );
 
   struct ofp_match match;
-  set_match_from_packet( &match, event.in_port, 0, event.data );
+  set_match_from_packet( &match, message.in_port, 0, message.data );
 
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
@@ -39,12 +39,12 @@ handle_packet_in( packet_in event ) {
     0,
     0,
     UINT16_MAX,
-    event.buffer_id,
+    message.buffer_id,
     OFPP_NONE,
     0,
     actions
   );
-  send_openflow_message( event.datapath_id, flow_mod );
+  send_openflow_message( message.datapath_id, flow_mod );
 
   free_buffer( flow_mod );
   delete_actions( actions );
