@@ -31,9 +31,19 @@ handle_packet_in( packet_in event ) {
   struct ofp_match match;
   set_match_from_packet( &match, event.in_port, 0, event.data );
 
-  buffer *flow_mod = create_flow_mod( get_transaction_id(), match, get_cookie(),
-                                      OFPFC_ADD, 0, 0, UINT16_MAX, event.buffer_id,
-                                      OFPP_NONE, OFPFF_SEND_FLOW_REM, actions );
+  buffer *flow_mod = create_flow_mod(
+    get_transaction_id(),
+    match,
+    get_cookie(),
+    OFPFC_ADD,
+    0,
+    0,
+    UINT16_MAX,
+    event.buffer_id,
+    OFPP_NONE,
+    0,
+    actions
+  );
   send_openflow_message( event.datapath_id, flow_mod );
 
   free_buffer( flow_mod );
