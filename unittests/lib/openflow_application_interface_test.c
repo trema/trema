@@ -874,8 +874,8 @@ mock_packet_in_handler(
 
 
 static void
-mock_simple_packet_in_handler( packet_in event ) {
-  uint64_t datapath_id = event.datapath_id;
+mock_simple_packet_in_handler( uint64_t dpid, packet_in event ) {
+  uint64_t datapath_id = dpid;
   uint32_t transaction_id = event.transaction_id;
   uint32_t buffer_id = event.buffer_id;
   uint32_t total_len32 = event.total_len;

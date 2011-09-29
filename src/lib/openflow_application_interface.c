@@ -782,7 +782,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
       body,
       event_handlers.packet_in_user_data
     };
-    ( ( simple_packet_in_handler * ) event_handlers.packet_in_callback )( event );
+    ( ( simple_packet_in_handler * ) event_handlers.packet_in_callback )( datapath_id, event );
   }
   else {
     ( ( packet_in_handler * ) event_handlers.packet_in_callback )(

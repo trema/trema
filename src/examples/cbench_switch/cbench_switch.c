@@ -24,7 +24,7 @@
 
 
 static void
-handle_packet_in( packet_in message ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   openflow_actions *actions = create_actions();
   append_action_output( actions, ( uint16_t ) ( message.in_port + 1 ), UINT16_MAX );
 
@@ -44,7 +44,7 @@ handle_packet_in( packet_in message ) {
     0,
     actions
   );
-  send_openflow_message( message.datapath_id, flow_mod );
+  send_openflow_message( datapath_id, flow_mod );
 
   free_buffer( flow_mod );
   delete_actions( actions );

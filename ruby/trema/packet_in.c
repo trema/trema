@@ -212,7 +212,7 @@ Init_packet_in() {
  * Handler called when +OFPT_PACKET_IN+ message is received.
  */
 void
-handle_packet_in( packet_in message ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   VALUE controller = ( VALUE ) message.user_data;
   if ( rb_respond_to( controller, rb_intern( "packet_in" ) ) == Qfalse ) {
     return;
@@ -223,7 +223,7 @@ handle_packet_in( packet_in message ) {
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
 
-  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( message.datapath_id ), r_message );
+  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }
 
 

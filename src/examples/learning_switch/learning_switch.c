@@ -166,26 +166,26 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 
 static void
-handle_packet_in( packet_in packet_in ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   struct key new_key;
-  packet_info *packet_info0 = packet_in.data->user_data;
+  packet_info *packet_info0 = message.data->user_data;
   assert( packet_info0 != NULL );
 
   memcpy( new_key.mac, packet_info0->eth_macsa, OFP_ETH_ALEN );
-  new_key.datapath_id = packet_in.datapath_id;
-  hash_table *forwarding_db = packet_in.user_data;
-  learn( forwarding_db, new_key, packet_in.in_port );
+  new_key.datapath_id = datapath_id;
+  hash_table *forwarding_db = message.user_data;
+  learn( forwarding_db, new_key, message.in_port );
 
   struct key search_key;
   memcpy( search_key.mac, packet_info0->eth_macda, OFP_ETH_ALEN );
-  search_key.datapath_id = packet_in.datapath_id;
+  search_key.datapath_id = datapath_id;
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 
   if ( destination == NULL ) {
-    do_flooding( packet_in );
+    do_flooding( message );
   }
   else {
-    send_packet( destination->port_no, packet_in );
+    send_packet( destination->port_no, message );
   }
 }
 
