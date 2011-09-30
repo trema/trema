@@ -1,5 +1,5 @@
 /*
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -17,86 +17,375 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file packet_parser.c
- * Source file containing functions for handling packets. This file contains functions for 
- * parsing a packet to find its type (whether IPv4, or ARP) and peform checksum if required.
- */
 
 #include <assert.h>
 #include <stdint.h>
+#include <net/ethernet.h>
+#include <netinet/ip.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
 
 
-/**
- * Calculates checksum. Following code snippet explains how 
- * @code
- *   //Calling get_checksum to calculate checksum over ipv4 header, which is stored in a buf pointer
- *   if ( get_checksum( ( uint16_t * ) packet_info( buf )->l3_data.ipv4, ( uint32_t ) hdr_len ) != 0 ){
- *       //Registering "checksum verification error" if calculated checksum is not equal to 0
- *       debug( "Corrupted IPv4 header ( checksum verification error )." );
- *   }
- * @endcode
- * @param pos Pointer of type uint16_t
- * @param size Variable of type uint32_t
- * @return uint16_t Checksum
- */
-uint16_t
-get_checksum( uint16_t *pos, uint32_t size ) {
-  assert( pos != NULL );
+#define REMAINED_BUFFER_LENGTH( buf, ptr )  \
+  ( buf->length - ( size_t ) ( ( char * ) ptr - ( char * ) buf->data ) )
 
-  uint32_t csum = 0;
-  for (; 2 <= size; pos++, size -= 2 ) {
-    csum += *pos;
-  }
-  if ( size == 1 ) {
-    csum += *( unsigned char * ) pos;
-  }
-  while ( csum & 0xffff0000 ) {
-    csum = ( csum & 0x0000ffff ) + ( csum >> 16 );
+
+static void
+parse_ether( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l2_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( ether_header_t ) ) {
+    return;
   }
 
-  return ( uint16_t ) ~csum;
+  // Ethernet header
+  struct ether_header *ether_header = ptr;
+  memcpy( packet_info->eth_macsa, ether_header->ether_shost, ETH_ADDRLEN );
+  memcpy( packet_info->eth_macda, ether_header->ether_dhost, ETH_ADDRLEN );
+  packet_info->eth_type = ntohs( ether_header->ether_type );
+
+  ptr = ( void * ) ( ether_header + 1 );
+
+  // vlan tag
+  if ( packet_info->eth_type == ETH_ETHTYPE_TPID ) {
+    // Check the length of remained buffer
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    if ( length < sizeof( vlantag_header_t ) ) {
+      return;
+    }
+    vlantag_header_t *vlantag_header = ptr;
+
+    packet_info->vlan_tci = ntohs( vlantag_header->tci );
+    packet_info->vlan_tpid = packet_info->eth_type;
+    packet_info->vlan_prio =TCI_GET_PRIO( packet_info->vlan_tci );
+    packet_info->vlan_cfi = TCI_GET_CFI( packet_info->vlan_tci );
+    packet_info->vlan_vid = TCI_GET_VID( packet_info->vlan_tci );
+
+    // Rewrite eth_type
+    packet_info->eth_type = ntohs( vlantag_header->type );
+
+    packet_info->format |= ETH_8021Q;
+
+    ptr = ( void * ) ( vlantag_header + 1 );
+  }
+
+  // Skip nested vlan headers.
+  while (  packet_info->eth_type == ETH_ETHTYPE_TPID ) {
+    // Check the length of remained buffer
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    if ( length < sizeof( vlantag_header_t ) ) {
+      return;
+    }
+    vlantag_header_t *vlantag_header = ptr;
+
+    // Rewrite eth_type
+    packet_info->eth_type = ntohs( vlantag_header->type );
+    ptr = ( void * ) ( vlantag_header + 1 );
+  }
+
+  // snap header.
+  if ( packet_info->eth_type <= ETH_MTU ) {
+    // Check the length of remained buffer
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    if ( length < sizeof( snap_header_t ) ) {
+      return;
+    }
+    snap_header_t *snap_header = ptr;
+
+    memcpy( packet_info->snap_llc, snap_header->llc, SNAP_LLC_LENGTH );
+    memcpy( packet_info->snap_oui, snap_header->oui, SNAP_OUI_LENGTH );
+    packet_info->snap_type = ntohs( snap_header->type );
+
+    packet_info->format |= ETH_8023_SNAP;
+
+    ptr = ( void * ) ( snap_header + 1 );
+  }
+  else {
+    packet_info->format |= ETH_DIX;
+  }
+
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l2_payload = ptr;
+  }
+
+  return;
 }
 
 
-/**
- * Validates packet header information contained in structure of type packet_header_info.
- * @param buf Pointer to buffer type structure, user_data element of which points to structure of type packet_header_info
- * @return bool True if packet has valid header, else False
- */
+static void
+parse_arp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l3_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( arp_header_t ) ) {
+    return;
+  }
+
+  // Ethernet header
+  arp_header_t *arp_header = ptr;
+  packet_info->arp_ar_hrd = ntohs( arp_header->ar_hrd );
+  packet_info->arp_ar_pro = ntohs( arp_header->ar_pro );
+  packet_info->arp_ar_hln = arp_header->ar_hln;
+  packet_info->arp_ar_pln = arp_header->ar_pln;
+  packet_info->arp_ar_op = ntohs( arp_header->ar_op );
+  memcpy( packet_info->arp_sha, arp_header->sha, ETH_ADDRLEN );
+  packet_info->arp_spa = ntohl( arp_header->sip );
+  memcpy( packet_info->arp_tha, arp_header->tha, ETH_ADDRLEN );
+  packet_info->arp_tpa = ntohl( arp_header->tip );
+
+  packet_info->format |= NW_ARP;
+
+  return;
+};
+
+
+static void
+parse_ipv4( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l3_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer for an ipv4 header without options.
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( ipv4_header_t ) ) {
+    return;
+  }
+
+  // Check the length of remained buffer for an ipv4 header with options.
+  ipv4_header_t *ipv4_header = ptr;
+  if ( ipv4_header->ihl < 5 ) {
+    return;
+  }
+  if ( length < ( size_t ) ipv4_header->ihl * 4 ) {
+    return;
+  }
+
+  // Parses IPv4 header
+  packet_info->ipv4_version = ipv4_header->version;
+  packet_info->ipv4_ihl = ipv4_header->ihl;
+  packet_info->ipv4_tos = ipv4_header->tos;
+  packet_info->ipv4_tot_len = ntohs( ipv4_header->tot_len );
+  packet_info->ipv4_id = ntohs( ipv4_header->id );
+  packet_info->ipv4_frag_off = ntohs( ipv4_header->frag_off );
+  packet_info->ipv4_ttl = ipv4_header->ttl;
+  packet_info->ipv4_protocol = ipv4_header->protocol;
+  packet_info->ipv4_checksum = ntohs( ipv4_header->check );
+  packet_info->ipv4_saddr = ntohl( ipv4_header->saddr );
+  packet_info->ipv4_daddr = ntohl( ipv4_header->daddr );
+
+  ptr = ( char * ) ipv4_header + packet_info->ipv4_ihl * 4;
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l3_payload = ptr;
+  }
+
+  packet_info->format |= NW_IPV4;
+
+  return;
+}
+
+
+static void
+parse_icmp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( icmp_header_t ) ) {
+    return;
+  }
+
+  // ICMPV4 header
+  icmp_header_t *icmp_header = ptr;
+  packet_info->icmpv4_type = icmp_header->type;
+  packet_info->icmpv4_code = icmp_header->code;
+  packet_info->icmpv4_checksum = ntohs( icmp_header->csum );
+
+  switch ( packet_info->icmpv4_type ) {
+  case ICMP_TYPE_ECHOREP:
+  case ICMP_TYPE_ECHOREQ:
+    packet_info->icmpv4_id = ntohs( icmp_header->icmp_data.echo.ident );
+    packet_info->icmpv4_seq = ntohs( icmp_header->icmp_data.echo.seq );
+    break;
+
+  case ICMP_TYPE_REDIRECT:
+    packet_info->icmpv4_gateway = ntohl( icmp_header->icmp_data.gateway );
+    break;
+
+  default:
+    break;
+  }
+
+  ptr = ( void * ) ( icmp_header + 1 );
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
+
+  packet_info->format |= NW_ICMPV4;
+
+  return;
+};
+
+
+static void
+parse_udp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( udp_header_t ) ) {
+    return;
+  }
+
+  // UDP header
+  udp_header_t *udp_header = ptr;
+  packet_info->udp_src_port = ntohs( udp_header->src_port );
+  packet_info->udp_dst_port = ntohs( udp_header->dst_port );
+  packet_info->udp_len = ntohs( udp_header->len );
+  packet_info->udp_checksum = ntohs( udp_header->csum );
+
+  ptr = ( void * ) ( udp_header + 1 );
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
+
+  packet_info->format |= TP_UDP;
+
+  return;
+};
+
+
+static void
+parse_tcp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer for the tcp header without options
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( tcp_header_t ) ) {
+    return;
+  }
+
+  // Check the length of remained buffer for the tcp header with options
+  tcp_header_t *tcp_header = ptr;
+  if ( tcp_header->offset < 5 ) {
+    return;
+  }
+  if ( length < ( size_t ) tcp_header->offset * 4 ) {
+    return;
+  }
+
+  // TCP header
+  packet_info->tcp_src_port = ntohs( tcp_header->src_port );
+  packet_info->tcp_dst_port = ntohs( tcp_header->dst_port );
+  packet_info->tcp_seq_no = ntohl( tcp_header->seq_no );
+  packet_info->tcp_ack_no = ntohl( tcp_header->ack_no );
+  packet_info->tcp_offset = tcp_header->offset;
+  packet_info->tcp_flags = tcp_header->flags;
+  packet_info->tcp_window = ntohs( tcp_header->window );
+  packet_info->tcp_checksum = ntohs( tcp_header->csum );
+  packet_info->tcp_urgent = ntohs( tcp_header->urgent );
+
+  ptr = ( char * ) tcp_header + packet_info->tcp_offset * 4;
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
+
+  packet_info->format |= TP_TCP;
+
+  return;
+};
+
+
 bool
 parse_packet( buffer *buf ) {
   assert( buf != NULL );
   assert( buf->data != NULL );
 
-  alloc_packet( buf );
-  packet_info( buf )->l2_data.l2 = ( char * ) buf->data - ETH_PREPADLEN;
-
-  if ( !parse_ether( buf ) ) {
-    warn( "Failed to parse ethernet header." );
+  calloc_packet_info( buf );
+  if ( buf->user_data == NULL ) {
+    error( "Can't alloc memory for packet_info." );
     return false;
   }
 
-  switch ( packet_info( buf )->ethtype ) {
-    case ETH_ETHTYPE_ARP:
-      if ( !valid_arp_packet( buf ) ) {
-        warn( "Failed to parse ARP header." );
-        return false;
-      }
-      break;
-    case ETH_ETHTYPE_IPV4:
-      if ( !parse_ipv4( buf ) ) {
-        warn( "Failed to parse IPv4 header." );
-        return false;
-      }
-      break;
-    default:
-      break;
+  // Parse the L2 header.
+  packet_info *packet_info = buf->user_data;
+  packet_info->l2_header = buf->data;
+  parse_ether( buf );
+
+  // Parse the L3 header.
+  switch ( packet_info->eth_type ) {
+  case ETH_ETHTYPE_ARP:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_arp( buf );
+    break;
+
+  case ETH_ETHTYPE_IPV4:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_ipv4( buf );
+    break;
+
+  default:
+    // Unknown L3 type
+    return true;
   }
+
+  if ( !( packet_info->format & NW_IPV4 ) ) {
+    return true;
+  }
+  else if ( ( packet_info->ipv4_frag_off & IP_OFFMASK ) != 0 ) {
+    // The ipv4 packet is fragmented.
+    return true;
+  }
+
+  // Parse the L4 header.
+  switch ( packet_info->ipv4_protocol ) {
+  case IPPROTO_ICMP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_icmp( buf );
+    break;
+
+  case IPPROTO_TCP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_tcp( buf );
+    break;
+
+  case IPPROTO_UDP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_udp( buf );
+    break;
+
+  default:
+    // Unknown L4 type
+    break;
+  }
+
   return true;
+
 }
 
 

@@ -24,7 +24,7 @@
 
 
 static void
-handle_packet_in( packet_in message ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   openflow_actions *actions = create_actions();
   append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
 
@@ -44,7 +44,7 @@ handle_packet_in( packet_in message ) {
     OFPFF_SEND_FLOW_REM,
     actions
   );
-  send_openflow_message( message.datapath_id, flow_mod );
+  send_openflow_message( datapath_id, flow_mod );
   free_buffer( flow_mod );
 
   if ( message.buffer_id == UINT32_MAX ) {
@@ -57,7 +57,7 @@ handle_packet_in( packet_in message ) {
       actions,
       frame
     );
-    send_openflow_message( message.datapath_id, packet_out );
+    send_openflow_message( datapath_id, packet_out );
     free_buffer( packet_out );
     free_buffer( frame );
   }

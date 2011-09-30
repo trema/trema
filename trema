@@ -44,6 +44,8 @@ def method_for sub_command
       return :reset_stats
     when "dump_flows"
       return :dump_flows
+    when "version", "-V", "--version"
+      return :version
     when "help", "-h", "--help", "/?", "-?"
       return :usage
     else

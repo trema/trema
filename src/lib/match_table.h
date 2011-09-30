@@ -29,18 +29,14 @@
 #include "linked_list.h"
 
 
-typedef struct match_entry {
-  struct ofp_match ofp_match; // match data. host byte order
-  uint16_t priority;
-  list_element *services_name; // application service name of messenger
-} match_entry;
-
-
 void init_match_table( void );
 void finalize_match_table( void );
-void insert_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name );
-void delete_match_entry( struct ofp_match *ofp_match, uint16_t priority, const char *service_name );
-match_entry *lookup_match_entry( struct ofp_match *match );
+bool insert_match_entry( struct ofp_match match, uint16_t priority, void *data );
+void *lookup_match_strict_entry( struct ofp_match match, uint16_t priority );
+void *lookup_match_entry( struct ofp_match match );
+bool update_match_entry( struct ofp_match match, uint16_t priority, void *data );
+void *delete_match_entry( struct ofp_match match, uint16_t priority );
+void foreach_match_table( void function( struct ofp_match match, uint16_t priority, void *data ) );
 
 
 #endif // MATCH_TABLE_H

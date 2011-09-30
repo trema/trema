@@ -25,16 +25,16 @@
 
 
 static void
-handle_packet_in( packet_in event ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   info( "received a packet_in" );
-  info( "datapath_id: %#" PRIx64, event.datapath_id );
-  info( "transaction_id: %#x", event.transaction_id );
-  info( "buffer_id: %#x", event.buffer_id );
-  info( "total_len: %u", event.total_len );
-  info( "in_port: %u", event.in_port );
-  info( "reason: %#x", event.reason );
+  info( "datapath_id: %#" PRIx64, datapath_id );
+  info( "transaction_id: %#x", message.transaction_id );
+  info( "buffer_id: %#x", message.buffer_id );
+  info( "total_len: %u", message.total_len );
+  info( "in_port: %u", message.in_port );
+  info( "reason: %#x", message.reason );
   info( "data:" );
-  dump_buffer( event.data, info );
+  dump_buffer( message.data, info );
 }
 
 

@@ -21,6 +21,7 @@
 
 
 #include <time.h>
+#include <assert.h>
 #include "trema.h"
 
 
@@ -165,23 +166,28 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 
 static void
-handle_packet_in( packet_in packet_in ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
+  if ( !packet_type_ether( message.data ) ) {
+    return;
+  }
+
   struct key new_key;
-  memcpy( new_key.mac, packet_info( packet_in.data )->l2_data.eth->macsa, OFP_ETH_ALEN );
-  new_key.datapath_id = packet_in.datapath_id;
-  hash_table *forwarding_db = packet_in.user_data;
-  learn( forwarding_db, new_key, packet_in.in_port );
+  packet_info packet_info = get_packet_info( message.data );
+  memcpy( new_key.mac, packet_info.eth_macsa, OFP_ETH_ALEN );
+  new_key.datapath_id = datapath_id;
+  hash_table *forwarding_db = message.user_data;
+  learn( forwarding_db, new_key, message.in_port );
 
   struct key search_key;
-  memcpy( search_key.mac, packet_info( packet_in.data )->l2_data.eth->macda, OFP_ETH_ALEN );
-  search_key.datapath_id = packet_in.datapath_id;
+  memcpy( search_key.mac, packet_info.eth_macda, OFP_ETH_ALEN );
+  search_key.datapath_id = datapath_id;
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 
   if ( destination == NULL ) {
-    do_flooding( packet_in );
+    do_flooding( message );
   }
   else {
-    send_packet( destination->port_no, packet_in );
+    send_packet( destination->port_no, message );
   }
 }
 
