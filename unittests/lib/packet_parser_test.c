@@ -309,6 +309,8 @@ test_parse_packet_tcp_syn_succeeds() {
   assert_int_equal( packet_info->tcp_checksum, 0x76bb );
   assert_int_equal( packet_info->tcp_urgent, 0 );
 
+  assert_int_equal( packet_info->l4_payload, NULL );
+
   free_buffer( buffer );
 }
 
