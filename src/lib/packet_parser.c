@@ -56,7 +56,7 @@ parse_ether( buffer *buf ) {
   // vlan tag
   if ( packet_info->eth_type == ETH_ETHTYPE_TPID ) {
     // Check the length of remained buffer
-    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( vlantag_header_t ) ) {
       return;
     }
@@ -79,7 +79,7 @@ parse_ether( buffer *buf ) {
   // Skip nested vlan headers.
   while (  packet_info->eth_type == ETH_ETHTYPE_TPID ) {
     // Check the length of remained buffer
-    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( vlantag_header_t ) ) {
       return;
     }
@@ -93,7 +93,7 @@ parse_ether( buffer *buf ) {
   // snap header.
   if ( packet_info->eth_type <= ETH_MTU ) {
     // Check the length of remained buffer
-    size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+    length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( snap_header_t ) ) {
       return;
     }
@@ -111,7 +111,9 @@ parse_ether( buffer *buf ) {
     packet_info->format |= ETH_DIX;
   }
 
-  packet_info->l2_payload = ptr;
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l2_payload = ptr;
+  }
 
   return;
 }
@@ -185,8 +187,10 @@ parse_ipv4( buffer *buf ) {
   packet_info->ipv4_saddr = ntohl( ipv4_header->saddr );
   packet_info->ipv4_daddr = ntohl( ipv4_header->daddr );
 
-  packet_info->l3_payload = ( char * ) packet_info->l3_header +
-    packet_info->ipv4_ihl * 4;
+  ptr = ( char * ) ipv4_header + packet_info->ipv4_ihl * 4;
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l3_payload = ptr;
+  }
 
   packet_info->format |= NW_IPV4;
 
@@ -229,8 +233,10 @@ parse_icmp( buffer *buf ) {
     break;
   }
 
-  packet_info->l4_payload = ( char * ) packet_info->l4_header +
-    sizeof( icmp_header_t );
+  ptr = ( void * ) ( icmp_header + 1 );
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
 
   packet_info->format |= NW_ICMPV4;
 
@@ -259,8 +265,10 @@ parse_udp( buffer *buf ) {
   packet_info->udp_len = ntohs( udp_header->len );
   packet_info->udp_checksum = ntohs( udp_header->csum );
 
-  packet_info->l4_payload = ( char * ) packet_info->l4_header +
-    sizeof( udp_header_t );
+  ptr = ( void * ) ( udp_header + 1 );
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
 
   packet_info->format |= TP_UDP;
 
@@ -276,13 +284,13 @@ parse_tcp( buffer *buf ) {
   void *ptr = packet_info->l4_header;
   assert( ptr != NULL );
 
-  // Check the length of remained buffer for a tcp header without options
+  // Check the length of remained buffer for the tcp header without options
   size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
   if ( length < sizeof( tcp_header_t ) ) {
     return;
   }
 
-  // Check the length of remained buffer for a tcp header with options
+  // Check the length of remained buffer for the tcp header with options
   tcp_header_t *tcp_header = ptr;
   if ( tcp_header->offset < 5 ) {
     return;
@@ -302,8 +310,10 @@ parse_tcp( buffer *buf ) {
   packet_info->tcp_checksum = ntohs( tcp_header->csum );
   packet_info->tcp_urgent = ntohs( tcp_header->urgent );
 
-  packet_info->l4_payload = ( char * ) packet_info->l4_header +
-    packet_info->tcp_offset * 4;
+  ptr = ( char * ) tcp_header + packet_info->tcp_offset * 4;
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
 
   packet_info->format |= TP_TCP;
 
@@ -322,12 +332,12 @@ parse_packet( buffer *buf ) {
     return false;
   }
 
-  // Parse a L2 header.
+  // Parse the L2 header.
   packet_info *packet_info = buf->user_data;
   packet_info->l2_header = buf->data;
   parse_ether( buf );
 
-  // Parse a L3 header.
+  // Parse the L3 header.
   switch ( packet_info->eth_type ) {
   case ETH_ETHTYPE_ARP:
     packet_info->l3_header = packet_info->l2_payload;
@@ -340,11 +350,11 @@ parse_packet( buffer *buf ) {
     break;
 
   default:
+    // Unknown L3 type
     return true;
   }
 
   if ( !( packet_info->format & NW_IPV4 ) ) {
-    // Unknown L3 type
     return true;
   }
   else if ( ( packet_info->ipv4_frag_off & IP_OFFMASK ) != 0 ) {
@@ -352,7 +362,7 @@ parse_packet( buffer *buf ) {
     return true;
   }
 
-  // Parse a L4 header.
+  // Parse the L4 header.
   switch ( packet_info->ipv4_protocol ) {
   case IPPROTO_ICMP:
     packet_info->l4_header = packet_info->l3_payload;
@@ -370,6 +380,7 @@ parse_packet( buffer *buf ) {
     break;
 
   default:
+    // Unknown L4 type
     break;
   }
 
