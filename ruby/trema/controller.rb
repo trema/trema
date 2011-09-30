@@ -27,8 +27,6 @@ module Trema
   # The base class of Trema controller.
   #
   class Controller < App
-
-    
     include Timers
 
     
@@ -45,7 +43,23 @@ module Trema
       App.add self
     end
 
-    
+
+    #
+    # Run as a daemon.
+    #
+    def daemonize!
+      fork do
+        ::Process.setsid
+        fork do
+          STDIN.close
+          STDOUT.reopen "/dev/null", "a"
+          STDERR.reopen "/dev/null", "a"
+          self.run!
+        end
+      end
+    end
+
+
     #
     # Name of the controller.
     #
