@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include "checks.h"
 #include "log.h"
 #include "packet_info.h"
 #include "wrapper.h"
@@ -26,12 +27,13 @@
 
 uint16_t
 fill_ether_padding( buffer *buf ) {
-  assert( buf != NULL );
+  die_if_NULL( buf );
   size_t padding_length = 0;
 
   if ( buf->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH ) {
     padding_length = ETH_MINIMUM_LENGTH - buf->length - ETH_FCS_LENGTH;
-    debug( "Adding %u octets padding ( original frame length = %u ).", buf->length, padding_length );
+    debug( "Adding %u octets padding ( original frame length = %u ).", 
+           buf->length, padding_length );
     append_back_buffer( buf, padding_length );
   }
   return ( uint16_t ) padding_length;
