@@ -37,7 +37,7 @@ Feature: control one openflow switch using learning-switch controller
       """
       And wait until "LearningSwitch" is up
     When I send 1 packet from host1 to host2
-      And *** sleep 1 ***
+      And *** sleep 2 ***
       And I try to run "./trema show_stats host1 --tx" (log = "host1.LearningSwitch.log")
       And I try to run "./trema show_stats host2 --rx" (log = "host2.LearningSwitch.log")
     Then the content of "host1.LearningSwitch.log" and "host2.LearningSwitch.log" should be identical

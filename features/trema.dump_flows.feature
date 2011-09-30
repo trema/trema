@@ -20,5 +20,6 @@ Feature: trema dump_flows command
       """
       And wait until "repeater_hub" is up
       And I try to run "./trema send_packets --source host1 --dest host2"
+      And *** sleep 1 ***
       And I try to run "./trema dump_flows repeater_hub" (log = "dump_flows.log")
     Then "dump_flows.log" should contain some flow entries
