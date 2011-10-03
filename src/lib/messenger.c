@@ -266,6 +266,7 @@ init_messenger( const char *working_directory ) {
   }
 
   if ( init_event_handler == NULL ) {
+    info( "Using default select-based event handler." );
     set_select_event_handler();
   }
 
@@ -966,7 +967,9 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   write_message_buffer( sq->buffer, &header, sizeof( message_header ) );
   write_message_buffer( sq->buffer, data, len );
 
-  notify_writable_event( sq->server_socket, true );
+  if ( sq->server_socket != -1 ) {
+    notify_writable_event( sq->server_socket, true );
+  }
 
   return true;
 }
@@ -1515,9 +1518,8 @@ start_messenger() {
   debug( "Starting messenger." );
 
   add_periodic_event_callback( 10, age_context_db, NULL );
-  start_event_handler();
 
-  debug( "Messenger terminated." );
+  //  debug( "Messenger terminated." );
 
   return true;
 }

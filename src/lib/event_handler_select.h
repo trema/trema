@@ -20,35 +20,34 @@
  */
 
 
-#ifndef LIB_EVENT_HANDLER_H
-#define LIB_EVENT_HANDLER_H
+#ifndef LIB_EVENT_HANDLER_SELECT_H
+#define LIB_EVENT_HANDLER_SELECT_H
 
 #include <sys/types.h>
 
 #include "bool.h"
+#include "event_handler.h"
 
-typedef void ( *event_fd_callback )( int, void* data );
 
-extern void (*init_event_handler)();
-extern void (*finalize_event_handler)();
+extern void select_init_event_handler();
+extern void select_finalize_event_handler();
 
-extern bool (*start_event_handler)();
-extern void (*stop_event_handler)();
+extern bool select_start_event_handler();
+extern void select_stop_event_handler();
 
-extern bool (*run_event_handler_once)();
+extern bool select_run_event_handler_once();
 
-extern void (*add_fd_event)( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data );
-extern void (*delete_fd_event)( int fd );
+extern void select_add_fd_event( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data );
+extern void select_delete_fd_event( int fd );
 
-extern void (*notify_readable_event)( int fd, bool state );
-extern void (*notify_writable_event)( int fd, bool state );
+extern void select_notify_readable_event( int fd, bool state );
+extern void select_notify_writable_event( int fd, bool state );
 
-extern bool (*is_notifying_readable_event)( int fd );
-extern bool (*is_notifying_writable_event)( int fd );
+extern bool select_is_notifying_readable_event( int fd );
+extern bool select_is_notifying_writable_event( int fd );
 
-void set_select_event_handler();
 
-#endif // LIB_EVENT_HANDLER_H
+#endif // EVENT_HANDLER_H
 
 
 /*

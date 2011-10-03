@@ -35,6 +35,7 @@
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
+#include "event_handler.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "timer.h"
@@ -543,8 +544,34 @@ start_trema() {
   maybe_daemonize();
   write_pid( get_trema_tmp(), get_trema_name() );
   trema_started = true;
-  start_messenger();
 
+  start_messenger();
+  start_event_handler();
+
+  finalize_trema();
+
+  pthread_mutex_unlock( &mutex );
+}
+
+
+void
+start_trema_up() {
+  pthread_mutex_lock( &mutex );
+
+  die_unless_initialized();
+
+  debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
+
+  maybe_daemonize();
+  write_pid( get_trema_tmp(), get_trema_name() );
+  trema_started = true;
+
+  start_messenger();
+}
+
+
+void
+start_trema_down() {
   finalize_trema();
 
   pthread_mutex_unlock( &mutex );

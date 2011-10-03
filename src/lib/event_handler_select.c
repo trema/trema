@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "event_handler.h"
+#include "event_handler_select.h"
 
 #include <sys/time.h>
 #include <errno.h>
@@ -269,8 +269,13 @@ select_delete_fd_event( int fd ) {
 
 void
 select_notify_readable_event( int fd, bool state ) {
+  if ( fd < 0 || fd >= FD_SETSIZE ) {
+    error( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd] );
+    return;
+  }
+
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->read_callback == NULL ) {
-    error( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd]->read_callback );
+    error( "Found fd in invalid state in notify_readable_event; %i, %p.", fd, event_fd_set[fd] );
     return;
   }
 
@@ -285,8 +290,13 @@ select_notify_readable_event( int fd, bool state ) {
 
 void
 select_notify_writable_event( int fd, bool state ) {
+  if ( fd < 0 || fd >= FD_SETSIZE ) {
+    error( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd] );
+    return;
+  }
+
   if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
-    error( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd]->write_callback );
+    error( "Found fd in invalid state in notify_writeable_event; %i, %p.", fd, event_fd_set[fd] );
     return;
   }
 
@@ -309,6 +319,7 @@ bool
 select_is_notifying_writable_event( int fd ) {
   return FD_ISSET( fd, &event_write_set );
 }
+
 
 void
 set_select_event_handler() {
