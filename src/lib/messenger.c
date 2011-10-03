@@ -1130,7 +1130,7 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
 
 static void
 on_accept( int fd, void *data ) {
-  receive_queue *rq = (receive_queue*)data;
+  receive_queue *rq = ( receive_queue* )data;
 
   assert( rq != NULL );
 
@@ -1350,7 +1350,7 @@ call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uin
 
 static void
 on_recv( int fd, void *data ) {
-  receive_queue *rq = (receive_queue*)data;
+  receive_queue *rq = ( receive_queue* )data;
 
   assert( rq != NULL );
   assert( fd >= 0 );
@@ -1426,8 +1426,8 @@ static void
 on_send_read( int fd, void *data ) {
   UNUSED( fd );
 
-  char buf[256];
-  send_queue *sq = (send_queue*)data;
+  char buf[ 256 ];
+  send_queue *sq = ( send_queue* )data;
 
   if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
     send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
@@ -1444,7 +1444,7 @@ on_send_read( int fd, void *data ) {
 
 static void
 on_send_write( int fd, void *data ) {
-  send_queue *sq = (send_queue*)data;
+  send_queue *sq = ( send_queue* )data;
 
   assert( sq != NULL );
   assert( fd >= 0 );
@@ -1581,11 +1581,11 @@ messenger_dump_enabled( void ) {
   return false;
 }
 
-void (*external_callback)(void) = (void (*)(void))NULL;
+void ( *external_callback )( void ) = ( void (*)( void ) )NULL;
 
 static void
 call_external_callback( void* data ) {
-  if ( data != (void*)external_callback ) {
+  if ( data != ( void* )external_callback ) {
     return;
   }
 
@@ -1602,7 +1602,7 @@ set_external_callback( void ( *callback ) ( void ) ) {
   // Hack to add a one-time callback on next call.
   struct itimerspec tspec = { { 0, 1 }, { 0, 1 } };
 
-  add_timer_event_callback(&tspec, &call_external_callback, callback );
+  add_timer_event_callback( &tspec, &call_external_callback, callback );
 
   return true;
 }

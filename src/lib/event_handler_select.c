@@ -99,8 +99,8 @@ select_init_event_handler() {
   event_last = event_list;
   event_handler_state = EVENT_HANDLER_INITIALIZED;
 
-  memset(event_list, 0, sizeof(struct event_fd) * FD_SETSIZE);
-  memset(event_fd_set, 0, sizeof(struct event_fd*) * FD_SETSIZE);
+  memset( event_list, 0, sizeof( struct event_fd ) * FD_SETSIZE );
+  memset( event_fd_set, 0, sizeof( struct event_fd* ) * FD_SETSIZE );
 
   FD_ZERO( &event_read_set );
   FD_ZERO( &event_write_set );
@@ -111,7 +111,7 @@ void
 select_finalize_event_handler() {
   if ( event_last != event_list ) {
     warn( "Event Handler finalized with %i fd event handlers still active. (%i, ...)",
-          (event_last - event_list), (event_last > event_list ? event_list->fd : -1) );
+          ( event_last - event_list ), ( event_last > event_list ? event_list->fd : -1 ) );
     return;
   }
 
@@ -206,7 +206,7 @@ select_add_fd_event( int fd,
     return;
   }
 
-  if ( fd < 0 || fd >= FD_SETSIZE) {
+  if ( fd < 0 || fd >= FD_SETSIZE ) {
     error( "Tried to add an invalid fd." );
     return;
   }
@@ -231,7 +231,7 @@ select_delete_fd_event( int fd ) {
   
   event_fd* event = event_list;
 
-  while (event != event_last && event->fd != fd) {
+  while ( event != event_last && event->fd != fd ) {
     event++;
   }
 
@@ -240,13 +240,13 @@ select_delete_fd_event( int fd ) {
     return;
   }
 
-  if ( FD_ISSET(fd, &event_read_set) ) {
+  if ( FD_ISSET( fd, &event_read_set ) ) {
     error( "Tried to delete an fd event handler with active read notification." );
     //    return;
     FD_CLR( fd, &event_read_set );
   }
 
-  if ( FD_ISSET(fd, &event_write_set) ) {
+  if ( FD_ISSET( fd, &event_write_set ) ) {
     error( "Tried to delete an fd event handler with active write notification." );
     //    return;
     FD_CLR( fd, &event_write_set );
@@ -258,11 +258,11 @@ select_delete_fd_event( int fd ) {
   event_fd_set[fd] = NULL;
 
   if ( event != --event_last ) {
-    memcpy( event, event_last, sizeof(struct event_fd) );
+    memcpy( event, event_last, sizeof( struct event_fd ) );
     event_fd_set[event->fd] = event;
   }
 
-  memset( event_last, 0, sizeof(struct event_fd) );
+  memset( event_last, 0, sizeof( struct event_fd ) );
   event_last->fd = -1;
 }
 
