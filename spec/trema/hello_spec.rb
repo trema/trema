@@ -30,7 +30,7 @@ end
 
 describe Trema::Hello, ".new( transaction_id )" do
   subject { Hello.new transaction_id }
-  let( :uint32_max ) { 4294967295 }
+  let( :uint32_max ) { 2 ** 32 - 1 }
 
 
   context "when its transaction ID has a negative value" do
