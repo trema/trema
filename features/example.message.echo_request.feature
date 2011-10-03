@@ -13,3 +13,13 @@ Feature: Send echo request messages
       And wait until "echo_request" is up
       And *** sleep 2 ***
     Then the log file "openflowd.echo_request.log" should include "received: OFPT_ECHO_REQUEST" x 10
+
+
+  Scenario: Send echo request x 10 in Ruby
+    When I try trema run "./src/examples/openflow_message/echo-request.rb 10" with following configuration (backgrounded):
+      """
+      vswitch("echo-request") { datapath_id "0xabc" }
+      """
+      And wait until "EchoRequestController" is up
+      And *** sleep 2 ***
+    Then the log file "openflowd.echo-request.log" should include "received: OFPT_ECHO_REQUEST" x 10
