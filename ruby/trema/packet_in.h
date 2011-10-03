@@ -34,7 +34,7 @@ extern VALUE cPacketIn;
 void Init_packet_in( void );
 
 
-void handle_packet_in( packet_in packet_in );
+void handle_packet_in( uint64_t datapath_id, packet_in message );
 
 
 #endif // PACKET_IN_H

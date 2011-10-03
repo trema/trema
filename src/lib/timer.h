@@ -20,10 +20,6 @@
  */
 
 
-/**
- * @timer.h
- * Function declaration of timer functions
- */
 #ifndef TIMER_H
 #define TIMER_H
 

@@ -10,7 +10,7 @@ Run this controller
 
 then, on another terminal
 
-  % ./objects/oflops/cbench --switches 1 --loops 10 --delay 1000
+  % ./objects/oflops/bin/cbench --switches 1 --loops 10 --delay 1000
 
 
 or, the following automatically executes a series of benchmarks:

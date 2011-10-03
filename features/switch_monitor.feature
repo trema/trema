@@ -12,7 +12,7 @@ Feature: Hello trema sample application
       vswitch { datapath_id "0x2" }
       vswitch { datapath_id "0x3" }
       """
-      And *** sleep 1 ***
+      And *** sleep 2 ***
       And wait until "SwitchMonitor" is up
     When I try trema off "0x3"
       And *** sleep 2 ***

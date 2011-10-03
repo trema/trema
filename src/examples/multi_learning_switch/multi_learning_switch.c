@@ -22,6 +22,7 @@
 
 #include <inttypes.h>
 #include <time.h>
+#include <assert.h>
 #include "trema.h"
 
 
@@ -243,27 +244,26 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 
 static void
-handle_packet_in( packet_in packet_in ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   known_switch *sw = lookup_hash_entry(
-    packet_in.user_data,
-    &packet_in.datapath_id
+    message.user_data,
+    &datapath_id
   );
   if ( sw == NULL ) {
-    warn( "Unknown switch (datapath ID = %#" PRIx64 ")", packet_in.datapath_id );
+    warn( "Unknown switch (datapath ID = %#" PRIx64 ")", datapath_id );
     return;
   }
-
-  uint8_t *macsa = packet_info( packet_in.data )->l2_data.eth->macsa;
-  learn( sw->forwarding_db, packet_in.in_port, macsa );
-
-  uint8_t *macda = packet_info( packet_in.data )->l2_data.eth->macda;
-  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, macda );
+  
+  packet_info packet_info = get_packet_info( message.data );
+  learn( sw->forwarding_db, message.in_port, packet_info.eth_macsa );
+  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, 
+                                                     packet_info.eth_macda );
 
   if ( destination == NULL ) {
-    do_flooding( packet_in );
+    do_flooding( message );
   }
   else {
-    send_packet( destination->port_no, packet_in );
+    send_packet( destination->port_no, message );
   }
 }
 

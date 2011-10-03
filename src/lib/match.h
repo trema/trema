@@ -35,14 +35,14 @@
 #define create_nw_src_mask( _w )                                                   \
   ( {                                                                              \
     uint32_t _m = ( ( _w ) & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;            \
-      ( _m >= 32 ) ? 0 : 0xffffffff << _m;                                       \
+      ( _m >= 32 ) ? 0 : 0xffffffff << _m;                                         \
   }                                                                                \
   )
 
 #define create_nw_dst_mask( _w )                                                   \
   ( {                                                                              \
     uint32_t _m = ( ( _w ) & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;            \
-      ( _m >= 32 ) ? 0 : 0xffffffff << _m;                                       \
+      ( _m >= 32 ) ? 0 : 0xffffffff << _m;                                         \
   }                                                                                \
   )
 
@@ -67,6 +67,10 @@
        && ( _w & OFPFW_TP_DST || ( _x )->tp_dst == ( _y )->tp_dst ) );             \
   }                                                                                \
   )
+
+#define compare_match_strict( _x, _y )                                             \
+  ( ( ( ( ( _x )->wildcards ^ ( _y )->wildcards ) & OFPFW_ALL ) == 0 )             \
+    && compare_match( ( _x ), ( _y ) ) )
 
 
 #endif // MATCH_H

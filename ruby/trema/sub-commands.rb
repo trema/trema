@@ -27,6 +27,7 @@ require "trema/common-commands"
 require "trema/dsl"
 require "trema/ofctl"
 require "trema/util"
+require "trema/version"
 
 
 include Trema::Util
@@ -250,6 +251,11 @@ EOF
   end
 
 
+  def version
+    puts "trema version #{ Trema::VERSION }"
+  end
+
+
   def usage
     command = ARGV.shift
 
@@ -311,16 +317,18 @@ EOL
     end
 
     if ARGV[ 0 ]
+      controller_file = ARGV[ 0 ].split.first
       if c_controller?
         stanza = Trema::DSL::App.new
-        stanza.path ARGV[ 0 ].split.first
+        stanza.path controller_file
         stanza.options ARGV[ 0 ].split[ 1..-1 ]
         Trema::App.new( stanza )
       else
         # Ruby controller
         require "trema"
-        $LOAD_PATH << File.dirname( ARGV[ 0 ] )
-        Trema.module_eval IO.read( ARGV[ 0 ] )
+        ARGV.replace ARGV[ 0 ].split
+        $LOAD_PATH << File.dirname( controller_file )
+        Trema.module_eval IO.read( controller_file )
       end
     end
 

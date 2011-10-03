@@ -18,57 +18,8 @@
 #
 
 
-require "trema/app"
-require "trema/timers"
-
-
 module Trema
-  #
-  # The base class of Trema controller.
-  #
-  class Controller < App
-    include Timers
-
-    
-    #
-    # Callback invoked whenever a subclass of this class is created.
-    # This adds the created object to the DB of controllers.
-    #
-    def self.inherited subclass
-      subclass.new
-    end
-
-
-    def initialize
-      App.add self
-    end
-
-
-    #
-    # Run as a daemon.
-    #
-    def daemonize!
-      fork do
-        ::Process.setsid
-        fork do
-          STDIN.close
-          STDOUT.reopen "/dev/null", "a"
-          STDERR.reopen "/dev/null", "a"
-          self.run!
-        end
-      end
-    end
-
-
-    #
-    # Name of the controller.
-    #
-    # @return [String]
-    #
-    def name
-      self.class.to_s.split( "::" ).last
-    end
-  end
+  VERSION = "0.1.0".freeze
 end
 
 

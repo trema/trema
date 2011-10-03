@@ -215,6 +215,25 @@ phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size 
 }
 
 
+uint16_t
+get_checksum( uint16_t *pos, uint32_t size ) {
+  assert( pos != NULL );
+
+  uint32_t csum = 0;
+  for (; 2 <= size; pos++, size -= 2 ) {
+    csum += *pos;
+  }
+  if ( size == 1 ) {
+    csum += *( unsigned char * ) pos;
+  }
+  while ( csum & 0xffff0000 ) {
+    csum = ( csum & 0x0000ffff ) + ( csum >> 16 );
+  }
+
+  return ( uint16_t ) ~csum;
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2
