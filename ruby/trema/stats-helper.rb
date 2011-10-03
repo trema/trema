@@ -51,7 +51,8 @@ module Trema
       instance_variables.sort.each do |var|
         str += "#{var[1..var.length]}: #{instance_variable_get( var ).to_s}\n"
       end
-      str
+      # remove the last newline character
+      str[0..-2]
     end
   end
 end
