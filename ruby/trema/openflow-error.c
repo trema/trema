@@ -160,32 +160,17 @@ handle_openflow_error(
 
   switch ( type ) {
     case OFPET_HELLO_FAILED:
-    {
-      const char *msg;
-      if ( body != NULL ) {
-        if ( body->length ) {
-          msg = ( char * ) body->data;
-          rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), rb_str_new2( msg ) );
-        }
-      }
-    }
-      break;
     case OFPET_BAD_REQUEST:
     case OFPET_BAD_ACTION:
     case OFPET_FLOW_MOD_FAILED:
     case OFPET_PORT_MOD_FAILED:
     case OFPET_QUEUE_OP_FAILED:
     {
-      if ( body != NULL )
+      if ( body != NULL ) {
         if ( body->length ) {
-          VALUE data_arr = rb_ary_new2( ( int32_t ) body->length );
-          uint32_t i;
-          uint8_t *buf = ( uint8_t* ) body->data;
-          for ( i = 0; i < body->length; i++ ) {
-            rb_ary_push( data_arr, INT2FIX( buf[i] ) );
-          }
-          rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), data_arr );
+          rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), rb_str_new( body->data, ( long ) body->length ) );
         }
+      }
     }
       break;
     default:
