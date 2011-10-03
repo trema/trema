@@ -222,45 +222,38 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
 
 
 static void
-handle_flow_removed( uint64_t datapath_id, uint32_t transaction_id,
-                     struct ofp_match match,
-                     uint64_t cookie, uint16_t priority, uint8_t reason,
-                     uint32_t duration_sec, uint32_t duration_nsec,
-                     uint16_t idle_timeout, uint64_t packet_count,
-                     uint64_t byte_count, void *user_data ) {
-  UNUSED( user_data );
-
+handle_flow_removed( uint64_t datapath_id, flow_removed message ) {
   dump( "[flow_removed]" );
   dump( "datapath_id: %#" PRIx64, datapath_id );
-  dump( "transaction_id: %#x", transaction_id );
+  dump( "transaction_id: %#x", message.transaction_id );
 
   dump( "match:" );
-  dump( "  wildcards: %#x", match.wildcards );
-  dump( "  in_port: %u", match.in_port );
+  dump( "  wildcards: %#x", message.match.wildcards );
+  dump( "  in_port: %u", message.match.in_port );
   dump( "  dl_src: %02x:%02x:%02x:%02x:%02x:%02x",
-        match.dl_src[ 0 ], match.dl_src[ 1 ], match.dl_src[ 2 ],
-        match.dl_src[ 3 ], match.dl_src[ 4 ], match.dl_src[ 5 ] );
+        message.match.dl_src[ 0 ], message.match.dl_src[ 1 ], message.match.dl_src[ 2 ],
+        message.match.dl_src[ 3 ], message.match.dl_src[ 4 ], message.match.dl_src[ 5 ] );
   dump( "  dl_dst: %02x:%02x:%02x:%02x:%02x:%02x",
-        match.dl_dst[ 0 ], match.dl_dst[ 1 ], match.dl_dst[ 2 ],
-        match.dl_dst[ 3 ], match.dl_dst[ 4 ], match.dl_dst[ 5 ] );
-  dump( "  dl_vlan: %u", match.dl_vlan );
-  dump( "  dl_vlan_pcp: %u", match.dl_vlan_pcp );
-  dump( "  dl_type: %#x", match.dl_type );
-  dump( "  nw_tos: %u", match.nw_tos );
-  dump( "  nw_proto: %#x", match.nw_proto );
-  dump( "  nw_src: %#x", match.nw_src );
-  dump( "  nw_dst: %#x", match.nw_dst );
-  dump( "  tp_src: %u", match.tp_src );
-  dump( "  tp_dst: %u", match.tp_dst );
+        message.match.dl_dst[ 0 ], message.match.dl_dst[ 1 ], message.match.dl_dst[ 2 ],
+        message.match.dl_dst[ 3 ], message.match.dl_dst[ 4 ], message.match.dl_dst[ 5 ] );
+  dump( "  dl_vlan: %u", message.match.dl_vlan );
+  dump( "  dl_vlan_pcp: %u", message.match.dl_vlan_pcp );
+  dump( "  dl_type: %#x", message.match.dl_type );
+  dump( "  nw_tos: %u", message.match.nw_tos );
+  dump( "  nw_proto: %#x", message.match.nw_proto );
+  dump( "  nw_src: %#x", message.match.nw_src );
+  dump( "  nw_dst: %#x", message.match.nw_dst );
+  dump( "  tp_src: %u", message.match.tp_src );
+  dump( "  tp_dst: %u", message.match.tp_dst );
 
-  dump( "cookie: %#" PRIx64, cookie );
-  dump( "priority: %u", priority );
-  dump( "reason: %#x", reason );
-  dump( "duration_sec: %u", duration_sec );
-  dump( "duration_nsec: %u", duration_nsec );
-  dump( "idle_timeout: %u", idle_timeout );
-  dump( "packet_count: %" PRIu64, packet_count );
-  dump( "byte_count: %" PRIu64, byte_count );
+  dump( "cookie: %#" PRIx64, message.cookie );
+  dump( "priority: %u", message.priority );
+  dump( "reason: %#x", message.reason );
+  dump( "duration_sec: %u", message.duration_sec );
+  dump( "duration_nsec: %u", message.duration_nsec );
+  dump( "idle_timeout: %u", message.idle_timeout );
+  dump( "packet_count: %" PRIu64, message.packet_count );
+  dump( "byte_count: %" PRIu64, message.byte_count );
 }
 
 
