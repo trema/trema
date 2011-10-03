@@ -106,6 +106,18 @@ int mock_kill( pid_t pid, int sig );
 #define sleep mock_sleep
 unsigned int mock_sleep( unsigned int seconds );
 
+#ifdef init_event_handler
+#undef init_event_handler
+#endif
+#define init_event_handler mock_init_event_handler
+void mock_init_event_handler( void );
+
+#ifdef start_event_handler
+#undef start_event_handler
+#endif
+#define start_event_handler mock_start_event_handler
+void mock_start_event_handler( void );
+
 #ifdef init_messenger
 #undef init_messenger
 #endif
@@ -305,6 +317,10 @@ static void
 die_unless_initialized() {
   if ( !initialized ) {
     die( "Trema is not initialized. Call init_trema() first." );
+  }
+
+  if ( init_event_handler == NULL ) {
+    die( "Trema has no valid event handler initialized. Call init_trema() first." );
   }
 }
 

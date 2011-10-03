@@ -260,17 +260,17 @@ bool
 init_messenger( const char *working_directory ) {
   assert( working_directory != NULL );
 
-  if ( initialized ) {
-    warn( "Messenger is already initialized." );
-    return true;
-  }
-
   if ( init_event_handler == NULL ) {
     info( "Using default select-based event handler." );
     set_select_event_handler();
   }
 
   init_event_handler();  
+
+  if ( initialized ) {
+    warn( "Messenger is already initialized." );
+    return true;
+  }
 
   strcpy( socket_directory, working_directory );
 

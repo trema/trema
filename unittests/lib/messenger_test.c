@@ -34,6 +34,7 @@
 #include "cmockery_trema.h"
 #include "doubly_linked_list.h"
 #include "hash_table.h"
+#include "event_handler.h"
 #include "messenger.h"
 #include "timer.h"
 #include "wrapper.h"
@@ -142,8 +143,6 @@ static hash_table *context_db;
 static dlist_element *timer_callbacks;
 static char *_dump_service_name;
 static char *_dump_app_name;
-static void ( *external_fd_set )( fd_set *read_set, fd_set *write_set );
-static void ( *external_check_fd_isset )( fd_set *read_set, fd_set *write_set );
 static uint32_t last_transaction_id;
 
 
@@ -379,7 +378,9 @@ static void
 test_send_then_message_received_callback_is_called() {
   init_messenger( "/tmp" );
 
-  will_return_count( mock_clock_gettime, 0, -1 );
+  // Changes in the event handler seems to have changed how how often
+  // clock_gettime(...) gets called.
+  //will_return_count( mock_clock_gettime, 0, -1 );
 
   const char service_name[] = "Say HELLO";
 
@@ -390,6 +391,7 @@ test_send_then_message_received_callback_is_called() {
   add_message_received_callback( service_name, callback_hello );
   send_message( service_name, 43556, "HELLO", strlen( "HELLO" ) + 1 );
   start_messenger();
+  start_event_handler();
 
   delete_message_received_callback( service_name, callback_hello );
   delete_send_queue( lookup_hash_entry( send_queues, service_name ) );
