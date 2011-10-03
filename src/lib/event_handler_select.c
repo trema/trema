@@ -93,6 +93,8 @@ fd_set event_write_set;
 fd_set current_read_set;
 fd_set current_write_set;
 
+external_callback_t external_callback = (external_callback_t)NULL;
+
 
 void
 select_init_event_handler() {
@@ -121,6 +123,13 @@ select_finalize_event_handler() {
 
 bool
 select_run_event_handler_once() {
+  if ( external_callback != NULL ) {
+    external_callback_t callback = external_callback;
+    external_callback = NULL;
+
+    callback();
+  }
+
   struct timeval timeout = { 0, 100 * 1000 };
 
   memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
@@ -321,6 +330,17 @@ select_is_notifying_writable_event( int fd ) {
 }
 
 
+bool
+select_set_external_callback( external_callback_t callback ) {
+  if ( callback != NULL ) {
+    return false;
+  }
+
+  external_callback = callback;
+  return true;
+}
+
+
 void
 set_select_event_handler() {
   init_event_handler = select_init_event_handler;
@@ -339,7 +359,10 @@ set_select_event_handler() {
 
   is_notifying_readable_event = select_is_notifying_readable_event;
   is_notifying_writable_event = select_is_notifying_writable_event;
+
+  set_external_callback = select_set_external_callback;
 }
+
 
 /*
  * Local variables:

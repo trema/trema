@@ -1581,32 +1581,6 @@ messenger_dump_enabled( void ) {
   return false;
 }
 
-void ( *external_callback )( void ) = ( void (*)( void ) )NULL;
-
-static void
-call_external_callback( void* data ) {
-  if ( data != ( void* )external_callback ) {
-    return;
-  }
-
-  external_callback();
-  external_callback = NULL;
-}
-
-bool
-set_external_callback( void ( *callback ) ( void ) ) {
-  if ( callback != NULL ) {
-    return false;
-  }
-
-  // Hack to add a one-time callback on next call.
-  struct itimerspec tspec = { { 0, 1 }, { 0, 1 } };
-
-  add_timer_event_callback( &tspec, &call_external_callback, callback );
-
-  return true;
-}
-
 
 /*
  * Local variables:

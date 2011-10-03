@@ -27,7 +27,9 @@
 
 #include "bool.h"
 
+
 typedef void ( *event_fd_callback )( int, void* data );
+typedef void ( *external_callback_t )( void );
 
 extern void (*init_event_handler)();
 extern void (*finalize_event_handler)();
@@ -46,7 +48,12 @@ extern void (*notify_writable_event)( int fd, bool state );
 extern bool (*is_notifying_readable_event)( int fd );
 extern bool (*is_notifying_writable_event)( int fd );
 
+// Optional functions for event handlers to implement, must be signal
+// safe. Leave as NULL if not supported.
+extern bool (*set_external_callback)( external_callback_t callback );
+
 void set_select_event_handler();
+
 
 #endif // LIB_EVENT_HANDLER_H
 

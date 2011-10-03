@@ -37,3 +37,5 @@ void (*notify_writable_event)( int fd, bool state ) = NULL;
 
 bool (*is_notifying_readable_event)( int fd ) = NULL;
 bool (*is_notifying_writable_event)( int fd ) = NULL;
+
+bool (*set_external_callback)( external_callback_t callback ) = NULL;

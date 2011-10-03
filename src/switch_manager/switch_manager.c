@@ -201,7 +201,9 @@ handle_sigchld( int signum ) {
   UNUSED( signum );
 
   // because wait_child() is not signal safe, we call it later.
-  set_external_callback( wait_child );
+  if ( set_external_callback != NULL ) {
+    set_external_callback( wait_child );
+  }
 }
 
 

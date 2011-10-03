@@ -46,6 +46,8 @@ extern void select_notify_writable_event( int fd, bool state );
 extern bool select_is_notifying_readable_event( int fd );
 extern bool select_is_notifying_writable_event( int fd );
 
+extern bool select_set_external_callback( external_callback_t callback );
+
 
 #endif // EVENT_HANDLER_H
 

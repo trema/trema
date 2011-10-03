@@ -445,7 +445,9 @@ set_exit_handler() {
 
 static void
 set_dump_stats_as_external_callback() {
-  set_external_callback( dump_stats );
+  if ( set_external_callback != NULL ) {
+    set_external_callback( dump_stats );
+  }
 }
 
 
