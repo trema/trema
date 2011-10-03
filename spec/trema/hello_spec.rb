@@ -23,42 +23,51 @@ require "trema"
 
 
 describe Trema::Hello do
-  it "should automatically allocate a transaction ID" do
-    hello = Hello.new
-    hello.transaction_id.should be_a_kind_of( Integer )
-    hello.transaction_id.should >= 0
-  end
+  its( :transaction_id ) { should be_a_kind_of( Integer ) }
+  its( :transaction_id ) { should >= 0 }
+end
 
 
-  it "should be created by specifying its transaction ID" do
-    hello = Hello.new( 1234 )
-    hello.transaction_id.should == 1234
-  end
-  
-  
-  context "when creating from a negative transaction ID(-1234)" do
-    it "should raise an error" do
-      lambda do 
-        Hello.new( -1234 )
-      end.should raise_error( "Transaction ID must be >= 0" )
+describe Trema::Hello, ".new( transaction_id )" do
+  subject { Hello.new transaction_id }
+  let( :uint32_max ) { 4294967295 }
+
+
+  context "when its transaction ID has a negative value" do
+    let( :transaction_id ) { -1234 }
+    it "should raise" do
+      expect { subject }.to raise_error( "Transaction ID must be >= 0" )
     end
   end
-  
-  
-  context "when #hello is sent after controller initialization" do
-    it "should receive #error" do
-      class HelloController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( HelloController ) {
-        hello = Hello.new( 1234 )
-        controller( "HelloController" ).send_message( 0xabc, hello )
-        controller( "HelloController" ).should_receive( :openflow_error )
-        sleep 1
-      }
+
+
+  context "when its transaction ID is zero" do
+    let( :transaction_id ) { 0 }
+    its( :transaction_id ) { should == 0 }
+  end
+
+
+  context "when its transaction ID is 1234" do
+    let( :transaction_id ) { 1234 }
+    its( :transaction_id ) { should == 1234 }
+  end
+
+
+  context "when its transaction ID is UINT32_MAX" do
+    let( :transaction_id ) { uint32_max }
+    its( :transaction_id ) { should == uint32_max }
+  end
+
+
+  context "when its transaction ID is UINT32_MAX + 1" do
+    let( :transaction_id ) { uint32_max + 1 }
+    it "should raise" do
+      pending "This should raise an error"
+      expect { subject }.to raise_error( "Transaction ID must be <= 4294967295" )
     end
   end
 end
+
 
 ### Local variables:
 ### mode: Ruby

@@ -54,7 +54,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     xid = get_transaction_id();
   }
   else {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
+    if ( NUM2LL( xid_ruby ) < 0 ) {
       rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
