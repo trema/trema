@@ -38,9 +38,9 @@ class Dumper < Controller
   end
 
 
-  def flow_removed message
+  def flow_removed datapath_id, message
     info "[flow removed]"
-    datapath_id_in_hex message.datapath_id
+    datapath_id_in_hex datapath_id
     transaction_id_in_hex message.transaction_id
 
     info "match:"
