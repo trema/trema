@@ -21,14 +21,9 @@
 
 
 class Dumper < Controller
-  DATAPATH_ID = "datapath_id:"
-  TRANSACTION_ID = "transaction_id:"
-
-
   def packet_in datapath_id, message
     info "[packet_in]"
-    datapath_id_in_hex datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "buffer_id: %#x" % message.buffer_id
     info "total_len: %u" % message.total_len
     info "in_port: %u" % message.in_port
@@ -40,8 +35,8 @@ class Dumper < Controller
 
   def flow_removed datapath_id, message
     info "[flow removed]"
-    datapath_id_in_hex datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
 
     info "match:"
     info "  wildcards: %#x" % message.match.wildcards
@@ -72,8 +67,8 @@ class Dumper < Controller
 
   def get_config_reply message
     info "[get_config_reply]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "flags: %#x" % message.flags
     info "miss_send_len: %u" % message.miss_send_len
     run_next_event
@@ -82,14 +77,14 @@ class Dumper < Controller
 
   def switch_disconnected datapath_id
     info "[switch_disconnected]"
-    datapath_id_in_hex datapath_id
+    info "datapath_id: #{ datapath_id.to_hex }"
   end
 
 
   def port_status message
     info "[port status]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "reason: %#x" % message.reason
     dump_phy_port message.phy_port
   end
@@ -97,8 +92,8 @@ class Dumper < Controller
 
   def stats_reply message
     info "[stats_reply]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "type: %#x" % message.type
     info "flags: %#x" % message.flags
     message.stats.each { | each | info each.to_s }
@@ -108,8 +103,8 @@ class Dumper < Controller
 
   def openflow_error message
     info "[error]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "type: %#x" % message.type
     info "code: %#x" % message.code
     info "data: %s", message.data.unpack( "H*" )
@@ -119,8 +114,8 @@ class Dumper < Controller
 
   def queue_get_config_reply message
     info "[queue get_config_reply]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "port: %u" % message.port
     info( "queues:" );
     dump_packet_queue(message.queues)
@@ -129,15 +124,15 @@ class Dumper < Controller
 
   def barrier_reply message
     info "[barrier_reply]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     run_next_event
   end
 
 
   def switch_ready datapath_id
     info "[switch ready]"
-    datapath_id_in_hex datapath_id
+    info "datapath_id: #{ datapath_id.to_hex }"
     send_message datapath_id, FeaturesRequest.new
     set_events
     run_next_event
@@ -146,8 +141,8 @@ class Dumper < Controller
 
   def features_reply message
     info "[features_reply]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "n_buffers: %u" % message.n_buffers
     info "n_tables: %u" % message.n_tables
     info "capabilities: %#x" % message.capabilities
@@ -158,8 +153,8 @@ class Dumper < Controller
 
   def vendor message
     info "[vendor]"
-    datapath_id_in_hex message.datapath_id
-    transaction_id_in_hex message.transaction_id
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ transaction_id.to_hex }"
     info "data:"
     info message.buffer.unpack( "H*" )
   end
@@ -172,17 +167,9 @@ class Dumper < Controller
   end
 
 
+  ##############################################################################
   private
-
-
-  def datapath_id_in_hex datapath_id
-    info "#{DATAPATH_ID} %#x" % datapath_id
-  end
-
-
-  def transaction_id_in_hex transaction_id
-    info "#{TRANSACTION_ID} %#x" % transaction_id
-  end
+  ##############################################################################
 
 
   def dump_phy_port port
