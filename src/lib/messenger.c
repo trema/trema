@@ -184,6 +184,7 @@ typedef struct send_queue {
   int server_socket;
   int refused_count;
   struct timespec reconnect_at;
+  struct timespec reconnect_interval;
   struct sockaddr_un server_addr;
   message_buffer *buffer;
 } send_queue;
@@ -835,9 +836,9 @@ send_queue_connect( send_queue *sq ) {
     sq->server_socket = -1;
     sq->refused_count++;
     sq->reconnect_at.tv_sec = now.tv_sec + ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
+    sq->reconnect_interval.tv_sec = ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
 
-    debug( "refused_count = %d, reconnect_at = %u.", sq->refused_count, sq->reconnect_at.tv_sec );
-
+    debug( "refused_count = %d, reconnect_at = %u, reconnect_interval = %u.", sq->refused_count, sq->reconnect_at.tv_sec, sq->reconnect_interval.tv_sec );
     return 0;
   }
 
@@ -854,10 +855,45 @@ send_queue_connect( send_queue *sq ) {
   sq->refused_count = 0;
   sq->reconnect_at.tv_sec = 0;
   sq->reconnect_at.tv_nsec = 0;
+  sq->reconnect_interval.tv_sec = 0;
+  sq->reconnect_interval.tv_nsec = 0;
 
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
 
   return 1;
+}
+
+
+// Remember to clean up timer if we delete the send_queue.
+
+static void
+send_queue_connect_timer( send_queue *sq ) {
+  struct itimerspec interval;
+
+  if ( sq->server_socket != -1 ) {
+    return;
+  }
+
+  int ret = send_queue_connect( sq );
+
+  switch ( ret ) {
+  case -1:
+    // Print an error.
+    break;
+
+  case 0:
+    // Try again later.
+    //
+    // Check if interval == 0.0, since that won't work.
+    interval.it_interval = sq->reconnect_interval;
+    interval.it_value = sq->reconnect_interval;
+    add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect, ( void * ) sq );
+    break;
+
+  default:
+    // Success.
+    break;
+  };
 }
 
 
@@ -895,6 +931,8 @@ create_send_queue( const char *service_name ) {
   sq->refused_count = 0;
   sq->reconnect_at.tv_sec = 0;
   sq->reconnect_at.tv_nsec = 0;
+  sq->reconnect_interval.tv_sec = 0;
+  sq->reconnect_interval.tv_nsec = 0;
 
   if ( send_queue_connect( sq ) == -1 ) {
     xfree( sq );
@@ -966,6 +1004,8 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 
   write_message_buffer( sq->buffer, &header, sizeof( message_header ) );
   write_message_buffer( sq->buffer, data, len );
+
+  // Ensure we try to connect...
 
   if ( sq->server_socket != -1 ) {
     notify_writable_event( sq->server_socket, true );
@@ -1438,6 +1478,9 @@ on_send_read( int fd, void *data ) {
 
     close( sq->server_socket );
     sq->server_socket = -1;
+
+    // Tries to reconnecting immediately, else adds a reconnect timer.
+    send_queue_connect_timer( sq );
   }
 }
 
@@ -1479,6 +1522,9 @@ on_send_write( int fd, void *data ) {
         close( sq->server_socket );
         sq->server_socket = -1;
         sq->refused_count = 0;
+
+        // Tries to reconnecting immediately, else adds a reconnect timer.
+        send_queue_connect_timer( sq );
       }
       truncate_message_buffer( sq->buffer, sent_total );
       if ( err == EMSGSIZE || err == ENOBUFS || err == ENOMEM ) {
