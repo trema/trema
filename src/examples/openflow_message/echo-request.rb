@@ -28,25 +28,27 @@ class EchoRequestController < Controller
 
 
   class << self
-    attr_accessor :count
+    def run args
+      usage unless Example.options_parse args
+    end
 
 
     def usage
-      puts "#{Example::exec_name} count"
-      puts "Send count number of echo requests."
+      puts Example.cmd_usage
+      puts "Send count number of echo requests to datapath_id."
       exit false
     end
   end
   
 
-  def switch_ready datapath_id
-    send_nr_msgs datapath_id, EchoRequest
+  def switch_ready msg_datapath_id
+    may_raise_error msg_datapath_id
+    send_nr_msgs EchoRequest
   end
 end
 
 
-EchoRequestController.usage if ARGV.length < 2
-EchoRequestController.count = ARGV[ 1 ].to_i
+EchoRequestController.run ARGV
 
 
 ### Local variables:
