@@ -310,6 +310,7 @@ message_replied_callback( uint16_t tag, void *data, size_t len, void *user_data 
   assert_string_equal( user_data, CONTEXT_DATA );
   xfree( user_data );
 
+  stop_event_handler();
   assert_true( stop_messenger() );
 }
 
@@ -370,6 +371,7 @@ callback_hello( uint16_t tag, void *data, size_t len ) {
   check_expected( data );
   check_expected( len );
 
+  stop_event_handler();
   stop_messenger();
 }
 

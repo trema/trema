@@ -162,6 +162,7 @@ secure_channel_read( int fd, void* data ) {
   if ( switch_info.recv_queue->length > 0 ) {
     int ret = handle_messages_from_secure_channel( &switch_info );
     if ( ret < 0 ) {
+      stop_event_handler();
       stop_messenger();
     }
   }
@@ -181,6 +182,7 @@ secure_channel_write( int fd, void* data ) {
   if ( switch_info.recv_queue->length > 0 ) {
     int ret = handle_messages_from_secure_channel( &switch_info );
     if ( ret < 0 ) {
+      stop_event_handler();
       stop_messenger();
     }
   }
@@ -380,6 +382,7 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   flush_messenger();
   debug( "send disconnected state" );
 
+  stop_event_handler();
   stop_messenger();
 
   return 0;

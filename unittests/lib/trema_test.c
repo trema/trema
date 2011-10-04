@@ -168,6 +168,12 @@ mock_start_event_handler() {
 
 
 void
+mock_stop_event_handler() {
+  event_handler_started = false;
+}
+
+
+void
 mock_init_messenger( const char *working_directory ) {
   UNUSED( working_directory );
 

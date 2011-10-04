@@ -130,12 +130,13 @@ select_run_event_handler_once() {
     callback();
   }
 
+  // TODO: Use the next timer event instead of 100ms.
   struct timeval timeout = { 0, 100 * 1000 };
 
   memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
   memcpy( &current_write_set, &event_write_set, sizeof( fd_set ) );
 
-  // Don't us FD_SETSIZE here...
+  // TODO: Don't us FD_SETSIZE here, make it configurable.
   int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );
 
   if ( set_count == -1 ) {

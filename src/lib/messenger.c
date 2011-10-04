@@ -913,8 +913,6 @@ create_send_queue( const char *service_name ) {
 
   send_queue *sq;
 
-  // TODO: check service_name length
-
   assert( send_queues != NULL );
 
   sq = lookup_hash_entry( send_queues, service_name );
@@ -1571,8 +1569,6 @@ start_messenger() {
 
   add_periodic_event_callback( 10, age_context_db, NULL );
 
-  //  debug( "Messenger terminated." );
-
   return true;
 }
 
@@ -1580,7 +1576,6 @@ start_messenger() {
 bool
 stop_messenger() {
   debug( "Terminating messenger." );
-  stop_event_handler();
 
   return true;
 }

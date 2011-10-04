@@ -118,6 +118,12 @@ void mock_init_event_handler( void );
 #define start_event_handler mock_start_event_handler
 void mock_start_event_handler( void );
 
+#ifdef stop_event_handler
+#undef stop_event_handler
+#endif
+#define stop_event_handler mock_stop_event_handler
+void mock_stop_event_handler( void );
+
 #ifdef init_messenger
 #undef init_messenger
 #endif
@@ -553,22 +559,9 @@ init_trema( int *argc, char ***argv ) {
  */
 void
 start_trema() {
-  pthread_mutex_lock( &mutex );
-
-  die_unless_initialized();
-
-  debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
-
-  maybe_daemonize();
-  write_pid( get_trema_tmp(), get_trema_name() );
-  trema_started = true;
-
-  start_messenger();
+  start_trema_up();
   start_event_handler();
-
-  finalize_trema();
-
-  pthread_mutex_unlock( &mutex );
+  start_trema_down();
 }
 
 
@@ -607,6 +600,7 @@ flush() {
  */
 void
 stop_trema() {
+  stop_event_handler();
   stop_messenger();
 }
 
