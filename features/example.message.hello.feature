@@ -16,7 +16,7 @@ Feature: Send hello messages
 
 
   Scenario: Hello trema in Ruby
-    When I try trema run "./src/examples/openflow_message/hello.rb 10" with following configuration (backgrounded):
+    When I try trema run "./src/examples/openflow_message/hello.rb 0xabc, 10" with following configuration (backgrounded):
       """
       vswitch("hello-r") { datapath_id "0xabc" }
       """
