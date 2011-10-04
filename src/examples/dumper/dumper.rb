@@ -21,15 +21,35 @@
 
 
 class Dumper < Controller
+  def switch_ready datapath_id
+    info "[switch ready]"
+    info "  datapath_id: #{ datapath_id.to_hex }"
+
+    send_flow_mod_add datapath_id, :priority => 0
+    send_flow_mod_add(
+      datapath_id,
+      :match => Match.new( :dl_type => 0x0800 ),
+      :priority => 1,
+      :actions => ActionOutput.new( OFPP_CONTROLLER ) 
+    )
+  end
+
+
+  def switch_disconnected datapath_id
+    info "[switch_disconnected]"
+    info "  datapath_id: #{ datapath_id.to_hex }"
+  end
+
+
   def packet_in datapath_id, message
     info "[packet_in]"
-    info "datapath_id: #{ datapath_id.to_hex }"
-    info "buffer_id: #{ message.buffer_id.to_hex }"
-    info "total_len: #{ message.total_len }"
-    info "in_port: #{ message.in_port }"
-    info "reason: #{ message.reason.to_hex }"
-    info "data: #{ message.data.unpack "H*" }"
-    @datapath_id, @match, @in_port = datapath_id, Match.from( message ), message.in_port
+    info "  datapath_id: #{ datapath_id.to_hex }"
+    info "  transaction_id: #{ message.transaction_id.to_hex }"
+    info "  buffer_id: #{ message.buffer_id.to_hex }"
+    info "  total_len: #{ message.total_len }"
+    info "  in_port: #{ message.in_port }"
+    info "  reason: #{ message.reason.to_hex }"
+    info "  data: #{ message.data.unpack "H*" }"
   end
 
 
@@ -61,7 +81,6 @@ class Dumper < Controller
     info "idle_timeout: #{ message.idle_timeout }"
     info "packet_count: #{ message.packet_count.to_hex }"
     info "byte_count: #{ message.byte_count.to_hex }"
-    run_next_event
   end
 
 
@@ -71,13 +90,6 @@ class Dumper < Controller
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "flags: #{ message.flags.to_hex }"
     info "miss_send_len: #{ message.miss_send_len }"
-    run_next_event
-  end
-
-
-  def switch_disconnected datapath_id
-    info "[switch_disconnected]"
-    info "datapath_id: #{ datapath_id.to_hex }"
   end
 
 
@@ -97,7 +109,6 @@ class Dumper < Controller
     info "type: #{ message.type.to_hex }"
     info "flags: #{ message.flags.to_hex }"
     message.stats.each { | each | info each.to_s }
-    run_next_event
   end
 
 
@@ -108,7 +119,6 @@ class Dumper < Controller
     info "type: #{ message.type.to_hex }"
     info "code: #{ message.code.to_hex }"
     info "data: #{ message.data.unpack "H*" }"
-    run_next_event
   end
 
 
@@ -126,16 +136,6 @@ class Dumper < Controller
     info "[barrier_reply]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
-    run_next_event
-  end
-
-
-  def switch_ready datapath_id
-    info "[switch ready]"
-    info "datapath_id: #{ datapath_id.to_hex }"
-    send_message datapath_id, FeaturesRequest.new
-    set_events
-    run_next_event
   end
 
 
@@ -165,7 +165,6 @@ class Dumper < Controller
   def list_switches_reply dpids
     info "[list_switches_reply]"
     info "switches = %s" % dpids.collect { | each | each.to_hex }.join( ", " )
-    run_next_event
   end
 
 
@@ -200,105 +199,6 @@ class Dumper < Controller
         info "      rate: %u" % prop.rate if prop.property == PacketQueue::OFPQT_MIN_RATE
       end
     end
-  end
-
-
-  def test_queue_reply
-    pqs = [ PacketQueue.new( :queue_id => 1, :len => 64 ), PacketQueue.new( :queue_id => 2, :len => 640 ) ]
-    idx = 2
-    idx.times do | i |
-      MinRateQueue.new( PacketQueue::OFPQT_MIN_RATE, ( i + 1 ) * 64, ( i + 1 ) * 1024, pqs[ 0 ] )
-    end
-    MinRateQueue.new( PacketQueue::OFPQT_MIN_RATE, ( idx + 1 ) * 64, ( idx + 1 ) * 1024, pqs[ 1 ] )
-    attr = {
-      :datapath_id => 0xabc,
-      :transaction_id => 123,
-      :port => 1,
-      :queues => Queue.queues
-    }
-    qc = QueueGetConfigReply.new( attr )
-    queue_get_config_reply qc
-    send_flow_mod_add(
-      @datapath_id,
-      :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
-      :actions => ActionOutput.new( OFPP_FLOOD ) 
-    )
-    run_next_event
-  end
-  
-  
-  def test_flow_removed
-    send_flow_mod_add( @datapath_id,
-      :idle_timeout => 10,
-      :hard_timeout => 10,
-      :send_flow_rem => true,
-      :actions => ActionOutput.new( @in_port ),
-      :match => @match
-   )
-  end
-
-  
-  def test_openflow_error
-    send_message @datapath_id, PortMod.new( 2,
-      Mac.new( "11:22:33:44:55:66" ),
-      1,
-      1,
-      0 )
-  end
-
-
-  def test_barrier_reply
-    send_message @datapath_id, BarrierRequest.new( 123 )
-  end
-
-
-  def test_stats_reply
-    send_message @datapath_id, 
-      FlowStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ).to_packet.buffer
-  end
-
-
-  def test_get_config_reply
-    send_message @datapath_id, GetConfigRequest.new( 123 )
-  end
-
-
-  def test_list_switches_reply
-    send_list_switches_request 
-  end
-
-
-  def test_port_status
-    send_message @datapath_id, PortMod.new( 2,
-      @hw_addr,
-      1,
-      1,
-      0 )
-  end
-
-
-  def set_events
-    @events = [
-      :test_port_status,
-      :test_list_switches_reply,
-      :test_get_config_reply,
-      :test_flow_removed,
-      :test_stats_reply,
-      :test_barrier_reply,
-      :test_openflow_error,
-      :test_queue_reply
-    ]
-    @time_interval = 0
-  end
-
-
-  def run_next_event
-    oneshot_timer_event @events.pop, next_interval unless @events.empty?
-  end
-
-
-  def next_interval
-    @time_interval = 10
   end
 end
 

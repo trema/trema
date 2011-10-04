@@ -203,20 +203,26 @@ handle_get_config_reply( uint64_t datapath_id, uint32_t transaction_id,
 
 
 static void
-handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
-                  uint32_t buffer_id, uint16_t total_len,
-                  uint16_t in_port, uint8_t reason, const buffer *data,
-                  void *user_data ) {
+handle_packet_in(
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint32_t buffer_id,
+  uint16_t total_len,
+  uint16_t in_port,
+  uint8_t reason,
+  const buffer *data,
+  void *user_data
+) {
   UNUSED( user_data );
 
   dump( "[packet_in]" );
-  dump( "datapath_id: %#" PRIx64, datapath_id );
-  dump( "transaction_id: %#x", transaction_id );
-  dump( "buffer_id: %#x", buffer_id );
-  dump( "total_len: %u", total_len );
-  dump( "in_port: %u", in_port );
-  dump( "reason: %#x", reason );
-  dump( "data:" );
+  dump( "  datapath_id: %#" PRIx64, datapath_id );
+  dump( "  transaction_id: %#x", transaction_id );
+  dump( "  buffer_id: %#x", buffer_id );
+  dump( "  total_len: %u", total_len );
+  dump( "  in_port: %u", in_port );
+  dump( "  reason: %#x", reason );
+  dump( "  data:" );
   dump_buffer( data, dump );
 }
 
