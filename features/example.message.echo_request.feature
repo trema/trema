@@ -16,7 +16,7 @@ Feature: Send echo request messages
 
 
   Scenario: Send echo request x 10 in Ruby
-    When I try trema run "./src/examples/openflow_message/echo-request.rb 10" with following configuration (backgrounded):
+    When I try trema run "./src/examples/openflow_message/echo-request.rb 0xabc, 10" with following configuration (backgrounded):
       """
       vswitch("echo-request") { datapath_id "0xabc" }
       """
