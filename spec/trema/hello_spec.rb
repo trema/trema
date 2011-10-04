@@ -36,7 +36,7 @@ describe Trema::Hello, ".new( transaction_id )" do
   context "when its transaction ID has a negative value" do
     let( :transaction_id ) { -1234 }
     it "should raise" do
-      expect { subject }.to raise_error( "Transaction ID must be >= 0" )
+      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
     end
   end
 
@@ -62,8 +62,7 @@ describe Trema::Hello, ".new( transaction_id )" do
   context "when its transaction ID is UINT32_MAX + 1" do
     let( :transaction_id ) { uint32_max + 1 }
     it "should raise" do
-      pending "This should raise an error"
-      expect { subject }.to raise_error( "Transaction ID must be <= 4294967295" )
+      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
     end
   end
 end

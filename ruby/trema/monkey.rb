@@ -24,6 +24,11 @@ class Integer
   def to_hex
     "%#x" % self
   end
+
+
+  def unsigned_32bit?
+    ( 0 <= self ) and ( self < 2 ** 32 )
+  end
 end
 
 
