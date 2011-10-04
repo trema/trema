@@ -36,7 +36,7 @@ class HelloController < Controller
     def usage
       puts Example.cmd_usage
       puts "Send count number of hello messages to datapath_id."
-      exit false 
+      exit false
     end
   end
 
