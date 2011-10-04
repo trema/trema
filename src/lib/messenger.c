@@ -183,7 +183,6 @@ typedef struct send_queue {
   char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   int server_socket;
   int refused_count;
-  struct timespec reconnect_at;
   struct timespec reconnect_interval;
   struct sockaddr_un server_addr;
   message_buffer *buffer;
@@ -819,26 +818,13 @@ send_queue_connect( send_queue *sq ) {
   }
 
   if ( connect( sq->server_socket, ( struct sockaddr * ) &sq->server_addr, sizeof( struct sockaddr_un ) ) == -1 ) {
-    struct timespec now;
-
-    if ( clock_gettime( CLOCK_MONOTONIC, &now ) != 0 ) {
-      error( "Failed to retrieve monotonic time ( %s [%d] ).", strerror( errno ), errno );
-      close( sq->server_socket );
-      sq->server_socket = -1;
-      return -1;
-    }
-
     debug( "Connection refused ( service_name = %s, sun_path = %s, fd = %d, errno = %s [%d] ).",
            sq->service_name, sq->server_addr.sun_path, sq->server_socket, strerror( errno ), errno );
 
     send_dump_message( MESSENGER_DUMP_SEND_REFUSED, sq->service_name, NULL, 0 );
     close( sq->server_socket );
     sq->server_socket = -1;
-    sq->refused_count++;
-    sq->reconnect_at.tv_sec = now.tv_sec + ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
-    sq->reconnect_interval.tv_sec = ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
 
-    debug( "refused_count = %d, reconnect_at = %u, reconnect_interval = %u.", sq->refused_count, sq->reconnect_at.tv_sec, sq->reconnect_interval.tv_sec );
     return 0;
   }
 
@@ -851,12 +837,6 @@ send_queue_connect( send_queue *sq ) {
 
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
-
-  sq->refused_count = 0;
-  sq->reconnect_at.tv_sec = 0;
-  sq->reconnect_at.tv_nsec = 0;
-  sq->reconnect_interval.tv_sec = 0;
-  sq->reconnect_interval.tv_nsec = 0;
 
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
 
@@ -878,20 +858,29 @@ send_queue_connect_timer( send_queue *sq ) {
 
   switch ( ret ) {
   case -1:
-    // Print an error.
+    // Print an error, and find a better way of indicating the send
+    // queue has an error.
+    sq->reconnect_interval.tv_sec = -1;
+    sq->reconnect_interval.tv_nsec = 0;
     return -1;
 
   case 0:
     // Try again later.
-    //
-    // Check if interval == 0.0, since those aren't allowed.
+    sq->refused_count++;
+    sq->reconnect_interval.tv_sec = ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
+
     interval.it_interval = sq->reconnect_interval;
     interval.it_value = sq->reconnect_interval;
     add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect, ( void * ) sq );
+
+    debug( "refused_count = %d, reconnect_interval = %u.", sq->refused_count, sq->reconnect_interval.tv_sec );
     return 0;
 
   case 1:
     // Success.
+    sq->refused_count = 0;
+    sq->reconnect_interval.tv_sec = 0;
+    sq->reconnect_interval.tv_nsec = 0;
     return 1;
 
   default:
@@ -946,8 +935,6 @@ create_send_queue( const char *service_name ) {
   sq->server_socket = -1;
   sq->buffer = NULL;
   sq->refused_count = 0;
-  sq->reconnect_at.tv_sec = 0;
-  sq->reconnect_at.tv_nsec = 0;
   sq->reconnect_interval.tv_sec = 0;
   sq->reconnect_interval.tv_nsec = 0;
 
