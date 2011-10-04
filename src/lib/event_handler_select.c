@@ -279,7 +279,7 @@ select_delete_fd_event( int fd ) {
 void
 select_notify_readable_event( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
-    error( "Invalid fd to notify_readable_event call; %i, %p.", fd, event_fd_set[fd] );
+    error( "Invalid fd to notify_readable_event call; %i.", fd );
     return;
   }
 
@@ -300,7 +300,7 @@ select_notify_readable_event( int fd, bool state ) {
 void
 select_notify_writable_event( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
-    error( "Invalid fd to notify_writeable_event call; %i, %p.", fd, event_fd_set[fd] );
+    error( "Invalid fd to notify_writeable_event call; %i.", fd );
     return;
   }
 
