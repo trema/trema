@@ -261,7 +261,7 @@ init_messenger( const char *working_directory ) {
   assert( working_directory != NULL );
 
   if ( init_event_handler == NULL ) {
-    info( "Using default select-based event handler." );
+    debug( "Using default select-based event handler." );
     set_select_event_handler();
   }
 
