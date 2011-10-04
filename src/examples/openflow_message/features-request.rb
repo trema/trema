@@ -25,22 +25,24 @@ class FeaturesRequestController < Controller
   def switch_ready datapath_id
     send_message datapath_id, FeaturesRequest.new
   end
-  
-  
+
+
   def features_reply message
-    info "datapath_id: %#x" % message.datapath_id
-    info "transaction_id: %#x" % message.transaction_id
-    info "n_buffers: %u" % message.n_buffers
-    info "n_tables: %u" % message.n_tables
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ message.transaction_id.to_hex }"
+    info "n_buffers: #{ message.n_buffers }"
+    info "n_tables: #{ message.n_tables }"
     print_capabilities message.capabilities 
     print_actions message.actions
     print_ports message.ports
   end
-  
-  
+
+
+  ##############################################################################
   private
-  
-  
+  ##############################################################################
+
+
   def print_capabilities capabilities
     info "capabilities:"
     info "  OFPC_FLOW_STATS" if capabilities & OFPC_FLOW_STATS != 0
@@ -52,8 +54,8 @@ class FeaturesRequestController < Controller
     info "  OFPC_QUEUE_STATS" if capabilities & OFPC_QUEUE_STATS != 0
     info "  OFPC_ARP_MATCH_IP" if capabilities & OFPC_ARP_MATCH_IP != 0
   end
-  
-  
+
+
   def print_actions actions
     info "actions:"
     info "  OFPAT_OUTPUT" if actions & ( 1 << OFPAT_OUTPUT ) != 0
@@ -71,18 +73,18 @@ class FeaturesRequestController < Controller
     info "  OFPAT_VENDOR" if actions & OFPAT_VENDOR != 0
   end
 
-  
+
   def print_ports ports
     ports.each do | port |
       info "port_no: %u" % port.number
-      info "  hw_addr = #{port.hw_addr.to_s}"
-      info "  name = #{port.name}"
-      info "  config = %#x" % port.config
-      info "  state = %#x" % port.state
-      info "  curr = %#x" % port.curr
-      info "  advertised = %#x" % port.advertised
-      info "  supported = %#x" % port.supported
-      info "  peer = %#x" % port.peer
+      info "  hw_addr = #{ port.hw_addr.to_s }"
+      info "  name = #{ port.name }"
+      info "  config = #{ port.config.to_hex }"
+      info "  state = #{ port.state.to_hex }"
+      info "  curr = #{ port.curr.to_hex }"
+      info "  advertised = #{ port.advertised.to_hex }"
+      info "  supported = #{ port.supported.to_hex }"
+      info "  peer = #{ port.peer.to_hex }"
     end
   end
 end
