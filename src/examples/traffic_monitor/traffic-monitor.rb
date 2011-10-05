@@ -21,18 +21,7 @@
 
 
 require "fdb"
-
-
-class TrafficStat
-  attr_accessor :packet_count
-  attr_accessor :byte_count
-  
-  
-  def initialize
-    @packet_count = 0
-    @byte_count = 0
-  end
-end
+require "traffic-stats"
 
 
 class TrafficMonitor < Trema::Controller
@@ -40,16 +29,20 @@ class TrafficMonitor < Trema::Controller
 
 
   def start
-    @stats = {}
+    @stats = TrafficStats.new
     @fdb = FDB.new
   end
 
 
   def packet_in datapath_id, message
-    @fdb.learn message.macsa, message.in_port
-    out_port = @fdb.port_number_of( message.macda )
+    macsa = message.macsa
+    macda = message.macda
+    
+    @fdb.learn macsa, message.in_port
+    @stats.update macsa, 1, message.total_len
+    out_port = @fdb.lookup( macda )
     if out_port
-      flow_mod datapath_id, message, out_port
+      flow_mod datapath_id, macsa, macda, out_port
       packet_out datapath_id, message, out_port
     else
       flood datapath_id, message
@@ -58,10 +51,7 @@ class TrafficMonitor < Trema::Controller
 
 
   def flow_removed datapath_id, message
-    src_mac = message.match.dl_src
-    @stats[ src_mac ] ||= TrafficStat.new
-    @stats[ src_mac ].packet_count += message.packet_count
-    @stats[ src_mac ].byte_count += message.byte_count
+    @stats.update message.match.dl_src, message.packet_count, message.byte_count
   end
 
 
@@ -71,18 +61,19 @@ class TrafficMonitor < Trema::Controller
 
 
   def show_stats
+    puts Time.now
     @stats.each_pair do | mac, stats |
-      puts "#{ mac.to_s } #{ stats.packet_count } packets, #{ stats.byte_count } bytes"
+      puts "#{ mac } #{ stats[ :packet_count ] } packets (#{ stats[ :byte_count ] } bytes)"
     end
   end
 
 
-  def flow_mod datapath_id, message, out_port
+  def flow_mod datapath_id, macsa, macda, out_port
     send_flow_mod_add(
       datapath_id,
       :send_flow_rem => true,                      
       :hard_timeout => 10,
-      :match => Match.new( :dl_src => message.macsa.to_s, :dl_dst => message.macda.to_s ),
+      :match => Match.new( :dl_src => macsa.to_s, :dl_dst => macda.to_s ),
       :actions => Trema::ActionOutput.new( out_port )
     )
   end

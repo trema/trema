@@ -1,5 +1,5 @@
 #
-# Forwarding database (FDB) of layer-2 switch.
+# Data traffic statistics.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,27 +20,23 @@
 #
 
 
-class FDB
+require "forwardable"
+
+
+class TrafficStats
+  extend Forwardable
+  def_delegator :@stats, :each_pair
+
+
   def initialize
-    @db = {}
+    @stats = {}
   end
 
 
-  def lookup mac
-    if @db[ mac ]
-      @db[ mac ][ :port_number ]
-    else
-      nil
-    end
-  end
-
-
-  def learn mac, port_number
-    if @db[ mac ]
-      @db[ mac ][ :port_number ] = port_number
-    else
-      @db[ mac ] = { :mac => mac, :port_number => port_number }
-    end
+  def update mac, packet_count, byte_count
+    @stats[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
+    @stats[ mac ][ :packet_count ] += packet_count
+    @stats[ mac ][ :byte_count ] += byte_count
   end
 end
 
