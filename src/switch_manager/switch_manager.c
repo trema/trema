@@ -33,6 +33,7 @@
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
 #include "dpid_table.h"
+#include "event_handler.h"
 
 
 #ifdef UNIT_TESTING
@@ -200,31 +201,20 @@ handle_sigchld( int signum ) {
   UNUSED( signum );
 
   // because wait_child() is not signal safe, we call it later.
-  set_external_callback( wait_child );
+  if ( set_external_callback != NULL ) {
+    set_external_callback( wait_child );
+  }
 }
 
 
 static void
-secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
+secure_channel_accept_wrapper( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
 
-  if ( listener_info.listen_fd < 0 ) {
-    return;
-  }
-  FD_SET( listener_info.listen_fd, read_set );
-}
+  info( "Got secure channel accept event on fd %i.", fd );
 
-
-static void
-secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( listener_info.listen_fd < 0 ) {
-    return;
-  }
-  if ( FD_ISSET( listener_info.listen_fd, read_set ) ) {
-    secure_channel_accept( &listener_info );
-  }
+  secure_channel_accept( &listener_info );
 }
 
 
@@ -285,6 +275,9 @@ finalize_listener_info(  struct listener_info *listener_info ) {
     listener_info->switch_daemon = NULL;
   }
   if ( listener_info->listen_fd >= 0 ) {
+    notify_readable_event( listener_info->listen_fd, false );
+    delete_fd_event( listener_info->listen_fd );
+
     close( listener_info->listen_fd );
     listener_info->listen_fd = -1;
   }
@@ -437,8 +430,6 @@ main( int argc, char *argv[] ) {
   free( startup_dir );
 
   catch_sigchild();
-  set_fd_set_callback( secure_channel_fd_set );
-  set_check_fd_isset_callback( secure_channel_fd_isset );
 
   // listener start (listen socket binding and listen)
   ret = secure_channel_listen_start( &listener_info );
@@ -446,6 +437,9 @@ main( int argc, char *argv[] ) {
     finalize_listener_info( &listener_info );
     exit( EXIT_FAILURE );
   }
+
+  add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL, NULL, NULL );
+  notify_readable_event( listener_info.listen_fd, true );
 
   start_trema();
 

@@ -35,6 +35,7 @@
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
+#include "event_handler.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "timer.h"
@@ -104,6 +105,24 @@ int mock_kill( pid_t pid, int sig );
 #endif
 #define sleep mock_sleep
 unsigned int mock_sleep( unsigned int seconds );
+
+#ifdef init_event_handler
+#undef init_event_handler
+#endif
+#define init_event_handler mock_init_event_handler
+void mock_init_event_handler( void );
+
+#ifdef start_event_handler
+#undef start_event_handler
+#endif
+#define start_event_handler mock_start_event_handler
+void mock_start_event_handler( void );
+
+#ifdef stop_event_handler
+#undef stop_event_handler
+#endif
+#define stop_event_handler mock_stop_event_handler
+void mock_stop_event_handler( void );
 
 #ifdef init_messenger
 #undef init_messenger
@@ -305,6 +324,10 @@ die_unless_initialized() {
   if ( !initialized ) {
     die( "Trema is not initialized. Call init_trema() first." );
   }
+
+  if ( init_event_handler == NULL ) {
+    die( "Trema has no valid event handler initialized. Call init_trema() first." );
+  }
 }
 
 
@@ -444,7 +467,9 @@ set_exit_handler() {
 
 static void
 set_dump_stats_as_external_callback() {
-  set_external_callback( dump_stats );
+  if ( set_external_callback != NULL ) {
+    set_external_callback( dump_stats );
+  }
 }
 
 
@@ -534,6 +559,14 @@ init_trema( int *argc, char ***argv ) {
  */
 void
 start_trema() {
+  start_trema_up();
+  start_event_handler();
+  start_trema_down();
+}
+
+
+void
+start_trema_up() {
   pthread_mutex_lock( &mutex );
 
   die_unless_initialized();
@@ -543,8 +576,13 @@ start_trema() {
   maybe_daemonize();
   write_pid( get_trema_tmp(), get_trema_name() );
   trema_started = true;
-  start_messenger();
 
+  start_messenger();
+}
+
+
+void
+start_trema_down() {
   finalize_trema();
 
   pthread_mutex_unlock( &mutex );
@@ -562,6 +600,7 @@ flush() {
  */
 void
 stop_trema() {
+  stop_event_handler();
   stop_messenger();
 }
 

@@ -133,9 +133,6 @@ bool finalize_messenger( void );
 void start_messenger_dump( const char *dump_app_name, const char *dump_service_name );
 void stop_messenger_dump( void );
 bool messenger_dump_enabled( void );
-void set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) );
-void set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) );
-bool set_external_callback( void ( *callback ) ( void ) );
 
 
 #endif // MESSENGER_H
