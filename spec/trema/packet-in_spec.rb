@@ -72,13 +72,14 @@ describe Trema::PacketIn do
     it "should have user L2 information (macsa)" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
+        vhost( "host1" ) { mac "00:00:00:00:00:01" }
+        vhost( "host2" ) { mac "00:00:00:00:00:02" }
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.macsa.should be_instance_of( Trema::Mac )
+          message.macsa.to_s.should == "00:00:00:00:00:01"
         end
         send_and_wait
       }
@@ -88,13 +89,14 @@ describe Trema::PacketIn do
     it "should have user L2 information (macda)" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
+        vhost( "host1" ) { mac "00:00:00:00:00:01" }
+        vhost( "host2" ) { mac "00:00:00:00:00:02" }
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.macda.should be_instance_of( Trema::Mac )
+          message.macda.to_s.should == "00:00:00:00:00:02"
         end
         send_and_wait
       }

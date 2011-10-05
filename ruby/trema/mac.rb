@@ -100,7 +100,7 @@ module Trema
     # @return [Boolean] if other matches or not the attribute type value.
     #
     def eql? other
-      @value.eql? other.value
+      @value == other.value
     end
 
 
