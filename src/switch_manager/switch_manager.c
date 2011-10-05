@@ -207,17 +207,6 @@ handle_sigchld( int signum ) {
 }
 
 
-static void
-secure_channel_accept_wrapper( int fd, void* data ) {
-  UNUSED( fd );
-  UNUSED( data );
-
-  info( "Got secure channel accept event on fd %i.", fd );
-
-  secure_channel_accept( &listener_info );
-}
-
-
 static char *
 xconcatenate_path( const char *dir, const char *file ) {
   size_t len;
@@ -438,7 +427,7 @@ main( int argc, char *argv[] ) {
     exit( EXIT_FAILURE );
   }
 
-  add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL, NULL, NULL );
+  add_fd_event( listener_info.listen_fd, secure_channel_accept, &listener_info, NULL, NULL );
   notify_readable_event( listener_info.listen_fd, true );
 
   start_trema();

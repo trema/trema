@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "cmockery_trema.h"
 #include "trema.h"
 #include "trema_private.h"
@@ -429,8 +430,6 @@ test_init_trema_dies_if_trema_tmp_does_not_exist() {
 /********************************************************************************
  * start_trema() tests.
  ********************************************************************************/
-
-#include <unistd.h>
 
 static void
 test_start_trema_daemonizes_if_d_option_is_ON() {

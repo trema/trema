@@ -178,14 +178,6 @@ secure_channel_write( int fd, void* data ) {
     switch_event_disconnected( &switch_info );
     return;
   }
-
-  if ( switch_info.recv_queue->length > 0 ) {
-    int ret = handle_messages_from_secure_channel( &switch_info );
-    if ( ret < 0 ) {
-      stop_event_handler();
-      stop_messenger();
-    }
-  }
 }
 
 
@@ -498,7 +490,7 @@ main( int argc, char *argv[] ) {
 
   add_fd_event( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
   notify_readable_event( switch_info.secure_channel_fd, true );
-  notify_writable_event( switch_info.secure_channel_fd, true );
+  notify_writable_event( switch_info.secure_channel_fd, false );
 
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;
