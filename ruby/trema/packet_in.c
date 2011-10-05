@@ -165,7 +165,7 @@ packet_in_reason( VALUE self ) {
 static VALUE
 packet_in_macsa( VALUE self ) {
   packet_in *cpacket_in = get_packet_in( self );
-  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->user_data )->eth_macsa ) );
+  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macsa ) );
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
 }
 
@@ -178,7 +178,7 @@ packet_in_macsa( VALUE self ) {
 static VALUE
 packet_in_macda( VALUE self ) {
   packet_in *cpacket_in = get_packet_in( self );
-  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->user_data )->eth_macda ) );
+  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macda ) );
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
 }
 
