@@ -17,16 +17,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "event_handler.h"
 
-#include <stddef.h>
-
-#include <sys/time.h>
 #include <errno.h>
-#include <unistd.h>
+#include <stddef.h>
 #include <string.h>
-
+#include <sys/time.h>
+#include <unistd.h>
 #include "checks.h"
+#include "event_handler.h"
 #include "log.h"
 #include "timer.h"
 
@@ -68,26 +66,6 @@ extern void mock_execute_timer_events( void );
 #endif // UNIT_TESTING
 
 
-void ( *init_event_handler )() = NULL;
-void ( *finalize_event_handler )() = NULL;
-
-bool ( *start_event_handler )() = NULL;
-void ( *stop_event_handler )() = NULL;
-
-bool ( *run_event_handler_once )() = NULL;
-
-void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data ) = NULL;
-void ( *delete_fd_handler )( int fd ) = NULL;
-
-void ( *set_readable )( int fd, bool state ) = NULL;
-void ( *set_writable )( int fd, bool state ) = NULL;
-
-bool ( *readable )( int fd ) = NULL;
-bool ( *writable )( int fd ) = NULL;
-
-bool ( *set_external_callback )( external_callback_t callback ) = NULL;
-
-
 typedef struct {
   int fd;
   event_fd_callback read_callback;
@@ -106,10 +84,10 @@ enum {
 
 int event_handler_state = 0;
 
-event_fd event_list[FD_SETSIZE];
+event_fd event_list[ FD_SETSIZE ];
 event_fd *event_last;
 
-event_fd *event_fd_set[FD_SETSIZE];
+event_fd *event_fd_set[ FD_SETSIZE ];
 
 fd_set event_read_set;
 fd_set event_write_set;
@@ -119,8 +97,8 @@ fd_set current_write_set;
 external_callback_t external_callback = ( external_callback_t ) NULL;
 
 
-void
-select_init_event_handler() {
+static void
+_init_event_handler() {
   event_last = event_list;
   event_handler_state = EVENT_HANDLER_INITIALIZED;
 
@@ -130,10 +108,11 @@ select_init_event_handler() {
   FD_ZERO( &event_read_set );
   FD_ZERO( &event_write_set );
 }
+void ( *init_event_handler )() = _init_event_handler;
 
 
-void
-select_finalize_event_handler() {
+static void
+_finalize_event_handler() {
   if ( event_last != event_list ) {
     warn( "Event Handler finalized with %i fd event handlers still active. (%i, ...)",
           ( event_last - event_list ), ( event_last > event_list ? event_list->fd : -1 ) );
@@ -142,10 +121,11 @@ select_finalize_event_handler() {
 
   event_handler_state = EVENT_HANDLER_FINALIZED;
 }
+void ( *finalize_event_handler )() = _finalize_event_handler;
 
 
-bool
-select_run_event_handler_once() {
+static bool
+_run_event_handler_once() {
   if ( external_callback != NULL ) {
     external_callback_t callback = external_callback;
     external_callback = NULL;
@@ -159,7 +139,7 @@ select_run_event_handler_once() {
   memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
   memcpy( &current_write_set, &event_write_set, sizeof( fd_set ) );
 
-  // TODO: Don't us FD_SETSIZE here, make it configurable.
+  // TODO: Don't use FD_SETSIZE here, make it configurable.
   int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );
 
   if ( set_count == -1 ) {
@@ -196,10 +176,11 @@ select_run_event_handler_once() {
 
   return true;
 }
+bool ( *run_event_handler_once )() = _run_event_handler_once;
 
 
-bool
-select_start_event_handler() {
+static bool
+_start_event_handler() {
   debug( "Starting event handler." );
 
   event_handler_state |= EVENT_HANDLER_RUNNING;
@@ -207,7 +188,7 @@ select_start_event_handler() {
   while ( !( event_handler_state & EVENT_HANDLER_STOP ) ) {
     execute_timer_events();
 
-    if ( !select_run_event_handler_once() ) {
+    if ( !_run_event_handler_once() ) {
       error( "Failed to run main loop." );
       return false;
     }
@@ -218,19 +199,22 @@ select_start_event_handler() {
   debug( "Event handler terminated." );
   return true;
 }
+bool ( *start_event_handler )() = _start_event_handler;
 
 
-void
-select_stop_event_handler() {
+static void
+_stop_event_handler() {
   debug( "Terminating event handler." );
   event_handler_state |= EVENT_HANDLER_STOP;
 }
+void ( *stop_event_handler )() = _stop_event_handler;
 
 
-void
-select_set_fd_handler( int fd,
-                       event_fd_callback read_callback, void *read_data,
-                       event_fd_callback write_callback, void *write_data ) {
+
+static void
+_set_fd_handler( int fd,
+                 event_fd_callback read_callback, void *read_data,
+                 event_fd_callback write_callback, void *write_data ) {
   debug( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
 
   // Currently just issue critical warnings instead of killing the
@@ -258,9 +242,11 @@ select_set_fd_handler( int fd,
 
   event_fd_set[ fd ] = event_last++;
 }
+void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data ) = _set_fd_handler;
 
-void
-select_delete_fd_handler( int fd ) {
+
+static void
+_delete_fd_handler( int fd ) {
   debug( "Deleting event handler for fd %i.", fd );
 
   event_fd* event = event_list;
@@ -299,10 +285,11 @@ select_delete_fd_handler( int fd ) {
   memset( event_last, 0, sizeof( event_fd ) );
   event_last->fd = -1;
 }
+void ( *delete_fd_handler )( int fd ) = _delete_fd_handler;
 
 
-void
-select_set_readable( int fd, bool state ) {
+static void
+_set_readable( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
     error( "Invalid fd to set_readable call; %i.", fd );
     return;
@@ -315,15 +302,17 @@ select_set_readable( int fd, bool state ) {
 
   if ( state ) {
     FD_SET( fd, &event_read_set );
-  } else {
+  }
+  else {
     FD_CLR( fd, &event_read_set );
     FD_CLR( fd, &current_read_set );
   }
 }
+void ( *set_readable )( int fd, bool state ) = _set_readable;
 
 
-void
-select_set_writable( int fd, bool state ) {
+static void
+_set_writable( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
     error( "Invalid fd to notify_writeable_event call; %i.", fd );
     return;
@@ -336,27 +325,31 @@ select_set_writable( int fd, bool state ) {
 
   if ( state ) {
     FD_SET( fd, &event_write_set );
-  } else {
+  }
+  else {
     FD_CLR( fd, &event_write_set );
     FD_CLR( fd, &current_write_set );
   }
 }
+void ( *set_writable )( int fd, bool state ) = _set_writable;
 
 
-bool
-select_readable( int fd ) {
+static bool
+_readable( int fd ) {
   return FD_ISSET( fd, &event_read_set );
 }
+bool ( *readable )( int fd ) = _readable;
 
 
-bool
-select_writable( int fd ) {
+static bool
+_writable( int fd ) {
   return FD_ISSET( fd, &event_write_set );
 }
+bool ( *writable )( int fd ) = _writable;
 
 
-bool
-select_set_external_callback( external_callback_t callback ) {
+static bool
+_set_external_callback( external_callback_t callback ) {
   if ( callback != NULL ) {
     return false;
   }
@@ -364,29 +357,7 @@ select_set_external_callback( external_callback_t callback ) {
   external_callback = callback;
   return true;
 }
-
-
-void
-set_select_event_handler() {
-  init_event_handler = select_init_event_handler;
-  finalize_event_handler = select_finalize_event_handler;
-
-  start_event_handler = select_start_event_handler;
-  stop_event_handler = select_stop_event_handler;
-
-  run_event_handler_once = select_run_event_handler_once;
-
-  set_fd_handler = select_set_fd_handler;
-  delete_fd_handler = select_delete_fd_handler;
-
-  set_readable = select_set_readable;
-  set_writable = select_set_writable;
-
-  readable = select_readable;
-  writable = select_writable;
-
-  set_external_callback = select_set_external_callback;
-}
+bool ( *set_external_callback )( external_callback_t callback ) = _set_external_callback;
 
 
 /*
