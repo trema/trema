@@ -126,7 +126,23 @@ typedef void ( packet_in_handler )(
 );
 
 
-typedef void ( *flow_removed_handler )(
+typedef struct {
+  uint64_t datapath_id;
+  uint32_t transaction_id;
+  struct ofp_match match;
+  uint64_t cookie;
+  uint16_t priority;
+  uint8_t reason;
+  uint32_t duration_sec;
+  uint32_t duration_nsec;
+  uint16_t idle_timeout;
+  uint64_t packet_count;
+  uint64_t byte_count;
+  void *user_data;
+} flow_removed;
+
+typedef void ( simple_flow_removed_handler )( uint64_t datapath_id, flow_removed message );
+typedef void ( flow_removed_handler )(
   uint64_t datapath_id,
   uint32_t transaction_id,
   struct ofp_match match,
@@ -207,7 +223,8 @@ typedef struct openflow_event_handlers {
   void *packet_in_callback;
   void *packet_in_user_data;
 
-  flow_removed_handler flow_removed_callback;
+  bool simple_flow_removed_callback;
+  void *flow_removed_callback;
   void *flow_removed_user_data;
 
   port_status_handler port_status_callback;
@@ -246,11 +263,13 @@ bool set_openflow_event_handlers( const openflow_event_handlers_t handlers );
   }
 bool _set_switch_ready_handler( bool simple_callback, void *callback, void *user_data );
 
+
 bool set_switch_disconnected_handler( switch_disconnected_handler callback, void *user_data );
 bool set_error_handler( error_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );
+
 
 #define set_packet_in_handler( callback, user_data )                                      \
   {                                                                                       \
@@ -266,7 +285,22 @@ bool set_get_config_reply_handler( get_config_reply_handler callback, void *user
   }
 bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_data );
 
-bool set_flow_removed_handler( flow_removed_handler callback, void *user_data );
+
+#define set_flow_removed_handler( callback, user_data )                                      \
+  {                                                                                          \
+    if ( __builtin_types_compatible_p( typeof( callback ), simple_flow_removed_handler ) ) { \
+      _set_flow_removed_handler( true, callback, user_data );                                \
+    }                                                                                        \
+    else if ( __builtin_types_compatible_p( typeof( callback ), flow_removed_handler ) ) {   \
+      _set_flow_removed_handler( false, callback, user_data );                               \
+    }                                                                                        \
+    else {                                                                                   \
+      _set_flow_removed_handler( false, NULL, NULL );                                        \
+    }                                                                                        \
+  }
+bool _set_flow_removed_handler( bool simple_callback, void *callback, void *user_data );
+
+
 bool set_port_status_handler( port_status_handler callback, void *user_data );
 bool set_stats_reply_handler( stats_reply_handler callback, void *user_data );
 bool set_barrier_reply_handler( barrier_reply_handler callback, void *user_data );

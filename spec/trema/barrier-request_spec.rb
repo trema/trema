@@ -23,18 +23,9 @@ require "trema"
 
 
 describe BarrierRequest do
-  context "when an instance is created with no arguments" do
-    its( :transaction_id ) { should be_a_kind_of( Integer ) }
-    its( :transaction_id ) { should >= 0 }
-  end
-  
-  
-  context "when an instance is created with transaction_id" do
-    subject { BarrierRequest.new( 1234 ) }
-    its( :transaction_id ) { should == 1234 }
-  end
+  it_should_behave_like "any Openflow message with default transaction ID"
 
-  
+
   context "when #barrier_request" do
     it "should #barrier_reply" do
       class BarrierController < Controller; end
@@ -42,16 +33,17 @@ describe BarrierRequest do
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
         controller( "BarrierController" ).should_receive( :barrier_reply )
-        barrier_request = BarrierRequest.new( 1234 )
-        controller( "BarrierController" ).send_message( 0xabc, barrier_request )
+        controller( "BarrierController" ).send_message( 0xabc, BarrierRequest.new )
         sleep 2 # FIXME: wait to send_message
       }
     end
   end
-  
-  
-  context "when #barrier_request with transaction_id" do
-    it "should #barrier_reply with valid transaction_id" do
+end
+
+
+describe BarrierRequest, ".new( transaction_id == 1234 )" do
+  context "when #barrier_request" do
+    it "should #barrier_reply with transaction_id == 1234" do
       class BarrierController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
@@ -66,6 +58,12 @@ describe BarrierRequest do
       }
     end
   end
+end
+
+
+describe BarrierRequest, ".new( transaction_id )" do
+  subject { BarrierRequest.new transaction_id }
+  it_should_behave_like "any OpenFlow message"
 end
 
 

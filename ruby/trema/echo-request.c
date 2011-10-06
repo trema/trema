@@ -44,7 +44,7 @@ VALUE cEchoRequest;
  * @example Instantiate with transaction_id, user_data
  *   EchoRequest.new(1234, "Thu Aug 25 13:09:00 +0900 2011")
  *
- * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  * @raise [ArgumentError] if user data is not a string.
  *
  * @return [EchoRequest]
@@ -60,14 +60,17 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 
   if ( argc == 1 ) {
     if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-      if ( NUM2INT( xid_ruby ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
   }
   if ( argc == 2 ) {
     if ( rb_scan_args( argc, argv, "02", &xid_ruby, &user_data ) == 2 ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+      }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );

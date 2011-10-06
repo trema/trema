@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 #
-# Monitor switch on/off
+# A test example program to send a OFPT_HELLO message.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
 #
@@ -21,38 +20,39 @@
 #
 
 
-class SwitchMonitor < Controller
-  periodic_timer_event :show_switches, 10
+require "example"
 
 
-  def start
-    @switches = []
+class HelloController < Controller
+  include Example
+
+
+  class << self
+    def run args
+      usage unless Example.options_parse args
+    end
+
+
+    def usage
+      puts Example.cmd_usage
+      puts "Send count number of hello messages to datapath_id."
+      exit false
+    end
   end
 
 
-  def switch_ready datapath_id
-    @switches << datapath_id.to_hex
-    info "Switch #{ datapath_id.to_hex } is UP"
-  end
-
-
-  def switch_disconnected datapath_id
-    @switches -= [ datapath_id.to_hex ]
-    info "Switch #{ datapath_id.to_hex } is DOWN"
-  end
-
-
-  private
-
-
-  def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+  def switch_ready msg_datapath_id
+    may_raise_error msg_datapath_id
+    send_nr_msgs Hello
   end
 end
 
 
+HelloController.run ARGV
+
+
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

@@ -133,7 +133,7 @@ handle_vendor(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "vendor" ) ), UINT2NUM( vendor ) );
 
   if ( body->length ) {
-    rb_hash_aset( attributes, ID2SYM( rb_intern( "buffer" ) ), Data_Wrap_Struct( cVendor, NULL, free_buffer, body ) );
+    rb_hash_aset( attributes, ID2SYM( rb_intern( "buffer" ) ), rb_str_new( body->data, ( long ) body->length ) );
   }
   VALUE vendor_r = rb_funcall( cVendor, rb_intern( "new" ), 1, attributes );
   rb_funcall( controller, rb_intern( "vendor" ), 1, vendor_r );

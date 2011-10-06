@@ -1,4 +1,6 @@
 #
+# Common extendable functionality for all openflow message examples.
+#
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -18,41 +20,37 @@
 #
 
 
-module Trema
-  class StatsHelper
+module Example
+  class << self
+    attr_accessor :exec_name, :count, :datapath_id
 
-    
-    # Invoked by each StatsReply subclass to assign their instance attributes 
-    # to a value.
-    #
-    # @overload initialize(fields, options={})
-    #
-    # @param [Array] fields
-    #   an array of attribute names.
-    #
-    # @param [Hash] options
-    #   key/value pairs of attributes to match against the fields to set.
-    #
-    # @return [void]
-    #
-    def initialize fields, options
-      fields.each do |field|
-        instance_variable_set( "@#{field}", options[field.intern] )
+
+    def options_parse args
+      @exec_name = args.shift
+      case args.length
+      when 2
+        @datapath_id = args[ 0 ] =~ /^0x/ ? args[ 0 ].hex : args[ 0 ].to_i
+        @count = args[ 1 ].to_i
+      else
+        return false
       end
     end
 
-    
-    #
-    # @return [String]
-    #   an alphabetically sorted text of attribute name/value pairs.
-    #
-    def to_s
-      str = super.to_s + "\n"
-      instance_variables.sort.each do |var|
-        str += "#{var[1..var.length]}: #{instance_variable_get( var ).to_s}\n"
-      end
-      # remove the last newline character
-      str[0..-2]
+
+    def cmd_usage
+      "Usage: #{ @exec_name } datapath_id, count"
+    end
+  end
+
+
+  def may_raise_error msg_datapath_id
+    raise ArgumentError, "Given datapath_id does not match configured datapath_id" if msg_datapath_id != Example::datapath_id
+  end
+
+
+  def send_nr_msgs kclass
+    Example::count.times do
+      self.send_message Example::datapath_id, kclass.new
     end
   end
 end

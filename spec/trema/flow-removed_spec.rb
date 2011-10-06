@@ -75,9 +75,11 @@ describe Trema::FlowRemoved do
         vswitch { datapath_id 0xabc }
       }.run( FlowRemovedController ) {
         controller( "FlowRemovedController" ).should_receive( :flow_removed )
-        controller( "FlowRemovedController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowRemovedController" ).send_flow_mod_add(
+          0xabc,
           :idle_timeout => 1,
-          :send_flow_rem => true )
+          :send_flow_rem => true
+        )
         sleep 2 # FIXME: wait to receive flow_removed
       }
     end
@@ -102,8 +104,8 @@ describe Trema::FlowRemoved do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowRemovedController ) {
-        controller( "FlowRemovedController" ).should_receive( :flow_removed ) do | message |
-          message.datapath_id.should == 0xabc
+        controller( "FlowRemovedController" ).should_receive( :flow_removed ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.match.in_port.should == 1
           message.match.dl_src.to_s.should == "00:00:00:00:00:01"
           message.match.dl_dst.to_s.should == "00:00:00:00:00:02"
@@ -112,8 +114,8 @@ describe Trema::FlowRemoved do
           message.match.dl_vlan_pcp.should == 0
           message.match.nw_tos.should == 0
           message.match.nw_proto.should == 17
-          Trema::IP.new(message.match.nw_src).to_s.should == "192.168.0.1"
-          Trema::IP.new(message.match.nw_dst).to_s.should == "192.168.0.2"
+          Trema::IP.new( message.match.nw_src ).to_s.should == "192.168.0.1"
+          Trema::IP.new( message.match.nw_dst ).to_s.should == "192.168.0.2"
           message.match.tp_src.should == 1
           message.match.tp_dst.should == 1
           message.cookie.should == 123456789
@@ -123,11 +125,13 @@ describe Trema::FlowRemoved do
           message.packet_count.should == 0
           message.byte_count.should == 0
         end
-        controller( "FlowRemovedController" ).send_flow_mod_add( 0xabc, 
+        controller( "FlowRemovedController" ).send_flow_mod_add(
+          0xabc,
           :match => match,
           :cookie => 123456789,
           :idle_timeout => 1,
-          :send_flow_rem => true )
+          :send_flow_rem => true
+        )
         sleep 2 # FIXME: wait to receive flow_removed
       }
     end
@@ -135,8 +139,8 @@ describe Trema::FlowRemoved do
 end
 
 
-  ### Local variables:
-  ### mode: Ruby
-  ### coding: utf-8-unix
-  ### indent-tabs-mode: nil
-  ### End:
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
