@@ -27,19 +27,17 @@ VALUE cError;
 
 
 /*
- * @overload initialize(transaction_id=nil, type=OFPET_HELLO_FAILED, code=OFPHFC_INCOMPATIBLE, user_data=nil)
+ * @overload initialize(transaction_id=nil, type, code, user_data=nil)
  *
  * @param [Number] transaction_id
  *   a positive number, not recently attached to any previous pending commands to
  *   guarantee message integrity auto-generated if not specified.
  *
  * @param [Number] type
- *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if
- *   not specified.
+ *   a command or action that failed.
  *
  * @param [Number] code
- *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if
- *   not specified.
+ *   the reason of the failed type error.
  *
  * @param [String] user_data
  *   a more user friendly explanation of the error. Defaults to nil if not
@@ -105,8 +103,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       memcpy( p, RSTRING_PTR( user_data ), length );
       break;
     default:
-      type = OFPET_HELLO_FAILED;
-      code = OFPHFC_INCOMPATIBLE;
+      rb_raise( rb_eArgError, "Type and code are mandatory arguments and should be specified." );
       break;
   }
   buffer *error = create_error( xid, type, code, data );
