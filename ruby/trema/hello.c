@@ -38,9 +38,9 @@ hello_alloc( VALUE klass ) {
  *   Creates a {Hello} object by specifying its transaction id. If
  *   transaction_id is not specified, an auto-generated transaction_id
  *   is set.
- * 
+ *
  *   @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * 
+ *
  *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
  */
 static VALUE

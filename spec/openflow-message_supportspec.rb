@@ -25,7 +25,7 @@ require "rspec"
 shared_examples_for "any Openflow message with default transaction ID" do
   context "when its transaction ID is auto-generated" do
     its( :transaction_id ) { should be_a_kind_of( Integer ) }
-    its( :transaction_id ) { should >= 0 }
+    its( :transaction_id ) { should be_unsigned_32bit }
   end
 end
 
@@ -40,7 +40,7 @@ shared_examples_for "any OpenFlow message" do
       expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
     end
   end
-  
+
 
   context "when its transaction ID is zero" do
     let( :transaction_id ) { 0 }
