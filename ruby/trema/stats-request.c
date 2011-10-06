@@ -321,7 +321,7 @@ aggregate_stats_request_to_packet( VALUE self ) {
 
 
 /*
- * @return [Buffer] the stats. request type object as a {Buffer} object.
+ * @return [buffer] the stats. request type object.
  */
 static VALUE
 stats_request_buffer( VALUE self ) {
