@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "cmockery_trema.h"
 #include "trema.h"
 #include "trema_private.h"

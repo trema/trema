@@ -544,6 +544,29 @@ Init_controller() {
   rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
   rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
 
+  rb_define_const( cController, "OFPC_FLOW_STATS", INT2NUM( OFPC_FLOW_STATS ) );
+  rb_define_const( cController, "OFPC_TABLE_STATS", INT2NUM( OFPC_TABLE_STATS ) );
+  rb_define_const( cController, "OFPC_PORT_STATS", INT2NUM( OFPC_PORT_STATS ) );
+  rb_define_const( cController, "OFPC_STP", INT2NUM( OFPC_STP) );
+  rb_define_const( cController, "OFPC_RESERVED", INT2NUM( OFPC_RESERVED ) );
+  rb_define_const( cController, "OFPC_IP_REASM", INT2NUM( OFPC_IP_REASM ) );
+  rb_define_const( cController, "OFPC_QUEUE_STATS", INT2NUM( OFPC_QUEUE_STATS ) );
+  rb_define_const( cController, "OFPC_ARP_MATCH_IP", INT2NUM( OFPC_ARP_MATCH_IP ) );
+
+  rb_define_const( cController, "OFPAT_OUTPUT", INT2NUM( OFPAT_OUTPUT ) );
+  rb_define_const( cController, "OFPAT_SET_VLAN_VID", INT2NUM( OFPAT_SET_VLAN_VID ) );
+  rb_define_const( cController, "OFPAT_SET_VLAN_PCP", INT2NUM( OFPAT_SET_VLAN_PCP ) );
+  rb_define_const( cController, "OFPAT_STRIP_VLAN", INT2NUM( OFPAT_STRIP_VLAN ) );
+  rb_define_const( cController, "OFPAT_SET_DL_SRC", INT2NUM( OFPAT_SET_DL_SRC) );
+  rb_define_const( cController, "OFPAT_SET_DL_DST", INT2NUM( OFPAT_SET_DL_DST) );
+  rb_define_const( cController, "OFPAT_SET_NW_SRC", INT2NUM( OFPAT_SET_NW_SRC ) );
+  rb_define_const( cController, "OFPAT_SET_NW_DST", INT2NUM( OFPAT_SET_NW_DST ) );
+  rb_define_const( cController, "OFPAT_SET_NW_TOS", INT2NUM( OFPAT_SET_NW_TOS ) );
+  rb_define_const( cController, "OFPAT_SET_TP_SRC", INT2NUM( OFPAT_SET_TP_SRC ) );
+  rb_define_const( cController, "OFPAT_SET_TP_DST", INT2NUM( OFPAT_SET_TP_DST ) );
+  rb_define_const( cController, "OFPAT_ENQUEUE", INT2NUM( OFPAT_ENQUEUE ) );
+  rb_define_const( cController, "OFPAT_VENDOR", INT2NUM( OFPAT_VENDOR ) );
+
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );  
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );

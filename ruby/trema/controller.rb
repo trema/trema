@@ -19,6 +19,7 @@
 
 
 require "trema/app"
+require "trema/monkey"
 require "trema/timers"
 
 

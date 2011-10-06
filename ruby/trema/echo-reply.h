@@ -1,7 +1,5 @@
 /*
- * Ruby wrapper class of OpenFlow packet_in message.
- *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -20,22 +18,20 @@
  */
 
 
-#ifndef PACKET_IN_H
-#define PACKET_IN_H
+#ifndef ECHO_REPLY_H
+#define	ECHO_REPLY_H
 
 
 #include "ruby.h"
-#include "trema.h"
 
 
-extern VALUE cPacketIn;
+extern VALUE cEchoReply;
 
 
-void Init_packet_in( void );
-void handle_packet_in( uint64_t datapath_id, packet_in message );
+void Init_echo_reply( void );
 
 
-#endif // PACKET_IN_H
+#endif	// ECHO_REPLY_H
 
 
 /*

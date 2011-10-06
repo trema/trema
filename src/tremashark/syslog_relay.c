@@ -81,11 +81,10 @@ relay_syslog_message( buffer *message ) {
 
 static void
 recv_syslog_message( int fd, void *data ) {
-  UNUSED( fd );
   UNUSED( data );
 
   char buf[ 1024 ];
-  ssize_t ret = read( syslog_fd, buf, sizeof( buf ) );
+  ssize_t ret = read( fd, buf, sizeof( buf ) );
 
   if ( ret < 0 ) {
     if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
@@ -94,8 +93,8 @@ recv_syslog_message( int fd, void *data ) {
 
     error( "Receive error ( errno = %s [%d] ).", strerror( errno ), errno );
 
-    notify_readable_event( syslog_fd, false );
-    delete_fd_event( syslog_fd );
+    notify_readable_event( fd, false );
+    delete_fd_event( fd );
     return;
   }
 
@@ -201,7 +200,7 @@ init_syslog_relay( int *argc, char **argv[] ) {
     return false;
   }
 
-  add_fd_event( syslog_fd, &recv_syslog_message, NULL, NULL, NULL );
+  add_fd_event( syslog_fd, recv_syslog_message, NULL, NULL, NULL );
   notify_readable_event( syslog_fd, true );
 
   return true;

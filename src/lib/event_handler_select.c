@@ -66,13 +66,14 @@ extern void mock_execute_timer_events( void );
 #endif // UNIT_TESTING
 
 
-typedef struct event_fd {
+typedef struct {
   int fd;
   event_fd_callback read_callback;
   event_fd_callback write_callback;
-  void* read_data;
-  void* write_data;
+  void *read_data;
+  void *write_data;
 } event_fd;
+
 
 enum {
   EVENT_HANDLER_INITIALIZED = 0x1,
@@ -93,7 +94,7 @@ fd_set event_write_set;
 fd_set current_read_set;
 fd_set current_write_set;
 
-external_callback_t external_callback = (external_callback_t)NULL;
+external_callback_t external_callback = ( external_callback_t ) NULL;
 
 
 void
@@ -101,8 +102,8 @@ select_init_event_handler() {
   event_last = event_list;
   event_handler_state = EVENT_HANDLER_INITIALIZED;
 
-  memset( event_list, 0, sizeof( struct event_fd ) * FD_SETSIZE );
-  memset( event_fd_set, 0, sizeof( struct event_fd* ) * FD_SETSIZE );
+  memset( event_list, 0, sizeof( event_fd ) * FD_SETSIZE );
+  memset( event_fd_set, 0, sizeof( event_fd * ) * FD_SETSIZE );
 
   FD_ZERO( &event_read_set );
   FD_ZERO( &event_write_set );
@@ -146,7 +147,8 @@ select_run_event_handler_once() {
     error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno );
     return false;
 
-  } else if ( set_count == 0 ) {
+  }
+  else if ( set_count == 0 ) {
     // timed out
     return true;
   }
@@ -188,7 +190,7 @@ select_start_event_handler() {
       return false;
     }
   }
-  
+
   event_handler_state &= ~EVENT_HANDLER_RUNNING;
 
   debug( "Event handler terminated." );
@@ -205,13 +207,13 @@ select_stop_event_handler() {
 
 void
 select_add_fd_event( int fd,
-                     event_fd_callback read_callback, void* read_data,
-                     event_fd_callback write_callback, void* write_data ) {
+                     event_fd_callback read_callback, void *read_data,
+                     event_fd_callback write_callback, void *write_data ) {
   debug( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
-  
+
   // Currently just issue critical warnings instead of killing the
   // program."
-  if ( event_fd_set[fd] != NULL ) {
+  if ( event_fd_set[ fd ] != NULL ) {
     error( "Tried to add an already active fd event handler." );
     return;
   }
@@ -231,21 +233,21 @@ select_add_fd_event( int fd,
   event_last->write_callback = write_callback;
   event_last->read_data = read_data;
   event_last->write_data = write_data;
-  
-  event_fd_set[fd] = event_last++;
+
+  event_fd_set[ fd ] = event_last++;
 }
 
 void
 select_delete_fd_event( int fd ) {
   debug( "Deleting event handler for fd %i.", fd );
-  
+
   event_fd* event = event_list;
 
   while ( event != event_last && event->fd != fd ) {
     event++;
   }
 
-  if ( event >= event_last || event_fd_set[fd] == NULL ) {
+  if ( event >= event_last || event_fd_set[ fd ] == NULL ) {
     error( "Tried to delete an inactive fd event handler." );
     return;
   }
@@ -265,14 +267,14 @@ select_delete_fd_event( int fd ) {
   FD_CLR( fd, &current_read_set );
   FD_CLR( fd, &current_write_set );
 
-  event_fd_set[fd] = NULL;
+  event_fd_set[ fd ] = NULL;
 
   if ( event != --event_last ) {
-    memcpy( event, event_last, sizeof( struct event_fd ) );
-    event_fd_set[event->fd] = event;
+    memcpy( event, event_last, sizeof( event_fd ) );
+    event_fd_set[ event->fd ] = event;
   }
 
-  memset( event_last, 0, sizeof( struct event_fd ) );
+  memset( event_last, 0, sizeof( event_fd ) );
   event_last->fd = -1;
 }
 
@@ -284,8 +286,8 @@ select_notify_readable_event( int fd, bool state ) {
     return;
   }
 
-  if ( event_fd_set[fd] == NULL || event_fd_set[fd]->read_callback == NULL ) {
-    error( "Found fd in invalid state in notify_readable_event; %i, %p.", fd, event_fd_set[fd] );
+  if ( event_fd_set[ fd ] == NULL || event_fd_set[ fd ]->read_callback == NULL ) {
+    error( "Found fd in invalid state in notify_readable_event; %i, %p.", fd, event_fd_set[ fd ] );
     return;
   }
 
@@ -305,8 +307,8 @@ select_notify_writable_event( int fd, bool state ) {
     return;
   }
 
-  if ( event_fd_set[fd] == NULL || event_fd_set[fd]->write_callback == NULL ) {
-    error( "Found fd in invalid state in notify_writeable_event; %i, %p.", fd, event_fd_set[fd] );
+  if ( event_fd_set[ fd ] == NULL || event_fd_set[ fd ]->write_callback == NULL ) {
+    error( "Found fd in invalid state in notify_writeable_event; %i, %p.", fd, event_fd_set[ fd ] );
     return;
   }
 

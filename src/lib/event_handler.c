@@ -21,21 +21,21 @@
 
 #include <stddef.h>
 
-void (*init_event_handler)() = NULL;
-void (*finalize_event_handler)() = NULL;
+void ( *init_event_handler )() = NULL;
+void ( *finalize_event_handler )() = NULL;
 
-bool (*start_event_handler)() = NULL;
-void (*stop_event_handler)() = NULL;
+bool ( *start_event_handler )() = NULL;
+void ( *stop_event_handler )() = NULL;
 
-bool (*run_event_handler_once)() = NULL;
+bool ( *run_event_handler_once )() = NULL;
 
-void (*add_fd_event)( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data ) = NULL;
-void (*delete_fd_event)( int fd ) = NULL;
+void ( *add_fd_event )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data ) = NULL;
+void ( *delete_fd_event )( int fd ) = NULL;
 
-void (*notify_readable_event)( int fd, bool state ) = NULL;
-void (*notify_writable_event)( int fd, bool state ) = NULL;
+void ( *notify_readable_event )( int fd, bool state ) = NULL;
+void ( *notify_writable_event )( int fd, bool state ) = NULL;
 
-bool (*is_notifying_readable_event)( int fd ) = NULL;
-bool (*is_notifying_writable_event)( int fd ) = NULL;
+bool ( *is_notifying_readable_event )( int fd ) = NULL;
+bool ( *is_notifying_writable_event )( int fd ) = NULL;
 
-bool (*set_external_callback)( external_callback_t callback ) = NULL;
+bool ( *set_external_callback )( external_callback_t callback ) = NULL;

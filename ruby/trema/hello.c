@@ -54,8 +54,8 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     xid = get_transaction_id();
   }
   else {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }

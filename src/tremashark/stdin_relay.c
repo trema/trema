@@ -94,19 +94,17 @@ find_character( char *string, size_t length, char character ) {
 
 static void
 read_stdin( int fd, void *data ) {
-  UNUSED( fd );
   UNUSED( data );
 
   char buf[ 1024 ];
   memset( buf, '\0', sizeof( buf ) );
-  ssize_t ret = read( STDIN_FILENO, buf, sizeof( buf ) );
+  ssize_t ret = read( fd, buf, sizeof( buf ) );
   if ( ret < 0 ) {
     if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
       return;
     }
 
-    notify_readable_event( STDIN_FILENO, false );
-    //    delete_fd_event( STDIN_FILENO );
+    notify_readable_event( fd, false );
 
     error( "Read error ( errno = %s [%d] ).", strerror( errno ), errno );
     return;
@@ -116,8 +114,7 @@ read_stdin( int fd, void *data ) {
   }
 
   if ( stdin_read_buffer == NULL ) {
-    notify_readable_event( STDIN_FILENO, false );
-    //    delete_fd_event( STDIN_FILENO );
+    notify_readable_event( fd, false );
 
     error( "Read buffer is not allocated yet" );
     return;

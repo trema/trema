@@ -162,9 +162,6 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
 
   listener_info->listen_fd = listen_fd;
 
-  // add_fd_event( listener_info.listen_fd, &secure_channel_accept_wrapper, NULL, NULL, NULL );
-  // notify_readable_event( listener_info.listen_fd, true );
-
   return true;
 }
 
@@ -215,14 +212,15 @@ static const int ACCEPT_FD = 3;
 
 
 void
-secure_channel_accept( struct listener_info *listener_info ) {
+secure_channel_accept( int fd, void *data ) {
+  struct listener_info *listener_info = data;
   struct sockaddr_in addr;
   socklen_t addr_len;
   int accept_fd;
   int pid;
 
   addr_len = sizeof( struct sockaddr_in );
-  accept_fd = accept( listener_info->listen_fd, ( struct sockaddr * ) &addr, &addr_len );
+  accept_fd = accept( fd, ( struct sockaddr * ) &addr, &addr_len );
   if ( accept_fd < 0 ) {
     // TODO: close listener socket
     error( "Failed to accept from switch. :%s.", strerror( errno )  );

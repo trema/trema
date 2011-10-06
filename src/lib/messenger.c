@@ -265,7 +265,7 @@ init_messenger( const char *working_directory ) {
     set_select_event_handler();
   }
 
-  init_event_handler();  
+  init_event_handler();
 
   if ( initialized ) {
     warn( "Messenger is already initialized." );

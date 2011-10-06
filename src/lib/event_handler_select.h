@@ -37,7 +37,7 @@ extern void select_stop_event_handler();
 
 extern bool select_run_event_handler_once();
 
-extern void select_add_fd_event( int fd, event_fd_callback read_callback, void* read_data, event_fd_callback write_callback, void* write_data );
+extern void select_add_fd_event( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
 extern void select_delete_fd_event( int fd );
 
 extern void select_notify_readable_event( int fd, bool state );

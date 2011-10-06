@@ -380,10 +380,6 @@ static void
 test_send_then_message_received_callback_is_called() {
   init_messenger( "/tmp" );
 
-  // Changes in the event handler seems to have changed how how often
-  // clock_gettime(...) gets called.
-  //will_return_count( mock_clock_gettime, 0, -1 );
-
   const char service_name[] = "Say HELLO";
 
   expect_value( callback_hello, tag, 43556 );

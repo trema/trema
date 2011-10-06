@@ -238,44 +238,31 @@ Init_flow_removed() {
 
 
 void
-handle_flow_removed(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  struct ofp_match match,
-  uint64_t cookie,
-  uint16_t priority,
-  uint8_t reason,
-  uint32_t duration_sec,
-  uint32_t duration_nsec,
-  uint16_t idle_timeout,
-  uint64_t packet_count,
-  uint64_t byte_count,
-  void *user_data
-) {
-  VALUE controller = ( VALUE ) user_data;
+handle_flow_removed( uint64_t datapath_id, flow_removed message ) {
+  VALUE controller = ( VALUE ) message.user_data;
   if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
     return;
   }
-  VALUE attributes = rb_hash_new();
 
+  VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( message.transaction_id ) );
 
   VALUE match_obj = rb_eval_string( "Match.new" );
-  rb_funcall( match_obj, rb_intern( "replace" ), 1, Data_Wrap_Struct( cFlowRemoved, NULL, NULL, &match ) );
+  rb_funcall( match_obj, rb_intern( "replace" ), 1, Data_Wrap_Struct( cFlowRemoved, NULL, NULL, &message.match ) );
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "match" ) ), match_obj );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "cookie" ) ), ULL2NUM( cookie ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "priority" ) ), UINT2NUM( priority ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( reason ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_sec" ) ), UINT2NUM( duration_sec ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_nsec" ) ), UINT2NUM( duration_nsec ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "idle_timeout" ) ), UINT2NUM( idle_timeout ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( packet_count ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( byte_count ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "cookie" ) ), ULL2NUM( message.cookie ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "priority" ) ), UINT2NUM( message.priority ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( message.reason ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_sec" ) ), UINT2NUM( message.duration_sec ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_nsec" ) ), UINT2NUM( message.duration_nsec ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "idle_timeout" ) ), UINT2NUM( message.idle_timeout ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( message.packet_count ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( message.byte_count ) );
 
-  VALUE flow_removed = rb_funcall( cFlowRemoved, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "flow_removed" ), 1, flow_removed );
+  VALUE r_message = rb_funcall( cFlowRemoved, rb_intern( "new" ), 1, attributes );
+  rb_funcall( controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), r_message );
 }
 
 
