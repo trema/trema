@@ -20,8 +20,8 @@
  */
 
 
-#ifndef LIB_EVENT_HANDLER_H
-#define LIB_EVENT_HANDLER_H
+#ifndef EVENT_HANDLER_H
+#define EVENT_HANDLER_H
 
 
 #include <sys/types.h>
@@ -53,7 +53,7 @@ extern bool ( *writable )( int fd );
 extern bool ( *set_external_callback )( external_callback_t callback );
 
 
-#endif // LIB_EVENT_HANDLER_H
+#endif // EVENT_HANDLER_H
 
 
 /*
