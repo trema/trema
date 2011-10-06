@@ -350,7 +350,7 @@ bool ( *writable )( int fd ) = _writable;
 
 static bool
 _set_external_callback( external_callback_t callback ) {
-  if ( callback != NULL ) {
+  if ( external_callback != NULL ) {
     return false;
   }
 

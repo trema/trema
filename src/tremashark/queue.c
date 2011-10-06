@@ -148,6 +148,18 @@ sort_queue( queue *queue, bool compare( const buffer *x, const buffer *y ) ) {
 }
 
 
+void
+foreach_queue( queue *queue, void function( buffer *data ) ) {
+  assert( queue != NULL );
+
+  queue_element *e = queue->divider;
+  while ( e != queue->tail ) {
+    function( e->next->data );
+    e = e->next;
+  }
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2

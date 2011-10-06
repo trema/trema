@@ -180,6 +180,14 @@ get_pcap_queue_length( void ) {
 }
 
 
+void
+foreach_pcap_queue( void function( buffer *data ) ) {
+  assert( packet_queue != NULL );
+
+  foreach_queue( packet_queue, function );
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2

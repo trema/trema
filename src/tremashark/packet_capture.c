@@ -29,7 +29,6 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
-#include "event_handler.h"
 #include "queue.h"
 #include "trema.h"
 
