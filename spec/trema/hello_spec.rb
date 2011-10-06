@@ -22,49 +22,14 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::Hello do
-  its( :transaction_id ) { should be_a_kind_of( Integer ) }
-  its( :transaction_id ) { should >= 0 }
+describe Hello do
+  it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe Trema::Hello, ".new( transaction_id )" do
+describe Hello, ".new( transaction_id )" do
   subject { Hello.new transaction_id }
-  let( :uint32_max ) { 2 ** 32 - 1 }
-
-
-  context "when its transaction ID has a negative value" do
-    let( :transaction_id ) { -1234 }
-    it "should raise" do
-      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
-    end
-  end
-
-
-  context "when its transaction ID is zero" do
-    let( :transaction_id ) { 0 }
-    its( :transaction_id ) { should == 0 }
-  end
-
-
-  context "when its transaction ID is 1234" do
-    let( :transaction_id ) { 1234 }
-    its( :transaction_id ) { should == 1234 }
-  end
-
-
-  context "when its transaction ID is UINT32_MAX" do
-    let( :transaction_id ) { uint32_max }
-    its( :transaction_id ) { should == uint32_max }
-  end
-
-
-  context "when its transaction ID is UINT32_MAX + 1" do
-    let( :transaction_id ) { uint32_max + 1 }
-    it "should raise" do
-      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
-    end
-  end
+  it_should_behave_like "any OpenFlow message"
 end
 
 

@@ -54,7 +54,7 @@ VALUE cError;
  * @example Instantiate with transaction_id, type, code, user_data
  *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test") 
  *
- * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  * @raise [ArgumentError] if user data is not a string.
  *
  * @return [Error] 
@@ -81,8 +81,8 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
     case 3:
       // transaction id, type, code specified.
       rb_scan_args( argc, argv, "03", &xid_r, &type_r, &code_r );
-      if ( NUM2INT( xid_r ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+      if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_r );
       type = ( uint16_t ) NUM2UINT( type_r );
@@ -90,8 +90,8 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       break;
     case 4:
       rb_scan_args( argc, argv, "04", &xid_r, &type_r, &code_r, &user_data );
-      if ( NUM2INT( xid_r ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+      if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );

@@ -42,7 +42,7 @@ get_config_request_alloc( VALUE klass ) {
  *   transaction_id is not specified, an auto-generated transaction_id
  *   is set.
  *
- * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  *
  * @return [GetConfigRequest] an object that encapsulates the +OFPT_GET_CONFIG+ openflow message.
  */
@@ -54,8 +54,8 @@ get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   uint32_t xid;
   VALUE xid_ruby;
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   } 

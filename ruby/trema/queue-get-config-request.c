@@ -48,7 +48,7 @@ queue_get_config_request_alloc( VALUE klass ) {
  * @param [Number] port
  *   a port number to query (defaults to 1)
  *
- * @raise [ArgumentError] if transaction_id is negative.
+ * @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
  *
  * @return [QueueGetConfigRequest]
  *   an object that encapsulates the +OFPT_GET_CONFIG_REQUEST+ openflow message.
@@ -63,8 +63,8 @@ queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t port;
 
   if ( rb_scan_args( argc, argv, "02", &xid_ruby, &port_ruby ) == 2 ) {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
     port = ( uint16_t ) NUM2UINT( port_ruby );
