@@ -29,6 +29,9 @@ require "trema/dsl/context"
 require "trema/ofctl"
 require "trema/shell-commands"
 require "trema/util"
+Dir.glob( File.join( File.dirname( __FILE__ ), '*_supportspec.rb' ) ).each do | file |
+  require File.basename( file, File.extname( file ) )
+end
 
 
 include Trema::Util
