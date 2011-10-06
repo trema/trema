@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Monitor switch on/off
+# Data traffic statistics.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -21,32 +20,23 @@
 #
 
 
-class SwitchMonitor < Controller
-  periodic_timer_event :show_switches, 10
+require "forwardable"
 
 
-  def start
-    @switches = []
+class TrafficStats
+  extend Forwardable
+  def_delegator :@stats, :each_pair
+
+
+  def initialize
+    @stats = {}
   end
 
 
-  def switch_ready datapath_id
-    @switches << datapath_id.to_hex
-    info "Switch #{ datapath_id.to_hex } is UP"
-  end
-
-
-  def switch_disconnected datapath_id
-    @switches -= [ datapath_id.to_hex ]
-    info "Switch #{ datapath_id.to_hex } is DOWN"
-  end
-
-
-  private
-
-
-  def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+  def update mac, packet_count, byte_count
+    @stats[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
+    @stats[ mac ][ :packet_count ] += packet_count
+    @stats[ mac ][ :byte_count ] += byte_count
   end
 end
 

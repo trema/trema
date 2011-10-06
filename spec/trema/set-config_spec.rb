@@ -22,60 +22,23 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::SetConfig do
-  context "when an instance is created with no arguments" do
-    before( :all ) do
-      @set_config = SetConfig.new
-    end
-    
-    
-    it "should have transaction_id" do
-      @set_config.transaction_id.should >= 0
-    end
-    
-    
-    it "should have flags" do
-      @set_config.flags.should == 0
-    end
-    
-    
-    it "should have miss_send_len" do
-      @set_config.miss_send_len.should == 128
-    end
-  end
-  
-  
-  context "when an instance is created with arguments" do
-    before( :all ) do
-      @set_config = SetConfig.new( 1234, 1, 256 )
-    end
-    
-    
-    it "should have transaction_id(1234)" do
-      @set_config.transaction_id.should == 1234
-    end
-    
-    
-    it "should have flags(1)" do
-      @set_config.flags.should == 1
-    end
-    
-    
-    it "should have miss_send_len(256)" do
-      @set_config.miss_send_len.should == 256
-    end
-  end
-  
-  
-  context "when creating with negative transaction ID(-1234)" do
-    it "should raise an error" do
-      lambda do 
-        SetConfig.new( -1234, 0, 128 )
-      end.should raise_error( "Transaction ID must be >= 0" )
-    end
-  end
-  
-  
+describe SetConfig do
+  its( :flags ) { should == 0 }
+  its( :miss_send_len ) { should == 128 }
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
+
+
+describe SetConfig, ".new( transaction_id, 1, 256 )" do
+  subject { SetConfig.new transaction_id, 1, 256 }
+  let( :transaction_id ) { 1234 }
+  its( :flags ) { should  == 1 }
+  its( :miss_send_len ) { should == 256 }
+  it_should_behave_like "any OpenFlow message"
+end  
+
+
+describe SetConfig, ".new( 123, 0, 128 )" do
   context "when #set_config is sent" do
     it "should not #set_config_reply" do
       class SetConfigController < Controller; end
@@ -89,10 +52,12 @@ describe Trema::SetConfig do
       }
     end
   end
-  
-  
-  context "when #set_config is sent with flags and miss_send_len set to 0" do
-    it "should have flags and miss_send_len set to 0 in #get_config_reply " do
+end
+
+
+describe SetConfig, ".new( 123, 0, 0 )" do
+  context "when #set_config is sent with flags, miss_send_len set to 0" do
+    it "should #get_config_reply with flags, miss_send_len set to 0" do
       class SetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }

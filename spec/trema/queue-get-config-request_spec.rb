@@ -23,31 +23,22 @@ require "trema"
 
 
 describe QueueGetConfigRequest do
-  context "when an instance is created with no arguments" do
-    its( :transaction_id ) { should  >= 0 }
-    its( :port ) { should == 1 }
-  end
-  
-  
-  context "when an instance is created with arguments" do
-    subject { QueueGetConfigRequest.new( 123, 2 ) }
-    its( :transaction_id ) { should == 123 }
-    its( :port) { should == 2 }
-  end
+  it_should_behave_like "any Openflow message with default transaction ID"
+end  
 
-  
-  context "when an instance is created with invalid transaction_id" do
-    it "should raise an error" do
-      lambda do
-        QueueGetConfigRequest.new( -1, 1 )
-      end.should raise_error ArgumentError
-    end
-  end
-  
-  
+
+describe QueueGetConfigRequest, ".new( transaction_id, 2 )" do
+  subject { QueueGetConfigRequest.new( transaction_id, 2 ) }
+  let( :transaction_id ) { 1234 }
+  its( :port) { should == 2 }
+  it_should_behave_like "any OpenFlow message"
+end
+
+
+describe QueueGetConfigRequest, ".new( 123, 1 )" do
   context "when #queue_get_config_request is sent" do
     it "should #queue_get_config_reply" do
-      pending "#queue_get_config_reply is not implemented in openvswitch-1.1.2"
+      pending "#queue_get_config_reply is not implemented in #{Trema::Vendor::openvswitch}"
       class QueueGetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }

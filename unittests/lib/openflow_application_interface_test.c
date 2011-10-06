@@ -107,7 +107,7 @@ static openflow_event_handlers_t NULL_EVENT_HANDLERS = { false, ( void * ) 0, ( 
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          false, ( void * ) 0, ( void * ) 0,
-                                                         ( void * ) 0, ( void * ) 0,
+                                                         false, ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
@@ -121,7 +121,7 @@ static openflow_event_handlers_t EVENT_HANDLERS = {
   FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA,
   GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA,
   false, PACKET_IN_HANDLER, PACKET_IN_USER_DATA,
-  FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA,
+  false, FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA,
   PORT_STATUS_HANDLER, PORT_STATUS_USER_DATA,
   STATS_REPLY_HANDLER, STATS_REPLY_USER_DATA,
   BARRIER_REPLY_HANDLER, BARRIER_REPLY_USER_DATA,
@@ -915,7 +915,7 @@ test_set_simple_packet_in_handler() {
 
 static void
 test_set_packet_in_handler_should_die_if_handler_is_NULL() {
-  expect_string( mock_die, format, "Invalid callback function for packet_in event." );
+  expect_string( mock_die, format, "Callback function (packet_in_handler) must not be NULL." );
   expect_assert_failure( set_packet_in_handler( NULL, PACKET_IN_USER_DATA ) );
   assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
 }
@@ -1078,16 +1078,53 @@ test_handle_packet_in_should_die_if_message_length_is_zero() {
  ********************************************************************************/
 
 static void
+mock_simple_flow_removed_handler( uint64_t datapath_id, flow_removed message ) {
+  uint32_t transaction_id = message.transaction_id;
+  struct ofp_match match = message.match;
+  uint64_t cookie = message.cookie;
+  uint32_t priority32 = message.priority;
+  uint32_t reason32 = message.reason;
+  uint32_t duration_sec = message.duration_sec;
+  uint32_t duration_nsec = message.duration_nsec;
+  uint32_t idle_timeout32 = message.idle_timeout;
+  uint64_t packet_count = message.packet_count;
+  uint64_t byte_count = message.byte_count;
+  void *user_data = message.user_data;
+
+  check_expected( &datapath_id );
+  check_expected( transaction_id );
+  check_expected( &match );
+  check_expected( &cookie );
+  check_expected( priority32 );
+  check_expected( reason32 );
+  check_expected( duration_sec );
+  check_expected( duration_nsec );
+  check_expected( idle_timeout32 );
+  check_expected( &packet_count );
+  check_expected( &byte_count );
+  check_expected( user_data );
+}
+
+
+static void
 test_set_flow_removed_handler() {
-  assert_true( set_flow_removed_handler( FLOW_REMOVED_HANDLER, FLOW_REMOVED_USER_DATA ) );
-  assert_int_equal( event_handlers.flow_removed_callback, FLOW_REMOVED_HANDLER );
-  assert_int_equal( event_handlers.flow_removed_user_data, FLOW_REMOVED_USER_DATA );
+  set_flow_removed_handler( mock_flow_removed_handler, FLOW_REMOVED_USER_DATA );
+  assert_true( event_handlers.flow_removed_callback == mock_flow_removed_handler );
+  assert_true( event_handlers.flow_removed_user_data == FLOW_REMOVED_USER_DATA );
+}
+
+
+static void
+test_set_simple_flow_removed_handler() {
+  set_flow_removed_handler( mock_simple_flow_removed_handler, FLOW_REMOVED_USER_DATA );
+  assert_true( event_handlers.flow_removed_callback == mock_simple_flow_removed_handler );
+  assert_true( event_handlers.flow_removed_user_data == FLOW_REMOVED_USER_DATA );
 }
 
 
 static void
 test_set_flow_removed_handler_if_handler_is_NULL() {
-  expect_string( mock_die, format, "Callback function ( flow_removed_handler ) must not be NULL." );
+  expect_string( mock_die, format, "Callback function (flow_removed_handler) must not be NULL." );
   expect_assert_failure( set_flow_removed_handler( NULL, NULL ) );
   assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
 }
@@ -1661,11 +1698,18 @@ test_handle_flow_removed() {
   uint64_t cookie = 0x0102030405060708ULL;
   uint64_t packet_count = 1000;
   uint64_t byte_count = 100000;
-  buffer *buffer;
-
-  buffer = create_flow_removed( TRANSACTION_ID, MATCH, cookie, priority,
-                                reason, duration_sec, duration_nsec,
-                                idle_timeout, packet_count, byte_count );
+  buffer *buffer = create_flow_removed(
+    TRANSACTION_ID,
+    MATCH,
+    cookie,
+    priority,
+    reason,
+    duration_sec,
+    duration_nsec,
+    idle_timeout,
+    packet_count,
+    byte_count
+  );
 
   expect_memory( mock_flow_removed_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
   expect_value( mock_flow_removed_handler, transaction_id, TRANSACTION_ID );
@@ -1681,6 +1725,49 @@ test_handle_flow_removed() {
   expect_memory( mock_flow_removed_handler, user_data, USER_DATA, USER_DATA_LEN );
 
   set_flow_removed_handler( mock_flow_removed_handler, USER_DATA );
+  handle_flow_removed( DATAPATH_ID, buffer );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_handle_flow_removed_with_simple_handler() {
+  uint8_t reason = OFPRR_IDLE_TIMEOUT;
+  uint16_t idle_timeout = 60;
+  uint16_t priority = UINT16_MAX;
+  uint32_t duration_sec = 180;
+  uint32_t duration_nsec = 10000;
+  uint64_t cookie = 0x0102030405060708ULL;
+  uint64_t packet_count = 1000;
+  uint64_t byte_count = 100000;
+  buffer *buffer = create_flow_removed(
+    TRANSACTION_ID,
+    MATCH,
+    cookie,
+    priority,
+    reason,
+    duration_sec,
+    duration_nsec,
+    idle_timeout,
+    packet_count,
+    byte_count
+  );
+
+  expect_memory( mock_simple_flow_removed_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
+  expect_value( mock_simple_flow_removed_handler, transaction_id, TRANSACTION_ID );
+  expect_memory( mock_simple_flow_removed_handler, &match, &MATCH, sizeof( struct ofp_match ) );
+  expect_memory( mock_simple_flow_removed_handler, &cookie, &cookie, sizeof( uint64_t ) );
+  expect_value( mock_simple_flow_removed_handler, priority32, ( uint32_t ) priority );
+  expect_value( mock_simple_flow_removed_handler, reason32, ( uint32_t ) reason );
+  expect_value( mock_simple_flow_removed_handler, duration_sec, duration_sec );
+  expect_value( mock_simple_flow_removed_handler, duration_nsec, duration_nsec );
+  expect_value( mock_simple_flow_removed_handler, idle_timeout32, ( uint32_t ) idle_timeout );
+  expect_memory( mock_simple_flow_removed_handler, &packet_count, &packet_count, sizeof( uint64_t ) );
+  expect_memory( mock_simple_flow_removed_handler, &byte_count, &byte_count, sizeof( uint64_t ) );
+  expect_memory( mock_simple_flow_removed_handler, user_data, USER_DATA, USER_DATA_LEN );
+
+  set_flow_removed_handler( mock_simple_flow_removed_handler, USER_DATA );
   handle_flow_removed( DATAPATH_ID, buffer );
 
   free_buffer( buffer );
@@ -3332,7 +3419,10 @@ main() {
     unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_length_is_zero, init, cleanup ),
 
+    // Flow removed handler tests.
     unit_test_setup_teardown( test_handle_flow_removed, init, cleanup ),
+    unit_test_setup_teardown( test_handle_flow_removed_with_simple_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_simple_flow_removed_handler, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed_if_message_length_is_zero, init, cleanup ),

@@ -14,3 +14,14 @@ Feature: Send set config messages
       And *** sleep 2 ***
       And I terminated all trema services
     Then the log file "openflowd.set_config.log" should include "received: OFPT_SET_CONFIG" x 11
+
+
+  Scenario: set config x 10 in Ruby
+    When I try trema run "./src/examples/openflow_message/set-config.rb 0xabc, 10" with following configuration (backgrounded):
+      """
+      vswitch("set-config") { datapath_id "0xabc" }
+      """
+      And wait until "SetConfigController" is up
+      And *** sleep 2 ***
+      And I terminated all trema services
+    Then the log file "openflowd.set-config.log" should include "received: OFPT_SET_CONFIG" x 11

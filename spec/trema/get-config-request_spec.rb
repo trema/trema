@@ -22,30 +22,18 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigRequest do
-  context "when an instance is created" do  
-    it "should automatically allocate a transaction ID" do
-      get_config_request = GetConfigRequest.new
-      get_config_request.transaction_id.should be_a_kind_of( Integer )
-      get_config_request.transaction_id.should >= 0
-    end
-    
-    
-    it "should have a valid transaction ID" do
-      GetConfigRequest.new( 1234 ).transaction_id.should == 1234
-    end
-  end  
+describe GetConfigRequest, ".new" do
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
+
+
+describe GetConfigRequest, ".new( transaction_id )" do
+  subject { GetConfigRequest.new transaction_id }
+  it_should_behave_like "any OpenFlow message"
+end
 
   
-  context "when creating with negative transaction ID(-1234)" do
-    it "should raise an error" do
-      lambda do 
-        GetConfigRequest.new( -1234 )
-      end.should raise_error( "Transaction ID must be >= 0" )
-    end
-  end
-  
-  
+describe GetConfigRequest, ".new( 1234 )" do
   context "when #get_config_request is sent" do
     it "should #get_config_reply" do
       class GetConfigController < Controller; end

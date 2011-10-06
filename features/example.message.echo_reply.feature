@@ -13,3 +13,14 @@ Feature: Send echo reply messages
       And wait until "echo_reply" is up
       And *** sleep 2 ***
     Then the log file "openflowd.echo_reply.log" should include "received: OFPT_ECHO_REPLY" x 10
+
+
+   Scenario: Send echo reply x 10 in Ruby
+    When I try trema run "./src/examples/openflow_message/echo-reply.rb 0xabc, 10" with following configuration (backgrounded):
+      """
+      vswitch("echo-reply") { datapath_id "0xabc" }
+      """
+      And wait until "EchoReplyController" is up
+      And *** sleep 2 ***
+    Then the log file "openflowd.echo-reply.log" should include "received: OFPT_ECHO_REPLY" x 10
+

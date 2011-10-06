@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Monitor switch on/off
+# Forwarding database (FDB) of layer-2 switch.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -21,32 +20,27 @@
 #
 
 
-class SwitchMonitor < Controller
-  periodic_timer_event :show_switches, 10
-
-
-  def start
-    @switches = []
+class FDB
+  def initialize
+    @db = {}
   end
 
 
-  def switch_ready datapath_id
-    @switches << datapath_id.to_hex
-    info "Switch #{ datapath_id.to_hex } is UP"
+  def lookup mac
+    if @db[ mac ]
+      @db[ mac ][ :port_number ]
+    else
+      nil
+    end
   end
 
 
-  def switch_disconnected datapath_id
-    @switches -= [ datapath_id.to_hex ]
-    info "Switch #{ datapath_id.to_hex } is DOWN"
-  end
-
-
-  private
-
-
-  def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+  def learn mac, port_number
+    if @db[ mac ]
+      @db[ mac ][ :port_number ] = port_number
+    else
+      @db[ mac ] = { :mac => mac, :port_number => port_number }
+    end
   end
 end
 

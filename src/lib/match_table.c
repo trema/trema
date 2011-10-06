@@ -99,10 +99,10 @@ hash_exact_match_entry( const void *key ) {
 
   uint16_t dl_vlan = match->dl_vlan;
   if ( dl_vlan != UINT16_MAX ) {
-    dl_vlan &= ( uint16_t ) VLAN_VID_MASK;
+    dl_vlan = ( uint16_t ) ( dl_vlan & VLAN_VID_MASK );
   }
-  uint8_t dl_vlan_pcp = ( match->dl_vlan_pcp & ( uint8_t ) VLAN_PCP_MASK );
-  uint8_t nw_tos = ( match->nw_tos & ( uint8_t ) NW_TOS_MASK );
+  uint8_t dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
+  uint8_t nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
 
   unsigned int hash = 0;
   hash ^= ( unsigned int ) ( match->in_port << 16 );

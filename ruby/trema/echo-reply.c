@@ -1,5 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -23,43 +23,45 @@
 
 
 extern VALUE mTrema;
-VALUE cHello;
+VALUE cEchoReply;
 
 
 static VALUE
-hello_alloc( VALUE klass ) {
-  buffer *hello = create_hello( 0 );
-  return Data_Wrap_Struct( klass, NULL, free_buffer, hello );
+echo_reply_alloc( VALUE klass ) {
+  buffer *echo_reply = create_echo_reply( get_transaction_id(), NULL );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, echo_reply );
 }
 
 
 /*
+ * Creates a {EchoReply} instance mainly used for testing
+ *
  * @overload initialize(transaction_id=nil)
- *   Creates a {Hello} object by specifying its transaction id. If
+ *   Creates a {EchoReply} object by specifying its transaction id. If
  *   transaction_id is not specified, an auto-generated transaction_id
  *   is set.
- * 
- *   @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * 
- *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
+ *
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
+ *
+ * @return [EchoReply] an object that encapsulates the +OFPT_ECHO_REPLY+ openflow message.
  */
 static VALUE
-hello_init( int argc, VALUE *argv, VALUE self ) {
-  buffer *hello;
-  Data_Get_Struct( self, buffer, hello );
-
-  VALUE xid_ruby;
+echo_reply_init( int argc, VALUE *argv, VALUE self ) {
+  buffer *echo_reply;
+  Data_Get_Struct( self, buffer, echo_reply );
+  
   uint32_t xid;
-  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
-    xid = get_transaction_id();
-  }
-  else {
+  VALUE xid_ruby;
+  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
     if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
       rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
+  } 
+  else {
+    xid = get_transaction_id();
   }
-  ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
+  ( ( struct ofp_header * ) ( echo_reply->data ) )->xid = htonl( xid );
   return self;
 }
 
@@ -70,20 +72,20 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
  * @return [Number] the value of attribute transaction id.
  */
 static VALUE
-hello_transaction_id( VALUE self ) {
-  buffer *hello;
-  Data_Get_Struct( self, buffer, hello );
-  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( hello->data ) )->xid );
+echo_reply_transaction_id( VALUE self ) {
+  buffer *echo_reply;
+  Data_Get_Struct( self, buffer, echo_reply );
+  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( echo_reply->data ) )->xid );
   return UINT2NUM( xid );
 }
 
 
 void
-Init_hello() {
-  cHello = rb_define_class_under( mTrema, "Hello", rb_cObject );
-  rb_define_alloc_func( cHello, hello_alloc );
-  rb_define_method( cHello, "initialize", hello_init, -1 );
-  rb_define_method( cHello, "transaction_id", hello_transaction_id, 0 );
+Init_echo_reply() {
+  cEchoReply = rb_define_class_under( mTrema, "EchoReply", rb_cObject );
+  rb_define_alloc_func( cEchoReply, echo_reply_alloc );
+  rb_define_method( cEchoReply, "initialize", echo_reply_init, -1 );
+  rb_define_method( cEchoReply, "transaction_id", echo_reply_transaction_id, 0 );
 }
 
 

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Monitor switch on/off
+# Monkey patches for Ruby's built-in classes.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -21,32 +20,14 @@
 #
 
 
-class SwitchMonitor < Controller
-  periodic_timer_event :show_switches, 10
-
-
-  def start
-    @switches = []
+class Integer
+  def to_hex
+    "%#x" % self
   end
 
 
-  def switch_ready datapath_id
-    @switches << datapath_id.to_hex
-    info "Switch #{ datapath_id.to_hex } is UP"
-  end
-
-
-  def switch_disconnected datapath_id
-    @switches -= [ datapath_id.to_hex ]
-    info "Switch #{ datapath_id.to_hex } is DOWN"
-  end
-
-
-  private
-
-
-  def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+  def unsigned_32bit?
+    ( 0 <= self ) and ( self < 2 ** 32 )
   end
 end
 
