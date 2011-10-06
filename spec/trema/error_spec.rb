@@ -39,8 +39,8 @@ describe Error, ".new( type, code )" do
 end
 
 
-describe Error, ".new( transaction_id, type, code )" do
-  subject { Error.new( transaction_id, Error::OFPET_BAD_ACTION, Error::OFPBAC_BAD_VENDOR ) }
+describe Error, ".new( type, code, transaction_id )" do
+  subject { Error.new( Error::OFPET_BAD_ACTION, Error::OFPBAC_BAD_VENDOR, transaction_id ) }
   let( :transaction_id ) { 1234 }
   its( :error_type ) { should == Error::OFPET_BAD_ACTION }
   its( :code ) { should == Error::OFPBAC_BAD_VENDOR }
@@ -50,7 +50,7 @@ end
 
 
 describe Error, ".new( transaction_id, type, code, 'this is a test' )" do
-  subject { Error.new( transaction_id, Error::OFPET_FLOW_MOD_FAILED, Error::OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test" ) }
+  subject { Error.new( Error::OFPET_FLOW_MOD_FAILED, Error::OFPFMFC_BAD_EMERG_TIMEOUT, transaction_id, "this is a test" ) }
   let( :transaction_id ) { 1234 }
   its( :error_type ) { should == Error::OFPET_FLOW_MOD_FAILED }
   its( :code ) { should == Error::OFPFMFC_BAD_EMERG_TIMEOUT }
