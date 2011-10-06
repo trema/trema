@@ -27,11 +27,7 @@ VALUE cError;
 
 
 /*
- * @overload initialize(transaction_id=nil, type, code, user_data=nil)
- *
- * @param [Number] transaction_id
- *   a positive number, not recently attached to any previous pending commands to
- *   guarantee message integrity auto-generated if not specified.
+ * @overload initialize(type, code, transaction_id=nil, user_data=nil)
  *
  * @param [Number] type
  *   a command or action that failed.
@@ -39,18 +35,22 @@ VALUE cError;
  * @param [Number] code
  *   the reason of the failed type error.
  *
+ * @param [Number] transaction_id
+ *   a positive number, not recently attached to any previous pending commands to
+ *   guarantee message integrity auto-generated if not specified.
+ *
  * @param [String] user_data
  *   a more user friendly explanation of the error. Defaults to nil if not
  *   specified.
  *
  * @example Instantiate with type and code
- *   Error.new(OFPET_BAD_REQUEST, OFPBRC_BAD_TYPE)
+ *   Error.new( OFPET_BAD_REQUEST, OFPBRC_BAD_TYPE )
  *
- * @example Instantiate with transaction_id, type and code.
- *   Error.new(1234, OFPET_BAD_ACTION, OFPBAC_BAD_VENDOR)
+ * @example Instantiate with type code, and transaction_id, 
+ *   Error.new( OFPET_BAD_ACTION, OFPBAC_BAD_VENDOR, 1234 )
  *
- * @example Instantiate with transaction_id, type, code, user_data
- *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test")
+ * @example Instantiate with type, code, transaction_id and user_data
+ *   Error.new( OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, 6789, "this is a test" )
  *
  * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  * @raise [ArgumentError] if user data is not a string.
@@ -77,8 +77,8 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       code = ( uint16_t ) NUM2UINT( code_r );
       break;
     case 3:
-      // transaction id, type, code specified.
-      rb_scan_args( argc, argv, "03", &xid_r, &type_r, &code_r );
+      // type, code, transaction id, specified.
+      rb_scan_args( argc, argv, "03", &type_r, &code_r, &xid_r );
       if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
@@ -87,7 +87,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       code = ( uint16_t ) NUM2UINT( code_r );
       break;
     case 4:
-      rb_scan_args( argc, argv, "04", &xid_r, &type_r, &code_r, &user_data );
+      rb_scan_args( argc, argv, "04", &type_r, &code_r, &xid_r, &user_data );
       if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
