@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include "trema.h"
 #include "cookie_table.h"
+#include "event_handler.h"
 #include "management_interface.h"
 #include "message_queue.h"
 #include "messenger.h"
@@ -149,40 +150,33 @@ service_send_state( struct switch_info *sw_info, uint64_t *dpid, uint16_t tag ) 
 
 
 static void
-secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
-    return;
-  }
-  FD_SET( switch_info.secure_channel_fd, read_set );
-  if ( switch_info.send_queue != NULL && switch_info.send_queue->length > 0 ) {
-    FD_SET( switch_info.secure_channel_fd, write_set );
-  }
-}
+secure_channel_read( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
 
-
-static void
-secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
+  if ( recv_from_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
     return;
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
-    if ( flush_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
-    if ( recv_from_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
   }
 
   if ( switch_info.recv_queue->length > 0 ) {
     int ret = handle_messages_from_secure_channel( &switch_info );
     if ( ret < 0 ) {
+      stop_event_handler();
       stop_messenger();
     }
+  }
+}
+
+
+static void
+secure_channel_write( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+
+  if ( flush_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
   }
 }
 
@@ -367,6 +361,10 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
 
   if ( sw_info->secure_channel_fd >= 0 ) {
+    set_readable( switch_info.secure_channel_fd, false );
+    set_writable( switch_info.secure_channel_fd, false );
+    delete_fd_handler( switch_info.secure_channel_fd );
+
     close( sw_info->secure_channel_fd );
     sw_info->secure_channel_fd = -1;
   }
@@ -376,6 +374,7 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   flush_messenger();
   debug( "send disconnected state" );
 
+  stop_event_handler();
   stop_messenger();
 
   return 0;
@@ -488,6 +487,11 @@ main( int argc, char *argv[] ) {
   }
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
+
+  set_fd_handler( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
+  set_readable( switch_info.secure_channel_fd, true );
+  set_writable( switch_info.secure_channel_fd, false );
+
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;
   switch_info.miss_send_len = UINT16_MAX;
@@ -499,8 +503,6 @@ main( int argc, char *argv[] ) {
   init_xid_table();
   init_cookie_table();
 
-  set_fd_set_callback( secure_channel_fd_set );
-  set_check_fd_isset_callback( secure_channel_fd_isset );
   add_message_received_callback( get_trema_name(), service_recv );
 
   snprintf( management_service_name , MESSENGER_SERVICE_NAME_LENGTH,
