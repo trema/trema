@@ -1,4 +1,6 @@
 #
+# Data traffic statistics.
+#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -18,23 +20,29 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require "forwardable"
 
 
-describe Hello do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+class TrafficStats
+  extend Forwardable
+  def_delegator :@stats, :each_pair
 
 
-describe Hello, ".new( transaction_id )" do
-  subject { Hello.new transaction_id }
-  it_should_behave_like "any OpenFlow message"
+  def initialize
+    @stats = {}
+  end
+
+
+  def update mac, packet_count, byte_count
+    @stats[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
+    @stats[ mac ][ :packet_count ] += packet_count
+    @stats[ mac ][ :byte_count ] += byte_count
+  end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

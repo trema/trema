@@ -40,7 +40,7 @@ barrier_request_alloc( VALUE klass ) {
  *   Creates a {BarrierRequest} object with auto-generated transaction_id if not
  *   supplied.
  *
- * @raise [ArgumentError] if transaction_id is negative.
+ * @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
  *
  * @return [BarrierRequest]
  *   an object that encapsulates the +OFPT_BARRIER_REQUEST+ openflow message.
@@ -53,8 +53,8 @@ barrier_request_init( int argc, VALUE *argv, VALUE self ) {
   uint32_t xid;
 
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
   } 

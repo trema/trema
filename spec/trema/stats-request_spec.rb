@@ -23,7 +23,7 @@ require "trema"
 
 
 shared_examples_for "#stats-request" do
-  its( :transaction_id ) { should >= 0 }
+  it_should_behave_like "any Openflow message with default transaction ID"
   its( :flags ) { should == 0 }
 end
 
@@ -36,8 +36,8 @@ describe StatsRequest do
     its( :table_id ) { should == 0xff }
     its( :out_port ) { should == 0xffff }
   end
-  
-  
+
+
   context "when #aggregate-stats is created" do
     subject { AggregateStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
     it_should_behave_like "#stats-request"
@@ -46,30 +46,30 @@ describe StatsRequest do
     its( :out_port ) { should == 0xffff }
   end
 
-  
+
   context "when #table-stats is created" do
-    subject { TableStatsRequest.new() }
+    subject { TableStatsRequest.new }
     it_should_behave_like "#stats-request"
   end
-  
-  
+
+
   context "when #port-stats is created" do
-    subject { PortStatsRequest.new() }
+    subject { PortStatsRequest.new }
     it_should_behave_like "#stats-request"
     its( :port_no ) { should == 0xffff }
   end
-  
-  
+
+
   context "when #queue-stats is created" do
-    subject { QueueStatsRequest.new() }
+    subject { QueueStatsRequest.new }
     it_should_behave_like "#stats-request"
     its( :port_no ) { should == 0xfffc }
     its( :queue_id ) { should == 0xffffffff }
   end
-  
-  
+
+
   context "when #vendor-stats is created" do
-    subject { VendorStatsRequest.new() }
+    subject { VendorStatsRequest.new }
     it_should_behave_like "#stats-request"
     its( :vendor_id ) { should == 0x00004cff }
   end

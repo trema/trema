@@ -1,4 +1,6 @@
 #
+# Forwarding database (FDB) of layer-2 switch.
+#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -18,23 +20,33 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+class FDB
+  def initialize
+    @db = {}
+  end
 
 
-describe Hello do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+  def lookup mac
+    if @db[ mac ]
+      @db[ mac ][ :port_number ]
+    else
+      nil
+    end
+  end
 
 
-describe Hello, ".new( transaction_id )" do
-  subject { Hello.new transaction_id }
-  it_should_behave_like "any OpenFlow message"
+  def learn mac, port_number
+    if @db[ mac ]
+      @db[ mac ][ :port_number ] = port_number
+    else
+      @db[ mac ] = { :mac => mac, :port_number => port_number }
+    end
+  end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

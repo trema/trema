@@ -61,7 +61,7 @@ vendor_request_alloc( VALUE klass ) {
  *   Fixed 16 bytes of data if not specified. User can set upto 16 bytes of any
  *   vendor specific data.
  *
- * @raise [ArgumentError] if transaction id is negative.
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  * @raise [ArgumentError] if user data is not an array of bytes.
  *
  * @return [VendorRequest] an object that encapsulates the +OFPT_VENDOR+ openFlow message.
@@ -81,8 +81,8 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
   uint16_t data_length = ( uint16_t ) ( vendor_request->length - sizeof( struct ofp_vendor_header ) );
 
   if ( rb_scan_args( argc, argv, "03", &xid_r, &vendor_r, &data_r ) == 3 ) {
-    if ( NUM2INT( xid_r ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_r );
     vendor = ( uint32_t ) NUM2UINT( vendor_r );

@@ -22,44 +22,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::FeaturesRequest do
-  it "should automatically allocate a transaction ID" do
-    features_request = Trema::FeaturesRequest.new
-    features_request.transaction_id.should be_a_kind_of( Integer )
-    features_request.transaction_id.should >= 0
-  end
+describe FeaturesRequest, ".new" do
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
-  it "should be created by specifying its transaction ID" do
-    features_request = Trema::FeaturesRequest.new( 1234 )
-    features_request.transaction_id.should == 1234
-  end
-  
-  
-  context "when an instance is created with" do
-    describe "negative transaction ID" do
-      it "should raise an error" do
-        expect {
-          FeaturesRequest.new( -1234 )
-        }.to raise_error( ArgumentError )
-      end
-    end
-  end
-  
-  
+describe FeaturesRequest, ".new( transaction_id )" do
+  subject { FeaturesRequest.new transaction_id }
+  it_should_behave_like "any OpenFlow message"
+end
+
+
+describe FeaturesRequest, ".new( 1234 )" do
   context "when #features_request is sent with transaction ID(1234)" do
     it "should receive #features_reply with transaction ID(1234)" do
       class FeaturesController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FeaturesController ) {
-        features_request = Trema::FeaturesRequest.new( 1234 )
+        features_request = FeaturesRequest.new( 1234 )
+        controller( "FeaturesController" ).send_message( 0xabc, features_request )
         controller( "FeaturesController" ).should_receive( :features_reply ) do | arg |
           arg.datapath_id.should == 0xabc
           arg.transaction_id.should == 1234
         end
-        controller( "FeaturesController" ).send_message( 0xabc, features_request )
-        sleep 2 # FIXME: wait to send_message
       }
     end
   end
