@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include "event_handler.h"
 #include "queue.h"
 #include "trema.h"
 
@@ -300,7 +301,10 @@ init_packet_capture( int *argc, char **argv[] ) {
 static void
 start_packet_capture( void ) {
   set_timer_event();
-  set_external_callback( start_capture );
+
+  if ( set_external_callback != NULL ) {
+    set_external_callback( start_capture );
+  }
 }
 
 

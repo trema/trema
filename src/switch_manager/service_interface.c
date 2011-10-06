@@ -38,7 +38,7 @@ create_openflow_application_message( uint64_t *datapath_id, buffer *data ) {
   }
   buf = alloc_buffer_with_length( sizeof( openflow_service_header_t ) + append_len );
   message = append_back_buffer( buf, sizeof( openflow_service_header_t ) );
-  if (datapath_id == NULL) {
+  if ( datapath_id == NULL ) {
     message->datapath_id = ~0U; // FIXME: defined invalid datapath_id
   } else {
     message->datapath_id = htonll( *datapath_id );
