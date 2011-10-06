@@ -23,10 +23,10 @@ require "trema"
 
 
 describe Error, ".new" do
-  its( :error_type ) { should == Error::OFPET_HELLO_FAILED }
-  its( :code ) { should == Error::OFPHFC_INCOMPATIBLE }
-  its( :user_data ) { should be_nil }
-  it_should_behave_like "any Openflow message with default transaction ID"
+  exception = "Type and code are mandatory arguments and should be specified."
+  it "should raise '#{ exception }'" do
+    expect { subject }.to raise_error( exception )
+  end
 end
 
 
