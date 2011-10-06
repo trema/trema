@@ -104,7 +104,7 @@ read_stdin( int fd, void *data ) {
       return;
     }
 
-    notify_readable_event( fd, false );
+    set_readable( fd, false );
 
     error( "Read error ( errno = %s [%d] ).", strerror( errno ), errno );
     return;
@@ -114,7 +114,7 @@ read_stdin( int fd, void *data ) {
   }
 
   if ( stdin_read_buffer == NULL ) {
-    notify_readable_event( fd, false );
+    set_readable( fd, false );
 
     error( "Read buffer is not allocated yet" );
     return;
@@ -209,8 +209,8 @@ init_stdin_relay( int *argc, char **argv[] ) {
 
   stdin_read_buffer = alloc_buffer_with_length( 1024 );
 
-  add_fd_event( STDIN_FILENO, &read_stdin, NULL, NULL, NULL );
-  notify_readable_event( STDIN_FILENO, true );
+  set_fd_handler( STDIN_FILENO, &read_stdin, NULL, NULL, NULL );
+  set_readable( STDIN_FILENO, true );
 
   return true;
 }
@@ -218,8 +218,8 @@ init_stdin_relay( int *argc, char **argv[] ) {
 
 static bool
 finalize_stdin_relay( void ) {
-  notify_readable_event( STDIN_FILENO, false );
-  delete_fd_event( STDIN_FILENO );
+  set_readable( STDIN_FILENO, false );
+  delete_fd_handler( STDIN_FILENO );
 
   if ( dump_service_name != NULL ) {
     xfree( dump_service_name );

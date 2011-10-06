@@ -39,14 +39,14 @@ extern void ( *stop_event_handler )();
 
 extern bool ( *run_event_handler_once )();
 
-extern void ( *add_fd_event )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
-extern void ( *delete_fd_event )( int fd );
+extern void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
+extern void ( *delete_fd_handler )( int fd );
 
-extern void ( *notify_readable_event )( int fd, bool state );
-extern void ( *notify_writable_event )( int fd, bool state );
+extern void ( *set_readable )( int fd, bool state );
+extern void ( *set_writable )( int fd, bool state );
 
-extern bool ( *is_notifying_readable_event )( int fd );
-extern bool ( *is_notifying_writable_event )( int fd );
+extern bool ( *readable )( int fd );
+extern bool ( *writable )( int fd );
 
 // Optional functions for event handlers to implement, must be signal
 // safe. Leave as NULL if not supported.

@@ -361,9 +361,9 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
 
   if ( sw_info->secure_channel_fd >= 0 ) {
-    notify_readable_event( switch_info.secure_channel_fd, false );
-    notify_writable_event( switch_info.secure_channel_fd, false );
-    delete_fd_event( switch_info.secure_channel_fd );
+    set_readable( switch_info.secure_channel_fd, false );
+    set_writable( switch_info.secure_channel_fd, false );
+    delete_fd_handler( switch_info.secure_channel_fd );
 
     close( sw_info->secure_channel_fd );
     sw_info->secure_channel_fd = -1;
@@ -488,9 +488,9 @@ main( int argc, char *argv[] ) {
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
 
-  add_fd_event( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
-  notify_readable_event( switch_info.secure_channel_fd, true );
-  notify_writable_event( switch_info.secure_channel_fd, false );
+  set_fd_handler( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
+  set_readable( switch_info.secure_channel_fd, true );
+  set_writable( switch_info.secure_channel_fd, false );
 
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;

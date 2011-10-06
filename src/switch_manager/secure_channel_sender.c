@@ -42,7 +42,7 @@ send_to_secure_channel( struct switch_info *sw_info, buffer *buf ) {
 
   bool res = enqueue_message( sw_info->send_queue, buf );
   if ( res ) {
-    notify_writable_event( sw_info->secure_channel_fd, true );
+    set_writable( sw_info->secure_channel_fd, true );
   }
   return res ? 0 : -1;
 }
@@ -74,7 +74,7 @@ flush_secure_channel( struct switch_info *sw_info ) {
     buf = dequeue_message( sw_info->send_queue );
     free_buffer( buf );
   }
-  notify_writable_event( sw_info->secure_channel_fd, false );
+  set_writable( sw_info->secure_channel_fd, false );
 
   return 0;
 }

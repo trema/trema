@@ -206,9 +206,9 @@ select_stop_event_handler() {
 
 
 void
-select_add_fd_event( int fd,
-                     event_fd_callback read_callback, void *read_data,
-                     event_fd_callback write_callback, void *write_data ) {
+select_set_fd_handler( int fd,
+                       event_fd_callback read_callback, void *read_data,
+                       event_fd_callback write_callback, void *write_data ) {
   debug( "Adding event handler for fd %i, %p, %p.", fd, read_callback, write_callback );
 
   // Currently just issue critical warnings instead of killing the
@@ -238,7 +238,7 @@ select_add_fd_event( int fd,
 }
 
 void
-select_delete_fd_event( int fd ) {
+select_delete_fd_handler( int fd ) {
   debug( "Deleting event handler for fd %i.", fd );
 
   event_fd* event = event_list;
@@ -280,14 +280,14 @@ select_delete_fd_event( int fd ) {
 
 
 void
-select_notify_readable_event( int fd, bool state ) {
+select_set_readable( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
-    error( "Invalid fd to notify_readable_event call; %i.", fd );
+    error( "Invalid fd to set_readable call; %i.", fd );
     return;
   }
 
   if ( event_fd_set[ fd ] == NULL || event_fd_set[ fd ]->read_callback == NULL ) {
-    error( "Found fd in invalid state in notify_readable_event; %i, %p.", fd, event_fd_set[ fd ] );
+    error( "Found fd in invalid state in set_readable; %i, %p.", fd, event_fd_set[ fd ] );
     return;
   }
 
@@ -301,7 +301,7 @@ select_notify_readable_event( int fd, bool state ) {
 
 
 void
-select_notify_writable_event( int fd, bool state ) {
+select_set_writable( int fd, bool state ) {
   if ( fd < 0 || fd >= FD_SETSIZE ) {
     error( "Invalid fd to notify_writeable_event call; %i.", fd );
     return;
@@ -322,13 +322,13 @@ select_notify_writable_event( int fd, bool state ) {
 
 
 bool
-select_is_notifying_readable_event( int fd ) {
+select_readable( int fd ) {
   return FD_ISSET( fd, &event_read_set );
 }
 
 
 bool
-select_is_notifying_writable_event( int fd ) {
+select_writable( int fd ) {
   return FD_ISSET( fd, &event_write_set );
 }
 
@@ -354,14 +354,14 @@ set_select_event_handler() {
 
   run_event_handler_once = select_run_event_handler_once;
 
-  add_fd_event = select_add_fd_event;
-  delete_fd_event = select_delete_fd_event;
+  set_fd_handler = select_set_fd_handler;
+  delete_fd_handler = select_delete_fd_handler;
 
-  notify_readable_event = select_notify_readable_event;
-  notify_writable_event = select_notify_writable_event;
+  set_readable = select_set_readable;
+  set_writable = select_set_writable;
 
-  is_notifying_readable_event = select_is_notifying_readable_event;
-  is_notifying_writable_event = select_is_notifying_writable_event;
+  readable = select_readable;
+  writable = select_writable;
 
   set_external_callback = select_set_external_callback;
 }

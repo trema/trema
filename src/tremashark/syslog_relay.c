@@ -93,8 +93,8 @@ recv_syslog_message( int fd, void *data ) {
 
     error( "Receive error ( errno = %s [%d] ).", strerror( errno ), errno );
 
-    notify_readable_event( fd, false );
-    delete_fd_event( fd );
+    set_readable( fd, false );
+    delete_fd_handler( fd );
     return;
   }
 
@@ -200,8 +200,8 @@ init_syslog_relay( int *argc, char **argv[] ) {
     return false;
   }
 
-  add_fd_event( syslog_fd, recv_syslog_message, NULL, NULL, NULL );
-  notify_readable_event( syslog_fd, true );
+  set_fd_handler( syslog_fd, recv_syslog_message, NULL, NULL, NULL );
+  set_readable( syslog_fd, true );
 
   return true;
 }
@@ -210,8 +210,8 @@ init_syslog_relay( int *argc, char **argv[] ) {
 static bool
 finalize_syslog_relay( void ) {
   if ( syslog_fd >= 0 ) {
-    notify_readable_event( syslog_fd, false );
-    delete_fd_event( syslog_fd );
+    set_readable( syslog_fd, false );
+    delete_fd_handler( syslog_fd );
 
     close( syslog_fd );
     syslog_fd = -1;

@@ -264,8 +264,8 @@ finalize_listener_info(  struct listener_info *listener_info ) {
     listener_info->switch_daemon = NULL;
   }
   if ( listener_info->listen_fd >= 0 ) {
-    notify_readable_event( listener_info->listen_fd, false );
-    delete_fd_event( listener_info->listen_fd );
+    set_readable( listener_info->listen_fd, false );
+    delete_fd_handler( listener_info->listen_fd );
 
     close( listener_info->listen_fd );
     listener_info->listen_fd = -1;
@@ -427,8 +427,8 @@ main( int argc, char *argv[] ) {
     exit( EXIT_FAILURE );
   }
 
-  add_fd_event( listener_info.listen_fd, secure_channel_accept, &listener_info, NULL, NULL );
-  notify_readable_event( listener_info.listen_fd, true );
+  set_fd_handler( listener_info.listen_fd, secure_channel_accept, &listener_info, NULL, NULL );
+  set_readable( listener_info.listen_fd, true );
 
   start_trema();
 

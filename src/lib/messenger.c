@@ -320,9 +320,9 @@ delete_send_queue( send_queue *sq ) {
 
   free_message_buffer( sq->buffer );
   if ( sq->server_socket != -1 ) {
-    notify_readable_event( sq->server_socket, false );
-    notify_writable_event( sq->server_socket, false );
-    delete_fd_event( sq->server_socket );
+    set_readable( sq->server_socket, false );
+    set_writable( sq->server_socket, false );
+    delete_fd_handler( sq->server_socket );
 
     close( sq->server_socket );
   }
@@ -442,8 +442,8 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
 
     debug( "Closing a client socket ( fd = %d ).", client_socket->fd );
 
-    notify_readable_event( client_socket->fd, false );
-    delete_fd_event( client_socket->fd );
+    set_readable( client_socket->fd, false );
+    delete_fd_handler( client_socket->fd );
 
     close( client_socket->fd );
     xfree( client_socket );
@@ -451,8 +451,8 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
   }
   delete_dlist( rq->client_sockets );
 
-  notify_readable_event( rq->listen_socket, false );
-  delete_fd_event( rq->listen_socket );
+  set_readable( rq->listen_socket, false );
+  delete_fd_handler( rq->listen_socket );
 
   close( rq->listen_socket );
   free_message_buffer( rq->buffer );
@@ -590,8 +590,8 @@ create_receive_queue( const char *service_name ) {
     return NULL;
   }
 
-  add_fd_event( rq->listen_socket, &on_accept, rq, NULL, NULL );
-  notify_readable_event( rq->listen_socket, true );
+  set_fd_handler( rq->listen_socket, &on_accept, rq, NULL, NULL );
+  set_readable( rq->listen_socket, true );
 
   rq->message_callbacks = create_dlist();
   rq->client_sockets = create_dlist();
@@ -828,11 +828,11 @@ send_queue_connect( send_queue *sq ) {
     return 0;
   }
 
-  add_fd_event( sq->server_socket, &on_send_read, sq, &on_send_write, sq );
-  notify_readable_event( sq->server_socket, true );
+  set_fd_handler( sq->server_socket, &on_send_read, sq, &on_send_write, sq );
+  set_readable( sq->server_socket, true );
 
   if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
-    notify_writable_event( sq->server_socket, true );
+    set_writable( sq->server_socket, true );
   }
 
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
@@ -1014,7 +1014,7 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
     return true;
   }
 
-  notify_writable_event( sq->server_socket, true );
+  set_writable( sq->server_socket, true );
   return true;
 }
 
@@ -1167,8 +1167,8 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   socket->fd = fd;
   insert_after_dlist( rq->client_sockets, socket );
 
-  add_fd_event( fd, &on_recv, rq, NULL, NULL );
-  notify_readable_event( fd, true );
+  set_fd_handler( fd, &on_recv, rq, NULL, NULL );
+  set_readable( fd, true );
 }
 
 
@@ -1222,8 +1222,8 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
   for ( element = rq->client_sockets->next; element; element = element->next ) {
     socket = element->data;
     if ( socket->fd == fd ) {
-      notify_readable_event( fd, false );
-      delete_fd_event( fd );
+      set_readable( fd, false );
+      delete_fd_handler( fd );
 
       debug( "Deleting fd ( %d ).", fd );
       delete_dlist_element( element );
@@ -1476,9 +1476,9 @@ on_send_read( int fd, void *data ) {
   if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
     send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
 
-    notify_readable_event( sq->server_socket, false );
-    notify_writable_event( sq->server_socket, false );
-    delete_fd_event( sq->server_socket );
+    set_readable( sq->server_socket, false );
+    set_writable( sq->server_socket, false );
+    delete_fd_handler( sq->server_socket );
 
     close( sq->server_socket );
     sq->server_socket = -1;
@@ -1500,7 +1500,7 @@ on_send_write( int fd, void *data ) {
          fd, sq->service_name, get_message_buffer_head( sq->buffer ), sq->buffer->data_length );
 
   if ( sq->buffer->data_length < sizeof( message_header ) ) {
-    notify_writable_event( sq->server_socket, false );
+    set_writable( sq->server_socket, false );
     return;
   }
 
@@ -1519,9 +1519,9 @@ on_send_write( int fd, void *data ) {
                sq->service_name, fd, strerror( err ), err );
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
 
-        notify_readable_event( sq->server_socket, false );
-        notify_writable_event( sq->server_socket, false );
-        delete_fd_event( sq->server_socket );
+        set_readable( sq->server_socket, false );
+        set_writable( sq->server_socket, false );
+        delete_fd_handler( sq->server_socket );
 
         close( sq->server_socket );
         sq->server_socket = -1;
@@ -1542,7 +1542,7 @@ on_send_write( int fd, void *data ) {
     sent_total += ( size_t ) sent_len;
   }
 
-  notify_writable_event( sq->server_socket, false );
+  set_writable( sq->server_socket, false );
   truncate_message_buffer( sq->buffer, sent_total );
 }
 
