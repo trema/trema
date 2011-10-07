@@ -22,31 +22,29 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe FeaturesReply, ".new" do
-  it "should raise" do
-    expect { subject }.to raise_error ArgumentError
-  end
+describe FeaturesReply, ".new( options={} )" do
+  subject { FeaturesReply.new( :datapath_id => 123, 
+    :transaction_id => 1234,
+    :n_buffers => 256,
+    :n_tables => 2,
+    :capabilities => 135,
+    :actions => 2047,
+    :ports => ports 
+    )
+  }
+  its( :datapath_id ) { should == 123 }
+  its( :transaction_id ) { should == 1234 }
+  its( :n_buffers ) { should == 256 }
+  its( :n_tables ) { should == 2 }
+  its( :capabilities ) { should == 135 }
+  its( :actions ) { should == 2047 }
+  let( :ports ) { [ mock( "port #0" ), mock( "port #1" ), mock( "port #2" ) ] }
+  its( :ports ) { subject.size.should == 3 }
 end
 
 
-describe FeaturesReply, ".new( options={} )" do
-    subject { FeaturesReply.new( :datapath_id => 123, 
-      :transaction_id => 1234,
-      :n_buffers => 256,
-      :n_tables => 2,
-      :capabilities => 135,
-      :actions => 2047,
-      :ports => ports 
-      )
-    }
-    its( :datapath_id ) { should == 123 }
-    its( :transaction_id ) { should == 1234 }
-    its( :n_buffers ) { should == 256 }
-    its( :n_tables ) { should == 2 }
-    its( :capabilities ) { should == 135 }
-    its( :actions ) { should == 2047 }
-    let( :ports ) { [ mock( "port #0" ), mock( "port #1" ), mock( "port #2" ) ] }
-    its( :ports ) { subject.size.should == 3 }
+describe FeaturesReply, ".new" do
+  it_should_behave_like "any wrong signature constructor"
 end
 
 
