@@ -34,15 +34,15 @@ VALUE cError;
  *   guarantee message integrity auto-generated if not specified.
  *
  * @param [Number] type
- *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if 
+ *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if
  *   not specified.
  *
  * @param [Number] code
- *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if 
+ *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if
  *   not specified.
  *
  * @param [String] user_data
- *   a more user friendly explanation of the error. Defaults to nil if not 
+ *   a more user friendly explanation of the error. Defaults to nil if not
  *   specified.
  *
  * @example Instantiate with type and code
@@ -52,12 +52,12 @@ VALUE cError;
  *   Error.new(1234, OFPET_BAD_ACTION, OFPBAC_BAD_VENDOR)
  *
  * @example Instantiate with transaction_id, type, code, user_data
- *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test") 
+ *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test")
  *
  * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
  * @raise [ArgumentError] if user data is not a string.
  *
- * @return [Error] 
+ * @return [Error]
  *   an object that encapsulates the +OFPT_ERROR+ openflow message.
  */
 static VALUE
@@ -191,7 +191,7 @@ Init_error() {
   rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  
+
   rb_define_const( cError, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
   rb_define_const( cError, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
 
@@ -224,7 +224,7 @@ Init_error() {
 
   rb_define_const( cError, "OFPPMFC_BAD_PORT", INT2NUM( OFPPMFC_BAD_PORT ) );
   rb_define_const( cError, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
-  
+
   rb_define_const( cError, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
   rb_define_const( cError, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
   rb_define_const( cError, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));

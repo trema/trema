@@ -29,6 +29,7 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "doubly_linked_list.h"
+#include "event_handler.h"
 #include "hash_table.h"
 #include "linked_list.h"
 #include "log.h"

@@ -20,11 +20,11 @@
  */
 
 
-#ifndef LIB_EVENT_HANDLER_H
-#define LIB_EVENT_HANDLER_H
+#ifndef EVENT_HANDLER_H
+#define EVENT_HANDLER_H
+
 
 #include <sys/types.h>
-
 #include "bool.h"
 
 
@@ -52,30 +52,8 @@ extern bool ( *writable )( int fd );
 // safe. Leave as NULL if not supported.
 extern bool ( *set_external_callback )( external_callback_t callback );
 
-void set_select_event_handler();
 
-
-extern void select_init_event_handler();
-extern void select_finalize_event_handler();
-
-extern bool select_start_event_handler();
-extern void select_stop_event_handler();
-
-extern bool select_run_event_handler_once();
-
-extern void select_set_fd_handler( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
-extern void select_delete_fd_handler( int fd );
-
-extern void select_set_readable( int fd, bool state );
-extern void select_set_writable( int fd, bool state );
-
-extern bool select_readable( int fd );
-extern bool select_writable( int fd );
-
-extern bool select_set_external_callback( external_callback_t callback );
-
-
-#endif // LIB_EVENT_HANDLER_H
+#endif // EVENT_HANDLER_H
 
 
 /*

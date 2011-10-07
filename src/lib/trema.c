@@ -35,7 +35,6 @@
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
-#include "event_handler.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "timer.h"

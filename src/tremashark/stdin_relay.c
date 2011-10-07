@@ -27,7 +27,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "trema.h"
-#include "event_handler.h"
 
 
 static char *dump_service_name = NULL;
