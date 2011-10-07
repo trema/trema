@@ -44,7 +44,7 @@ end
 
 
 describe FeaturesReply, ".new" do
-  it_should_behave_like "any wrong signature constructor"
+  it_should_behave_like "any incorrect signature constructor"
 end
 
 
