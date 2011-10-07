@@ -22,6 +22,13 @@ require "rubygems"
 require "rspec"
 
 
+shared_examples_for "any wrong signature constructor" do
+  it "should raise" do
+    expect { subject }.to raise_error ArgumentError
+  end
+end
+
+
 shared_examples_for "any Openflow message with default transaction ID" do
   context "when its transaction ID is auto-generated" do
     its( :transaction_id ) { should be_a_kind_of( Integer ) }
