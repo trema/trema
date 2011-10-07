@@ -23,39 +23,41 @@ require "trema"
 
 
 describe ActionOutput do
-  context "when an instance is created with argument port" do
+  describe ActionOutput, ".new( port, max_len )" do
+    subject { ActionOutput.new 1, 256  }
+    its( :port ) { should == 1 }
+    its( :max_len ) { should == 256 }
+  end
+
+
+  describe ActionOutput, ".new( port )" do
     subject { ActionOutput.new( 1 ) }
     its( :port ) { should  == 1 }
     its( :max_len ) { should == 65535 }
     it "should print its attributes" do
       subject.inspect.should == "#<Trema::ActionOutput port=1,max_len=65535>"
     end
-    
-    it "should append its attributes to a list of actions" do
-      openflow_actions = double()
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-    
-    
-    context "when no argument supplied" do
-      it "should raise an error" do
-        lambda do 
-          ActionOutput.new
-        end.should raise_error ArgumentError
-      end
-    end
   end
-  
-  
-  context "when an instance is created with port, max_len arguments" do
-    subject { ActionOutput.new( 1, 256 ) }
-    its( :port ) { should == 1 }
-    its( :max_len ) { should == 256 }
+
+
+  describe ActionOutput, ".new" do
+    it_should_behave_like "any wrong signature constructor"
   end
-    
-  
+
+
   context "when an action output is set to #flow_mod(add) " do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionOutput.new( 1 )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have its action set to output:1" do
       class FlowModAddController < Controller; end
       network {
