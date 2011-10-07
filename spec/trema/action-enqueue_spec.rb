@@ -35,12 +35,12 @@ describe ActionEnqueue do
 
   describe ActionEnqueue, ".new( port )" do
     subject { ActionEnqueue.new 1 }
-    it_should_behave_like "any wrong signature constructor"
+    it_should_behave_like "any incorrect signature constructor"
   end 
 
 
   describe ActionEnqueue, ".new" do
-    it_should_behave_like "any wrong signature constructor"
+    it_should_behave_like "any incorrect signature constructor"
   end
 
 
