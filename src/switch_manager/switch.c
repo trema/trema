@@ -488,7 +488,7 @@ main( int argc, char *argv[] ) {
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
 
-  set_fd_handler( switch_info.secure_channel_fd, &secure_channel_read, NULL, &secure_channel_write, NULL );
+  set_fd_handler( switch_info.secure_channel_fd, secure_channel_read, NULL, secure_channel_write, NULL );
   set_readable( switch_info.secure_channel_fd, true );
   set_writable( switch_info.secure_channel_fd, false );
 

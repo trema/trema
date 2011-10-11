@@ -208,7 +208,7 @@ init_stdin_relay( int *argc, char **argv[] ) {
 
   stdin_read_buffer = alloc_buffer_with_length( 1024 );
 
-  set_fd_handler( STDIN_FILENO, &read_stdin, NULL, NULL, NULL );
+  set_fd_handler( STDIN_FILENO, read_stdin, NULL, NULL, NULL );
   set_readable( STDIN_FILENO, true );
 
   return true;

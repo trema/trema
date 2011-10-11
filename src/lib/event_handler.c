@@ -160,18 +160,23 @@ _run_event_handler_once() {
   while ( event_itr < event_last ) {
     event_fd current_event = *event_itr;
 
-    if ( FD_ISSET( current_event.fd, &current_read_set ) ) {
-      current_event.read_callback( current_event.fd, current_event.read_data );
-    }
-
     if ( FD_ISSET( current_event.fd, &current_write_set ) ) {
       current_event.write_callback( current_event.fd, current_event.write_data );
+    }
+
+    if ( FD_ISSET( current_event.fd, &current_read_set ) ) {
+      current_event.read_callback( current_event.fd, current_event.read_data );
     }
 
     // In the rare cases the current fd is closed, a new one is opened
     // with the same fd and is put in the same location we can just
     // wait for the next select call.
-    event_itr = event_itr + ( current_event.fd == event_itr->fd );
+    if ( current_event.fd == event_itr->fd ) {
+      event_itr = event_itr + 1;
+    }
+    else {
+      debug( "run_event_handler_once: event fd is changed ( current = %d, new = %d )", current_event.fd, event_itr->fd ) ;
+    }
   }
 
   return true;
@@ -188,7 +193,7 @@ _start_event_handler() {
   while ( !( event_handler_state & EVENT_HANDLER_STOP ) ) {
     execute_timer_events();
 
-    if ( !_run_event_handler_once() ) {
+    if ( !run_event_handler_once() ) {
       error( "Failed to run main loop." );
       return false;
     }
