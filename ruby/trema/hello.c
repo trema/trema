@@ -34,30 +34,40 @@ hello_alloc( VALUE klass ) {
 
 
 /*
- * @overload initialize(transaction_id=nil)
- *   Creates a {Hello} object by specifying its transaction id. If
- *   transaction_id is not specified, an auto-generated transaction_id
- *   is set.
+ * Creates a {Hello} object by specifying its transaction id. If
+ * transaction_id is not specified, an auto-generated transaction_id
+ * is set.
  *
- *   @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
+ * @overload initialize(options={})
+ *   example 
+ *     Hello.new( :transaction_id => 123 )
  *
- *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     An unsigned 32bit integer auto-generated if not supplied.
+ *
+ * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
+ * @raise [TypeEror] if options is not a hash.
+ *
+ * @return [Hello] an object that encapsulates the +OFPT_HELLO+ openflow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
   buffer *hello;
   Data_Get_Struct( self, buffer, hello );
+  uint32_t xid = get_transaction_id( );
+  VALUE options;
 
-  VALUE xid_ruby;
-  uint32_t xid;
-  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
-    xid = get_transaction_id();
-  }
-  else {
-    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+      }
+      xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
-    xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
   return self;
