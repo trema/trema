@@ -186,6 +186,7 @@ typedef struct send_queue {
   struct timespec reconnect_interval;
   struct sockaddr_un server_addr;
   message_buffer *buffer;
+  bool running_timer;
 } send_queue;
 
 
@@ -789,6 +790,7 @@ static int
 send_queue_connect( send_queue *sq ) {
   assert( sq != NULL );
 
+  sq->running_timer = false;
   if ( ( sq->server_socket = socket( AF_UNIX, SOCK_SEQPACKET, 0 ) ) == -1 ) {
     error( "Failed to call socket ( errno = %s [%d] ).", strerror( errno ), errno );
     return -1;
@@ -847,7 +849,10 @@ send_queue_connect_timer( send_queue *sq ) {
   if ( sq->server_socket != -1 ) {
     return 1;
   }
-  delete_timer_event_callback( ( void (*)(void *) )send_queue_connect );
+  if ( sq->running_timer ) {
+    sq->running_timer = false;
+    delete_timer_event_callback( ( void (*)(void *) )send_queue_connect );
+  }
 
   int ret = send_queue_connect( sq );
 
@@ -868,6 +873,7 @@ send_queue_connect_timer( send_queue *sq ) {
     interval.it_interval.tv_nsec = 0;
     interval.it_value = sq->reconnect_interval;
     add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect, ( void * ) sq );
+    sq->running_timer = true;
 
     debug( "refused_count = %d, reconnect_interval = %u.", sq->refused_count, sq->reconnect_interval.tv_sec );
     return 0;
@@ -880,7 +886,7 @@ send_queue_connect_timer( send_queue *sq ) {
     return 1;
 
   default:
-    die( "Got invalid value from send_queue_connect( send_queue* )." );
+    die( "Got invalid value from send_queue_connect_timer( send_queue* )." );
   };
 
   return -1;
@@ -931,6 +937,7 @@ create_send_queue( const char *service_name ) {
   sq->refused_count = 0;
   sq->reconnect_interval.tv_sec = 0;
   sq->reconnect_interval.tv_nsec = 0;
+  sq->running_timer = false;
 
   if ( send_queue_try_connect( sq ) == -1 ) {
     xfree( sq );
