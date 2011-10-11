@@ -585,7 +585,7 @@ create_receive_queue( const char *service_name ) {
     return NULL;
   }
 
-  set_fd_handler( rq->listen_socket, &on_accept, rq, NULL, NULL );
+  set_fd_handler( rq->listen_socket, on_accept, rq, NULL, NULL );
   set_readable( rq->listen_socket, true );
 
   rq->message_callbacks = create_dlist();
@@ -823,7 +823,7 @@ send_queue_connect( send_queue *sq ) {
     return 0;
   }
 
-  set_fd_handler( sq->server_socket, &on_send_read, sq, &on_send_write, sq );
+  set_fd_handler( sq->server_socket, on_send_read, sq, &on_send_write, sq );
   set_readable( sq->server_socket, true );
 
   if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
@@ -844,10 +844,10 @@ send_queue_connect( send_queue *sq ) {
 static int
 send_queue_connect_timer( send_queue *sq ) {
   struct itimerspec interval;
-
   if ( sq->server_socket != -1 ) {
     return 1;
   }
+  delete_timer_event_callback( ( void (*)(void *) )send_queue_connect );
 
   int ret = send_queue_connect( sq );
 
@@ -864,7 +864,8 @@ send_queue_connect_timer( send_queue *sq ) {
     sq->refused_count++;
     sq->reconnect_interval.tv_sec = ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
 
-    interval.it_interval = sq->reconnect_interval;
+    interval.it_interval.tv_sec = 0;
+    interval.it_interval.tv_nsec = 0;
     interval.it_value = sq->reconnect_interval;
     add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect, ( void * ) sq );
 
@@ -1003,7 +1004,7 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   write_message_buffer( sq->buffer, data, len );
 
   if ( sq->server_socket == -1 ) {
-    warn( "Tried to send message on closed send queue, connecting..." );
+    debug( "Tried to send message on closed send queue, connecting..." );
 
     send_queue_try_connect( sq );
     return true;
@@ -1162,7 +1163,7 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   socket->fd = fd;
   insert_after_dlist( rq->client_sockets, socket );
 
-  set_fd_handler( fd, &on_recv, rq, NULL, NULL );
+  set_fd_handler( fd, on_recv, rq, NULL, NULL );
   set_readable( fd, true );
 }
 
