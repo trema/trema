@@ -183,6 +183,19 @@ packet_in_macda( VALUE self ) {
 }
 
 
+static VALUE
+packet_in_is_arp( VALUE self ) {
+  packet_in *cpacket_in = get_packet_in( self );
+
+  if ( ( ( ( packet_info * ) cpacket_in->data->user_data )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
 void
 Init_packet_in() {
   rb_require( "trema/mac" );
@@ -205,6 +218,8 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+
+  rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
 }
 
 

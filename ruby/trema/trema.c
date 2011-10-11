@@ -98,6 +98,7 @@ Init_trema() {
   Init_hello();
   Init_match();
   Init_packet_in();
+  Init_packet_in_arp();
   Init_port();
   Init_flow_removed();
   Init_port_status();
