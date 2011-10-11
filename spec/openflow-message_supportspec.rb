@@ -24,7 +24,7 @@ require "rspec"
 
 shared_examples_for "any incorrect signature constructor" do
   it "should raise" do
-    expect { subject }.to raise_error ArgumentError
+    expect { subject }.to raise_error StandardError
   end
 end
 
