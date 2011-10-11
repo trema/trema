@@ -60,18 +60,19 @@ static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *echo_request;
   buffer *body = NULL;
-  VALUE xid_ruby, user_data;
   uint32_t xid = get_transaction_id( );
   VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
+    VALUE user_data;
     if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );
