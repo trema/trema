@@ -57,13 +57,20 @@ VALUE cVendorStatsRequest;
  *   @option options [Symbol] :flags
  *     flags not defined yet should be set to zero.
  *
+ * @raise [ArgumentError] if supplied transaction_id is not an unsigned 32bit integer.
+ *
  * @return [StatsRequest] an object that encapsulates an +OFPT_STATS_REQUEST+ openflow message.
  */
 static VALUE
 stats_request_init( VALUE self, VALUE options ) {
-  VALUE transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( transaction_id == Qnil ) {
-    transaction_id = UINT2NUM( get_transaction_id() );
+  VALUE transaction_id;
+  if ( ( transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+    if ( rb_funcall( transaction_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+    }
+  }
+  else {
+    transaction_id = UINT2NUM( get_transaction_id( ) );
   }
   rb_iv_set( self, "@transaction_id", transaction_id );
   VALUE flags = rb_hash_aref( options, ID2SYM( rb_intern( "flags" ) ) );
