@@ -65,28 +65,27 @@ static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *data = NULL;
   uint32_t xid;
-  VALUE xid_r;
-  VALUE user_data;
-  VALUE type_r;
-  VALUE code_r;
   VALUE options;
   uint16_t type;
   uint16_t code;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE type_r;
     if ( ( type_r = rb_hash_aref( options, ID2SYM( rb_intern( "type" ) ) ) ) != Qnil ) {
       type = ( uint16_t ) NUM2UINT( type_r );
     }
     else {
       rb_raise( rb_eArgError, "Type is a mandatory option" );
     }
+    VALUE code_r;
     if ( ( code_r = rb_hash_aref( options, ID2SYM( rb_intern( "code" ) ) ) ) != Qnil ) {
       code = ( uint16_t ) NUM2UINT( code_r );
     }
     else {
       rb_raise( rb_eArgError, "Code is a mandatory option" );
     }
+    VALUE xid_r;
     if ( ( xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
@@ -96,6 +95,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
     else {
       xid = get_transaction_id( );
     }
+    VALUE user_data;
     if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );
