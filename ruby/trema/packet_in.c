@@ -196,8 +196,41 @@ packet_in_is_arp( VALUE self ) {
 }
 
 
+static VALUE
+packet_in_arp_sha( VALUE self ) {
+  packet_in *cpacket_in = get_packet_in( self );
+  VALUE value = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->arp_sha ) );
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, value );
+}
+
+
+static VALUE
+packet_in_arp_spa( VALUE self ) {
+  packet_in *cpacket_in = get_packet_in( self );
+  VALUE value = ULONG2NUM( ( ( packet_info * ) cpacket_in->data->user_data )->arp_spa );
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, value );
+}
+
+
+static VALUE
+packet_in_arp_tha( VALUE self ) {
+  packet_in *cpacket_in = get_packet_in( self );
+  VALUE value = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->arp_tha ) );
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, value );
+}
+
+
+static VALUE
+packet_in_arp_tpa( VALUE self ) {
+  packet_in *cpacket_in = get_packet_in( self );
+  VALUE value = ULONG2NUM( ( ( packet_info * ) cpacket_in->data->user_data )->arp_tpa );
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, value );
+}
+
+
 void
 Init_packet_in() {
+  rb_require( "trema/ip" );
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
@@ -220,6 +253,11 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
 
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
+
 }
 
 

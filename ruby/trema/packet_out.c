@@ -1,9 +1,7 @@
 /*
- * Ruby wrapper class of OpenFlow packet_in message.
+ * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Author: Jari Sundell
- *
- * Copyright (C) 2011 axsh Ltd.
+ * Copyright (C) 2008-2011 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -20,21 +18,28 @@
  */
 
 
-#ifndef PACKET_IN_ARP_H
-#define PACKET_IN_ARP_H
-
-
+#include <string.h>
+#include "buffer.h"
 #include "ruby.h"
 #include "trema.h"
+#include "packet_in.h"
+
+extern VALUE mTrema;
+VALUE cPacketOut;
 
 
-extern VALUE cPacketInArp;
+static packet_in *
+get_packet_in( VALUE self ) {
+  packet_in *cpacket;
+  Data_Get_Struct( self, packet_in, cpacket );
+  return cpacket;
+}
 
 
-void Init_packet_in_arp( void );
-
-
-#endif // PACKET_IN_ARP_H
+void
+Init_packet_out() {
+  cPacketOut = rb_define_class_under( mTrema, "PacketOut", cPacketIn );
+}
 
 
 /*
