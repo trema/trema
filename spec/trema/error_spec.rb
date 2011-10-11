@@ -22,40 +22,81 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Error, ".new" do
-  exception = "Type and code are mandatory arguments and should be specified."
-  it "should raise '#{ exception }'" do
-    expect { subject }.to raise_error( exception )
+describe Error do
+  before do
+    @type = Error::OFPET_BAD_REQUEST
+    @code = Error::OFPBRC_BAD_TYPE
+    @user_data = "this is a test"
   end
-end
 
 
-describe Error, ".new( type, code )" do
-  subject { Error.new( Error::OFPET_BAD_REQUEST, Error::OFPBRC_BAD_TYPE ) }
-  its( :error_type ) { should == Error::OFPET_BAD_REQUEST }
-  its( :code ) { should == Error::OFPBRC_BAD_TYPE }
-  its( :user_data ) { should be_nil }
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+  context "when .new" do
+    exception = "Type and code are mandatory arguments and should be specified"
+    it "should raise '#{ exception }'" do
+      expect { subject }.to raise_error( exception )
+    end
+  end
 
 
-describe Error, ".new( type, code, transaction_id )" do
-  subject { Error.new( Error::OFPET_BAD_ACTION, Error::OFPBAC_BAD_VENDOR, transaction_id ) }
-  let( :transaction_id ) { 1234 }
-  its( :error_type ) { should == Error::OFPET_BAD_ACTION }
-  its( :code ) { should == Error::OFPBAC_BAD_VENDOR }
-  its( :user_data ) { should be_nil }
-  it_should_behave_like "any OpenFlow message"
-end
+  context "when .new(:type => type )" do
+    subject { Error.new( :type => @type ) }
+    exception = "Code is a mandatory option"
+    it "should raise '#{ exception }'" do
+      expect { subject }.to raise_error( exception )
+    end
+  end
 
 
-describe Error, ".new( transaction_id, type, code, 'this is a test' )" do
-  subject { Error.new( Error::OFPET_FLOW_MOD_FAILED, Error::OFPFMFC_BAD_EMERG_TIMEOUT, transaction_id, "this is a test" ) }
-  let( :transaction_id ) { 1234 }
-  its( :error_type ) { should == Error::OFPET_FLOW_MOD_FAILED }
-  its( :code ) { should == Error::OFPFMFC_BAD_EMERG_TIMEOUT }
-  its( :user_data ) { should eq "this is a test" }
-  it_should_behave_like "any OpenFlow message"
+  
+  context "when .new(:code => code )" do
+    subject { Error.new( :code => @code ) }
+    exception = "Type is a mandatory option"
+    it "should raise '#{ exception }'" do
+      expect { subject }.to raise_error( exception )
+    end
+  end
+
+
+  context "when .new( :type => type, :code => code )" do
+    subject { Error.new( :type => @type, :code => @code ) }
+    its( :error_type ) { should == @type }
+    its( :code ) { should == @code }
+    its( :user_data ) { should be_nil }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
+
+
+  context "when .new( :type => type, :code => code, :transaction_id => transaction_id )" do
+    subject do 
+      Error.new(
+        :type => @type,
+        :code => @code,
+        :transaction_id => transaction_id
+      )
+    end
+    let( :transaction_id ) { 1234 }
+    its( :error_type ) { should == @type }
+    its( :code ) { should == @code }
+    its( :user_data ) { should be_nil }
+    it_should_behave_like "any OpenFlow message"
+  end
+
+
+  context "when .new( Hash[ :type, type, :code, code, :transaction_id, transaction_id, :user_data, user_data ] )" do
+    subject do 
+      Error.new(
+        :type => @type,
+        :code => @code,
+        :transaction_id => transaction_id,
+        :user_data => @user_data
+      )
+    end
+    let( :transaction_id ) { 1234 }
+    its( :error_type ) { should == @type }
+    its( :code ) { should == @code }
+    its( :user_data ) { should eq @user_data }
+    it_should_behave_like "any OpenFlow message"
+  end
 end
 
 

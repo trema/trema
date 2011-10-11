@@ -27,9 +27,15 @@ describe Hello do
 end
 
 
-describe Hello, ".new( transaction_id )" do
-  subject { Hello.new transaction_id }
+describe Hello, ".new( :transaction_id => transaction_id )" do
+  subject { Hello.new Hash[ :transaction_id, transaction_id ] }
   it_should_behave_like "any OpenFlow message"
+end
+
+
+describe Hello, ".new( 1234 )" do
+  subject { Hello.new 1234 }
+  it_should_behave_like "any incorrect signature constructor"
 end
 
 

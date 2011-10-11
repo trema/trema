@@ -27,20 +27,26 @@ describe FeaturesRequest, ".new" do
 end
 
 
-describe FeaturesRequest, ".new( transaction_id )" do
-  subject { FeaturesRequest.new transaction_id }
+describe FeaturesRequest, ".new( :transaction_id => transaction_id )" do
+  subject { FeaturesRequest.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
 end
 
 
 describe FeaturesRequest, ".new( 1234 )" do
+  subject { FeaturesRequest.new( 1234 ) }
+  it_should_behave_like "any incorrect signature constructor"
+end
+
+
+describe FeaturesRequest, ".new( :transaction_id => 1234 )" do
   context "when #features_request is sent with transaction ID(1234)" do
     it "should receive #features_reply with transaction ID(1234)" do
       class FeaturesController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FeaturesController ) {
-        features_request = FeaturesRequest.new( 1234 )
+        features_request = FeaturesRequest.new( :transaction_id => 1234 )
         controller( "FeaturesController" ).send_message( 0xabc, features_request )
         controller( "FeaturesController" ).should_receive( :features_reply ) do | arg |
           arg.datapath_id.should == 0xabc

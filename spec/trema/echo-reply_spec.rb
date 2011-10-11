@@ -27,9 +27,15 @@ describe EchoReply, ".new" do
 end
 
 
-describe EchoReply, ".new( transaction_id )" do
-  subject { EchoReply.new transaction_id }
+describe EchoReply, ".new( :transaction_id => transaction_id )" do
+  subject { EchoReply.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
+end
+
+
+describe EchoReply, ".new( 123 )" do
+  subject { EchoReply.new 123 }
+  it_should_behave_like "any incorrect signature constructor"
 end
 
 
