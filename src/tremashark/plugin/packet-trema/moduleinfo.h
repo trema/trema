@@ -30,7 +30,7 @@
 #undef VERSION
 #endif
 
-#define VERSION "0.1.0"
+#define VERSION "0.1.1"
 
 
 /*

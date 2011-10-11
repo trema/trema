@@ -1,6 +1,6 @@
 WIRESHARK_SRC_DIR = ../wireshark
 
-SRCS   = packet-trema.c plugin.c ../../../lib/doubly_linked_list.c ../../../lib/trema_wrapper.c ../../../lib/wrapper.c ../../../lib/utility.c ../../../lib/log.c
+SRCS   = packet-trema.c plugin.c
 CC     = gcc
 OBJS   = $(foreach src, $(SRCS), $(src:.c=.o))
 
@@ -40,12 +40,12 @@ ifeq ($(OSTYPE),SunOS)
 ENDIAN=-D_BIG_ENDIAN_
 endif
 
-INC_GLIB=/usr/include/glib-2.0
-INC_OPENFLOW=../../../../objects/openflow
-INC_TREMA=../../../lib
+INC_GLIB = -I/usr/include/glib-2.0 -I/usr/local/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib/i386-linux-gnu/glib-2.0/include 
+INC_OPENFLOW = -I../../../../objects/openflow
+INC_TREMA = -I../../../lib
 
-INC_DIRS   = -I. -I$(INC_GLIB) -I$(INC_OPENFLOW) -I$(INC_TREMA)
-CFLAGS = -std=gnu99 -D_GNU_SOURCE $(INC_DIRS) -DHAVE_CONFIG_H -I$(WIRESHARK_SRC_DIR) -I/usr/local/include -I/usr/local/include -DINET6 -D_U_=__attribute__\(\(unused\)\) -Wall -Wpointer-arith -g -I/usr/local/include -DXTHREADS -D_REENTRANT -DXUSE_MTSAFE_API -pthread -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/X11R6/include -I/usr/include/atk-1.0 -I/usr/include/pango-1.0 -I/usr/include/freetype2 -I/usr/include/freetype2/config -I/usr/local/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib/i386-linux-gnu/glib-2.0/include -fPIC -DPIC $(ENDIAN) $(DISSECT_PORT)
+INC_DIRS = -I. $(INC_GLIB) $(INC_OPENFLOW) $(INC_TREMA)
+CFLAGS = -std=gnu99 -D_GNU_SOURCE $(INC_DIRS) -DHAVE_CONFIG_H -I$(WIRESHARK_SRC_DIR) -I/usr/local/include -I/usr/local/include -DINET6 -D_U_=__attribute__\(\(unused\)\) -Wall -Wpointer-arith -g -I/usr/local/include -DXTHREADS -D_REENTRANT -DXUSE_MTSAFE_API -pthread -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/X11R6/include -I/usr/include/atk-1.0 -I/usr/include/pango-1.0 -I/usr/include/freetype2 -I/usr/include/freetype2/config -fPIC -DPIC $(ENDIAN) $(DISSECT_PORT)
 
 LDFLAGS = -Wl,--rpath -Wl,/usr/local/lib -Wl,--rpath -Wl,/usr/local/lib -L/usr/local/lib -L$(WIRESHARK_SRC_DIR)/epan -L. -lgmodule-2.0 -ldl -lglib-2.0 -lsqlite3 -pthread -Wl,--export-dynamic -Wl,-soname -Wl,$(PLUGIN_NAME).so
 
