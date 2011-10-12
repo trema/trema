@@ -1,7 +1,7 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Jari Sundell
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2011 axsh Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -28,17 +28,83 @@ extern VALUE mTrema;
 VALUE cPacketOut;
 
 
-static packet_in *
-get_packet_in( VALUE self ) {
-  packet_in *cpacket;
-  Data_Get_Struct( self, packet_in, cpacket );
+typedef struct {
+  // void *data; Payload data...
+  packet_info info;
+} packet_out;
+
+
+static VALUE
+packet_out_alloc( VALUE klass ) {
+  packet_out *_packet_out = xmalloc( sizeof( packet_out ) );
+  return Data_Wrap_Struct( klass, 0, xfree, _packet_out );
+}
+
+
+static packet_out *
+get_packet_out( VALUE self ) {
+  packet_out *cpacket;
+  Data_Get_Struct( self, packet_out, cpacket );
   return cpacket;
+}
+
+
+static packet_info *
+get_packet_shared_info( VALUE self ) {
+  packet_out *cpacket;
+  Data_Get_Struct( self, packet_out, cpacket );
+  return &cpacket->info;
+}
+
+
+#include "packet_shared.h"
+
+
+static VALUE
+packet_out_from( VALUE self, VALUE message ) {
+  VALUE obj;
+  packet_in *packet_src;
+  packet_out *packet_dest;
+
+  // Validate the input message type.
+
+  Data_Get_Struct( message, packet_in, packet_src );
+  obj = rb_funcall( self, rb_intern( "new" ), 0 );
+  Data_Get_Struct( obj, packet_out, packet_dest );
+
+  /* typedef struct { */
+  /*   uint64_t datapath_id; */
+  /*   uint32_t transaction_id; */
+  /*   uint32_t buffer_id; */
+  /*   uint16_t total_len; */
+  /*   uint16_t in_port; */
+  /*   uint8_t reason; */
+  /*   const buffer *data; */
+  /*   void *user_data; */
+  /* } packet_in; */
+
+  packet_info *packet_info_src = ( packet_info * ) packet_src->data->user_data;
+
+  memcpy( packet_dest, packet_info_src, sizeof( packet_out ) );
+  memset( &packet_dest->info.l2_header, 0, sizeof( packet_info ) - offsetof( packet_info, l2_header ) );
+
+  // Copy packet data into a form that we can use later for
+  // constructing an out-packet for TCP or UDP.
+
+  return obj;
 }
 
 
 void
 Init_packet_out() {
-  cPacketOut = rb_define_class_under( mTrema, "PacketOut", cPacketIn );
+  rb_require( "trema/ip" );
+  rb_require( "trema/mac" );
+  cPacketOut = rb_define_class_under( mTrema, "PacketOut", rb_cObject );
+  rb_define_alloc_func( cPacketOut, packet_out_alloc );
+
+  rb_define_singleton_method( cPacketOut, "from", packet_out_from, 1 );
+
+  PACKET_SHARED_DEFINE_METHODS( cPacketOut );
 }
 
 
