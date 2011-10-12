@@ -38,13 +38,18 @@ features_request_alloc( VALUE klass ) {
  * switch's supported capabilities. Creates an object that encapsulates the
  * +OFPT_FEATURES_REQUEST+ openflow message.
  *
- * @overload initialize(transaction_id=nil)
+ * @overload initialize(options={})
+ *   example
+ *     FeaturesRequest.new( :transaction_id => 123 )
  *
- * @param [Number] transaction_id
- *   any positive number, same value should be attached to the +OFPT_FEATURES_REPLY+ 
- *   message. If not specified is auto-generated.
+ *   @param [Hash] options the options hash.
+ *
+ *   @option options [Symbol] :transaction_id
+ *     any positive number, same value should be attached to the +OFPT_FEATURES_REPLY+  
+ *     message. If not specified is auto-generated.
  *
  * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
+ * @raise [TypeEror] if options is not a hash.
  *
  * @return [FeaturesRequest] self
  */
@@ -52,17 +57,18 @@ static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *features_request;
   Data_Get_Struct( self, buffer, features_request );
+  uint32_t xid = get_transaction_id();
+  VALUE options;
 
-  uint32_t xid;
-  VALUE xid_ruby;
-  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
-    xid = get_transaction_id();
-  }
-  else {
-    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+      }
+      xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
-    xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( features_request->data ) )->xid = htonl( xid );
   return self;

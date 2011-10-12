@@ -52,7 +52,7 @@ VALUE cVendor;
  *     If MSB not equal to zero defined by openflow.
  *
  *   @option options [Symbol] :buffer
- *     a {Buffer} object that encapsulates vendor's defined arbitrary length data.
+ *     a String that holds vendor's defined arbitrary length data.
  */
 static VALUE
 vendor_init( VALUE self, VALUE options ) {

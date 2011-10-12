@@ -23,35 +23,51 @@ require "trema"
 
 
 describe ActionSetDlSrc do
-  context "when an instance is created" do
+  describe ActionSetDlSrc, ".new( mac )" do
     subject { ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) ) }
     its ( :dl_src ) { should be_an_instance_of( Trema::Mac ) }
     it "should print its attributes" do
       subject.inspect.should == "#<Trema::ActionSetDlSrc dl_src=52:54:00:a8:ad:8c>"
     end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double()
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-    
-    
-    context "when dl_src is not supplied" do
-      it "should raise an error" do
-        lambda do
-          ActionSetDlSrc.new
-        end.should raise_error( ArgumentError )
-      end
-    end
-  
+  end
 
-    context "when dl_src is not a Trema::Mac object" do
-      it "should raise an error" do
-        lambda do
-          ActionSetDlSrc.new( 1234 )
-        end.should raise_error( ArgumentError, /dl src address should be a Mac object/ )
-      end
+
+  describe ActionSetDlSrc, ".new" do
+    it_should_behave_like "any incorrect signature constructor"
+  end
+
+
+  describe ActionSetDlSrc, ".new( mac ) - mac not a Trema::Mac object" do
+    subject { ActionSetDlSrc.new 1234 }
+    it "should raise" do
+      expect { subject }.to raise_error( ArgumentError, /dl src address should be a Mac object/ )
+    end
+  end
+
+
+  context "when sending #flow_mod(add) with action set to mod_dl_src" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
+    it "should have a flow with action set to mod_dl_src" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions =>  ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) ) )
+        sleep 2 # FIXME: wait to send_flow_mod
+        switch( "0xabc" ).should have( 1 ).flows
+        switch( "0xabc" ).flows[0].actions.should match( /mod_dl_src:52:54:00:a8:ad:8c/ )
+      }
     end
   end
 end

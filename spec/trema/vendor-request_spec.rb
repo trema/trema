@@ -29,10 +29,10 @@ describe VendorRequest do
 end
 
 
-describe VendorRequest, ".new( transaction_id, 21845, 'this is a test'.unpack( 'C*'' ) )" do
+describe VendorRequest, ".new( :transaction_id => :transaction_id, :vendor_id => 21845, :vendor_data => 'this is a test'.unpack( 'C*'' ) )" do
   subject {
     @vendor_data = "this is a test".unpack( "C*" )
-    VendorRequest.new transaction_id, 0x5555, @vendor_data
+    VendorRequest.new Hash[ :transaction_id, transaction_id, :vendor_id, 0x5555, :vendor_data, @vendor_data ]
   }
   let( :transaction_id ) { 1234 }
   its( :vendor ) { should == 21845 }
@@ -46,9 +46,9 @@ describe VendorRequest, ".new( transaction_id, 21845, 'this is a test'.unpack( '
 end
 
 
-describe VendorRequest, ".new( 1234, 0x5555, 'test' )" do
+describe VendorRequest, ".new( :vendor_data => 'test' )" do
   describe "vendor user data specified as a string" do
-    subject { VendorRequest.new 1234, 0x5555, "test" }
+    subject { VendorRequest.new :vendor_data => "test" }
     it "should raise" do
       expect { subject }.to raise_error( ArgumentError )
     end
@@ -56,9 +56,9 @@ describe VendorRequest, ".new( 1234, 0x5555, 'test' )" do
 end
 
 
-describe VendorRequest, ".new( 1234, 0x5555, 'this is a long message....'.unpack( 'C*' )" do
+describe VendorRequest, ".new( :vendor_data => 'this is a long message....'.unpack( 'C*' )" do
   vendor_data = "this is a long message....".unpack( "C*" )
-  subject { VendorRequest.new 1234, 0x5555, vendor_data }
+  subject { VendorRequest.new :vendor_data => vendor_data }
   it "should assign the first 16 bytes only" do
     subject.data.should == vendor_data[ 0..15 ]
   end

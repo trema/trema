@@ -28,15 +28,15 @@ describe EchoRequest, ".new" do
 end
 
 
-describe EchoRequest, ".new( transaction_id, 'this is a test' )" do
-  subject { EchoRequest.new transaction_id, "this is a test" }
+describe EchoRequest, ".new( :transaction_id => transaction_id, :user_data => 'this is a test' )" do
+  subject { EchoRequest.new :transaction_id => transaction_id, :user_data => 'this is a test' }
   let( :transaction_id ) { 1234 }
   its( :user_data ) { should eq( "this is a test" ) }
   it_should_behave_like "any OpenFlow message"
 end
 
 
-describe EchoRequest, ".new( transaction_id, 456 ) " do
+describe EchoRequest, ".new( :transaction_id => 1234, :user_data => 456 ) " do
   subject { EchoRequest.new 1234, 456 }
   it "should raise" do
     expect { subject }.to raise_error( ArgumentError )
@@ -44,14 +44,20 @@ describe EchoRequest, ".new( transaction_id, 456 ) " do
 end
 
 
-describe  EchoRequest, ".new( 1234, 'this is a test' )" do
+describe EchoRequest, ".new( [ 1234, 'this is a test' ] )" do
+  subject { EchoRequest.new( [ 1234, 'this is a test' ] ) }
+  it_should_behave_like "any incorrect signature constructor"
+end
+
+
+describe  EchoRequest, ".new( :transaction_id => 1234, :user_data => 'this is a test' )" do
   context "when #echo_request is sent" do
     it "should #echo_reply" do
       class EchoRequestController < Controller; end
       network {
         vswitch( "echo_request" ) { datapath_id 0xabc }
       }.run( EchoRequestController ) {
-        echo_request = EchoRequest.new( 1234, "this is a test" )
+        echo_request = EchoRequest.new( :transaction_id => 1234, :user_data => 'this is a test' )
         controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
         log_file = Trema.log_directory + "/openflowd.echo_request.log"
         IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )

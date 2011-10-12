@@ -41,7 +41,7 @@ describe BarrierRequest do
 end
 
 
-describe BarrierRequest, ".new( transaction_id == 1234 )" do
+describe BarrierRequest, ".new( :transaction_id => 1234 )" do
   context "when #barrier_request" do
     it "should #barrier_reply with transaction_id == 1234" do
       class BarrierController < Controller; end
@@ -52,7 +52,7 @@ describe BarrierRequest, ".new( transaction_id == 1234 )" do
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234
         end
-        barrier_request = BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( :transaction_id => 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         sleep 2 # FIXME: wait to send_message
       }
@@ -61,9 +61,15 @@ describe BarrierRequest, ".new( transaction_id == 1234 )" do
 end
 
 
-describe BarrierRequest, ".new( transaction_id )" do
-  subject { BarrierRequest.new transaction_id }
+describe BarrierRequest, ".new( :transaction_id => transaction_id )" do
+  subject { BarrierRequest.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
+end
+
+
+describe BarrierRequest, ".new( transaction_id )" do
+  subject { BarrierRequest.new( 1234 ) }
+  it_should_behave_like "any incorrect signature constructor"
 end
 
 
