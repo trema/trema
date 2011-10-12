@@ -19,7 +19,11 @@
 
 
 #include <string.h>
+#include <net/ethernet.h>
+#include <netinet/ip.h>
+#include "arp.h"
 #include "buffer.h"
+#include "ether.h"
 #include "ruby.h"
 #include "trema.h"
 #include "packet_in.h"
@@ -69,7 +73,7 @@ packet_out_set_arp_sha( VALUE self, VALUE value ) {
 
 static VALUE
 packet_out_set_arp_spa( VALUE self, VALUE value ) {
-  get_packet_shared_info( self )->arp_spa = NUM2ULONG( value );
+  get_packet_shared_info( self )->arp_spa = ( uint32_t )NUM2UINT( value );
   return self;
 }
 
@@ -83,7 +87,7 @@ packet_out_set_arp_tha( VALUE self, VALUE value ) {
 
 static VALUE
 packet_out_set_arp_tpa( VALUE self, VALUE value ) {
-  get_packet_shared_info( self )->arp_tpa = NUM2ULONG( value );
+  get_packet_shared_info( self )->arp_tpa = ( uint32_t )NUM2UINT( value );
   return self;
 }
 
@@ -123,6 +127,70 @@ packet_out_from( VALUE self, VALUE message ) {
 }
 
 
+static int
+write_arp_length( packet_info *message ) {
+  UNUSED( message );
+
+  // Does not handle more complex packets yet...
+  return sizeof( struct ether_header ) + sizeof( struct arp_header );
+}
+
+
+static int
+write_arp( packet_info *message, void* buffer ) {
+  // Does not handle more complex packets yet...
+  void* ptr = buffer;
+  
+  struct ether_header *ether_header = ptr;
+  memcpy( ether_header->ether_shost, message->eth_macsa, ETH_ADDRLEN );
+  memcpy( ether_header->ether_dhost, message->eth_macda, ETH_ADDRLEN );
+  ether_header->ether_type = htons( message->eth_type );
+
+  ptr = ( void * ) ( ether_header + 1 );
+  
+  /* // vlan tag */
+  /* if ( message->eth_type == ETH_ETHTYPE_TPID ) { */
+
+  // Ethernet header
+  arp_header_t *arp_header = ptr;
+  arp_header->ar_hrd = htons( message->arp_ar_hrd );
+  arp_header->ar_pro = htons( message->arp_ar_pro );
+  arp_header->ar_hln = message->arp_ar_hln;
+  arp_header->ar_pln = message->arp_ar_pln;
+  arp_header->ar_op = htons( message->arp_ar_op );
+  memcpy( arp_header->sha, message->arp_sha, ETH_ADDRLEN );
+  arp_header->sip = htonl( message->arp_spa );
+  memcpy( arp_header->tha, message->arp_tha, ETH_ADDRLEN );
+  arp_header->tip = htonl( message->arp_tpa );
+
+  ptr = ( void * ) ( arp_header + 1 );
+
+  return ( int ) ( ( char * )ptr - ( char * )buffer );
+}
+
+
+static VALUE
+packet_out_to_s( VALUE self ) {
+  packet_info *info = get_packet_shared_info( self );
+
+  if ( ! ( info->format & NW_ARP ) ) {
+    // Add proper error handling.
+    return Qnil;
+  }
+
+  // Use temporary size, fixme...
+  char buffer[2048];
+  int length = write_arp( info, ( void * )buffer );
+
+  if ( length < ETH_MINIMUM_LENGTH ) {
+    memset( buffer + length, 0, ( size_t )( ETH_MINIMUM_LENGTH - length ) );
+    length = ETH_MINIMUM_LENGTH;
+  }
+
+  return rb_str_new( buffer, length );
+}
+
+
 void
 Init_packet_out() {
   rb_require( "trema/ip" );
@@ -138,6 +206,7 @@ Init_packet_out() {
   rb_define_method( cPacketOut, "arp_tpa=", packet_out_set_arp_tpa, 1 );
 
   rb_define_singleton_method( cPacketOut, "from", packet_out_from, 1 );
+  rb_define_method( cPacketOut, "to_s", packet_out_to_s, 0 );
 }
 
 
