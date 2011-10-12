@@ -176,7 +176,7 @@ Init_packet_in() {
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 #if 0
   /*
-   * Do not remote this is to fake yard to create a constructor for 
+   * Do not remove this is to fake yard to create a constructor for 
    * PacketIn object.
    */
   rb_define_method( cPacketIn, "initialize", packet_in_init, 0 );

@@ -1,5 +1,5 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
 #
@@ -22,19 +22,19 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Hello do
+describe EchoReply, ".new" do
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe Hello, ".new( :transaction_id => transaction_id )" do
-  subject { Hello.new Hash[ :transaction_id, transaction_id ] }
+describe EchoReply, ".new( :transaction_id => transaction_id )" do
+  subject { EchoReply.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
 end
 
 
-describe Hello, ".new( 1234 )" do
-  subject { Hello.new 1234 }
+describe EchoReply, ".new( 123 )" do
+  subject { EchoReply.new 123 }
   it_should_behave_like "any incorrect signature constructor"
 end
 

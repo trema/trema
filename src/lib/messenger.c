@@ -872,7 +872,7 @@ send_queue_connect_timer( send_queue *sq ) {
     interval.it_interval.tv_sec = 0;
     interval.it_interval.tv_nsec = 0;
     interval.it_value = sq->reconnect_interval;
-    add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect, ( void * ) sq );
+    add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect_timer, ( void * ) sq );
     sq->running_timer = true;
 
     debug( "refused_count = %d, reconnect_interval = %u.", sq->refused_count, sq->reconnect_interval.tv_sec );
