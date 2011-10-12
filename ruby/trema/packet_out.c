@@ -65,6 +65,20 @@ get_packet_shared_info( VALUE self ) {
 
 
 static VALUE
+packet_out_set_macsa( VALUE self, VALUE value ) {
+  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->eth_macsa );
+  return self;
+}
+
+
+static VALUE
+packet_out_set_macda( VALUE self, VALUE value ) {
+  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->eth_macda );
+  return self;
+}
+
+
+static VALUE
 packet_out_set_arp_sha( VALUE self, VALUE value ) {
   uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->arp_sha );
   return self;
@@ -199,6 +213,9 @@ Init_packet_out() {
   rb_define_alloc_func( cPacketOut, packet_out_alloc );
 
   PACKET_SHARED_DEFINE_METHODS( cPacketOut );
+
+  rb_define_method( cPacketOut, "macsa=", packet_out_set_macsa, 1 );
+  rb_define_method( cPacketOut, "macda=", packet_out_set_macda, 1 );
 
   rb_define_method( cPacketOut, "arp_sha=", packet_out_set_arp_sha, 1 );
   rb_define_method( cPacketOut, "arp_spa=", packet_out_set_arp_spa, 1 );
