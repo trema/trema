@@ -1490,7 +1490,9 @@ on_send_read( int fd, void *data ) {
     sq->server_socket = -1;
 
     // Tries to reconnecting immediately, else adds a reconnect timer.
-    send_queue_try_connect( sq );
+    if ( sq->buffer->data_length > 0 ) {
+      send_queue_try_connect( sq );
+    }
   }
 }
 
