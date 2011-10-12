@@ -60,7 +60,7 @@ static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *echo_request;
   buffer *body = NULL;
-  uint32_t xid = get_transaction_id( );
+  uint32_t xid = get_transaction_id();
   VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {

@@ -93,7 +93,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
       xid = ( uint32_t ) NUM2UINT( xid_r );
     } 
     else {
-      xid = get_transaction_id( );
+      xid = get_transaction_id();
     }
     VALUE user_data;
     if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {

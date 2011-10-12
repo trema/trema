@@ -56,7 +56,7 @@ static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
   buffer *hello;
   Data_Get_Struct( self, buffer, hello );
-  uint32_t xid = get_transaction_id( );
+  uint32_t xid = get_transaction_id();
   VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
