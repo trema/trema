@@ -235,7 +235,7 @@ delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
     }
   }
 
-  error( "No registered callback found." );
+  error( "No registered timer event callback found." );
 
   return false;
 }
