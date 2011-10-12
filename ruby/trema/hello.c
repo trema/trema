@@ -34,23 +34,23 @@ hello_alloc( VALUE klass ) {
 
 
 /*
- * Creates a {Hello} object by specifying its transaction id. If
- * transaction_id is not specified, an auto-generated transaction_id
- * is set.
- *
  * @overload initialize(options={})
- *   example 
+ *   Creates a Hello OpenFlow message.
+ *
+ *   @example
+ *     Hello.new
  *     Hello.new( :transaction_id => 123 )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *   @option options [Number] :transaction_id
+ *     An unsigned 32bit integer number associated with this message.
+ *     If not specified, an auto-generated value is set.
  *
- *   @option options [Symbol] :transaction_id
- *     An unsigned 32bit integer auto-generated if not supplied.
+ *   @raise [ArgumentError] if transaction ID is not an unsigned 32bit integer.
+ *   @raise [TypeEror] if options is not a Hash.
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * @raise [TypeEror] if options is not a hash.
- *
- * @return [Hello] an object that encapsulates the +OFPT_HELLO+ openflow message.
+ *   @return [Hello] an object that encapsulates the +OFPT_HELLO+ OpenFlow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
@@ -75,9 +75,11 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * Transaction ids, message sequence numbers matching requests to replies.
+ * An unsigned 32bit integer number associated with this
+ * message. Replies use the same id as was in the request to
+ * facilitate pairling.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction ID.
  */
 static VALUE
 hello_transaction_id( VALUE self ) {
