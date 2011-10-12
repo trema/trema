@@ -34,7 +34,7 @@ vendor_request_alloc( VALUE klass ) {
   buffer *data = alloc_buffer_with_length( 16 );
   append_back_buffer( data, 16 );
   memset( data->data, 'a', 16 );
-  buffer *vendor_request = create_vendor( get_transaction_id( ), VENDOR_ID, data );
+  buffer *vendor_request = create_vendor( get_transaction_id(), VENDOR_ID, data );
   free_buffer( data );
 
   return Data_Wrap_Struct( klass, NULL, free_buffer, vendor_request );
@@ -72,7 +72,7 @@ vendor_request_alloc( VALUE klass ) {
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *vendor_request;
-  uint32_t xid = get_transaction_id( );
+  uint32_t xid = get_transaction_id();
   uint32_t vendor = VENDOR_ID;
   VALUE options;
 

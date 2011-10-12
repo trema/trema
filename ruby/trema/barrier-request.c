@@ -49,15 +49,15 @@ static VALUE
 barrier_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *barrier_request;
   Data_Get_Struct( self, buffer, barrier_request );
-  VALUE xid_ruby;
-  uint32_t xid;
+  uint32_t xid = get_transaction_id();
+  VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
     if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
       rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
     }
     xid = ( uint32_t ) NUM2UINT( xid_ruby );
-  } 
+  }
   else {
     xid = get_transaction_id();
   }

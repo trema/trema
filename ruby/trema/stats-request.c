@@ -70,7 +70,7 @@ stats_request_init( VALUE self, VALUE options ) {
     }
   }
   else {
-    transaction_id = UINT2NUM( get_transaction_id( ) );
+    transaction_id = UINT2NUM( get_transaction_id() );
   }
   rb_iv_set( self, "@transaction_id", transaction_id );
   VALUE flags = rb_hash_aref( options, ID2SYM( rb_intern( "flags" ) ) );
