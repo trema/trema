@@ -27,8 +27,6 @@ VALUE cError;
 
 
 /*
- * @overload initialize(type, code, transaction_id=nil, user_data=nil)
- *
  * @overload initialize(options={})
  *   @example
  *     Error.new(
