@@ -61,6 +61,34 @@ get_packet_shared_info( VALUE self ) {
 
 
 static VALUE
+packet_out_set_arp_sha( VALUE self, VALUE value ) {
+  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->arp_sha );
+  return self;
+}
+
+
+static VALUE
+packet_out_set_arp_spa( VALUE self, VALUE value ) {
+  get_packet_shared_info( self )->arp_spa = NUM2ULONG( value );
+  return self;
+}
+
+
+static VALUE
+packet_out_set_arp_tha( VALUE self, VALUE value ) {
+  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->arp_tha );
+  return self;
+}
+
+
+static VALUE
+packet_out_set_arp_tpa( VALUE self, VALUE value ) {
+  get_packet_shared_info( self )->arp_tpa = NUM2ULONG( value );
+  return self;
+}
+
+
+static VALUE
 packet_out_from( VALUE self, VALUE message ) {
   VALUE obj;
   packet_in *packet_src;
@@ -102,9 +130,14 @@ Init_packet_out() {
   cPacketOut = rb_define_class_under( mTrema, "PacketOut", rb_cObject );
   rb_define_alloc_func( cPacketOut, packet_out_alloc );
 
-  rb_define_singleton_method( cPacketOut, "from", packet_out_from, 1 );
-
   PACKET_SHARED_DEFINE_METHODS( cPacketOut );
+
+  rb_define_method( cPacketOut, "arp_sha=", packet_out_set_arp_sha, 1 );
+  rb_define_method( cPacketOut, "arp_spa=", packet_out_set_arp_spa, 1 );
+  rb_define_method( cPacketOut, "arp_tha=", packet_out_set_arp_tha, 1 );
+  rb_define_method( cPacketOut, "arp_tpa=", packet_out_set_arp_tpa, 1 );
+
+  rb_define_singleton_method( cPacketOut, "from", packet_out_from, 1 );
 }
 
 

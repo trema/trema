@@ -107,6 +107,17 @@ mac_to_uint64( const uint8_t *mac ) {
 }
 
 
+void
+uint64_to_mac( uint64_t src, uint8_t *mac ) {
+  mac[0] = ( uint8_t ) ( src >> 40 );
+  mac[1] = ( uint8_t ) ( src >> 32 );
+  mac[2] = ( uint8_t ) ( src >> 24 );
+  mac[3] = ( uint8_t ) ( src >> 16 );
+  mac[4] = ( uint8_t ) ( src >> 8 );
+  mac[5] = ( uint8_t ) src;
+}
+
+
 bool
 compare_uint32( const void *x, const void *y ) {
   return *( ( const uint32_t * ) x ) == *( ( const uint32_t * ) y ) ? true : false;

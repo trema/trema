@@ -40,6 +40,7 @@ unsigned int hash_string( const void *key );
 bool compare_mac( const void *x, const void *y );
 unsigned int hash_mac( const void *mac );
 uint64_t mac_to_uint64( const uint8_t *mac );
+void uint64_to_mac( uint64_t src, uint8_t *mac );
 
 bool compare_uint32( const void *x, const void *y );
 unsigned int hash_uint32( const void *key );
