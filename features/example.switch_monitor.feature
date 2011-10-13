@@ -8,9 +8,9 @@ Feature: Hello trema sample application
   Scenario: switch-monitor
     Given I try trema run "./src/examples/switch_monitor/switch-monitor.rb" with following configuration (backgrounded):
       """
-      vswitch { datapath_id "0x1" }
-      vswitch { datapath_id "0x2" }
-      vswitch { datapath_id "0x3" }
+      vswitch { datapath_id 0x1 }
+      vswitch { datapath_id 0x2 }
+      vswitch { datapath_id 0x3 }
       """
       And *** sleep 2 ***
       And wait until "SwitchMonitor" is up
