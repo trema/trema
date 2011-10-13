@@ -59,9 +59,7 @@ describe Trema::PortMod do
 
   context "when an instance created with no arguments" do
     it "should raise" do
-      lambda do
-        PortMod.new
-      end.should raise_error( "wrong number of arguments (0 for 5)" )
+      expect { subject }.to raise_error( ArgumentError, "wrong number of arguments (0 for 5)" )
     end
   end
 end

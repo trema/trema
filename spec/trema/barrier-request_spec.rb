@@ -22,10 +22,12 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe BarrierRequest do
+describe BarrierRequest, ".new" do
   it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
+describe BarrierRequest, ".new" do
   context "when #barrier_request" do
     it "should #barrier_reply" do
       class BarrierController < Controller; end
@@ -41,9 +43,9 @@ describe BarrierRequest do
 end
 
 
-describe BarrierRequest, ".new( :transaction_id => 1234 )" do
+describe BarrierRequest, ".new( :transaction_id => value )" do
   context "when #barrier_request" do
-    it "should #barrier_reply with transaction_id == 1234" do
+    it "should #barrier_reply with transaction_id == value" do
       class BarrierController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
@@ -61,15 +63,18 @@ describe BarrierRequest, ".new( :transaction_id => 1234 )" do
 end
 
 
-describe BarrierRequest, ".new( :transaction_id => transaction_id )" do
+describe BarrierRequest, ".new( :transaction_id => value )" do
   subject { BarrierRequest.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
 end
 
 
-describe BarrierRequest, ".new( transaction_id )" do
-  subject { BarrierRequest.new( 1234 ) }
-  it_should_behave_like "any incorrect signature constructor"
+describe BarrierRequest, ".new( INVALID_OPTIONS )" do
+  it "should raise a TypeError" do
+    expect {
+      BarrierRequest.new "INVALID_OPTIONS"
+    }.to raise_error( TypeError )
+  end
 end
 
 

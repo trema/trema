@@ -22,27 +22,17 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-module Trema
-  describe GetConfigReply do
-    it "should have datapath_id" do
-      GetConfigReply.new( :datapath_id => 123 ).datapath_id.should == 123
-    end
-
-
-    it "should have transaction_id" do
-      GetConfigReply.new( :transaction_id => 1234 ).transaction_id.should == 1234
-    end
-
-
-    it "should have flags" do
-      GetConfigReply.new( :flags => 1 ).flags.should == 1
-    end
-
-
-    it "should have miss_send_len" do
-      GetConfigReply.new( :miss_send_len => 1024 ).miss_send_len.should == 1024
-    end
-  end
+describe GetConfigReply, ".new( options={} )" do
+  subject { GetConfigReply.new( :datapath_id => 123,
+    :transaction_id => 1234,
+    :flags => 1,
+    :miss_send_len => 1024
+    )
+  }
+  its ( :datapath_id ) { should == 123 }
+  its ( :transaction_id ) { should == 1234 }
+  its ( :flags ) { should == 1 }
+  its ( :miss_send_len ) { should == 1024 }
 end
 
 

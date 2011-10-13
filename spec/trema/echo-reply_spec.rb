@@ -27,15 +27,18 @@ describe EchoReply, ".new" do
 end
 
 
-describe EchoReply, ".new( :transaction_id => transaction_id )" do
+describe EchoReply, ".new( :transaction_id => value )" do
   subject { EchoReply.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
 end
 
 
-describe EchoReply, ".new( 123 )" do
-  subject { EchoReply.new 123 }
-  it_should_behave_like "any incorrect signature constructor"
+describe EchoReply, ".new( INVALID_OPTIONS )" do
+  it "should raise a TypeError" do
+    expect {
+      EchoReply.new "INVALID_OPTIONS"
+    }.to raise_error( TypeError )
+  end
 end
 
 

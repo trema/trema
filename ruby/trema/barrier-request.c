@@ -38,18 +38,20 @@ barrier_request_alloc( VALUE klass ) {
  *
  * @overload initialize(options={})
  *   example
+       BarrierRequest.new
  *     BarrierRequest.new( :transaction_id => 123 )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *   @option options [Number] :transaction_id
+ *     An unsigned 32bit integer number associated with this message.
+ *     If not specified, an auto-generated value is set.
  *
- *   @option options [Symbol] :transaction_id
- *     An unsigned 32bit integer auto-generated if not supplied.
+ *   @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
+ *   @raise [TypeEror] if options is not a hash.
  *
- * @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
- * @raise [TypeEror] if options is not a hash.
- *
- * @return [BarrierRequest]
- *   an object that encapsulates the +OFPT_BARRIER_REQUEST+ openflow message.
+ *   @return [BarrierRequest]
+ *     an object that encapsulates the +OFPT_BARRIER_REQUEST+ openflow message.
  */
 
 
@@ -78,7 +80,7 @@ barrier_request_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 barrier_request_transaction_id( VALUE self ) {
