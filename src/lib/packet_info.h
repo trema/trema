@@ -72,6 +72,8 @@ enum {
   ETH_VTAG_SNAP_IPV4_ICMPV4 = ETH_VTAG_SNAP_IPV4 | NW_ICMPV4,
   ETH_VTAG_SNAP_IPV4_TCP = ETH_VTAG_SNAP_IPV4 | TP_TCP,
   ETH_VTAG_SNAP_IPV4_UDP = ETH_VTAG_SNAP_IPV4 | TP_UDP,
+
+  NW_MASK = NW_IPV4 | NW_ICMPV4 | NW_IPV6 | NW_ICMPV6 | NW_ARP,
 };
 
 
@@ -152,6 +154,7 @@ typedef struct {
 
 
 bool parse_packet( buffer *buf );
+int write_packet( packet_info *info, char *buffer, int buffer_length );
 
 void calloc_packet_info( buffer *frame );
 void free_packet_info( buffer *frame );

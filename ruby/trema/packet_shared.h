@@ -52,6 +52,11 @@ packet_shared_macda( VALUE self ) {
 }
 
 
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
 static VALUE
 packet_shared_is_arp( VALUE self ) {
   if ( ( get_packet_shared_info( self )->format & NW_ARP ) ) {
@@ -63,6 +68,11 @@ packet_shared_is_arp( VALUE self ) {
 }
 
 
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
 static VALUE
 packet_shared_arp_sha( VALUE self ) {
   VALUE value = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->arp_sha ) );
@@ -70,6 +80,11 @@ packet_shared_arp_sha( VALUE self ) {
 }
 
 
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
 static VALUE
 packet_shared_arp_spa( VALUE self ) {
   VALUE value = ULONG2NUM( get_packet_shared_info( self )->arp_spa );
@@ -77,6 +92,11 @@ packet_shared_arp_spa( VALUE self ) {
 }
 
 
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
 static VALUE
 packet_shared_arp_tha( VALUE self ) {
   VALUE value = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->arp_tha ) );
@@ -84,6 +104,11 @@ packet_shared_arp_tha( VALUE self ) {
 }
 
 
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
 static VALUE
 packet_shared_arp_tpa( VALUE self ) {
   VALUE value = ULONG2NUM( get_packet_shared_info( self )->arp_tpa );

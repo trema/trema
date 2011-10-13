@@ -118,17 +118,6 @@ packet_out_from( VALUE self, VALUE message ) {
   obj = rb_funcall( self, rb_intern( "new" ), 0 );
   Data_Get_Struct( obj, packet_out, packet_dest );
 
-  /* typedef struct { */
-  /*   uint64_t datapath_id; */
-  /*   uint32_t transaction_id; */
-  /*   uint32_t buffer_id; */
-  /*   uint16_t total_len; */
-  /*   uint16_t in_port; */
-  /*   uint8_t reason; */
-  /*   const buffer *data; */
-  /*   void *user_data; */
-  /* } packet_in; */
-
   packet_info *packet_info_src = ( packet_info * ) packet_src->data->user_data;
 
   memcpy( packet_dest, packet_info_src, sizeof( packet_out ) );
@@ -138,48 +127,6 @@ packet_out_from( VALUE self, VALUE message ) {
   // constructing an out-packet for TCP or UDP.
 
   return obj;
-}
-
-
-static int
-write_arp_length( packet_info *message ) {
-  UNUSED( message );
-
-  // Does not handle more complex packets yet...
-  return sizeof( struct ether_header ) + sizeof( struct arp_header );
-}
-
-
-static int
-write_arp( packet_info *message, void* buffer ) {
-  // Does not handle more complex packets yet...
-  void* ptr = buffer;
-  
-  struct ether_header *ether_header = ptr;
-  memcpy( ether_header->ether_shost, message->eth_macsa, ETH_ADDRLEN );
-  memcpy( ether_header->ether_dhost, message->eth_macda, ETH_ADDRLEN );
-  ether_header->ether_type = htons( message->eth_type );
-
-  ptr = ( void * ) ( ether_header + 1 );
-  
-  /* // vlan tag */
-  /* if ( message->eth_type == ETH_ETHTYPE_TPID ) { */
-
-  // Ethernet header
-  arp_header_t *arp_header = ptr;
-  arp_header->ar_hrd = htons( message->arp_ar_hrd );
-  arp_header->ar_pro = htons( message->arp_ar_pro );
-  arp_header->ar_hln = message->arp_ar_hln;
-  arp_header->ar_pln = message->arp_ar_pln;
-  arp_header->ar_op = htons( message->arp_ar_op );
-  memcpy( arp_header->sha, message->arp_sha, ETH_ADDRLEN );
-  arp_header->sip = htonl( message->arp_spa );
-  memcpy( arp_header->tha, message->arp_tha, ETH_ADDRLEN );
-  arp_header->tip = htonl( message->arp_tpa );
-
-  ptr = ( void * ) ( arp_header + 1 );
-
-  return ( int ) ( ( char * )ptr - ( char * )buffer );
 }
 
 
@@ -194,11 +141,15 @@ packet_out_to_s( VALUE self ) {
 
   // Use temporary size, fixme...
   char buffer[2048];
-  int length = write_arp( info, ( void * )buffer );
+  int length = write_packet( info, buffer, 2048 );
 
-  if ( length < ETH_MINIMUM_LENGTH ) {
-    memset( buffer + length, 0, ( size_t )( ETH_MINIMUM_LENGTH - length ) );
-    length = ETH_MINIMUM_LENGTH;
+  if ( length == -1 ) {
+    return Qnil;
+  }
+
+  if ( length > 2048 ) {
+    // Ehm... better handling of too large packets...
+    return Qnil;
   }
 
   return rb_str_new( buffer, length );
