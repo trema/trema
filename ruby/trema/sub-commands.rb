@@ -104,10 +104,17 @@ EOF
 
 
   def kill
+    @options.banner = "Usage: #{ $0 } kill NAME [OPTIONS ...]"
+
+    add_help_option
+    add_verbose_option
+
+    @options.parse! ARGV
+
     switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
     switch.shutdown!
   end
-  
+
 
   def send_packets
     sanity_check
