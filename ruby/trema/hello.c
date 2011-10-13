@@ -77,7 +77,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * An unsigned 32bit integer number associated with this
  * message. Replies use the same id as was in the request to
- * facilitate pairling.
+ * facilitate pairing.
  *
  * @return [Number] the value of transaction ID.
  */
