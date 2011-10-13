@@ -38,6 +38,12 @@ Then /^([^\s]*) is terminated$/ do | name |
 end
 
 
+Then /^vswitch ([^\s]*) is terminated$/ do | dpid |
+  pid_file = File.join( Trema.tmp, "openflowd.#{ dpid }.pid" )
+  File.exists?( pid_file ).should be_false
+end
+
+
 Then /^([^\s]*) is started$/ do | name |
   ps_entry_of( name ).should_not be_empty
 end
