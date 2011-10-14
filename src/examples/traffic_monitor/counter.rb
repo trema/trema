@@ -1,5 +1,5 @@
 #
-# Data traffic statistics.
+# Traffic counter.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -23,20 +23,20 @@
 require "forwardable"
 
 
-class TrafficStats
+class Counter
   extend Forwardable
-  def_delegator :@stats, :each_pair
+  def_delegator :@db, :each_pair
 
 
   def initialize
-    @stats = {}
+    @db = {}
   end
 
 
   def update mac, packet_count, byte_count
-    @stats[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
-    @stats[ mac ][ :packet_count ] += packet_count
-    @stats[ mac ][ :byte_count ] += byte_count
+    @db[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
+    @db[ mac ][ :packet_count ] += packet_count
+    @db[ mac ][ :byte_count ] += byte_count
   end
 end
 

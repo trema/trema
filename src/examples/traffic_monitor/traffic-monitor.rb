@@ -20,8 +20,8 @@
 #
 
 
+require "counter"
 require "fdb"
-require "traffic-stats"
 
 
 class TrafficMonitor < Trema::Controller
@@ -29,7 +29,7 @@ class TrafficMonitor < Trema::Controller
 
 
   def start
-    @stats = TrafficStats.new
+    @counter = Counter.new
     @fdb = FDB.new
   end
 
@@ -37,9 +37,9 @@ class TrafficMonitor < Trema::Controller
   def packet_in datapath_id, message
     macsa = message.macsa
     macda = message.macda
-    
+
     @fdb.learn macsa, message.in_port
-    @stats.update macsa, 1, message.total_len
+    @counter.update macsa, 1, message.total_len
     out_port = @fdb.lookup( macda )
     if out_port
       flow_mod datapath_id, macsa, macda, out_port
@@ -51,7 +51,7 @@ class TrafficMonitor < Trema::Controller
 
 
   def flow_removed datapath_id, message
-    @stats.update message.match.dl_src, message.packet_count, message.byte_count
+    @counter.update message.match.dl_src, message.packet_count, message.byte_count
   end
 
 
@@ -62,7 +62,7 @@ class TrafficMonitor < Trema::Controller
 
   def show_stats
     puts Time.now
-    @stats.each_pair do | mac, stats |
+    @counter.each_pair do | mac, stats |
       puts "#{ mac } #{ stats[ :packet_count ] } packets (#{ stats[ :byte_count ] } bytes)"
     end
   end
@@ -71,7 +71,7 @@ class TrafficMonitor < Trema::Controller
   def flow_mod datapath_id, macsa, macda, out_port
     send_flow_mod_add(
       datapath_id,
-      :send_flow_rem => true,                      
+      :send_flow_rem => true,
       :hard_timeout => 10,
       :match => Match.new( :dl_src => macsa.to_s, :dl_dst => macda.to_s ),
       :actions => Trema::ActionOutput.new( out_port )
