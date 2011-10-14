@@ -25,7 +25,7 @@ require "fdb"
 
 
 class TrafficMonitor < Trema::Controller
-  periodic_timer_event :show_stats, 10
+  periodic_timer_event :show_counter, 10
 
 
   def start
@@ -39,7 +39,7 @@ class TrafficMonitor < Trema::Controller
     macda = message.macda
 
     @fdb.learn macsa, message.in_port
-    @counter.update macsa, 1, message.total_len
+    @counter.add macsa, 1, message.total_len
     out_port = @fdb.lookup( macda )
     if out_port
       flow_mod datapath_id, macsa, macda, out_port
@@ -51,7 +51,7 @@ class TrafficMonitor < Trema::Controller
 
 
   def flow_removed datapath_id, message
-    @counter.update message.match.dl_src, message.packet_count, message.byte_count
+    @counter.add message.match.dl_src, message.packet_count, message.byte_count
   end
 
 
@@ -60,10 +60,10 @@ class TrafficMonitor < Trema::Controller
   ##############################################################################
 
 
-  def show_stats
+  def show_counter
     puts Time.now
-    @counter.each_pair do | mac, stats |
-      puts "#{ mac } #{ stats[ :packet_count ] } packets (#{ stats[ :byte_count ] } bytes)"
+    @counter.each_pair do | mac, counter |
+      puts "#{ mac } #{ counter[ :packet_count ] } packets (#{ counter[ :byte_count ] } bytes)"
     end
   end
 
