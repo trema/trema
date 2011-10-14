@@ -36,7 +36,7 @@
 #include <pcap/pcap.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "trema.h"
+#include "messenger.h"
 #include "openflow_service_interface.h"
 
 
@@ -118,7 +118,7 @@ static GHashTable *trema_fragment_table = NULL;
 static GHashTable *trema_reassembled_table = NULL;
 
 // Fragment status list
-static dlist_element *fragments_status = NULL;
+static GList *fragments_status = NULL;
 static packet_status_info **packets_status = NULL;
 static guint32 packets_status_size = 0;   // allocated element count of packets_status;
 
@@ -293,16 +293,17 @@ update_packet_status( guint32 packet_number, guint32 reassemble_id ) {
 
   if ( packets_status_size > current_size ) {
     // extend pointer table
-    packet_status_info **new_table_buffer = xcalloc( packets_status_size, sizeof( packet_status_info * ) );
+    packet_status_info **new_table_buffer = g_malloc( packets_status_size * sizeof( packet_status_info * ) );
+    memset( new_table_buffer, 0, packets_status_size * sizeof( packet_status_info * ) );
     if ( packets_status != NULL ) {
       memcpy( ( void * )new_table_buffer, ( void * )packets_status, current_size * sizeof( packet_status_info * ) );
-      xfree( packets_status );
+      g_free( packets_status );
     }
     packets_status = new_table_buffer;
   }
 
   if ( packets_status[ packet_number - 1 ] == NULL ) {
-    packets_status[ packet_number - 1 ] = xmalloc( sizeof( packet_status_info ) );
+    packets_status[ packet_number - 1 ] = g_malloc( sizeof( packet_status_info ) );
   }
   p = packets_status[ packet_number - 1 ];
   p->packet_number = packet_number;
@@ -333,10 +334,10 @@ clear_packet_status() {
     
     for ( count = 0; count < packets_status_size; count++ ) {
       if ( packets_status[ count ] ) {
-        xfree( packets_status[ count ] );
+        g_free( packets_status[ count ] );
       }
     }
-    xfree( packets_status );
+    g_free( packets_status );
     packets_status = NULL;
     packets_status_size = 0;
   }
@@ -429,7 +430,7 @@ trim_message( tvbuff_t *tvb, gint offset ) {
  */
 static fragmented_stream_info *
 get_fragmented_stream_info( stream_id *stream_name ) {
-  dlist_element *element;
+  GList *element;
 
   assert( stream_name != NULL );
 
@@ -437,7 +438,7 @@ get_fragmented_stream_info( stream_id *stream_name ) {
     return NULL;
   }
 
-  for ( element = get_first_element( fragments_status ); element != NULL; element = element->next ) {
+  for ( element = g_list_first( fragments_status ); element != NULL; element = element->next ) {
     if ( element->data != NULL ) {
       fragmented_stream_info *fragment_info = element->data;
       if ( strncmp( fragment_info->stream_name.app_name, stream_name->app_name, stream_name->app_name_length - 1 ) == 0 &&
@@ -466,12 +467,12 @@ add_fragmented_stream_info( tvbuff_t *tvb, gint offset, stream_id *stream_name )
 
   PRINTF( "  ** add_fragmented_stream_info\n" );
   guint32 received_message_length = tvb_length_remaining( tvb, offset );
-  fragment_info = xmalloc( sizeof( fragmented_stream_info ) );
-  fragment_info->stream_name.app_name = xmalloc( stream_name->app_name_length );
+  fragment_info = g_malloc( sizeof( fragmented_stream_info ) );
+  fragment_info->stream_name.app_name = g_malloc( stream_name->app_name_length );
   memset( fragment_info->stream_name.app_name, ( int )NULL, stream_name->app_name_length );
   strncpy( fragment_info->stream_name.app_name, stream_name->app_name, stream_name->app_name_length - 1 );
   fragment_info->stream_name.app_name_length = stream_name->app_name_length;
-  fragment_info->stream_name.service_name = xmalloc( stream_name->service_name_length );
+  fragment_info->stream_name.service_name = g_malloc( stream_name->service_name_length );
   memset( fragment_info->stream_name.service_name, ( int )NULL, stream_name->service_name_length );
   strncpy( fragment_info->stream_name.service_name, stream_name->service_name, stream_name->service_name_length - 1 );
   fragment_info->stream_name.service_name_length = stream_name->service_name_length;
@@ -492,13 +493,7 @@ add_fragmented_stream_info( tvbuff_t *tvb, gint offset, stream_id *stream_name )
   fragment_info->reassemble_id = generate_reassemble_id();
   fragment_info->number = 0;
 
-  if ( fragments_status == NULL ) {
-    fragments_status = create_dlist();
-    fragments_status->data = fragment_info;
-  }
-  else {
-    fragments_status = insert_before_dlist( get_first_element( fragments_status ), fragment_info );
-  }
+  fragments_status = g_list_prepend( fragments_status, fragment_info );
 
   PRINTF( "  - unreceived_length %d  message_length %u  reassemble_id %d\n",
           fragment_info->unreceived_length, fragment_info->message_length, fragment_info->reassemble_id );
@@ -556,29 +551,23 @@ update_fragmented_stream_info( tvbuff_t *tvb, gint offset, fragmented_stream_inf
 /** Inner function to remove fragmented stream information in dlist
  */
 static void
-delete_fragmented_stream_info( dlist_element *element ) {
-  fragmented_stream_info *fragment_info;
-
-  assert( element != NULL );
-
-  fragment_info = element->data;
-  xfree( fragment_info->stream_name.app_name );
-  xfree( fragment_info->stream_name.service_name );
-  xfree( fragment_info );
-
-  // get first element for just to be safe
-  fragments_status = get_first_element( fragments_status );
-
-  if ( element == fragments_status ) {
-    if ( fragments_status->next != NULL ) {
-      fragments_status = fragments_status->next;
-    }
-    else {
-      // no element in the list.
-      fragments_status = NULL;
-    }
+free_fragmented_stream_info( fragmented_stream_info *info ) {
+  if ( info != NULL ) {
+    g_free( info->stream_name.app_name );
+    g_free( info->stream_name.service_name );
+    g_free( info );
   }
-  delete_dlist_element( element );
+}
+
+
+/** Inner function to remove fragmented stream information in dlist
+ */
+static void
+delete_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
+  if ( fragment_info != NULL ) {
+    fragments_status = g_list_remove( fragments_status, fragment_info );
+    free_fragmented_stream_info( fragment_info );
+  }
 }
 
 
@@ -586,7 +575,7 @@ delete_fragmented_stream_info( dlist_element *element ) {
  */
 static gboolean
 remove_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
-  dlist_element *element;
+  GList *element;
   
   assert( fragment_info != NULL );
 
@@ -595,15 +584,21 @@ remove_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
     return FALSE;
   }
 
-  // get first element for just to be safe
-  fragments_status = get_first_element( fragments_status );
-  element = find_element( fragments_status, fragment_info );
+  element = g_list_find( fragments_status, fragment_info );
   if ( element == NULL ) {
     return FALSE;
   }
-  delete_fragmented_stream_info( element );
-  
+  delete_fragmented_stream_info( element->data );
+ 
   return TRUE;
+}
+
+
+static void
+clear_fragmented_stream_info_walker( gpointer fragment_info, gpointer user_data ) {
+  if ( fragment_info != NULL ) {
+    free_fragmented_stream_info( fragment_info );
+  }
 }
 
 
@@ -614,11 +609,9 @@ clear_fragmented_stream_info() {
   PRINTF( "  ** clear_fragmented_stream_info\n" );
 
   if ( fragments_status != NULL ) {
-    dlist_element *element;
-    for ( element = get_first_element( fragments_status ); element != NULL; element = element->next ) {
-      delete_fragmented_stream_info( element );
-    }
-    assert( fragments_status == NULL );
+    g_list_foreach( fragments_status, clear_fragmented_stream_info_walker, NULL );
+    g_list_free( fragments_status );
+    fragments_status = NULL;
   }
 }
 

@@ -1,7 +1,5 @@
 #
-# Data traffic statistics.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
 #
@@ -20,29 +18,32 @@
 #
 
 
-require "forwardable"
+require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
+require "trema"
 
 
-class TrafficStats
-  extend Forwardable
-  def_delegator :@stats, :each_pair
+describe EchoReply, ".new" do
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
-  def initialize
-    @stats = {}
-  end
+describe EchoReply, ".new( :transaction_id => value )" do
+  subject { EchoReply.new :transaction_id => transaction_id }
+  it_should_behave_like "any OpenFlow message"
+end
 
 
-  def update mac, packet_count, byte_count
-    @stats[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
-    @stats[ mac ][ :packet_count ] += packet_count
-    @stats[ mac ][ :byte_count ] += byte_count
+describe EchoReply, ".new( INVALID_OPTIONS )" do
+  it "should raise a TypeError" do
+    expect {
+      EchoReply.new "INVALID_OPTIONS"
+    }.to raise_error( TypeError )
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

@@ -27,20 +27,26 @@ describe GetConfigRequest, ".new" do
 end
 
 
-describe GetConfigRequest, ".new( transaction_id )" do
-  subject { GetConfigRequest.new transaction_id }
+describe GetConfigRequest, ".new( :transaction_id => transaction_id )" do
+  subject { GetConfigRequest.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
 end
 
-  
+
 describe GetConfigRequest, ".new( 1234 )" do
+  subject { GetConfigRequest.new 1234 }
+  it_should_behave_like "any incorrect signature constructor"
+end
+
+
+describe GetConfigRequest, ".new( :transaction_id => 1234 )" do
   context "when #get_config_request is sent" do
     it "should #get_config_reply" do
       class GetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( 1234 )
+        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
         sleep 1 # FIXME
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
         controller( "GetConfigController" ).should_receive( :get_config_reply )
@@ -54,7 +60,7 @@ describe GetConfigRequest, ".new( 1234 )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( 1234 )
+        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
         controller( "GetConfigController" ).should_receive( :get_config_reply ) do | message |
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234

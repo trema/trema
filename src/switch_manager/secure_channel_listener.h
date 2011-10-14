@@ -28,7 +28,7 @@
 
 
 bool secure_channel_listen_start( struct listener_info *listener_info );
-void secure_channel_accept( struct listener_info *listener_info );
+void secure_channel_accept( int fd, void *data );
 
 
 #endif // SECURE_CANNEL_LISTENER_H

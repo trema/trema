@@ -29,6 +29,7 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "doubly_linked_list.h"
+#include "event_handler.h"
 #include "hash_table.h"
 #include "linked_list.h"
 #include "log.h"
@@ -49,6 +50,8 @@ static const char DEFAULT_DUMP_SERVICE_NAME[] = "dump_service";
 
 void init_trema( int *argc, char ***argv );
 void start_trema( void );
+void start_trema_up();
+void start_trema_down();
 void stop_trema( void );
 void flush( void );
 const char *get_trema_home( void );

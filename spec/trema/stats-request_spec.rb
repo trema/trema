@@ -22,56 +22,120 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "#stats-request" do
+shared_examples_for "any stats-request" do
   it_should_behave_like "any Openflow message with default transaction ID"
   its( :flags ) { should == 0 }
 end
 
 
 describe StatsRequest do
-  context "when #flow-stats is created" do
+  context "when .FlowStatsRequest.new" do
+    subject { FlowStatsRequest.new }
+    it_should_behave_like "any incorrect signature constructor"
+  end
+
+
+  context "when .FlowStatsRequest.new( :match => match )" do
     subject { FlowStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
-    it_should_behave_like "#stats-request"
+    it_should_behave_like "any stats-request"
     its( :match ) { should be_an_instance_of( Match ) }
     its( :table_id ) { should == 0xff }
     its( :out_port ) { should == 0xffff }
   end
 
 
-  context "when #aggregate-stats is created" do
+  context "when .FlowStatsRequest.new( :match => match, :table_id => 1, :out_port => 2 )" do
+    subject do 
+      FlowStatsRequest.new( 
+        :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+        :table_id => 1,
+        :out_port => 2
+      )
+    end
+    it_should_behave_like "any stats-request"
+    its( :match ) { should be_an_instance_of( Match ) }
+    its( :table_id ) { should == 1 }
+    its( :out_port ) { should == 2 }
+  end
+
+
+  context "when .AggregateStatsRequest.new" do
+    subject { AggregateStatsRequest.new }
+    it_should_behave_like "any incorrect signature constructor"
+  end
+
+
+  context "when .AggregateStatsRequest.new( :match => match )" do
     subject { AggregateStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
-    it_should_behave_like "#stats-request"
+    it_should_behave_like "any stats-request"
     its( :match ) { should be_an_instance_of( Match ) }
     its( :table_id ) { should == 0xff }
     its( :out_port ) { should == 0xffff }
   end
 
 
-  context "when #table-stats is created" do
-    subject { TableStatsRequest.new }
-    it_should_behave_like "#stats-request"
+  context "when .AggregateStatsRequest.new( :match => match, :table_id = 1, :out_port => 2" do
+    subject do 
+      AggregateStatsRequest.new( 
+        :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+        :table_id => 1,
+        :out_port => 2
+      )
+    end
+    it_should_behave_like "any stats-request"
+    its( :match ) { should be_an_instance_of( Match ) }
+    its( :table_id ) { should == 1 }
+    its( :out_port ) { should == 2 }
   end
 
 
-  context "when #port-stats is created" do
+  context "when .TableStatsRequest.new" do
+    subject { TableStatsRequest.new }
+    it_should_behave_like "any stats-request"
+  end
+
+
+  context "when .PortStasRequest.new" do
     subject { PortStatsRequest.new }
-    it_should_behave_like "#stats-request"
+    it_should_behave_like "any stats-request"
     its( :port_no ) { should == 0xffff }
   end
 
 
-  context "when #queue-stats is created" do
+  context "when .PortStasRequest.new( :port_no => 1 )" do
+    subject { PortStatsRequest.new :port_no => 1 }
+    it_should_behave_like "any stats-request"
+    its( :port_no ) { should == 1 }
+  end
+
+
+  context "when .QueueStatsRequest.new" do
     subject { QueueStatsRequest.new }
-    it_should_behave_like "#stats-request"
+    it_should_behave_like "any stats-request"
     its( :port_no ) { should == 0xfffc }
     its( :queue_id ) { should == 0xffffffff }
   end
 
 
-  context "when #vendor-stats is created" do
+  context "when .QueueStatsRequest.new( :port_no => 1, :queue_id => 2 )" do
+    subject { QueueStatsRequest.new :port_no => 1, :queue_id => 2 }
+    it_should_behave_like "any stats-request"
+    its( :port_no ) { should == 1 }
+    its( :queue_id ) { should == 2 }
+  end
+
+
+  context "when .VendorStatsRequest.new" do
     subject { VendorStatsRequest.new }
-    it_should_behave_like "#stats-request"
+    it_should_behave_like "any stats-request"
     its( :vendor_id ) { should == 0x00004cff }
+  end
+
+
+  context "when .VendorStatsRequest.new( :vendor_id => 123 )" do
+    subject { VendorStatsRequest.new :vendor_id => 123 }
+    it_should_behave_like "any stats-request"
+    its( :vendor_id ) { should == 123 }
   end
 end
 

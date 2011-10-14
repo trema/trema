@@ -22,10 +22,12 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe BarrierRequest do
+describe BarrierRequest, ".new" do
   it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
+describe BarrierRequest, ".new" do
   context "when #barrier_request" do
     it "should #barrier_reply" do
       class BarrierController < Controller; end
@@ -41,9 +43,9 @@ describe BarrierRequest do
 end
 
 
-describe BarrierRequest, ".new( transaction_id == 1234 )" do
+describe BarrierRequest, ".new( :transaction_id => value )" do
   context "when #barrier_request" do
-    it "should #barrier_reply with transaction_id == 1234" do
+    it "should #barrier_reply with transaction_id == value" do
       class BarrierController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
@@ -52,7 +54,7 @@ describe BarrierRequest, ".new( transaction_id == 1234 )" do
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234
         end
-        barrier_request = BarrierRequest.new( 1234 )
+        barrier_request = BarrierRequest.new( :transaction_id => 1234 )
         controller( "BarrierController" ).send_message( 0xabc, barrier_request )
         sleep 2 # FIXME: wait to send_message
       }
@@ -61,9 +63,18 @@ describe BarrierRequest, ".new( transaction_id == 1234 )" do
 end
 
 
-describe BarrierRequest, ".new( transaction_id )" do
-  subject { BarrierRequest.new transaction_id }
+describe BarrierRequest, ".new( :transaction_id => value )" do
+  subject { BarrierRequest.new :transaction_id => transaction_id }
   it_should_behave_like "any OpenFlow message"
+end
+
+
+describe BarrierRequest, ".new( INVALID_OPTIONS )" do
+  it "should raise a TypeError" do
+    expect {
+      BarrierRequest.new "INVALID_OPTIONS"
+    }.to raise_error( TypeError )
+  end
 end
 
 

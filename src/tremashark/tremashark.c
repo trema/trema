@@ -43,7 +43,7 @@
 #define FIFO_NAME "tremashark"
 #define WIRESHARK "wireshark"
 #define TSHARK "tshark"
-#define FLUSH_INTERVAL 500000000 // nanoseconds
+#define FLUSH_INTERVAL 250000000 // nanoseconds
 #define MESSAGE_BUFFER_LENGTH 100000 // microseconds
 
 #define WRITE_SUCCESS 0
@@ -123,8 +123,6 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   message_header *hdr;
   buffer *packet;
   queue_status status;
-
-  assert( outfile_fd >= 0 );
 
   dump_hdr = data;
 
@@ -256,41 +254,6 @@ write_pcap_packet( void *user_data ) {
 
 
 static void
-write_circular_buffer( void ) {
-  sort_pcap_queue();
-
-  buffer *packet = NULL;
-  for ( ; ; ) {
-    packet = NULL;
-    dequeue_pcap_packet( &packet );
-    if ( packet == NULL ) {
-      break;
-    }
-
-    int ret = write_to_file( packet );
-    delete_pcap_packet( packet );
-    if ( ret != WRITE_SUCCESS ) {
-      break;
-    }
-  }
-
-  fsync( outfile_fd );
-
-  return;
-}
-
-
-static void
-set_signal_handler( void ) {
-  // Note that this overrides a default signal handler set by Trema.
-  struct sigaction signal_usr2;
-  memset( &signal_usr2, 0, sizeof( struct sigaction ) );
-  signal_usr2.sa_handler = ( void * ) write_circular_buffer;
-  sigaction( SIGUSR2, &signal_usr2, NULL );
-}
-
-
-static void
 set_timer_event() {
   if ( use_circular_buffer ) {
     return;
@@ -326,7 +289,7 @@ init_pcap() {
 
   mode_t mode = ( S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
   if ( output_to_pcap_file ) {
-    outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT, mode );
+    outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT | O_TRUNC, mode );
     if ( outfile_fd < 0 ) {
       critical( "Failed to open a file (%s).", pcap_file_pathname );
       assert( 0 );
@@ -360,11 +323,50 @@ init_pcap() {
 static void
 finalize_pcap() {
   if ( outfile_fd >= 0 ) {
+    fsync( outfile_fd );
     close( outfile_fd );
     outfile_fd = -1;
   }
 
   unlink( fifo_pathname );
+}
+
+
+static void
+write_circular_buffer( void ) {
+  if ( !output_to_pcap_file ) {
+    return;
+  }
+
+  if ( outfile_fd < 0 ) {
+    init_pcap();
+  }
+
+  sort_pcap_queue();
+
+  foreach_pcap_queue( ( void * ) write_to_file );
+
+  finalize_pcap();
+
+  return;
+}
+
+
+static void
+set_write_circular_buffer( void ) {
+  if ( set_external_callback != NULL ) {
+    set_external_callback( write_circular_buffer );
+  }
+}
+
+
+static void
+set_signal_handler( void ) {
+  // Note that this overrides a default signal handler set by Trema.
+  struct sigaction signal_usr2;
+  memset( &signal_usr2, 0, sizeof( struct sigaction ) );
+  signal_usr2.sa_handler = ( void * ) set_write_circular_buffer;
+  sigaction( SIGUSR2, &signal_usr2, NULL );
 }
 
 
@@ -402,7 +404,7 @@ usage( void ) {
     "  -w FILE_TO_SAVE             save messages to pcap file\n"
     "  -p                          do not launch wireshark nor tshark\n"
     "  -r                          do not trust remote clock\n"
-    "  -c [NUMBER_OF_MESSAGES]     save messages to circular buffer\n"
+    "  -c NUMBER_OF_MESSAGES       save messages to circular buffer\n"
     "  -s DUMP_SERVICE_NAME        dump service name\n"
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -d, --daemonize             run in the background\n"

@@ -56,6 +56,8 @@ struct switch_info {
 
   message_queue *send_queue;
   message_queue *recv_queue;
+
+  bool running_timer;
 };
 
 

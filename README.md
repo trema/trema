@@ -53,6 +53,7 @@ Please keep the list sorted.
 * Nick Karanatsios <nickkaranatsios@gmail.com>
 * Shin'ya Zenke
 * Shuji Ishii
+* Sundell Jari <sundell.software@gmail.com>
 * Toshio Koide
 * Yasuhito Takamiya <yasuhito@gmail.com>
 * Yasunobu Chiba
