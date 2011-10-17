@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe FeaturesReply, ".new( options={} )" do
+describe FeaturesReply, ".new( VALID OPTIONS )" do
   subject { FeaturesReply.new( :datapath_id => 123, 
     :transaction_id => 1234,
     :n_buffers => 256,
@@ -43,8 +43,10 @@ describe FeaturesReply, ".new( options={} )" do
 end
 
 
-describe FeaturesReply, ".new" do
-  it_should_behave_like "any incorrect signature constructor"
+describe FeaturesReply, ".new( MANDATORY OPTIONS MISSING)" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError ) 
+  end
 end
 
 
