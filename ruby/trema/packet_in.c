@@ -23,6 +23,8 @@
 #include "ruby.h"
 #include "trema.h"
 
+#include "packet_shared.h"
+
 
 extern VALUE mTrema;
 VALUE cPacketIn;
@@ -165,7 +167,86 @@ packet_in_reason( VALUE self ) {
 }
 
 
-#include "packet_shared.h"
+/*
+ * The MAC source address.
+ *
+ * @return [Trema::Mac] macsa MAC source address.
+ */
+static VALUE
+packet_in_macsa( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( eth_macsa );
+}
+
+
+/*
+ * The MAC destination address.
+ *
+ * @return [Trema::Mac] macda MAC destination address.
+ */
+static VALUE
+packet_in_macda( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( eth_macda );
+}
+
+
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
+static VALUE
+packet_in_is_arp( VALUE self ) {
+  if ( ( get_packet_shared_info( self )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_sha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( arp_sha );
+}
+
+
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
+static VALUE
+packet_in_arp_spa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_spa );
+}
+
+
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_tha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC(arp_tha);
+}
+
+
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
+static VALUE
+packet_in_arp_tpa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_tpa );
+}
 
 
 void
@@ -190,7 +271,13 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "reason", packet_in_reason, 0 );
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
 
-  PACKET_SHARED_DEFINE_METHODS( cPacketIn );
+  rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
+  rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+  rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
 }
 
 

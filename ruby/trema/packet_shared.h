@@ -17,100 +17,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
-#define PACKET_SHARED_DEFINE_METHODS( class_name )                      \
-  rb_define_method( class_name, "macsa", packet_shared_macsa, 0 );      \
-  rb_define_method( class_name, "macda", packet_shared_macda, 0 );      \
-  rb_define_method( class_name, "arp?", packet_shared_is_arp, 0 );      \
-  rb_define_method( class_name, "arp_sha", packet_shared_arp_sha, 0 );  \
-  rb_define_method( class_name, "arp_spa", packet_shared_arp_spa, 0 );  \
-  rb_define_method( class_name, "arp_tha", packet_shared_arp_tha, 0 );  \
-  rb_define_method( class_name, "arp_tpa", packet_shared_arp_tpa, 0 );
+#ifndef PACKET_IN_H
+#define PACKET_IN_H
 
 
-/*
- * The MAC source address.
- *
- * @return [Trema::Mac] macsa MAC source address.
- */
-static VALUE
-packet_shared_macsa( VALUE self ) {
-  VALUE macsa = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->eth_macsa ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
-}
+#define PACKET_SHARED_RETURN_MAC(packet_member)                         \
+  VALUE ret = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->packet_member ) ); \
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );
 
 
-/*
- * The MAC destination address.
- *
- * @return [Trema::Mac] macda MAC destination address.
- */
-static VALUE
-packet_shared_macda( VALUE self ) {
-  VALUE macda = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->eth_macda ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
-}
+#define PACKET_SHARED_SET_MAC(packet_member)                            \
+  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->packet_member );
+
+
+#define PACKET_SHARED_RETURN_IP(packet_member)                          \
+  VALUE ret = ULONG2NUM( get_packet_shared_info( self )->arp_spa );     \
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret );
+
+
+#define PACKET_SHARED_SET_IP(packet_member)                             \
+  get_packet_shared_info( self )->packet_member = ( uint32_t )NUM2UINT( value );
+
+
+#endif // PACKET_IN_H
 
 
 /*
- * Is an ARP packet?
- *
- * @return [bool] arp? Is an ARP packet?
+ * Local variables:
+ * c-basic-offset: 2
+ * indent-tabs-mode: nil
+ * End:
  */
-static VALUE
-packet_shared_is_arp( VALUE self ) {
-  if ( ( get_packet_shared_info( self )->format & NW_ARP ) ) {
-    return Qtrue;
-  }
-  else {
-    return Qfalse;
-  }
-}
-
-
-/*
- * The ARP source hardware address.
- *
- * @return [Trema::Mac] arp_sha MAC hardware address.
- */
-static VALUE
-packet_shared_arp_sha( VALUE self ) {
-  VALUE value = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->arp_sha ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, value );
-}
-
-
-/*
- * The ARP source protocol address.
- *
- * @return [Trema::IP] arp_spa IP protocol address.
- */
-static VALUE
-packet_shared_arp_spa( VALUE self ) {
-  VALUE value = ULONG2NUM( get_packet_shared_info( self )->arp_spa );
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, value );
-}
-
-
-/*
- * The ARP target hardware address.
- *
- * @return [Trema::Mac] arp_tha MAC hardware address.
- */
-static VALUE
-packet_shared_arp_tha( VALUE self ) {
-  VALUE value = ULL2NUM( mac_to_uint64( get_packet_shared_info( self )->arp_tha ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, value );
-}
-
-
-/*
- * The ARP target protocol address.
- *
- * @return [Trema::IP] arp_tpa IP protocol address.
- */
-static VALUE
-packet_shared_arp_tpa( VALUE self ) {
-  VALUE value = ULONG2NUM( get_packet_shared_info( self )->arp_tpa );
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, value );
-}

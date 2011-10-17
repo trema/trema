@@ -67,7 +67,7 @@ write_packet( packet_info *info, char *buffer, int buffer_length ) {
     break;
 
   default:
-    // Protocol supported at this moment.
+    // Protocol unsupported at this moment.
     return -1;
   }
 

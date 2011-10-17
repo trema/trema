@@ -26,7 +26,8 @@
 #include "ether.h"
 #include "ruby.h"
 #include "trema.h"
-#include "packet_in.h"
+#include "packet_out.h"
+#include "packet_shared.h"
 
 extern VALUE mTrema;
 VALUE cPacketOut;
@@ -61,47 +62,126 @@ get_packet_shared_info( VALUE self ) {
 }
 
 
-#include "packet_shared.h"
+/*
+ * The MAC source address.
+ *
+ * @return [Trema::Mac] macsa MAC source address.
+ */
+static VALUE
+packet_out_macsa( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( eth_macsa );
+}
+
+
+/*
+ * The MAC destination address.
+ *
+ * @return [Trema::Mac] macda MAC destination address.
+ */
+static VALUE
+packet_out_macda( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( eth_macda );
+}
+
+
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
+static VALUE
+packet_out_is_arp( VALUE self ) {
+  if ( ( get_packet_shared_info( self )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
+static VALUE
+packet_out_arp_sha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( arp_sha );
+}
+
+
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
+static VALUE
+packet_out_arp_spa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_spa );
+}
+
+
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
+static VALUE
+packet_out_arp_tha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC(arp_tha);
+}
+
+
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
+static VALUE
+packet_out_arp_tpa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_tpa );
+}
 
 
 static VALUE
 packet_out_set_macsa( VALUE self, VALUE value ) {
-  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->eth_macsa );
+  PACKET_SHARED_SET_MAC( eth_macsa );
   return self;
 }
 
 
 static VALUE
 packet_out_set_macda( VALUE self, VALUE value ) {
-  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->eth_macda );
+  PACKET_SHARED_SET_MAC( eth_macda );
   return self;
 }
 
 
 static VALUE
 packet_out_set_arp_sha( VALUE self, VALUE value ) {
-  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->arp_sha );
+  PACKET_SHARED_SET_MAC( arp_sha );
   return self;
 }
 
 
 static VALUE
 packet_out_set_arp_spa( VALUE self, VALUE value ) {
-  get_packet_shared_info( self )->arp_spa = ( uint32_t )NUM2UINT( value );
+  PACKET_SHARED_SET_IP( arp_spa );
   return self;
 }
 
 
 static VALUE
 packet_out_set_arp_tha( VALUE self, VALUE value ) {
-  uint64_to_mac( NUM2ULL( value ), get_packet_shared_info( self )->arp_tha );
+  PACKET_SHARED_SET_MAC( arp_tha );
   return self;
 }
 
 
 static VALUE
 packet_out_set_arp_tpa( VALUE self, VALUE value ) {
-  get_packet_shared_info( self )->arp_tpa = ( uint32_t )NUM2UINT( value );
+  PACKET_SHARED_SET_IP( arp_tpa );
   return self;
 }
 
@@ -134,11 +214,6 @@ static VALUE
 packet_out_to_s( VALUE self ) {
   packet_info *info = get_packet_shared_info( self );
 
-  if ( ! ( info->format & NW_ARP ) ) {
-    // Add proper error handling.
-    return Qnil;
-  }
-
   // Use temporary size, fixme...
   char buffer[2048];
   int length = write_packet( info, buffer, 2048 );
@@ -163,11 +238,16 @@ Init_packet_out() {
   cPacketOut = rb_define_class_under( mTrema, "PacketOut", rb_cObject );
   rb_define_alloc_func( cPacketOut, packet_out_alloc );
 
-  PACKET_SHARED_DEFINE_METHODS( cPacketOut );
-
+  rb_define_method( cPacketOut, "macsa", packet_out_macsa, 0 );
+  rb_define_method( cPacketOut, "macda", packet_out_macda, 0 );
   rb_define_method( cPacketOut, "macsa=", packet_out_set_macsa, 1 );
   rb_define_method( cPacketOut, "macda=", packet_out_set_macda, 1 );
 
+  rb_define_method( cPacketOut, "arp?", packet_out_is_arp, 0 );
+  rb_define_method( cPacketOut, "arp_sha", packet_out_arp_sha, 0 );
+  rb_define_method( cPacketOut, "arp_spa", packet_out_arp_spa, 0 );
+  rb_define_method( cPacketOut, "arp_tha", packet_out_arp_tha, 0 );
+  rb_define_method( cPacketOut, "arp_tpa", packet_out_arp_tpa, 0 );
   rb_define_method( cPacketOut, "arp_sha=", packet_out_set_arp_sha, 1 );
   rb_define_method( cPacketOut, "arp_spa=", packet_out_set_arp_spa, 1 );
   rb_define_method( cPacketOut, "arp_tha=", packet_out_set_arp_tha, 1 );
