@@ -68,7 +68,7 @@ end
 
 
 describe BarrierRequest, ".new( INVALID_OPTION )" do
-  it "should raise a TypeError" do
+  it "should raise TypeError" do
     expect {
       BarrierRequest.new "INVALID_OPTION"
     }.to raise_error( TypeError )
