@@ -22,35 +22,56 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionEnqueue do
-  describe ActionEnqueue, ".new( port, queue_id )" do
-    subject { ActionEnqueue.new 1, 123  }
-    its ( :port ) { should == 1 }
-    its ( :queue_id ) { should == 123 }
-    it "should inspect its attributes" do
-      subject.inspect.should == "#<Trema::ActionEnqueue port=1,queue_id=123>"
-    end
+shared_examples_for "any OpenFlow message with queue id option" do
+  it_should_behave_like "any OpenFlow message", :option => :queue_id, :name => "Queue id", :size => 32
+end
+
+
+describe ActionEnqueue, "new( VALID OPTIONS )" do
+  subject { ActionEnqueue.new :port => port, :queue_id => queue_id  }
+  let( :port ) { 1 }
+  let( :queue_id ) { 123 }
+  its ( :port ) { should == 1 }
+  its ( :queue_id ) { should == 123 }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionEnqueue port=1,queue_id=123>"
   end
+  it_should_behave_like "any OpenFlow message with port option"
+  it_should_behave_like "any OpenFlow message with queue id option"
+end
 
 
-  describe ActionEnqueue, ".new( port )" do
-    subject { ActionEnqueue.new 1 }
-    it_should_behave_like "any incorrect signature constructor"
-  end 
-
-
-  describe ActionEnqueue, ".new" do
-    it_should_behave_like "any incorrect signature constructor"
+describe ActionEnqueue, ".new( MANDADORY OPTION MISSING ) - queue id" do
+  subject { ActionEnqueue.new :port => 1 }
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError, /Queue id is a mandatory option/ )
   end
+end
 
 
+describe ActionEnqueue, ".new( MANDATORY OPTION MISSING ) - port" do
+  subject { ActionEnqueue.new :queue_id => 123 }
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError, /Port is a mandatory option/ )
+  end
+end
+
+
+describe ActionEnqueue, ".new( MANDATORY OPTIONS MISSING ) - port, queue id" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError, /Port, queue id are mandatory options/ )
+  end
+end
+
+
+describe ActionEnqueue, ".new( VALID OPTIONS )" do
   context "when sending #flow_mod(add) with action set to enqueue" do
     it "should respond to #append" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionEnqueue.new( 1, 123 )
+        action = ActionEnqueue.new( :port => 1, :queue_id => 123 )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
       }
@@ -62,7 +83,7 @@ describe ActionEnqueue do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionEnqueue.new( 1, 123 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionEnqueue.new( :port => 1, :queue_id => 123 ) )
         sleep 2 # FIXME: wait to send_flow_mod
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /enqueue:1q123/ )
