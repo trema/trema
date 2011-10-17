@@ -49,7 +49,8 @@ VALUE cVendorStatsRequest;
  *   @see QueueStatsRequest
  *   @see VendorStatsRequest
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :transaction_id
  *     transaction_id for this request or auto-generated if not specified.
@@ -57,16 +58,17 @@ VALUE cVendorStatsRequest;
  *   @option options [Symbol] :flags
  *     flags not defined yet should be set to zero.
  *
- * @raise [ArgumentError] if supplied transaction_id is not an unsigned 32bit integer.
+ *   @raise [ArgumentError] if supplied transaction_id is not an unsigned 32-bit integer.
  *
- * @return [StatsRequest] an object that encapsulates an +OFPT_STATS_REQUEST+ openflow message.
+ *   @return [StatsRequest] 
+ *     an object that encapsulates an +OFPT_STATS_REQUEST+ openflow message.
  */
 static VALUE
 stats_request_init( VALUE self, VALUE options ) {
   VALUE transaction_id;
   if ( ( transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
     if ( rb_funcall( transaction_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
     }
   }
   else {
@@ -174,7 +176,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 stats_transaction_id( VALUE self ) {
@@ -185,7 +187,7 @@ stats_transaction_id( VALUE self ) {
 /*
  * Not yet defined. Set to zero.
  *
- * @return [Number] the value of attribute flags.
+ * @return [Number] the value of flags.
  */
 static VALUE
 stats_flags( VALUE self ) {
@@ -196,7 +198,7 @@ stats_flags( VALUE self ) {
 /*
  * Detailed description of each flow field.
  *
- * @return [Match] the value of attribute match.
+ * @return [Match] the value of match.
  */
 static VALUE
 stats_match( VALUE self ) {
@@ -207,7 +209,7 @@ stats_match( VALUE self ) {
 /*
  * An index into array of tables. 0xff for all tables.
  *
- * @return [Number] the value of attribute table_id.
+ * @return [Number] the value of table_id.
  */
 static VALUE
 stats_table_id( VALUE self ) {
@@ -218,7 +220,7 @@ stats_table_id( VALUE self ) {
 /*
  * Requires flow matching if defined.
  *
- * @return [Number] the value of attribute out_port.
+ * @return [Number] the value of out_port.
  */
 static VALUE
 stats_out_port( VALUE self ) {
@@ -229,7 +231,7 @@ stats_out_port( VALUE self ) {
 /*
  * Restrict port statistics to a specific port_no or to all ports.
  *
- * @return [Number] the value of attribute port_no.
+ * @return [Number] the value of port_no.
  */
 static VALUE
 stats_port_no( VALUE self ) {
@@ -240,7 +242,7 @@ stats_port_no( VALUE self ) {
 /*
  * Restrict queue statistics to a specific queue_id or to all queues.
  *
- * @return [Number] the value of attribute queue_id.
+ * @return [Number] the value of queue_id.
  */
 static VALUE
 stats_queue_id( VALUE self ) {
@@ -251,7 +253,7 @@ stats_queue_id( VALUE self ) {
 /*
  * Vendor id uniquely assigned for each vendor.
  *
- * @return [Number] the value of attribute vendor_id.
+ * @return [Number] the value of vendor_id.
  */
 static VALUE
 stats_vendor_id( VALUE self ) {

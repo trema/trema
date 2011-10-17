@@ -22,24 +22,16 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe FeaturesRequest, ".new" do
+describe FeaturesRequest, ".new( OPTIONAL OPTION MISSING )" do
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe FeaturesRequest, ".new( :transaction_id => transaction_id )" do
+describe FeaturesRequest, ".new( VALID OPTION )" do
   subject { FeaturesRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message"
-end
+  it_should_behave_like "any OpenFlow message with transaction_id option"
 
 
-describe FeaturesRequest, ".new( 1234 )" do
-  subject { FeaturesRequest.new( 1234 ) }
-  it_should_behave_like "any incorrect signature constructor"
-end
-
-
-describe FeaturesRequest, ".new( :transaction_id => 1234 )" do
   context "when #features_request is sent with transaction ID(1234)" do
     it "should receive #features_reply with transaction ID(1234)" do
       class FeaturesController < Controller; end
@@ -54,6 +46,15 @@ describe FeaturesRequest, ".new( :transaction_id => 1234 )" do
         end
       }
     end
+  end
+end
+
+
+describe FeaturesRequest, ".new( INVALID OPTION )" do
+  it "should raise TypeError" do
+    expect {
+      FeaturesRequest.new "INVALID_OPTION"
+    }.to raise_error( TypeError )
   end
 end
 

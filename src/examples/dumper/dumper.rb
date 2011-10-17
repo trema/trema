@@ -30,7 +30,7 @@ class Dumper < Controller
       datapath_id,
       :match => Match.new( :dl_type => 0x0800 ),
       :priority => 1,
-      :actions => ActionOutput.new( OFPP_CONTROLLER ) 
+      :actions => ActionOutput.new( :port => OFPP_CONTROLLER ) 
     )
   end
 

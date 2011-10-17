@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::PortStatus do
+describe Trema::PortStatus, ".new( VALID OPTIONS )" do
   class PortStatusController < Controller
     def features_reply message
       ports = message.ports.select{ |each| each.config == 0 }.sort

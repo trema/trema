@@ -42,7 +42,8 @@ VALUE cOpenflowError;
  *       :data => data
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier. This idenfier is typed as a 64-bit number
@@ -60,8 +61,8 @@ VALUE cOpenflowError;
  *   @option options [Symbol] :data
  *     variable length data interpreted based on type and code.
  *
- * @return [OpenflowError] self
- *   an object that encapsulates the +OFPT_ERROR+ openflow message.
+ *   @return [OpenflowError] self
+ *     an object that encapsulates the +OFPT_ERROR+ openflow message.
  */
 static VALUE
 openflow_error_init( VALUE self, VALUE options ) {
@@ -73,7 +74,7 @@ openflow_error_init( VALUE self, VALUE options ) {
 /*
  *  Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 openflow_error_datapath_id( VALUE self ) {
@@ -84,7 +85,7 @@ openflow_error_datapath_id( VALUE self ) {
 /*
  * The transaction_id of the offended message.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 openflow_error_transaction_id( VALUE self ) {
@@ -95,7 +96,7 @@ openflow_error_transaction_id( VALUE self ) {
 /*
  * The command or action that failed.
  *
- * @return [Number] the value of attribute type.
+ * @return [Number] the value of type.
  */
 static VALUE
 openflow_error_type( VALUE self ) {
@@ -106,7 +107,7 @@ openflow_error_type( VALUE self ) {
 /*
  * The reason of the failed type error.
  *
- * @return [Number] the value of attribute code.
+ * @return [Number] the value of code.
  */
 static VALUE
 openflow_error_code( VALUE self ) {

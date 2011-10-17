@@ -40,7 +40,8 @@ VALUE cQueueGetConfigReply;
  *       :queues => [ PacketQueue ]
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     a unique name that identifies an OpenVSwitch, the message originator.
@@ -54,8 +55,8 @@ VALUE cQueueGetConfigReply;
  *   @option options [Symbol] :queues
  *     an array of {PacketQueue} objects.
  *
- * @return [QueueGetConfigReply]
- *   an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ openflow message.
+ *   @return [QueueGetConfigReply]
+ *     an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ openflow message.
  */
 static VALUE
 queue_get_config_reply_init( VALUE self, VALUE options ) {
@@ -67,7 +68,7 @@ queue_get_config_reply_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 queue_get_config_reply_datapath_id( VALUE self ) {
@@ -78,7 +79,7 @@ queue_get_config_reply_datapath_id( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 queue_get_config_reply_transaction_id( VALUE self ) {
@@ -89,7 +90,7 @@ queue_get_config_reply_transaction_id( VALUE self ) {
 /*
  * The port the queue is attached to.
  *
- * @return [Number] the value of attribute port.
+ * @return [Number] the value of port.
  */
 static VALUE
 queue_get_config_reply_port( VALUE self ) {
@@ -102,7 +103,7 @@ queue_get_config_reply_port( VALUE self ) {
  * depending on its properties. Currently only a minimum-rate type queue 
  * supported.
  *
- * @return [Array<PacketQueue>] the value of attribute queues.
+ * @return [Array<PacketQueue>] the value of queues.
  */
 static VALUE
 queue_get_config_reply_queues( VALUE self ) {

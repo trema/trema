@@ -190,7 +190,7 @@ match_to_s( VALUE self ) {
 /*
  * The wildcard field expressed as a 32-bit bitmap,
  *
- * @return [Number] the value of attribute wildcards.
+ * @return [Number] the value of wildcards.
  */
 static VALUE
 match_wildcards( VALUE self ) {
@@ -199,7 +199,7 @@ match_wildcards( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute in_port.
+ * @return [Number] the value of in_port.
  */
 static VALUE
 match_in_port( VALUE self ) {
@@ -223,7 +223,7 @@ match_dl( VALUE self, uint8_t which ) {
 
 
 /*
- * @return [Mac] the value of attribute dl_src.
+ * @return [Mac] the value of dl_src.
  */
 static VALUE
 match_dl_src( VALUE self ) {
@@ -232,7 +232,7 @@ match_dl_src( VALUE self ) {
 
 
 /*
- * @return [Mac] the value of attribute dl_dst.
+ * @return [Mac] the value of dl_dst.
  */
 static VALUE
 match_dl_dst( VALUE self ) {
@@ -241,7 +241,7 @@ match_dl_dst( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute dl_vlan.
+ * @return [Number] the value of dl_vlan.
  */
 static VALUE
 match_dl_vlan( VALUE self ) {
@@ -250,7 +250,7 @@ match_dl_vlan( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute dl_vlan_pcp.
+ * @return [Number] the value of dl_vlan_pcp.
  */
 static VALUE
 match_dl_vlan_pcp( VALUE self ) {
@@ -259,7 +259,7 @@ match_dl_vlan_pcp( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute dl_type.
+ * @return [Number] the value of dl_type.
  */
 static VALUE
 match_dl_type( VALUE self ) {
@@ -268,7 +268,7 @@ match_dl_type( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute nw_tos.
+ * @return [Number] the value of nw_tos.
  */
 static VALUE
 match_nw_tos( VALUE self ) {
@@ -277,7 +277,7 @@ match_nw_tos( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute nw_proto.
+ * @return [Number] the value of nw_proto.
  */
 static VALUE
 match_nw_proto( VALUE self ) {
@@ -288,7 +288,7 @@ match_nw_proto( VALUE self ) {
 /*
  * An IPv4 source address in its numeric representation.
  *
- * @return [Number] the value of attribute nw_src.
+ * @return [Number] the value of nw_src.
  */
 static VALUE
 match_nw_src( VALUE self ) {
@@ -299,7 +299,7 @@ match_nw_src( VALUE self ) {
 /*
  * An IPv4 destination address in its numeric representation.
  * 
- * @return [Number] the value of attribute nw_dst.
+ * @return [Number] the value of nw_dst.
  */
 static VALUE
 match_nw_dst( VALUE self ) {
@@ -308,7 +308,7 @@ match_nw_dst( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute tp_src.
+ * @return [Number] the value of tp_src.
  */
 static VALUE
 match_tp_src( VALUE self ) {
@@ -317,7 +317,7 @@ match_tp_src( VALUE self ) {
 
 
 /*
- * @return [Number] the value of attribute tp_dst.
+ * @return [Number] the value of tp_dst.
  */
 static VALUE
 match_tp_dst( VALUE self ) {

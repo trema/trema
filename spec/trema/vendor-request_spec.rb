@@ -22,17 +22,17 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe VendorRequest do
+describe VendorRequest, ".new( OPTIONAL OPTION MISSING )" do
   its( :vendor ) { should == 0xccddeeff }
   its( :data ) { should have( 16 ).items  }
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe VendorRequest, ".new( :transaction_id => :transaction_id, :vendor_id => 21845, :vendor_data => 'this is a test'.unpack( 'C*'' ) )" do
+describe VendorRequest, ".new( VALID OPTIONS )" do
   subject {
     @vendor_data = "this is a test".unpack( "C*" )
-    VendorRequest.new Hash[ :transaction_id, transaction_id, :vendor_id, 0x5555, :vendor_data, @vendor_data ]
+    VendorRequest.new :vendor_id => 0x5555, :vendor_data => @vendor_data, :transaction_id => transaction_id
   }
   let( :transaction_id ) { 1234 }
   its( :vendor ) { should == 21845 }
@@ -42,21 +42,28 @@ describe VendorRequest, ".new( :transaction_id => :transaction_id, :vendor_id =>
       vendor_data.should == @vendor_data
     end
   end
-  it_should_behave_like "any OpenFlow message"
+  it_should_behave_like "any OpenFlow message with transaction_id option"
 end
 
 
-describe VendorRequest, ".new( :vendor_data => 'test' )" do
-  describe "vendor user data specified as a string" do
-    subject { VendorRequest.new :vendor_data => "test" }
-    it "should raise" do
-      expect { subject }.to raise_error( ArgumentError )
-    end
+describe VendorRequest, ".new( INVALID OPTION ) - vendor_data as String" do
+  subject { VendorRequest.new :vendor_data => "test" }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
   end
 end
 
 
-describe VendorRequest, ".new( :vendor_data => 'this is a long message....'.unpack( 'C*' )" do
+describe VendorRequest, ".new( INVALID OPTIONS )" do
+  it "should raise TypeError" do
+    expect {
+      VendorRequest.new "INVALID OPTIONS"
+    }.to raise_error( TypeError )
+  end
+end
+
+
+describe VendorRequest, ".new( VALID OPTIONS ) - vendor_data greater than 16 bytes" do
   vendor_data = "this is a long message....".unpack( "C*" )
   subject { VendorRequest.new :vendor_data => vendor_data }
   it "should assign the first 16 bytes only" do

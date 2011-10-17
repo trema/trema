@@ -41,7 +41,8 @@ VALUE cPortStatus;
  *       :phy_port => Port
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
@@ -55,8 +56,8 @@ VALUE cPortStatus;
  *   @option options [Symbol] :phy_port
  *     a {Port} object describing the properties of the port.
  *
- * @return [PortStatus]
- *   an object that encapsulates the +OFPT_PORT_STATUS+ openflow message.
+ *   @return [PortStatus]
+ *     an object that encapsulates the +OFPT_PORT_STATUS+ openflow message.
  */
 static VALUE
 port_status_init( VALUE self, VALUE options ) {
@@ -68,7 +69,7 @@ port_status_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 port_status_datapath_id( VALUE self ) {
@@ -79,7 +80,7 @@ port_status_datapath_id( VALUE self ) {
 /*
  * For this asynchronous message the transaction_id is set to zero.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 port_status_transaction_id( VALUE self ) {
@@ -90,7 +91,7 @@ port_status_transaction_id( VALUE self ) {
 /*
  * The reason value specifies an addition, deletion or modification to a port.
  *
- * @return [Number] the value of attribute reason.
+ * @return [Number] the value of reason.
  */
 static VALUE
 port_status_reason( VALUE self ) {
@@ -101,7 +102,7 @@ port_status_reason( VALUE self ) {
 /*
  * Port detailed description, state.
  *
- * @return [Port] the value of attribute phy_port.
+ * @return [Port] the value of phy_port.
  */
 static VALUE
 port_status_phy_port( VALUE self ) {

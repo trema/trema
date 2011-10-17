@@ -74,7 +74,7 @@ class TrafficMonitor < Trema::Controller
       :send_flow_rem => true,
       :hard_timeout => 10,
       :match => Match.new( :dl_src => macsa.to_s, :dl_dst => macda.to_s ),
-      :actions => Trema::ActionOutput.new( out_port )
+      :actions => Trema::ActionOutput.new( :port => out_port )
     )
   end
 
@@ -83,7 +83,7 @@ class TrafficMonitor < Trema::Controller
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => Trema::ActionOutput.new( out_port )
+      :actions => Trema::ActionOutput.new( :port => out_port )
     )
   end
 
