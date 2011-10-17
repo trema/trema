@@ -22,36 +22,48 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetDlSrc do
-  describe ActionSetDlSrc, ".new( mac )" do
-    subject { ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) ) }
-    its ( :dl_src ) { should be_an_instance_of( Trema::Mac ) }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionSetDlSrc dl_src=52:54:00:a8:ad:8c>"
+describe ActionSetDlSrc, ".new( VALID OPTION )" do
+  subject { ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) ) }
+  its ( :dl_src ) { should be_an_instance_of( Trema::Mac ) }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionSetDlSrc dl_src=52:54:00:a8:ad:8c>"
+  end
+end
+
+
+describe ActionSetDlSrc, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionSetDlSrc, ".new( INVALID OPTION )" do
+  context "when argument type Array instead of Hash" do
+    subject { ActionSetDlSrc.new( [ Mac.new( '52:54:00:a8:ad:8c' ) ] ) }
+    it "should raise TypeError" do
+      expect { subject }.to raise_error( TypeError )
     end
   end
 
 
-  describe ActionSetDlSrc, ".new" do
-    it_should_behave_like "any incorrect signature constructor"
-  end
-
-
-  describe ActionSetDlSrc, ".new( mac ) - mac not a Trema::Mac object" do
-    subject { ActionSetDlSrc.new 1234 }
-    it "should raise" do
-      expect { subject }.to raise_error( ArgumentError, /dl src address should be a Mac object/ )
+  context "when dl_src not a Trema::Mac object" do
+    subject { ActionSetDlSrc.new :dl_src => 1234 }
+    it "should raise TypeError" do
+      expect { subject }.to raise_error( TypeError, /dl src address should be a Mac object/ )
     end
   end
+end
 
 
+describe ActionSetDlSrc, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_dl_src" do
     it "should respond to #append" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) )
+        action = ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
@@ -63,7 +75,7 @@ describe ActionSetDlSrc do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions =>  ActionSetDlSrc.new( Mac.new( "52:54:00:a8:ad:8c" ) ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions =>  ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) ) )
         sleep 2 # FIXME: wait to send_flow_mod
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /mod_dl_src:52:54:00:a8:ad:8c/ )
