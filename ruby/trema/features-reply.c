@@ -44,7 +44,8 @@ VALUE cFeaturesReply;
  *       :port => [ Trema::Port ]
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     datapath unique id. Subsequent commands directed to switch should 
@@ -71,7 +72,7 @@ VALUE cFeaturesReply;
  *   @option options [Symbol] :port
  *     an array of {Port} objects detailing physical port description and function.
  *
- * @return [FeaturesReply] self
+ *   @return [FeaturesReply] self
  */
 static VALUE
 features_reply_init( VALUE self, VALUE options ) {
@@ -83,7 +84,7 @@ features_reply_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id
+ * @return [Number] the value of datapath_id
  */
 static VALUE
 features_reply_datapath_id( VALUE self ) {
@@ -94,7 +95,7 @@ features_reply_datapath_id( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 features_reply_transaction_id( VALUE self ) {
@@ -105,7 +106,7 @@ features_reply_transaction_id( VALUE self ) {
 /*
  * Maximum number of packets that can be buffered at once.
  *
- * @return [Number] the value of attribute n_buffers.
+ * @return [Number] the value of n_buffers.
  */
 static VALUE
 features_reply_n_buffers( VALUE self ) {
@@ -116,7 +117,7 @@ features_reply_n_buffers( VALUE self ) {
 /*
  * Number of supported tables.
  *
- * @return [Number] the value of attribute n_tables.
+ * @return [Number] the value of n_tables.
  */
 static VALUE
 features_reply_n_tables( VALUE self ) {
@@ -127,7 +128,7 @@ features_reply_n_tables( VALUE self ) {
 /*
  * Supported capabilities expressed as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute capabilities.
+ * @return [Number] the value of capabilities.
  */
 static VALUE
 features_reply_capabilities( VALUE self ) {
@@ -138,7 +139,7 @@ features_reply_capabilities( VALUE self ) {
 /*
  * Supported actions expressed as a 32-bit bitmap.
  *
- * @return [Number] the value of atttribute actions.
+ * @return [Number] the value of actions.
  */
 static VALUE
 features_reply_actions( VALUE self ) {
@@ -149,7 +150,7 @@ features_reply_actions( VALUE self ) {
 /*
  * An array of {Port} objects detailing physical port description and function.
  *
- * @return [Array<Port>] the value of attribute ports.
+ * @return [Array<Port>] the value of ports.
  */
 static VALUE
 features_reply_ports( VALUE self ) {

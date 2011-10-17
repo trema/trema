@@ -111,7 +111,7 @@ port_init( VALUE self, VALUE options ) {
 /*
  * The port's unique number.
  *
- * @return [Number] the value of attribute number.
+ * @return [Number] the value of number.
  */
 static VALUE
 port_number( VALUE self ) {
@@ -122,7 +122,7 @@ port_number( VALUE self ) {
 /*
  * The port's Ethernet address expressed as a {Mac} object.
  *
- * @return [Mac] the value of attribute hw_addr.
+ * @return [Mac] the value of hw_addr.
  */
 static VALUE
 port_hw_addr( VALUE self ) {
@@ -133,7 +133,7 @@ port_hw_addr( VALUE self ) {
 /*
  * The port's human readable defined name.
  *
- * @return [String] the value of attribute name.
+ * @return [String] the value of name.
  */
 static VALUE
 port_name( VALUE self ) {
@@ -144,7 +144,7 @@ port_name( VALUE self ) {
 /*
  * The port's configuration as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute config.
+ * @return [Number] the value of config.
  */
 static VALUE
 port_config( VALUE self ) {
@@ -155,7 +155,7 @@ port_config( VALUE self ) {
 /*
  * The port's state as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute state.
+ * @return [Number] the value of state.
  */
 static VALUE
 port_state( VALUE self ) {
@@ -166,7 +166,7 @@ port_state( VALUE self ) {
 /*
  * The port's current features as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute curr.
+ * @return [Number] the value of curr.
  */
 static VALUE
 port_curr( VALUE self ) {
@@ -177,7 +177,7 @@ port_curr( VALUE self ) {
 /*
  * The port's advertised features as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute advertised.
+ * @return [Number] the value of advertised.
  */
 static VALUE
 port_advertised( VALUE self ) {
@@ -188,7 +188,7 @@ port_advertised( VALUE self ) {
 /*
  * The port's supported features as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute supported.
+ * @return [Number] the value of supported.
  */
 static VALUE 
 port_supported( VALUE self ) {
@@ -199,7 +199,7 @@ port_supported( VALUE self ) {
 /*
  * The features advertised by the peer connected to the port as a 32-bit bitmap.
  *
- * @return [Number] the value of attribute peer.
+ * @return [Number] the value of peer.
  */
 static VALUE
 port_peer( VALUE self ) {

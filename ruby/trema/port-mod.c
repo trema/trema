@@ -102,7 +102,7 @@ port_mod_init( VALUE self,
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 port_mod_transaction_id( VALUE self ) {
@@ -113,7 +113,7 @@ port_mod_transaction_id( VALUE self ) {
 /*
  * Port number and hardware address as a pair identify a port.
  *
- * @return [Number] the value of attribute port_no.
+ * @return [Number] the value of port_no.
  */
 static VALUE
 port_mod_port_no( VALUE self ) {
@@ -124,7 +124,7 @@ port_mod_port_no( VALUE self ) {
 /*
  * Ethernet address converted and stored as a {Trema::Mac} object.
  *
- * @return [Mac] the value of attribute hw_addr.
+ * @return [Mac] the value of hw_addr.
  */
 static VALUE
 port_mod_hw_addr( VALUE self ) {
@@ -136,7 +136,7 @@ port_mod_hw_addr( VALUE self ) {
  * A port can be administratively brought down, disable flooding or packet 
  * forwarding or any other options as per +ofp_port_config+. flags.
  *
- * @return [Number] the value of attribute config.
+ * @return [Number] the value of config.
  */
 static VALUE
 port_mod_config( VALUE self ) {
@@ -147,7 +147,7 @@ port_mod_config( VALUE self ) {
 /*
  * Set the bitmap as per +config+ attribute.
  *
- * @return [Number] the value of attribute mask.
+ * @return [Number] the value of mask.
  */
 static VALUE
 port_mod_mask( VALUE self ) {
@@ -158,7 +158,7 @@ port_mod_mask( VALUE self ) {
 /*
  * Set to zero to prevent any changes.
  *
- * @return [Number] the value of attribute advertise. 
+ * @return [Number] the value of advertise. 
  */
 static VALUE
 port_mod_advertise( VALUE self ) {

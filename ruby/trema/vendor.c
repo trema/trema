@@ -39,7 +39,8 @@ VALUE cVendor;
  *       :buffer => data
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
@@ -53,6 +54,9 @@ VALUE cVendor;
  *
  *   @option options [Symbol] :buffer
  *     a String that holds vendor's defined arbitrary length data. 
+ *
+ *   @return [Vendor]
+ *     an object that encapsulates the +OFPT_VENDOR+ OpenFlow symmetric message.
  */
 static VALUE
 vendor_init( VALUE self, VALUE options ) {
@@ -63,7 +67,7 @@ vendor_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 vendor_datapath_id( VALUE self ) {
@@ -75,7 +79,7 @@ vendor_datapath_id( VALUE self ) {
  * Zero for unsolicited message otherwise a positive number copied from request
  * message.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 vendor_transaction_id( VALUE self ) {
@@ -95,7 +99,7 @@ vendor_vendor( VALUE self ) {
 /*
  * Vendor's arbitrary length data.
  *
- * @return [Buffer] the value of attribute buffer.
+ * @return [Buffer] the value of buffer.
  */
 static VALUE
 vendor_buffer( VALUE self ) {

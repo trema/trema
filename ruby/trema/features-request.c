@@ -40,18 +40,21 @@ features_request_alloc( VALUE klass ) {
  *
  * @overload initialize(options={})
  *   example
+ *     FeaturesRequeset.new
  *     FeaturesRequest.new( :transaction_id => 123 )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :transaction_id
  *     any positive number, same value should be attached to the +OFPT_FEATURES_REPLY+  
  *     message. If not specified is auto-generated.
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * @raise [TypeEror] if options is not a hash.
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [FeaturesRequest] self
+ *   @return [FeaturesRequest] 
+ *     an object that encapsulates the +OFPT_FEATURES_REQUEST+ OpenFlow message.
  */
 static VALUE
 features_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -65,7 +68,7 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
     VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
@@ -78,7 +81,7 @@ features_request_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 features_request_transaction_id( VALUE self ) {
