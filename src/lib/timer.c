@@ -64,7 +64,14 @@ static dlist_element *timer_callbacks = NULL;
 
 bool
 _init_timer() {
+  if ( timer_callbacks != NULL ) {
+    error( "Called init_timer twice." );
+    return false;
+  }
+
   timer_callbacks = create_dlist();
+
+  debug( "Initializing timer callbacks ( timer_callbacks = %p ).", timer_callbacks );
   return true;
 }
 bool (* init_timer )( void ) = _init_timer;
