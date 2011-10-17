@@ -97,7 +97,7 @@ module Trema
 
 
     def self.openvswitch
-      File.join path, "openvswitch-1.1.2"
+      File.join path, "openvswitch-1.2.2"
     end
 
 

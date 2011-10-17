@@ -233,6 +233,7 @@ file Trema::Executables.ovs_openflowd do
   sys.cd Trema::Vendor.openvswitch do
     sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.tmp }"
     sys "make install"
+    sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
   end
 end
 
