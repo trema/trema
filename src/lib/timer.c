@@ -63,14 +63,15 @@ static dlist_element *timer_callbacks = NULL;
 
 
 bool
-init_timer() {
+_init_timer() {
   timer_callbacks = create_dlist();
   return true;
 }
+bool (* init_timer )( void ) = _init_timer;
 
 
 bool
-finalize_timer() {
+_finalize_timer() {
   dlist_element *e;
 
   debug( "Deleting timer callbacks ( timer_callbacks = %p ).", timer_callbacks );
@@ -87,6 +88,7 @@ finalize_timer() {
   }
   return true;
 }
+bool (* finalize_timer )( void ) = _finalize_timer;
 
 
 #define VALID_TIMESPEC( _a )                                    \
@@ -132,7 +134,7 @@ on_timer( timer_callback *callback ) {
 
 
 void
-execute_timer_events() {
+_execute_timer_events() {
   struct timespec now;
   timer_callback *callback;
   dlist_element *element, *element_next;
@@ -158,10 +160,11 @@ execute_timer_events() {
     }
   }
 }
+void (* execute_timer_events )( void ) = _execute_timer_events;
 
 
 bool
-add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data ) {
+_add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data ) {
   assert( interval != NULL );
   assert( callback != NULL );
 
@@ -204,10 +207,11 @@ add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void 
 
   return true;
 }
+bool (* add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data ) = _add_timer_event_callback;
 
 
 bool
-delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
+_delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
   assert( callback != NULL );
 
   debug( "Deleting a timer event callback ( callback = %p ).", callback );
@@ -239,10 +243,11 @@ delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
 
   return false;
 }
+bool (* delete_timer_event_callback )( timer_callback_t callback ) = _delete_timer_event_callback;
 
 
 bool
-add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
+_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data ) {
   assert( callback != NULL );
 
   debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
@@ -257,16 +262,18 @@ add_periodic_event_callback( const time_t seconds, void ( *callback )( void *use
 
   return add_timer_event_callback( &interval, callback, user_data );
 }
+bool (* add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
 
 
 bool
-delete_periodic_event_callback( void ( *callback )( void *user_data ) ) {
+_delete_periodic_event_callback( void ( *callback )( void *user_data ) ) {
   assert( callback != NULL );
 
   debug( "Deleting a periodic event callback ( callback = %p ).", callback );
 
   return delete_timer_event_callback( callback );
 }
+bool (* delete_periodic_event_callback )( timer_callback_t callback ) = _delete_periodic_event_callback;
 
 
 /*
