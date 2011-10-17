@@ -22,12 +22,16 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe BarrierRequest, ".new" do
+describe BarrierRequest, ".new( OPTIONAL OPTION MISSING )" do
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe BarrierRequest, ".new" do
+describe BarrierRequest, ".new( VALID OPTION )" do
+  subject { BarrierRequest.new :transaction_id => transaction_id }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
+
+
   context "when #barrier_request" do
     it "should #barrier_reply" do
       class BarrierController < Controller; end
@@ -43,7 +47,7 @@ describe BarrierRequest, ".new" do
 end
 
 
-describe BarrierRequest, ".new( :transaction_id => value )" do
+describe BarrierRequest, ".new( OPTIONAL OPTION ) - transaction_id" do
   context "when #barrier_request" do
     it "should #barrier_reply with transaction_id == value" do
       class BarrierController < Controller; end
@@ -63,16 +67,10 @@ describe BarrierRequest, ".new( :transaction_id => value )" do
 end
 
 
-describe BarrierRequest, ".new( :transaction_id => value )" do
-  subject { BarrierRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message"
-end
-
-
-describe BarrierRequest, ".new( INVALID_OPTIONS )" do
+describe BarrierRequest, ".new( INVALID_OPTION )" do
   it "should raise a TypeError" do
     expect {
-      BarrierRequest.new "INVALID_OPTIONS"
+      BarrierRequest.new "INVALID_OPTION"
     }.to raise_error( TypeError )
   end
 end
