@@ -22,55 +22,68 @@ require "rubygems"
 require "rspec"
 
 
-shared_examples_for "any incorrect signature constructor" do
-  it "should raise" do
-    expect { subject }.to raise_error StandardError
-  end
-end
-
-
 shared_examples_for "any Openflow message with default transaction ID" do
   its( :transaction_id ) { should be_a_kind_of( Integer ) }
   its( :transaction_id ) { should be_unsigned_32bit }
 end
 
 
-shared_examples_for "any OpenFlow message" do
-  let( :uint32_max ) { 2 ** 32 - 1 }
+shared_examples_for "any OpenFlow message" do | options |
+  option = options[ :option ]
+  name = options[ :name ]
+  size = options[ :size ]
+  case size
+  when 8
+    let( :uint_max ) { 2 ** 8 - 1 }
+  when 16
+    let( :uint_max ) { 2 ** 16 - 1 }
+  when 32
+    let( :uint_max ) { 2 ** 32 - 1 }
+  end
 
 
-  context "when its transaction ID is a negative value" do
-    let( :transaction_id ) { -1234 }
-    it "should raise" do
-      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
+  context "when its #{ name } is a negative value" do
+    let( option ) { -1234 }
+    it "should raise ArgumentError" do
+      expect { subject }.to raise_error( "#{ name } must be an unsigned #{ size }-bit integer" )
     end
   end
 
 
-  context "when its transaction ID is zero" do
-    let( :transaction_id ) { 0 }
-    its( :transaction_id ) { should == 0 }
+  context "when its #{ name } is zero" do
+    let( option ) { 0 }
+    its( option ) { should == 0 }
   end
 
 
-  context "when its transaction ID is 1234" do
-    let( :transaction_id ) { 1234 }
-    its( :transaction_id ) { should == 1234 }
+  context "when its #{ name } is 123" do
+    let( option ) { 123 }
+    its( option ) { should == 123 }
   end
 
 
-  context "when its transaction ID is UINT32_MAX" do
-    let( :transaction_id ) { uint32_max }
-    its( :transaction_id ) { should == uint32_max }
+  context "when its #{ name } is UINT#{ size }MAX" do
+    let( option ) { uint_max }
+    its( option ) { should == uint_max }
   end
 
 
-  context "when its transaction ID is UINT32_MAX + 1" do
-    let( :transaction_id ) { uint32_max + 1 }
-    it "should raise" do
-      expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )
+  context "when its #{ name } is UINT#{ size }_MAX + 1" do
+    let( option ) { uint_max + 1 }
+    it "should raise ArgumentError" do
+      expect { subject }.to raise_error( "#{ name } must be an unsigned #{ size }-bit integer" )
     end
   end
+end
+
+
+shared_examples_for "any OpenFlow message with port option" do
+  it_should_behave_like "any OpenFlow message", :option => :port, :name => "Port", :size => 16
+end
+
+
+shared_examples_for "any OpenFlow message with transaction_id option" do
+  it_should_behave_like "any OpenFlow message", :option => :transaction_id, :name => "Transaction ID", :size => 32
 end
 
 
