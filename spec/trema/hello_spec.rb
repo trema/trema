@@ -22,14 +22,14 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Hello, ".new" do
+describe Hello, ".new( OPTIONAL OPTION MISSING )" do
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe Hello, ".new( :transaction_id => value )" do
+describe Hello, ".new( VALID OPTION )" do
   subject { Hello.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message"
+  it_should_behave_like "any OpenFlow message with transaction_id option"
 end
 
 
