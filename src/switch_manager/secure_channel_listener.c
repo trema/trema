@@ -233,6 +233,7 @@ secure_channel_accept( int fd, void *data ) {
     return;
   }
   if ( pid == 0 ) {
+    close( listener_info->listen_fd );
     if ( accept_fd < ACCEPT_FD ) {
       dup2( accept_fd, ACCEPT_FD );
       close( accept_fd );

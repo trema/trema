@@ -192,12 +192,16 @@ switch_set_timeout( long sec, void ( *callback )( void *user_data ), void *user_
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
   add_timer_event_callback( &interval, callback, NULL );
+  switch_info.running_timer = true;
 }
 
 
 static void
 switch_unset_timeout( void ( *callback )( void *user_data ) ) {
-  delete_timer_event_callback( callback );
+  if ( switch_info.running_timer ) {
+    switch_info.running_timer = false;
+    delete_timer_event_callback( callback );
+  }
 }
 
 
@@ -208,8 +212,7 @@ switch_event_timeout_hello( void *user_data ) {
   if ( switch_info.state != SWITCH_STATE_WAIT_HELLO ) {
     return;
   }
-  // delete to hello_wait-timeout timer
-  switch_unset_timeout( switch_event_timeout_hello );
+  switch_info.running_timer = false;
 
   error( "Hello timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
@@ -224,8 +227,7 @@ switch_event_timeout_features_reply( void *user_data ) {
   if ( switch_info.state != SWITCH_STATE_WAIT_FEATURES_REPLY ) {
     return;
   }
-  // delete to features_reply_wait-timeout timer
-  switch_unset_timeout( switch_event_timeout_features_reply );
+  switch_info.running_timer = false;
 
   error( "Features Reply timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
@@ -499,6 +501,7 @@ main( int argc, char *argv[] ) {
   switch_info.fragment_buf = NULL;
   switch_info.send_queue = create_message_queue();
   switch_info.recv_queue = create_message_queue();
+  switch_info.running_timer = false;
 
   init_xid_table();
   init_cookie_table();
@@ -515,11 +518,16 @@ main( int argc, char *argv[] ) {
     error( "Failed to set connected state." );
     return -1;
   }
+  flush_secure_channel( &switch_info );
 
   start_trema();
 
   finalize_xid_table();
   finalize_cookie_table();
+
+  if ( switch_info.secure_channel_fd >= 0 ) {
+    delete_fd_handler( switch_info.secure_channel_fd );
+  }
 
   return 0;
 }

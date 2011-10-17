@@ -30,10 +30,8 @@ end
 
 
 shared_examples_for "any Openflow message with default transaction ID" do
-  context "when its transaction ID is auto-generated" do
-    its( :transaction_id ) { should be_a_kind_of( Integer ) }
-    its( :transaction_id ) { should be_unsigned_32bit }
-  end
+  its( :transaction_id ) { should be_a_kind_of( Integer ) }
+  its( :transaction_id ) { should be_unsigned_32bit }
 end
 
 
@@ -41,7 +39,7 @@ shared_examples_for "any OpenFlow message" do
   let( :uint32_max ) { 2 ** 32 - 1 }
 
 
-  context "when its transaction ID has a negative value" do
+  context "when its transaction ID is a negative value" do
     let( :transaction_id ) { -1234 }
     it "should raise" do
       expect { subject }.to raise_error( "Transaction ID must be an unsigned 32bit integer" )

@@ -22,7 +22,7 @@
 
 class Dumper < Controller
   def switch_ready datapath_id
-    info "[switch ready]"
+    info "[switch_ready]"
     info "  datapath_id: #{ datapath_id.to_hex }"
 
     send_flow_mod_add datapath_id, :priority => 0
@@ -54,7 +54,7 @@ class Dumper < Controller
 
 
   def flow_removed datapath_id, message
-    info "[flow removed]"
+    info "[flow_removed]"
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
 
@@ -94,7 +94,7 @@ class Dumper < Controller
 
 
   def port_status message
-    info "[port status]"
+    info "[port_status]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "reason: #{ message.reason.to_hex }"
@@ -123,7 +123,7 @@ class Dumper < Controller
 
 
   def queue_get_config_reply message
-    info "[queue get_config_reply]"
+    info "[queue_get_config_reply]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "port: #{ message.port }"
