@@ -22,39 +22,58 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwTos do
-  context "when an instance is created" do
-    subject { ActionSetNwTos.new( 4 ) }
-    its( :nw_tos ) { should == 4 }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionSetNwTos nw_tos=4>"
-    end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-  end
+shared_examples_for "any OpenFlow message with nw_tos option" do
+  it_should_behave_like "any OpenFlow message", :option => :nw_tos, :name => "Nw tos", :size => 8
+end
 
-  
-  context "when nw_tos is not supplied" do
-    it "should raise an error" do
-      lambda do
-        ActionSetNwTos.new
-      end.should raise_error ArgumentError
-    end
+
+describe ActionSetNwTos, ".new( VALID OPTION )" do
+  subject { ActionSetNwTos.new( :nw_tos => nw_tos ) }
+  let( :nw_tos ) { 4 }
+  its( :nw_tos ) { should == 4 }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionSetNwTos nw_tos=4>"
   end
-  
-  
-  context "when sending #flow_mod(add) with action set to nw_tos" do
+  it_should_behave_like "any OpenFlow message with nw_tos option"
+end
+
+
+describe ActionSetNwTos, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionSetNwTos, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
+  subject { ActionSetNwTos.new( [ 4 ] ) }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
+  end
+end
+
+
+describe ActionSetNwTos, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_nw_tos" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionSetNwTos.new( :nw_tos => 4 )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have a flow with action set to mod_nw_tos" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionSetNwTos.new( 4 ) )
+          :actions => ActionSetNwTos.new( :nw_tos => 4 ) )
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /mod_nw_tos:4/ )
       }
