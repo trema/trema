@@ -26,7 +26,7 @@ class CbenchSwitch < Controller
       datapath_id,
       :match => ExactMatch.from( message ),
       :buffer_id => message.buffer_id,
-      :actions => ActionOutput.new( message.in_port + 1 )
+      :actions => ActionOutput.new( :port => message.in_port + 1 )
     )
   end
 end
