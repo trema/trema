@@ -40,6 +40,7 @@
 #include "secure_channel_sender.h"
 #include "service_interface.h"
 #include "switch.h"
+#include "timer.h"
 #include "xid_table.h"
 
 

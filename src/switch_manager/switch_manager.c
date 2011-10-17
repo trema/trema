@@ -34,6 +34,7 @@
 #include "switch_manager.h"
 #include "dpid_table.h"
 #include "event_handler.h"
+#include "timer.h"
 
 
 #ifdef UNIT_TESTING
