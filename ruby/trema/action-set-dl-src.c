@@ -30,24 +30,42 @@ VALUE cActionSetDlSrc;
 /*
  * An action to modify the source Ethernet address of a packet.
  *
- * @overload initialize(dl_src)
+ * @overload initialize(options={})
  *
- * @param [Mac] dl_src
- *   a source Ethernet address encapsulated as a {Mac} object.
+ *   @example
+ *     ActionSetDlSrc.new( :dl_src => Mac.new( "11:22:33:44:55:66" )
+ *     ActionSetDlSrc.new( :dl_src => Mac.new( 0x112233445566 )
  *
- * @raise [ArgumentError] if dl_src argument is not supplied.
- * @raise [ArgumentError] if dl_src argument is not a {Mac} object instance.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @return [ActionSetDlSrc] self
- *   an object that encapsulates this action.
+ *   @option options [Mac] :dl_src
+ *     a source Ethernet address encapsulated as a {Mac} object.
+ *
+ *   @raise [ArgumentError] if dl_src argument is not supplied.
+ *   @raise [TypeError] if dl_src argument is not a {Mac} object instance.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetDlSrc] self
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_dl_src_init( VALUE self, VALUE dl_src ) {
-  if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
-    rb_raise( rb_eArgError, "dl src address should be a Mac object" );
-    return self;
+action_set_dl_src_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE dl_src;
+    if ( ( dl_src = rb_hash_aref( options, ID2SYM( rb_intern( "dl_src" ) ) ) ) != Qnil ) {
+      if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
+        rb_raise( rb_eTypeError, "dl src address should be a Mac object" );
+      }
+      rb_iv_set( self, "@dl_src", dl_src );
+    }
+    else {
+      rb_raise( rb_eArgError, "dl src address is a mandatory option" );
+    }
   }
-  rb_iv_set( self, "@dl_src", dl_src );
   return self;
 }
 
@@ -55,7 +73,7 @@ action_set_dl_src_init( VALUE self, VALUE dl_src ) {
 /*
  * A source Ethernet address encapsulated as a {Mac} object.
  *
- * @return [Mac] the value of attribute dl_src.
+ * @return [Mac] the value of dl_src.
  */
 static VALUE
 action_get_dl_src( VALUE self ) {
@@ -98,7 +116,7 @@ action_set_dl_src_inspect( VALUE self ) {
 void
 Init_action_set_dl_src() {
   cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_cObject );
-  rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
+  rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, -1 );
   rb_define_method( cActionSetDlSrc, "dl_src", action_get_dl_src, 0 );
   rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
   rb_define_method( cActionSetDlSrc, "inspect", action_set_dl_src_inspect, 0 );
