@@ -22,21 +22,20 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionStripVlan do
-  context "when an instance is created" do
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionStripVlan>"
+describe ActionStripVlan, ".new" do
+  context "when sending #flow_mod(add) with action set to strip_vlan" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionStripVlan.new
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+      }
     end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-  end
 
-  
-  context "when sending #flow_mod(add) with action set to strip VLAN tag" do
+
     it "should have a flow with action set to strip_vlan" do
       class FlowModAddController < Controller; end
       network {
