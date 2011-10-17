@@ -22,24 +22,24 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigRequest, ".new" do
+describe GetConfigRequest, ".new( OPTIONAL OPTION MISSING )" do
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe GetConfigRequest, ".new( :transaction_id => transaction_id )" do
+describe GetConfigRequest, ".new( INVALID OPTION )" do
+  subject { GetConfigRequest.new "INVALID OPTION" }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
+  end
+end
+
+
+describe GetConfigRequest, ".new( VALID OPTION )" do
   subject { GetConfigRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message"
-end
+  it_should_behave_like "any OpenFlow message with transaction_id option"
 
 
-describe GetConfigRequest, ".new( 1234 )" do
-  subject { GetConfigRequest.new 1234 }
-  it_should_behave_like "any incorrect signature constructor"
-end
-
-
-describe GetConfigRequest, ".new( :transaction_id => 1234 )" do
   context "when #get_config_request is sent" do
     it "should #get_config_reply" do
       class GetConfigController < Controller; end
