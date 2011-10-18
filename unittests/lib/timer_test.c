@@ -173,6 +173,70 @@ test_add_timer_event_callback_fail_with_invalid_timespec() {
 
 
 static void
+test_delete_timer_event() {
+  init_timer();
+
+  will_return_count( mock_clock_gettime, 0, -1 );
+
+  char user_data_1[] = "1";
+  char user_data_2[] = "2";
+
+  struct itimerspec interval;
+  interval.it_value.tv_sec = 1;
+  interval.it_value.tv_nsec = 0;
+  interval.it_interval.tv_sec = 1;
+  interval.it_interval.tv_nsec = 0;
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, user_data_1 ) );
+  interval.it_value.tv_sec = 2;
+  interval.it_interval.tv_sec = 2;
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, user_data_2 ) );
+
+  delete_timer_event( mock_timer_event_callback, user_data_1 );
+
+  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
+  assert_true( callback != NULL );
+  assert_true( callback->user_data == user_data_2 );
+
+  delete_timer_event( mock_timer_event_callback, user_data_2 );
+  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
+
+  finalize_timer();
+}
+
+
+static void
+test_delete_timer_event_callback() {
+  init_timer();
+
+  will_return_count( mock_clock_gettime, 0, -1 );
+
+  char user_data_1[] = "1";
+  char user_data_2[] = "2";
+
+  struct itimerspec interval;
+  interval.it_value.tv_sec = 1;
+  interval.it_value.tv_nsec = 0;
+  interval.it_interval.tv_sec = 1;
+  interval.it_interval.tv_nsec = 0;
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, user_data_1 ) );
+  interval.it_value.tv_sec = 2;
+  interval.it_interval.tv_sec = 2;
+  assert_true( add_timer_event_callback( &interval, mock_timer_event_callback, user_data_2 ) );
+
+  delete_timer_event_callback( mock_timer_event_callback );
+
+  timer_callback *callback = find_timer_callback( mock_timer_event_callback );
+  assert_true( callback != NULL );
+  assert_true( callback->user_data == user_data_1 );
+
+  delete_timer_event_callback( mock_timer_event_callback );
+  assert_true( find_timer_callback( mock_timer_event_callback ) == NULL );
+
+  finalize_timer();
+}
+
+
+static void
 test_nonexistent_timer_event_callback() {
   assert_false( delete_timer_event_callback( mock_timer_event_callback ) );
 }
@@ -200,6 +264,8 @@ main() {
     unit_test( test_timer_event_callback ),
     unit_test( test_periodic_event_callback ),
     unit_test( test_add_timer_event_callback_fail_with_invalid_timespec ),
+    unit_test( test_delete_timer_event ),
+    unit_test( test_delete_timer_event_callback ),
     unit_test( test_nonexistent_timer_event_callback ),
     unit_test( test_clock_gettime_fail_einval ),
   };
