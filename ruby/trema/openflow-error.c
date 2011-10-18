@@ -45,24 +45,24 @@ VALUE cOpenflowError;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier. This idenfier is typed as a 64-bit number
  *     and must be unique in a given domain of application deployment.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     the transaction_id of the offended message.
  *
- *   @option options [Symbol] :type
+ *   @option options [Number] :type
  *     the command or action that failed signifies the kind of error.
  *
- *   @option options [Symbol] :code
+ *   @option options [Number] :code
  *     the reason of the failed type error.
  *
- *   @option options [Symbol] :data
+ *   @option options [String] :data
  *     variable length data interpreted based on type and code.
  *
- *   @return [OpenflowError] self
- *     an object that encapsulates the +OFPT_ERROR+ openflow message.
+ *   @return [OpenflowError]
+ *     an object that encapsulates the +OFPT_ERROR+ OpenFlow message.
  */
 static VALUE
 openflow_error_init( VALUE self, VALUE options ) {

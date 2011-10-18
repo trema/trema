@@ -351,59 +351,58 @@ match_tp_dst( VALUE self ) {
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Symbol] :inport
+ *   @option options [Number] :inport
  *     the physical port number to match.
  *
- *   @option options [Symbol] :dl_src
+ *   @option options [String,Number] :dl_src
  *     the source ethernet address to match specified either as 6 pairs of
  *     hexadecimal digits delimited by colon or as a hexadecimal number.
  *     (eg. "00:11:22:33:44:55" or 0x001122334455).
  *
- *   @option options [Symbol] :dl_dst
+ *   @option options [String,Number] :dl_dst
  *     the destination ethernet address to match specified either as a 6 pairs of
  *     hexadecimal digits delimited by colon or as a hexadecimal number.
  *     (eg. "00:11:22:33:44:55" or 0x001122334455).
  *
- *   @option options [Symbol] :dl_type
+ *   @option options [Number] :dl_type
  *     the Ethernet protocol type to match. Can be specified either as a decimal
  *     or hexadecimal number. (eg 0x0800 to match IP packets, 0x08006 to match
  *     ARP packets, 0x88cc for LLDP packets).
  *
- *   @option options [Symbol] :dl_vlan
+ *   @option options [Number] :dl_vlan
  *     the IEEE 802.1q virtual VLAN tag to match specified as a 12-bit number
  *     0 to 4095 inclusive.
  *
- *   @option options [Symbol] :dl_vlan_pcp
+ *   @option options [Number] :dl_vlan_pcp
  *     the IEEE 802.1q Priority Code Point (PCP) to match specified as a value of
  *     0 to 7 inclusive. A higher value indicates a higher priority frame.
  *
- *   @option options [Symbol] :nw_tos
+ *   @option options [Number] :nw_tos
  *     the IP ToS/DSCP field to match specified as a decimal number between 0 and
  *     255 inclusive.
  *
- *   @option options [Symbol] :nw_proto
+ *   @option options [Number] :nw_proto
  *     Depending on the dl_type the IP protocol type to match. (eg if dl_type
  *     equals 0x0800 UDP packets can be match by setting nw_proto to 17.)
  *     to match TCP packets). When dl_type = 0x0806 is set to arp it matches the
  *     lower 8 bits of the ARP opcode.
  *
- *   @option options [Symbol] :nw_src
+ *   @option options [String] :nw_src
  *     the IPv4 source address to match if dl_type is set to 0x0800.
  *
- *   @option options [Symbol] :nw_dst
+ *   @option options [String] :nw_dst
  *     the IPv4 destination address to match if dl_type is set to 0x0800.
  *
- *   @option options [Symbol] :tp_src
+ *   @option options [Number] :tp_src
  *     the source TCP/UDP port number to match specified as a decimal number
  *     between 0 and 65535 inclusive. The value dl_type and nw_proto must be set
  *     to specify TCP or UDP.
  *
- *   @option options [Symbol] :tp_dst
+ *   @option options [Number] :tp_dst
  *     the destination TCP/UDP port number to match specified as a decimal number
  *     between 0 and 65535 inclusive.
  *
- * @return [Match] self
- *   an object that encapsulates and wraps the +struct ofp_match+
+ *   @return [Match] self an object that encapsulates and wraps the +struct ofp_match+
  */
 static VALUE
 match_init( int argc, VALUE *argv, VALUE self ) {

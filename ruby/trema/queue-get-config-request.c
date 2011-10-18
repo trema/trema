@@ -48,18 +48,20 @@ queue_get_config_request_alloc( VALUE klass ) {
  *
  *   @param [Hash] options
  *     the options to create a message with.
+ *
+ *   @option options [Number] :port
+ *     a port number to query (defaults to 1).
+ *
  *   @option options [Number] :transaction_id
  *     An unsigned 32-bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
- *   @option options [Number] :port
- *     a port number to query (defaults to 1).
  *
  *   @raise [ArgumentError] if transaction_id is not an unsigned 32-bit integer.
  *   @raise [ArgumentError] if port is not an unsigned 16-bit integer.
  *   @raise [TypeError] if options is not a hash.
  *
  *   @return [QueueGetConfigRequest]
- *     an object that encapsulates the +OFPT_GET_CONFIG_REQUEST+ openflow message.
+ *     an object that encapsulates the +OFPT_GET_CONFIG_REQUEST+ OpenFlow message.
  */
 static VALUE
 queue_get_config_request_init( int argc, VALUE *argv, VALUE self ) {

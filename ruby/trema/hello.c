@@ -34,8 +34,9 @@ hello_alloc( VALUE klass ) {
 
 
 /*
+ * Creates a Hello OpenFlow message.
+ *
  * @overload initialize(options={})
- *   Creates a Hello OpenFlow message.
  *
  *   @example
  *     Hello.new
@@ -51,7 +52,8 @@ hello_alloc( VALUE klass ) {
  *   @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
  *   @raise [TypeError] if options is not a Hash.
  *
- *   @return [Hello] an object that encapsulates the +OFPT_HELLO+ OpenFlow message.
+ *   @return [Hello]
+ *     an object that encapsulates the +OPFT_HELLO+ OpenFlow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {

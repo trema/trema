@@ -47,19 +47,19 @@ VALUE cStatsReply;
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     transaction_id value carried over from request.
  *
- *   @option options [Symbol] :type
+ *   @option options [Number] :type
  *     type id for the reply.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     if set to 1 more replies would follow, 0 for the last reply.
  *
- *   @option options [FlowStatsReply,...] :stats
+ *   @option options [Array] :stats
  *     an array of objects associated with the reply instance.
  *
  * @return [StatsReply]

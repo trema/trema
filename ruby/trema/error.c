@@ -38,28 +38,27 @@ VALUE cError;
  *       :code => Error::OFPBRC_BAD_TYPE,
  *       :transcation_id => 123
  *     )
- *
- *    Error.new(
+ *     Error.new(
  *       :type => Errr::OFPET_BAD_REQUEST,
  *       :code => Error::OFPBRC_BAD_TYPE,
  *       :transcation_id => 123
  *       :user_data => "Error!!"
- *    )
+ *     )
  *
  *   @param [Hash] options 
  *     the options to create a message with.
  *
- *   @option options [Symbol] :type
+ *   @option options [Number] :type
  *     a command or action that failed.
  *
- *   @option options [Symbol] :code
+ *   @option options [Number] :code
  *     the reason of the failed type error.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     a positive number, not recently attached to any previous pending commands to
  *     guarantee message integrity auto-generated if not specified.
  *
- *   @option options [Symbol] :user_data
+ *   @option options [String] :user_data
  *     a more user friendly explanation of the error. Defaults to nil if not
  *     specified.
  *
@@ -69,7 +68,7 @@ VALUE cError;
  *   @raise [TypeError] if options is not a hash.
  *
  *   @return [Error]
- *     an object that encapsulates the +OFPT_ERROR+ openflow message.
+ *     an object that encapsulates the +OFPT_ERROR+ OpenFlow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {

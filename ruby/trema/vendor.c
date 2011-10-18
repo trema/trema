@@ -42,17 +42,17 @@ VALUE cVendor;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     zero for unsolicited message otherwise a positive number.
  *
- *   @option options [Symbol] :vendor_id
+ *   @option options [Number] :vendor_id
  *     the vendor identifier. if MSB is zero low order bytes are IEEE OUI.
  *     If MSB not equal to zero defined by openflow.
  *
- *   @option options [Symbol] :buffer
+ *   @option options [String] :buffer
  *     a String that holds vendor's defined arbitrary length data. 
  *
  *   @return [Vendor]

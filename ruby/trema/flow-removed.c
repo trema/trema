@@ -31,7 +31,7 @@ VALUE cFlowRemoved;
  * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during
  * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
  * would be created while parsing the +OPPT_FLOW_REMOVED+ message.
- * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
+ * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ OpenFlow message.
  *
  * @overload initialize(options={})
  *   @example 
@@ -89,7 +89,7 @@ VALUE cFlowRemoved;
  *   @option options [Symbol] :byte_count
  *     a counter of the total number of bytes.
  *
- * @return [FlowRemoved] self
+ *   @return [FlowRemoved] self
  */
 static VALUE
 flow_removed_init( VALUE self, VALUE options ) {

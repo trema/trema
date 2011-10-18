@@ -41,19 +41,20 @@ module Trema
     #       :flow_count => 2
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options 
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :packet_count
+    #   @option options [Number] :packet_count
     #     the total number of packets that matched.
     #
-    #   @option options [Symbol] :byte_count
+    #   @option options [Number] :byte_count
     #     the total number of bytes from packets that matched.
     #
-    #   @option options [Symbol] :flow_count
+    #   @option options [Number] :flow_count
     #     the total number of flows that matched.
     #
-    # @return [AggregateStatsReply]
-    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) openFlow message.
+    #   @return [AggregateStatsReply]
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) OpenFlow message.
     #
     def initialize options
       super FIELDS, options
