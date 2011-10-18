@@ -42,8 +42,8 @@ class TrafficMonitor < Trema::Controller
     @counter.add macsa, 1, message.total_len
     out_port = @fdb.lookup( macda )
     if out_port
-      flow_mod datapath_id, macsa, macda, out_port
       packet_out datapath_id, message, out_port
+      flow_mod datapath_id, macsa, macda, out_port
     else
       flood datapath_id, message
     end
