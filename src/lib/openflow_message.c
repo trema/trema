@@ -815,7 +815,6 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
   uint16_t data_length = 0;
   uint32_t *v;
   buffer *buffer;
-  struct ofp_stats_request *vendor_stats_request;
 
   if ( ( body != NULL ) && ( body->length > 0 ) ) {
     data_length = ( uint16_t ) body->length;
@@ -829,7 +828,6 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
   buffer = create_stats_request( transaction_id, OFPST_VENDOR, length, flags );
   assert( buffer != NULL );
 
-  vendor_stats_request = ( struct ofp_stats_request * ) buffer->data;
   v = ( uint32_t * ) ( ( char * ) buffer->data + offsetof( struct ofp_stats_request, body ) );
   *v = htonl( vendor );
 
@@ -2652,9 +2650,7 @@ validate_flow_stats_reply( const buffer *message ) {
 int
 validate_aggregate_stats_reply( const buffer *message ) {
   int ret;
-  uint16_t offset;
   struct ofp_stats_reply *stats_reply;
-  struct ofp_aggregate_stats_reply *aggregate_stats;
 
   assert( message != NULL );
 
@@ -2670,8 +2666,8 @@ validate_aggregate_stats_reply( const buffer *message ) {
     return ERROR_INVALID_STATS_REPLY_FLAGS;
   }
 
-  offset = offsetof( struct ofp_stats_reply, body );
-  aggregate_stats = ( struct ofp_aggregate_stats_reply * ) ( ( char * ) message->data + offset );
+  // uint16_t offset = offsetof( struct ofp_stats_reply, body );
+  // struct ofp_aggregate_stats_reply *aggregate_stats = ( struct ofp_aggregate_stats_reply * ) ( ( char * ) message->data + offset );
 
   // aggregate_stats->packet_count
   // aggregate_stats->byte_count
