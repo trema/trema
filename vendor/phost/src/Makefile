@@ -19,7 +19,7 @@ CC = gcc
 #CFLAGS = -Wall -g
 CFLAGS = -Wall -O2 -D_GNU_SOURCE -fno-strict-aliasing
 #LDFLAGS_DAEMON = -lssl
-LDFLAGS_DAEMON = -lpthread
+LDFLAGS_DAEMON = -pthread
 LDFLAGS_CLI =
 
 TARGET_DAEMON = phost
