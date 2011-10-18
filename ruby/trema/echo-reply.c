@@ -39,19 +39,20 @@ echo_reply_alloc( VALUE klass ) {
  * @overload initialize(options={})
  *
  *   @example
+ *     EchoReply.new
  *     EchoReply.new( :transaction_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     An unsigned 32-bit integer auto-generated if not supplied.
  *
  *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
  *   @raise [TypeError] if options is not a hash.
  *
  *   @return [EchoReply] 
- *     an object that encapsulates the +OFPT_ECHO_REPLY+ openflow message.
+ *     an object that encapsulates the +OFPT_ECHO_REPLY+ OpenFlow message.
  */
 static VALUE
 echo_reply_init( int argc, VALUE *argv, VALUE self ) {

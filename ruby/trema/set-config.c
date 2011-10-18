@@ -36,10 +36,11 @@ set_config_alloc( VALUE klass ) {
 
 /*
  * A {SetConfig} object instance represents a set of attributes which allow
- * tuning the behavior of the openflow protocol in some way. 
+ * tuning the behavior of the openflow protocol in some way.
  *
  * @overload initialize(options={})
- *   Example
+ *
+ *   @example
  *     SetConfigRequest.new
  *     SetConfigRequest.new( 
  *       :flags => OFPC_FRAG_DROP,
@@ -49,25 +50,24 @@ set_config_alloc( VALUE klass ) {
  *       :flags => OFPC_FRAG_DROP,
  *       :miss_send_len => 256,
  *       :transaction_id => 123
- *    )
+ *     )
  *
- *   @param [Hash] options 
+ *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     flags defaults to 0 (no special handling for IP fragments) if not specified.
  *
- *   @option options [Symbol] :miss_send_len
+ *   @option options [Number] :miss_send_len
  *     miss_send_len defaults to 128 bytes if not specified.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     transaction_id auto-generated if not specified.
  *
  *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
  *
- *   @return [SetConfig] 
- *     an object that encapsulates the +OFPT_SET_CONFIG+ openflow message.
- * 
+ *   @return [SetConfig]
+ *     an object that encapsulates the +OFPT_SET_CONFIG+ OpenFlow message.
 */
 static VALUE
 set_config_init( int argc, VALUE *argv, VALUE self ) {

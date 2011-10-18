@@ -38,20 +38,21 @@ get_config_request_alloc( VALUE klass ) {
  * from the switch.
  *
  * @overload initialize(options={})
- *   example 
+ *   @example
  *     GetConfigRequest.new
  *     GetConfigRequest.new( :transaction_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     An unsigned 32-bit integer auto-generated if not supplied.
  *
  *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
  *   @raise [TypeError] if options is not a hash.
  *
- *   @return [GetConfigRequest] an object that encapsulates the +OFPT_GET_CONFIG+ openflow message.
+ *   @return [GetConfigRequest]
+ *     an object that encapsulates the +OFPT_GET_CONFIG+ OpenFlow message.
  */
 static VALUE
 get_config_request_init( int argc, VALUE *argv, VALUE self ) {

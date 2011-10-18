@@ -44,20 +44,20 @@ VALUE cPortStatus;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     unsolicited message transaction_id is zero.
  *
- *   @option options [Symbol] :reason
+ *   @option options [Number] :reason
  *     the reason why this message was sent.
  *
- *   @option options [Symbol] :phy_port
+ *   @option options [Port] :phy_port
  *     a {Port} object describing the properties of the port.
  *
  *   @return [PortStatus]
- *     an object that encapsulates the +OFPT_PORT_STATUS+ openflow message.
+ *     an object that encapsulates the +OFPT_PORT_STATUS+ OpenFlow message.
  */
 static VALUE
 port_status_init( VALUE self, VALUE options ) {

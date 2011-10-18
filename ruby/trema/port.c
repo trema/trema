@@ -47,34 +47,35 @@ VALUE cPort;
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Symbol] :number
+ *   @option options [Number] :number
  *     the port's unique number.
  *
- *   @option options [Symbol] :hw_addr
+ *   @option options [Mac] :hw_addr
  *     the port's Ethernet address expressed as a {Mac} object.
  *
- *   @option options [Symbol] :name
+ *   @option options [String] :name
  *     the port's human readable defined name.
  *
- *   @option options [Symbol] :config
+ *   @option options [Number] :config
  *     the port's configuration as a 32-bit bitmap.
  *
- *   @option options [Symbol] :state
+ *   @option options [Number] :state
  *     the port's state as a 32-bit bitmap.
- * 
- *   @option options [Symbol] :curr
+ *
+ *   @option options [Number] :curr
  *      the port's current features as a 32-bit bitmap.
- * 
- *   @option options [Symbol] :advertised
+ *
+ *   @option options [Number] :advertised
  *     the port's advertised features as a 32-bit bitmap.
- * 
- *   @option options [Symbol] :supported
+ *
+ *   @option options [Number] :supported
  *     the port's supported features as a 32-bit bitmap.
- * 
- *   @option options [Symbol] :peer
+ *
+ *   @option options [Number] :peer
  *     the features advertised by the peer connected to the port as a 32-bit bitmap.
  *
- * @return [Port] self
+ *   @return [Port]
+ *     an object that encapsulates the properties of a physical port.
  */
 static VALUE
 port_init( VALUE self, VALUE options ) {

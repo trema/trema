@@ -36,10 +36,10 @@ features_request_alloc( VALUE klass ) {
 /* 
  * A features request message is sent upon TLS session establishment to obtain 
  * switch's supported capabilities. Creates an object that encapsulates the
- * +OFPT_FEATURES_REQUEST+ openflow message.
+ * +OFPT_FEATURES_REQUEST+ OpenFlow message.
  *
  * @overload initialize(options={})
- *   example
+ *   @example
  *     FeaturesRequeset.new
  *     FeaturesRequest.new( :transaction_id => 123 )
  *
