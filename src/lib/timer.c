@@ -218,9 +218,27 @@ bool (* add_timer_event_callback )( struct itimerspec *interval, timer_callback_
 
 
 bool
+_add_periodic_event_callback( const time_t seconds, timer_callback_t callback, void *user_data ) {
+  assert( callback != NULL );
+
+  debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
+         seconds, callback, user_data );
+
+  struct itimerspec interval;
+
+  interval.it_value.tv_sec = 0;
+  interval.it_value.tv_nsec = 0;
+  interval.it_interval.tv_sec = seconds;
+  interval.it_interval.tv_nsec = 0;
+
+  return add_timer_event_callback( &interval, callback, user_data );
+}
+bool (* add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
+
+
+bool
 _delete_timer_event( timer_callback_t callback, void *user_data ) {
   assert( callback != NULL );
-  assert( user_data != NULL );
 
   debug( "Deleting a timer event ( callback = %p, user_data = %p ).", callback, user_data );
 
@@ -252,84 +270,6 @@ _delete_timer_event( timer_callback_t callback, void *user_data ) {
   return false;
 }
 bool (* delete_timer_event )( timer_callback_t callback, void *user_data ) = _delete_timer_event;
-
-
-bool
-_delete_timer_event_callback( timer_callback_t callback ) {
-  assert( callback != NULL );
-
-  debug( "Deleting a timer event callback ( callback = %p ).", callback );
-
-  dlist_element *e;
-
-  if ( timer_callbacks == NULL ) {
-    error( "All timer callbacks are already deleted or not created yet." );
-    return false;
-  }
-
-  for ( e = timer_callbacks->next; e; e = e->next ) {
-    timer_callback *cb = e->data;
-    if ( cb->function == callback ) {
-      debug( "Deleting a callback ( callback = %p ).", callback );
-      //xfree( cb );
-      //delete_dlist_element( e );
-      cb->function = NULL;
-      cb->user_data = NULL;
-      cb->expires_at.tv_sec = 0;
-      cb->expires_at.tv_nsec = 0;
-      cb->interval.tv_sec = 0;
-      cb->interval.tv_nsec = 0;
-      return true;
-    }
-  }
-
-  error( "No registered timer event callback found." );
-
-  return false;
-}
-bool (* delete_timer_event_callback )( timer_callback_t callback ) = _delete_timer_event_callback;
-
-
-bool
-_add_periodic_event_callback( const time_t seconds, timer_callback_t callback, void *user_data ) {
-  assert( callback != NULL );
-
-  debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
-         seconds, callback, user_data );
-
-  struct itimerspec interval;
-
-  interval.it_value.tv_sec = 0;
-  interval.it_value.tv_nsec = 0;
-  interval.it_interval.tv_sec = seconds;
-  interval.it_interval.tv_nsec = 0;
-
-  return add_timer_event_callback( &interval, callback, user_data );
-}
-bool (* add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
-
-
-bool
-_delete_periodic_event( timer_callback_t callback, void *user_data ) {
-  assert( callback != NULL );
-  assert( user_data != NULL );
-
-  debug( "Deleting a periodic event ( callback = %p, user_data = %p ).", callback, user_data );
-
-  return delete_timer_event( callback, user_data );
-}
-bool (* delete_periodic_event )( timer_callback_t callback, void *user_data ) = _delete_periodic_event;
-
-
-bool
-_delete_periodic_event_callback( timer_callback_t callback ) {
-  assert( callback != NULL );
-
-  debug( "Deleting a periodic event callback ( callback = %p ).", callback );
-
-  return delete_timer_event_callback( callback );
-}
-bool (* delete_periodic_event_callback )( timer_callback_t callback ) = _delete_periodic_event_callback;
 
 
 /*
