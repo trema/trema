@@ -134,7 +134,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
   uint32_t buffer_id = UINT32_MAX;
-  uint16_t flags = 0;
+  uint16_t flags = OFPFF_SEND_FLOW_REM;
   openflow_actions *actions = create_actions();
 
   // Options
@@ -170,8 +170,8 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     }
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
-    if ( opt_send_flow_rem != Qnil ) {
-      flags |= OFPFF_SEND_FLOW_REM;
+    if ( opt_send_flow_rem == Qfalse ) {
+      flags &= ~OFPFF_SEND_FLOW_REM;
     }
 
     VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
@@ -251,7 +251,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
  *     applied to flow actions.
  *
- *   @option options [Boolean] :send_flow_rem (false)
+ *   @option options [Boolean] :send_flow_rem (true)
  *     If true, send a flow_removed message when the flow expires or
  *     is deleted.
  *

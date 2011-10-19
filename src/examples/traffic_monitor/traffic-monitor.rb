@@ -71,7 +71,6 @@ class TrafficMonitor < Trema::Controller
   def flow_mod datapath_id, macsa, macda, out_port
     send_flow_mod_add(
       datapath_id,
-      :send_flow_rem => true,
       :hard_timeout => 10,
       :match => Match.new( :dl_src => macsa.to_s, :dl_dst => macda.to_s ),
       :actions => Trema::ActionOutput.new( :port => out_port )
