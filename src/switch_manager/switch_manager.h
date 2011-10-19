@@ -42,13 +42,24 @@ static const uint SWITCH_MANAGER_ADDR_STR_LEN = sizeof( "255.255.255.255:65535" 
 static const char SWITCH_MANAGER_PATH[] = "objects/switch_manager/switch";
 static const char SWITCH_MANAGER_STATE_PREFIX[] = "state_notify::";
 
+enum {
+  LISTENER_INFO_NONE,
+  LISTENER_INFO_INET,
+  LISTENER_INFO_UNIX
+};
 
 struct listener_info {
   const char *switch_daemon;
   int switch_daemon_argc;
   char **switch_daemon_argv;
-  uint16_t listen_port;
+
   int listen_fd;
+  int listen_protocol;
+
+  union {
+    uint16_t listen_port;
+    char *listen_path;
+  };
 };
 
 

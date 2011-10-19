@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -112,7 +113,7 @@ void mock_exit( int status );
 
 
 bool
-secure_channel_listen_start( struct listener_info *listener_info ) {
+secure_channel_listen_inet( struct listener_info *listener_info ) {
   struct sockaddr_in addr;
   int listen_fd;
   int flag;
@@ -149,6 +150,60 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
   if ( ret < 0 ) {
     error( "%s: Failed to bind socket.: %s(%d)",
            inet_ntoa( addr.sin_addr ), strerror( errno ), errno );
+    close( listen_fd );
+    return false;
+  }
+
+  ret = listen( listen_fd, LISTEN_SOCK_MAX );
+  if ( ret < 0 ) {
+    error( "Failed to listen." );
+    close( listen_fd );
+    return false;
+  }
+
+  listener_info->listen_fd = listen_fd;
+
+  return true;
+}
+
+
+bool
+secure_channel_listen_unix( struct listener_info *listener_info ) {
+  int listen_fd;
+  int flag;
+  int ret;
+
+  if ( listener_info->listen_fd >= 0 ) {
+    close( listener_info->listen_fd );
+  }
+  listener_info->listen_fd = -1;
+
+  listen_fd = socket( PF_UNIX, SOCK_STREAM, 0 );
+  if ( listen_fd < 0 ) {
+    error( "Failed to create socket." );
+    return false;
+  }
+
+  /* flag = 1; */
+
+  /* ret = setsockopt( listen_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof( flag ) ); */
+  /* if ( ret < 0 ) { */
+  /*   warn( "Failed to set socket options." ); */
+  /* } */
+
+  int path_length = strlen( listener_info->listen_path );
+  int sockaddr_length = offsetof( struct sockaddr_un, sun_path ) + path_length + 1;
+  struct sockaddr_un* addr = xalloc( sockaddr_length );
+
+  addr.sun_family = PF_LOCAL;
+  strcpy( addr->sun_path, listener_info->listen_path, path_length + 1 )
+
+  ret = bind( listen_fd, ( struct sockaddr * ) &addr, sockaddr_length );
+  xfree( addr );
+
+  if ( ret < 0 ) {
+    error( "%s: Failed to open unix socket: %s(%d)",
+           listener_info->listen_path, strerror( errno ), errno );
     close( listen_fd );
     return false;
   }
