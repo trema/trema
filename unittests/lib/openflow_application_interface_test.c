@@ -2639,11 +2639,8 @@ test_handle_list_switches_reply_if_length_is_zero() {
 
 static void
 test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
-  uint64_t *datapath_id;
-  buffer *data;
-
-  data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
-  datapath_id = append_back_buffer( data, sizeof( openflow_service_header_t ) );
+  buffer *data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
+  append_back_buffer( data, sizeof( openflow_service_header_t ) );
 
   handle_switch_events( MESSENGER_OPENFLOW_CONNECTED, data->data, data->length );
 
@@ -3249,11 +3246,8 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_MESSAGE() {
 
 static void
 test_handle_message_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
-  uint64_t *datapath_id;
-  buffer *data;
-
-  data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
-  datapath_id = append_back_buffer( data, sizeof( openflow_service_header_t ) );
+  buffer *data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
+  append_back_buffer( data, sizeof( openflow_service_header_t ) );
 
   handle_message( MESSENGER_OPENFLOW_CONNECTED, data->data, data->length );
 

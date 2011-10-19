@@ -323,10 +323,6 @@ die_unless_initialized() {
   if ( !initialized ) {
     die( "Trema is not initialized. Call init_trema() first." );
   }
-
-  if ( init_event_handler == NULL ) {
-    die( "Trema has no valid event handler initialized. Call init_trema() first." );
-  }
 }
 
 
@@ -466,9 +462,7 @@ set_exit_handler() {
 
 static void
 set_dump_stats_as_external_callback() {
-  if ( set_external_callback != NULL ) {
-    set_external_callback( dump_stats );
-  }
+  set_external_callback( dump_stats );
 }
 
 
