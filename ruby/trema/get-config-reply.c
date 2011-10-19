@@ -45,21 +45,21 @@ VALUE cGetConfigReply;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     the saved transaction_id from +OFPT_GET_CONFIG_REQUEST+ message.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     indicates how IP fragments are treated.
  *
- *   @option options [Symbol] :miss_send_len
+ *   @option options [Number] :miss_send_len
  *     the maximum number of bytes to send on a flow table miss or 
  *     flow destined to controller.
  *
  *   @return [GetConfigReply] 
- *     an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ openflow message.   
+ *     an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ OpenFlow message.   
  */
 static VALUE
 get_config_reply_init( VALUE self, VALUE options ) {

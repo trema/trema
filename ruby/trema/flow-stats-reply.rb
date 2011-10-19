@@ -51,48 +51,49 @@ module Trema
     #       :actions => [ ActionOutput.new ]
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :length
+    #   @option options [Number] :length
     #     the length of this packet.
     #
-    #   @option options [Symbol] :table_id
+    #   @option options [Number] :table_id
     #     set to zero.
     #
-    #   @option options [Symbol] :match
+    #   @option options [Match] :match
     #     Match object describing flow fields.
     #
-    #   @option options [Symbol] :duration_sec
+    #   @option options [Number] :duration_sec
     #     the time in seconds the flow been active.
     #
-    #   @option options [Symbol] :duration_nsec
+    #   @option options [Number] :duration_nsec
     #     the time in nanosecs the flow been active.
     #
-    #   @option options [Symbol] :priority
+    #   @option options [Number] :priority
     #     the priority of the flow.
     #
-    #   @option options [Symbol] :idle_timeout
+    #   @option options [Number] :idle_timeout
     #     an inactivity time in seconds before the flow is deleted. Zero means
     #     no deletion.
     #
-    #   @option options [Symbol] :hard_timeout
+    #   @option options [Number] :hard_timeout
     #     a fixed time interval before the flow is deleted. Zero means no 
     #     deletion.
     #
-    #   @option options [Symbol] :cookie
+    #   @option options [Number] :cookie
     #     an opaque identifier used as a unique key to match flow entries.
     #
-    #   @option options [Symbol] :packet_count
+    #   @option options [Number] :packet_count
     #     count of the number of packets matched the flow.
     #
-    #   @option options [Symbol] :byte_count
+    #   @option options [Number] :byte_count
     #     count of the number of bytes matched the flow.
     #
-    #   @option options [Symbol] :actions
+    #   @option options [Array] :actions
     #     an array of action objects for the flow.
     #
-    # @return [FlowStatsReply]
-    #   an object that encapsulates the OFPST_STATS_REPLY(OPPST_FLOW) openFlow message.
+    #   @return [FlowStatsReply]
+    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_FLOW) OpenFlow message.
     #
     def initialize options 
       super FIELDS, options

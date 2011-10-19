@@ -34,7 +34,7 @@ VALUE cPacketIn;
  *   Allocates and wraps a {PacketIn} object to store the details of 
  *   the +OFPT_PACKET_IN+ message.
  *
- * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ openflow message. 
+ * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ OpenFlow message. 
  */
 static VALUE
 packet_in_init( VALUE kclass ) {

@@ -37,7 +37,8 @@ VALUE cActionSetNwSrc;
  *
  *   @param [Hash] options
  *     the options hash to create this action class instance with.
- *   @option options [IP] :nwsrc_
+ *
+ *   @option options [IP] :nw_src
  *     the source IPv4 address encapsulated as an {IP} object.
  *
  *   @raise [ArgumentError] if nw_src argument is not supplied.

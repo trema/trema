@@ -44,7 +44,7 @@ VALUE cActionSetVlanPcp;
  *     the VLAN priority to set to.
  *
  *   @raise [ArgumentError] if vlan_pcp argument is not supplied.
- *   @raise [RangeError] if vlan_pcp is not in range betweeen 0 and 7 inclusive.
+ *   @raise [RangeError] if vlan_pcp is not within 0 and 7 inclusive.
  *   @raise [TypeError] if options is not a Hash.
  *
  *   @return [ActionSetVlanPcp]

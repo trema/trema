@@ -42,7 +42,7 @@ VALUE cActionSetVlanVid;
  *     the VLAN id to set to. Only the lower 12-bits are used.
  *
  *   @raise [ArgumentError] if vlan_vid argument is not supplied.
- *   @raise [RangeError] if vlan_vid not in range between 1 and 4096 inclusive.
+ *   @raise [RangeError] if vlan_vid not within 1 and 4096 inclusive.
  *   @raise [TypeError] if options is not a Hash.
  *
  *   @return [ActionSetVlanVid]

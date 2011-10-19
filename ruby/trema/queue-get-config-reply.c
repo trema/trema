@@ -43,20 +43,20 @@ VALUE cQueueGetConfigReply;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     a unique name that identifies an OpenVSwitch, the message originator.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     value copied from +OPFT_QUEUE_SET_CONFIG_REQUEST+ message.
  *  
- *   @option options [Symbol] :port
+ *   @option options [Number] :port
  *     the port the queue is attached to.
  *
- *   @option options [Symbol] :queues
+ *   @option options [Array] :queues
  *     an array of {PacketQueue} objects.
  *
  *   @return [QueueGetConfigReply]
- *     an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ openflow message.
+ *     an object that encapsulates the +OFPT_QUEUE_GET_CONFIG_REPLY+ OpenFlow message.
  */
 static VALUE
 queue_get_config_reply_init( VALUE self, VALUE options ) {

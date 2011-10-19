@@ -45,25 +45,25 @@ vendor_request_alloc( VALUE klass ) {
  * Creates a {VendorRequest} instance to facilitate sending of vendor 
  * experimental messages.
  *
- * @overload initialize( options={} )
+ * @overload initialize(options={})
  *
- * @example
- *   vendor_data = "test".unpack( "C*" ) => [ 116, 101, 115, 116 ]
- *   VendorRequest.new
- *   VendorRequest.new( :vendor_id => 0x3000 )
- *   VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data )
- *   VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data, :transaction_id => 123 )
+ *   @example
+ *     vendor_data = "test".unpack( "C*" ) => [ 116, 101, 115, 116 ]
+ *     VendorRequest.new
+ *     VendorRequest.new( :vendor_id => 0x3000 )
+ *     VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data )
+ *     VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data, :transaction_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     Auto-generated transaction_id if not specified.
  *
- *   @option options [Symbol] :vendor_id
+ *   @option options [Number] :vendor_id
  *     The assigned vendor id defaults to 0xccddeeff if not specified.
  *
- *   @option options [Symbol] :vendor_data
+ *   @option options [Array] :vendor_data
  *     Fixed 16 bytes of data if not specified. User can set upto 16 bytes of any
  *     vendor specific data.
  *
@@ -72,7 +72,7 @@ vendor_request_alloc( VALUE klass ) {
  *   @raise [TypeError] if options is not a hash.
  *
  *   @return [VendorRequest]
- *     an object that encapsulates the +OFPT_VENDOR+ openFlow message.
+ *     an object that encapsulates the +OFPT_VENDOR+ OpenFlow message.
  */
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {

@@ -47,32 +47,33 @@ VALUE cFeaturesReply;
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     datapath unique id. Subsequent commands directed to switch should 
  *     embed this id.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     a positive number lower layers match this to ensure message integrity.
  *
- *   @option options [Symbol] :n_buffers
+ *   @option options [Number] :n_buffers
  *     maximum number of packets that can be buffered at once.
  *
- *   @option options [Symbol] :n_tables
+ *   @option options [Number] :n_tables
  *     number of supported tables, number could vary according to 
  *     switch's implementation.
  *
- *   @option options [Symbol] :capabilities
+ *   @option options [Number] :capabilities
  *     supported capabilities expressed as a 32-bit bitmap. Ability of a switch 
  *     to respond or perform a certain function for example flow statistics, 
  *     IP address lookup in APR packets.
  *
- *   @option options [Symbol] :actions
+ *   @option options [Number] :actions
  *     supported actions expressed as a 32-bit bitmap.
  *
- *   @option options [Symbol] :port
+ *   @option options [Port] :port
  *     an array of {Port} objects detailing physical port description and function.
  *
- *   @return [FeaturesReply] self
+ *   @return [FeaturesReply]
+ *     an object that encapsulates the +OFPT_FEATURES_REPLY+ OpenFlow message.
  */
 static VALUE
 features_reply_init( VALUE self, VALUE options ) {

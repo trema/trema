@@ -29,11 +29,12 @@ describe Trema::OpenflowError, "new" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( OpenflowErrorController ) {
-        port_mod = Trema::PortMod.new( 2, 
-          Trema::Mac.new( "11:22:33:44:55:66" ),
-          1,
-          1,
-          0)
+        port_mod = Trema::PortMod.new( :port_no => 2, 
+          :hw_addr => Trema::Mac.new( "11:22:33:44:55:66" ),
+          :config => 1,
+          :mask => 1,
+          :advertise => 0
+        )
         controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | arg |
           arg.datapath_id.should == 0xabc
@@ -55,11 +56,12 @@ describe Trema::OpenflowError, "new" do
         link "host1", "error-hw-addr"
         link "host2", "error-hw-addr"
       }.run( OpenflowErrorController ) {
-        port_mod = Trema::PortMod.new( 1, 
-          Trema::Mac.new( "11:22:33:44:55:66" ),
-          1,
-          1,
-          0)
+        port_mod = Trema::PortMod.new( :port_no => 1, 
+          :hw_addr => Trema::Mac.new( "11:22:33:44:55:66" ),
+          :config => 1,
+          :mask => 1,
+          :advertise => 0
+        )
         controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | arg |
           arg.datapath_id.should == 0xabc
