@@ -74,7 +74,7 @@ _init_timer() {
   debug( "Initializing timer callbacks ( timer_callbacks = %p ).", timer_callbacks );
   return true;
 }
-bool (* init_timer )( void ) = _init_timer;
+bool ( *init_timer )( void ) = _init_timer;
 
 
 bool
@@ -95,7 +95,7 @@ _finalize_timer() {
   }
   return true;
 }
-bool (* finalize_timer )( void ) = _finalize_timer;
+bool ( *finalize_timer )( void ) = _finalize_timer;
 
 
 #define VALID_TIMESPEC( _a )                                    \
@@ -167,7 +167,7 @@ _execute_timer_events() {
     }
   }
 }
-void (* execute_timer_events )( void ) = _execute_timer_events;
+void ( *execute_timer_events )( void ) = _execute_timer_events;
 
 
 bool
@@ -214,7 +214,7 @@ _add_timer_event_callback( struct itimerspec *interval, timer_callback_t callbac
 
   return true;
 }
-bool (* add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data ) = _add_timer_event_callback;
+bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data ) = _add_timer_event_callback;
 
 
 bool
@@ -233,7 +233,7 @@ _add_periodic_event_callback( const time_t seconds, timer_callback_t callback, v
 
   return add_timer_event_callback( &interval, callback, user_data );
 }
-bool (* add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
+bool ( *add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
 
 
 bool
@@ -269,7 +269,7 @@ _delete_timer_event( timer_callback_t callback, void *user_data ) {
 
   return false;
 }
-bool (* delete_timer_event )( timer_callback_t callback, void *user_data ) = _delete_timer_event;
+bool ( *delete_timer_event )( timer_callback_t callback, void *user_data ) = _delete_timer_event;
 
 
 /*

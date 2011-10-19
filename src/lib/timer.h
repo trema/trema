@@ -30,15 +30,15 @@
 
 typedef void ( *timer_callback_t )( void *user_data );
 
-extern bool (* init_timer )( void );
-extern bool (* finalize_timer )( void );
+extern bool ( *init_timer )( void );
+extern bool ( *finalize_timer )( void );
 
-extern bool (* add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data );
-extern bool (* add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data );
+extern bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data );
+extern bool ( *add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data );
 
-extern bool (* delete_timer_event )( timer_callback_t callback, void *user_data );
+extern bool ( *delete_timer_event )( timer_callback_t callback, void *user_data );
 
-extern void (* execute_timer_events )( void );
+extern void ( *execute_timer_events )( void );
 
 
 #endif // TIMER_H
