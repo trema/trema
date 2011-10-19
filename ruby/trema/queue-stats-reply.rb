@@ -43,25 +43,26 @@ module Trema
     #       :tx_errors => 0
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :port_no
+    #   @option options [Number] :port_no
     #     a specific port or all port if +OFPT_ALL+.
     #
-    #   @option options [Symbol] :queue_id
+    #   @option options [Number] :queue_id
     #     a specific queue identifier or all queues if +OFPQ_ALL+.
     #
-    #   @option options [Symbol] :tx_bytes
+    #   @option options [Number] :tx_bytes
     #     a counter of transmitted bytes.
     #
-    #   @option options [Symbol] :tx_packets
+    #   @option options [Number] :tx_packets
     #     a counter of transmitted packets.
     #
-    #   @option options [Symbol] :tx_errors
+    #   @option options [Number] :tx_errors
     #     a counter of transmitted errors.
     #
-    # @return [QueueStatsReply]
-    #   an object that encapsulates the OFPST_STATS_REPLY(OPPST_QUEUE) openFlow message. 
+    #   @return [QueueStatsReply]
+    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_QUEUE) OpenFlow message. 
     #
     def initialize options
       super FIELDS, options

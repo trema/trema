@@ -32,29 +32,29 @@ barrier_request_alloc( VALUE klass ) {
   return Data_Wrap_Struct( klass, NULL, free_buffer, barrier_request );
 }
 
+
 /*
  * A barrier request message could be sent to ensure that an operation
  * completed successfully signaled with the reception of a barrier reply message.
  *
  * @overload initialize(options={})
- *   example
-       BarrierRequest.new
+ *   @example 
+ *     BarrierRequest.new
  *     BarrierRequest.new( :transaction_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
+ *
  *   @option options [Number] :transaction_id
- *     An unsigned 32bit integer number associated with this message.
+ *     an unsigned 32-bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *
- *   @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
- *   @raise [TypeEror] if options is not a hash.
+ *   @raise [ArgumentError] if transaction_id is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a hash.
  *
  *   @return [BarrierRequest]
- *     an object that encapsulates the +OFPT_BARRIER_REQUEST+ openflow message.
+ *     an object that encapsulates the +OPFT_BARRIER_REQUEST+ OpenFlow message.
  */
-
-
 static VALUE
 barrier_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *barrier_request;
@@ -67,7 +67,7 @@ barrier_request_init( int argc, VALUE *argv, VALUE self ) {
     VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }

@@ -23,52 +23,65 @@ require "trema"
 require "trema/ip"
 
 
-describe ActionSetNwDst do
-  context "when an instance is created" do
-    subject { ActionSetNwDst.new( IP.new( "192.168.1.1" ) ) }
-    its( :nw_dst ) { should be_an_instance_of Trema::IP  }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionSetNwDst nw_dst=192.168.1.1>"
-    end
-    it { should respond_to( :to_i ) }
-    it "should return an Integer" do
-      subject.nw_dst.to_i.should == 3232235777
-    end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
+describe ActionSetNwDst, ".new( VALID OPTION )" do
+  subject { ActionSetNwDst.new( :nw_dst => IP.new( "192.168.1.1" ) ) }
+  its( :nw_dst ) { should be_an_instance_of Trema::IP  }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionSetNwDst nw_dst=192.168.1.1>"
+  end
+  it { should respond_to( :to_i ) }
+  it "should return an Integer" do
+    subject.nw_dst.to_i.should == 3232235777
+  end
+end
 
-    
-    context "when nw_dst is not supplied" do
-      it "should raise an error" do
-        lambda do
-          ActionSetNwDst.new
-        end.should raise_error ArgumentError
-      end
-    end
-  
-    
-    context "when nw_dst is not an IP object" do
-      it "should raise an error" do
-        lambda do
-          ActionSetNwDst.new( 1234 )
-        end.should raise_error ArgumentError, /nw dst address should be an IP object/
-      end
+
+describe ActionSetNwDst, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionSetNwDst, ".new( INVALID OPTION )" do
+  context "when argument type Array instead of Hash" do
+    subject { ActionSetNwDst.new( [ 1234 ] ) }
+    it "should raise TypeError" do
+      expect { subject }.to raise_error( TypeError )
     end
   end
-  
-  
-  context "when sending #flow_mod(add) with action set to nw dst" do
+
+
+  context "when nw dst not a Trema::IP object" do
+    subject { ActionSetNwDst.new( :nw_dst => 1234 ) }
+    it "should raise TypeError" do
+      expect { subject }.to raise_error( TypeError, /nw dst address should be an IP object/ )
+    end
+  end
+end
+
+
+describe ActionSetNwDst, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_nw_dst" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionSetNwDst.new( :nw_dst => IP.new( "192.168.1.1" ) )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have a flow with action set to mod_nw_dst" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionSetNwDst.new( IP.new( "192.168.1.1" ) ) )
+          :actions => ActionSetNwDst.new( :nw_dst => IP.new( "192.168.1.1" ) ) )
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /mod_nw_dst:192.168.1.1/ )
       }

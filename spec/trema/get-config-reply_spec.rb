@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigReply, ".new( options={} )" do
+describe GetConfigReply, ".new( VALID OPTIONS )" do
   subject { GetConfigReply.new( :datapath_id => 123,
     :transaction_id => 1234,
     :flags => 1,

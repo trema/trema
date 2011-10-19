@@ -30,24 +30,41 @@ VALUE cActionSetNwSrc;
 /*
  * An action to modify the IPv4 source address of a packet.
  *
- * @overload initialize(nw_src)
+ * @overload initialize(options={})
  *
- * @param [IP] nw_src
- *   the source IPv4 address encapsulated as an {IP} object.
+ *   @example
+ *     ActionSetNwSrc.new( :nw_src => IP.new( "192.168.1.1" )
  *
- * @raise [ArgumentError] if nw_src argument is not supplied.
- * @raise [ArgumentError] if nw_src argument is not an {IP} object instance.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @return [ActionSetNwSrc]
- *   an object that encapsulates this action.
+ *   @option options [IP] :nw_src
+ *     the source IPv4 address encapsulated as an {IP} object.
+ *
+ *   @raise [ArgumentError] if nw_src argument is not supplied.
+ *   @raise [TypeError] if nw_src argument is not an {IP} object instance.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetNwSrc]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_nw_src_init( VALUE self, VALUE nw_src ) {
-  if ( rb_obj_is_instance_of( nw_src, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
-    rb_raise( rb_eArgError, "nw src address should be an IP object" );
-    return self;
+action_set_nw_src_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE nw_src;
+    if ( ( nw_src = rb_hash_aref( options, ID2SYM( rb_intern( "nw_src" ) ) ) ) != Qnil ) {
+      if ( rb_obj_is_instance_of( nw_src, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
+        rb_raise( rb_eTypeError, "nw src address should be an IP object" );
+      }
+      rb_iv_set( self, "@nw_src", nw_src );
+    }
+    else {
+      rb_raise( rb_eArgError, "nw src address is a mandatory option" );
+    }
   }
-  rb_iv_set( self, "@nw_src", nw_src );
   return self;
 }
 
@@ -55,7 +72,7 @@ action_set_nw_src_init( VALUE self, VALUE nw_src ) {
 /*
  * The source IPv4 address as an {IP} object.
  *
- * @return [IP] the value of attribute nw_src.
+ * @return [IP] the value of nw_src.
  */
 static VALUE
 action_get_nw_src( VALUE self ) {
@@ -107,7 +124,7 @@ void
 Init_action_set_nw_src() {
   rb_require( "ipaddr" );
   cActionSetNwSrc = rb_define_class_under( mTrema, "ActionSetNwSrc", rb_cObject );
-  rb_define_method( cActionSetNwSrc, "initialize", action_set_nw_src_init, 1 );
+  rb_define_method( cActionSetNwSrc, "initialize", action_set_nw_src_init, -1 );
   rb_define_method( cActionSetNwSrc, "nw_src", action_get_nw_src, 0 );
   rb_define_method( cActionSetNwSrc, "append", action_set_nw_src_append, 1 );
   rb_define_method( cActionSetNwSrc, "inspect", action_set_nw_src_inspect, 0 );

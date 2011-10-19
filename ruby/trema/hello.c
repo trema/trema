@@ -34,8 +34,9 @@ hello_alloc( VALUE klass ) {
 
 
 /*
+ * Creates a Hello OpenFlow message.
+ *
  * @overload initialize(options={})
- *   Creates a Hello OpenFlow message.
  *
  *   @example
  *     Hello.new
@@ -43,14 +44,16 @@ hello_alloc( VALUE klass ) {
  *
  *   @param [Hash] options
  *     the options to create a message with.
+ *
  *   @option options [Number] :transaction_id
  *     An unsigned 32bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *
- *   @raise [ArgumentError] if transaction ID is not an unsigned 32bit integer.
- *   @raise [TypeEror] if options is not a Hash.
+ *   @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
  *
- *   @return [Hello] an object that encapsulates the +OFPT_HELLO+ OpenFlow message.
+ *   @return [Hello]
+ *     an object that encapsulates the +OPFT_HELLO+ OpenFlow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
@@ -64,7 +67,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }

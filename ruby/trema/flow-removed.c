@@ -31,7 +31,7 @@ VALUE cFlowRemoved;
  * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during
  * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
  * would be created while parsing the +OPPT_FLOW_REMOVED+ message.
- * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
+ * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ OpenFlow message.
  *
  * @overload initialize(options={})
  *   @example 
@@ -49,7 +49,8 @@ VALUE cFlowRemoved;
  *       :byte_count=> 64
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
@@ -88,7 +89,7 @@ VALUE cFlowRemoved;
  *   @option options [Symbol] :byte_count
  *     a counter of the total number of bytes.
  *
- * @return [FlowRemoved] self
+ *   @return [FlowRemoved] self
  */
 static VALUE
 flow_removed_init( VALUE self, VALUE options ) {
@@ -100,7 +101,7 @@ flow_removed_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 flow_removed_datapath_id( VALUE self ) {
@@ -111,7 +112,7 @@ flow_removed_datapath_id( VALUE self ) {
 /*
  * For this asynchronous message the transaction_id is set to zero.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 flow_removed_transaction_id( VALUE self ) {
@@ -133,7 +134,7 @@ flow_removed_match( VALUE self ) {
 /*
  * An opaque handle copied from the corresponding flow setup message.
  *
- * @return [Number] the value of attribute cookie.
+ * @return [Number] the value of cookie.
  */
 static VALUE
 flow_removed_cookie( VALUE self ) {
@@ -145,7 +146,7 @@ flow_removed_cookie( VALUE self ) {
  * The priority level of the flow copied from the corresponding flow setup
  * message.
  *
- * @return [Number] the value of attribute priority.
+ * @return [Number] the value of priority.
  */
 static VALUE
 flow_removed_priority( VALUE self ) {
@@ -156,7 +157,7 @@ flow_removed_priority( VALUE self ) {
 /*
  * The reason why the flow is removed.
  *
- * @return [Number] the value of attribute reason.
+ * @return [Number] the value of reason.
  */
 static VALUE
 flow_removed_reason( VALUE self ) {
@@ -167,7 +168,7 @@ flow_removed_reason( VALUE self ) {
 /*
  * The number of seconds the flow was active.
  *
- * @return [Number] the value of attribute duration_sec.
+ * @return [Number] the value of duration_sec.
  */
 static VALUE
 flow_removed_duration_sec( VALUE self ) {
@@ -178,7 +179,7 @@ flow_removed_duration_sec( VALUE self ) {
 /*
  * The number of nanoseconds the flow was active.
  *
- * @return [Number] the value of attribute duration_nsec.
+ * @return [Number] the value of duration_nsec.
  */
 static VALUE
 flow_removed_duration_nsec( VALUE self ) {
@@ -189,7 +190,7 @@ flow_removed_duration_nsec( VALUE self ) {
 /*
  * Time elapsed in seconds before the flow is removed.
  *
- * @return [Number] the value of attribute idle_timeout.
+ * @return [Number] the value of idle_timeout.
  */
 static VALUE
 flow_removed_idle_timeout( VALUE self ) {
@@ -200,7 +201,7 @@ flow_removed_idle_timeout( VALUE self ) {
 /*
  * A counter of the total number of packets.
  *
- * @return [Number] the value of attribute packet_count.
+ * @return [Number] the value of packet_count.
  */
 static VALUE
 flow_removed_packet_count( VALUE self ) {
@@ -211,7 +212,7 @@ flow_removed_packet_count( VALUE self ) {
 /*
  * A counter of the total number of bytes.
  *
- * @return [Number] the value of attribute byte_count.
+ * @return [Number] the value of byte_count.
  */
 static VALUE
 flow_removed_byte_count( VALUE self ) {

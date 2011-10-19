@@ -26,8 +26,26 @@ class Integer
   end
 
 
+  def unsigned_8bit?
+    unsigned_bit?( 8 ).call
+  end
+
+
+  def unsigned_16bit?
+    unsigned_bit?( 16 ).call
+  end
+
+
   def unsigned_32bit?
-    ( 0 <= self ) and ( self < 2 ** 32 )
+    unsigned_bit?( 32 ).call
+  end
+
+
+  ################################################################################
+  private
+  ################################################################################
+  def unsigned_bit? number
+    lambda { ( 0 <= self ) and ( self < 2 ** number ) }
   end
 end
 

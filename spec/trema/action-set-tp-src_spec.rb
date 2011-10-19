@@ -22,38 +22,58 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetTpSrc do
-  context "when an instance is created" do
-    subject { ActionSetTpSrc.new( 5555 ) }
-    its( :tp_src ) { should == 5555 }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionSetTpSrc tp_port=5555>"
-    end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-  
-    context "when tp_src argument is not supplied" do
-      it "should raise an error" do
-        lambda do
-          ActionSetTpSrc.new
-        end.should raise_error ArgumentError
-      end
-    end
+shared_examples_for "any OpenFlow message with tp_src option" do
+  it_should_behave_like "any OpenFlow message", :option => :tp_src, :name => "Source TCP or UDP port", :size => 16
+end
+
+
+describe ActionSetTpSrc, ".new( VALID OPTION )" do
+  subject { ActionSetTpSrc.new( :tp_src => tp_src ) }
+  let( :tp_src ) { 5555 }
+  its( :tp_src ) { should == 5555 }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionSetTpSrc tp_port=5555>"
   end
-  
-  
-  context "when sending #flow_mod(add) with action set to tp src" do
+  it_should_behave_like "any OpenFlow message with tp_src option"
+end
+
+
+describe ActionSetTpSrc, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionSetTpSrc, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
+  subject { ActionSetTpSrc.new( [ 5555 ] ) }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
+  end
+end
+
+
+describe ActionSetTpSrc, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_tp_src" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionSetTpSrc.new( :tp_src => 5555 )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have a flow with action set to mod_tp_src" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionSetTpSrc.new( 5555 ) )
+          :actions => ActionSetTpSrc.new( :tp_src => 5555 ) )
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ )
       }

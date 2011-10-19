@@ -30,24 +30,42 @@ VALUE cActionSetDlDst;
 /*
  * An action to modify the destination Ethernet address of a packet.
  *
- * @overload initialize(dl_dst)
+ * @overload initialize(options={})
  *
- * @param [Mac] dl_dst
- *   a destination Ethernet address encapsulated as a {Mac} object.
+ *   @example
+ *     ActionSetDlDst.new( :dl_dst => Mac.new( "11:22:33:44:55:66" )
+ *     ActionSetDlDst.new( :dl_dst => Mac.new( 0x112233445566 )
  *
- * @raise [ArgumentError] if dl_dst argument is not supplied.
- * @raise [ArgumentError] if dl_dst argument is not a {Mac} object instance.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @return [ActionSetDlDst] self
- *   an object that encapsulates this action.
+ *   @option options [Mac] :dl_dst
+ *     a destination Ethernet address encapsulated as a {Mac} object.
+ *
+ *   @raise [ArgumentError] if dl_dst argument is not supplied.
+ *   @raise [TypeError] if dl_dst argument is not a {Mac} object instance.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetDlDst] self
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
-  if ( rb_obj_is_instance_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
-    rb_raise( rb_eArgError, "dl dst address should be a Mac object" );
-    return self;
+action_set_dl_dst_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE dl_dst;
+    if ( ( dl_dst = rb_hash_aref( options, ID2SYM( rb_intern( "dl_dst" ) ) ) ) != Qnil ) {
+      if ( rb_obj_is_instance_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
+        rb_raise( rb_eTypeError, "dl dst address should be a Mac object" );
+      }
+      rb_iv_set( self, "@dl_dst", dl_dst );
+    }
+    else {
+      rb_raise( rb_eArgError, "dl dst address is a mandatory option" );
+    }
   }
-  rb_iv_set( self, "@dl_dst", dl_dst );
   return self;
 }
 
@@ -55,7 +73,7 @@ action_set_dl_dst_init( VALUE self, VALUE dl_dst ) {
 /*
  * A destination Ethernet address encapsulated as a {Mac} object.
  *
- * @return [Mac] the value of attribute dl_dst.
+ * @return [Mac] the value of dl_dst.
  */
 static VALUE
 action_get_dl_dst( VALUE self ) {
@@ -98,7 +116,7 @@ action_set_dl_dst_inspect( VALUE self ) {
 void
 Init_action_set_dl_dst() {
   cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", rb_cObject );
-  rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, 1 );
+  rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, -1 );
   rb_define_method( cActionSetDlDst, "dl_dst", action_get_dl_dst, 0 );
   rb_define_method( cActionSetDlDst, "append", action_set_dl_dst_append, 1 );
   rb_define_method( cActionSetDlDst, "inspect", action_set_dl_dst_inspect, 0 );

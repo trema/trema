@@ -36,39 +36,67 @@ set_config_alloc( VALUE klass ) {
 
 /*
  * A {SetConfig} object instance represents a set of attributes which allow
- * tuning the behavior of the openflow protocol in some way. 
+ * tuning the behavior of the openflow protocol in some way.
  *
- * @overload initialize(transaction_id = nil, flags = 0, miss_send_len = 128)
- *   Creates a {SetConfig} object by specifying its transaction_id, flags and 
- *   miss_send_len. If no arguments supplied, the transaction_id is
- *   auto-generated, flags set to 0(no special handling for 
- *   IP fragments) and miss_send_len set to 128 bytes.
+ * @overload initialize(options={})
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
+ *   @example
+ *     SetConfigRequest.new
+ *     SetConfigRequest.new( 
+ *       :flags => OFPC_FRAG_DROP,
+ *       :miss_send_len => 256
+ *     )
+ *     SetConfigRequest.new(
+ *       :flags => OFPC_FRAG_DROP,
+ *       :miss_send_len => 256,
+ *       :transaction_id => 123
+ *     )
  *
- * @return [SetConfig] an object that encapsulates the +OFPT_SET_CONFIG+ openflow message.
- * 
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *   @option options [Number] :flags
+ *     flags defaults to 0 (no special handling for IP fragments) if not specified.
+ *
+ *   @option options [Number] :miss_send_len
+ *     miss_send_len defaults to 128 bytes if not specified.
+ *
+ *   @option options [Number] :transaction_id
+ *     transaction_id auto-generated if not specified.
+ *
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *
+ *   @return [SetConfig]
+ *     an object that encapsulates the +OFPT_SET_CONFIG+ OpenFlow message.
 */
 static VALUE
 set_config_init( int argc, VALUE *argv, VALUE self ) {
   buffer *set_config;
   Data_Get_Struct( self, buffer, set_config );
 
-  VALUE xid_ruby;
-  VALUE flags_ruby;
-  VALUE miss_send_len_ruby;
   uint32_t xid = get_transaction_id();
   uint16_t flags =  OFPC_FRAG_NORMAL;
   uint16_t miss_send_len = OFP_DEFAULT_MISS_SEND_LEN;
+  VALUE options;
 
-  if ( rb_scan_args( argc, argv, "03", &xid_ruby, &flags_ruby, &miss_send_len_ruby ) == 3 ) {
-    if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE flags_ruby;
+    if ( ( flags_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "flags" ) ) ) ) != Qnil ) {
+      flags = ( uint16_t ) NUM2UINT( flags_ruby );
     }
-    xid = ( uint32_t ) NUM2UINT( xid_ruby );
-    flags = ( uint16_t ) NUM2UINT( flags_ruby );
-    miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_ruby );
-  } 
+    VALUE miss_send_len_ruby;
+    if ( ( miss_send_len_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "miss_send_len" ) ) ) ) != Qnil ) {
+      miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_ruby );
+    }
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+      }
+      xid = ( uint32_t ) NUM2UINT( xid_ruby );
+    }
+  }
   ( ( struct ofp_header * ) ( set_config->data ) )->xid = htonl( xid );
   ( ( struct ofp_switch_config * ) ( set_config->data ) )->flags = htons( flags );
   ( ( struct ofp_switch_config * ) ( set_config->data ) )->miss_send_len = htons( miss_send_len );
@@ -79,7 +107,7 @@ set_config_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 set_config_transaction_id( VALUE self ) {
@@ -94,7 +122,7 @@ set_config_transaction_id( VALUE self ) {
  * A 2-bit value that can be set to indicate no special handling, drop or reassemble
  * IP fragments. 
  *
- * @return [Number] the value of attribute flags.
+ * @return [Number] the value of flags.
  */
 static VALUE
 set_config_flags( VALUE self ) {
@@ -108,7 +136,7 @@ set_config_flags( VALUE self ) {
 /*
  * The maximum number of bytes to send on flow table miss or flow destined to controller.
  *
- * @return [Number] the value of attribute miss_send_len.
+ * @return [Number] the value of miss_send_len.
  */
 static VALUE
 set_config_miss_send_len( VALUE self ) {
@@ -123,6 +151,11 @@ void
 Init_set_config() {
   cSetConfig = rb_define_class_under( mTrema, "SetConfig", rb_cObject );
   rb_define_alloc_func( cSetConfig, set_config_alloc );
+  rb_define_const( cSetConfig, "OFPC_FRAG_NORMAL", INT2NUM( OFPC_FRAG_NORMAL ) );
+  rb_define_const( cSetConfig, "OFPC_FRAG_DROP", INT2NUM( OFPC_FRAG_DROP ) );
+  rb_define_const( cSetConfig, "OFPC_FRAG_REASM", INT2NUM( OFPC_FRAG_REASM ) );
+  rb_define_const( cSetConfig, "OFPC_FRAG_MASK", INT2NUM( OFPC_FRAG_MASK ) );
+
   rb_define_method( cSetConfig, "initialize", set_config_init, -1 );
   rb_define_method( cSetConfig, "transaction_id", set_config_transaction_id, 0 );
   rb_define_method( cSetConfig, "flags", set_config_flags, 0 );

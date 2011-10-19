@@ -32,40 +32,51 @@ VALUE cError;
  *     Error.new(
  *       :type => Error::OFPET_BAD_REQUEST,
  *       :code => Error::OFPBRC_BAD_TYPE,
- *       :transaction => 123,
- *       :user_data => "Errror!!"
+ *     )
+ *     Error.new(
+ *       :type => Errr::OFPET_BAD_REQUEST,
+ *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :transcation_id => 123
+ *     )
+ *     Error.new(
+ *       :type => Errr::OFPET_BAD_REQUEST,
+ *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :transcation_id => 123
+ *       :user_data => "Error!!"
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options 
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :type
+ *   @option options [Number] :type
  *     a command or action that failed.
  *
- *   @option options [Symbol] :code
- *   the reason of the failed type error.
+ *   @option options [Number] :code
+ *     the reason of the failed type error.
  *
- *   @option options [Symbol] :transaction_id
- *   a positive number, not recently attached to any previous pending commands to
- *   guarantee message integrity auto-generated if not specified.
+ *   @option options [Number] :transaction_id
+ *     a positive number, not recently attached to any previous pending commands to
+ *     guarantee message integrity auto-generated if not specified.
  *
- *   @option options [Symbol] :user_data
- *   a more user friendly explanation of the error. Defaults to nil if not
- *   specified.
+ *   @option options [String] :user_data
+ *     a more user friendly explanation of the error. Defaults to nil if not
+ *     specified.
  *
- * @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
- * @raise [ArgumentError] if type and code are not supplied.
- * @raise [ArgumentError] if user data is not a string.
+ *   @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
+ *   @raise [ArgumentError] if type and code are not supplied.
+ *   @raise [ArgumentError] if user data is not a string.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [Error]
- *   an object that encapsulates the +OFPT_ERROR+ openflow message.
+ *   @return [Error]
+ *     an object that encapsulates the +OFPT_ERROR+ OpenFlow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *data = NULL;
   uint32_t xid;
-  VALUE options;
   uint16_t type;
   uint16_t code;
+  VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
     Check_Type( options, T_HASH );
@@ -86,7 +97,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
     VALUE xid_r;
     if ( ( xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_r );
     }
@@ -105,7 +116,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
     }
   }
   else {
-    rb_raise( rb_eArgError, "Type and code are mandatory arguments and should be specified" );
+    rb_raise( rb_eArgError, "Type and code are mandatory options" );
   }
   buffer *error = create_error( xid, type, code, data );
   if ( data != NULL ) {
@@ -126,7 +137,7 @@ get_error( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 error_transaction_id( VALUE self ) {
@@ -158,7 +169,7 @@ error_user_data( VALUE self ) {
 /*
  * Indicates the command or action that failed.
  *
- * @return [Number] the value of attribute error type.
+ * @return [Number] the value of error type.
  */
 static VALUE
 error_type( VALUE self ) {
@@ -170,7 +181,7 @@ error_type( VALUE self ) {
 /*
  * Reason of the failed type error.
  *
- * @return [Number] the value of attribute error code.
+ * @return [Number] the value of error code.
  */
 static VALUE
 error_code( VALUE self ) {

@@ -27,12 +27,12 @@ class PacketOutController < Controller
     send_flow_mod_add(
       datapath_id,
       :match => Match.from( message ),
-      :actions => Trema::ActionOutput.new( 2 )
+      :actions => Trema::ActionOutput.new( :port => 2 )
     )
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => Trema::ActionOutput.new( 2 )
+      :actions => Trema::ActionOutput.new( :port => 2 )
     )
   end
 end
@@ -72,7 +72,7 @@ describe "packet-out" do
   end
 
 
-  context "when data argment is string type" do
+  context "when data argument is string type" do
     it "should #packet_out" do
       network {
         vswitch( "packet-out" ) { datapath_id 0xabc }
@@ -111,7 +111,7 @@ describe "packet-out" do
         controller( "PacketOutController" ).send_packet_out(
           0xabc,
           :data => data,
-          :actions => Trema::ActionOutput.new( 1 )
+          :actions => Trema::ActionOutput.new( :port => 1 )
 	)
         sleep 2
         host( "host2" ).rx_stats.n_pkts.should == 1

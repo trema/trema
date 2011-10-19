@@ -39,13 +39,14 @@ module Trema
     #       :vendor_id => 123
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :vendor_id
+    #   @option options [Number] :vendor_id
     #     the specific vendor identifier.
     #
-    # @return [VendorStatsReply] 
-    #   an object that encapsulates the OFPST_STATS_REPLY(OPPST_VENDOR) openFlow message.
+    #   @return [VendorStatsReply] 
+    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_VENDOR) OpenFlow message.
     #
     def initialize options
       super FIELDS, options

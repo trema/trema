@@ -29,13 +29,15 @@ end
 
 
 describe StatsRequest do
-  context "when .FlowStatsRequest.new" do
+  context "when .FlowStatsRequest.new( MANDATORY OPTION MISSING )" do
     subject { FlowStatsRequest.new }
-    it_should_behave_like "any incorrect signature constructor"
+    it "should raise ArgumentError" do
+      expect { subject }.to raise_error( ArgumentError ) 
+    end
   end
 
 
-  context "when .FlowStatsRequest.new( :match => match )" do
+  context "when .FlowStatsRequest.new( OPTIONAL OPTIONS MISSING )" do
     subject { FlowStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
     it_should_behave_like "any stats-request"
     its( :match ) { should be_an_instance_of( Match ) }
@@ -44,7 +46,7 @@ describe StatsRequest do
   end
 
 
-  context "when .FlowStatsRequest.new( :match => match, :table_id => 1, :out_port => 2 )" do
+  context "when .FlowStatsRequest.new( VALID OPTIONS )" do
     subject do 
       FlowStatsRequest.new( 
         :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
@@ -59,13 +61,15 @@ describe StatsRequest do
   end
 
 
-  context "when .AggregateStatsRequest.new" do
+  context "when .AggregateStatsRequest.new( MANDATORY OPTION MISSING )" do
     subject { AggregateStatsRequest.new }
-    it_should_behave_like "any incorrect signature constructor"
+    it "should raise ArgumentError" do
+      expect { subject }.to raise_error( ArgumentError ) 
+    end
   end
 
 
-  context "when .AggregateStatsRequest.new( :match => match )" do
+  context "when .AggregateStatsRequest.new( OPTIONAL OPTIONS MISSING )" do
     subject { AggregateStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
     it_should_behave_like "any stats-request"
     its( :match ) { should be_an_instance_of( Match ) }
@@ -74,7 +78,7 @@ describe StatsRequest do
   end
 
 
-  context "when .AggregateStatsRequest.new( :match => match, :table_id = 1, :out_port => 2" do
+  context "when .AggregateStatsRequest.new( VALID OPTIONS )" do
     subject do 
       AggregateStatsRequest.new( 
         :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
@@ -89,27 +93,27 @@ describe StatsRequest do
   end
 
 
-  context "when .TableStatsRequest.new" do
+  context "when .TableStatsRequest.new( VALID OPTIONS )" do
     subject { TableStatsRequest.new }
     it_should_behave_like "any stats-request"
   end
 
 
-  context "when .PortStasRequest.new" do
+  context "when .PortStasRequest.new( OPTIONAL OPTION MISSING )" do
     subject { PortStatsRequest.new }
     it_should_behave_like "any stats-request"
     its( :port_no ) { should == 0xffff }
   end
 
 
-  context "when .PortStasRequest.new( :port_no => 1 )" do
+  context "when .PortStasRequest.new( VALID OPTIONS )" do
     subject { PortStatsRequest.new :port_no => 1 }
     it_should_behave_like "any stats-request"
     its( :port_no ) { should == 1 }
   end
 
 
-  context "when .QueueStatsRequest.new" do
+  context "when .QueueStatsRequest.new( OPTIONAL OPTIONS MISSING )" do
     subject { QueueStatsRequest.new }
     it_should_behave_like "any stats-request"
     its( :port_no ) { should == 0xfffc }
@@ -117,7 +121,7 @@ describe StatsRequest do
   end
 
 
-  context "when .QueueStatsRequest.new( :port_no => 1, :queue_id => 2 )" do
+  context "when .QueueStatsRequest.new( VALID OPTIONS )" do
     subject { QueueStatsRequest.new :port_no => 1, :queue_id => 2 }
     it_should_behave_like "any stats-request"
     its( :port_no ) { should == 1 }
@@ -125,14 +129,14 @@ describe StatsRequest do
   end
 
 
-  context "when .VendorStatsRequest.new" do
+  context "when .VendorStatsRequest.new( OPTIONAL OPTION MISSING )" do
     subject { VendorStatsRequest.new }
     it_should_behave_like "any stats-request"
     its( :vendor_id ) { should == 0x00004cff }
   end
 
 
-  context "when .VendorStatsRequest.new( :vendor_id => 123 )" do
+  context "when .VendorStatsRequest.new( VALID OPTION )" do
     subject { VendorStatsRequest.new :vendor_id => 123 }
     it_should_behave_like "any stats-request"
     its( :vendor_id ) { should == 123 }

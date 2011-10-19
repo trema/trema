@@ -26,24 +26,48 @@ extern VALUE mTrema;
 VALUE cActionSetVlanPcp;
 
 
+
 /*
  * An action to modify the VLAN priority of a packet. Valid values are between
  * (0) lowest and (7) highest. Priority bits can be used to prioritize different
  * classes of traffic.
  *
- * @overload initialize(vlan_pcp)
+ * @overload initialize(options={})
  *
- * @param [Number] vlan_pcp
- *   the VLAN priority to set to.
+ *   @example
+ *     ActionSetVlanPcp.new( :vlan_pcp => 7 )
  *
- * @raise [ArgumentError] if vlan_pcp argument is not supplied.
+ *   @param [Hash] options
+ *     the options to create this action class instance with.
  *
- * @return [ActionSetVlanPcp]
- *   an object that encapsulates this action.
+ *   @option options [Number] :vlan_pcp
+ *     the VLAN priority to set to.
+ *
+ *   @raise [ArgumentError] if vlan_pcp argument is not supplied.
+ *   @raise [RangeError] if vlan_pcp is not within 0 and 7 inclusive.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetVlanPcp]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
-  rb_iv_set( self, "@vlan_pcp", vlan_pcp );
+action_set_vlan_pcp_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE vlan_pcp;
+    if ( ( vlan_pcp = rb_hash_aref( options, ID2SYM( rb_intern( "vlan_pcp" ) ) ) ) != Qnil ) {
+      uint8_t vpcp = ( uint8_t ) NUM2UINT( vlan_pcp );
+      if ( vpcp & ~7 ) {
+        rb_raise( rb_eRangeError, "Valid VLAN priority values are 0 to 7 inclusive" );
+      }
+      rb_iv_set( self, "@vlan_pcp", vlan_pcp );
+    }
+    else {
+      rb_raise( rb_eArgError, "VLAN priority is a mandatory option" );
+    }
+  }
   return self;
 }
 
@@ -51,7 +75,7 @@ action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
 /*
  * The VLAN priority value.
  *
- * @return [Number] the value of attribute vlan_pcp.
+ * @return [Number] the value of vlan_pcp.
  */
 static VALUE
 action_get_vlan_pcp( VALUE self ) {
@@ -89,7 +113,7 @@ action_set_vlan_pcp_inspect( VALUE self ) {
 void
 Init_action_set_vlan_pcp() {
   cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", rb_cObject );
-  rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, 1 );
+  rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, -1 );
   rb_define_method( cActionSetVlanPcp, "vlan_pcp", action_get_vlan_pcp, 0 );
   rb_define_method( cActionSetVlanPcp, "append", action_set_vlan_pcp_append, 1 );
   rb_define_method( cActionSetVlanPcp, "inspect", action_set_vlan_pcp_inspect, 0 );

@@ -47,19 +47,19 @@ VALUE cStatsReply;
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     transaction_id value carried over from request.
  *
- *   @option options [Symbol] :type
+ *   @option options [Number] :type
  *     type id for the reply.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     if set to 1 more replies would follow, 0 for the last reply.
  *
- *   @option options [FlowStatsReply,...] :stats
+ *   @option options [Array] :stats
  *     an array of objects associated with the reply instance.
  *
  * @return [StatsReply]
@@ -75,7 +75,7 @@ stats_reply_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 stats_reply_datapath_id( VALUE self ) {
@@ -86,7 +86,7 @@ stats_reply_datapath_id( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 stats_reply_transaction_id( VALUE self ) {
@@ -97,7 +97,7 @@ stats_reply_transaction_id( VALUE self ) {
 /*
  * The type of this reply.
  *
- * @return [Number] the value of attribute type.
+ * @return [Number] the value of type.
  */
 static VALUE
 stats_reply_type( VALUE self ) {
@@ -108,7 +108,7 @@ stats_reply_type( VALUE self ) {
 /*
  * Flag that indicates if more reply message(s) expected to follow.
  *
- * @return [Number] the value of attribute flags.
+ * @return [Number] the value of flags.
  */
 static VALUE
 stats_reply_flags( VALUE self ) {
@@ -159,27 +159,31 @@ Init_stats_reply() {
 static VALUE
 get_action( const struct ofp_action_header *ah ) {
   VALUE action = Qnil;
+  VALUE options = rb_hash_new();
 
   switch ( ah->type ) {
     case OFPAT_OUTPUT:
     {
       const struct ofp_action_output *ao = ( const struct ofp_action_output * ) ah;
 
-      action = rb_funcall( rb_eval_string( "Trema::ActionOutput" ), rb_intern( "new" ), 1, UINT2NUM( ao->port ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "port" ) ), UINT2NUM( ao->port ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionOutput" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_SET_VLAN_VID:
     {
       const struct ofp_action_vlan_vid *action_vlan_vid = ( const struct ofp_action_vlan_vid * ) ah;
 
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanVid" ), rb_intern( "new" ), 1, UINT2NUM( action_vlan_vid->vlan_vid ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "vlan_vid" ) ), UINT2NUM( action_vlan_vid->vlan_vid ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanVid" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_SET_VLAN_PCP:
     {
       const struct ofp_action_vlan_pcp *action_vlan_pcp = ( const struct ofp_action_vlan_pcp * ) ah;
 
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanPcp" ), rb_intern( "new" ), 1, UINT2NUM( action_vlan_pcp->vlan_pcp ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "vlan_pcp" ) ), UINT2NUM( action_vlan_pcp->vlan_pcp ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanPcp" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_STRIP_VLAN:
@@ -195,9 +199,11 @@ get_action( const struct ofp_action_header *ah ) {
 
       dl_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
       if ( ah->type == OFPAT_SET_DL_SRC ) {
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlSrc" ), rb_intern( "new" ), 1, dl_addr );
+        rb_hash_aset( options, ID2SYM( rb_intern( "dl_src" ) ),  dl_addr );
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlSrc" ), rb_intern( "new" ), 1, options );
       } else {
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlDst" ), rb_intern( "new" ), 1, dl_addr );
+        rb_hash_aset( options, ID2SYM( rb_intern( "dl_dst" ) ),  dl_addr );
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlDst" ), rb_intern( "new" ), 1, options );
       }
     }
       break;
@@ -209,9 +215,11 @@ get_action( const struct ofp_action_header *ah ) {
 
       nw_addr = rb_funcall( rb_eval_string( "Trema::IP " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
       if ( ah->type == OFPAT_SET_NW_SRC ) {
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwSrc" ), rb_intern( "new" ), 1, nw_addr );
+        rb_hash_aset( options, ID2SYM( rb_intern( "nw_src" ) ), nw_addr );
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwSrc" ), rb_intern( "new" ), 1, options );
       } else {
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwDst" ), rb_intern( "new" ), 1, nw_addr );
+        rb_hash_aset( options, ID2SYM( rb_intern( "nw_dst" ) ), nw_addr );
+        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwDst" ), rb_intern( "new" ), 1, options );
       }
     }
       break;
@@ -219,31 +227,40 @@ get_action( const struct ofp_action_header *ah ) {
     {
       const struct ofp_action_nw_tos *action_nw_tos = ( const struct ofp_action_nw_tos * ) ah;
 
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetNwTos" ), rb_intern( "new" ), 1, ULL2NUM( action_nw_tos->nw_tos ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "nw_tos" ) ), ULL2NUM( action_nw_tos->nw_tos ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetNwTos" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_SET_TP_SRC:
     {
       const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpSrc" ), rb_intern( "new" ), 1, ULL2NUM( action_tp_port->tp_port ) );
+
+      rb_hash_aset( options, ID2SYM( rb_intern( "tp_src" ) ), ULL2NUM( action_tp_port->tp_port ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpSrc" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_SET_TP_DST:
     {
       const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpDst" ), rb_intern( "new" ), 1, ULL2NUM( action_tp_port->tp_port ) );
+
+      rb_hash_aset( options, ID2SYM( rb_intern( "tp_dst" ) ), ULL2NUM( action_tp_port->tp_port ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpDst" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_ENQUEUE:
     {
       const struct ofp_action_enqueue *action_enqueue = ( const struct ofp_action_enqueue * ) ah;
-      action = rb_funcall( rb_eval_string( "Trema::ActionEnqueue" ), rb_intern( "new" ), 2, ULL2NUM( action_enqueue->port ), ULL2NUM( action_enqueue->queue_id ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "port" ) ), ULL2NUM( action_enqueue->port ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "queue_id" ) ), ULL2NUM( action_enqueue->queue_id ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionEnqueue" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_VENDOR:
     {
       const struct ofp_action_vendor_header *action_vendor = ( const struct ofp_action_vendor_header * ) ah;
-      action = rb_funcall( rb_eval_string( "Trema::ActionVendor" ), rb_intern( "new" ), 1, ULL2NUM( action_vendor->vendor ) );
+
+      rb_hash_aset( options, ID2SYM( rb_intern( "vendor" ) ), ULL2NUM( action_vendor->vendor ) );
+      action = rb_funcall( rb_eval_string( "Trema::ActionVendor" ), rb_intern( "new" ), 1, options );
     }
       break;
   }
