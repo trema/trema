@@ -130,6 +130,37 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
 }
 
 
+/**
+ * Looks up a key in a hash_table.
+ *
+ * @param table a hash_table.
+ * @param key the key to look up.
+ * @return the associated value, or NULL if the key is not found.
+ */
+void *
+lookup_hash_entry( hash_table *table, const void *key ) {
+  assert( table != NULL );
+  assert( key != NULL );
+
+  MUTEX_LOCK( table );
+
+  void *value = NULL;
+  unsigned int i = get_bucket_index( table, key );
+  if ( table->buckets[ i ] != NULL ) {
+    for ( dlist_element *e = table->buckets[ i ]->next; e; e = e->next ) {
+      if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
+        value = ( ( hash_entry * ) e->data )->value;
+        break;
+      }
+    }
+  }
+
+  MUTEX_UNLOCK( table );
+
+  return value;
+}
+
+
 static void *
 find_list_element_from_buckets( const hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -146,32 +177,6 @@ find_list_element_from_buckets( const hash_table *table, const void *key ) {
     }
   }
   return e;
-}
-
-
-/**
- * Looks up a key in a hash_table.
- *
- * @param table a hash_table.
- * @param key the key to look up.
- * @return the associated value, or NULL if the key is not found.
- */
-void *
-lookup_hash_entry( hash_table *table, const void *key ) {
-  assert( table != NULL );
-  assert( key != NULL );
-
-  MUTEX_LOCK( table );
-
-  dlist_element *e = find_list_element_from_buckets( table, key );
-  if ( e != NULL ) {
-    MUTEX_UNLOCK( table );
-    return ( ( hash_entry * ) e->data )->value;
-  }
-
-  MUTEX_UNLOCK( table );
-
-  return NULL;
 }
 
 
