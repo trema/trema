@@ -254,28 +254,37 @@ map_hash( hash_table *table, const void *key, void function( void *value, void *
 }
 
 
+/**
+ * Calls the given function for each of the key/value pairs in the
+ * hash_table. The function is passed the key and value of each pair,
+ * and the given user_data parameter.
+ *
+ * @param table a hash_table.
+ * @param function the function to call for each key/value pair.
+ * @param user_data user data to pass to the function.
+ */
 void
 foreach_hash( hash_table *table, void function( void *key, void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
-  dlist_element *nonempty = NULL;
-  for ( nonempty = table->nonempty_bucket_index->next; nonempty; ) {
+  for ( dlist_element *nonempty = table->nonempty_bucket_index->next; nonempty; ) {
     int i = ( int ) ( unsigned long ) nonempty->data;
     nonempty = nonempty->next;
-    dlist_element *e = NULL;
+
     if ( table->buckets[ i ] == NULL ) {
       continue;
     }
-    for ( e = table->buckets[ i ]->next; e; ) {
-      hash_entry *he = e->data;
+
+    for ( dlist_element *e = table->buckets[ i ]->next; e; ) {
+      hash_entry *h = e->data;
       e = e->next;
-      function( he->key, he->value, user_data );
+      function( h->key, h->value, user_data );
     }
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 }
 
 
