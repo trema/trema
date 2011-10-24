@@ -223,22 +223,24 @@ delete_hash_entry( hash_table *table, const void *key ) {
 void
 map_hash( hash_table *table, const void *key, void function( void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
+  assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
   unsigned int i = get_bucket_index( table, key );
+
   if ( table->buckets[ i ] == NULL ) {
-    pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+    MUTEX_UNLOCK( table );
     return;
   }
-  dlist_element *e = NULL;
-  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
+
+  for ( dlist_element *e = table->buckets[ i ]->next; e; e = e->next ) {
     if ( ( table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
       function( ( ( hash_entry * ) e->data )->value, user_data );
     }
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 }
 
 
