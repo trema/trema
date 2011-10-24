@@ -344,29 +344,38 @@ init_hash_iterator( hash_table *table, hash_iterator *iterator ) {
 }
 
 
+/**
+ * Advances iterator and retrieves the hash_entry that are now pointed
+ * to as a result of this advancement. If NULL is returned, the
+ * iterator becomes invalid.
+ *
+ * @param iterator a hash_iterator.
+ * @return a hash_entry.
+ */
 hash_entry *
-iterate_hash_next( hash_iterator *iter ) {
-  assert( iter != NULL );
+iterate_hash_next( hash_iterator *iterator ) {
+  assert( iterator != NULL );
 
   for ( ;; ) {
-    if ( iter->bucket_index == NULL ) {
+    if ( iterator->bucket_index == NULL ) {
       return NULL;
     }
 
-    dlist_element *e = iter->element;
+    dlist_element *e = iterator->element;
     if ( e == NULL ) { 
-      if ( iter->next_bucket_index != NULL ) {
-        iter->bucket_index = iter->next_bucket_index;
-        iter->next_bucket_index = iter->next_bucket_index->next;
-        assert( iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ] != NULL );
-        iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ]->next;
+      if ( iterator->next_bucket_index != NULL ) {
+        iterator->bucket_index = iterator->next_bucket_index;
+        iterator->next_bucket_index = iterator->next_bucket_index->next;
+        int bucket_index = ( int ) ( unsigned long ) iterator->bucket_index->data;
+        assert( iterator->buckets[ bucket_index ] != NULL );
+        iterator->element = iterator->buckets[ bucket_index ]->next;
       }
       else {
         return NULL;
       }
     }
     else {
-      iter->element = e->next;
+      iterator->element = e->next;
       return e->data;
     }
   }
