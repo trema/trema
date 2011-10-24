@@ -197,8 +197,10 @@ lookup_hash_entry( hash_table *table, const void *key ) {
 
 static void
 delete_bucket( hash_table *table, unsigned int bucket_index ) {
-  delete_dlist_element( table->buckets[ bucket_index ]->data );
-  table->buckets[ bucket_index ]->data = NULL;
+  if ( table->buckets[ bucket_index ]->data != NULL ) {
+    delete_dlist_element( table->buckets[ bucket_index ]->data );
+    table->buckets[ bucket_index ]->data = NULL;
+  }
 
   delete_dlist( table->buckets[ bucket_index ] );
   table->buckets[ bucket_index ] = NULL;
@@ -382,6 +384,11 @@ iterate_hash_next( hash_iterator *iterator ) {
 }
 
 
+/**
+ * Deletes a hash_table.
+ *
+ * @param table a hash_table.
+ */
 void
 delete_hash( hash_table *table ) {
   assert( table != NULL );
@@ -389,31 +396,23 @@ delete_hash( hash_table *table ) {
   pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
   pthread_mutex_t *mutex = ( ( private_hash_table * ) table )->mutex;
 
-  bool dlist_deleted = false;
-
   unsigned int i;
   for ( i = 0; i < table->number_of_buckets; i++ ) {
     if ( table->buckets[ i ] == NULL ) {
       continue;
     }
-    dlist_element *e = NULL;
-    for ( e = table->buckets[ i ]->next; e != NULL; ) {
+
+    for ( dlist_element *e = table->buckets[ i ]->next; e != NULL; ) {
       dlist_element *delete_me = e;
       e = e->next;
       xfree( delete_me->data );
     }
-    if ( table->buckets[ i ]->data != NULL ) {
-      dlist_deleted = delete_dlist_element( table->buckets[ i ]->data );
-      assert( dlist_deleted == true );
-    }
-    table->buckets[ i ]->data = NULL;
-    dlist_deleted = delete_dlist( table->buckets[ i ] );
-    assert( dlist_deleted == true );
+
+    delete_bucket( table, i );
   }
   xfree( table->buckets );
 
-  dlist_deleted = delete_dlist( table->nonempty_bucket_index );
-  assert( dlist_deleted == true );
+  delete_dlist( table->nonempty_bucket_index );
 
   xfree( table );
 
