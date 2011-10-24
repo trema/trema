@@ -57,7 +57,6 @@ create_hash( const compare_function compare, const hash_function hash ) {
   table->public.buckets = xmalloc( sizeof( dlist_element * ) * default_hash_size );
   memset( table->public.buckets, 0, sizeof( dlist_element * ) * default_hash_size );
   table->public.nonempty_bucket_index = create_dlist();
-  assert( table->public.nonempty_bucket_index != NULL );
 
   pthread_mutexattr_t attr;
   pthread_mutexattr_init( &attr );
@@ -75,6 +74,13 @@ get_bucket_index( const hash_table *table, const void *key ) {
   assert( key != NULL );
 
   return ( *table->hash )( key ) % table->number_of_buckets;
+}
+
+
+static void
+new_bucket( hash_table *table, unsigned int bucket_index ) {
+  table->buckets[ bucket_index ] = create_dlist();
+  table->buckets[ bucket_index ]->data = insert_after_dlist( table->nonempty_bucket_index, ( void * ) ( unsigned long ) bucket_index );
 }
 
 
@@ -103,8 +109,7 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
   unsigned int i = get_bucket_index( table, key );
 
   if ( table->buckets[ i ] == NULL ) {
-    table->buckets[ i ] = create_dlist();
-    table->buckets[ i ]->data = insert_after_dlist( table->nonempty_bucket_index, ( void * ) ( unsigned long ) i );
+    new_bucket( table, i );
   }
   else {
     dlist_element *old_element = NULL;
@@ -161,6 +166,16 @@ lookup_hash_entry( hash_table *table, const void *key ) {
 }
 
 
+static void
+delete_bucket( hash_table *table, unsigned int bucket_index ) {
+  delete_dlist_element( table->buckets[ bucket_index ]->data );
+  table->buckets[ bucket_index ]->data = NULL;
+
+  delete_dlist( table->buckets[ bucket_index ] );
+  table->buckets[ bucket_index ] = NULL;
+}
+
+
 /**
  * Deletes a key and its associated value from a hash_table.
  *
@@ -196,10 +211,7 @@ delete_hash_entry( hash_table *table, const void *key ) {
   }
 
   if ( table->buckets[ i ]->next == NULL ) {
-    delete_dlist_element( table->buckets[ i ]->data );
-    table->buckets[ i ]->data = NULL;
-    delete_dlist( table->buckets[ i ] );
-    table->buckets[ i ] = NULL;
+    delete_bucket( table, i );
   }
 
   MUTEX_UNLOCK( table );
