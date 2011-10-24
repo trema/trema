@@ -161,52 +161,49 @@ lookup_hash_entry( hash_table *table, const void *key ) {
 }
 
 
-static void *
-find_list_element_from_buckets( const hash_table *table, const void *key ) {
-  assert( table != NULL );
-  assert( key != NULL );
-
-  dlist_element *e = NULL;
-  unsigned int i = get_bucket_index( table, key );
-  if ( table->buckets[ i ] == NULL ) {
-    return NULL;
-  }
-  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
-    if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
-      break;
-    }
-  }
-  return e;
-}
-
-
+/**
+ * Deletes a key and its associated value from a hash_table.
+ *
+ * @param table a hash_table.
+ * @param key the key to remove
+ * @return the value deleted from the hash_table.
+ */
 void *
 delete_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
-  dlist_element *e = find_list_element_from_buckets( table, key );
-  if ( e == NULL ) {
-    pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  unsigned int i = get_bucket_index( table, key );
+
+  if ( table->buckets[ i ] == NULL ) {
+    MUTEX_UNLOCK( table );
     return NULL;
   }
 
-  hash_entry *delete_me = e->data;
-  void *deleted = delete_me->value;
-  delete_dlist_element( e );
-  xfree( delete_me );
-  unsigned int i = get_bucket_index( table, key );
-  assert( table->buckets[ i ] != NULL );
+  void *deleted = NULL;
+  dlist_element *e = NULL;
+  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
+    if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
+      hash_entry *delete_me = e->data;
+      deleted = delete_me->value;
+      delete_dlist_element( e );
+      xfree( delete_me );
+      table->length--;
+      break;
+    }
+  }
+
   if ( table->buckets[ i ]->next == NULL ) {
     delete_dlist_element( table->buckets[ i ]->data );
     table->buckets[ i ]->data = NULL;
     delete_dlist( table->buckets[ i ] );
     table->buckets[ i ] = NULL;
   }
-  table->length--;
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+
+  MUTEX_UNLOCK( table );
+
   return deleted;
 }
 
