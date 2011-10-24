@@ -34,18 +34,47 @@ typedef struct {
 } private_hash_table;
 
 
+/**
+ * Compares two pointer arguments and returns true if they are
+ * equal. It can be passed to create_hash() as the key_equal_func
+ * parameter, when using pointers as keys in a hash_table.
+ *
+ * @param x a key.
+ * @param y a key to compare with x.
+ * @return true if the two keys match.
+ */
 bool
 compare_atom( const void *x, const void *y ) {
   return x == y;
 }
 
 
+/**
+ * Converts a pointer to a hash value. It can be passed to
+ * create_hash() as the hash parameter, when using pointers as keys in
+ * a hash_table.
+ *
+ * @param key a pointer key.
+ * @return a hash value corresponding to the key.
+ */
 unsigned int
 hash_atom( const void *key ) {
   return ( unsigned int ) ( ( unsigned long ) key >> 2 );
 }
 
 
+/**
+ * Creates a new hash_table.
+ *
+ * @param compare a function to check two keys for equality. This is
+ *        used when looking up keys in the hash_table. If compare is
+ *        NULL, keys are compared by compare_atom().
+ * @param hash a function to create a hash value from a key. Hash
+ *        values are used to determine where keys are stored within
+ *        the hash_table data structure. If hash_func is NULL,
+ *        hash_atom() is used.
+ * @return a new hash_table.
+ */
 hash_table *
 create_hash( const compare_function compare, const hash_function hash ) {
   private_hash_table *table = xmalloc( sizeof( private_hash_table ) );
