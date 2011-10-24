@@ -317,21 +317,29 @@ foreach_hash( hash_table *table, void function( void *key, void *value, void *us
 }
 
 
+/**
+ * Initializes a key/value pair iterator and associates it with
+ * hash_table. Modifying the hash table after calling this function
+ * invalidates the returned iterator.
+ *
+ * @param table a hash_table.
+ * @param iterator an uninitialized hash_iterator
+ */
 void
-init_hash_iterator( hash_table *table, hash_iterator *iter ) {
+init_hash_iterator( hash_table *table, hash_iterator *iterator ) {
   assert( table != NULL );
-  assert( iter != NULL );
+  assert( iterator != NULL );
 
-  iter->buckets = table->buckets;
+  iterator->buckets = table->buckets;
   if ( table->nonempty_bucket_index->next ) {
-    iter->bucket_index = table->nonempty_bucket_index->next;
-    iter->next_bucket_index = iter->bucket_index->next;
-    assert( iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ] != NULL );
-    iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ]->next;
+    iterator->bucket_index = table->nonempty_bucket_index->next;
+    iterator->next_bucket_index = iterator->bucket_index->next;
+    assert( iterator->buckets[ ( int ) ( unsigned long ) iterator->bucket_index->data ] != NULL );
+    iterator->element = iterator->buckets[ ( int ) ( unsigned long ) iterator->bucket_index->data ]->next;
   }
   else {
-    iter->bucket_index = NULL;
-    iter->element = NULL;
+    iterator->bucket_index = NULL;
+    iterator->element = NULL;
   }
 }
 
