@@ -97,6 +97,10 @@ find_list_element_from_buckets( const hash_table *table, const void *key ) {
 }
 
 
+#define MUTEX_LOCK( table ) pthread_mutex_lock( ( ( private_hash_table * ) ( table ) )->mutex )
+#define MUTEX_UNLOCK( table ) pthread_mutex_unlock( ( ( private_hash_table * ) ( table ) )->mutex )
+
+
 /**
  * Inserts a new key and value into a hash_table. If the key already
  * exists in the hash_table its current value is replaced with the new
@@ -112,17 +116,26 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
+  void *old_value = NULL;
   unsigned int i = get_bucket_index( table, key );
+
   if ( table->buckets[ i ] == NULL ) {
     table->buckets[ i ] = create_dlist();
-  }
-  if ( table->buckets[ i ]->next == NULL ) {
     table->buckets[ i ]->data = insert_after_dlist( table->nonempty_bucket_index, ( void * ) ( unsigned long ) i );
   }
-
-  dlist_element *old_elem = find_list_element_from_buckets( table, key );
+  else {
+    dlist_element *old_element = NULL;
+    for ( old_element = table->buckets[ i ]->next; old_element; old_element = old_element->next ) {
+      if ( ( *table->compare )( key, ( ( hash_entry * ) old_element->data )->key ) ) {
+        break;
+      }
+    }
+    if ( old_element != NULL ) {
+      old_value = ( ( hash_entry * ) old_element->data )->value;
+    }
+  }
 
   hash_entry *new_entry = xmalloc( sizeof( hash_entry ) );
   new_entry->key = key;
@@ -130,14 +143,9 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
   insert_after_dlist( table->buckets[ i ], new_entry );
   table->length++;
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 
-  if ( old_elem == NULL ) {
-    return NULL;
-  }
-  else {
-    return ( ( hash_entry * ) old_elem->data )->value;
-  }
+  return old_value;
 }
 
 
@@ -181,6 +189,8 @@ delete_hash_entry( hash_table *table, const void *key ) {
   if ( table->buckets[ i ]->next == NULL ) {
     delete_dlist_element( table->buckets[ i ]->data );
     table->buckets[ i ]->data = NULL;
+    delete_dlist( table->buckets[ i ] );
+    table->buckets[ i ] = NULL;
   }
   table->length--;
   pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
