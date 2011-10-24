@@ -97,6 +97,16 @@ find_list_element_from_buckets( const hash_table *table, const void *key ) {
 }
 
 
+/**
+ * Inserts a new key and value into a hash_table. If the key already
+ * exists in the hash_table its current value is replaced with the new
+ * value.
+ *
+ * @param table a hash_table.
+ * @param key a key to insert.
+ * @param value the value to associate with the key.
+ * @return the old value associated with the key.
+ */
 void *
 insert_hash_entry( hash_table *table, void *key, void *value ) {
   assert( table != NULL );
