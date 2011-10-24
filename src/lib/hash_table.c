@@ -220,6 +220,16 @@ delete_hash_entry( hash_table *table, const void *key ) {
 }
 
 
+/**
+ * Calls the given function for each of the values in the hash_table
+ * associated with the given key parameter. The function is passed a
+ * key and the given user_data parameter.
+ *
+ * @param table a hash_table.
+ * @param key the key to look up.
+ * @param function the function to call for each key.
+ * @param user_data user data to pass to the function.
+ */
 void
 map_hash( hash_table *table, const void *key, void function( void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
