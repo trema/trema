@@ -161,15 +161,16 @@ lookup_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
   dlist_element *e = find_list_element_from_buckets( table, key );
   if ( e != NULL ) {
-    pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+    MUTEX_UNLOCK( table );
     return ( ( hash_entry * ) e->data )->value;
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
+
   return NULL;
 }
 
