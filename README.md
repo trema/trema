@@ -112,8 +112,3 @@ please do not submit the Contribution:
    programs, you notify to Project maintainers including NEC
    Corporation ("Maintainers") the author, the license condition, and
    the name of such third parties' programs.
-
-4. In the event that the Maintainers incorporates the Contribution
-   into the Program, your name will not be indicated in the copyright
-   notice of the Program, but will be indicated in the contributor
-   list on the Project website.

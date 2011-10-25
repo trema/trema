@@ -59,6 +59,7 @@ task :examples => [
   "examples:packet_in",
   "examples:repeater_hub",                 
   "examples:switch_info",
+  "examples:switch_monitor",
 ]
 
 
@@ -564,6 +565,7 @@ standalone_examples = [
   "packet_in",
   "repeater_hub",
   "switch_info",
+  "switch_monitor",
 ]
 
 standalone_examples.each do | each |
