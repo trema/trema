@@ -3948,7 +3948,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
       if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
         warn( "Invalid vlan id ( change %u to %u )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
-	match->dl_vlan = match->dl_vlan & VLAN_VID_MASK;
+	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
       }
     }
     else {
@@ -3960,7 +3960,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
       if ( ( match->dl_vlan_pcp & ~VLAN_PCP_MASK ) != 0 ) {
         warn( "Invalid vlan pcp ( change %u to %u )", match->dl_vlan_pcp, match->dl_vlan_pcp & VLAN_PCP_MASK );
-	match->dl_vlan_pcp = match->dl_vlan_pcp & VLAN_PCP_MASK;
+	match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
       }
     }
   }
@@ -3972,7 +3972,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
       if ( ( match->nw_tos & ~NW_TOS_MASK ) != 0 ) {
         warn( "Invalid ipv4 tos ( change %u to %u )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
-        match->nw_tos = match->nw_tos & NW_TOS_MASK;
+        match->nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
       }
     }
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
