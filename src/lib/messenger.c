@@ -1501,6 +1501,9 @@ on_send_read( int fd, void *data ) {
     if ( sq->buffer->data_length > 0 ) {
       send_queue_try_connect( sq );
     }
+    else {
+      delete_send_queue( sq );
+    }
   }
 }
 
