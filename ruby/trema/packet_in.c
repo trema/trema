@@ -23,6 +23,8 @@
 #include "ruby.h"
 #include "trema.h"
 
+#include "packet_shared.h"
+
 
 extern VALUE mTrema;
 VALUE cPacketIn;
@@ -56,6 +58,14 @@ get_packet_in( VALUE self ) {
   packet_in *cpacket;
   Data_Get_Struct( self, packet_in, cpacket );
   return cpacket;
+}
+
+
+static packet_info *
+get_packet_shared_info( VALUE self ) {
+  packet_in *cpacket;
+  Data_Get_Struct( self, packet_in, cpacket );
+  return ( packet_info * ) cpacket->data->user_data;
 }
 
 
@@ -164,9 +174,7 @@ packet_in_reason( VALUE self ) {
  */
 static VALUE
 packet_in_macsa( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macsa ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
+  PACKET_SHARED_RETURN_MAC( eth_macsa );
 }
 
 
@@ -177,14 +185,73 @@ packet_in_macsa( VALUE self ) {
  */
 static VALUE
 packet_in_macda( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macda ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
+  PACKET_SHARED_RETURN_MAC( eth_macda );
+}
+
+
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
+static VALUE
+packet_in_is_arp( VALUE self ) {
+  if ( ( get_packet_shared_info( self )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_sha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC( arp_sha );
+}
+
+
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
+static VALUE
+packet_in_arp_spa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_spa );
+}
+
+
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_tha( VALUE self ) {
+  PACKET_SHARED_RETURN_MAC(arp_tha);
+}
+
+
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
+static VALUE
+packet_in_arp_tpa( VALUE self ) {
+  PACKET_SHARED_RETURN_IP( arp_tpa );
 }
 
 
 void
 Init_packet_in() {
+  rb_require( "trema/ip" );
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
@@ -203,8 +270,14 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "total_len", packet_in_total_len, 0 );
   rb_define_method( cPacketIn, "reason", packet_in_reason, 0 );
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
+
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+  rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
 }
 
 

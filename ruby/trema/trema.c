@@ -28,6 +28,7 @@
 #include "hello.h"
 #include "logger.h"
 #include "packet_in.h"
+#include "packet_out.h"
 #include "port.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
@@ -98,6 +99,7 @@ Init_trema() {
   Init_hello();
   Init_match();
   Init_packet_in();
+  Init_packet_out();
   Init_port();
   Init_flow_removed();
   Init_port_status();

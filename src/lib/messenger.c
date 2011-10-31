@@ -859,7 +859,7 @@ send_queue_connect_timer( send_queue *sq ) {
   }
   if ( sq->running_timer ) {
     sq->running_timer = false;
-    delete_timer_event_callback( ( void (*)(void *) )send_queue_connect_timeout );
+    delete_timer_event( ( timer_callback_t )send_queue_connect_timeout, sq );
   }
 
   int ret = send_queue_connect( sq );

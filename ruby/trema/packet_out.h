@@ -1,9 +1,9 @@
 /*
- * Timer events and callbacks.
+ * Ruby wrapper class of OpenFlow packet_out message.
  *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
+ * Author: Jari Sundell
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2011 axsh Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -20,28 +20,21 @@
  */
 
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef PACKET_OUT_H
+#define PACKET_OUT_H
 
 
-#include <stdbool.h>
-#include <time.h>
+#include "ruby.h"
+#include "trema.h"
 
 
-typedef void ( *timer_callback_t )( void *user_data );
-
-extern bool ( *init_timer )( void );
-extern bool ( *finalize_timer )( void );
-
-extern bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data );
-extern bool ( *add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data );
-
-extern bool ( *delete_timer_event )( timer_callback_t callback, void *user_data );
-
-extern void ( *execute_timer_events )( void );
+extern VALUE cPacketOut;
 
 
-#endif // TIMER_H
+void Init_packet_out( void );
+
+
+#endif // PACKET_OUT_H
 
 
 /*
