@@ -29,6 +29,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/un.h>
 #include <unistd.h>
 #include "trema.h"
 #include "secure_channel_listener.h"
@@ -169,36 +170,25 @@ secure_channel_listen_inet( struct listener_info *listener_info ) {
 
 bool
 secure_channel_listen_unix( struct listener_info *listener_info ) {
-  int listen_fd;
-  int flag;
-  int ret;
-
   if ( listener_info->listen_fd >= 0 ) {
     close( listener_info->listen_fd );
   }
   listener_info->listen_fd = -1;
 
-  listen_fd = socket( PF_UNIX, SOCK_STREAM, 0 );
+  int listen_fd = socket( PF_UNIX, SOCK_STREAM, 0 );
   if ( listen_fd < 0 ) {
     error( "Failed to create socket." );
     return false;
   }
 
-  /* flag = 1; */
+  size_t path_length = strlen( listener_info->listen_path );
+  socklen_t sockaddr_length = ( socklen_t )( offsetof( struct sockaddr_un, sun_path ) + path_length + 1 );
+  struct sockaddr_un* addr = xmalloc( sockaddr_length );
 
-  /* ret = setsockopt( listen_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof( flag ) ); */
-  /* if ( ret < 0 ) { */
-  /*   warn( "Failed to set socket options." ); */
-  /* } */
+  addr->sun_family = PF_LOCAL;
+  memcpy( addr->sun_path, listener_info->listen_path, path_length + 1 );
 
-  int path_length = strlen( listener_info->listen_path );
-  int sockaddr_length = offsetof( struct sockaddr_un, sun_path ) + path_length + 1;
-  struct sockaddr_un* addr = xalloc( sockaddr_length );
-
-  addr.sun_family = PF_LOCAL;
-  strcpy( addr->sun_path, listener_info->listen_path, path_length + 1 )
-
-  ret = bind( listen_fd, ( struct sockaddr * ) &addr, sockaddr_length );
+  int ret = bind( listen_fd, ( struct sockaddr * ) addr, sockaddr_length );
   xfree( addr );
 
   if ( ret < 0 ) {
