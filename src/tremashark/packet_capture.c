@@ -30,6 +30,7 @@
 #include <string.h>
 #include <time.h>
 #include "queue.h"
+#include "timer.h"
 #include "trema.h"
 
 
