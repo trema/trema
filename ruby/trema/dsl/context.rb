@@ -45,6 +45,18 @@ module Trema
       attr_accessor :port
 
       #
+      # set/get the unix path for switch manager to listen to
+      #
+      # @example
+      #   context.unix_path = /usr/local/var/run/openvswitch/br0.controller
+      #
+      # @return [String]
+      #
+      # @api public
+      #
+      attr_accessor :unix_path
+
+      #
       # use tremashark?
       #
       # @example
@@ -121,6 +133,7 @@ module Trema
       #
       def initialize
         @port = 6633
+        @unix_path = nil
         @tremashark = false
         @apps = Trema::App.instances.clear
         @hosts = Trema::Host.instances.clear
