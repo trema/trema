@@ -28,6 +28,15 @@ extern VALUE mTrema;
 VALUE cPacketIn;
 
 
+#define PACKET_IN_RETURN_MAC(packet_member)                         \
+  VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );
+
+#define PACKET_IN_RETURN_IP(packet_member)                          \
+  VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret );
+
+
 #if 0
 /*
  * @overload initialize()
@@ -56,6 +65,14 @@ get_packet_in( VALUE self ) {
   packet_in *cpacket;
   Data_Get_Struct( self, packet_in, cpacket );
   return cpacket;
+}
+
+
+static packet_info *
+get_packet_in_info( VALUE self ) {
+  packet_in *cpacket;
+  Data_Get_Struct( self, packet_in, cpacket );
+  return ( packet_info * ) cpacket->data->user_data;
 }
 
 
@@ -164,9 +181,7 @@ packet_in_reason( VALUE self ) {
  */
 static VALUE
 packet_in_macsa( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macsa ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
+  PACKET_IN_RETURN_MAC( eth_macsa );
 }
 
 
@@ -177,14 +192,149 @@ packet_in_macsa( VALUE self ) {
  */
 static VALUE
 packet_in_macda( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macda ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
+  PACKET_IN_RETURN_MAC( eth_macda );
+}
+
+
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
+static VALUE
+packet_in_is_arp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_sha( VALUE self ) {
+  PACKET_IN_RETURN_MAC( arp_sha );
+}
+
+
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
+static VALUE
+packet_in_arp_spa( VALUE self ) {
+  PACKET_IN_RETURN_IP( arp_spa );
+}
+
+
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_tha( VALUE self ) {
+  PACKET_IN_RETURN_MAC(arp_tha);
+}
+
+
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
+static VALUE
+packet_in_arp_tpa( VALUE self ) {
+  PACKET_IN_RETURN_IP( arp_tpa );
+}
+
+
+/*
+ * Is an IPV4 packet?
+ *
+ * @return [bool] ipv4? Is an IPV4 packet?
+ */
+static VALUE
+packet_in_is_ipv4( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The IPV4 source protocol address.
+ *
+ * @return [Trema::IP] ipv4_saddr IP protocol address.
+ */
+static VALUE
+packet_in_ipv4_saddr( VALUE self ) {
+  PACKET_IN_RETURN_IP( ipv4_saddr );
+}
+
+
+/*
+ * The IPV4 destination protocol address.
+ *
+ * @return [Trema::IP] ipv4_daddr IP protocol address.
+ */
+static VALUE
+packet_in_ipv4_daddr( VALUE self ) {
+  PACKET_IN_RETURN_IP( ipv4_daddr );
+}
+
+
+/*
+ * Is an TCP packet?
+ *
+ * @return [bool] tcp? Is an TCP packet?
+ */
+static VALUE
+packet_in_is_tcp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & TP_TCP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The TCP source port.
+ *
+ * @return [Trema::IP] tcp_src_port TCP port.
+ */
+static VALUE
+packet_in_tcp_src_port( VALUE self ) {
+  PACKET_IN_RETURN_IP( tcp_src_port );
+}
+
+
+/*
+ * The TCP destination port.
+ *
+ * @return [Trema::IP] tcp_dst_port TCP port.
+ */
+static VALUE
+packet_in_tcp_dst_port( VALUE self ) {
+  PACKET_IN_RETURN_IP( tcp_dst_port );
 }
 
 
 void
 Init_packet_in() {
+  rb_require( "trema/ip" );
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
@@ -203,8 +353,23 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "total_len", packet_in_total_len, 0 );
   rb_define_method( cPacketIn, "reason", packet_in_reason, 0 );
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
+
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+
+  rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
+
+  rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
+  rb_define_method( cPacketIn, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
+  rb_define_method( cPacketIn, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+
+  rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
+  rb_define_method( cPacketIn, "tcp_src_port", packet_in_tcp_src_port, 0 );
+  rb_define_method( cPacketIn, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
 }
 
 
