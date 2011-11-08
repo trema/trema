@@ -317,7 +317,7 @@ packet_in_is_tcp( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
-  PACKET_IN_RETURN_IP( tcp_src_port );
+  return ULONG2NUM( get_packet_in_info( self )->tcp_src_port );
 }
 
 
@@ -328,7 +328,7 @@ packet_in_tcp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
-  PACKET_IN_RETURN_IP( tcp_dst_port );
+  return ULONG2NUM( get_packet_in_info( self )->tcp_dst_port );
 }
 
 
