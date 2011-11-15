@@ -27,6 +27,9 @@ require "fdb"
 module Trema
   module Model
     class Options
+      attr_reader :options
+
+
       def self.parse args
         new.parse!( args )
       end
@@ -51,11 +54,6 @@ module Trema
         @options[ key ] = value
       end
 
-
-      def options
-        @options
-      end
-      
 
       def merge other
         @options.merge other.options
