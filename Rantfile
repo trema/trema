@@ -35,6 +35,7 @@ import "directedrule"
 desc "Build trema."
 task :default => [
   :libtrema,
+  :libtopology,
   :rubylib,
   :switch_manager,
   :switch,
@@ -318,6 +319,33 @@ end
 
 
 ################################################################################
+# Build libtopology.a
+################################################################################
+
+build_libtopology_a = Proc.new do | t |
+  sys "rm -f #{ t.name }"
+  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
+  sys "ranlib #{ t.name }"
+end
+
+gen C::Dependencies, dependency( "libtopology" ),
+  :search => [ trema_include ],
+  :sources => sys[ "#{ trema_include }/*.c" ]
+
+gen Directory, trema_lib
+libtopology = File.join( trema_lib, "libtopology.a" )
+
+libtopology_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+desc "Build topology library."
+task :libtopology => libtopology
+file libtopology => libtopology_o.candidates do | t |
+  build_libtopology_a.call t
+end
+
+################################################################################
 # Build libtrema.a
 ################################################################################
 
@@ -376,7 +404,7 @@ desc "Build ruby library."
 task :rubylib => "ruby/trema.so"
 file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h", libtrema ] do
   sys.cd "ruby" do
-    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
+    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-topology-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
     sys "make"
   end
 end
