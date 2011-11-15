@@ -104,6 +104,15 @@ module Trema
     end
 
 
+    #
+    # @return [Boolean] if MAC address is multicast or not.
+    #
+    def is_multicast?
+      # check I/G bit
+      return to_short[0] & 1 == 1
+    end
+
+
     ################################################################################
     private
     ################################################################################
