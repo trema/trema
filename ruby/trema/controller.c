@@ -171,7 +171,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem == Qfalse ) {
-      flags &= ~OFPFF_SEND_FLOW_REM;
+      flags &= ( uint16_t ) ~OFPFF_SEND_FLOW_REM;
     }
 
     VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
