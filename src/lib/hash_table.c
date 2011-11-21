@@ -308,7 +308,7 @@ foreach_hash( hash_table *table, void function( void *key, void *value, void *us
       continue;
     }
 
-    for ( dlist_element *e = table->buckets[ i ]->next; e; ) {
+    for ( dlist_element *e = table->buckets[ i ]->next; e != NULL; ) {
       hash_entry *h = e->data;
       e = e->next;
       function( h->key, h->value, user_data );
@@ -396,8 +396,9 @@ delete_hash( hash_table *table ) {
   pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
   pthread_mutex_t *mutex = ( ( private_hash_table * ) table )->mutex;
 
-  unsigned int i;
-  for ( i = 0; i < table->number_of_buckets; i++ ) {
+  for ( dlist_element *nonempty = table->nonempty_bucket_index->next; nonempty; ) {
+    unsigned int i = ( unsigned int ) ( unsigned long ) nonempty->data;
+    nonempty = nonempty->next;
     if ( table->buckets[ i ] == NULL ) {
       continue;
     }
