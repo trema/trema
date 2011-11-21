@@ -24,7 +24,7 @@ end
 
 
 Then /^I should not get errors$/ do
-  Then "the output should be:", ""
+  step "the output should be:", ""
 end
 
 
