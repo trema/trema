@@ -57,7 +57,7 @@ end
 
 
 When /^I try trema run "([^"]*)" with following configuration:$/ do | args, config |
-  When "I try trema run \"#{ args }\" with following configuration (no options):", config
+  step "I try trema run \"#{ args }\" with following configuration (no options):", config
 end
 
 
