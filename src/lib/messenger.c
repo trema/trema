@@ -192,7 +192,7 @@ typedef struct send_queue {
 
 #define MESSENGER_RECV_BUFFER 100000
 static const uint32_t messenger_send_queue_length = MESSENGER_RECV_BUFFER * 4;
-static const uint32_t messenger_bucket_size = MESSENGER_RECV_BUFFER / 16;
+static const uint32_t messenger_bucket_size = MESSENGER_RECV_BUFFER;
 static const uint32_t messenger_recv_queue_length = MESSENGER_RECV_BUFFER * 2;
 static const uint32_t messenger_recv_queue_reserved = MESSENGER_RECV_BUFFER;
 
