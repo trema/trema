@@ -33,7 +33,7 @@ def method_for sub_command
     when "run", "start"
       return :run
     when "kill", "stop", "off"
-      return :kill 
+      return :kill
     when "killall"
       return :killall
     when "send_packets"
