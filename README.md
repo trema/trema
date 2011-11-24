@@ -48,8 +48,7 @@ provided, so you can run them as a sample of OpenFlow
 controllers. Additionally, a simple but powerful framework that
 emulates an OpenFlow-based network and end-hosts is provided for
 testing your own controllers. For debugging, a wireshark plug-in to
-diagnosis internal data-flows among functional modules is
-provided.
+diagnose internal data-flows among functional modules is provided.
 
 Please refer to the quick start guide
 (https://github.com/trema/trema/wiki/Quick-start) for details.
