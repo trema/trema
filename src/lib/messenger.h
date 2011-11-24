@@ -111,25 +111,29 @@ typedef struct text_dump_header {
 typedef void ( *callback_message_received )( uint16_t tag, void *data, size_t len );
 
 
-bool init_messenger( const char *working_directory );
-bool add_message_received_callback( const char *service_name, const callback_message_received function );
-bool add_message_requested_callback( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
-bool add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
+extern bool ( *add_message_received_callback )( const char *service_name, const callback_message_received function );
+extern bool ( *rename_message_received_callback )( const char *old_service_name, const char *new_service_name );
+extern bool ( *delete_message_received_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) );
+extern bool ( *add_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
+extern bool ( *delete_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
+extern bool ( *add_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
+extern bool ( *delete_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
+extern bool ( *send_message )( const char *service_name, const uint16_t tag, const void *data, size_t len );
+extern bool ( *send_request_message )( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data );
+extern bool ( *send_reply_message )( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len );
+
 bool add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data );
 bool add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
-bool delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) );
-bool delete_message_requested_callback( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
-bool delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
 bool delete_timer_event_callback( void ( *callback )( void *user_data ) );
 bool delete_periodic_event_callback( void ( *callback )( void *user_data ) );
-bool rename_message_received_callback( const char *old_service_name, const char *new_service_name );
-bool send_message( const char *service_name, const uint16_t tag, const void *data, size_t len );
-bool send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data );
-bool send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len );
-int flush_messenger( void );
-bool start_messenger( void );
-bool stop_messenger( void );
+
+bool init_messenger( const char *working_directory );
 bool finalize_messenger( void );
+
+bool start_messenger( void );
+int flush_messenger( void );
+bool stop_messenger( void );
+
 void start_messenger_dump( const char *dump_app_name, const char *dump_service_name );
 void stop_messenger_dump( void );
 bool messenger_dump_enabled( void );

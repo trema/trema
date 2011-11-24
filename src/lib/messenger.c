@@ -627,8 +627,8 @@ add_message_callback( const char *service_name, uint8_t message_type, void *call
 }
 
 
-bool
-add_message_received_callback( const char *service_name, const callback_message_received callback ) {
+static bool
+_add_message_received_callback( const char *service_name, const callback_message_received callback ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -637,11 +637,12 @@ add_message_received_callback( const char *service_name, const callback_message_
 
   return add_message_callback( service_name, MESSAGE_TYPE_NOTIFY, callback );
 }
+bool ( *add_message_received_callback )( const char *service_name, const callback_message_received function ) = _add_message_received_callback;
 
 
-bool
-add_message_requested_callback( const char *service_name,
-                                void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
+static bool
+_add_message_requested_callback( const char *service_name,
+                                 void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -650,10 +651,11 @@ add_message_requested_callback( const char *service_name,
 
   return add_message_callback( service_name, MESSAGE_TYPE_REQUEST, callback );
 }
+bool ( *add_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) = _add_message_requested_callback;
 
 
-bool
-add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
+static bool
+_add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -662,6 +664,7 @@ add_message_replied_callback( const char *service_name, void ( *callback )( uint
 
   return add_message_callback( service_name, MESSAGE_TYPE_REPLY, callback );
 }
+bool ( *add_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) = _add_message_replied_callback;
 
 
 static bool
@@ -703,8 +706,8 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
 }
 
 
-bool
-delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
+static bool
+_delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -713,10 +716,11 @@ delete_message_received_callback( const char *service_name, void ( *callback )( 
 
   return delete_message_callback( service_name, MESSAGE_TYPE_NOTIFY, callback );
 }
+bool ( *delete_message_received_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) = _delete_message_received_callback;
 
 
-bool
-delete_message_requested_callback( const char *service_name,
+static bool
+_delete_message_requested_callback( const char *service_name,
   void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
@@ -726,10 +730,11 @@ delete_message_requested_callback( const char *service_name,
 
   return delete_message_callback( service_name, MESSAGE_TYPE_REQUEST, callback );
 }
+bool ( *delete_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) = _delete_message_requested_callback;
 
 
-bool
-delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
+static bool
+_delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -738,10 +743,11 @@ delete_message_replied_callback( const char *service_name, void ( *callback )( u
 
   return delete_message_callback( service_name, MESSAGE_TYPE_REPLY, callback );
 }
+bool ( *delete_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) = _delete_message_replied_callback;
 
 
-bool
-rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
+static bool
+_rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
   assert( old_service_name != NULL );
   assert( new_service_name != NULL );
   assert( receive_queues != NULL );
@@ -772,6 +778,7 @@ rename_message_received_callback( const char *old_service_name, const char *new_
 
   return true;
 }
+bool ( *rename_message_received_callback )( const char *old_service_name, const char *new_service_name ) = _rename_message_received_callback;
 
 
 static size_t
@@ -1030,8 +1037,8 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 }
 
 
-bool
-send_message( const char *service_name, const uint16_t tag, const void *data, size_t len ) {
+static bool
+_send_message( const char *service_name, const uint16_t tag, const void *data, size_t len ) {
   assert( service_name != NULL );
 
   debug( "Sending a message ( service_name = %s, tag = %#x, data = %p, len = %u ).",
@@ -1039,6 +1046,7 @@ send_message( const char *service_name, const uint16_t tag, const void *data, si
 
   return push_message_to_send_queue( service_name, MESSAGE_TYPE_NOTIFY, tag, data, len );
 }
+bool ( *send_message )( const char *service_name, const uint16_t tag, const void *data, size_t len ) = _send_message;
 
 
 static messenger_context *
@@ -1058,8 +1066,8 @@ insert_context( void *user_data ) {
 }
 
 
-bool
-send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) {
+static bool
+_send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) {
   assert( to_service_name != NULL );
   assert( from_service_name != NULL );
 
@@ -1089,10 +1097,11 @@ send_request_message( const char *to_service_name, const char *from_service_name
 
   return return_value;
 }
+bool ( *send_request_message )( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) = _send_request_message;
 
 
-bool
-send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) {
+static bool
+_send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) {
   assert( handle != NULL );
 
   debug( "Sending a reply message ( handle = [ transaction_id = %#x, service_name_len = %u, service_name = %s ], "
@@ -1115,6 +1124,7 @@ send_reply_message( const messenger_context_handle *handle, const uint16_t tag, 
 
   return return_value;
 }
+bool ( *send_reply_message )( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) = _send_reply_message;
 
 
 static void
