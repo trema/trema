@@ -35,12 +35,14 @@ $coverage_threshold = 73.3
 
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
 
+require "rubygems"
+require "bundler/setup"
+
 require "English"
 require "blocker"
 require "fileutils"
 require "find"
 require "optparse"
-require "rubygems"
 require "stringio"
 require "sub-process"
 require "trema/path"
