@@ -263,6 +263,42 @@ add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char 
 }
 
 
+static int
+delete_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
+  list_element *head = delete_match_entry( match, priority );
+  if ( head == NULL ) {
+    return 0;
+  }
+
+  int n_deleted = 0;
+  int n_remaining_services = 0;
+  list_element *services = head;
+  while ( services != NULL ) {
+    char *service = services->data;
+    services = services->next;
+    if ( strcmp( service, service_name ) == 0 ) {
+      delete_element( &head, service );
+      xfree( service );
+      n_deleted++;
+    }
+    else {
+      n_remaining_services++;
+    }
+  }
+
+  if ( n_remaining_services == 0 ) {
+    if ( head != NULL ) {
+      delete_list( head );
+    }
+  }
+  else {
+    insert_match_entry( match, priority, head );
+  }
+
+  return n_deleted;
+}
+
+
 static void
 register_dl_type_filter( uint16_t dl_type, uint16_t priority, const char *service_name ) {
   struct ofp_match match;
@@ -374,11 +410,14 @@ delete_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
   UNUSED( data );
 
   if ( compare_filter_match( match_criteria, &match ) ) {
-    void *deleted = delete_match_entry( match, priority );
-    if ( deleted != NULL ) {
-      xfree( deleted );
-      delete_packetin_filter_reply *reply = reply_buffer->data;
+    delete_packetin_filter_reply *reply = reply_buffer->data;
+    list_element *head = delete_match_entry( match, priority );
+    for ( list_element *services = head; services != NULL; services = services->next ) {
+      xfree( services->data );
       reply->n_deleted++;
+    }
+    if ( head != NULL ) {
+      delete_list( head );
     }
   }
 }
@@ -395,14 +434,11 @@ handle_delete_filter_request( const messenger_context_handle *handle, delete_pac
   reply->n_deleted = 0;
 
   struct ofp_match match;
-  ntoh_match( &match, &request->match );
-  uint16_t priority = ntohs( request->priority );
+  ntoh_match( &match, &request->criteria.match );
+  uint16_t priority = ntohs( request->criteria.priority );
   if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
-    void *data = delete_match_entry( match, priority );
-    if ( data != NULL ) {
-      xfree( data );
-      reply->n_deleted++;
-    }
+    int n_deleted = delete_packetin_match_entry( match, priority, request->criteria.service_name );
+    reply->n_deleted += ( uint32_t ) n_deleted;
   }
   else {
     reply_buffer = buf;
@@ -425,11 +461,16 @@ static void
 dump_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
   if ( compare_filter_match( match_criteria, &match ) ) {
     dump_packetin_filter_reply *reply = reply_buffer->data;
-    reply->n_entries++;
-    packetin_filter_entry *entry = append_back_buffer( reply_buffer, sizeof( packetin_filter_entry ) );
-    hton_match( &entry->match, &match );
-    entry->priority = htons( priority );
-    memcpy( entry->service_name, data, sizeof( entry->service_name ) );
+    list_element *services = data;
+    while ( services != NULL ) {
+      reply->n_entries++;
+      packetin_filter_entry *entry = append_back_buffer( reply_buffer, sizeof( packetin_filter_entry ) );
+      hton_match( &entry->match, &match );
+      entry->priority = htons( priority );
+      strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
+      entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
+      services = services->next;
+    }
   }
 }
 
@@ -445,16 +486,20 @@ handle_dump_filter_request( const messenger_context_handle *handle, dump_packeti
   reply->n_entries = 0;
 
   struct ofp_match match;
-  ntoh_match( &match, &request->match );
-  uint16_t priority = ntohs( request->priority );
+  ntoh_match( &match, &request->criteria.match );
+  uint16_t priority = ntohs( request->criteria.priority );
   if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
-    void *data = lookup_match_strict_entry( match, priority );
-    if ( data != NULL ) {
-      reply = append_back_buffer( buf, sizeof( packetin_filter_entry ) );
-      reply->n_entries++;
-      reply->entries[ 0 ].match = request->match;
-      reply->entries[ 0 ].priority = request->priority;
-      memcpy( reply->entries[ 0 ].service_name, data, sizeof( reply->entries[ 0 ].service_name ) );
+    list_element *services = lookup_match_strict_entry( match, priority );
+    while ( services != NULL ) {
+      if ( strcmp( services->data, request->criteria.service_name ) == 0 ) {
+        packetin_filter_entry *entry = append_back_buffer( buf, sizeof( packetin_filter_entry ) );
+        reply->n_entries++;
+        entry->match = request->criteria.match;
+        entry->priority = request->criteria.priority;
+        strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
+        entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
+      }
+      services = services->next;
     }
   }
   else {

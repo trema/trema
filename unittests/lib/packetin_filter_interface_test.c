@@ -309,8 +309,9 @@ test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT() {
 
   delete_packetin_filter_request expected_data;
   memset( &expected_data, 0, sizeof( delete_packetin_filter_request ) );
-  hton_match( &expected_data.match, &MATCH );
-  expected_data.priority = htons( PRIORITY );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
   expected_data.flags = flags;
 
   expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
@@ -322,7 +323,7 @@ test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT() {
   expect_value( mock_send_request_message, hd->user_data, USER_DATA );
   will_return( mock_send_request_message, true );
 
-  assert_true( delete_packetin_filter( MATCH, PRIORITY, flags, HANDLER, USER_DATA ) );
+  assert_true( delete_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
 }
 
 
@@ -332,8 +333,9 @@ test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
 
   delete_packetin_filter_request expected_data;
   memset( &expected_data, 0, sizeof( delete_packetin_filter_request ) );
-  hton_match( &expected_data.match, &MATCH );
-  expected_data.priority = htons( PRIORITY );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
   expected_data.flags = flags;
 
   expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
@@ -345,7 +347,7 @@ test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
   expect_value( mock_send_request_message, hd->user_data, USER_DATA );
   will_return( mock_send_request_message, true );
 
-  assert_true( delete_packetin_filter( MATCH, PRIORITY, flags, HANDLER, USER_DATA ) );
+  assert_true( delete_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
 }
 
 
@@ -359,8 +361,9 @@ test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT() {
 
   dump_packetin_filter_request expected_data;
   memset( &expected_data, 0, sizeof( dump_packetin_filter_request ) );
-  hton_match( &expected_data.match, &MATCH );
-  expected_data.priority = htons( PRIORITY );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
   expected_data.flags = flags;
 
   expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
@@ -372,7 +375,7 @@ test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT() {
   expect_value( mock_send_request_message, hd->user_data, USER_DATA );
   will_return( mock_send_request_message, true );
 
-  assert_true( dump_packetin_filter( MATCH, PRIORITY, flags, HANDLER, USER_DATA ) );
+  assert_true( dump_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
 }
 
 
@@ -382,8 +385,9 @@ test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
 
   dump_packetin_filter_request expected_data;
   memset( &expected_data, 0, sizeof( dump_packetin_filter_request ) );
-  hton_match( &expected_data.match, &MATCH );
-  expected_data.priority = htons( PRIORITY );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
   expected_data.flags = flags;
 
   expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
@@ -395,7 +399,7 @@ test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
   expect_value( mock_send_request_message, hd->user_data, USER_DATA );
   will_return( mock_send_request_message, true );
 
-  assert_true( dump_packetin_filter( MATCH, PRIORITY, flags, HANDLER, USER_DATA ) );
+  assert_true( dump_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
 }
 
 

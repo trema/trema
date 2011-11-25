@@ -120,7 +120,7 @@ add_packetin_filter( struct ofp_match match, uint16_t priority, char *service_na
 
 
 bool
-delete_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
+delete_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                         delete_packetin_filter_handler callback, void *user_data ) {
   handler_data *data = xmalloc( sizeof( handler_data ) );
   data->callback = callback;
@@ -128,8 +128,12 @@ delete_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
 
   delete_packetin_filter_request request;
   memset( &request, 0, sizeof( delete_packetin_filter_request ) );
-  hton_match( &request.match, &match );
-  request.priority = htons( priority );
+  hton_match( &request.criteria.match, &match );
+  request.criteria.priority = htons( priority );
+  if ( service_name != NULL ) {
+    strncpy( request.criteria.service_name, service_name, sizeof( request.criteria.service_name ) );
+    request.criteria.service_name[ sizeof( request.criteria.service_name ) - 1 ] = '\0';
+  }
   if ( strict ) {
     request.flags = PACKETIN_FILTER_FLAG_MATCH_STRICT;
   }
@@ -147,7 +151,7 @@ delete_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
 
 
 bool
-dump_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
+dump_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                       dump_packetin_filter_handler callback, void *user_data ) {
   handler_data *data = xmalloc( sizeof( handler_data ) );
   data->callback = callback;
@@ -155,8 +159,12 @@ dump_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
 
   dump_packetin_filter_request request;
   memset( &request, 0, sizeof( dump_packetin_filter_request ) );
-  hton_match( &request.match, &match );
-  request.priority = htons( priority );
+  hton_match( &request.criteria.match, &match );
+  request.criteria.priority = htons( priority );
+  if ( service_name != NULL ) {
+    strncpy( request.criteria.service_name, service_name, sizeof( request.criteria.service_name ) );
+    request.criteria.service_name[ sizeof( request.criteria.service_name ) - 1 ] = '\0';
+  }
   if ( strict ) {
     request.flags = PACKETIN_FILTER_FLAG_MATCH_STRICT;
   }

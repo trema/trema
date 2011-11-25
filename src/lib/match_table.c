@@ -369,9 +369,10 @@ static void
 foreach_wildcards_match_table( list_element *wildcards_table, void function( struct ofp_match, uint16_t, void * ) ) {
   assert( function != NULL );
 
-  list_element *element;
-  for ( element = wildcards_table; element != NULL; element = element->next ) {
+  list_element *element = wildcards_table;
+  while ( element != NULL ) {
     match_entry *entry = element->data;
+    element = element->next;
     function( entry->match, entry->priority, entry->data );
   }
 }

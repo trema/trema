@@ -66,8 +66,7 @@ typedef struct {
 } __attribute__( ( packed ) ) add_packetin_filter_reply;
 
 typedef struct {
-  struct ofp_match match;
-  uint16_t priority;
+  packetin_filter_entry criteria;
   uint8_t flags;
 } __attribute__( ( packed ) ) delete_packetin_filter_request;
 
@@ -77,8 +76,7 @@ typedef struct {
 } __attribute__( ( packed ) ) delete_packetin_filter_reply;
 
 typedef struct {
-  struct ofp_match match;
-  uint16_t priority;
+  packetin_filter_entry criteria;
   uint8_t flags;
 } __attribute__( ( packed ) ) dump_packetin_filter_request;
 
@@ -110,9 +108,9 @@ typedef void ( *dump_packetin_filter_handler )(
 
 bool add_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name,
                           add_packetin_filter_handler callback, void *user_data );
-bool delete_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
+bool delete_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                              delete_packetin_filter_handler callback, void *user_data );
-bool dump_packetin_filter( struct ofp_match match, uint16_t priority, bool strict,
+bool dump_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                            dump_packetin_filter_handler callback, void *user_data );
 bool init_packetin_filter_interface( void );
 bool finalize_packetin_filter_interface( void );
