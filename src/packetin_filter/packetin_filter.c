@@ -20,12 +20,13 @@
  */
 
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <getopt.h>
-#include <openflow.h>
+#include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
-#include "etherip.h"
 #include "trema.h"
 
 
@@ -318,6 +319,208 @@ set_match_type( int argc, char *argv[] ) {
 }
 
 
+static void
+handle_add_filter_request( const messenger_context_handle *handle, add_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  request->entry.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
+  if ( strlen( request->entry.service_name ) == 0 ) {
+    error( "Service name must be specified." );
+    return;
+  }
+  struct ofp_match match;
+  ntoh_match( &match, &request->entry.match );
+  add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
+
+  add_packetin_filter_reply reply;
+  memset( &reply, 0, sizeof( add_packetin_filter_reply ) );
+  reply.status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  bool ret = send_reply_message( handle, MESSENGER_ADD_PACKETIN_FILTER_REPLY,
+                                 &reply, sizeof( add_packetin_filter_reply ) );
+  if ( ret == false ) {
+    error( "Failed to send an add filter reply." );
+  }
+}
+
+
+static bool
+compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
+  uint32_t w = x->wildcards;
+  uint32_t sm = create_nw_src_mask( x->wildcards );
+  uint32_t dm = create_nw_dst_mask( x->wildcards );
+
+  return ( ( w & OFPFW_IN_PORT || x->in_port == y->in_port )
+           && ( w & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
+           && ( w & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
+           && ( w & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
+           && ( w & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
+           && ( w & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
+           && !( ( x->nw_src ^ y->nw_src ) & sm )
+           && !( ( x->nw_dst ^ y->nw_dst ) & dm )
+           && ( w & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
+           && ( w & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
+           && ( w & OFPFW_TP_SRC || x->tp_src == y->tp_src )
+           && ( w & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
+}
+
+
+static struct ofp_match *match_criteria = NULL;
+static buffer *reply_buffer = NULL;
+
+
+static void
+delete_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
+  UNUSED( data );
+
+  if ( compare_filter_match( match_criteria, &match ) ) {
+    void *deleted = delete_match_entry( match, priority );
+    if ( deleted != NULL ) {
+      xfree( deleted );
+      delete_packetin_filter_reply *reply = reply_buffer->data;
+      reply->n_deleted++;
+    }
+  }
+}
+
+
+static void
+handle_delete_filter_request( const messenger_context_handle *handle, delete_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  buffer *buf = alloc_buffer_with_length( sizeof( delete_packetin_filter_reply ) );
+  delete_packetin_filter_reply *reply = append_back_buffer( buf, sizeof( delete_packetin_filter_reply ) );
+  reply->status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  reply->n_deleted = 0;
+
+  struct ofp_match match;
+  ntoh_match( &match, &request->match );
+  uint16_t priority = ntohs( request->priority );
+  if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
+    void *data = delete_match_entry( match, priority );
+    if ( data != NULL ) {
+      xfree( data );
+      reply->n_deleted++;
+    }
+  }
+  else {
+    reply_buffer = buf;
+    match_criteria = &match;
+    foreach_match_table( delete_filter_walker );
+    reply_buffer = NULL;
+    match_criteria = NULL;
+  }
+  reply->n_deleted = htonl( reply->n_deleted );
+
+  bool ret = send_reply_message( handle, MESSENGER_DELETE_PACKETIN_FILTER_REPLY, buf->data, buf->length );
+  free_buffer( buf );
+  if ( ret == false ) {
+    error( "Failed to send a dump filter reply." );
+  }
+}
+
+
+static void
+dump_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
+  if ( compare_filter_match( match_criteria, &match ) ) {
+    dump_packetin_filter_reply *reply = reply_buffer->data;
+    reply->n_entries++;
+    packetin_filter_entry *entry = append_back_buffer( reply_buffer, sizeof( packetin_filter_entry ) );
+    hton_match( &entry->match, &match );
+    entry->priority = htons( priority );
+    memcpy( entry->service_name, data, sizeof( entry->service_name ) );
+  }
+}
+
+
+static void
+handle_dump_filter_request( const messenger_context_handle *handle, dump_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  buffer *buf = alloc_buffer_with_length( 2048 );
+  dump_packetin_filter_reply *reply = append_back_buffer( buf, offsetof( dump_packetin_filter_reply, entries ) );
+  reply->status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  reply->n_entries = 0;
+
+  struct ofp_match match;
+  ntoh_match( &match, &request->match );
+  uint16_t priority = ntohs( request->priority );
+  if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
+    void *data = lookup_match_strict_entry( match, priority );
+    if ( data != NULL ) {
+      reply = append_back_buffer( buf, sizeof( packetin_filter_entry ) );
+      reply->n_entries++;
+      reply->entries[ 0 ].match = request->match;
+      reply->entries[ 0 ].priority = request->priority;
+      memcpy( reply->entries[ 0 ].service_name, data, sizeof( reply->entries[ 0 ].service_name ) );
+    }
+  }
+  else {
+    reply_buffer = buf;
+    match_criteria = &match;
+    foreach_match_table( dump_filter_walker );
+    reply_buffer = NULL;
+    match_criteria = NULL;
+  }
+  reply->n_entries = htonl( reply->n_entries );
+
+  bool ret = send_reply_message( handle, MESSENGER_DUMP_PACKETIN_FILTER_REPLY, buf->data, buf->length );
+  free_buffer( buf );
+  if ( ret == false ) {
+    error( "Failed to send a dump packetin filter reply." );
+  }
+}
+
+
+static void
+handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
+  assert( handle != NULL );
+
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+         handle, tag, data, length );
+
+  switch ( tag ) {
+    case MESSENGER_ADD_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( add_packetin_filter_request ) ) {
+        error( "Invalid add packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_add_filter_request( handle, data );
+    }
+    break;
+    case MESSENGER_DELETE_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( delete_packetin_filter_request ) ) {
+        error( "Invalid delete packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_delete_filter_request( handle, data );
+    }
+    break;
+    case MESSENGER_DUMP_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( dump_packetin_filter_request ) ) {
+        error( "Invalid dump packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_dump_filter_request( handle, data );
+    }
+    break;
+    default:
+    {
+      warn( "Undefined request tag ( tag = %#x ).", tag );
+    }
+    break;
+  }
+}
+
+
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
@@ -332,6 +535,7 @@ main( int argc, char *argv[] ) {
   }
 
   set_packet_in_handler( handle_packet_in, NULL );
+  add_message_requested_callback( PACKETIN_FILTER_MANAGEMENT_SERVICE, handle_request );
 
   start_trema();
 
