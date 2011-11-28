@@ -383,22 +383,35 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
 
 static bool
 compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
-  uint32_t w = x->wildcards;
-  uint32_t sm = create_nw_src_mask( x->wildcards );
-  uint32_t dm = create_nw_dst_mask( x->wildcards );
+  uint32_t w_x = x->wildcards & OFPFW_ALL;
+  uint32_t w_y = y->wildcards & OFPFW_ALL;
+  uint32_t sm_x = create_nw_src_mask( w_x );
+  uint32_t dm_x = create_nw_dst_mask( w_x );
+  uint32_t sm_y = create_nw_src_mask( w_y );
+  uint32_t dm_y = create_nw_dst_mask( w_y );
 
-  return ( ( w & OFPFW_IN_PORT || x->in_port == y->in_port )
-           && ( w & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
-           && ( w & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
-           && ( w & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
-           && ( w & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
-           && ( w & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
-           && !( ( x->nw_src ^ y->nw_src ) & sm )
-           && !( ( x->nw_dst ^ y->nw_dst ) & dm )
-           && ( w & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
-           && ( w & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
-           && ( w & OFPFW_TP_SRC || x->tp_src == y->tp_src )
-           && ( w & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
+  if ( ( ~w_x & w_y ) != 0 ) {
+    return false;
+  }
+  if ( sm_x > sm_y ) {
+    return false;
+  }
+  if ( dm_x > dm_y ) {
+    return false;
+  }
+
+  return ( ( w_x & OFPFW_IN_PORT || x->in_port == y->in_port )
+           && ( w_x & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
+           && ( w_x & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
+           && ( w_x & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
+           && ( w_x & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
+           && ( w_x & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
+           && !( ( x->nw_src ^ y->nw_src ) & sm_x )
+           && !( ( x->nw_dst ^ y->nw_dst ) & dm_x )
+           && ( w_x & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
+           && ( w_x & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
+           && ( w_x & OFPFW_TP_SRC || x->tp_src == y->tp_src )
+           && ( w_x & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
 }
 
 
