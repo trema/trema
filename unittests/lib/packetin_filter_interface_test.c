@@ -282,6 +282,29 @@ test_add_packetin_filter_succeeds() {
 
 
 static void
+test_add_packetin_filter_succeeds_if_not_initialized() {
+  add_packetin_filter_request expected_data;
+  memset( &expected_data, 0, sizeof( add_packetin_filter_request ) );
+  hton_match( &expected_data.entry.match, &MATCH );
+  expected_data.entry.priority = htons( PRIORITY );
+  memcpy( expected_data.entry.service_name, SERVICE_NAME, sizeof( expected_data.entry.service_name ) );
+
+  expect_string( mock_add_message_replied_callback, service_name, CLIENT_SERVICE_NAME );
+  will_return( mock_add_message_replied_callback, true );
+  expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
+  expect_string( mock_send_request_message, from_service_name, CLIENT_SERVICE_NAME );
+  expect_value( mock_send_request_message, tag32, MESSENGER_ADD_PACKETIN_FILTER_REQUEST );
+  expect_memory( mock_send_request_message, data, &expected_data, sizeof( add_packetin_filter_request ) );
+  expect_value( mock_send_request_message, len, sizeof( add_packetin_filter_request ) );
+  expect_value( mock_send_request_message, hd->callback, HANDLER );
+  expect_value( mock_send_request_message, hd->user_data, USER_DATA );
+  will_return( mock_send_request_message, true );
+
+  assert_true( add_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, HANDLER, USER_DATA ) );
+}
+
+
+static void
 test_add_packetin_filter_fails_if_service_name_is_NULL() {
   expect_string( mock_error, message, "Service name must be specified." );
 
@@ -351,6 +374,32 @@ test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
 }
 
 
+static void
+test_delete_packetin_filter_succeeds_if_not_initialized() {
+  uint8_t flags = PACKETIN_FILTER_FLAG_MATCH_STRICT;
+
+  delete_packetin_filter_request expected_data;
+  memset( &expected_data, 0, sizeof( delete_packetin_filter_request ) );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
+  expected_data.flags = flags;
+
+  expect_string( mock_add_message_replied_callback, service_name, CLIENT_SERVICE_NAME );
+  will_return( mock_add_message_replied_callback, true );
+  expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
+  expect_string( mock_send_request_message, from_service_name, CLIENT_SERVICE_NAME );
+  expect_value( mock_send_request_message, tag32, MESSENGER_DELETE_PACKETIN_FILTER_REQUEST );
+  expect_memory( mock_send_request_message, data, &expected_data, sizeof( delete_packetin_filter_request ) );
+  expect_value( mock_send_request_message, len, sizeof( delete_packetin_filter_request ) );
+  expect_value( mock_send_request_message, hd->callback, HANDLER );
+  expect_value( mock_send_request_message, hd->user_data, USER_DATA );
+  will_return( mock_send_request_message, true );
+
+  assert_true( delete_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
+}
+
+
 /********************************************************************************
  * dump_packetin_filter() tests.
  ********************************************************************************/
@@ -390,6 +439,32 @@ test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE() {
   strcpy( expected_data.criteria.service_name, SERVICE_NAME );
   expected_data.flags = flags;
 
+  expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
+  expect_string( mock_send_request_message, from_service_name, CLIENT_SERVICE_NAME );
+  expect_value( mock_send_request_message, tag32, MESSENGER_DUMP_PACKETIN_FILTER_REQUEST );
+  expect_memory( mock_send_request_message, data, &expected_data, sizeof( dump_packetin_filter_request ) );
+  expect_value( mock_send_request_message, len, sizeof( dump_packetin_filter_request ) );
+  expect_value( mock_send_request_message, hd->callback, HANDLER );
+  expect_value( mock_send_request_message, hd->user_data, USER_DATA );
+  will_return( mock_send_request_message, true );
+
+  assert_true( dump_packetin_filter( MATCH, PRIORITY, SERVICE_NAME, flags, HANDLER, USER_DATA ) );
+}
+
+
+static void
+test_dump_packetin_filter_succeeds_if_not_initialized() {
+  uint8_t flags = PACKETIN_FILTER_FLAG_MATCH_STRICT;
+
+  dump_packetin_filter_request expected_data;
+  memset( &expected_data, 0, sizeof( dump_packetin_filter_request ) );
+  hton_match( &expected_data.criteria.match, &MATCH );
+  expected_data.criteria.priority = htons( PRIORITY );
+  strcpy( expected_data.criteria.service_name, SERVICE_NAME );
+  expected_data.flags = flags;
+
+  expect_string( mock_add_message_replied_callback, service_name, CLIENT_SERVICE_NAME );
+  will_return( mock_add_message_replied_callback, true );
   expect_string( mock_send_request_message, to_service_name, PACKETIN_FILTER_MANAGEMENT_SERVICE );
   expect_string( mock_send_request_message, from_service_name, CLIENT_SERVICE_NAME );
   expect_value( mock_send_request_message, tag32, MESSENGER_DUMP_PACKETIN_FILTER_REQUEST );
@@ -609,17 +684,20 @@ main() {
     unit_test_setup_teardown( test_finalize_packetin_filter_interface_fails_if_not_initialized, setup, teardown ),
 
     // add_packetin_filter() tests.
-    unit_test_setup_teardown( test_add_packetin_filter_succeeds, setup, teardown ),
-    unit_test_setup_teardown( test_add_packetin_filter_fails_if_service_name_is_NULL, setup, teardown ),
-    unit_test_setup_teardown( test_add_packetin_filter_fails_if_service_name_is_zero_length, setup, teardown ),
+    unit_test_setup_teardown( test_add_packetin_filter_succeeds, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_add_packetin_filter_succeeds_if_not_initialized, setup, finalize_and_teardown ),
+    unit_test_setup_teardown( test_add_packetin_filter_fails_if_service_name_is_NULL, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_add_packetin_filter_fails_if_service_name_is_zero_length, setup_and_init, finalize_and_teardown ),
 
     // delete_packetin_filter() tests.
-    unit_test_setup_teardown( test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT, setup, teardown ),
-    unit_test_setup_teardown( test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE, setup, teardown ),
+    unit_test_setup_teardown( test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_delete_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_delete_packetin_filter_succeeds_if_not_initialized, setup, finalize_and_teardown ),
 
     // dump_packetin_filter() tests.
-    unit_test_setup_teardown( test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT, setup, teardown ),
-    unit_test_setup_teardown( test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE, setup, teardown ),
+    unit_test_setup_teardown( test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_STRICT, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_dump_packetin_filter_succeeds_with_PACKETIN_FILTER_FLAG_MATCH_LOOSE, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_dump_packetin_filter_succeeds_if_not_initialized, setup, finalize_and_teardown ),
 
     // handle_reply() tests.
     unit_test_setup_teardown( test_handle_reply_succeeds_with_add_packetin_filter_reply, setup_and_init, finalize_and_teardown ),

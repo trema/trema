@@ -355,6 +355,13 @@ mock_finalize_timer() {
 }
 
 
+bool
+mock_finalize_packetin_filter_interface() {
+  // Do nothing.
+  return true;
+}
+
+
 /********************************************************************************
  * Setup and teardown.
  ********************************************************************************/
