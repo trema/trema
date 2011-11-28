@@ -36,7 +36,7 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
               ""
             end
   @log ||= new_tmp_log
-  
+
   trema_run = Proc.new do
     Tempfile.open( "trema.conf" ) do | f |
       f.puts config
@@ -53,6 +53,12 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
   else
     trema_run.call
   end
+end
+
+
+Given /^I try trema run "([^"]*)" example with following configuration \(backgrounded\):$/ do | example, config |
+  step %{I try trema run "./objects/examples/#{ example }/#{ example }" with following configuration (backgrounded):}, config
+  step %{wait until "#{ example }" is up}
 end
 
 
