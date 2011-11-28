@@ -63,6 +63,11 @@ Then /^the log file "([^"]*)" should include "([^"]*)" x (\d+)$/ do | log, messa
 end
 
 
+Then /^the content of "([^"]*)" should be:$/ do | log_name, string |
+  IO.read( cucumber_log log_name ).chomp( "" ).should == string.chomp
+end
+
+
 Then /^the content of "([^"]*)" and "([^"]*)" should be identical$/ do | log1, log2 |
   IO.read( cucumber_log log1 ).size.should > 0
   IO.read( cucumber_log log2 ).size.should > 0

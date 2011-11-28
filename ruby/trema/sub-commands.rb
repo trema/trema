@@ -222,7 +222,10 @@ EOF
     when :rx
       Trema::Cli.new( host ).show_rx_stats
     else
-      raise "We should not reach here."      
+      puts "Sent packets:"
+      Trema::Cli.new( host ).show_tx_stats
+      puts "Received packets:"
+      Trema::Cli.new( host ).show_rx_stats
     end
   end
 
