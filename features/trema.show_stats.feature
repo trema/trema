@@ -47,6 +47,13 @@ Feature: show network stats with `trema show_stats' command
       """
 
 
+  Scenario: show_stats error
+    Then "./trema show_stats NO_SUCH_HOST" exits abnormally with an error message:
+      """
+      Unknown host: NO_SUCH_HOST
+      """
+
+
   Scenario: trema help show_stats
     When I try to run "./trema help show_stats"
     Then the output should be:

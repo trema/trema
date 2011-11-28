@@ -216,6 +216,8 @@ EOF
     @options.parse! ARGV
 
     host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
+    raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
+
     case stats
     when :tx
       Trema::Cli.new( host ).show_tx_stats
