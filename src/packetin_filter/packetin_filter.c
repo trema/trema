@@ -230,9 +230,10 @@ init_packetin_match_table( void ) {
 
 
 static void
-free_user_data_entry( struct ofp_match match, uint16_t priority, void *services ) {
+free_user_data_entry( struct ofp_match match, uint16_t priority, void *services, void *user_data ) {
   UNUSED( match );
   UNUSED( priority );
+  UNUSED( user_data );
 
   list_element *element;
   for ( element = services; element != NULL; element = element->next ) {
@@ -245,7 +246,7 @@ free_user_data_entry( struct ofp_match match, uint16_t priority, void *services 
 
 static void
 finalize_packetin_match_table( void ) {
-  foreach_match_table( free_user_data_entry );
+  foreach_match_table( free_user_data_entry, NULL );
   finalize_match_table();
 }
 
@@ -401,16 +402,21 @@ compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
 }
 
 
-static struct ofp_match *match_criteria = NULL;
-static buffer *reply_buffer = NULL;
+typedef struct {
+  struct ofp_match *match_criteria;
+  buffer *reply_buffer;
+} walker_param;
 
 
 static void
-delete_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
+delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( data );
+  walker_param *param = user_data; 
+  assert( param != NULL );
+  assert( param->reply_buffer != NULL );
 
-  if ( compare_filter_match( match_criteria, &match ) ) {
-    delete_packetin_filter_reply *reply = reply_buffer->data;
+  if ( compare_filter_match( param->match_criteria, &match ) ) {
+    delete_packetin_filter_reply *reply = param->reply_buffer->data;
     list_element *head = delete_match_entry( match, priority );
     for ( list_element *services = head; services != NULL; services = services->next ) {
       xfree( services->data );
@@ -441,11 +447,10 @@ handle_delete_filter_request( const messenger_context_handle *handle, delete_pac
     reply->n_deleted += ( uint32_t ) n_deleted;
   }
   else {
-    reply_buffer = buf;
-    match_criteria = &match;
-    foreach_match_table( delete_filter_walker );
-    reply_buffer = NULL;
-    match_criteria = NULL;
+    walker_param param;
+    param.match_criteria = &match;
+    param.reply_buffer = buf;
+    foreach_match_table( delete_filter_walker, &param );
   }
   reply->n_deleted = htonl( reply->n_deleted );
 
@@ -458,13 +463,16 @@ handle_delete_filter_request( const messenger_context_handle *handle, delete_pac
 
 
 static void
-dump_filter_walker( struct ofp_match match, uint16_t priority, void *data ) {
-  if ( compare_filter_match( match_criteria, &match ) ) {
-    dump_packetin_filter_reply *reply = reply_buffer->data;
+dump_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
+  walker_param *param = user_data;
+  assert( param != NULL );
+  assert( param->reply_buffer != NULL );
+  if ( compare_filter_match( param->match_criteria, &match ) ) {
+    dump_packetin_filter_reply *reply = param->reply_buffer->data;
     list_element *services = data;
     while ( services != NULL ) {
       reply->n_entries++;
-      packetin_filter_entry *entry = append_back_buffer( reply_buffer, sizeof( packetin_filter_entry ) );
+      packetin_filter_entry *entry = append_back_buffer( param->reply_buffer, sizeof( packetin_filter_entry ) );
       hton_match( &entry->match, &match );
       entry->priority = htons( priority );
       strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
@@ -503,11 +511,10 @@ handle_dump_filter_request( const messenger_context_handle *handle, dump_packeti
     }
   }
   else {
-    reply_buffer = buf;
-    match_criteria = &match;
-    foreach_match_table( dump_filter_walker );
-    reply_buffer = NULL;
-    match_criteria = NULL;
+    walker_param param;
+    param.match_criteria = &match;
+    param.reply_buffer = buf;
+    foreach_match_table( dump_filter_walker, &param );
   }
   reply->n_entries = htonl( reply->n_entries );
 
