@@ -56,6 +56,16 @@ get_client_service_name( void ) {
 
 
 static void
+maybe_init_packetin_filter_interface( void ) {
+  if ( initialized ) {
+    return;
+  }
+
+  init_packetin_filter_interface();
+}
+
+
+static void
 addition_completed( int status, handler_data *data ) {
   if ( data->callback != NULL ) {
     add_packetin_filter_handler callback = data->callback;
@@ -100,6 +110,9 @@ add_packetin_filter( struct ofp_match match, uint16_t priority, char *service_na
     error( "Service name must be specified." );
     return false;
   }
+
+  maybe_init_packetin_filter_interface();
+
   handler_data *data = xmalloc( sizeof( handler_data ) );
   data->callback = callback;
   data->user_data = user_data;
@@ -122,6 +135,8 @@ add_packetin_filter( struct ofp_match match, uint16_t priority, char *service_na
 bool
 delete_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                         delete_packetin_filter_handler callback, void *user_data ) {
+  maybe_init_packetin_filter_interface();
+
   handler_data *data = xmalloc( sizeof( handler_data ) );
   data->callback = callback;
   data->user_data = user_data;
@@ -153,6 +168,8 @@ delete_packetin_filter( struct ofp_match match, uint16_t priority, char *service
 bool
 dump_packetin_filter( struct ofp_match match, uint16_t priority, char *service_name, bool strict,
                       dump_packetin_filter_handler callback, void *user_data ) {
+  maybe_init_packetin_filter_interface();
+
   handler_data *data = xmalloc( sizeof( handler_data ) );
   data->callback = callback;
   data->user_data = user_data;
@@ -266,6 +283,7 @@ finalize_packetin_filter_interface( void ) {
 
   return true;
 }
+
 
 
 /*
