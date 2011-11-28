@@ -58,6 +58,7 @@ task :examples => [
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",                 
+  "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",
 ]
@@ -630,6 +631,50 @@ openflow_messages.each do | each |
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
     sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
+  end
+end
+
+
+################################################################################
+# Build packetin_filter_config
+################################################################################
+
+packetin_filter_config = [
+  "add_filter",
+  "delete_filter",
+  "delete_filter_strict",
+  "dump_filter",
+  "dump_filter_strict",
+]
+
+packetin_filter_config_source_dir = "src/examples/packetin_filter_config"
+packetin_filter_config_objects_dir = objects( "examples/packetin_filter_config" )
+
+gen C::Dependencies, dependency( "packetin_filter_config" ),
+  :search => [ trema_include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "packetin_filter_config" )
+end
+
+gen Directory, packetin_filter_config_objects_dir
+
+
+gen DirectedRule, packetin_filter_config_objects_dir => [ packetin_filter_config_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+packetin_filter_config.each do | each |
+  packetin_filter_config_utils_o = File.join( packetin_filter_config_objects_dir, "utils.o" )
+  target = File.join( packetin_filter_config_objects_dir, each )
+  task "examples:packetin_filter_config" => target
+  file target => [
+    File.join( packetin_filter_config_objects_dir, "#{ each }.o" ),
+    packetin_filter_config_utils_o,
+    libtrema
+  ] do | t |
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
