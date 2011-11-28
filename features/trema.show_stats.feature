@@ -19,8 +19,7 @@ Feature: show network stats with `trema show_stats' command
 
   Scenario: show_stats
     When I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1" (log = "host1.log")
-    Then the content of "host1.log" should be:
+    Then the stats of "host1" should be:
       """
       Sent packets:
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
@@ -30,8 +29,7 @@ Feature: show network stats with `trema show_stats' command
 
   Scenario: show_stats --tx
     When I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1 --tx" (log = "host1.tx.log")
-    Then the content of "host1.tx.log" should be:
+    Then the tx stats of "host1" should be:
       """
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
       192.168.0.2,1,192.168.0.1,1,1,50
@@ -39,8 +37,7 @@ Feature: show network stats with `trema show_stats' command
 
   Scenario: show_stats --rx
     When I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host2 --rx" (log = "host2.rx.log")
-    Then the content of "host2.rx.log" should be:
+    Then the rx stats of "host2" should be:
       """
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
       192.168.0.2,1,192.168.0.1,1,1,50
