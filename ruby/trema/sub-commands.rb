@@ -200,7 +200,7 @@ EOF
 
     stats = nil
 
-    @options.banner = "Usage: #{ $0 } show_stats [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
 
     @options.on( "-t", "--tx" ) do
       stats = :tx
