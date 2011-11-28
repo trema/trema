@@ -110,7 +110,7 @@ module Trema
     def shutdown!
       Trema::Process.read( pid_file, @name ).kill!
     end
-    
+
 
     #
     # Returns flow entries
@@ -127,7 +127,7 @@ module Trema
         not each.rspec_flow?
       end
     end
-    
+
 
     #
     # A stub handler when flow_mod_add is called
@@ -144,7 +144,7 @@ module Trema
     def flow_mod_add line
       # Do nothing
     end
-    
+
 
     ################################################################################
     private
@@ -195,6 +195,7 @@ module Trema
        "--verbose=ANY:console:err",
        "--log-file=#{ log_file }",
        "--datapath-id=#{ dpid_long }",
+       "--unixctl=#{ unixctl }",
       ] + ports_option
     end
 
@@ -221,7 +222,7 @@ module Trema
     def pid_file
       File.join Trema.tmp, "openflowd.#{ @name }.pid"
     end
-    
+
 
     #
     # The path of log file
@@ -231,7 +232,19 @@ module Trema
     # @api private
     #
     def log_file
-      "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
+      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
+    end
+
+
+    #
+    # The path of control socket
+    #
+    # @return [String]
+    #
+    # @api private
+    #
+    def unixctl
+      File.join Trema.tmp, "ovs-openflowd.#{ $$ }.ctl"
     end
   end
 end
