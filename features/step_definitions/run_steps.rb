@@ -57,8 +57,17 @@ end
 
 
 Given /^I try trema run "([^"]*)" example with following configuration \(backgrounded\):$/ do | example, config |
-  step %{I try trema run "./objects/examples/#{ example }/#{ example }" with following configuration (backgrounded):}, config
-  step %{wait until "#{ example }" is up}
+  controller = nil
+  name = nil
+  if /\.rb\Z/=~ example
+    controller = "./src/examples/#{ File.basename( example, ".rb" ).tr( "-", "_" ) }/#{ example }"
+    name = File.basename( example, ".rb" ).camelize
+  else
+    controller = "./objects/examples/#{ example }/#{ example }"
+    name = example
+  end
+  step %{I try trema run "#{ controller }" with following configuration (backgrounded):}, config
+  step %{wait until "#{ name }" is up}
 end
 
 
