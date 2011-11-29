@@ -127,6 +127,7 @@ EOF
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
       source = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if source.nil?
     end
     @options.on( "--inc_ip_src [NUMBER]" ) do | v |
       if v
@@ -137,6 +138,7 @@ EOF
     end
     @options.on( "-d", "--dest HOSTNAME" ) do | v |
       dest = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if dest.nil?
     end
     @options.on( "--inc_ip_dst [NUMBER]" ) do | v |
       if v
