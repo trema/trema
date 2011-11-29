@@ -381,13 +381,13 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
   }
   struct ofp_match match;
   ntoh_match( &match, &request->entry.match );
-  bool res = add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
+  bool ret = add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
 
   add_packetin_filter_reply reply;
   memset( &reply, 0, sizeof( add_packetin_filter_reply ) );
-  reply.status = res ? PACKETIN_FILTER_OPERATION_SUCCEEDED : PACKETIN_FILTER_OPERATION_FAILED;
-  bool ret = send_reply_message( handle, MESSENGER_ADD_PACKETIN_FILTER_REPLY,
-                                 &reply, sizeof( add_packetin_filter_reply ) );
+  reply.status = ( uint8_t ) ( ret ? PACKETIN_FILTER_OPERATION_SUCCEEDED : PACKETIN_FILTER_OPERATION_FAILED );
+  ret = send_reply_message( handle, MESSENGER_ADD_PACKETIN_FILTER_REPLY,
+                            &reply, sizeof( add_packetin_filter_reply ) );
   if ( ret == false ) {
     error( "Failed to send an add filter reply." );
   }
