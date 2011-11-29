@@ -19,12 +19,10 @@
 
 
 module MonkeyPatch
-  module String
-    module Inflectors
-      def camelize
-        self.split( /[^a-z0-9]/i ).map do | each |
-          each.capitalize
-        end.join
+  module Integer
+    module BaseConversions
+      def to_hex
+        "%#x" % self
       end
     end
   end
