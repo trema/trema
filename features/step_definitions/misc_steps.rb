@@ -24,8 +24,11 @@ end
 
 
 When /^wait until "([^"]*)" is up$/ do | process |
+  nloop = 0
   pid_file = File.join( Trema.tmp, "#{ process }.pid" )
   loop do
+    nloop += 1
+    raise "Timeout" if nloop > 20
     break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
     sleep 0.1
   end

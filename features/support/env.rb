@@ -26,6 +26,15 @@ require "tempfile"
 require "trema/executables"
 
 
+class String
+  def camelize
+    self.split( /[^a-z0-9]/i ).map do | each |
+      each.capitalize
+    end.join
+  end
+end
+
+
 def run command
   raise "Failed to execute #{ command }" unless system( command )
 end
