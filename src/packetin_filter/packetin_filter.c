@@ -251,7 +251,7 @@ finalize_packetin_match_table( void ) {
 }
 
 
-static void
+static bool
 add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
   bool ( *insert_or_update_match_entry ) ( struct ofp_match, uint16_t, void * ) = update_match_entry;
   list_element *services = lookup_match_strict_entry( match, priority );
@@ -259,8 +259,21 @@ add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char 
     insert_or_update_match_entry = insert_match_entry;
     create_list( &services );
   }
+  else {
+    list_element *element;
+    for ( element = services; element != NULL; element = element->next ) {
+      if ( strcmp( element->data, service_name ) == 0 ) {
+        char match_string[ 256 ];
+        match_to_string( &match, match_string, sizeof( match_string ) );
+        warn( "match entry already exists ( match = [%s], service_name = [%s] )", match_string, service_name );
+        return false;
+      }
+    }
+  }
   append_to_tail( &services, xstrdup( service_name ) );
   insert_or_update_match_entry( match, priority, services );
+
+  return true;
 }
 
 
@@ -368,11 +381,11 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
   }
   struct ofp_match match;
   ntoh_match( &match, &request->entry.match );
-  add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
+  bool res = add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
 
   add_packetin_filter_reply reply;
   memset( &reply, 0, sizeof( add_packetin_filter_reply ) );
-  reply.status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  reply.status = res ? PACKETIN_FILTER_OPERATION_SUCCEEDED : PACKETIN_FILTER_OPERATION_FAILED;
   bool ret = send_reply_message( handle, MESSENGER_ADD_PACKETIN_FILTER_REPLY,
                                  &reply, sizeof( add_packetin_filter_reply ) );
   if ( ret == false ) {
