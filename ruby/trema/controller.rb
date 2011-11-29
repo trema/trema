@@ -19,7 +19,6 @@
 
 
 require "trema/app"
-require "trema/monkey"
 require "trema/monkey-patch/integer"
 require "trema/monkey-patch/string"
 require "trema/timers"

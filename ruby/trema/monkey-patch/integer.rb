@@ -19,10 +19,12 @@
 
 
 require "trema/monkey-patch/integer/base-conversions"
+require "trema/monkey-patch/integer/ranges"
 
 
 class Integer
   include MonkeyPatch::Integer::BaseConversions
+  include MonkeyPatch::Integer::Ranges
 end
 
 

@@ -1,6 +1,4 @@
 #
-# Monkey patches for Ruby's built-in classes.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,33 +18,34 @@
 #
 
 
-class Integer
-  def unsigned_8bit?
-    unsigned_bit?( 8 ).call
-  end
+module MonkeyPatch
+  module Integer
+    module Ranges
+      def unsigned_8bit?
+        within_range? 8
+      end
 
 
-  def unsigned_16bit?
-    unsigned_bit?( 16 ).call
-  end
+      def unsigned_16bit?
+        within_range? 16
+      end
 
 
-  def unsigned_32bit?
-    unsigned_bit?( 32 ).call
-  end
+      def unsigned_32bit?
+        within_range? 32
+      end
 
 
-  ################################################################################
-  private
-  ################################################################################
-  def unsigned_bit? number
-    lambda { ( 0 <= self ) and ( self < 2 ** number ) }
+      def within_range? nbit
+        ( 0 <= self ) and ( self < 2 ** nbit )
+      end
+    end
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
