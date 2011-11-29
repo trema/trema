@@ -123,7 +123,7 @@ EOF
     dest = nil
     cli_options = {}
 
-    @options.banner = "Usage: #{ $0 } send_packets [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } send_packets --source HOSTNAME --dest HOSTNAME [OPTIONS ...]"
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
       source = @dsl_parser.load_current.hosts[ v ]

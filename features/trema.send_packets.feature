@@ -36,7 +36,7 @@ Feature: send packets with `trema send_packets' command
     When I try to run "./trema help send_packets"
     Then the output should be:
       """
-      Usage: ./trema send_packets [OPTIONS ...]
+      Usage: ./trema send_packets --source HOSTNAME --dest HOSTNAME [OPTIONS ...]
           -s, --source HOSTNAME
               --inc_ip_src [NUMBER]
           -d, --dest HOSTNAME
