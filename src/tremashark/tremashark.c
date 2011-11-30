@@ -427,7 +427,7 @@ parse_options( int *argc, char **argv[] ) {
   int opt;
 
   while ( 1 ) {
-    opt = getopt( *argc, *argv, "c:s:tw:p" );
+    opt = getopt( *argc, *argv, "c:s:tw:pr" );
 
     if ( opt < 0 ) {
       break;
