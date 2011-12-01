@@ -90,6 +90,7 @@ capture_main( void *args ) {
   info( "Starting packet capture ( interface_name = %s ).", interface_name );
 
   packet_queue = create_queue();
+  pcap_t *cd = NULL;
   if ( packet_queue == NULL ) {
     error( "Failed to create packet queue." );
     goto error;
@@ -105,7 +106,7 @@ capture_main( void *args ) {
     mask = 0;
   }
 
-  pcap_t *cd = pcap_open_live( interface_name, UINT16_MAX, 1, 100, errbuf );
+  cd = pcap_open_live( interface_name, UINT16_MAX, 1, 100, errbuf );
   if ( cd == NULL ) {
     error( "Failed to open network interface ( interface_name = %s, error = %s ).",
            interface_name, errbuf );
