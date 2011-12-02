@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "trema.h"
+#include "pcap_private.h"
 #include "pcap_queue.h"
 
 
@@ -117,7 +118,7 @@ dump_message( uint16_t tag, void *data, size_t len ) {
                              "send-connected", "send-refused", "send-overflow", "send-closed",
                              "logger", "pcap", "syslog", "text" };
   size_t pcap_dump_header_length;
-  struct pcap_pkthdr pcap_header;
+  struct pcap_pkthdr_private pcap_header;
   message_dump_header *dump_hdr;
   message_pcap_dump_header *pcap_dump_hdr;
   message_header *hdr;
@@ -160,13 +161,16 @@ dump_message( uint16_t tag, void *data, size_t len ) {
     memcpy( pcap_dump_service_name, service_name, ntohs( pcap_dump_hdr->service_name_len ) );
   }
 
-  memset( &pcap_header, 0, sizeof( struct pcap_pkthdr ) );
+  memset( &pcap_header, 0, sizeof( struct pcap_pkthdr_private ) );
   if ( trust_remote_clocks ) {
-    pcap_header.ts.tv_sec = ( time_t ) ntohl( dump_hdr->sent_time.sec );
-    pcap_header.ts.tv_usec = ( suseconds_t ) ( ntohl( dump_hdr->sent_time.nsec ) / 1000 );
+    pcap_header.ts.tv_sec = ( bpf_int32 ) ntohl( dump_hdr->sent_time.sec );
+    pcap_header.ts.tv_usec = ( bpf_int32 ) ( ntohl( dump_hdr->sent_time.nsec ) / 1000 );
   }
   else {
-    gettimeofday( &pcap_header.ts, NULL );
+    struct timeval ts;
+    gettimeofday( &ts, NULL );
+    pcap_header.ts.tv_sec = ( bpf_int32 ) ts.tv_sec;
+    pcap_header.ts.tv_usec = ( bpf_int32 ) ts.tv_usec;
   }
 
   len -= dump_header_length;
@@ -174,10 +178,9 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   pcap_header.caplen = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
   pcap_header.len = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
 
-  packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr ),
+  packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr_private ),
                                pcap_dump_hdr, pcap_dump_header_length,
                                hdr, ntohl( pcap_dump_hdr->data_len ) );
-
   xfree( pcap_dump_hdr );
 
   if ( use_circular_buffer ) {
@@ -223,7 +226,7 @@ write_pcap_packet( void *user_data ) {
       break;
     }
 
-    struct pcap_pkthdr *p = packet->data;
+    struct pcap_pkthdr_private *p = packet->data;
     if ( ( p->ts.tv_sec > threshold.tv_sec ) ||
          ( p->ts.tv_sec == threshold.tv_sec && p->ts.tv_usec > threshold.tv_usec ) ) {
       break;
