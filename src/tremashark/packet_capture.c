@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include "pcap_private.h"
 #include "queue.h"
 #include "trema.h"
 
@@ -47,7 +48,7 @@ handle_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *pac
   uint16_t app_name_length = ( uint16_t ) ( strlen( interface_name ) + 1 );
   char *service_name = xstrdup( get_trema_name() );
   uint16_t service_name_length = ( uint16_t ) ( strlen( service_name ) + 1 );
-  size_t buffer_length = sizeof( message_dump_header ) + app_name_length + service_name_length + sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr ) + header->caplen;
+  size_t buffer_length = sizeof( message_dump_header ) + app_name_length + service_name_length + sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr_private ) + header->caplen;
   buffer *buf = alloc_buffer_with_length( buffer_length );
 
   // message_dump_header + app_name + service_name
@@ -56,7 +57,7 @@ handle_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *pac
   mdh->sent_time.nsec = htonl( ( uint32_t ) ( header->ts.tv_usec * 1000 ) );
   mdh->app_name_length = htons( app_name_length );
   mdh->service_name_length = htons( service_name_length );
-  mdh->data_length = htonl( ( uint32_t ) ( sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr ) + header->caplen ) );
+  mdh->data_length = htonl( ( uint32_t ) ( sizeof( pcap_dump_header ) + sizeof( struct pcap_pkthdr_private ) + header->caplen ) );
   void *apn = append_back_buffer( buf, app_name_length );
   memcpy( apn, app_name, app_name_length );
   void *svn = append_back_buffer( buf, service_name_length );
@@ -70,10 +71,10 @@ handle_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *pac
   strncpy( ( char * ) pdh->interface, interface_name, sizeof( pdh->interface ) );
   pdh->interface[ sizeof( pdh->interface ) - 1 ] = '\0';
 
-  // pcap_pkthdr + packet
-  struct pcap_pkthdr *pph = append_back_buffer( buf, sizeof( struct pcap_pkthdr ) );
-  pph->ts.tv_sec = ( time_t ) htonl( ( uint32_t ) header->ts.tv_sec );
-  pph->ts.tv_usec = ( suseconds_t ) htonl( ( uint32_t ) header->ts.tv_usec );
+  // pcap_pkthdr_private + packet
+  struct pcap_pkthdr_private *pph = append_back_buffer( buf, sizeof( struct pcap_pkthdr_private ) );
+  pph->ts.tv_sec = ( bpf_int32 ) htonl( ( uint32_t ) header->ts.tv_sec );
+  pph->ts.tv_usec = ( bpf_int32 ) htonl( ( uint32_t ) header->ts.tv_usec );
   pph->caplen = htonl( header->caplen );
   pph->len = htonl( header->len );
   void *pkt = append_back_buffer( buf, header->caplen );
