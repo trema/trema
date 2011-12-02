@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,11 +188,14 @@ typedef struct send_queue {
   struct sockaddr_un server_addr;
   message_buffer *buffer;
   bool running_timer;
+  uint32_t overflow;
+  uint64_t overflow_total_length;
 } send_queue;
 
 
 #define MESSENGER_RECV_BUFFER 100000
 static const uint32_t messenger_send_queue_length = MESSENGER_RECV_BUFFER * 4;
+static const uint32_t messenger_send_length_for_flush = MESSENGER_RECV_BUFFER;
 static const uint32_t messenger_bucket_size = MESSENGER_RECV_BUFFER;
 static const uint32_t messenger_recv_queue_length = MESSENGER_RECV_BUFFER * 2;
 static const uint32_t messenger_recv_queue_reserved = MESSENGER_RECV_BUFFER;
@@ -953,6 +957,8 @@ create_send_queue( const char *service_name ) {
   sq->reconnect_interval.tv_sec = 0;
   sq->reconnect_interval.tv_nsec = 0;
   sq->running_timer = false;
+  sq->overflow = 0;
+  sq->overflow_total_length = 0;
 
   if ( send_queue_try_connect( sq ) == -1 ) {
     xfree( sq );
@@ -1017,10 +1023,19 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   header.message_length = ( uint32_t ) ( sizeof( message_header ) + len );
 
   if ( message_buffer_remain_bytes( sq->buffer ) < header.message_length ) {
-    warn( "Could not write a message to send queue due to overflow ( service_name = %s ).", sq->service_name );
+    if ( sq->overflow == 0 ) {
+      warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, length = %u ).", sq->service_name, sq->server_socket, header.message_length );
+    }
+    ++sq->overflow;
+    sq->overflow_total_length += header.message_length;
     send_dump_message( MESSENGER_DUMP_SEND_OVERFLOW, sq->service_name, NULL, 0 );
     return false;
   }
+  if ( sq->overflow > 1 ) {
+    warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, count = %u, total length = %" PRIu64 " ).", sq->service_name, sq->server_socket, sq->overflow, sq->overflow_total_length );
+  }
+  sq->overflow = 0;
+  sq->overflow_total_length = 0;
 
   write_message_buffer( sq->buffer, &header, sizeof( message_header ) );
   write_message_buffer( sq->buffer, data, len );
@@ -1033,6 +1048,9 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   }
 
   set_writable( sq->server_socket, true );
+  if ( sq->buffer->data_length  > messenger_send_length_for_flush ) {
+    on_send_write( sq->server_socket, sq );
+  }
   return true;
 }
 
@@ -1473,8 +1491,8 @@ static uint32_t
 get_send_data( send_queue *sq, size_t offset ) {
   assert( sq != NULL );
 
-  message_header *header;
   uint32_t length = 0;
+  message_header *header;
   while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
     header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
     if ( length + header->message_length > messenger_bucket_size ) {
@@ -1567,12 +1585,15 @@ on_send_write( int fd, void *data ) {
       return;
     }
     assert( sent_len != 0 );
+    assert( send_len == ( size_t ) sent_len );
     send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, send_data, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
   }
 
-  set_writable( sq->server_socket, false );
   truncate_message_buffer( sq->buffer, sent_total );
+  if ( sq->buffer->data_length == 0 ) {
+    set_writable( sq->server_socket, false );
+  }
 }
 
 

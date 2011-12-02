@@ -29,12 +29,14 @@ static cookie_table_t cookie_table;
 static uint64_t cookie_dough = 0;
 static uint64_t INVALID_COOKIE = UINT64_MAX;
 static const time_t COOKIE_ENTRY_LIFETIME = 86400 * 30;
+static const unsigned int BUCKETS_SIZE = 131063;
 
 
 static uint64_t
 generate_cookie( void ) {
   uint64_t initial_value = ( cookie_dough != ( INVALID_COOKIE - 1 ) ) ? ++cookie_dough : 1;
 
+  cookie_dough = initial_value;
   while ( lookup_cookie_entry_by_cookie( &cookie_dough ) != NULL ) {
     if ( cookie_dough != ( INVALID_COOKIE - 1 ) ) {
       cookie_dough++;
@@ -55,7 +57,7 @@ generate_cookie( void ) {
 
 static bool
 compare_cookie( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof( uint64_t ) ) == 0 ) ? true : false );
+  return ( *( ( const uint64_t * ) x ) == *( ( const uint64_t * ) y ) ? true : false );
 }
 
 
@@ -67,7 +69,25 @@ hash_cookie_entry( const void *key ) {
 
 static bool
 compare_application( const void *x, const void *y ) {
-  return ( ( memcmp( x, y, sizeof( application_entry_t ) ) == 0 ) ? true : false );
+  const application_entry_t *ex = x;
+  const application_entry_t *ey = y;
+
+  if ( ex->cookie != ey->cookie ) {
+    return false;
+  }
+  if ( strcmp( ex->service_name, ey->service_name ) != 0 ) {
+    return false;
+  }
+  if ( ex->flags != ex->flags ) {
+    return false;
+  }
+  return true;
+}
+
+
+static unsigned int
+hash_application( const void *key ) {
+  return hash_core( key, ( int ) sizeof( uint64_t ) );
 }
 
 
@@ -114,8 +134,8 @@ free_cookie_table_walker( void *key, void *value, void *user_data ) {
 
 void
 init_cookie_table( void ) {
-  cookie_table.global = create_hash( compare_cookie, hash_cookie_entry );
-  cookie_table.application = create_hash( compare_application, hash_cookie_entry );
+  cookie_table.global = create_hash_with_size( compare_cookie, hash_cookie_entry, BUCKETS_SIZE );
+  cookie_table.application = create_hash_with_size( compare_application, hash_application, BUCKETS_SIZE );
 }
 
 
