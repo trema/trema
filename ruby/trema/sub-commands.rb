@@ -82,8 +82,8 @@ class Trema::SubCommands
     require "tempfile"
     f = Tempfile.open( "irbrc" )
     f.print <<EOF
-include Trema::CommonCommands
-$context = Trema::DSL::Context.new
+ENV[ "TREMA_HOME" ] = Trema.home
+@context = Trema::DSL::Context.new
 EOF
     f.close
     load f.path

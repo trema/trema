@@ -63,6 +63,7 @@ FileUtils.cd Trema.home do
   sub_command = ARGV.shift
   if sub_command.nil?
     Trema::SubCommands.new.start_shell
+    cleanup @context
   elsif method_for( sub_command )
     begin
       Trema::SubCommands.new.__send__ method_for( sub_command )
