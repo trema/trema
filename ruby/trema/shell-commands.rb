@@ -26,42 +26,69 @@ require "trema/dsl"
 include Trema
 
 
-def controller name
-  $context.apps[ name ]
+def vswitch name = nil, &block
+  stanza = Trema::DSL::Vswitch.new( name )
+  stanza.instance_eval( &block )
+  Trema::OpenVswitch.new( stanza, @context.port )
+  true
 end
 
 
-def switch name
-  $context.switches[ name ]
+def vhost name = nil, &block
+  stanza = Trema::DSL::Vhost.new( name )
+  stanza.instance_eval( &block ) if block
+  Trema::Host.new( stanza )
+  true
 end
 
 
-def host name
-  $context.hosts[ name ]
-end
-alias :vhost :host
+def link peer0, peer1
+  stanza = Trema::DSL::Link.new( peer0, peer1 )
+  link = Trema::Link.new( stanza )
+  link.enable!
 
-
-def run
-  sanity_check
-
-  begin
-    cleanup_current_session
-    if $run_as_daemon
-      DSL::Runner.new( $context ).daemonize
-    else
-      DSL::Runner.new( $context ).run
-    end
-  ensure
-    cleanup_current_session
+  if @context.switches[ peer0 ]
+    @context.switches[ peer0 ].add_interface link.name
   end
+  if @context.switches[ peer1 ]
+    @context.switches[ peer1 ].add_interface link.name_peer
+  end
+
+  if @context.hosts[ peer0 ]
+    @context.hosts[ peer0 ].interface = link.name
+    @context.hosts[ peer0 ].run!
+  end
+  if @context.hosts[ peer1 ]
+    @context.hosts[ peer1 ].interface = link.name_peer
+    @context.hosts[ peer1 ].run!
+  end
+
+  true
 end
 
 
-def drun
+def run controller
   sanity_check
 
-  DSL::Runner.new( $context ).daemonize
+  if controller
+    controller = controller
+    if /ELF/=~ `file #{ controller }`
+      stanza = Trema::DSL::App.new
+      stanza.path controller
+      Trema::App.new stanza
+    else
+      require "trema"
+      ARGV.replace controller.split
+      $LOAD_PATH << File.dirname( controller )
+      Trema.module_eval IO.read( controller )
+    end
+  end
+
+  runner = DSL::Runner.new( @context )
+  runner.maybe_run_switch_manager
+  runner.maybe_run_switches
+
+  @context.apps.values.last.daemonize!
 end
 
 
@@ -73,20 +100,20 @@ end
 def send_packets source, dest, options = {}
   sanity_check
 
-  Trema::Cli.new( host( source ) ).send_packets( host( dest ), options )
+  Trema::Cli.new( @context.hosts[ source ] ).send_packets( @context.hosts[ dest ], options )
 end
 
 
 def show_stats host_name, option
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
-  raise "Host '#{ host_name }' is not connected to any link." if Host[ host_name ].interface.nil?
+  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
+  raise "Host '#{ host_name }' is not connected to any link." if @context.hosts[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    puts Trema::Cli.new( Host[ host_name ] ).tx_stats
+    Trema::Cli.new( @context.hosts[ host_name ] ).show_tx_stats
   else
-    puts Trema::Cli.new( Host[ host_name ] ).rx_stats
+    Trema::Cli.new( @context.hosts[ host_name ] ).show_rx_stats
   end
 end
 
@@ -94,9 +121,9 @@ end
 def reset_stats host_name
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
+  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
 
-  Trema::Cli.new( Host[ host_name ] ).reset_stats
+  Trema::Cli.new( @context.hosts[ host_name ] ).reset_stats
 end
 
 

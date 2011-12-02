@@ -40,26 +40,6 @@ module Trema
       end
 
 
-      ################################################################################
-      private
-      ################################################################################
-
-
-      def maybe_run_trema_services
-        maybe_run_tremashark
-        maybe_run_switch_manager
-        maybe_run_packetin_filter
-        maybe_create_links
-        maybe_run_hosts
-        maybe_run_switches
-      end
-
-
-      def maybe_run_tremashark
-        @context.tremashark.run if @context.tremashark
-      end
-
-
       def maybe_run_switch_manager
         switch_manager =
           if @context.switch_manager
@@ -93,6 +73,37 @@ module Trema
       end
 
 
+      def maybe_run_switches
+        @context.switches.each do | name, switch |
+          switch.run!
+        end
+
+        @context.hosts.each do | name, host |
+          host.add_arp_entry @context.hosts.values - [ host ]
+        end
+      end
+
+
+      ################################################################################
+      private
+      ################################################################################
+
+
+      def maybe_run_trema_services
+        maybe_run_tremashark
+        maybe_run_switch_manager
+        maybe_run_packetin_filter
+        maybe_create_links
+        maybe_run_hosts
+        maybe_run_switches
+      end
+
+
+      def maybe_run_tremashark
+        @context.tremashark.run if @context.tremashark
+      end
+
+
       def maybe_run_packetin_filter
         @context.packetin_filter.run! if @context.packetin_filter
       end
@@ -116,17 +127,6 @@ module Trema
       def maybe_run_hosts
         @context.hosts.each do | name, host |
           host.run!
-        end
-      end
-
-
-      def maybe_run_switches
-        @context.switches.each do | name, switch |
-          switch.run!
-        end
-
-        @context.hosts.each do | name, host |
-          host.add_arp_entry @context.hosts.values - [ host ]
         end
       end
 
