@@ -21,6 +21,7 @@
 require "rubygems"
 
 require "rake/tasklib"
+require "cucumber/rake/task"
 require "flay"
 require "flay_task"
 require "flog"
@@ -89,6 +90,11 @@ FlayTask.new do | t |
   # add directories such as app, bin, spec and test if need be.
   t.dirs = %w( ruby )
   t.threshold = 0
+end
+
+
+Cucumber::Rake::Task.new do | t |
+  t.cucumber_opts = [ "features" ]
 end
 
 
