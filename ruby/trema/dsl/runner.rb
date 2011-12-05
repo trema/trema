@@ -42,7 +42,7 @@ module Trema
 
       def maybe_run_switch_manager
         switch_manager =
-          if @context.switch_manager
+          if @context.switch_manager and @context.apps.values.size > 0
             last_app = @context.apps.values.last.name
             if not @context.switch_manager.rule.has_key?( :port_status )
               @context.switch_manager.rule[ :port_status ] = last_app
