@@ -21,6 +21,7 @@
 require "rubygems"
 
 require "rake/tasklib"
+require "cucumber/rake/task"
 require "flay"
 require "flay_task"
 require "flog"
@@ -54,6 +55,7 @@ task :quality => [ :reek, :roodi, :flog, :flay ]
 Reek::Rake::Task.new do | t |
   t.fail_on_error = true
   t.verbose = false
+  t.ruby_opts = [ "-rubygems" ]
   t.reek_opts = "--quiet"
   t.source_files = "ruby/**/*.rb"
 end
@@ -88,6 +90,11 @@ FlayTask.new do | t |
   # add directories such as app, bin, spec and test if need be.
   t.dirs = %w( ruby )
   t.threshold = 0
+end
+
+
+Cucumber::Rake::Task.new do | t |
+  t.cucumber_opts = [ "features" ]
 end
 
 
