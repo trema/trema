@@ -329,7 +329,7 @@ end
 def run_acceptance_test
   test "Running acceptance tests ..." do
     sh "./build.rb"
-    sh "cucumber"
+    sh "rake cucumber"
   end
 end
 
