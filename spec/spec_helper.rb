@@ -34,6 +34,21 @@ Dir.glob( File.join( File.dirname( __FILE__ ), '*_supportspec.rb' ) ).each do | 
 end
 
 
+def controller name
+  Trema::App[ name ]
+end
+
+
+def switch name
+  Trema::Switch[ name ]
+end
+
+
+def host name
+  Trema::Host[ name ]
+end
+
+
 include Trema::Util
 
 

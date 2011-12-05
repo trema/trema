@@ -47,20 +47,20 @@ def link peer0, peer1
   link = Trema::Link.new( stanza )
   link.enable!
 
-  if @context.switches[ peer0 ]
-    @context.switches[ peer0 ].add_interface link.name
+  if Trema::Switch[ peer0 ]
+    Trema::Switch[ peer0 ].add_interface link.name
   end
-  if @context.switches[ peer1 ]
-    @context.switches[ peer1 ].add_interface link.name_peer
+  if Trema::Switch[ peer1 ]
+    Trema::Switch[ peer1 ].add_interface link.name_peer
   end
 
-  if @context.hosts[ peer0 ]
-    @context.hosts[ peer0 ].interface = link.name
-    @context.hosts[ peer0 ].run!
+  if Trema::Host[ peer0 ]
+    Trema::Host[ peer0 ].interface = link.name
+    Trema::Host[ peer0 ].run!
   end
-  if @context.hosts[ peer1 ]
-    @context.hosts[ peer1 ].interface = link.name_peer
-    @context.hosts[ peer1 ].run!
+  if Trema::Host[ peer1 ]
+    Trema::Host[ peer1 ].interface = link.name_peer
+    Trema::Host[ peer1 ].run!
   end
 
   true
@@ -100,20 +100,20 @@ end
 def send_packets source, dest, options = {}
   sanity_check
 
-  Trema::Cli.new( @context.hosts[ source ] ).send_packets( @context.hosts[ dest ], options )
+  Trema::Cli.new( Trema::Host[ source ] ).send_packets( Trema::Host[ dest ], options )
 end
 
 
 def show_stats host_name, option
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
-  raise "Host '#{ host_name }' is not connected to any link." if @context.hosts[ host_name ].interface.nil?
+  raise "Host '#{ host_name }' is not defined." if Trema::Host[ host_name ].nil?
+  raise "Host '#{ host_name }' is not connected to any link." if Trema::Host[ host_name ].interface.nil?
 
   if option.to_s == "tx"
-    Trema::Cli.new( @context.hosts[ host_name ] ).show_tx_stats
+    Trema::Cli.new( Trema::Host[ host_name ] ).show_tx_stats
   else
-    Trema::Cli.new( @context.hosts[ host_name ] ).show_rx_stats
+    Trema::Cli.new( Trema::Host[ host_name ] ).show_rx_stats
   end
 end
 
@@ -121,9 +121,9 @@ end
 def reset_stats host_name
   sanity_check
 
-  raise "Host '#{ host_name }' is not defined." if @context.hosts[ host_name ].nil?
+  raise "Host '#{ host_name }' is not defined." if Trema::Host[ host_name ].nil?
 
-  Trema::Cli.new( @context.hosts[ host_name ] ).reset_stats
+  Trema::Cli.new( Trema::Host[ host_name ] ).reset_stats
 end
 
 

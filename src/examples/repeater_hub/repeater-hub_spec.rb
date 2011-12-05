@@ -82,7 +82,7 @@ describe RepeaterHub do
         its( "rx_stats.n_pkts" ) { should == 1 }
       end
     end
-  end    
+  end
 
 
   context "when host1 sends one more packet after the first packet" do
@@ -96,14 +96,14 @@ describe RepeaterHub do
 
     it "should not #send_flow_mod_add" do
       controller( "RepeaterHub" ).should_not_receive( :send_flow_mod_add )
-      
+
       send_packets "host1", "host2"
     end
 
 
     describe "switch" do
       before { send_packets "host1", "host2" }
-      
+
       subject { switch( "switch" ) }
 
       it { should have( 1 ).flows }
