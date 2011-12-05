@@ -18,7 +18,7 @@ Getting Started
 Trema requires several third-party software. You can install the
 prerequisites as follows:
 
-  $ sudo apt-get install gcc make ruby ruby-dev sudo file libpcap-dev libsqlite3-dev
+  $ sudo apt-get install gcc make ruby ruby-dev irb sudo file libpcap-dev libsqlite3-dev
 
 Download Trema source tree then run its build script:
 
