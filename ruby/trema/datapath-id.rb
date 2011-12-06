@@ -1,5 +1,5 @@
 #
-# vswitch command of Trema shell.
+# Datapath ID class.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,20 +20,25 @@
 #
 
 
-require "trema/dsl"
+require "trema/monkey-patch/integer"
 
 
 module Trema
-  module Shell
-    def vswitch name = nil, &block
-      raise "Not in Trema shell" if @context.nil?
-      raise "No dpid given" if name.nil? and block.nil?
+  class DatapathId
+    def initialize value
+      raise "Invalid dpid: #{ value }" if not /\A0x/=~ value
+      @value = value
+    end
 
-      stanza = DSL::Vswitch.new( name )
-      stanza.instance_eval &block if block
-      OpenVswitch.new stanza, @context.port
 
-      true
+    def long
+      no_0x = @value.gsub( /^0x/, "" )
+      "0" * ( 16 - no_0x.length ) + no_0x
+    end
+
+
+    def short
+      @value
     end
   end
 end
@@ -41,6 +46,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
