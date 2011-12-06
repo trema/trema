@@ -1,5 +1,5 @@
 #
-# The controller class of phost.
+# reset_stats command of Trema shell.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,44 +20,24 @@
 #
 
 
-require "trema/executables"
-require "trema/process"
+require "trema/dsl"
 
 
 module Trema
-  class Phost
-    def initialize host
-      @host = host
-    end
-
-
-    def run
-      raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
-      wait_until_up
-    end
-
-
-    def shutdown!
-      Trema::Process.read( pid_file, @host.name ).kill!
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
-    end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
+  module Shell
+    def reset_stats host_name = nil
+      sanity_check
+      if host_name and Host[ host_name ].nil?
+        raise "Host '#{ host_name }' is not defined."
       end
+      if host_name
+        Cli.new( Host[ host_name ] ).reset_stats
+      else
+        Host.each do | each |
+          Cli.new( each ).reset_stats
+        end
+      end
+      true
     end
   end
 end
@@ -65,6 +45,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

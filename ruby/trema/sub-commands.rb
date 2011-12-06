@@ -77,11 +77,12 @@ class Trema::SubCommands
 
 
   def start_shell
-    require "trema"
-    require "trema/shell-commands"
     require "tempfile"
+    require "trema"
+    require "trema/shell"
     f = Tempfile.open( "irbrc" )
     f.print <<EOF
+include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home
 @context = Trema::DSL::Context.new
 EOF
