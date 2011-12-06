@@ -18,6 +18,7 @@
 #
 
 
+require "trema/datapath-id"
 require "trema/switch"
 
 
@@ -52,6 +53,7 @@ module Trema
     def initialize stanza
       @name = stanza.name
       @stanza = stanza
+      check_dpid
       Switch.add self
     end
 
@@ -67,7 +69,7 @@ module Trema
     # @api public
     #
     def dpid_long
-      @stanza[ :dpid_long ]
+      @stanza[ :dpid_long ] || DatapathId.new( @name ).long
     end
 
 
@@ -82,11 +84,11 @@ module Trema
     # @api public
     #
     def dpid_short
-      @stanza[ :dpid_short ]
+      @stanza[ :dpid_short ] || DatapathId.new( @name ).short
     end
 
 
-    # 
+    #
     # Just a placeholder, do nothing
     #
     # @example
@@ -98,6 +100,16 @@ module Trema
     #
     def run!
       # do nothing
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def check_dpid
+      dpid_long
     end
   end
 end

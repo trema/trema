@@ -1,5 +1,5 @@
 #
-# The controller class of phost.
+# link command of Trema shell.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,44 +20,33 @@
 #
 
 
-require "trema/executables"
-require "trema/process"
+require "trema/dsl"
 
 
 module Trema
-  class Phost
-    def initialize host
-      @host = host
-    end
+  module Shell
+    def link peer0, peer1
+      stanza = DSL::Link.new( peer0, peer1 )
+      link = Link.new( stanza )
+      link.enable!
 
-
-    def run
-      raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
-      wait_until_up
-    end
-
-
-    def shutdown!
-      Trema::Process.read( pid_file, @host.name ).kill!
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
-    end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
+      if Switch[ peer0 ]
+        Switch[ peer0 ].add_interface link.name
       end
+      if Switch[ peer1 ]
+        Switch[ peer1 ].add_interface link.name_peer
+      end
+
+      if Host[ peer0 ]
+        Host[ peer0 ].interface = link.name
+        Host[ peer0 ].run!
+      end
+      if Host[ peer1 ]
+        Host[ peer1 ].interface = link.name_peer
+        Host[ peer1 ].run!
+      end
+
+      true
     end
   end
 end
@@ -65,6 +54,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

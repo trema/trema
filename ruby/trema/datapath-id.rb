@@ -1,5 +1,5 @@
 #
-# The controller class of phost.
+# Datapath ID class.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,44 +20,25 @@
 #
 
 
-require "trema/executables"
-require "trema/process"
+require "trema/monkey-patch/integer"
 
 
 module Trema
-  class Phost
-    def initialize host
-      @host = host
+  class DatapathId
+    def initialize value
+      raise "Invalid dpid: #{ value }" if not /\A0x/=~ value
+      @value = value
     end
 
 
-    def run
-      raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
-      wait_until_up
+    def long
+      no_0x = @value.gsub( /^0x/, "" )
+      "0" * ( 16 - no_0x.length ) + no_0x
     end
 
 
-    def shutdown!
-      Trema::Process.read( pid_file, @host.name ).kill!
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
-    end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
-      end
+    def short
+      @value
     end
   end
 end

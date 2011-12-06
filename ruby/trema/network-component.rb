@@ -104,6 +104,21 @@ module Trema
 
 
     #
+    # Returns the number of instances.
+    #
+    # @example
+    #   App.size  #=> 3
+    #
+    # @return [Number] the number of instances
+    #
+    # @api public
+    #
+    def self.size
+      instances.values.size
+    end
+
+
+    #
     # Inserts a object to instance DB
     #
     # @example

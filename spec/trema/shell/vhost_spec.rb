@@ -1,6 +1,4 @@
 #
-# The controller class of phost.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,45 +18,32 @@
 #
 
 
-require "trema/executables"
-require "trema/process"
+require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
+require "trema"
 
 
-module Trema
-  class Phost
-    def initialize host
-      @host = host
-    end
+describe Trema::Shell, ".vhost" do
+  it "should create a new vhost if name given" do
+    vhost( "host1" )
+
+    Trema::Host.should have( 1 ).host
+    Trema::Host[ "host1" ].name.should == "host1"
+  end
 
 
-    def run
-      raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
-      wait_until_up
-    end
+  it "should take ip, netmask, promisc, and mac option" do
+    vhost( "host1" ) {
+      ip "192.168.100.1"
+      netmask "255.255.255.0"
+      promisc "on"
+      mac "00:00:00:1:1:1"
+    }
 
-
-    def shutdown!
-      Trema::Process.read( pid_file, @host.name ).kill!
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
-    end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
-      end
-    end
+    Trema::Host.should have( 1 ).host
+    Trema::Host[ "host1" ].name.should == "host1"
+    Trema::Host[ "host1" ].ip.should == "192.168.100.1"
+    Trema::Host[ "host1" ].promisc.should be_true
+    Trema::Host[ "host1" ].mac.should == "00:00:00:1:1:1"
   end
 end
 
