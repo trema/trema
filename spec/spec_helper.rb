@@ -34,6 +34,7 @@ Dir.glob( File.join( File.dirname( __FILE__ ), '*_supportspec.rb' ) ).each do | 
 end
 
 
+include Trema
 include Trema::Shell
 
 

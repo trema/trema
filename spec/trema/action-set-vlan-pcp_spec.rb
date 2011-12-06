@@ -22,9 +22,6 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-include Trema
-
-
 describe ActionSetVlanPcp, ".new( VALID OPTION )" do
   subject { ActionSetVlanPcp.new( :vlan_pcp => 7 ) }
   its( :vlan_pcp ) { should  == 7 }
