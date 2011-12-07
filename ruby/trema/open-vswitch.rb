@@ -127,7 +127,7 @@ module Trema
     # Returns flow entries
     #
     # @example
-    #   switch.flows
+    #   switch.flows  #=> [ flow0, flow1, ... ]
     #
     # @return [Array]
     #
@@ -141,37 +141,11 @@ module Trema
     ################################################################################
 
 
-    #
-    # The IP address
-    #
-    # @return [String]
-    #
-    # @api private
-    #
-    def ip
-      @stanza[ :ip ]
-    end
-
-
-    #
-    # Command-line options
-    #
-    # @return [String]
-    #
-    # @api private
-    #
     def options
       default_options.join( " " ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
 
 
-    #
-    # The list of --xyz= command-line options
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
     def default_options
       [
        "--detach",
@@ -190,57 +164,31 @@ module Trema
     end
 
 
-    #
-    # --ports= option
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
+    def ip
+      @stanza[ :ip ]
+    end
+
+
     def ports_option
       @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
     end
 
 
-    #
-    # @api private
-    #
     def running?
       FileTest.exists? pid_file
     end
 
 
-    #
-    # The path of pid file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
     def pid_file
       File.join Trema.tmp, "openflowd.#{ @name }.pid"
     end
 
 
-    #
-    # The path of log file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
     def log_file
       File.join Trema.tmp, "log/openflowd.#{ @name }.log"
     end
 
 
-    #
-    # The path of control socket
-    #
-    # @return [String]
-    #
-    # @api private
-    #
     def unixctl
       File.join Trema.tmp, "ovs-openflowd.#{ $$ }.ctl"
     end
