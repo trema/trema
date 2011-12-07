@@ -42,6 +42,11 @@ module Trema
     end
 
 
+    def users_flows switch
+      flows( switch ).select( &:users_flow? )
+    end
+
+
     def dump_flows switch
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.network_device } 2>&1`
     end

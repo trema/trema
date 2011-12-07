@@ -45,7 +45,6 @@ module Trema
       super stanza
       @port = port
       @interfaces = []
-      @ofctl = Trema::Ofctl.new
     end
 
 
@@ -132,7 +131,7 @@ module Trema
     # @return [Array]
     #
     def flows
-      @ofctl.flows( self ).select( &:users_flow? )
+      Ofctl.new.users_flows( self )
     end
 
 
