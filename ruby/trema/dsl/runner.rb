@@ -73,17 +73,6 @@ module Trema
       end
 
 
-      def maybe_run_switches
-        @context.switches.each do | name, switch |
-          switch.run!
-        end
-
-        @context.hosts.each do | name, host |
-          host.add_arp_entry @context.hosts.values - [ host ]
-        end
-      end
-
-
       ################################################################################
       private
       ################################################################################
@@ -127,6 +116,17 @@ module Trema
       def maybe_run_hosts
         @context.hosts.each do | name, host |
           host.run!
+        end
+      end
+
+
+      def maybe_run_switches
+        @context.switches.each do | name, switch |
+          switch.run!
+        end
+
+        @context.hosts.each do | name, host |
+          host.add_arp_entry @context.hosts.values - [ host ]
         end
       end
 

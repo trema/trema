@@ -1,5 +1,5 @@
 #
-# vswitch command of Trema shell.
+# down command of Trema shell.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -25,15 +25,8 @@ require "trema/dsl"
 
 module Trema
   module Shell
-    def vswitch name = nil, &block
-      raise "Not in Trema shell" if @context.nil?
-      raise "No dpid given" if name.nil? and block.nil?
-
-      stanza = DSL::Vswitch.new( name )
-      stanza.instance_eval &block if block
-      OpenVswitch.new( stanza, @context.port ).restart!
-
-      true
+    def down name
+      Switch[ name ].shutdown!
     end
   end
 end

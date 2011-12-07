@@ -44,7 +44,6 @@ module Trema
 
       runner = DSL::Runner.new( @context )
       runner.maybe_run_switch_manager
-      runner.maybe_run_switches
 
       @context.apps.values.last.daemonize!
     end

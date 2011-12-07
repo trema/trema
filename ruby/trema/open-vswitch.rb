@@ -63,6 +63,7 @@ module Trema
     #
     def add_interface name
       @interfaces << name
+      restart! if running?
     end
 
 
@@ -92,6 +93,7 @@ module Trema
     # @api public
     #
     def run!
+      shutdown! if running?
       FileUtils.rm_f log_file
       sh "sudo #{ Executables.ovs_openflowd } #{ options }"
     end
@@ -108,7 +110,27 @@ module Trema
     # @api public
     #
     def shutdown!
+      return if not running?
       Trema::Process.read( pid_file, @name ).kill!
+    end
+
+
+    #
+    # Restarts running Open vSwitch process
+    #
+    # @example
+    #   switch.restart!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def restart!
+      if running?
+        shutdown!
+        sleep 1
+      end
+      run!
     end
 
 
@@ -209,6 +231,14 @@ module Trema
     #
     def ports_option
       @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+    end
+
+
+    #
+    # @api private
+    #
+    def running?
+      FileTest.exists? pid_file
     end
 
 
