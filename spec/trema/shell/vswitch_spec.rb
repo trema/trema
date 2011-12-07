@@ -35,6 +35,7 @@ describe Trema::Shell, ".vswitch" do
 
   context "executed within a shell" do
     before { @context = mock( "context", :port => 6633 ) }
+    after { Trema::Switch[ "0xabc" ].shutdown! }
 
 
     it "should create a new vswitch if name given" do

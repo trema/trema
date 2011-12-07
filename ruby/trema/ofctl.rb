@@ -31,7 +31,7 @@ module Trema
       option_string = options.collect do | k, v |
         "#{ k }=#{ v }"
       end.join( "," )
-      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.datapath } #{ option_string },actions=#{ actions } 2>/dev/null"
+      sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.network_device } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
 
 
@@ -40,10 +40,10 @@ module Trema
         Trema::Flow.parse( each )
       end.compact
     end
-    
-    
+
+
     def dump_flows switch
-      `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.datapath } 2>&1`
+      `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.network_device } 2>&1`
     end
   end
 end

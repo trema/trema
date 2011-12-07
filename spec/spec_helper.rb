@@ -88,7 +88,7 @@ class Network
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
     SwitchManager.new( rule, @context.port ).run! [ "--no-flow-cleanup" ]
-    
+
     @context.links.each do | name, each |
       each.add!
     end
@@ -111,7 +111,7 @@ class Network
     end
     sleep 2  # FIXME: wait until controller.up?
   end
-  
+
 
   def trema_kill
     cleanup_current_session
