@@ -29,11 +29,18 @@ require "reek/rake/task"
 require "roodi"
 require "roodi_task"
 require "rspec/core/rake_task"
+require 'yard'
+require 'yard/rake/yardoc_task'
 
 
 desc "Generate a monolithic rant file"
 task "build.rb" do
   sh "rant-import --force --auto .mono.rant"
+end
+
+
+YARD::Rake::YardocTask.new do | t |
+  t.options << "--debug" << "--verbose" if $trace
 end
 
 
