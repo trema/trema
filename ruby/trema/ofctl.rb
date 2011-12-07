@@ -21,6 +21,7 @@
 
 
 require "trema/executables"
+require "trema/flow"
 
 
 module Trema

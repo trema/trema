@@ -20,7 +20,6 @@
 
 require "fileutils"
 require "trema/executables"
-require "trema/flow"
 require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
