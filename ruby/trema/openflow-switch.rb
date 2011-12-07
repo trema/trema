@@ -103,6 +103,21 @@ module Trema
     end
 
 
+    #
+    # Just a placeholder, do nothing
+    #
+    # @example
+    #   switch.shutdown!
+    #
+    # @return [undefined]
+    #
+    # @api public
+    #
+    def shutdown!
+      # do nothing
+    end
+
+
     ############################################################################
     private
     ############################################################################

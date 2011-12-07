@@ -20,12 +20,14 @@
 #
 
 
+require "trema/shell/down"
 require "trema/shell/killall"
 require "trema/shell/link"
 require "trema/shell/reset_stats"
 require "trema/shell/run"
 require "trema/shell/send_packets"
 require "trema/shell/show_stats"
+require "trema/shell/up"
 require "trema/shell/vhost"
 require "trema/shell/vswitch"
 
