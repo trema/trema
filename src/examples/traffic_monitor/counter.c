@@ -47,7 +47,7 @@ add_counter( hash_table *db, uint8_t *mac, uint64_t packet_count, uint64_t byte_
 
 void
 foreach_counter( hash_table *db, void function( uint8_t *, counter *, void * ), void *user_data ) {
-  foreach_hash( db, ( void ( * )( void *, void *, void *) ) function, user_data );
+  foreach_hash( db, ( void ( * )( void *, void *, void * ) ) function, user_data );
 }
 
 

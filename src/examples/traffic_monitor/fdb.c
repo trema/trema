@@ -44,7 +44,7 @@ learn_fdb( hash_table *db, uint8_t *mac, uint16_t port_number ) {
   if ( fdb == NULL ) {
     fdb = xmalloc( sizeof( fdb ) );
     memcpy( fdb->mac, mac, ETH_ADDRLEN );
-    fdb->port_number = 0;
+    fdb->port_number = port_number;
     insert_hash_entry( db, fdb->mac, fdb );
   }
   else {
