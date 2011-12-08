@@ -61,6 +61,7 @@ task :examples => [
   "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",
+  "examples:traffic_monitor",
 ]
 
 
@@ -567,6 +568,7 @@ standalone_examples = [
   "repeater_hub",
   "switch_info",
   "switch_monitor",
+  "traffic_monitor",
 ]
 
 standalone_examples.each do | each |
