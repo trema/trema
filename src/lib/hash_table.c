@@ -77,14 +77,33 @@ hash_atom( const void *key ) {
  */
 hash_table *
 create_hash( const compare_function compare, const hash_function hash ) {
+  return create_hash_with_size( compare, hash, default_hash_size );
+}
+
+
+/**
+ * Creates a new hash_table by specifying its bucket size.
+ *
+ * @param compare a function to check two keys for equality. This is
+ *        used when looking up keys in the hash_table. If compare is
+ *        NULL, keys are compared by compare_atom().
+ * @param hash a function to create a hash value from a key. Hash
+ *        values are used to determine where keys are stored within
+ *        the hash_table data structure. If hash_func is NULL,
+ *        hash_atom() is used.
+ * @param size the number of hash buckets.
+ * @return a new hash_table.
+ */
+hash_table *
+create_hash_with_size( const compare_function compare, const hash_function hash, unsigned int size ) {
   private_hash_table *table = xmalloc( sizeof( private_hash_table ) );
 
-  table->public.number_of_buckets = default_hash_size;
+  table->public.number_of_buckets = size;
   table->public.compare = compare ? compare : compare_atom;
   table->public.hash = hash ? hash : hash_atom;
   table->public.length = 0;
-  table->public.buckets = xmalloc( sizeof( dlist_element * ) * default_hash_size );
-  memset( table->public.buckets, 0, sizeof( dlist_element * ) * default_hash_size );
+  table->public.buckets = xmalloc( sizeof( dlist_element * ) * table->public.number_of_buckets );
+  memset( table->public.buckets, 0, sizeof( dlist_element * ) * table->public.number_of_buckets );
   table->public.nonempty_bucket_index = create_dlist();
 
   pthread_mutexattr_t attr;
@@ -308,7 +327,7 @@ foreach_hash( hash_table *table, void function( void *key, void *value, void *us
       continue;
     }
 
-    for ( dlist_element *e = table->buckets[ i ]->next; e; ) {
+    for ( dlist_element *e = table->buckets[ i ]->next; e != NULL; ) {
       hash_entry *h = e->data;
       e = e->next;
       function( h->key, h->value, user_data );
@@ -396,8 +415,9 @@ delete_hash( hash_table *table ) {
   pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
   pthread_mutex_t *mutex = ( ( private_hash_table * ) table )->mutex;
 
-  unsigned int i;
-  for ( i = 0; i < table->number_of_buckets; i++ ) {
+  for ( dlist_element *nonempty = table->nonempty_bucket_index->next; nonempty; ) {
+    unsigned int i = ( unsigned int ) ( unsigned long ) nonempty->data;
+    nonempty = nonempty->next;
     if ( table->buckets[ i ] == NULL ) {
       continue;
     }

@@ -40,6 +40,39 @@ module Trema
       end
 
 
+      def maybe_run_switch_manager
+        switch_manager =
+          if @context.switch_manager and @context.apps.values.size > 0
+            last_app = @context.apps.values.last.name
+            if not @context.switch_manager.rule.has_key?( :port_status )
+              @context.switch_manager.rule[ :port_status ] = last_app
+            end
+            if not @context.switch_manager.rule.has_key?( :packet_in )
+              @context.switch_manager.rule[ :packet_in ] = last_app
+            end
+            if not @context.switch_manager.rule.has_key?( :state_notify )
+              @context.switch_manager.rule[ :state_notify ] = last_app
+            end
+            if not @context.switch_manager.rule.has_key?( :vendor )
+              @context.switch_manager.rule[ :vendor ] = last_app
+            end
+            @context.switch_manager
+          else
+            if @context.apps.values.size == 0
+              rule = { :port_status => "default", :packet_in => "default", :state_notify => "default", :vendor => "default" }
+            elsif @context.apps.values.size == 1
+              app_name = @context.apps.values[ 0 ].name
+              rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name, :vendor => app_name }
+            else
+              # two or more apps without switch_manager.
+              raise "No event routing configured. Use `event' directive to specify event routing."
+            end
+            SwitchManager.new( rule, @context.port )
+          end
+        switch_manager.run!
+      end
+
+
       ################################################################################
       private
       ################################################################################
@@ -57,26 +90,6 @@ module Trema
 
       def maybe_run_tremashark
         @context.tremashark.run if @context.tremashark
-      end
-
-
-      def maybe_run_switch_manager
-        switch_manager = 
-          if @context.switch_manager
-            @context.switch_manager
-          else
-            if @context.apps.values.size == 0
-              rule = { :port_status => "default", :packet_in => "default", :state_notify => "default" }
-            elsif @context.apps.values.size == 1
-              app_name = @context.apps.values[ 0 ].name
-              rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-            else
-              # two or more apps without switch_manager.
-              raise "No event routing configured. Use `event' directive to specify event routing."
-            end
-            SwitchManager.new( rule, @context.port )
-          end
-        switch_manager.run!
       end
 
 

@@ -20,7 +20,17 @@
 
 require "rubygems"
 
+require "rake/tasklib"
+require "cucumber/rake/task"
+require "flay"
+require "flay_task"
+require "flog"
+require "reek/rake/task"
+require "roodi"
+require "roodi_task"
 require "rspec/core/rake_task"
+require 'yard'
+require 'yard/rake/yardoc_task'
 
 
 desc "Generate a monolithic rant file"
@@ -29,73 +39,69 @@ task "build.rb" do
 end
 
 
+YARD::Rake::YardocTask.new do | t |
+  t.options << "--debug" << "--verbose" if $trace
+end
+
+
 desc "Run all examples with RCov"
 RSpec::Core::RakeTask.new do | t |
   t.pattern = [ "spec/**/*_spec.rb", "src/examples/**/*_spec.rb" ]
   t.rspec_opts = "--color --format documentation --profile"
-  t.rcov = true
-  t.rcov_opts = %[--exclude "gems/*"]
 end
 
 
-begin
-  require "rake/tasklib"
-  require "flay"
-  require "flay_task"
-  require "flog"
-  require "reek/rake/task"
-  require "roodi"
-  require "roodi_task"
+desc "Enforce Ruby code quality with static analysis of code"
+task :quality => [ :reek, :roodi, :flog, :flay ]
 
 
-  desc "Enforce Ruby code quality with static analysis of code"
-  task :quality => [ :reek, :roodi, :flog, :flay ]
+#
+# See the follwing URL for details:
+# http://wiki.github.com/kevinrutherford/reek/rake-task
+#
+Reek::Rake::Task.new do | t |
+  t.fail_on_error = true
+  t.verbose = false
+  t.ruby_opts = [ "-rubygems" ]
+  t.reek_opts = "--quiet"
+  t.source_files = "ruby/**/*.rb"
+end
 
 
-  #
-  # See the follwing URL for details:
-  # http://wiki.github.com/kevinrutherford/reek/rake-task
-  #
-  Reek::Rake::Task.new do | t |
-    t.fail_on_error = true
-    t.verbose = false
-    t.reek_opts = "--quiet"
-    t.source_files = "ruby/**/*.rb"
+RoodiTask.new do | t |
+  t.patterns = %w(ruby/**/*.rb spec/**/*.rb features/**/*.rb)
+end
+
+
+desc "Analyze for code complexity"
+task :flog do
+  flog = Flog.new( :continue => true )
+  flog.flog [ "ruby" ]
+  threshold = 10
+
+  bad_methods = flog.totals.select do | name, score |
+    name != "main#none" && score > threshold
   end
-
-
-  RoodiTask.new do | t |
-    t.patterns = %w(ruby/**/*.rb spec/**/*.rb features/**/*.rb)
+  bad_methods.sort do | a, b |
+    a[ 1 ] <=> b[ 1 ]
+  end.each do | name, score |
+    puts "%8.1f: %s" % [ score, name ]
   end
-
-
-  desc "Analyze for code complexity"
-  task :flog do
-    flog = Flog.new( :continue => true )
-    flog.flog [ "ruby" ]
-    threshold = 10
-
-    bad_methods = flog.totals.select do | name, score |
-      name != "main#none" && score > threshold
-    end
-    bad_methods.sort do | a, b |
-      a[ 1 ] <=> b[ 1 ]
-    end.each do | name, score |
-      puts "%8.1f: %s" % [ score, name ]
-    end
-    unless bad_methods.empty?
-      raise "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
-    end
+  unless bad_methods.empty?
+    raise "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
   end
+end
 
 
-  FlayTask.new do | t |
-    # add directories such as app, bin, spec and test if need be.
-    t.dirs = %w( ruby )
-    t.threshold = 0
-  end
-rescue LoadError
-  $stderr.puts "WARNING: #{ $!.message } (ignored)"
+FlayTask.new do | t |
+  # add directories such as app, bin, spec and test if need be.
+  t.dirs = %w( ruby )
+  t.threshold = 0
+end
+
+
+Cucumber::Rake::Task.new do | t |
+  t.cucumber_opts = [ "features" ]
 end
 
 

@@ -1,0 +1,12 @@
+source "http://rubygems.org"
+gem "cucumber"
+gem "flay"
+gem "flog"
+gem "rake"
+gem "rcov"
+gem "rdoc"
+gem "reek"
+gem "roodi"
+gem "rspec"
+gem "yard"
+

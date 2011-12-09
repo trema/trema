@@ -114,6 +114,7 @@ typedef struct {
 
 
 hash_table *create_hash( const compare_function compare, const hash_function hash );
+hash_table *create_hash_with_size( const compare_function compare, const hash_function hash, unsigned int size );
 void *insert_hash_entry( hash_table *table, void *key, void *value );
 void *lookup_hash_entry( hash_table *table, const void *key );
 void *delete_hash_entry( hash_table *table, const void *key );

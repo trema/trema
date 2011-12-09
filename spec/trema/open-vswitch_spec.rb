@@ -32,6 +32,11 @@ module Trema
     end
 
 
+    after :each do
+      @vswitch.shutdown!
+    end
+
+
     it "should return its name" do
       @vswitch.name.should == "0xabc"
     end

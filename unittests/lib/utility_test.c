@@ -258,10 +258,268 @@ test_phy_port_to_string_fails_with_insufficient_buffer() {
 
 
 static void
+test_actions_to_string_with_action_output() {
+  char str[ 128 ];
+  char expected_str[] = "output: port=1 max_len=65535";
+  struct ofp_action_output action;
+
+  action.type = OFPAT_OUTPUT;
+  action.len = sizeof( struct ofp_action_output );
+  action.port = 1;
+  action.max_len = 65535;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_vlan_vid() {
+  char str[ 128 ];
+  char expected_str[] = "set_vlan_vid: vlan_vid=0xbeef";
+  struct ofp_action_vlan_vid action;
+
+  action.type = OFPAT_SET_VLAN_VID;
+  action.len = sizeof( struct ofp_action_vlan_vid );
+  action.vlan_vid = 0xbeef;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_vlan_pcp() {
+  char str[ 128 ];
+  char expected_str[] = "set_vlan_pcp: vlan_pcp=0xf0";
+  struct ofp_action_vlan_pcp action;
+
+  action.type = OFPAT_SET_VLAN_PCP;
+  action.len = sizeof( struct ofp_action_vlan_pcp );
+  action.vlan_pcp = 0xf0;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_strip_vlan() {
+  char str[ 128 ];
+  char expected_str[] = "strip_vlan";
+  struct ofp_action_header action;
+
+  action.type = OFPAT_STRIP_VLAN;
+  action.len = sizeof( struct ofp_action_header );
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_dl_src() {
+  char str[ 128 ];
+  char expected_str[] = "set_dl_src: dl_addr=01:02:03:04:05:06";
+  struct ofp_action_dl_addr action;
+
+  action.type = OFPAT_SET_DL_SRC;
+  action.len = sizeof( struct ofp_action_dl_addr );
+  action.dl_addr[ 0 ] = 0x01;
+  action.dl_addr[ 1 ] = 0x02;
+  action.dl_addr[ 2 ] = 0x03;
+  action.dl_addr[ 3 ] = 0x04;
+  action.dl_addr[ 4 ] = 0x05;
+  action.dl_addr[ 5 ] = 0x06;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_dl_dst() {
+  char str[ 128 ];
+  char expected_str[] = "set_dl_dst: dl_addr=01:02:03:04:05:06";
+  struct ofp_action_dl_addr action;
+
+  action.type = OFPAT_SET_DL_DST;
+  action.len = sizeof( struct ofp_action_dl_addr );
+  action.dl_addr[ 0 ] = 0x01;
+  action.dl_addr[ 1 ] = 0x02;
+  action.dl_addr[ 2 ] = 0x03;
+  action.dl_addr[ 3 ] = 0x04;
+  action.dl_addr[ 4 ] = 0x05;
+  action.dl_addr[ 5 ] = 0x06;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_nw_src() {
+  char str[ 128 ];
+  char expected_str[] = "set_nw_src: nw_addr=10.0.0.1";
+  struct ofp_action_nw_addr action;
+
+  action.type = OFPAT_SET_NW_SRC;
+  action.len = sizeof( struct ofp_action_nw_addr );
+  action.nw_addr = 0x0a000001;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_nw_dst() {
+  char str[ 128 ];
+  char expected_str[] = "set_nw_dst: nw_addr=10.0.0.1";
+  struct ofp_action_nw_addr action;
+
+  action.type = OFPAT_SET_NW_DST;
+  action.len = sizeof( struct ofp_action_nw_addr );
+  action.nw_addr = 0x0a000001;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_nw_tos() {
+  char str[ 128 ];
+  char expected_str[] = "set_nw_tos: nw_tos=0x3";
+  struct ofp_action_nw_tos action;
+
+  action.type = OFPAT_SET_NW_TOS;
+  action.len = sizeof( struct ofp_action_nw_tos );
+  action.nw_tos = 0x3;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_tp_src() {
+  char str[ 128 ];
+  char expected_str[] = "set_tp_src: tp_port=1024";
+  struct ofp_action_tp_port action;
+
+  action.type = OFPAT_SET_TP_SRC;
+  action.len = sizeof( struct ofp_action_tp_port );
+  action.tp_port = 1024;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_set_tp_dst() {
+  char str[ 128 ];
+  char expected_str[] = "set_tp_dst: tp_port=1024";
+  struct ofp_action_tp_port action;
+
+  action.type = OFPAT_SET_TP_DST;
+  action.len = sizeof( struct ofp_action_tp_port );
+  action.tp_port = 1024;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_enqueue() {
+  char str[ 128 ];
+  char expected_str[] = "enqueue: port=16 queue_id=3";
+  struct ofp_action_enqueue action;
+
+  action.type = OFPAT_ENQUEUE;
+  action.len = sizeof( struct ofp_action_enqueue );
+  action.port = 16;
+  action.queue_id = 3;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_action_vendor() {
+  char str[ 128 ];
+  char expected_str[] = "vendor: vendor=0xdeadbeef";
+  struct ofp_action_vendor_header action;
+
+  action.type = OFPAT_VENDOR;
+  action.len = sizeof( struct ofp_action_vendor_header );
+  action.vendor = 0xdeadbeef;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_undefined_action() {
+  char str[ 128 ];
+  char expected_str[] = "undefined: type=0xcafe";
+  struct ofp_action_header action;
+
+  action.type = 0xcafe;
+  action.len = sizeof( struct ofp_action_header );
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+}
+
+
+static void
+test_actions_to_string_with_multiple_actions() {
+  char str[ 128 ];
+  char expected_str[] = "output: port=1 max_len=65535, set_vlan_vid: vlan_vid=0xbeef";
+  uint16_t actions_length = sizeof( struct ofp_action_output ) + sizeof( struct ofp_action_vlan_vid );
+  void *actions = malloc( actions_length );
+  memset( actions, 0, actions_length );
+  struct ofp_action_output *output = actions;
+  struct ofp_action_vlan_vid *vlan_vid = ( struct ofp_action_vlan_vid * ) ( ( char * ) actions + sizeof( struct ofp_action_output ) );
+
+  output->type = OFPAT_OUTPUT;
+  output->len = sizeof( struct ofp_action_output );
+  output->port = 1;
+  output->max_len = 65535;
+  vlan_vid->type = OFPAT_SET_VLAN_VID;
+  vlan_vid->len = sizeof( struct ofp_action_vlan_vid );
+  vlan_vid->vlan_vid = 0xbeef;
+
+  assert_true( actions_to_string( ( const struct ofp_action_header * ) actions, actions_length, str, sizeof( str ) ) );
+  assert_string_equal( str, expected_str );
+  free( actions );
+}
+
+
+static void
+test_actions_to_string_fails_with_insufficient_buffer() {
+  char str[ 1 ];
+  struct ofp_action_output action;
+
+  action.type = OFPAT_OUTPUT;
+  action.len = sizeof( struct ofp_action_output );
+  action.port = 1;
+  action.max_len = 65535;
+
+  assert_false( actions_to_string( ( const struct ofp_action_header * ) &action, action.len, str, sizeof( str ) ) );
+}
+
+
+static void
 test_get_checksum_udp_packet() {
   ipv4_header_t ipv4_header;
 
-  /* Create a test packet. */
+  // Create a test packet.
   memset( &ipv4_header, 0, sizeof( ipv4_header ) );
   ipv4_header.version = 4;
   ipv4_header.ihl = 5;
@@ -285,7 +543,7 @@ static void
 test_get_checksum_icmp_packet() {
   ipv4_header_t ipv4_header;
 
-  /* Create a test packet. */
+  // Create a test packet.
   memset( &ipv4_header, 0, sizeof( ipv4_header ) );
   ipv4_header.version = 4;
   ipv4_header.ihl = 5;
@@ -336,6 +594,23 @@ main() {
 
     unit_test( test_phy_port_to_string ),
     unit_test( test_phy_port_to_string_fails_with_insufficient_buffer ),
+
+    unit_test( test_actions_to_string_with_action_output ),
+    unit_test( test_actions_to_string_with_action_set_vlan_vid ),
+    unit_test( test_actions_to_string_with_action_set_vlan_pcp ),
+    unit_test( test_actions_to_string_with_action_strip_vlan ),
+    unit_test( test_actions_to_string_with_action_set_dl_src ),
+    unit_test( test_actions_to_string_with_action_set_dl_dst ),
+    unit_test( test_actions_to_string_with_action_set_nw_src ),
+    unit_test( test_actions_to_string_with_action_set_nw_dst ),
+    unit_test( test_actions_to_string_with_action_set_nw_tos ),
+    unit_test( test_actions_to_string_with_action_set_tp_src ),
+    unit_test( test_actions_to_string_with_action_set_tp_dst ),
+    unit_test( test_actions_to_string_with_action_enqueue ),
+    unit_test( test_actions_to_string_with_action_vendor ),
+    unit_test( test_actions_to_string_with_undefined_action ),
+    unit_test( test_actions_to_string_with_multiple_actions ),
+    unit_test( test_actions_to_string_fails_with_insufficient_buffer ),
 
     unit_test( test_get_checksum_udp_packet ),
     unit_test( test_get_checksum_icmp_packet ),
