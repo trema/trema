@@ -25,7 +25,7 @@ end
 
 
 When /^I send 1 packet from (.+) to (.+)$/ do | host_a, host_b |
-  When "I send 1 packets from #{ host_a } to #{ host_b }"
+  step "I send 1 packets from #{ host_a } to #{ host_b }"
 end
 
 

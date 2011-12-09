@@ -49,26 +49,30 @@ EOF
   end
 
 
-  def cleanup_current_session
-    last_session = Trema::DSL::Parser.new.load_current
-    last_session.apps.each do | name, app |
+  def cleanup session
+    session.apps.each do | name, app |
       app.shutdown!
     end
-    last_session.switches.each do | name, switch |
+    session.switches.each do | name, switch |
       switch.shutdown!
     end
-    last_session.hosts.each do | name, host |
+    session.hosts.each do | name, host |
       host.shutdown!
     end
-    last_session.links.each do | name, link |
+    session.links.each do | name, link |
       link.delete!
     end
-    
+
     Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
-    
+
     FileUtils.rm_f Trema::DSL::Parser::CURRENT_CONTEXT
+  end
+
+
+  def cleanup_current_session
+    cleanup Trema::DSL::Parser.new.load_current
   end
 end
 

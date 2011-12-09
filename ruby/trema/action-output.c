@@ -32,6 +32,8 @@ VALUE cActionOutput;
  * @overload initialize(options={})
  *
  *   @example
+ *     ActionOutput.new( 1 )
+ *     ActionOutput.new( :port => 1, :max_len => 256 )
  *     ActionOutput.new( :port => 1 )
  *     ActionOutput.new( :port => 1, :max_len => 256 )
  *
@@ -49,20 +51,15 @@ VALUE cActionOutput;
  *     is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet
  *     should be sent. It defaults to 64K.
  *
- *   @raise [ArgumentError] if port argument is not supplied.
  *   @raise [ArgumentError] if port is not an unsigned 16-bit integer.
  *   @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
- *   @raise [TypeError] if options is not a Hash.
  *
  *   @return [ActionOutput] self
  *     an object that encapsulates this action.
  */
 static VALUE
-action_output_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
+action_output_init( VALUE self, VALUE options ) {
+  if ( rb_obj_is_kind_of( options, rb_cHash ) ) {
     VALUE port;
     if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
       if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
@@ -84,8 +81,15 @@ action_output_init( int argc, VALUE *argv, VALUE self ) {
     }
     rb_iv_set( self, "@max_len", max_len );
   }
+  else if ( rb_obj_is_kind_of( options, rb_cInteger ) ) {
+    if ( rb_funcall( options, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
+    }
+    rb_iv_set( self, "@port", options );
+    rb_iv_set( self, "@max_len", UINT2NUM( UINT16_MAX ) );
+  }
   else {
-    rb_raise( rb_eArgError, "Port is a mandatory option" );
+    rb_raise( rb_eArgError, "Invalid option" );
   }
   return self;
 }
@@ -149,7 +153,7 @@ action_output_inspect( VALUE self ) {
 void
 Init_action_output() {
   cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
-  rb_define_method( cActionOutput, "initialize", action_output_init, -1 );
+  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "port", action_output_port, 0 );
   rb_define_method( cActionOutput, "max_len", action_output_max_len, 0 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );

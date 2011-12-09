@@ -88,7 +88,7 @@ module Trema
     def ip
       stanza_ip = @stanza[ :ip ]
       if stanza_ip.nil?
-        # FIXME: Find unused addresses        
+        # FIXME: Find unused addresses
         "192.168.0.#{ @index + 1 }"
       else
         stanza_ip
@@ -114,7 +114,7 @@ module Trema
         stanza_mac
       end
     end
-    
+
 
     #
     # Returns netmask
@@ -133,7 +133,7 @@ module Trema
       else
         stanza_netmask
       end
-    end      
+    end
 
 
     #
@@ -216,7 +216,7 @@ module Trema
         raise
       end
     end
-    
+
 
     #
     # Returns tx stats

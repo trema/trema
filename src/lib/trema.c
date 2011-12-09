@@ -37,6 +37,7 @@
 #include "log.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
+#include "packetin_filter_interface.h"
 #include "timer.h"
 #include "trema_private.h"
 #include "utility.h"
@@ -250,6 +251,12 @@ bool mock_set_external_callback( void ( *callback ) ( void ) );
 #define dump_stats mock_dump_stats
 void mock_dump_stats();
 
+#ifdef finalize_packetin_filter_interface
+#undef finalize_packetin_filter_interface
+#endif
+#define finalize_packetin_filter_interface mock_finalize_packetin_filter_interface
+bool mock_finalize_packetin_filter_interface();
+
 #define static
 
 #endif // UNIT_TESTING
@@ -333,6 +340,7 @@ finalize_trema() {
   debug( "Terminating %s...", get_trema_name() );
 
   maybe_finalize_openflow_application_interface();
+  finalize_packetin_filter_interface();
   finalize_messenger();
   finalize_stat();
   finalize_timer();

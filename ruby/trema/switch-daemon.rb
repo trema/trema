@@ -29,7 +29,7 @@ module Trema
 
 
     def options
-      [ portstatus_queue, packetin_queue, statenotify_queue ]
+      [ portstatus_queue, packetin_queue, statenotify_queue, vendor_queue ]
     end
 
 
@@ -49,7 +49,7 @@ module Trema
       "port_status::#{ @queues[ :port_status ] }"
     end
 
-    
+
     def packetin_queue
       "packet_in::#{ @queues[ :packet_in ] }"
     end
@@ -57,6 +57,11 @@ module Trema
 
     def statenotify_queue
       "state_notify::#{ @queues[ :state_notify ] }"
+    end
+
+
+    def vendor_queue
+      "vendor::#{ @queues[ :vendor ] }"
     end
   end
 end

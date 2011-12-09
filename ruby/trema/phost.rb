@@ -30,7 +30,7 @@ module Trema
       @host = host
     end
 
-    
+
     def run
       raise "The link(s) for vhost '#{ @host.name }' is not defined." if @host.interface.nil?
       sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
@@ -41,7 +41,7 @@ module Trema
     def shutdown!
       Trema::Process.read( pid_file, @host.name ).kill!
     end
-    
+
 
     ################################################################################
     private
@@ -68,4 +68,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-

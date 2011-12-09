@@ -24,6 +24,7 @@
 $LOAD_PATH.unshift( File.expand_path( File.join File.dirname( __FILE__ ), "ruby" ) )
 
 
+require "English"
 require "fileutils"
 require "trema"
 
@@ -33,7 +34,7 @@ def method_for sub_command
     when "run", "start"
       return :run
     when "kill", "stop", "off"
-      return :kill 
+      return :kill
     when "killall"
       return :killall
     when "send_packets"
@@ -62,8 +63,14 @@ FileUtils.cd Trema.home do
   sub_command = ARGV.shift
   if sub_command.nil?
     Trema::SubCommands.new.start_shell
+    cleanup @context
   elsif method_for( sub_command )
-    Trema::SubCommands.new.__send__ method_for( sub_command )
+    begin
+      Trema::SubCommands.new.__send__ method_for( sub_command )
+    rescue
+      $stderr.puts $ERROR_INFO.message
+      exit false
+    end
   else
     $stderr.puts "Unknown command: '#{ sub_command }'"
     $stderr.puts "Type '#{ $0 } --help' for usage."
