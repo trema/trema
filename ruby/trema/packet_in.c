@@ -432,9 +432,9 @@ Init_packet_in() {
   rb_define_method( cPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
 
   cPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
-  rb_define_method( cPacketIn, "udp_payload", packet_in_udp_payload, 0 );
-  rb_define_method( cPacketIn, "udp_src_port", packet_in_udp_src_port, 0 );
-  rb_define_method( cPacketIn, "udp_dst_port", packet_in_udp_dst_port, 0 );
+  rb_define_method( cPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
+  rb_define_method( cPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
+  rb_define_method( cPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
 }
 
 
