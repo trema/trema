@@ -32,11 +32,11 @@ VALUE cPacketInTCP;
 VALUE cPacketInUDP;
 
 
-#define PACKET_IN_RETURN_MAC(packet_member)                         \
+#define PACKET_IN_RETURN_MAC( packet_member )                         \
   VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );
 
-#define PACKET_IN_RETURN_IP(packet_member)                          \
+#define PACKET_IN_RETURN_IP( packet_member )                          \
   VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
   return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret );
 
@@ -245,7 +245,7 @@ packet_in_arp_spa( VALUE self ) {
  */
 static VALUE
 packet_in_arp_tha( VALUE self ) {
-  PACKET_IN_RETURN_MAC(arp_tha);
+  PACKET_IN_RETURN_MAC( arp_tha );
 }
 
 
