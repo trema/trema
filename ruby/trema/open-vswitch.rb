@@ -20,17 +20,15 @@
 
 require "fileutils"
 require "trema/executables"
-require "trema/flow"
 require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
 require "trema/process"
-require "trema/switch"
 
 
 module Trema
   #
-  # Open vSwitch http://openvswitch.org/
+  # Open vSwitch support (http://openvswitch.org)
   #
   class OpenVswitch < OpenflowSwitch
     #
@@ -41,13 +39,10 @@ module Trema
     #
     # @return [OpenVswitch]
     #
-    # @api public
-    #
     def initialize stanza, port
       super stanza
       @port = port
       @interfaces = []
-      @ofctl = Trema::Ofctl.new
     end
 
 
@@ -59,24 +54,22 @@ module Trema
     #
     # @return [undefined]
     #
-    # @api public
-    #
-    def add_interface name
-      @interfaces << name
+    def add_interface interface
+      @interfaces << interface
+      restart!
     end
 
 
     #
-    # Returns the unique name that identifies an Open vSwitch instance
+    # Returns the network device name associated with the datapath's
+    # local port
     #
     # @example
-    #   switch.datapath_id
+    #   switch.network_device  #=> "vsw_0xabc"
     #
     # @return [String]
     #
-    # @api public
-    #
-    def datapath
+    def network_device
       "vsw_#{ @stanza[ :dpid_short ] }"
     end
 
@@ -89,9 +82,8 @@ module Trema
     #
     # @return [undefined]
     #
-    # @api public
-    #
     def run!
+      raise "Open vSwitch '#{ @name }' is already running!" if running?
       FileUtils.rm_f log_file
       sh "sudo #{ Executables.ovs_openflowd } #{ options }"
     end
@@ -105,83 +97,50 @@ module Trema
     #
     # @return [undefined]
     #
-    # @api public
-    #
     def shutdown!
       Trema::Process.read( pid_file, @name ).kill!
     end
-    
+
+
+    #
+    # Restarts running Open vSwitch process
+    #
+    # @example
+    #   switch.restart!
+    #
+    # @return [undefined]
+    #
+    def restart!
+      return if not running?
+      shutdown!
+      sleep 1
+      run!
+    end
+
 
     #
     # Returns flow entries
     #
     # @example
-    #   switch.flows
+    #   switch.flows  #=> [ flow0, flow1, ... ]
     #
     # @return [Array]
     #
-    # @api public
-    #
     def flows
-      @ofctl.flows( self ).select do | each |
-        not each.rspec_flow?
-      end
+      Ofctl.new.users_flows( self )
     end
-    
 
-    #
-    # A stub handler when flow_mod_add is called
-    #
-    # @example
-    #   def switch.flow_mod_add line
-    #     p "New flow_mod!: #{ line }"
-    #   end
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def flow_mod_add line
-      # Do nothing
-    end
-    
 
     ################################################################################
     private
     ################################################################################
 
 
-    #
-    # The IP address
-    #
-    # @return [String]
-    #
-    # @api private
-    #
-    def ip
-      @stanza[ :ip ]
-    end
-
-
-    #
-    # Command-line options
-    #
-    # @return [String]
-    #
-    # @api private
-    #
     def options
-      default_options.join( " " ) + " netdev@#{ datapath } tcp:#{ ip }:#{ @port }"
+      default_options.join( " " ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
 
 
-    #
-    # The list of --xyz= command-line options
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
     def default_options
       [
        "--detach",
@@ -195,43 +154,38 @@ module Trema
        "--verbose=ANY:console:err",
        "--log-file=#{ log_file }",
        "--datapath-id=#{ dpid_long }",
+       "--unixctl=#{ unixctl }",
       ] + ports_option
     end
 
 
-    #
-    # --ports= option
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
+    def ip
+      @stanza[ :ip ]
+    end
+
+
     def ports_option
       @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
     end
 
 
-    #
-    # The path of pid file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
+    def running?
+      FileTest.exists? pid_file
+    end
+
+
     def pid_file
       File.join Trema.tmp, "openflowd.#{ @name }.pid"
     end
-    
 
-    #
-    # The path of log file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
+
     def log_file
-      "#{ Trema.tmp }/log/openflowd.#{ @name }.log"
+      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
+    end
+
+
+    def unixctl
+      File.join Trema.tmp, "ovs-openflowd.#{ @name }.ctl"
     end
   end
 end

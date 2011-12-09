@@ -38,14 +38,14 @@ module Trema
     #
     # @api public
     #
-    attr_reader :rule
+    attr_accessor :rule
 
 
     #
     # Creates a switch manager controller
     #
     # @example
-    #   rule = { :port_status => "topology manager", :packet_in => "controller", :state_notify => "topology manager" }
+    #   rule = { :port_status => "topology manager", :packet_in => "controller", :state_notify => "topology manager", :vendor => "controller" }
     #   switch_manager = Trema::SwitchManager.new( rule )
     #
     # @return [SwitchManager]
@@ -72,7 +72,7 @@ module Trema
     def name
       "switch manager"
     end
-    
+
 
     #
     # Runs an switch manager process
@@ -106,7 +106,7 @@ module Trema
       opts << "--port=#{ @port }" if @port
       opts
     end
-    
+
 
     #
     # Returns the command line options of switch daemon ({SwitchDaemon})

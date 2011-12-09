@@ -77,13 +77,14 @@ class Trema::SubCommands
 
 
   def start_shell
-    require "trema"
-    require "trema/shell-commands"
     require "tempfile"
+    require "trema"
+    require "trema/shell"
     f = Tempfile.open( "irbrc" )
     f.print <<EOF
-include Trema::CommonCommands
-$context = Trema::DSL::Context.new
+include Trema::Shell
+ENV[ "TREMA_HOME" ] = Trema.home
+@context = Trema::DSL::Context.new
 EOF
     f.close
     load f.path
@@ -123,10 +124,11 @@ EOF
     dest = nil
     cli_options = {}
 
-    @options.banner = "Usage: #{ $0 } send_packets [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } send_packets --source HOSTNAME --dest HOSTNAME [OPTIONS ...]"
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
       source = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if source.nil?
     end
     @options.on( "--inc_ip_src [NUMBER]" ) do | v |
       if v
@@ -137,6 +139,7 @@ EOF
     end
     @options.on( "-d", "--dest HOSTNAME" ) do | v |
       dest = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if dest.nil?
     end
     @options.on( "--inc_ip_dst [NUMBER]" ) do | v |
       if v
@@ -200,7 +203,7 @@ EOF
 
     stats = nil
 
-    @options.banner = "Usage: #{ $0 } show_stats [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
 
     @options.on( "-t", "--tx" ) do
       stats = :tx
@@ -216,13 +219,18 @@ EOF
     @options.parse! ARGV
 
     host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
+    raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
+
     case stats
     when :tx
       Trema::Cli.new( host ).show_tx_stats
     when :rx
       Trema::Cli.new( host ).show_rx_stats
     else
-      raise "We should not reach here."      
+      puts "Sent packets:"
+      Trema::Cli.new( host ).show_tx_stats
+      puts "Received packets:"
+      Trema::Cli.new( host ).show_rx_stats
     end
   end
 

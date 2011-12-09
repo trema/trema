@@ -51,6 +51,7 @@ bool string_to_datapath_id( const char *str, uint64_t *datapath_id );
 
 bool match_to_string( const struct ofp_match *match, char *str, size_t size );
 bool phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size );
+bool actions_to_string( const struct ofp_action_header *actions, uint16_t actions_length, char *str, size_t str_length );
 
 uint16_t get_checksum( uint16_t *pos, uint32_t size );
 

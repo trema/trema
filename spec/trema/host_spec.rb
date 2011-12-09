@@ -26,7 +26,7 @@ module Trema
   describe Host do
     before {
       Host.instances.clear
-      
+
       @cli = mock( "cli" )
       Cli.stub!( :new ).and_return( @cli )
     }
@@ -50,7 +50,7 @@ module Trema
         it { should == "192.168.100.100" }
       end
     end
-        
+
 
     describe :mac do
       context "when mac is omitted" do
@@ -90,7 +90,7 @@ module Trema
         it { should == "255.255.0.0" }
       end
     end
-    
+
 
     context "when #add_arp_entries" do
       describe :cli do
@@ -100,7 +100,7 @@ module Trema
           @host2 = mock( "HOST 2" )
           @host3 = mock( "HOST 3" )
         }
-        
+
         it "should add arp entries" do
           @cli.should_receive( :add_arp_entry ).with( @host1 )
           @cli.should_receive( :add_arp_entry ).with( @host2 )
@@ -115,9 +115,9 @@ module Trema
     context "when #run!" do
       describe :cli do
         before {
-          Phost.stub!( :new ).and_return( mock( "phost" ).as_null_object )
+          Phost.stub!( :new ).and_return( mock( "phost", :run => nil ) )
         }
-        
+
         it "should set IP and MAC address" do
           @cli.should_receive( :set_ip_and_mac_address )
 
@@ -130,7 +130,7 @@ module Trema
 
           it "should enable promisc" do
             @cli.should_receive( :enable_promisc )
-          
+
             Host.new( :name => "Yutaro's host", :promisc => true ).run!
           end
         end
@@ -159,9 +159,9 @@ module Trema
         @stats = mock( "stats" )
         @host = Host.new( :name => "Yutaro's host" )
       }
-      
 
-      context "when #tx_stats" do      
+
+      context "when #tx_stats" do
         describe :cli do
           it "should get tx stats" do
             @cli.should_receive( :tx_stats ).and_return( @stats )
@@ -171,7 +171,7 @@ module Trema
         end
       end
 
-      
+
       context "when #rx_stats" do
         describe :cli do
           it "should get rx stats" do

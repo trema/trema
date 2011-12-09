@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
@@ -30,7 +31,7 @@
 #include "secure_channel_receiver.h"
 
 
-static const size_t RECEIVE_BUFFFER_SIZE = 32 * 1024;
+static const size_t RECEIVE_BUFFFER_SIZE = UINT16_MAX + sizeof(struct ofp_packet_in) - 2;
 
 
 int

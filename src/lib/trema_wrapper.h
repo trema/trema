@@ -27,6 +27,8 @@
 #include <sqlite3.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 
 extern int ( *trema_fprintf )( FILE *stream, const char *format, ... );
@@ -40,6 +42,8 @@ extern void ( *trema_free )( void *ptr );
 extern void ( *trema_abort )( void );
 
 extern int ( *trema_unlink ) ( const char *pathname );
+
+extern pid_t ( *trema_getpid )( void );
 
 extern int ( *trema_sqlite3_open) ( const char *filename, sqlite3 **ppDb );
 extern int ( *trema_sqlite3_close ) ( sqlite3 * );

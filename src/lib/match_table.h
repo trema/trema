@@ -36,7 +36,7 @@ void *lookup_match_strict_entry( struct ofp_match match, uint16_t priority );
 void *lookup_match_entry( struct ofp_match match );
 bool update_match_entry( struct ofp_match match, uint16_t priority, void *data );
 void *delete_match_entry( struct ofp_match match, uint16_t priority );
-void foreach_match_table( void function( struct ofp_match match, uint16_t priority, void *data ) );
+void foreach_match_table( void function( struct ofp_match match, uint16_t priority, void *data, void *user_data ), void *user_data );
 
 
 #endif // MATCH_TABLE_H

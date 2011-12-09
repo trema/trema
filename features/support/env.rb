@@ -24,6 +24,7 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" )
 require "rspec"
 require "tempfile"
 require "trema/executables"
+require "trema/monkey-patch/string"
 
 
 def run command

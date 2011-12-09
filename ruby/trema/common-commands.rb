@@ -62,7 +62,7 @@ module Trema::CommonCommands
   def vswitch name = nil, &block
     stanza = Trema::DSL::Vswitch.new( name )
     stanza.instance_eval( &block )
-    Trema::OpenVswitch.new( stanza, @context.port )
+    Trema::OpenVswitch.new stanza, @context.port
   end
 
 

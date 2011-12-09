@@ -1,0 +1,12 @@
+This directory includes examples that demonstrate how you can
+add/delete/dump Packet-In filters.
+
+# How to Run
+
+  % ./trema run -c ./src/examples/packetin_filter_config/packetin_filter_config.conf -d
+
+  % TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/add_filter
+  % TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/dump_filter
+  % TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/dump_filter_strict
+  % TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/delete_filter_strict
+  % TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/delete_filter

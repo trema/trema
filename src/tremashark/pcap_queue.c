@@ -20,12 +20,13 @@
 
 #include <assert.h>
 #include <pcap.h>
+#include "pcap_private.h"
 #include "pcap_queue.h"
 #include "queue.h"
 #include "trema.h"
 
 
-static int QUEUE_LIMIT = 4096;
+static int QUEUE_LIMIT = 65536;
 static queue *packet_queue = NULL;
 
 
@@ -144,8 +145,8 @@ dequeue_pcap_packet( buffer **packet ) {
 
 static bool
 compare_timestamp( const buffer *x, const buffer *y ) {
-  struct pcap_pkthdr *px = x->data;
-  struct pcap_pkthdr *py = y->data;
+  struct pcap_pkthdr_private *px = x->data;
+  struct pcap_pkthdr_private *py = y->data;
 
   if ( ( px->ts.tv_sec > py->ts.tv_sec ) ||
        ( px->ts.tv_sec == py->ts.tv_sec && px->ts.tv_usec > py->ts.tv_usec ) ) {

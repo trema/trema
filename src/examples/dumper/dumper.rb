@@ -21,20 +21,6 @@
 
 
 class Dumper < Controller
-  def switch_ready datapath_id
-    info "[switch_ready]"
-    info "  datapath_id: #{ datapath_id.to_hex }"
-
-    send_flow_mod_add datapath_id, :priority => 0
-    send_flow_mod_add(
-      datapath_id,
-      :match => Match.new( :dl_type => 0x0800 ),
-      :priority => 1,
-      :actions => ActionOutput.new( :port => OFPP_CONTROLLER ) 
-    )
-  end
-
-
   def switch_disconnected datapath_id
     info "[switch_disconnected]"
     info "  datapath_id: #{ datapath_id.to_hex }"
