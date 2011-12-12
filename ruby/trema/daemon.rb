@@ -26,6 +26,11 @@ require "trema/process"
 module Trema
   module Daemon
     module ClassMethods
+      def log_file &block
+        class_variable_set :@@log_file, block
+      end
+
+
       def command &block
         class_variable_set :@@command, block
       end
@@ -44,6 +49,7 @@ module Trema
 
     def self.included base
       base.class_eval do
+        class_variable_set :@@log_file, nil
         class_variable_set :@@command, nil
         class_variable_set :@@wait_until_up, false
         class_variable_set :@@daemon_id, nil
@@ -54,7 +60,7 @@ module Trema
 
     def run!
       raise "'#{ name }' is already running!" if running?
-      FileUtils.rm_f log_file if self.respond_to?( :log_file )
+      FileUtils.rm_f log_file if log_file
       command_block = self.class.class_eval do
         class_variable_get( :@@command )
       end
@@ -110,6 +116,16 @@ module Trema
     ############################################################################
     private
     ############################################################################
+
+
+    def log_file
+      log_file_block = self.class.class_eval do
+        class_variable_get( :@@log_file )
+      end
+      return nil if log_file_block.nil?
+      name = log_file_block.call( self )
+      File.join Trema.log_directory, name
+    end
 
 
     def daemon_id

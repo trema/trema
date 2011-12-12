@@ -33,6 +33,7 @@ module Trema
     include Trema::Daemon
 
 
+    log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
     command { | vswitch | "sudo #{ Executables.ovs_openflowd } #{ vswitch.__send__ :options }" }
 
 
@@ -92,11 +93,6 @@ module Trema
     end
 
 
-    def log_file
-      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
-    end
-
-
     ################################################################################
     private
     ################################################################################
@@ -136,7 +132,7 @@ module Trema
 
 
     def unixctl
-      File.join Trema.tmp, "ovs-openflowd.#{ @name }.ctl"
+      File.join Trema.tmp, "ovs-openflowd.#{ name }.ctl"
     end
   end
 end
