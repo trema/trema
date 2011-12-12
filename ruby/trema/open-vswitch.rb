@@ -18,7 +18,6 @@
 #
 
 
-require "fileutils"
 require "trema/daemon"
 require "trema/executables"
 require "trema/ofctl"
@@ -77,22 +76,6 @@ module Trema
     #
     def network_device
       "vsw_#{ @stanza.get :dpid_short }"
-    end
-
-
-    #
-    # Restarts running Open vSwitch process
-    #
-    # @example
-    #   switch.restart!
-    #
-    # @return [undefined]
-    #
-    def restart!
-      return if not running?
-      shutdown!
-      sleep 1
-      run!
     end
 
 

@@ -80,6 +80,22 @@ module Trema
     end
 
 
+    #
+    # Restarts running daemon process
+    #
+    # @example
+    #   daemon.restart!
+    #
+    # @return [undefined]
+    #
+    def restart!
+      return if not running?
+      shutdown!
+      sleep 1
+      run!
+    end
+
+
     def pid_file
       prefix = self.class.name.demodulize.underscore
       File.join Trema.tmp, "#{ prefix }.#{ daemon_id }.pid"
