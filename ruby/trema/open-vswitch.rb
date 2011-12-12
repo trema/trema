@@ -19,11 +19,11 @@
 
 
 require "fileutils"
+require "trema/daemon"
 require "trema/executables"
 require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
-require "trema/process"
 
 
 module Trema
@@ -31,6 +31,9 @@ module Trema
   # Open vSwitch support (http://openvswitch.org)
   #
   class OpenVswitch < OpenflowSwitch
+    include Trema::Daemon
+
+
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}
     #
@@ -86,19 +89,6 @@ module Trema
       raise "Open vSwitch '#{ @name }' is already running!" if running?
       FileUtils.rm_f log_file
       sh "sudo #{ Executables.ovs_openflowd } #{ options }"
-    end
-
-
-    #
-    # Kills running Open vSwitch process
-    #
-    # @example
-    #   switch.shutdown!
-    #
-    # @return [undefined]
-    #
-    def shutdown!
-      Trema::Process.read( pid_file, @name ).kill!
     end
 
 

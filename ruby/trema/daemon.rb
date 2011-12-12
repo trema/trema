@@ -1,6 +1,4 @@
 #
-# The controller class of phost.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,43 +18,21 @@
 #
 
 
-require "trema/daemon"
-require "trema/executables"
+require "trema/process"
 
 
 module Trema
-  class Phost
-    include Trema::Daemon
-
-
-    def initialize host
-      @host = host
-      @name = @host.name
-    end
-
-
-    def run
-      raise "The link(s) for vhost '#{ @name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
-      wait_until_up
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
-    end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
-      end
+  module Daemon
+    #
+    # Kills running daemon process
+    #
+    # @example
+    #   daemon.shutdown!
+    #
+    # @return [undefined]
+    #
+    def shutdown!
+      Trema::Process.read( pid_file, @name ).kill!
     end
   end
 end

@@ -32,7 +32,7 @@ module Trema
           @name = File.basename( @path )
         end
       end
-      
+
 
       def options *_options
         @options = _options

@@ -18,8 +18,8 @@
 #
 
 
+require "trema/daemon"
 require "trema/network-component"
-require "trema/process"
 
 
 module Trema
@@ -27,6 +27,9 @@ module Trema
   # Trema applications
   #
   class App < NetworkComponent
+    include Trema::Daemon
+
+
     #
     # Creates a new Trema application from {DSL::App}
     #
@@ -87,21 +90,6 @@ module Trema
     def run!
       sh [ command, @stanza[ :options ] ].compact.join( " " )
       self
-    end
-
-
-    #
-    # Kills running application
-    #
-    # @example
-    #   app.shutdown!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def shutdown!
-      Trema::Process.read( pid_file, @name ).kill!
     end
 
 
