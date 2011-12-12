@@ -365,6 +365,7 @@ $options.parse! ARGV
 def init_cruise
   $start_time = Time.now
   sh "./build.rb distclean"
+  sh "bundle install"
   mkdir_p Trema.log_directory
 end
 
