@@ -159,11 +159,6 @@ module Trema
     end
 
 
-    def running?
-      FileTest.exists? pid_file
-    end
-
-
     def log_file
       File.join Trema.tmp, "log/openflowd.#{ @name }.log"
     end

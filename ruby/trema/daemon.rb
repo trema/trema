@@ -18,6 +18,7 @@
 #
 
 
+require "fileutils"
 require "trema/monkey-patch/string"
 require "trema/process"
 
@@ -55,6 +56,11 @@ module Trema
     def pid_file
       prefix = self.class.name.demodulize.underscore
       File.join Trema.tmp, "#{ prefix }.#{ daemon_id }.pid"
+    end
+
+
+    def running?
+      FileTest.exists? pid_file
     end
 
 
