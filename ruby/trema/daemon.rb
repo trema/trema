@@ -18,6 +18,7 @@
 #
 
 
+require "trema/monkey-patch/string"
 require "trema/process"
 
 
@@ -33,6 +34,17 @@ module Trema
     #
     def shutdown!
       Trema::Process.read( pid_file, name ).kill!
+    end
+
+
+    def pid_file
+      prefix = self.class.name.demodulize.underscore
+      infix = if self.respond_to? :daemon_id
+                self.__send__ :daemon_id
+              else
+                name
+              end
+      File.join Trema.tmp, "#{ prefix }.#{ infix }.pid"
     end
   end
 end

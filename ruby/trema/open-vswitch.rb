@@ -164,11 +164,6 @@ module Trema
     end
 
 
-    def pid_file
-      File.join Trema.tmp, "openflowd.#{ @name }.pid"
-    end
-
-
     def log_file
       File.join Trema.tmp, "log/openflowd.#{ @name }.log"
     end

@@ -99,18 +99,6 @@ module Trema
 
 
     #
-    # Returns the path of pid file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
-    def pid_file
-      File.join Trema.tmp, "#{ @name }.pid"
-    end
-
-
-    #
     # Returns application's command to execute
     #
     # @return [String]

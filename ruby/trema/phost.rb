@@ -35,9 +35,13 @@ module Trema
 
 
     def run
-      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
-      sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
+      sh "sudo #{ Executables.phost } -i #{ interface } -D"
       wait_until_up
+    end
+
+
+    def daemon_id
+      interface
     end
 
 
@@ -46,13 +50,14 @@ module Trema
     ################################################################################
 
 
-    def name
-      @host.name
+    def interface
+      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
+      @host.interface
     end
 
 
-    def pid_file
-      File.join Trema.tmp, "phost.#{ @host.interface }.pid"
+    def name
+      @host.name
     end
 
 
