@@ -34,6 +34,9 @@ module Trema
     include Trema::Daemon
 
 
+    command { | vswitch | "sudo #{ Executables.ovs_openflowd } #{ vswitch.__send__ :options }" }
+
+
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}
     #
@@ -78,21 +81,6 @@ module Trema
 
 
     #
-    # Runs an Open vSwitch process
-    #
-    # @example
-    #   switch.run!
-    #
-    # @return [undefined]
-    #
-    def run!
-      raise "Open vSwitch '#{ @name }' is already running!" if running?
-      FileUtils.rm_f log_file
-      sh "sudo #{ Executables.ovs_openflowd } #{ options }"
-    end
-
-
-    #
     # Restarts running Open vSwitch process
     #
     # @example
@@ -118,6 +106,11 @@ module Trema
     #
     def flows
       Ofctl.new.users_flows( self )
+    end
+
+
+    def log_file
+      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
     end
 
 
@@ -156,11 +149,6 @@ module Trema
 
     def ports_option
       @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
-    end
-
-
-    def log_file
-      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
     end
 
 

@@ -53,10 +53,16 @@ module Trema
 
 
     def run!
-      command = self.class.class_eval do
+      raise "'#{ name }' is already running!" if running?
+      FileUtils.rm_f log_file if self.respond_to?( :log_file )
+      command_block = self.class.class_eval do
         class_variable_get( :@@command )
       end
-      sh command.call( self )
+      if command_block
+        sh command_block.call( self )
+      else
+        sh self.__send__( :command )
+      end
       wait_until_up
     end
 
