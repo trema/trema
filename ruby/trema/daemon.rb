@@ -32,7 +32,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown!
-      Trema::Process.read( pid_file, @name ).kill!
+      Trema::Process.read( pid_file, name ).kill!
     end
   end
 end

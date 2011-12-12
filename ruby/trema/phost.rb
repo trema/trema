@@ -31,12 +31,11 @@ module Trema
 
     def initialize host
       @host = host
-      @name = @host.name
     end
 
 
     def run
-      raise "The link(s) for vhost '#{ @name }' is not defined." if @host.interface.nil?
+      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
       sh "sudo #{ Executables.phost } -i #{ @host.interface } -D"
       wait_until_up
     end
@@ -45,6 +44,11 @@ module Trema
     ################################################################################
     private
     ################################################################################
+
+
+    def name
+      @host.name
+    end
 
 
     def pid_file
