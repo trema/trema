@@ -75,6 +75,14 @@ module Trema
       end
       self.__send__ m
     end
+
+
+    def wait_until_up
+      loop do
+        sleep 0.1
+        break if FileTest.exists?( pid_file )
+      end
+    end
   end
 end
 

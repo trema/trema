@@ -57,14 +57,6 @@ module Trema
     def name
       @host.name
     end
-
-
-    def wait_until_up
-      loop do
-        sleep 0.1
-        break if FileTest.exists?( pid_file )
-      end
-    end
   end
 end
 
