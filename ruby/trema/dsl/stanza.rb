@@ -34,6 +34,13 @@ module Trema
       def [] attribute
         instance_variable_get "@#{ attribute }".intern
       end
+
+
+      def get attribute
+        v = self[ attribute ]
+        raise "#{ attribute } is not set" if v.nil?
+        v
+      end
     end
   end
 end
