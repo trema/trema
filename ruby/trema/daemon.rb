@@ -24,6 +24,21 @@ require "trema/process"
 
 module Trema
   module Daemon
+    module ClassMethods
+      def daemon_id method_id
+        class_variable_set :@@daemon_id, method_id
+      end
+    end
+
+
+    def self.included base
+      base.class_eval do
+        class_variable_set :@@daemon_id, nil
+      end
+      base.extend ClassMethods
+    end
+
+
     #
     # Kills running daemon process
     #
@@ -39,12 +54,20 @@ module Trema
 
     def pid_file
       prefix = self.class.name.demodulize.underscore
-      infix = if self.respond_to? :daemon_id
-                self.__send__ :daemon_id
-              else
-                name
-              end
-      File.join Trema.tmp, "#{ prefix }.#{ infix }.pid"
+      File.join Trema.tmp, "#{ prefix }.#{ daemon_id }.pid"
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def daemon_id
+      m = self.class.class_eval do
+        class_variable_get( :@@daemon_id ) || :name
+      end
+      self.__send__ m
     end
   end
 end

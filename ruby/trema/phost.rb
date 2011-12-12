@@ -29,6 +29,9 @@ module Trema
     include Trema::Daemon
 
 
+    daemon_id :interface
+
+
     def initialize host
       @host = host
     end
@@ -37,11 +40,6 @@ module Trema
     def run
       sh "sudo #{ Executables.phost } -i #{ interface } -D"
       wait_until_up
-    end
-
-
-    def daemon_id
-      interface
     end
 
 
