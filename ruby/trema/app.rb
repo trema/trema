@@ -30,6 +30,12 @@ module Trema
     include Trema::Daemon
 
 
+    attr_reader :stanza
+
+
+    command { | app | [ app.command, app.stanza[ :options ] ].compact.join " " }
+
+
     #
     # Creates a new Trema application from {DSL::App}
     #
@@ -75,27 +81,6 @@ module Trema
       sh [ command, "-d", @stanza[ :options ] ].compact.join( " " )
       self
     end
-
-
-    #
-    # Runs an application process
-    #
-    # @example
-    #   app.run! #=> self
-    #
-    # @return [App]
-    #
-    # @api public
-    #
-    def run!
-      sh [ command, @stanza[ :options ] ].compact.join( " " )
-      self
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
 
 
     #

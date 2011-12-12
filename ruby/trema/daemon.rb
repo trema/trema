@@ -26,6 +26,16 @@ require "trema/process"
 module Trema
   module Daemon
     module ClassMethods
+      def command &block
+        class_variable_set :@@command, block
+      end
+
+
+      def wait_until_up
+        class_variable_set :@@wait_until_up, true
+      end
+
+
       def daemon_id method_id
         class_variable_set :@@daemon_id, method_id
       end
@@ -34,9 +44,20 @@ module Trema
 
     def self.included base
       base.class_eval do
+        class_variable_set :@@command, nil
+        class_variable_set :@@wait_until_up, false
         class_variable_set :@@daemon_id, nil
       end
       base.extend ClassMethods
+    end
+
+
+    def run!
+      command = self.class.class_eval do
+        class_variable_get( :@@command )
+      end
+      sh command.call( self )
+      wait_until_up
     end
 
 
@@ -78,6 +99,10 @@ module Trema
 
 
     def wait_until_up
+      wait = self.class.class_eval do
+        class_variable_get( :@@wait_until_up )
+      end
+      return if not wait
       loop do
         sleep 0.1
         break if FileTest.exists?( pid_file )

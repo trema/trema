@@ -29,6 +29,8 @@ module Trema
     include Trema::Daemon
 
 
+    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -D" }
+    wait_until_up
     daemon_id :interface
 
 
@@ -37,21 +39,15 @@ module Trema
     end
 
 
-    def run
-      sh "sudo #{ Executables.phost } -i #{ interface } -D"
-      wait_until_up
+    def interface
+      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
+      @host.interface
     end
 
 
     ################################################################################
     private
     ################################################################################
-
-
-    def interface
-      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
-      @host.interface
-    end
 
 
     def name
