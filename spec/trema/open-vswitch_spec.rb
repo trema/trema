@@ -23,31 +23,45 @@ require "trema/open-vswitch"
 
 
 module Trema
-  describe OpenVswitch, %[dpid = "0xabc"] do
-    before :each do
-      @stanza = mock( "stanza", :name => "0xabc" )
-      @stanza.stub!( :[] ).with( :dpid_short ).and_return( "0xabc" )
-      @stanza.stub!( :[] ).with( :dpid_long ).and_return( "0000000000000abc" )
-      @stanza.stub!( :get ).with( :dpid_short ).and_return( "0xabc" )
-      @stanza.stub!( :get ).with( :ip ).and_return( "127.0.0.1" )
+  describe OpenVswitch do
+    context "when running a vswitch" do
+      it "should execute ovs openflowd" do
+        stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
+        stanza.stub!( :name ).and_return( "0xabc" )
+        vswitch = OpenVswitch.new( stanza, 1234 )
+
+        vswitch.should_receive( :sh ).with( /ovs\-openflowd/ ).once
+        vswitch.run!
+      end
     end
+  end
 
 
-    subject { OpenVswitch.new @stanza, 1234 }
-
+  describe OpenVswitch, %[dpid = "0xabc"] do
+    subject {
+      stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
+      stanza.stub!( :name ).and_return( "0xabc" )
+      OpenVswitch.new stanza, 1234
+    }
 
     its( :name ) { should == "0xabc" }
     its( :dpid_short ) { should == "0xabc" }
     its( :dpid_long ) { should == "0000000000000abc" }
     its( :network_device ) { should == "vsw_0xabc" }
+  end
 
 
-    context "when running a vswitch" do
-      it "should execute ovs openflowd" do
-        subject.should_receive( :sh ).with( /ovs\-openflowd/ ).once
-        subject.run!
-      end
-    end
+  describe OpenVswitch, %[name = "Otosan Switch", dpid = "0xabc"] do
+    subject {
+      stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
+      stanza.stub!( :name ).and_return( "Otosan Switch" )
+      OpenVswitch.new stanza, 1234
+    }
+
+    its( :name ) { should == "Otosan Switch" }
+    its( :dpid_short ) { should == "0xabc" }
+    its( :dpid_long ) { should == "0000000000000abc" }
+    its( :network_device ) { should == "vsw_0xabc" }
   end
 end
 

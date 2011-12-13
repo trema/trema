@@ -36,7 +36,7 @@ module Trema
       end
 
 
-      def get attribute
+      def fetch attribute
         v = self[ attribute ]
         raise "#{ attribute } is not set" if v.nil?
         v

@@ -76,7 +76,7 @@ module Trema
     # @return [String]
     #
     def network_device
-      "vsw_#{ @stanza.get :dpid_short }"
+      "vsw_#{ @stanza.fetch :dpid_short }"
     end
 
 
@@ -122,7 +122,7 @@ module Trema
 
 
     def ip
-      @stanza.get :ip
+      @stanza.fetch :ip
     end
 
 
