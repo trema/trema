@@ -46,6 +46,14 @@ module Trema
     attr_accessor :rule
 
 
+    #
+    # Do not cleanup the flow table of switches on startup
+    #
+    # @example
+    #   switch_manager.no_flow_cleanup = true
+    #
+    # @return [Bool]
+    #
     attr_accessor :no_flow_cleanup
 
 
