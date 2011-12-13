@@ -37,14 +37,14 @@ module Trema
 
 
     log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
-    command { | vswitch | "sudo #{ Executables.ovs_openflowd } #{ vswitch.__send__ :options }" }
+    command { | vswitch | vswitch.__send__ :command }
 
 
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}
     #
     # @example
-    #   switch = Trema::OpenVswitch.new( stanza )
+    #   vswitch = Trema::OpenVswitch.new( stanza )
     #
     # @return [OpenVswitch]
     #
@@ -59,13 +59,14 @@ module Trema
     # Add a network interface used for a virtual port
     #
     # @example
-    #   switch << "trema3-0"
+    #   vswitch << "trema3-0"
     #
-    # @return [undefined]
+    # @return [Array]
     #
     def << interface
       @interfaces << interface
       restart!
+      @interfaces
     end
 
 
@@ -74,7 +75,7 @@ module Trema
     # local port
     #
     # @example
-    #   switch.network_device  #=> "vsw_0xabc"
+    #   vswitch.network_device  #=> "vsw_0xabc"
     #
     # @return [String]
     #
@@ -87,7 +88,7 @@ module Trema
     # Returns flow entries
     #
     # @example
-    #   switch.flows  #=> [ flow0, flow1, ... ]
+    #   vswitch.flows  #=> [ flow0, flow1, ... ]
     #
     # @return [Array]
     #
@@ -96,9 +97,14 @@ module Trema
     end
 
 
-    ################################################################################
+    ############################################################################
     private
-    ################################################################################
+    ############################################################################
+
+
+    def command
+      "sudo #{ Executables.ovs_openflowd } #{ options }"
+    end
 
 
     def options
