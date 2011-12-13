@@ -56,11 +56,11 @@ module Trema
     # Add a network interface used for a virtual port
     #
     # @example
-    #   switch.add_interface "trema3-0"
+    #   switch << "trema3-0"
     #
     # @return [undefined]
     #
-    def add_interface interface
+    def << interface
       @interfaces << interface
       restart!
     end

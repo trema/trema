@@ -19,45 +19,34 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/vswitch"
 require "trema/open-vswitch"
 
 
 module Trema
   describe OpenVswitch, %[dpid = "0xabc"] do
     before :each do
-      stanza = DSL::Vswitch.new
-      stanza.dpid "0xabc"
-      @vswitch = OpenVswitch.new( stanza, 1234 )
+      @stanza = mock( "stanza", :name => "0xabc" )
+      @stanza.stub!( :[] ).with( :dpid_short ).and_return( "0xabc" )
+      @stanza.stub!( :[] ).with( :dpid_long ).and_return( "0000000000000abc" )
+      @stanza.stub!( :get ).with( :dpid_short ).and_return( "0xabc" )
+      @stanza.stub!( :get ).with( :ip ).and_return( "127.0.0.1" )
     end
 
 
-    after :each do
-      @vswitch.shutdown!
-    end
+    subject { OpenVswitch.new @stanza, 1234 }
 
 
-    it "should return its name" do
-      @vswitch.name.should == "0xabc"
-    end
+    its( :name ) { should == "0xabc" }
+    its( :dpid_short ) { should == "0xabc" }
+    its( :dpid_long ) { should == "0000000000000abc" }
+    its( :network_device ) { should == "vsw_0xabc" }
 
 
-    it "should return dpid in long format" do
-      @vswitch.dpid_long.should == "0000000000000abc"
-    end
-
-
-    it "should return dpid in short format" do
-      @vswitch.dpid_short.should == "0xabc"
-    end
-
-
-    it "should execute ovs openflowd" do
-      @vswitch.should_receive( :sh ).once
-
-      @vswitch.add_interface "trema0-0"
-      @vswitch.add_interface "trema0-1"
-      @vswitch.run!
+    context "when running a vswitch" do
+      it "should execute ovs openflowd" do
+        subject.should_receive( :sh ).with( /ovs\-openflowd/ ).once
+        subject.run!
+      end
     end
   end
 end
