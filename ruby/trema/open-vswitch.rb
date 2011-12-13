@@ -33,6 +33,9 @@ module Trema
     include Trema::Daemon
 
 
+    DEFAULT_PORT = 6633
+
+
     log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
     command { | vswitch | "sudo #{ Executables.ovs_openflowd } #{ vswitch.__send__ :options }" }
 
@@ -41,11 +44,11 @@ module Trema
     # Creates a new Open vSwitch from {DSL::Vswitch}
     #
     # @example
-    #   switch = Trema::OpenVswitch.new( stanza, 6633 )
+    #   switch = Trema::OpenVswitch.new( stanza )
     #
     # @return [OpenVswitch]
     #
-    def initialize stanza, port
+    def initialize stanza, port = DEFAULT_PORT
       super stanza
       @port = port
       @interfaces = []
