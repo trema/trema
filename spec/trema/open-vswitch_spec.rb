@@ -23,45 +23,37 @@ require "trema/open-vswitch"
 
 
 module Trema
-  describe OpenVswitch do
-    context "when running a vswitch" do
-      it "should execute ovs openflowd" do
-        stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
-        stanza.stub!( :name ).and_return( "0xabc" )
-        vswitch = OpenVswitch.new( stanza, 1234 )
-
-        vswitch.should_receive( :sh ).with( /ovs\-openflowd/ ).once
-        vswitch.run!
-      end
-    end
-  end
-
-
   describe OpenVswitch, %[dpid = "0xabc"] do
     subject {
       stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
-      stanza.stub!( :name ).and_return( "0xabc" )
+      stanza.stub!( :name ).and_return( name )
       OpenVswitch.new stanza, 1234
     }
 
-    its( :name ) { should == "0xabc" }
-    its( :dpid_short ) { should == "0xabc" }
-    its( :dpid_long ) { should == "0000000000000abc" }
-    its( :network_device ) { should == "vsw_0xabc" }
-  end
+    context "when its name is not set" do
+      let( :name ) { "0xabc" }
 
+      its( :name ) { should == "0xabc" }
+      its( :dpid_short ) { should == "0xabc" }
+      its( :dpid_long ) { should == "0000000000000abc" }
+      its( :network_device ) { should == "vsw_0xabc" }
 
-  describe OpenVswitch, %[name = "Otosan Switch", dpid = "0xabc"] do
-    subject {
-      stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
-      stanza.stub!( :name ).and_return( "Otosan Switch" )
-      OpenVswitch.new stanza, 1234
-    }
+      context "when running a vswitch" do
+        it "should execute ovs openflowd" do
+          subject.should_receive( :sh ).with( /ovs\-openflowd/ ).once
+          subject.run!
+        end
+      end
+    end
 
-    its( :name ) { should == "Otosan Switch" }
-    its( :dpid_short ) { should == "0xabc" }
-    its( :dpid_long ) { should == "0000000000000abc" }
-    its( :network_device ) { should == "vsw_0xabc" }
+    context "when its name is set" do
+      let( :name ) { "Otosan Switch" }
+
+      its( :name ) { should == "Otosan Switch" }
+      its( :dpid_short ) { should == "0xabc" }
+      its( :dpid_long ) { should == "0000000000000abc" }
+      its( :network_device ) { should == "vsw_0xabc" }
+    end
   end
 end
 
