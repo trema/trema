@@ -35,8 +35,6 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     attr_reader :name
 
 
@@ -47,8 +45,6 @@ module Trema
     #   switch = Trema::OpenflowSwitch.new( stanza )
     #
     # @return [OpenflowSwitch]
-    #
-    # @api public
     #
     def initialize stanza
       @name = stanza.name
@@ -66,8 +62,6 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_long
       @stanza[ :dpid_long ] || DatapathId.new( @name ).long
     end
@@ -81,40 +75,8 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_short
       @stanza[ :dpid_short ] || DatapathId.new( @name ).short
-    end
-
-
-    #
-    # Just a placeholder, do nothing
-    #
-    # @example
-    #   switch.run!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def run!
-      # do nothing
-    end
-
-
-    #
-    # Just a placeholder, do nothing
-    #
-    # @example
-    #   switch.shutdown!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def shutdown!
-      # do nothing
     end
 
 
