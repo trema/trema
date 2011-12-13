@@ -18,6 +18,7 @@
 #
 
 
+require "trema/daemon"
 require "trema/executables"
 require "trema/network-component"
 require "trema/switch-daemon"
@@ -28,6 +29,12 @@ module Trema
   # The controller class of switch_manager
   #
   class SwitchManager < NetworkComponent
+    include Trema::Daemon
+
+
+    command { | sm | sm.__send__ :command }
+
+
     #
     # Event forwarding rule
     #
@@ -36,9 +43,10 @@ module Trema
     #
     # @return [Hash]
     #
-    # @api public
-    #
     attr_accessor :rule
+
+
+    attr_accessor :no_flow_cleanup
 
 
     #
@@ -50,11 +58,10 @@ module Trema
     #
     # @return [SwitchManager]
     #
-    # @api public
-    #
     def initialize rule, port = nil
       @rule = rule
       @port = port
+      @no_flow_cleanup = false
       SwitchManager.add self
     end
 
@@ -67,40 +74,21 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def name
       "switch manager"
     end
 
 
-    #
-    # Runs an switch manager process
-    #
-    # @example
-    #   switch_manager.run!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def run! switch_options = []
-      sh "#{ Executables.switch_manager } #{ options.join " " } -- #{ ( switch_options + default_switch_options ).join " " }"
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def command
+      "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"
     end
 
 
-    ################################################################################
-    private
-    ################################################################################
-
-
-    #
-    # Returns the command line options
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
     def options
       opts = [ "--daemonize" ]
       opts << "--port=#{ @port }" if @port
@@ -108,15 +96,10 @@ module Trema
     end
 
 
-    #
-    # Returns the command line options of switch daemon ({SwitchDaemon})
-    #
-    # @return [Array]
-    #
-    # @api private
-    #
-    def default_switch_options
-      SwitchDaemon.new( @rule ).options
+    def switch_options
+      opts = SwitchDaemon.new( @rule ).options
+      opts << "--no-flow-cleanup" if @no_flow_cleanup
+      opts
     end
   end
 end
