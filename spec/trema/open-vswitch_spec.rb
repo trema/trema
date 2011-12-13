@@ -26,6 +26,7 @@ module Trema
   describe OpenVswitch, %[dpid = "0xabc"] do
     subject {
       stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
+      stanza.stub!( :validate )
       stanza.stub!( :name ).and_return( name )
       OpenVswitch.new stanza
     }
