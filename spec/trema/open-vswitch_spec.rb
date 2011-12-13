@@ -23,6 +23,29 @@ require "trema/open-vswitch"
 
 
 module Trema
+  describe Switch do
+    around do | example |
+      begin
+        Switch.clear
+        example.run
+      ensure
+        Switch.clear
+      end
+    end
+
+    it "should keep a list of vswitches" do
+      OpenVswitch.new mock( "stanza 0", :name => "vswitch 0", :validate => true )
+      OpenVswitch.new mock( "stanza 1", :name => "vswitch 1", :validate => true )
+      OpenVswitch.new mock( "stanza 2", :name => "vswitch 2", :validate => true )
+
+      Switch.should have( 3 ).vswitches
+      Switch[ "vswitch 0" ].should_not be_nil
+      Switch[ "vswitch 1" ].should_not be_nil
+      Switch[ "vswitch 2" ].should_not be_nil
+    end
+  end
+
+
   describe OpenVswitch, %[dpid = "0xabc"] do
     subject {
       stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
