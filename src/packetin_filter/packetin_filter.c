@@ -20,12 +20,13 @@
  */
 
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <getopt.h>
-#include <openflow.h>
+#include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
-#include "etherip.h"
 #include "trema.h"
 
 
@@ -229,9 +230,10 @@ init_packetin_match_table( void ) {
 
 
 static void
-free_user_data_entry( struct ofp_match match, uint16_t priority, void *services ) {
+free_user_data_entry( struct ofp_match match, uint16_t priority, void *services, void *user_data ) {
   UNUSED( match );
   UNUSED( priority );
+  UNUSED( user_data );
 
   list_element *element;
   for ( element = services; element != NULL; element = element->next ) {
@@ -244,12 +246,12 @@ free_user_data_entry( struct ofp_match match, uint16_t priority, void *services 
 
 static void
 finalize_packetin_match_table( void ) {
-  foreach_match_table( free_user_data_entry );
+  foreach_match_table( free_user_data_entry, NULL );
   finalize_match_table();
 }
 
 
-static void
+static bool
 add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
   bool ( *insert_or_update_match_entry ) ( struct ofp_match, uint16_t, void * ) = update_match_entry;
   list_element *services = lookup_match_strict_entry( match, priority );
@@ -257,8 +259,57 @@ add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char 
     insert_or_update_match_entry = insert_match_entry;
     create_list( &services );
   }
+  else {
+    list_element *element;
+    for ( element = services; element != NULL; element = element->next ) {
+      if ( strcmp( element->data, service_name ) == 0 ) {
+        char match_string[ 256 ];
+        match_to_string( &match, match_string, sizeof( match_string ) );
+        warn( "match entry already exists ( match = [%s], service_name = [%s] )", match_string, service_name );
+        return false;
+      }
+    }
+  }
   append_to_tail( &services, xstrdup( service_name ) );
   insert_or_update_match_entry( match, priority, services );
+
+  return true;
+}
+
+
+static int
+delete_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
+  list_element *head = delete_match_entry( match, priority );
+  if ( head == NULL ) {
+    return 0;
+  }
+
+  int n_deleted = 0;
+  int n_remaining_services = 0;
+  list_element *services = head;
+  while ( services != NULL ) {
+    char *service = services->data;
+    services = services->next;
+    if ( strcmp( service, service_name ) == 0 ) {
+      delete_element( &head, service );
+      xfree( service );
+      n_deleted++;
+    }
+    else {
+      n_remaining_services++;
+    }
+  }
+
+  if ( n_remaining_services == 0 ) {
+    if ( head != NULL ) {
+      delete_list( head );
+    }
+  }
+  else {
+    insert_match_entry( match, priority, head );
+  }
+
+  return n_deleted;
 }
 
 
@@ -318,6 +369,236 @@ set_match_type( int argc, char *argv[] ) {
 }
 
 
+static void
+handle_add_filter_request( const messenger_context_handle *handle, add_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  request->entry.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
+  if ( strlen( request->entry.service_name ) == 0 ) {
+    error( "Service name must be specified." );
+    return;
+  }
+  struct ofp_match match;
+  ntoh_match( &match, &request->entry.match );
+  bool ret = add_packetin_match_entry( match, ntohs( request->entry.priority ), request->entry.service_name );
+
+  add_packetin_filter_reply reply;
+  memset( &reply, 0, sizeof( add_packetin_filter_reply ) );
+  reply.status = ( uint8_t ) ( ret ? PACKETIN_FILTER_OPERATION_SUCCEEDED : PACKETIN_FILTER_OPERATION_FAILED );
+  ret = send_reply_message( handle, MESSENGER_ADD_PACKETIN_FILTER_REPLY,
+                            &reply, sizeof( add_packetin_filter_reply ) );
+  if ( ret == false ) {
+    error( "Failed to send an add filter reply." );
+  }
+}
+
+
+static bool
+compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
+  uint32_t w_x = x->wildcards & OFPFW_ALL;
+  uint32_t w_y = y->wildcards & OFPFW_ALL;
+  uint32_t sm_x = create_nw_src_mask( w_x );
+  uint32_t dm_x = create_nw_dst_mask( w_x );
+  uint32_t sm_y = create_nw_src_mask( w_y );
+  uint32_t dm_y = create_nw_dst_mask( w_y );
+
+  if ( ( ~w_x & w_y ) != 0 ) {
+    return false;
+  }
+  if ( sm_x > sm_y ) {
+    return false;
+  }
+  if ( dm_x > dm_y ) {
+    return false;
+  }
+
+  return ( ( w_x & OFPFW_IN_PORT || x->in_port == y->in_port )
+           && ( w_x & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
+           && ( w_x & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
+           && ( w_x & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
+           && ( w_x & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
+           && ( w_x & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
+           && !( ( x->nw_src ^ y->nw_src ) & sm_x )
+           && !( ( x->nw_dst ^ y->nw_dst ) & dm_x )
+           && ( w_x & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
+           && ( w_x & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
+           && ( w_x & OFPFW_TP_SRC || x->tp_src == y->tp_src )
+           && ( w_x & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
+}
+
+
+typedef struct {
+  struct ofp_match *match_criteria;
+  buffer *reply_buffer;
+} walker_param;
+
+
+static void
+delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
+  UNUSED( data );
+  walker_param *param = user_data; 
+  assert( param != NULL );
+  assert( param->reply_buffer != NULL );
+
+  if ( compare_filter_match( param->match_criteria, &match ) ) {
+    delete_packetin_filter_reply *reply = param->reply_buffer->data;
+    list_element *head = delete_match_entry( match, priority );
+    for ( list_element *services = head; services != NULL; services = services->next ) {
+      xfree( services->data );
+      reply->n_deleted++;
+    }
+    if ( head != NULL ) {
+      delete_list( head );
+    }
+  }
+}
+
+
+static void
+handle_delete_filter_request( const messenger_context_handle *handle, delete_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  buffer *buf = alloc_buffer_with_length( sizeof( delete_packetin_filter_reply ) );
+  delete_packetin_filter_reply *reply = append_back_buffer( buf, sizeof( delete_packetin_filter_reply ) );
+  reply->status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  reply->n_deleted = 0;
+
+  struct ofp_match match;
+  ntoh_match( &match, &request->criteria.match );
+  uint16_t priority = ntohs( request->criteria.priority );
+  if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
+    int n_deleted = delete_packetin_match_entry( match, priority, request->criteria.service_name );
+    reply->n_deleted += ( uint32_t ) n_deleted;
+  }
+  else {
+    walker_param param;
+    param.match_criteria = &match;
+    param.reply_buffer = buf;
+    foreach_match_table( delete_filter_walker, &param );
+  }
+  reply->n_deleted = htonl( reply->n_deleted );
+
+  bool ret = send_reply_message( handle, MESSENGER_DELETE_PACKETIN_FILTER_REPLY, buf->data, buf->length );
+  free_buffer( buf );
+  if ( ret == false ) {
+    error( "Failed to send a dump filter reply." );
+  }
+}
+
+
+static void
+dump_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
+  walker_param *param = user_data;
+  assert( param != NULL );
+  assert( param->reply_buffer != NULL );
+  if ( compare_filter_match( param->match_criteria, &match ) ) {
+    dump_packetin_filter_reply *reply = param->reply_buffer->data;
+    list_element *services = data;
+    while ( services != NULL ) {
+      reply->n_entries++;
+      packetin_filter_entry *entry = append_back_buffer( param->reply_buffer, sizeof( packetin_filter_entry ) );
+      hton_match( &entry->match, &match );
+      entry->priority = htons( priority );
+      strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
+      entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
+      services = services->next;
+    }
+  }
+}
+
+
+static void
+handle_dump_filter_request( const messenger_context_handle *handle, dump_packetin_filter_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL ) ;
+
+  buffer *buf = alloc_buffer_with_length( 2048 );
+  dump_packetin_filter_reply *reply = append_back_buffer( buf, offsetof( dump_packetin_filter_reply, entries ) );
+  reply->status = PACKETIN_FILTER_OPERATION_SUCCEEDED;
+  reply->n_entries = 0;
+
+  struct ofp_match match;
+  ntoh_match( &match, &request->criteria.match );
+  uint16_t priority = ntohs( request->criteria.priority );
+  if ( request->flags & PACKETIN_FILTER_FLAG_MATCH_STRICT ) {
+    list_element *services = lookup_match_strict_entry( match, priority );
+    while ( services != NULL ) {
+      if ( strcmp( services->data, request->criteria.service_name ) == 0 ) {
+        packetin_filter_entry *entry = append_back_buffer( buf, sizeof( packetin_filter_entry ) );
+        reply->n_entries++;
+        entry->match = request->criteria.match;
+        entry->priority = request->criteria.priority;
+        strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
+        entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
+      }
+      services = services->next;
+    }
+  }
+  else {
+    walker_param param;
+    param.match_criteria = &match;
+    param.reply_buffer = buf;
+    foreach_match_table( dump_filter_walker, &param );
+  }
+  reply->n_entries = htonl( reply->n_entries );
+
+  bool ret = send_reply_message( handle, MESSENGER_DUMP_PACKETIN_FILTER_REPLY, buf->data, buf->length );
+  free_buffer( buf );
+  if ( ret == false ) {
+    error( "Failed to send a dump packetin filter reply." );
+  }
+}
+
+
+static void
+handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
+  assert( handle != NULL );
+
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+         handle, tag, data, length );
+
+  switch ( tag ) {
+    case MESSENGER_ADD_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( add_packetin_filter_request ) ) {
+        error( "Invalid add packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_add_filter_request( handle, data );
+    }
+    break;
+    case MESSENGER_DELETE_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( delete_packetin_filter_request ) ) {
+        error( "Invalid delete packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_delete_filter_request( handle, data );
+    }
+    break;
+    case MESSENGER_DUMP_PACKETIN_FILTER_REQUEST:
+    {
+      if ( length != sizeof( dump_packetin_filter_request ) ) {
+        error( "Invalid dump packetin filter request ( length = %u ).", length );
+        return;
+      }
+
+      handle_dump_filter_request( handle, data );
+    }
+    break;
+    default:
+    {
+      warn( "Undefined request tag ( tag = %#x ).", tag );
+    }
+    break;
+  }
+}
+
+
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
@@ -332,6 +613,7 @@ main( int argc, char *argv[] ) {
   }
 
   set_packet_in_handler( handle_packet_in, NULL );
+  add_message_requested_callback( PACKETIN_FILTER_MANAGEMENT_SERVICE, handle_request );
 
   start_trema();
 

@@ -127,6 +127,8 @@ set_carol_match_entry( struct ofp_match *match ) {
 #define CAROL_MATCH_SERVICE_NAME "service-name-carol"
 #define CAROL_MATCH_OTHER_SERVICE_NAME "other-service-name-carol"
 
+#define USER_DATA "user-data"
+
 
 // Wildcards entry helper.
 
@@ -255,10 +257,11 @@ test_delete_match_entry_dies_if_not_initialized() {
 
 
 static void
-test_foreach_match_entry_dies_if_not_initialized_helper( struct ofp_match match, uint16_t priority, void *data ) {
+test_foreach_match_entry_dies_if_not_initialized_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( match );
   UNUSED( priority );
   UNUSED( data );
+  UNUSED( user_data );
   assert_true( false );
 }
 
@@ -266,7 +269,7 @@ test_foreach_match_entry_dies_if_not_initialized_helper( struct ofp_match match,
 static void
 test_foreach_match_entry_dies_if_not_initialized() {
   assert_true( _match_table_head == NULL );
-  expect_assert_failure( foreach_match_table( test_foreach_match_entry_dies_if_not_initialized_helper ) );
+  expect_assert_failure( foreach_match_table( test_foreach_match_entry_dies_if_not_initialized_helper, NULL ) );
 }
 
 
@@ -979,27 +982,28 @@ test_delete_different_priority_wildcards_entry_fails() {
 
 static void
 test_foreach_match_entry_dies_if_function_is_null() {
-  expect_assert_failure( foreach_match_table( NULL ) );
+  expect_assert_failure( foreach_match_table( NULL, NULL ) );
 }
 
 
 static void
-test_foreach_entry_if_empty_table_helper( struct ofp_match match, uint16_t priority, void *data ) {
+test_foreach_entry_if_empty_table_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( match );
   UNUSED( priority );
   UNUSED( data );
+  UNUSED( user_data );
   assert_true( false );
 }
 
 
 static void
 test_foreach_entry_if_empty_table() {
-  foreach_match_table( test_foreach_entry_if_empty_table_helper );
+  foreach_match_table( test_foreach_entry_if_empty_table_helper, NULL );
 }
 
 
 static void
-test_foreach_entry_if_exact_table_only_helper( struct ofp_match match, uint16_t priority, void *data ) {
+test_foreach_entry_if_exact_table_only_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   static int count = 0;
 
   struct ofp_match alice;
@@ -1028,6 +1032,7 @@ test_foreach_entry_if_exact_table_only_helper( struct ofp_match match, uint16_t 
       assert_true( false );
       break;
   }
+  assert_string_equal( ( char * ) user_data, USER_DATA );
 }
 
 
@@ -1043,16 +1048,18 @@ test_foreach_entry_if_exact_table_only() {
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
   assert_true( update_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
-  foreach_match_table( test_foreach_entry_if_exact_table_only_helper );
+  char *user_data = xstrdup( USER_DATA );
+  foreach_match_table( test_foreach_entry_if_exact_table_only_helper, user_data );
 
   XFREE( delete_match_entry( alice, DEFAULT_PRIORITY ) );
   XFREE( delete_match_entry( bob, DEFAULT_PRIORITY ) );
   XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( user_data );
 }
 
 
 static void
-test_foreach_entry_if_wildcards_table_only_helper( struct ofp_match match, uint16_t priority, void *data ) {
+test_foreach_entry_if_wildcards_table_only_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   static int count = 0;
 
   struct ofp_match alice_wildcards;
@@ -1097,6 +1104,7 @@ test_foreach_entry_if_wildcards_table_only_helper( struct ofp_match match, uint1
       assert_true( false );
       break;
   }
+  assert_string_equal( ( char * ) user_data, USER_DATA );
 }
 
 static void
@@ -1119,18 +1127,20 @@ test_foreach_entry_if_wildcards_table_only() {
 
   assert_true( update_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
 
-  foreach_match_table( test_foreach_entry_if_wildcards_table_only_helper );
+  char *user_data = xstrdup( USER_DATA );
+  foreach_match_table( test_foreach_entry_if_wildcards_table_only_helper, user_data );
 
   XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
   XFREE( delete_match_entry( bob_wildcards, DEFAULT_PRIORITY ) );
   XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
   XFREE( delete_match_entry( any_wildcards, LOW_PRIORITY ) );
   XFREE( delete_match_entry( lldp_wildcards, HIGH_PRIORITY ) );
+  XFREE( user_data );
 }
 
 
 static void
-test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data ) {
+test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   static int count = 0;
 
   struct ofp_match alice;
@@ -1205,6 +1215,7 @@ test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data
       assert_true( false );
       break;
   }
+  assert_string_equal( ( char * ) user_data, USER_DATA );
 }
 
 
@@ -1236,7 +1247,9 @@ test_foreach_entry() {
   set_lldp_wildcards_entry( &lldp_wildcards );
   assert_true( insert_match_entry( lldp_wildcards, HIGH_PRIORITY, xstrdup( LLDP_MATCH_SERVICE_NAME ) ) );
 
-  foreach_match_table( test_foreach_entry_helper );
+  char *user_data = xstrdup( USER_DATA );
+  foreach_match_table( test_foreach_entry_helper, user_data );
+  XFREE( user_data );
 }
 
 

@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include "bool.h"
+#include "checks.h"
 #include "log.h"
 #include "trema_wrapper.h"
 #include "utility.h"
@@ -212,6 +213,271 @@ phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size 
   }
 
   return true;
+}
+
+
+static bool
+action_output_to_string( const struct ofp_action_output *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "output: port=%u max_len=%u", action->port, action->max_len );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_set_vlan_vid_to_string( const struct ofp_action_vlan_vid *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "set_vlan_vid: vlan_vid=%#x", action->vlan_vid );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_set_vlan_pcp_to_string( const struct ofp_action_vlan_pcp *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "set_vlan_pcp: vlan_pcp=%#x", action->vlan_pcp );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_strip_vlan_to_string( const struct ofp_action_header *action, char *str, size_t size ) {
+  UNUSED( action );
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "strip_vlan" );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_dl_addr_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size, uint16_t type ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "set_dl_%s: dl_addr=%02x:%02x:%02x:%02x:%02x:%02x",
+                      type == OFPAT_SET_DL_SRC ? "src" : "dst",
+                      action->dl_addr[ 0 ], action->dl_addr[ 1 ], action->dl_addr[ 2 ],
+                      action->dl_addr[ 3 ], action->dl_addr[ 4 ], action->dl_addr[ 5 ] );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_set_dl_src_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size ) {
+  return action_dl_addr_to_string( action, str, size, OFPAT_SET_DL_SRC );
+}
+
+
+static bool
+action_set_dl_dst_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size ) {
+  return action_dl_addr_to_string( action, str, size, OFPAT_SET_DL_DST );
+}
+
+
+static bool
+action_nw_addr_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size, uint16_t type ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  struct in_addr addr;
+  addr.s_addr = htonl( action->nw_addr );
+  char nw_addr[ 16 ];
+  memset( nw_addr, '\0', sizeof( nw_addr ) );
+  inet_ntop( AF_INET, &addr, nw_addr, sizeof( nw_addr ) );
+  int ret = snprintf( str, size, "set_nw_%s: nw_addr=%s",
+                      type == OFPAT_SET_NW_SRC ? "src" : "dst", nw_addr );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_set_nw_src_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size ) {
+  return action_nw_addr_to_string( action, str, size, OFPAT_SET_NW_SRC );
+}
+
+
+static bool
+action_set_nw_dst_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size ) {
+  return action_nw_addr_to_string( action, str, size, OFPAT_SET_NW_DST );
+}
+
+
+static bool
+action_set_nw_tos_to_string( const struct ofp_action_nw_tos *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "set_nw_tos: nw_tos=%#x", action->nw_tos );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_tp_port_to_string( const struct ofp_action_tp_port *action, char *str, size_t size, uint16_t type ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "set_tp_%s: tp_port=%u",
+                      type == OFPAT_SET_TP_SRC ? "src" : "dst", action->tp_port );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_set_tp_src_to_string( const struct ofp_action_tp_port *action, char *str, size_t size ) {
+  return action_tp_port_to_string( action, str, size, OFPAT_SET_TP_SRC );
+}
+
+
+static bool
+action_set_tp_dst_to_string( const struct ofp_action_tp_port *action, char *str, size_t size ) {
+  return action_tp_port_to_string( action, str, size, OFPAT_SET_TP_DST );
+}
+
+
+static bool
+action_enqueue_to_string( const struct ofp_action_enqueue *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "enqueue: port=%u queue_id=%u", action->port, action->queue_id );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+static bool
+action_vendor_to_string( const struct ofp_action_vendor_header *action, char *str, size_t size ) {
+  assert( action != NULL );
+  assert( str != NULL );
+
+  int ret = snprintf( str, size, "vendor: vendor=%#x", action->vendor );
+  if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+bool
+actions_to_string( const struct ofp_action_header *actions, uint16_t actions_length, char *str, size_t str_length ) {
+  assert( actions != NULL );
+  assert( str != NULL );
+  assert( actions_length > 0 );
+  assert( str_length > 0 );
+
+  memset( str, '\0', str_length );
+
+  bool ret = true;
+  size_t offset = 0;
+  while ( ( actions_length - offset ) >= sizeof( struct ofp_action_header ) ) {
+    size_t current_str_length = strlen( str );
+    size_t remaining_str_length = str_length - current_str_length;
+    if ( current_str_length > 0 && remaining_str_length > 2 ) {
+      snprintf( str + current_str_length, remaining_str_length, ", " );
+      remaining_str_length -= 2;
+      current_str_length += 2;
+    }
+    char *p = str + current_str_length;
+    const struct ofp_action_header *header = ( const struct ofp_action_header * ) ( ( const char * ) actions + offset );
+    switch( header->type ) {
+      case OFPAT_OUTPUT:
+        ret = action_output_to_string( ( const struct ofp_action_output * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_VLAN_VID:
+        ret = action_set_vlan_vid_to_string( ( const struct ofp_action_vlan_vid * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_VLAN_PCP:
+        ret = action_set_vlan_pcp_to_string( ( const struct ofp_action_vlan_pcp * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_STRIP_VLAN:
+        ret = action_strip_vlan_to_string( ( const struct ofp_action_header * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_DL_SRC:
+        ret = action_set_dl_src_to_string( ( const struct ofp_action_dl_addr * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_DL_DST:
+        ret = action_set_dl_dst_to_string( ( const struct ofp_action_dl_addr * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_NW_SRC:
+        ret = action_set_nw_src_to_string( ( const struct ofp_action_nw_addr * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_NW_DST:
+        ret = action_set_nw_dst_to_string( ( const struct ofp_action_nw_addr * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_NW_TOS:
+        ret = action_set_nw_tos_to_string( ( const struct ofp_action_nw_tos * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_TP_SRC:
+        ret = action_set_tp_src_to_string( ( const struct ofp_action_tp_port * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_SET_TP_DST:
+        ret = action_set_tp_dst_to_string( ( const struct ofp_action_tp_port * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_ENQUEUE:
+        ret = action_enqueue_to_string( ( const struct ofp_action_enqueue * ) header, p, remaining_str_length );
+        break;
+      case OFPAT_VENDOR:
+        ret = action_vendor_to_string( ( const struct ofp_action_vendor_header * ) header, p, remaining_str_length );
+        break;
+      default:
+        snprintf( p, remaining_str_length, "undefined: type=%#x", header->type );
+        break;
+    }
+
+    if ( ret == false ) {
+      break;
+    } 
+    offset += header->len;
+  }
+
+  str[ str_length - 1 ] = '\0';
+
+  return ret;
 }
 
 

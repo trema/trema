@@ -56,9 +56,6 @@ Feature: Dump openflow events with dumper
       """
       [packet_in]
         datapath_id: 0xabc
-        total_len: 60
-        reason: 0x1
-        data: 00000000000200000000000108004500001c000000004011f97dc0a80001c0a800020001000100080000000000000000000000000000000000000000
       """
 
 

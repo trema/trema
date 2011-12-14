@@ -144,7 +144,8 @@ module Trema
 
     context "when resetting stats" do
       it "should reset_stats" do
-        @cli.should_receive( :sh ).with( /cli -i trema-0 reset_stats$/ )
+        @cli.should_receive( :sh ).with( /cli -i trema-0 reset_stats --tx$/ )
+        @cli.should_receive( :sh ).with( /cli -i trema-0 reset_stats --rx$/ )
         @cli.reset_stats
       end
     end

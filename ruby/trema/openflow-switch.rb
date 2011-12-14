@@ -34,8 +34,6 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     attr_reader :name
 
 
@@ -47,9 +45,8 @@ module Trema
     #
     # @return [OpenflowSwitch]
     #
-    # @api public
-    #
     def initialize stanza
+      stanza.validate
       @name = stanza.name
       @stanza = stanza
       Switch.add self
@@ -64,10 +61,8 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_long
-      @stanza[ :dpid_long ]
+      @stanza.fetch :dpid_long
     end
 
 
@@ -79,25 +74,8 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_short
-      @stanza[ :dpid_short ]
-    end
-
-
-    # 
-    # Just a placeholder, do nothing
-    #
-    # @example
-    #   switch.run!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def run!
-      # do nothing
+      @stanza.fetch :dpid_short
     end
   end
 end

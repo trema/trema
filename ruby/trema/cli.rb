@@ -107,7 +107,8 @@ module Trema
 
 
     def reset_stats
-      sh "sudo #{ Executables.cli } -i #{ @host.interface } reset_stats"
+      sh "sudo #{ Executables.cli } -i #{ @host.interface } reset_stats --tx"
+      sh "sudo #{ Executables.cli } -i #{ @host.interface } reset_stats --rx"
     end
 
 

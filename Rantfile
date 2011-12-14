@@ -58,9 +58,11 @@ task :examples => [
   "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
-  "examples:repeater_hub",                 
+  "examples:repeater_hub",
+  "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",
+  "examples:traffic_monitor",
 ]
 
 
@@ -233,7 +235,7 @@ task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
 file Trema::Executables.ovs_openflowd do
   sys.unpack_tgz "#{ Trema::Vendor.openvswitch }.tar.gz", :in => Trema::Vendor.path
   sys.cd Trema::Vendor.openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.tmp }"
+    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock_directory }"
     sys "make install"
     sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
   end
@@ -594,6 +596,7 @@ standalone_examples = [
   "repeater_hub",
   "switch_info",
   "switch_monitor",
+  "traffic_monitor",
 ]
 
 standalone_examples.each do | each |
@@ -658,6 +661,50 @@ openflow_messages.each do | each |
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
     sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
+  end
+end
+
+
+################################################################################
+# Build packetin_filter_config
+################################################################################
+
+packetin_filter_config = [
+  "add_filter",
+  "delete_filter",
+  "delete_filter_strict",
+  "dump_filter",
+  "dump_filter_strict",
+]
+
+packetin_filter_config_source_dir = "src/examples/packetin_filter_config"
+packetin_filter_config_objects_dir = objects( "examples/packetin_filter_config" )
+
+gen C::Dependencies, dependency( "packetin_filter_config" ),
+  :search => [ trema_include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "packetin_filter_config" )
+end
+
+gen Directory, packetin_filter_config_objects_dir
+
+
+gen DirectedRule, packetin_filter_config_objects_dir => [ packetin_filter_config_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+packetin_filter_config.each do | each |
+  packetin_filter_config_utils_o = File.join( packetin_filter_config_objects_dir, "utils.o" )
+  target = File.join( packetin_filter_config_objects_dir, each )
+  task "examples:packetin_filter_config" => target
+  file target => [
+    File.join( packetin_filter_config_objects_dir, "#{ each }.o" ),
+    packetin_filter_config_utils_o,
+    libtrema
+  ] do | t |
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -731,6 +778,7 @@ tests = [
   "objects/unittests/hash_table_test",
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
+  "objects/unittests/packetin_filter_interface_test",
   "objects/unittests/packet_info_test",
   "objects/unittests/packet_parser_test",
   "objects/unittests/persistent_storage_test",
