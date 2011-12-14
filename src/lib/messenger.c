@@ -1019,15 +1019,16 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 
   header.version = 0;
   header.message_type = message_type;
-  header.tag = tag;
-  header.message_length = ( uint32_t ) ( sizeof( message_header ) + len );
+  header.tag = htons( tag );
+  uint32_t length = ( uint32_t ) ( sizeof( message_header ) + len );
+  header.message_length = htonl( length );
 
-  if ( message_buffer_remain_bytes( sq->buffer ) < header.message_length ) {
+  if ( message_buffer_remain_bytes( sq->buffer ) < length ) {
     if ( sq->overflow == 0 ) {
-      warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, length = %u ).", sq->service_name, sq->server_socket, header.message_length );
+      warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, length = %u ).", sq->service_name, sq->server_socket, length );
     }
     ++sq->overflow;
-    sq->overflow_total_length += header.message_length;
+    sq->overflow_total_length += length;
     send_dump_message( MESSENGER_DUMP_SEND_OVERFLOW, sq->service_name, NULL, 0 );
     return false;
   }
@@ -1321,19 +1322,20 @@ pull_from_recv_queue( receive_queue *rq, uint8_t *message_type, uint16_t *tag, v
 
   header = ( message_header * ) get_message_buffer_head( rq->buffer );
 
-  assert( header->message_length != 0 );
-  assert( header->message_length < messenger_recv_queue_length );
-  if ( rq->buffer->data_length < header->message_length ) {
+  uint32_t length = ntohl( header->message_length );
+  assert( length != 0 );
+  assert( length < messenger_recv_queue_length );
+  if ( rq->buffer->data_length < length ) {
     debug( "Queue length is smaller than message length ( queue length = %u, message length = %u ).",
-           rq->buffer->data_length, header->message_length );
+           rq->buffer->data_length, length );
     return 0;
   }
 
   *message_type = header->message_type;
-  *tag = header->tag;
-  *len = header->message_length - sizeof( message_header );
+  *tag = ntohs( header->tag );
+  *len = length - sizeof( message_header );
   memcpy( data, header->value, *len > maxlen ? maxlen : *len );
-  truncate_message_buffer( rq->buffer, header->message_length );
+  truncate_message_buffer( rq->buffer, length );
 
   debug( "A message is retrieved from receive queue ( message_type = %#x, tag = %#x, len = %u, data = %p ).",
          *message_type, *tag, *len, data );
@@ -1495,14 +1497,15 @@ get_send_data( send_queue *sq, size_t offset ) {
   message_header *header;
   while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
     header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
-    if ( length + header->message_length > messenger_bucket_size ) {
+    uint32_t message_length = ntohl( header->message_length );
+    if ( length + message_length > messenger_bucket_size ) {
       if ( length == 0 ) {
-        length = header->message_length;
+        length = message_length;
       }
       break;
     }
-    length += header->message_length;
-    offset += header->message_length;
+    length += message_length;
+    offset += message_length;
   }
   return length;
 }
