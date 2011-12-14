@@ -50,7 +50,7 @@ module Trema
     # @api public
     #
     attr_reader :name_peer
-    
+
 
     #
     # Returns the configuration names of link peers

@@ -44,6 +44,13 @@ module Trema
 
       runner = DSL::Runner.new( @context )
       runner.maybe_run_switch_manager
+      @context.switches.each do | name, switch |
+        if switch.running?
+          switch.restart!
+        else
+          switch.run!
+        end
+      end
 
       @context.apps.values.last.daemonize!
     end
