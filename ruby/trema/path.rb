@@ -85,6 +85,11 @@ module Trema
   end
 
 
+  def self.sock_directory
+    File.join tmp, "sock"
+  end
+
+
   module Vendor
     def self.path
       File.join Trema.home, "vendor"

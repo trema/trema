@@ -33,7 +33,7 @@ def method_for sub_command
   case sub_command
     when "run", "start"
       return :run
-    when "kill", "stop", "off"
+    when "kill", "stop", "off", "down"
       return :kill
     when "killall"
       return :killall
@@ -61,6 +61,9 @@ FileUtils.cd Trema.home do
   end
   unless FileTest.directory?( Trema.pid_directory )
     FileUtils.mkdir_p Trema.pid_directory
+  end
+  unless FileTest.directory?( Trema.sock_directory )
+    FileUtils.mkdir_p Trema.sock_directory
   end
 
   sub_command = ARGV.shift

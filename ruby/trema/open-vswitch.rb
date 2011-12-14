@@ -141,7 +141,7 @@ module Trema
 
 
     def unixctl
-      File.join Trema.tmp, "ovs-openflowd.#{ name }.ctl"
+      File.join Trema.sock_directory, "ovs-openflowd.#{ name }.ctl"
     end
   end
 end

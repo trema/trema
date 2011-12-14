@@ -325,6 +325,14 @@ get_trema_pid() {
 }
 
 
+static const char *
+get_trema_sock() {
+  char path[ PATH_MAX ];
+  sprintf( path, "%s/sock", get_trema_tmp() );
+  return xstrdup( path );
+}
+
+
 static void
 maybe_finalize_openflow_application_interface() {
   if ( openflow_application_interface_is_initialized() ) {
@@ -553,7 +561,7 @@ init_trema( int *argc, char ***argv ) {
   set_exit_handler();
   set_usr1_handler();
   set_usr2_handler();
-  init_messenger( get_trema_tmp() );
+  init_messenger( get_trema_sock() );
   init_stat();
   init_timer();
 

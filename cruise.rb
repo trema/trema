@@ -368,6 +368,7 @@ def init_cruise
   sh "bundle install"
   mkdir_p Trema.log_directory
   mkdir_p Trema.pid_directory
+  mkdir_p Trema.sock_directory
 end
 
 
