@@ -34,8 +34,6 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     attr_reader :name
 
 
@@ -46,8 +44,6 @@ module Trema
     #   link.name => "trema3-1"
     #
     # @return [String]
-    #
-    # @api public
     #
     attr_reader :name_peer
 
@@ -60,8 +56,6 @@ module Trema
     #
     # @return [Array]
     #
-    # @api public
-    #
     attr_reader :peers
 
 
@@ -72,8 +66,6 @@ module Trema
     #   link = Trema::Link.new( stanza )
     #
     # @return [Link]
-    #
-    # @api public
     #
     def initialize stanza
       @link_id = Link.instances.size
@@ -92,10 +84,10 @@ module Trema
     #
     # @return [undefined]
     #
-    # @api public
-    #
     def add!
       sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
+      sh "sudo sysctl -w net.ipv6.conf.#{ @name }.disable_ipv6=1 >/dev/null 2>&1"
+      sh "sudo sysctl -w net.ipv6.conf.#{ @name_peer }.disable_ipv6=1 >/dev/null 2>&1"
     end
 
 
@@ -106,8 +98,6 @@ module Trema
     #   link.up!
     #
     # @return [undefined]
-    #
-    # @api public
     #
     def up!
       sh "sudo /sbin/ifconfig #{ @name } up"
@@ -123,8 +113,6 @@ module Trema
     #
     # @return [undefined]
     #
-    # @api public
-    #
     def enable!
       add!
       up!
@@ -138,8 +126,6 @@ module Trema
     #   link.delete!
     #
     # @return [undefined]
-    #
-    # @api public
     #
     def delete!
       # FIXME: do not rescue nil
