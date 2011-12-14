@@ -80,6 +80,11 @@ module Trema
   end
 
 
+  def self.pid_directory
+    File.join tmp, "pid"
+  end
+
+
   module Vendor
     def self.path
       File.join Trema.home, "vendor"

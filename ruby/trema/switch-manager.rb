@@ -32,6 +32,7 @@ module Trema
     include Trema::Daemon
 
 
+    singleton_daemon
     command { | sm | sm.__send__ :command }
 
 

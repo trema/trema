@@ -367,6 +367,7 @@ def init_cruise
   sh "./build.rb distclean"
   sh "bundle install"
   mkdir_p Trema.log_directory
+  mkdir_p Trema.pid_directory
 end
 
 

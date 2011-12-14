@@ -317,6 +317,14 @@ get_trema_log() {
 }
 
 
+static const char *
+get_trema_pid() {
+  char path[ PATH_MAX ];
+  sprintf( path, "%s/pid", get_trema_tmp() );
+  return xstrdup( path );
+}
+
+
 static void
 maybe_finalize_openflow_application_interface() {
   if ( openflow_application_interface_is_initialized() ) {
@@ -345,7 +353,7 @@ finalize_trema() {
   finalize_stat();
   finalize_timer();
   trema_started = false;
-  unlink_pid( get_trema_tmp(), get_trema_name() );
+  unlink_pid( get_trema_pid(), get_trema_name() );
   xfree( trema_name );
   trema_name = NULL;
   xfree( executable_name );
@@ -575,7 +583,7 @@ start_trema_up() {
   debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
-  write_pid( get_trema_tmp(), get_trema_name() );
+  write_pid( get_trema_pid(), get_trema_name() );
   trema_started = true;
 
   start_messenger();
@@ -611,7 +619,7 @@ set_trema_name( const char *name ) {
   assert( name != NULL );
   if ( trema_name != NULL ) {
     if ( trema_started ) {
-      rename_pid( get_trema_tmp(), trema_name, name );
+      rename_pid( get_trema_pid(), trema_name, name );
     }
     xfree( trema_name );
   }
@@ -646,7 +654,7 @@ get_executable_name() {
 
 pid_t
 get_trema_process_from_name( const char *name ) {
-  return read_pid( get_trema_tmp(), name );
+  return read_pid( get_trema_pid(), name );
 }
 
 

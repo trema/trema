@@ -26,6 +26,11 @@ require "trema/process"
 module Trema
   module Daemon
     module ClassMethods
+      def singleton_daemon
+        class_variable_set :@@singleton_daemon, true
+      end
+
+
       def log_file &block
         class_variable_set :@@log_file, block
       end
@@ -49,6 +54,7 @@ module Trema
 
     def self.included base
       base.class_eval do
+        class_variable_set :@@singleton_daemon, false
         class_variable_set :@@log_file, nil
         class_variable_set :@@command, nil
         class_variable_set :@@wait_until_up, false
@@ -104,7 +110,11 @@ module Trema
 
     def pid_file
       prefix = self.class.name.demodulize.underscore
-      File.join Trema.tmp, "#{ prefix }.#{ daemon_id }.pid"
+      if self.class.class_eval { class_variable_get :@@singleton_daemon }
+        File.join Trema.pid_directory, "#{ prefix }.pid"
+      else
+        File.join Trema.pid_directory, "#{ prefix }.#{ daemon_id }.pid"
+      end
     end
 
 
