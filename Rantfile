@@ -57,7 +57,7 @@ task :examples => [
   "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
-  "examples:repeater_hub",                 
+  "examples:repeater_hub",
   "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",

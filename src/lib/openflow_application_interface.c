@@ -1630,7 +1630,7 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
 
   memset( remote_service_name, '\0', sizeof( remote_service_name ) );
   snprintf( remote_service_name, sizeof( remote_service_name ),
-            "switch.%" PRIx64, datapath_id );
+            "switch.%#" PRIx64, datapath_id );
 
   debug( "Sending an OpenFlow message to %#" PRIx64
          " ( service_name = %s, remote_service_name = %s, "

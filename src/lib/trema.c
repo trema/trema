@@ -620,6 +620,7 @@ set_trema_name( const char *name ) {
   if ( trema_name != NULL ) {
     if ( trema_started ) {
       rename_pid( get_trema_pid(), trema_name, name );
+      rename_log( trema_name, name, get_trema_log() );
     }
     xfree( trema_name );
   }
