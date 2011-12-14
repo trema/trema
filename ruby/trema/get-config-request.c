@@ -38,18 +38,21 @@ get_config_request_alloc( VALUE klass ) {
  * from the switch.
  *
  * @overload initialize(options={})
- *   example 
+ *   @example
+ *     GetConfigRequest.new
  *     GetConfigRequest.new( :transaction_id => 123 )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
- *     An unsigned 32bit integer auto-generated if not supplied.
+ *   @option options [Number] :transaction_id
+ *     An unsigned 32-bit integer auto-generated if not supplied.
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * @raise [TypeEror] if options is not a hash.
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [GetConfigRequest] an object that encapsulates the +OFPT_GET_CONFIG+ openflow message.
+ *   @return [GetConfigRequest]
+ *     an object that encapsulates the +OFPT_GET_CONFIG+ OpenFlow message.
  */
 static VALUE
 get_config_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -63,7 +66,7 @@ get_config_request_init( int argc, VALUE *argv, VALUE self ) {
     VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
@@ -76,7 +79,7 @@ get_config_request_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 get_config_request_transaction_id( VALUE self ) {

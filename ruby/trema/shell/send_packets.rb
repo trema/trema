@@ -1,5 +1,5 @@
 #
-# Monkey patches for Ruby's built-in classes.
+# send_packets command of Trema shell.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,14 +20,16 @@
 #
 
 
-class Integer
-  def to_hex
-    "%#x" % self
-  end
+require "trema/dsl"
 
 
-  def unsigned_32bit?
-    ( 0 <= self ) and ( self < 2 ** 32 )
+module Trema
+  module Shell
+    def send_packets source, dest, options = {}
+      sanity_check
+      Cli.new( Host[ source ] ).send_packets( Host[ dest ], options )
+      true
+    end
   end
 end
 

@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "ruby.h"
 
+
 /*
  * @return [Number] an IPv4 address in its numeric representation.
  */
@@ -29,6 +30,7 @@ nw_addr_to_i( VALUE nw_addr ) {
   return ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "to_i" ), 0 ) );
 }
 
+
 /*
  * @return [String] an IPv4 address in its text representation.
  */
@@ -36,6 +38,7 @@ VALUE
 nw_addr_to_s( VALUE nw_addr ) {
   return rb_funcall( nw_addr, rb_intern( "to_s" ), 0 );
 }
+
 
 uint8_t *
 dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr ) {

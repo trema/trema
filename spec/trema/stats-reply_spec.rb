@@ -22,10 +22,10 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe StatsReply do
+describe StatsReply, ".new( VALID OPTIONS )" do
   context "when #flow-stats-reply is created" do
     subject do
-      actions = [ ActionOutput.new( 1 ) ]
+      actions = [ ActionOutput.new( :port => 1 ) ]
       match = Match.new
       FlowStatsReply.new(
         :length => 96,
@@ -178,7 +178,8 @@ describe StatsReply do
           # match the UDP packet
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
-          :actions => ActionOutput.new( FlowStatsController::OFPP_FLOOD ) )
+          :actions => ActionOutput.new( :port => FlowStatsController::OFPP_FLOOD ) 
+        )
         sleep 1 # FIXME: wait to send_flow_mod_add
         # send two packets
         send_packets "host1", "host2", :n_pkts => 2
@@ -213,7 +214,8 @@ describe StatsReply do
           # match the UDP packet
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
-          :actions => ActionOutput.new( AggregateStatsController::OFPP_FLOOD ) )
+          :actions => ActionOutput.new( :port => AggregateStatsController::OFPP_FLOOD ) 
+        )
         sleep 1 # FIXME: wait to send_flow_mod_add
         # send ten packets
         send_packets "host1", "host2", :n_pkts => 10
@@ -247,7 +249,8 @@ describe StatsReply do
         controller( "PortStatsController" ).send_flow_mod_add(
           0xabc,
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
-          :actions => ActionOutput.new( PortStatsController::OFPP_FLOOD ) )
+          :actions => ActionOutput.new( :port => PortStatsController::OFPP_FLOOD ) 
+        )
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
         
@@ -274,8 +277,10 @@ describe StatsReply do
         link "host1", "table-stats"
         link "host2", "table-stats"
       }.run( TableStatsController) {
-        controller( "TableStatsController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionOutput.new( TableStatsController::OFPP_FLOOD ) )
+        controller( "TableStatsController" ).send_flow_mod_add( 
+          0xabc,
+          :actions => ActionOutput.new( :port => TableStatsController::OFPP_FLOOD ) 
+        )
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
         

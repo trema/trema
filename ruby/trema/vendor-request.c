@@ -45,29 +45,34 @@ vendor_request_alloc( VALUE klass ) {
  * Creates a {VendorRequest} instance to facilitate sending of vendor 
  * experimental messages.
  *
- * @overload initialize( options={} )
+ * @overload initialize(options={})
  *
- * @example
- *   vendor_data = "test".unpack( "C*" ) => [ 116, 101, 115, 116 ]
- *   vendor = VendorRequest.new( :transaction_id => 1234, :vendor_id => 0x3000, :vendor_data => vendor_data )
+ *   @example
+ *     vendor_data = "test".unpack( "C*" ) => [ 116, 101, 115, 116 ]
+ *     VendorRequest.new
+ *     VendorRequest.new( :vendor_id => 0x3000 )
+ *     VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data )
+ *     VendorRequest.new( :vendor_id => 0x3000, :vendor_data => vendor_data, :transaction_id => 123 )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     Auto-generated transaction_id if not specified.
  *
- *   @option options [Symbol] :vendor_id
+ *   @option options [Number] :vendor_id
  *     The assigned vendor id defaults to 0xccddeeff if not specified.
  *
- *   @option options [Symbol] :vendor_data
+ *   @option options [Array] :vendor_data
  *     Fixed 16 bytes of data if not specified. User can set upto 16 bytes of any
  *     vendor specific data.
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * @raise [ArgumentError] When supplied if user data is not an array of bytes.
- * @raise [TypeEror] if options is not a hash.
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [ArgumentError] if user data is not an array of bytes.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [VendorRequest] an object that encapsulates the +OFPT_VENDOR+ openFlow message.
+ *   @return [VendorRequest]
+ *     an object that encapsulates the +OFPT_VENDOR+ OpenFlow message.
  */
 static VALUE
 vendor_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -82,7 +87,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
     VALUE xid_r;
     if ( ( xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_r );
     }
@@ -103,7 +108,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
         }
       }
       else {
-        rb_raise( rb_eArgError, "Vendor data must be specified as an array of bytes" );
+        rb_raise( rb_eTypeError, "Vendor data must be specified as an array of bytes" );
       }
     }
   }
@@ -116,7 +121,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 vendor_request_transaction_id( VALUE self ) {
@@ -130,7 +135,7 @@ vendor_request_transaction_id( VALUE self ) {
 /*
  * A 32-bit value that uniquely identifies the vendor.
  *
- * @return [Number] the value of attribute vendor id.
+ * @return [Number] the value of vendor id.
  */
 static VALUE
 vendor_request_vendor( VALUE self ) {

@@ -64,6 +64,12 @@ module Trema
     end
 
 
+
+    def self.clear
+      instances.clear
+    end
+
+
     #
     # Iterates over the list of instances
     #
@@ -100,6 +106,21 @@ module Trema
     #
     def self.[] name
       instances[ name ]
+    end
+
+
+    #
+    # Returns the number of instances.
+    #
+    # @example
+    #   App.size  #=> 3
+    #
+    # @return [Number] the number of instances
+    #
+    # @api public
+    #
+    def self.size
+      instances.values.size
     end
 
 

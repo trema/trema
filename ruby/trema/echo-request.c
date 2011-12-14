@@ -27,34 +27,34 @@ VALUE cEchoRequest;
 
 
 /*
- * An echo request message can be used to measure the bandwidth of a 
+ * An echo request message can be used to measure the bandwidth of a
  * controller/switch connection as well as to verify its liveness.
  *
  * @overload initialize(options={})
- *   @example 
+ *   @example
  *     EchoRequest.new(
  *       :transaction_id => transaction_id,
  *       :user_data => "Thu Aug 25 13:09:00 +0900 2011"
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     a positive number, not recently attached to any previous pending commands to
  *     guarantee message integrity auto-generated if not specified.
  *
- *   @option options [Symbol] :user_data
- *     the user data field specified as a String may be a message timestamp to check latency, 
- *     various lengths to measure bandwidth or zero-size(nil) to verify liveness between 
+ *   @option options [String] :user_data
+ *     the user data field specified as a String may be a message timestamp to check latency,
+ *     various lengths to measure bandwidth or zero-size(nil) to verify liveness between
  *     the switch and controller.
  *
- * @raise [ArgumentError] if transaction id is not an unsigned 32bit integer.
- * @raise [ArgumentError] if user data is not a string.
- * @raise [TypeEror] if options is not a hash.
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [ArgumentError] if user data is not a string.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [EchoRequest]
- *   a {EchoRequest} object that encapsulates the +OPFT_ECHO_REQUEST+ openflow
- *   message.
+ *   @return [EchoRequest]
+ *     an object that encapsulates the +OPFT_ECHO_REQUEST+ OpenFlow message.
  */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
@@ -68,7 +68,7 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
     VALUE xid_ruby;
     if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32bit integer" );
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
@@ -94,7 +94,7 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 echo_request_transaction_id( VALUE self ) {

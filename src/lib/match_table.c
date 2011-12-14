@@ -51,6 +51,12 @@ typedef struct {
 } match_table;
 
 
+typedef struct {
+  void ( * function )( struct ofp_match, uint16_t, void *, void * );
+  void *user_data;
+} match_walker;
+
+
 match_table *_match_table_head = NULL; // non-static variable for use in unit testing
 
 
@@ -224,20 +230,25 @@ static void
 exact_match_table_walker( void *key, void *value, void *user_data ) {
   UNUSED( key );
   assert( value != NULL );
-  assert( user_data != NULL );
+  match_walker *walker = user_data;
+  assert( walker != NULL );
+  assert( walker->function != NULL );
 
-  void ( * function )( struct ofp_match, uint16_t, void * ) = user_data;
+  void ( * function )( struct ofp_match, uint16_t, void *, void * ) = walker->function;
   match_entry *entry = value;
 
-  function( entry->match, entry->priority, entry->data );
+  function( entry->match, entry->priority, entry->data, walker->user_data );
 }
 
 
 static void
-foreach_exact_match_table( hash_table *exact_table, void function( struct ofp_match, uint16_t, void * ) ) {
+foreach_exact_match_table( hash_table *exact_table, void function( struct ofp_match, uint16_t, void *, void * ), void *user_data ) {
   assert( exact_table != NULL );
   assert( function != NULL );
-  foreach_hash( exact_table, exact_match_table_walker, function );
+  match_walker walker;
+  walker.function = function;
+  walker.user_data = user_data;
+  foreach_hash( exact_table, exact_match_table_walker, &walker );
 }
 
 
@@ -366,13 +377,14 @@ delete_wildcards_match_entry( list_element **wildcards_table, struct ofp_match *
 
 
 static void
-foreach_wildcards_match_table( list_element *wildcards_table, void function( struct ofp_match, uint16_t, void * ) ) {
+foreach_wildcards_match_table( list_element *wildcards_table, void function( struct ofp_match, uint16_t, void *, void * ), void * user_data ) {
   assert( function != NULL );
 
-  list_element *element;
-  for ( element = wildcards_table; element != NULL; element = element->next ) {
+  list_element *element = wildcards_table;
+  while ( element != NULL ) {
     match_entry *entry = element->data;
-    function( entry->match, entry->priority, entry->data );
+    element = element->next;
+    function( entry->match, entry->priority, entry->data, user_data );
   }
 }
 
@@ -513,7 +525,7 @@ delete_match_entry( struct ofp_match match, uint16_t priority ) {
 
 
 void
-foreach_match_table( void function( struct ofp_match, uint16_t, void * ) ) {
+foreach_match_table( void function( struct ofp_match, uint16_t, void *, void *), void *user_data ) {
   if ( _match_table_head == NULL ) {
     die( "match table is not initialized." );
   }
@@ -522,8 +534,8 @@ foreach_match_table( void function( struct ofp_match, uint16_t, void * ) ) {
   }
 
   pthread_mutex_lock( _match_table_head->mutex );
-  foreach_exact_match_table( _match_table_head->exact_table, function );
-  foreach_wildcards_match_table( _match_table_head->wildcards_table, function );
+  foreach_exact_match_table( _match_table_head->exact_table, function, user_data );
+  foreach_wildcards_match_table( _match_table_head->wildcards_table, function, user_data );
   pthread_mutex_unlock( _match_table_head->mutex );
 }
 

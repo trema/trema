@@ -31,23 +31,58 @@ VALUE cActionEnqueue;
  * is configured the user can associate a flow with this action to forward a
  * packet through the specific queue in that port.
  *
- * @overload initialize(port, queue_id)
+ * @overload initialize(options={})
  *
- * @param [Number] port
- *   the port the queue is attached to.
+ *   @example
+ *     ActionEnqueue.new( :port => 1, :queue_id => 2 )
  *
- * @param [Number] queue_id
- *   the configured queue.  Currently only minimum rate queues provided.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @raise [ArgumentError] if both port and queue_id arguments not supplied.
+ *   @option options [Number] :port
+ *     the port the queue is attached to.
  *
- * @return [ActionEnqueue] self
- *   an object that encapsulates this action.
+ *   @option options [Number] :queue_id
+ *     the configured queue. Currently only minimum rate queues provided.
+ *
+ *   @raise [ArgumentError] if both port and queue_id arguments not supplied.
+ *   @raise [ArgumentError] if port is not an unsigned 16-bit integer.
+ *   @raise [ArgumentError] if queue id is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionEnqueue] self
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
-  rb_iv_set( self, "@port", port );
-  rb_iv_set( self, "@queue_id", queue_id );
+action_enqueue_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE port;
+    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
+      }
+      rb_iv_set( self, "@port", port );
+    }
+    else {
+      rb_raise( rb_eArgError, "Port is a mandatory option" );
+    }
+    VALUE queue_id;
+    if ( ( queue_id = rb_hash_aref( options, ID2SYM( rb_intern( "queue_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( queue_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Queue id must be an unsigned 32-bit integer" );
+      }
+      rb_iv_set( self, "@queue_id", queue_id );
+    }
+    else {
+      rb_raise( rb_eArgError, "Queue id is a mandatory option" );
+    }
+  }
+  else {
+    rb_raise( rb_eArgError, "Port, queue id are mandatory options" );
+  }
   return self;
 }
 
@@ -55,7 +90,7 @@ action_enqueue_init( VALUE self, VALUE port, VALUE queue_id ) {
 /*
  * The port the queue is attached to.
  *
- * @return [Number] the value of attribute port.
+ * @return [Number] the value of port.
  */
 static VALUE
 action_enqueue_get_port( VALUE self ) {
@@ -66,7 +101,7 @@ action_enqueue_get_port( VALUE self ) {
 /*
  * The configured queue.
  *
- * @return [Number] the value of attribute queue_id.
+ * @return [Number] the value of queue_id.
  */
 static VALUE
 action_enqueue_get_queue_id( VALUE self ) {
@@ -110,7 +145,7 @@ action_enqueue_inspect( VALUE self ) {
 void
 Init_action_enqueue() {
   cActionEnqueue = rb_define_class_under( mTrema, "ActionEnqueue", rb_cObject );
-  rb_define_method( cActionEnqueue, "initialize", action_enqueue_init, 2 );
+  rb_define_method( cActionEnqueue, "initialize", action_enqueue_init, -1 );
   rb_define_method( cActionEnqueue, "port", action_enqueue_get_port, 0 );
   rb_define_method( cActionEnqueue, "queue_id", action_enqueue_get_queue_id, 0 );
   rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );

@@ -16,7 +16,7 @@ Feature: Send a features request message
     """
     datapath_id: 0xabc
     n_buffers: 256
-    n_tables: 2
+    n_tables: 1
     capabilities:
       OFPC_FLOW_STATS
       OFPC_TABLE_STATS
@@ -55,7 +55,7 @@ Feature: Send a features request message
     """
     datapath_id: 0xabc
     n_buffers: 256
-    n_tables: 2
+    n_tables: 1
     capabilities:
       OFPC_FLOW_STATS
       OFPC_TABLE_STATS

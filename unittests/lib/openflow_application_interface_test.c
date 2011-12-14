@@ -129,7 +129,7 @@ static openflow_event_handlers_t EVENT_HANDLERS = {
   LIST_SWITCHES_REPLY_HANDLER
 };
 static uint64_t DATAPATH_ID = 0x0102030405060708ULL;
-static char REMOTE_SERVICE_NAME[] = "switch.102030405060708";
+static char REMOTE_SERVICE_NAME[] = "switch.0x102030405060708";
 static const uint32_t TRANSACTION_ID = 0x04030201;
 static const uint32_t VENDOR_ID = 0xccddeeff;
 static const uint8_t MAC_ADDR_X[ OFP_ETH_ALEN ] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 };
@@ -2639,11 +2639,8 @@ test_handle_list_switches_reply_if_length_is_zero() {
 
 static void
 test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
-  uint64_t *datapath_id;
-  buffer *data;
-
-  data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
-  datapath_id = append_back_buffer( data, sizeof( openflow_service_header_t ) );
+  buffer *data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
+  append_back_buffer( data, sizeof( openflow_service_header_t ) );
 
   handle_switch_events( MESSENGER_OPENFLOW_CONNECTED, data->data, data->length );
 
@@ -3249,11 +3246,8 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_MESSAGE() {
 
 static void
 test_handle_message_if_type_is_MESSENGER_OPENFLOW_CONNECTED() {
-  uint64_t *datapath_id;
-  buffer *data;
-
-  data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
-  datapath_id = append_back_buffer( data, sizeof( openflow_service_header_t ) );
+  buffer *data = alloc_buffer_with_length( sizeof( openflow_service_header_t ) );
+  append_back_buffer( data, sizeof( openflow_service_header_t ) );
 
   handle_message( MESSENGER_OPENFLOW_CONNECTED, data->data, data->length );
 

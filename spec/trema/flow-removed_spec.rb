@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::FlowRemoved do
+describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
   context "when an instance is created" do
     subject do
       match = Match.new(

@@ -21,7 +21,7 @@
 module Trema
   class Flow
     attr_reader :dl_type
-    
+
 
     def self.parse line
       flow = self.new
@@ -30,7 +30,7 @@ module Trema
       line.strip.split( /[,\s]\s*/ ).each do | each |
         next unless /(.+)=(.+)/=~ each
         name, value = $1, $2
-        attr_reader name.to_sym        
+        attr_reader name.to_sym
         if ( /\A\d+\Z/=~ value ) or ( /\A0x.+\Z/=~ value )
           flow.instance_eval "@#{ name }=#{ value }"
         else
@@ -41,8 +41,9 @@ module Trema
     end
 
 
-    def rspec_flow?
-      ( @actions == "drop" and @priority == 0 ) or @actions == "CONTROLLER:65535"
+    def users_flow?
+      not ( ( @actions == "drop" and @priority == 0 ) or
+            @actions == "CONTROLLER:65535" )
     end
   end
 end

@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 
@@ -35,14 +36,16 @@ void ( *trema_free )( void *ptr ) = free;
 
 void ( *trema_abort )( void ) = abort;
 
-int ( *trema_unlink ) ( const char *pathname ) = unlink;
+int ( *trema_unlink )( const char *pathname ) = unlink;
 
-int ( *trema_sqlite3_open) ( const char *filename, sqlite3 **ppDb ) = sqlite3_open;
-int ( *trema_sqlite3_close ) ( sqlite3 * ) = sqlite3_close;
-int ( *trema_sqlite3_exec ) ( sqlite3 *, const char *sql, int ( *callback ) ( void *, int, char **, char ** ), void *, char **errmsg ) = sqlite3_exec;
-int ( *trema_sqlite3_changes ) ( sqlite3 * ) = sqlite3_changes;
-void ( *trema_sqlite3_free ) ( void * ) = sqlite3_free;
-const char * ( *trema_sqlite3_errmsg ) ( sqlite3 * ) = sqlite3_errmsg;
+pid_t ( *trema_getpid )( void ) = getpid;
+
+int ( *trema_sqlite3_open )( const char *filename, sqlite3 **ppDb ) = sqlite3_open;
+int ( *trema_sqlite3_close )( sqlite3 * ) = sqlite3_close;
+int ( *trema_sqlite3_exec )( sqlite3 *, const char *sql, int ( *callback ) ( void *, int, char **, char ** ), void *, char **errmsg ) = sqlite3_exec;
+int ( *trema_sqlite3_changes )( sqlite3 * ) = sqlite3_changes;
+void ( *trema_sqlite3_free )( void * ) = sqlite3_free;
+const char * ( *trema_sqlite3_errmsg )( sqlite3 * ) = sqlite3_errmsg;
 
 
 /*

@@ -34,7 +34,7 @@ VALUE cPacketIn;
  *   Allocates and wraps a {PacketIn} object to store the details of 
  *   the +OFPT_PACKET_IN+ message.
  *
- * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ openflow message. 
+ * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ OpenFlow message. 
  */
 static VALUE
 packet_in_init( VALUE kclass ) {
@@ -62,7 +62,7 @@ get_packet_in( VALUE self ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 packet_in_datapath_id( VALUE self ) {
@@ -73,7 +73,7 @@ packet_in_datapath_id( VALUE self ) {
 /*
  * For this asynchronous message the transaction_id is set to zero.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 packet_in_transaction_id( VALUE self ) {
@@ -86,7 +86,7 @@ packet_in_transaction_id( VALUE self ) {
  * portion of it (packet is buffered) is included in the data field of 
  * this +OFPT_PACKET_IN+ message.
  *
- * @return [Number] the value of attribute buffer id.
+ * @return [Number] the value of buffer id.
  */
 static VALUE
 packet_in_buffer_id( VALUE self ) {
@@ -114,7 +114,7 @@ packet_in_is_buffered( VALUE self ) {
 /*
  * The port the frame was received.
  *
- * @return [Number] the value of attribute in_port.
+ * @return [Number] the value of in_port.
  */
 static VALUE
 packet_in_in_port( VALUE self ) {
@@ -125,7 +125,7 @@ packet_in_in_port( VALUE self ) {
 /*
  * The full length of the received frame.
  *
- * @return [Number] the value of attribute total_len.
+ * @return [Number] the value of total_len.
  */
 static VALUE
 packet_in_total_len( VALUE self ) {
@@ -137,7 +137,7 @@ packet_in_total_len( VALUE self ) {
  * A String that holds the entire or portion of the received frame.
  * Length of data, total_len - 20 bytes.
  *
- * @return [String] the value of attribute data.
+ * @return [String] the value of data.
  */
 static VALUE
 packet_in_data( VALUE self ) {
@@ -149,7 +149,7 @@ packet_in_data( VALUE self ) {
 /*
  * The reason why the +OFPT_PACKET_IN+ message was sent.
  *
- * @return [Number] the value of attribute reason.
+ * @return [Number] the value of reason.
  */
 static VALUE
 packet_in_reason( VALUE self ) {

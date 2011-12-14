@@ -22,32 +22,51 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionVendor do
-  context "when an instance is created" do
-    subject  { ActionVendor.new( 1 ) }
-    its( :vendor ) { should == 1 }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionVendor vendor=1>"
-    end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-    
-    
-    context "when vendor argument is not supplied" do
-      it "should raise an error" do
-        lambda do
-          ActionVendor.new
-        end.should raise_error ArgumentError
-      end
-    end
+shared_examples_for "any OpenFlow message with vendor option" do
+  it_should_behave_like "any OpenFlow message", :option => :vendor, :name => "Vendor id", :size => 32
+end
+
+
+describe ActionVendor, ".new( VALID OPTION )" do
+  subject  { ActionVendor.new( :vendor => vendor ) }
+  let( :vendor ) { 1 }
+  its( :vendor ) { should == 1 }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionVendor vendor=1>"
   end
-  
-  
-  context "when sending #flow_mod(add) with action vendor" do
+  it_should_behave_like "any OpenFlow message with vendor option"
+end
+
+
+describe ActionVendor, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionVendor, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
+  subject { ActionVendor.new( [ 1 ] ) }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
+  end
+end
+
+
+describe ActionVendor, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_vendor" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionVendor.new( :vendor => 1 )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have a flow with action set to mod_vendor" do
       class FlowModAddController < Controller; end
       pending "ActionVendor not yet implemented"

@@ -50,23 +50,23 @@ module Trema
       it "should daemonize without options" do
         stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
         app = App.new( stanza )
-        
+
         app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d" )
 
         app.daemonize!
       end
-      
+
 
       it "should daemonize with options" do
         stanza = { :path => "/usr/bin/tetris", :name => "NAME", :options => [ "OPTION0", "OPTION1" ] }
         app = App.new( stanza )
-        
+
         app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d OPTION0 OPTION1" )
 
         app.daemonize!
       end
     end
-    
+
 
     context "when shutting an app down" do
       it "should send a signal to kill" do
@@ -74,7 +74,7 @@ module Trema
         Trema::Process.stub!( :read ).and_return( process )
 
         process.should_receive( :kill! )
-        
+
         stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
         App.new( stanza ).shutdown!
       end
@@ -88,4 +88,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-

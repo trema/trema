@@ -22,21 +22,13 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe EchoRequest, ".new" do
+describe EchoRequest, ".new( OPTIONAL OPTION MISSING )" do
   its( :user_data ) { should be_nil }
   it_should_behave_like "any Openflow message with default transaction ID"
 end
 
 
-describe EchoRequest, ".new( :transaction_id => value, :user_data => 'this is a test' )" do
-  subject { EchoRequest.new :transaction_id => transaction_id, :user_data => 'this is a test' }
-  let( :transaction_id ) { 1234 }
-  its( :user_data ) { should eq( "this is a test" ) }
-  it_should_behave_like "any OpenFlow message"
-end
-
-
-describe EchoRequest, ".new( :transaction_id => 1234, :user_data => numeric(invalid) )" do
+describe EchoRequest, ".new( INVALID OPTIONS ) - user_data numeric" do
   subject { EchoRequest.new 1234, 456 }
   it "should raise an ArgumentError" do
     expect { subject }.to raise_error( ArgumentError )
@@ -44,7 +36,7 @@ describe EchoRequest, ".new( :transaction_id => 1234, :user_data => numeric(inva
 end
 
 
-describe EchoRequest, ".new( [ transaction_id, user_data ] (invalid arguments as an Array) )" do
+describe EchoRequest, ".new( INVALID OPTIONS ) - arguments as an Array" do
   subject { EchoRequest.new [ 1234, "this is a test" ] }
   it "should raise a TypeError" do
     expect { subject }.to raise_error( TypeError )
@@ -52,7 +44,13 @@ describe EchoRequest, ".new( [ transaction_id, user_data ] (invalid arguments as
 end
 
 
-describe  EchoRequest, ".new( :transaction_id => 1234, :user_data => 'this is a test' )" do
+describe EchoRequest, ".new( VALID OPTIONS )" do
+  subject { EchoRequest.new :transaction_id => transaction_id, :user_data => 'this is a test' }
+  let( :transaction_id ) { 1234 }
+  its( :user_data ) { should eq( "this is a test" ) }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
+
+
   context "when #echo_request is sent" do
     it "should #echo_reply" do
       class EchoRequestController < Controller; end

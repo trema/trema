@@ -19,7 +19,8 @@
 
 
 require "trema/app"
-require "trema/monkey"
+require "trema/monkey-patch/integer"
+require "trema/monkey-patch/string"
 require "trema/timers"
 
 
@@ -30,7 +31,7 @@ module Trema
   class Controller < App
     include Timers
 
-    
+
     #
     # Callback invoked whenever a subclass of this class is created.
     # This adds the created object to the DB of controllers.

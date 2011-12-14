@@ -22,14 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Error do
-  before do
-    @type = Error::OFPET_BAD_REQUEST
-    @code = Error::OFPBRC_BAD_TYPE
-    @user_data = "this is a test"
-  end
-
-
+describe Error, ".new( VALID OPTIONS )" do
   context "when using Error constants" do
     subject { Error.constants }
     it { should include "OFPET_HELLO_FAILED" }
@@ -76,75 +69,69 @@ describe Error do
     it { should include "OFPQOFC_BAD_QUEUE" }
     it { should include "OFPQOFC_EPERM" }
   end
+end
 
 
-  context "when .new" do
-    exception = "Type and code are mandatory arguments and should be specified"
-    it "should raise '#{ exception }'" do
-      expect { subject }.to raise_error( exception )
-    end
+describe Error, ".new( MANDATORY OPTIONS MISSING ) - type, code" do
+  subject{ Error.new }
+  exception = "Type and code are mandatory options"
+  it "should raise '#{ exception }'" do
+    expect { subject }.to raise_error( exception )
   end
+end
 
 
-  context "when .new(:type => type )" do
-    subject { Error.new( :type => @type ) }
-    exception = "Code is a mandatory option"
-    it "should raise '#{ exception }'" do
-      expect { subject }.to raise_error( exception )
-    end
+describe Error, ".new( MANDATORY OPTION MISSING ) - code" do
+  subject { Error.new( :type => Error::OFPET_BAD_REQUEST ) }
+  exception = "Code is a mandatory option"
+  it "should raise '#{ exception }'" do
+    expect { subject }.to raise_error( exception )
   end
+end
 
 
   
-  context "when .new(:code => code )" do
-    subject { Error.new( :code => @code ) }
-    exception = "Type is a mandatory option"
-    it "should raise '#{ exception }'" do
-      expect { subject }.to raise_error( exception )
-    end
+describe Error, ".new( MANDATORY OPTION MISSING ) - type" do
+  subject { Error.new( :code => Error::OFPBRC_BAD_TYPE ) }
+  exception = "Type is a mandatory option"
+  it "should raise '#{ exception }'" do
+    expect { subject }.to raise_error( exception )
   end
+end
 
 
-  context "when .new( :type => type, :code => code )" do
-    subject { Error.new( :type => @type, :code => @code ) }
-    its( :error_type ) { should == @type }
-    its( :code ) { should == @code }
-    its( :user_data ) { should be_nil }
-    it_should_behave_like "any Openflow message with default transaction ID"
-  end
+describe Error, ".new( OPTIONAL OPTION MISSING ) - transaction_id" do
+  subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE ) }
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
-  context "when .new( :type => type, :code => code, :transaction_id => transaction_id )" do
+describe Error, ".new( OPTIONAL OPTION MISSING ) - user_data" do
     subject do 
       Error.new(
-        :type => @type,
-        :code => @code,
-        :transaction_id => transaction_id
+        :type => Error::OFPET_BAD_REQUEST,
+        :code => Error::OFPBRC_BAD_TYPE,
+        :transaction_id => 123
       )
     end
-    let( :transaction_id ) { 1234 }
-    its( :error_type ) { should == @type }
-    its( :code ) { should == @code }
     its( :user_data ) { should be_nil }
-    it_should_behave_like "any OpenFlow message"
   end
 
 
-  context "when .new( Hash[ :type, type, :code, code, :transaction_id, transaction_id, :user_data, user_data ] )" do
-    subject do 
-      Error.new(
-        :type => @type,
-        :code => @code,
-        :transaction_id => transaction_id,
-        :user_data => @user_data
-      )
-    end
-    let( :transaction_id ) { 1234 }
-    its( :error_type ) { should == @type }
-    its( :code ) { should == @code }
-    its( :user_data ) { should eq @user_data }
-    it_should_behave_like "any OpenFlow message"
+describe Error, ".new( VALID OPTIONS )" do
+  subject do 
+    Error.new(
+      :type => Error::OFPET_BAD_REQUEST,
+      :code => Error::OFPBRC_BAD_TYPE,
+      :transaction_id => transaction_id,
+      :user_data => "this is a test"
+    )
   end
+  let( :transaction_id ) { 1234 }
+  its( :error_type ) { should == Error::OFPET_BAD_REQUEST }
+  its( :code ) { should == Error::OFPBRC_BAD_TYPE }
+  its( :user_data ) { should eq "this is a test" }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
 end
 
 

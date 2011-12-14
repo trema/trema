@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
@@ -28,6 +29,9 @@
 #include "ofpmsg_recv.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_receiver.h"
+
+
+static const size_t RECEIVE_BUFFFER_SIZE = UINT16_MAX + sizeof(struct ofp_packet_in) - 2;
 
 
 int
@@ -41,10 +45,10 @@ recv_from_secure_channel( struct switch_info *sw_info ) {
   }
 
   if ( sw_info->fragment_buf == NULL ) {
-    sw_info->fragment_buf = alloc_buffer_with_length( UINT16_MAX );
+    sw_info->fragment_buf = alloc_buffer_with_length( RECEIVE_BUFFFER_SIZE );
   }
 
-  size_t remaining_length = UINT16_MAX - sw_info->fragment_buf->length;
+  size_t remaining_length = RECEIVE_BUFFFER_SIZE - sw_info->fragment_buf->length;
   char *recv_buf = ( char * ) sw_info->fragment_buf->data + sw_info->fragment_buf->length;
   ssize_t recv_length = read( sw_info->secure_channel_fd, recv_buf, remaining_length );
   if ( recv_length < 0 ) {
@@ -100,16 +104,14 @@ handle_messages_from_secure_channel( struct switch_info *sw_info ) {
 
   int ret;
   int errors = 0;
-  int received = 0;
   buffer *message;
 
-  while ( ( message = dequeue_message( sw_info->recv_queue ) ) != NULL && received < 64 ) { // FIXME: magic number
+  while ( ( message = dequeue_message( sw_info->recv_queue ) ) != NULL ) {
     ret = ofpmsg_recv( sw_info, message );
     if ( ret < 0 ) {
       error( "Failed to handle message to application." );
       errors++;
     }
-    received++;
   }
 
   return errors == 0 ? 0 : -1;

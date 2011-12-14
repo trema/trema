@@ -29,37 +29,68 @@ VALUE cActionOutput;
 /*
  * An action to output a packet to a port.
  *
- * @overload initialize(port, max_len=nil)
+ * @overload initialize(options={})
  *
- * @param [Number] port
- *   port number an index into switch's physical port list. There are also fake
- *   output ports. For example a port number set to +OFPP_FLOOD+ would output
- *   packets to all physical ports except input port and ports disabled by STP.
+ *   @example
+ *     ActionOutput.new( 1 )
+ *     ActionOutput.new( :port => 1, :max_len => 256 )
+ *     ActionOutput.new( :port => 1 )
+ *     ActionOutput.new( :port => 1, :max_len => 256 )
  *
- * @param [Number] max_len
- *   the maximum number of bytes from a packet to send to controller when port
- *   is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet
- *   should be sent. It defaults to 64K.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @raise [ArgumentError] if port argument is not supplied.
+ *   @option options [Number] :port
+ *     port number an index into switch's physical port list. There are also 
+ *     fake output ports. For example a port number set to +OFPP_FLOOD+ would 
+ *     output packets to all physical ports except input port and ports 
+ *     disabled by STP.
  *
- * @return [ActionOutput] self
- *   an object that encapsulates this action.
+ *   @option options [Number] :max_len
+ *     the maximum number of bytes from a packet to send to controller when port
+ *     is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet
+ *     should be sent. It defaults to 64K.
+ *
+ *   @raise [ArgumentError] if port is not an unsigned 16-bit integer.
+ *   @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
+ *
+ *   @return [ActionOutput] self
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_output_init( int argc, VALUE *argv, VALUE self ) {
-  if ( !argc ) {
-    rb_raise( rb_eArgError, "Port is a mandatory option." );
+action_output_init( VALUE self, VALUE options ) {
+  if ( rb_obj_is_kind_of( options, rb_cHash ) ) {
+    VALUE port;
+    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
+      }
+      rb_iv_set( self, "@port", port );
+    }
+    else {
+      rb_raise( rb_eArgError, "Port is a mandatory option" );
+    }
+    VALUE max_len;
+    if ( ( max_len = rb_hash_aref( options, ID2SYM( rb_intern( "max_len" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( max_len, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Maximum length must be an unsigned 16-bit integer" );
+      }
+    }
+    else {
+      max_len = UINT2NUM( UINT16_MAX );
+    }
+    rb_iv_set( self, "@max_len", max_len );
   }
-  
-  VALUE max_len = Qnil;
-  VALUE port;
-  rb_scan_args( argc, argv, "11", &port, &max_len );
-  rb_iv_set( self, "@port", port );
-  if ( max_len == Qnil ) {
-    max_len = UINT2NUM( UINT16_MAX );
-  } 
-  rb_iv_set( self, "@max_len", max_len );
+  else if ( rb_obj_is_kind_of( options, rb_cInteger ) ) {
+    if ( rb_funcall( options, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
+    }
+    rb_iv_set( self, "@port", options );
+    rb_iv_set( self, "@max_len", UINT2NUM( UINT16_MAX ) );
+  }
+  else {
+    rb_raise( rb_eArgError, "Invalid option" );
+  }
   return self;
 }
 
@@ -67,7 +98,7 @@ action_output_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * The index into switch's physical port list.
  *
- * @return [Number] the value of attribute port.
+ * @return [Number] the value of port.
  */
 static VALUE
 action_output_port( VALUE self ) {
@@ -79,7 +110,7 @@ action_output_port( VALUE self ) {
  * The maximum number of bytes from a packet to send to controller when port
  * is set to +OFPP_CONTROLLER+.
  *
- * @return [Number] the value of attribute max_len.
+ * @return [Number] the value of max_len.
  */
 static VALUE
 action_output_max_len( VALUE self ) {
@@ -122,7 +153,7 @@ action_output_inspect( VALUE self ) {
 void
 Init_action_output() {
   cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cObject );
-  rb_define_method( cActionOutput, "initialize", action_output_init, -1 );
+  rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "port", action_output_port, 0 );
   rb_define_method( cActionOutput, "max_len", action_output_max_len, 0 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );

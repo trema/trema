@@ -42,23 +42,24 @@ VALUE cGetConfigReply;
  *       :miss_send_len => 65535
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     the saved transaction_id from +OFPT_GET_CONFIG_REQUEST+ message.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     indicates how IP fragments are treated.
  *
- *   @option options [Symbol] :miss_send_len
+ *   @option options [Number] :miss_send_len
  *     the maximum number of bytes to send on a flow table miss or 
  *     flow destined to controller.
  *
- * @return [GetConfigReply] 
- *   an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ openflow message.   
+ *   @return [GetConfigReply] 
+ *     an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ OpenFlow message.   
  */
 static VALUE
 get_config_reply_init( VALUE self, VALUE options ) {
@@ -70,7 +71,7 @@ get_config_reply_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 get_config_reply_datapath_id( VALUE self ) {
@@ -81,7 +82,7 @@ get_config_reply_datapath_id( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 get_config_reply_transaction_id( VALUE self ) {
@@ -93,7 +94,7 @@ get_config_reply_transaction_id( VALUE self ) {
  * Flags indicate how IP fragments should be treated (no special handling,
  * dropped or reassembled).
  *
- * @return [Number] the value of attribute flags.
+ * @return [Number] the value of flags.
  */
 static VALUE
 get_config_reply_flags( VALUE self ) {
@@ -104,7 +105,7 @@ get_config_reply_flags( VALUE self ) {
 /*
  * The maximum number of bytes to send on flow table miss or flow destined to controller.
  *
- * @return [Number] the value of attribute miss_send_len.
+ * @return [Number] the value of miss_send_len.
  */
 static VALUE
 get_config_reply_miss_send_len( VALUE self ) {
