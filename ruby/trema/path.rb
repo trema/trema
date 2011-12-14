@@ -117,7 +117,7 @@ module Trema
 
 
     def self.oflops
-      File.join path, "oflops-0.02"
+      File.join path, "oflops-0.03"
     end
   end
 end
