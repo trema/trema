@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema shell command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,9 +20,25 @@
 #
 
 
-require "trema/command/run"
-require "trema/command/shell"
-require "trema/command/usage"
+module Trema
+  module Command
+    def shell
+      require "tempfile"
+      require "trema"
+      require "trema/shell"
+      f = Tempfile.open( "irbrc" )
+      f.print <<EOF
+include Trema::Shell
+ENV[ "TREMA_HOME" ] = Trema.home
+@context = Trema::DSL::Context.new
+EOF
+      f.close
+      load f.path
+      IRB.start
+      @context
+    end
+  end
+end
 
 
 ### Local variables:

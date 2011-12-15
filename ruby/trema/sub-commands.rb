@@ -44,22 +44,6 @@ class Trema::SubCommands
   end
 
 
-  def start_shell
-    require "tempfile"
-    require "trema"
-    require "trema/shell"
-    f = Tempfile.open( "irbrc" )
-    f.print <<EOF
-include Trema::Shell
-ENV[ "TREMA_HOME" ] = Trema.home
-@context = Trema::DSL::Context.new
-EOF
-    f.close
-    load f.path
-    IRB.start
-  end
-
-
   def killall
     @options.banner = "Usage: #{ $0 } killall [OPTIONS ...]"
 

@@ -47,6 +47,8 @@ def method_for sub_command
       return :dump_flows
     when "version", "-V", "--version"
       return :version
+    when "shell"
+      return :shell
     when "help", "-h", "--help", "/?", "-?"
       return :usage
     else
@@ -65,9 +67,9 @@ FileUtils.cd Trema.home do
   FileUtils.mkdir_p Trema.sock_directory
 
   sub_command = ARGV.shift
-  if sub_command.nil?
-    Trema::SubCommands.new.start_shell
-    cleanup @context
+  if sub_command.nil? or method_for( sub_command ) == :shell
+    context = shell
+    cleanup context
   elsif method_for( sub_command )
     begin
       if [ :run, :usage ].include? method_for( sub_command )  # FIXME
