@@ -21,16 +21,13 @@
 #
 
 
-$LOAD_PATH.unshift( File.expand_path( File.join File.dirname( __FILE__ ), "ruby" ) )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
 
 
 require "English"
 require "fileutils"
-require "trema"
 require "trema/command"
-
-
-include Trema::Command
+require "trema/path"
 
 
 def method_for command
@@ -52,7 +49,7 @@ def method_for command
     when "version", "-V", "--version"
       return :version
     when "shell"
-      return :shell
+      return :shell, NilClass
     when "help", "-h", "--help", "/?", "-?"
       return :usage
     else
@@ -67,10 +64,9 @@ FileUtils.cd Trema.home do
   FileUtils.mkdir_p Trema.sock_directory
 
   command = ARGV.shift
-  if command.nil?
-    shell
-  elsif method_for( command )
+  if method_for( command )
     begin
+      include Trema::Command
       __send__ method_for( command )
     rescue
       $stderr.puts $ERROR_INFO.message
