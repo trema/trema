@@ -43,11 +43,7 @@ Available commands:
   dump_flows     - print all flow entries.
 EOL
       elsif method_for( command )
-        if [ :run, :usage ].include? method_for( command )  # FIXME
-          __send__ method_for( command )
-        else
-          Trema::SubCommands.new.__send__ method_for( command )
-        end
+        __send__ method_for( command )
       else
         STDERR.puts "Type '#{ $PROGRAM_NAME } help' for usage."
         exit false

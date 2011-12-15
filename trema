@@ -29,8 +29,8 @@ require "fileutils"
 require "trema"
 
 
-def method_for sub_command
-  case sub_command
+def method_for command
+  case command
     when "run", "start"
       return :run
     when "kill", "stop", "off", "down"
@@ -57,32 +57,26 @@ def method_for sub_command
 end
 
 
-require "trema/command"  # FIXME
-include Trema::Command
-
-
 FileUtils.cd Trema.home do
   FileUtils.mkdir_p Trema.log_directory
   FileUtils.mkdir_p Trema.pid_directory
   FileUtils.mkdir_p Trema.sock_directory
 
-  sub_command = ARGV.shift
-  if sub_command.nil? or method_for( sub_command ) == :shell
+  command = ARGV.shift
+  if command.nil? or method_for( command ) == :shell
     context = shell
     cleanup context
-  elsif method_for( sub_command )
+  elsif method_for( command )
     begin
-      if [ :show_stats, :reset_stats, :send_packets, :killall, :kill, :run, :usage, :version, :dump_flows ].include? method_for( sub_command )  # FIXME
-        __send__ method_for( sub_command )
-      else
-        Trema::SubCommands.new.__send__ method_for( sub_command )
-      end
+      require "trema/command"
+      include Trema::Command
+      __send__ method_for( command )
     rescue
       $stderr.puts $ERROR_INFO.message
       exit false
     end
   else
-    $stderr.puts "Unknown command: '#{ sub_command }'"
+    $stderr.puts "Unknown command: '#{ command }'"
     $stderr.puts "Type '#{ $0 } --help' for usage."
     exit false
   end
