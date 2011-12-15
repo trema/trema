@@ -27,6 +27,7 @@ $run_as_daemon = false  # FIXME
 require "trema/command/kill"
 require "trema/command/killall"
 require "trema/command/run"
+require "trema/command/send_packets"
 require "trema/command/shell"
 require "trema/command/usage"
 

@@ -37,7 +37,7 @@ def method_for sub_command
       return :kill
     when "killall"
       return :killall
-    when "send_packets"
+    when "send_packets", "send_packet"
       return :send_packets
     when "show_stats"
       return :show_stats
@@ -72,7 +72,7 @@ FileUtils.cd Trema.home do
     cleanup context
   elsif method_for( sub_command )
     begin
-      if [ :killall, :kill, :run, :usage ].include? method_for( sub_command )  # FIXME
+      if [ :send_packets, :killall, :kill, :run, :usage ].include? method_for( sub_command )  # FIXME
         __send__ method_for( sub_command )
       else
         Trema::SubCommands.new.__send__ method_for( sub_command )
