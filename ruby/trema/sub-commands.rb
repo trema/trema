@@ -33,27 +33,10 @@ require "trema/version"
 include Trema::Util
 
 
-$verbose = false
-$run_as_daemon = false
-
-
 class Trema::SubCommands
   def initialize
     @dsl_parser = Trema::DSL::Parser.new
     @options = OptionParser.new
-  end
-
-
-  def kill
-    @options.banner = "Usage: #{ $0 } kill NAME [OPTIONS ...]"
-
-    add_help_option
-    add_verbose_option
-
-    @options.parse! ARGV
-
-    switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
-    switch.shutdown!
   end
 
 

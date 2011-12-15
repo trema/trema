@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema kill command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,15 +20,35 @@
 #
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
+require "optparse"
+require "trema/dsl"
+require "trema/util"
 
 
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/run"
-require "trema/command/shell"
-require "trema/command/usage"
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def kill
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } kill NAME [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+      switch.shutdown!
+    end
+  end
+end
 
 
 ### Local variables:
