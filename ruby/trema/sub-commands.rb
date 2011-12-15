@@ -131,42 +131,6 @@ class Trema::SubCommands
       $verbose = true
     end
   end
-
-
-  def load_config
-    config = nil
-
-    if @config_file
-      config = @dsl_parser.parse( @config_file )
-    elsif FileTest.exists?( "./trema.conf" )
-      config = @dsl_parser.parse( "./trema.conf" )
-    else
-      config = Trema::DSL::Context.new
-    end
-
-    if ARGV[ 0 ]
-      controller_file = ARGV[ 0 ].split.first
-      if c_controller?
-        stanza = Trema::DSL::App.new
-        stanza.path controller_file
-        stanza.options ARGV[ 0 ].split[ 1..-1 ]
-        Trema::App.new( stanza )
-      else
-        # Ruby controller
-        require "trema"
-        ARGV.replace ARGV[ 0 ].split
-        $LOAD_PATH << File.dirname( controller_file )
-        Trema.module_eval IO.read( controller_file )
-      end
-    end
-
-    config
-  end
-
-
-  def c_controller?
-    /ELF/=~ `file #{ ARGV[ 0 ].split.first }`
-  end
 end
 
 
