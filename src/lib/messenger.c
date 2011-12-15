@@ -680,7 +680,7 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
          service_name, message_type, callback );
 
   if ( receive_queues == NULL ) {
-    error( "All receive queues are already deleted or not created yet." );
+    debug( "All receive queues are already deleted or not created yet." );
     return false;
   }
 
