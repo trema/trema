@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema version command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,17 +20,16 @@
 #
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
+require "trema/version"
 
 
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/run"
-require "trema/command/send_packets"
-require "trema/command/shell"
-require "trema/command/usage"
-require "trema/command/version"
+module Trema
+  module Command
+    def version
+      puts "trema version #{ Trema::VERSION }"
+    end
+  end
+end
 
 
 ### Local variables:
