@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema dump_flows command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,18 +20,39 @@
 #
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
+require "optparse"
+require "trema/dsl"
+require "trema/ofctl"
+require "trema/util"
 
 
-require "trema/command/dump_flows"
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/run"
-require "trema/command/send_packets"
-require "trema/command/shell"
-require "trema/command/usage"
-require "trema/command/version"
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def dump_flows
+      sanity_check
+
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      puts Trema::Ofctl.new.dump_flows( switch )
+    end
+  end
+end
 
 
 ### Local variables:

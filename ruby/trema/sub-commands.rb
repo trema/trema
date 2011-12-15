@@ -92,27 +92,6 @@ class Trema::SubCommands
   end
 
 
-  def dump_flows
-    sanity_check
-
-    switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
-
-    @options.banner = "Usage: #{ $0 } dump_flows SWITCH [OPTIONS ...]"
-
-    add_help_option
-    add_verbose_option
-
-    @options.parse! ARGV
-
-    puts Trema::Ofctl.new.dump_flows( switch )
-  end
-
-
-  def version
-    puts "trema version #{ Trema::VERSION }"
-  end
-
-
   ################################################################################
   private
   ################################################################################
