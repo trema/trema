@@ -239,35 +239,6 @@ EOF
   end
 
 
-  def usage
-    command = ARGV.shift
-
-    ARGV.clear << "--help"
-    if command.nil?
-      puts <<-EOL
-usage: #{ $0 } <COMMAND> [OPTIONS ...]
-
-Trema command-line tool
-Type '#{ $0 } help <COMMAND>' for help on a specific command.
-
-Available commands:
-  run            - runs a trema application.
-  kill           - terminates a trema process.
-  killall        - terminates all trema processes.
-  send_packets   - sends UDP packets to destination host.
-  show_stats     - shows stats of packets.
-  reset_stats    - resets stats of packets.
-  dump_flows     - print all flow entries.
-EOL
-    elsif method_for( command )
-      __send__ method_for( command )
-    else
-      STDERR.puts "Type '#{ $0 } help' for usage."
-      exit false
-    end
-  end
-
-
   ################################################################################
   private
   ################################################################################

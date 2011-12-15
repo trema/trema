@@ -70,8 +70,8 @@ FileUtils.cd Trema.home do
     cleanup @context
   elsif method_for( sub_command )
     begin
-      if method_for( sub_command ) == :run  # FIXME
-        run
+      if [ :run, :usage ].include? method_for( sub_command )  # FIXME
+        __send__ method_for( sub_command )
       else
         Trema::SubCommands.new.__send__ method_for( sub_command )
       end

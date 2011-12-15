@@ -21,6 +21,7 @@
 
 
 require "trema/command/run"
+require "trema/command/usage"
 
 
 ### Local variables:
