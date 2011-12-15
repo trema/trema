@@ -217,6 +217,17 @@ packet_in_is_arp( VALUE self ) {
 
 
 /*
+ * The ARP operation code.
+ *
+ * @return [integer] arp_oper Operation code.
+ */
+static VALUE
+packet_in_arp_oper( VALUE self ) {
+  return get_packet_in_info( self )->arp_ar_op;
+}
+
+
+/*
  * The ARP source hardware address.
  *
  * @return [Trema::Mac] arp_sha MAC hardware address.
@@ -418,6 +429,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
 
   cPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
+  rb_define_method( cPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
   rb_define_method( cPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
   rb_define_method( cPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
   rb_define_method( cPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
