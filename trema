@@ -55,6 +55,10 @@ def method_for sub_command
 end
 
 
+require "trema/command"  # FIXME
+include Trema::Command
+
+
 FileUtils.cd Trema.home do
   FileUtils.mkdir_p Trema.log_directory
   FileUtils.mkdir_p Trema.pid_directory
@@ -66,7 +70,11 @@ FileUtils.cd Trema.home do
     cleanup @context
   elsif method_for( sub_command )
     begin
-      Trema::SubCommands.new.__send__ method_for( sub_command )
+      if method_for( sub_command ) == :run  # FIXME
+        run
+      else
+        Trema::SubCommands.new.__send__ method_for( sub_command )
+      end
     rescue
       $stderr.puts $ERROR_INFO.message
       exit false

@@ -44,38 +44,6 @@ class Trema::SubCommands
   end
 
 
-  def run
-    sanity_check
-
-    @options.banner = "Usage: #{ $0 } run [OPTIONS ...]"
-
-    @options.on( "-c", "--conf FILE" ) do | v |
-      @config_file = v
-    end
-    @options.on( "-d", "--daemonize" ) do
-      $run_as_daemon = true
-    end
-
-    @options.separator ""
-    add_help_option
-    add_verbose_option
-
-    @options.parse! ARGV
-
-    cleanup_current_session
-
-    if $run_as_daemon
-      Trema::DSL::Runner.new( load_config ).daemonize
-    else
-      begin
-        Trema::DSL::Runner.new( load_config ).run
-      ensure
-        cleanup_current_session
-      end
-    end
-  end
-
-
   def start_shell
     require "tempfile"
     require "trema"
