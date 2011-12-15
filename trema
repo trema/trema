@@ -56,15 +56,9 @@ end
 
 
 FileUtils.cd Trema.home do
-  unless FileTest.directory?( Trema.log_directory )
-    FileUtils.mkdir_p Trema.log_directory
-  end
-  unless FileTest.directory?( Trema.pid_directory )
-    FileUtils.mkdir_p Trema.pid_directory
-  end
-  unless FileTest.directory?( Trema.sock_directory )
-    FileUtils.mkdir_p Trema.sock_directory
-  end
+  FileUtils.mkdir_p Trema.log_directory
+  FileUtils.mkdir_p Trema.pid_directory
+  FileUtils.mkdir_p Trema.sock_directory
 
   sub_command = ARGV.shift
   if sub_command.nil?
