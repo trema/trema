@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema killall command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,14 +20,33 @@
 #
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
+require "optparse"
+require "trema/util"
 
 
-require "trema/command/killall"
-require "trema/command/run"
-require "trema/command/shell"
-require "trema/command/usage"
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def killall
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } killall [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      cleanup_current_session
+    end
+  end
+end
 
 
 ### Local variables:

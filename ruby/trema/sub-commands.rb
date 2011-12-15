@@ -44,18 +44,6 @@ class Trema::SubCommands
   end
 
 
-  def killall
-    @options.banner = "Usage: #{ $0 } killall [OPTIONS ...]"
-
-    add_help_option
-    add_verbose_option
-
-    @options.parse! ARGV
-
-    cleanup_current_session
-  end
-
-
   def kill
     @options.banner = "Usage: #{ $0 } kill NAME [OPTIONS ...]"
 

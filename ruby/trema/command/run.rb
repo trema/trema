@@ -25,10 +25,6 @@ require "trema/dsl"
 require "trema/util"
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
-
-
 module Trema
   module Command
     include Trema::Util
