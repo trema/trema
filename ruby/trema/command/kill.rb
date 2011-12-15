@@ -1,5 +1,5 @@
 #
-# run command of Trema shell.
+# trema kill command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,39 +20,32 @@
 #
 
 
+require "optparse"
 require "trema/dsl"
+require "trema/util"
 
 
 module Trema
-  module Shell
-    def run controller
-      sanity_check
+  module Command
+    include Trema::Util
 
-      if controller
-        controller = controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
-        end
+
+    def kill
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } kill NAME [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
       end
 
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
+      options.parse! ARGV
 
-      @context.apps.values.last.daemonize!
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+      switch.shutdown!
     end
   end
 end

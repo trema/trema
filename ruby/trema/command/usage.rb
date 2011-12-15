@@ -1,5 +1,5 @@
 #
-# run command of Trema shell.
+# trema usage (help) command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,39 +20,34 @@
 #
 
 
-require "trema/dsl"
-
-
 module Trema
-  module Shell
-    def run controller
-      sanity_check
+  module Command
+    def usage
+      command = ARGV.shift
 
-      if controller
-        controller = controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
-        end
+      ARGV.clear << "--help"
+      if command.nil?
+        puts <<-EOL
+usage: #{ $PROGRAM_NAME } <COMMAND> [OPTIONS ...]
+
+Trema command-line tool
+Type '#{ $PROGRAM_NAME } help <COMMAND>' for help on a specific command.
+
+Available commands:
+  run            - runs a trema application.
+  kill           - terminates a trema process.
+  killall        - terminates all trema processes.
+  send_packets   - sends UDP packets to destination host.
+  show_stats     - shows stats of packets.
+  reset_stats    - resets stats of packets.
+  dump_flows     - print all flow entries.
+EOL
+      elsif method_for( command )
+        __send__ method_for( command )
+      else
+        STDERR.puts "Type '#{ $PROGRAM_NAME } help' for usage."
+        exit false
       end
-
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
-
-      @context.apps.values.last.daemonize!
     end
   end
 end

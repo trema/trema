@@ -1,5 +1,5 @@
 #
-# Datapath ID class.
+# trema dump_flows command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,25 +20,36 @@
 #
 
 
-require "trema/monkey-patch/integer"
+require "optparse"
+require "trema/dsl"
+require "trema/ofctl"
+require "trema/util"
 
 
 module Trema
-  class DatapathId
-    def initialize value
-      raise "Invalid dpid: #{ value }" if not /\A0x/=~ value
-      @value = value
-    end
+  module Command
+    include Trema::Util
 
 
-    def long
-      no_0x = @value.gsub( /^0x/, "" )
-      "0" * ( 16 - no_0x.length ) + no_0x
-    end
+    def dump_flows
+      sanity_check
 
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
 
-    def short
-      @value
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      puts Trema::Ofctl.new.dump_flows( switch )
     end
   end
 end
@@ -46,6 +57,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

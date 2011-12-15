@@ -24,8 +24,8 @@ module Trema
   #
   class IP
     require "ipaddr"
-    
-    
+
+
     #
     # @return [IPAddr] value object instance of proxied IPAddr.
     #
@@ -37,7 +37,7 @@ module Trema
     #
     # @overload initialize(addr)
     #
-    # @param [String, Number] addr 
+    # @param [String, Number] addr
     #   an IPv4 address specified either as a String or Number.
     #
     # @raise [ArgumentError] invalid address if supplied argument is invalid
@@ -53,7 +53,7 @@ module Trema
         @value = IPAddr.new( addr )
       end
     end
-    
+
 
     #
     # @return [String] the IPv4 address in its text representation.
@@ -62,7 +62,7 @@ module Trema
       @value.to_s
     end
 
-    
+
     #
     # @return [Number] the IPv4 address in its numeric representation.
     #

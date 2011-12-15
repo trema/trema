@@ -88,8 +88,8 @@ module Trema
           peers = each.peers
           context.hosts[ peers[ 0 ] ].interface = each.name if context.hosts[ peers[ 0 ] ]
           context.hosts[ peers[ 1 ] ].interface = each.name_peer if context.hosts[ peers[ 1 ] ]
-          context.switches[ peers[ 0 ] ].add_interface each.name if context.switches[ peers[ 0 ] ]
-          context.switches[ peers[ 1 ] ].add_interface each.name_peer if context.switches[ peers[ 1 ] ]
+          context.switches[ peers[ 0 ] ] << each.name if context.switches[ peers[ 0 ] ]
+          context.switches[ peers[ 1 ] ] << each.name_peer if context.switches[ peers[ 1 ] ]
         end
         context.dump_to CURRENT_CONTEXT
       end

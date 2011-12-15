@@ -1,5 +1,5 @@
 #
-# run command of Trema shell.
+# Trema sub-commands.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,42 +20,16 @@
 #
 
 
-require "trema/dsl"
-
-
-module Trema
-  module Shell
-    def run controller
-      sanity_check
-
-      if controller
-        controller = controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
-        end
-      end
-
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
-
-      @context.apps.values.last.daemonize!
-    end
-  end
-end
+require "trema/command/dump_flows"
+require "trema/command/kill"
+require "trema/command/killall"
+require "trema/command/reset_stats"
+require "trema/command/run"
+require "trema/command/send_packets"
+require "trema/command/shell"
+require "trema/command/show_stats"
+require "trema/command/usage"
+require "trema/command/version"
 
 
 ### Local variables:

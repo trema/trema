@@ -1,5 +1,5 @@
 #
-# run command of Trema shell.
+# trema shell command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,39 +20,34 @@
 #
 
 
-require "trema/dsl"
+require "irb"
+require "trema/util"
+
+
+include Trema::Util
 
 
 module Trema
-  module Shell
-    def run controller
-      sanity_check
+  module Command
+    def shell
+      begin
+        undef :kill
 
-      if controller
-        controller = controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
-        end
+        require "tempfile"
+        require "trema"
+        require "trema/shell"
+        f = Tempfile.open( "irbrc" )
+        f.print <<EOF
+include Trema::Shell
+ENV[ "TREMA_HOME" ] = Trema.home
+@context = Trema::DSL::Context.new
+EOF
+        f.close
+        load f.path
+        IRB.start
+      ensure
+        cleanup @context
       end
-
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
-
-      @context.apps.values.last.daemonize!
     end
   end
 end

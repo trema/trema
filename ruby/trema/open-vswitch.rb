@@ -18,12 +18,11 @@
 #
 
 
-require "fileutils"
+require "trema/daemon"
 require "trema/executables"
 require "trema/ofctl"
 require "trema/openflow-switch"
 require "trema/path"
-require "trema/process"
 
 
 module Trema
@@ -31,15 +30,25 @@ module Trema
   # Open vSwitch support (http://openvswitch.org)
   #
   class OpenVswitch < OpenflowSwitch
+    include Trema::Daemon
+
+
+    DEFAULT_PORT = 6633
+
+
+    log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
+    command { | vswitch | vswitch.__send__ :command }
+
+
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}
     #
     # @example
-    #   switch = Trema::OpenVswitch.new( stanza, 6633 )
+    #   vswitch = Trema::OpenVswitch.new( stanza )
     #
     # @return [OpenVswitch]
     #
-    def initialize stanza, port
+    def initialize stanza, port = DEFAULT_PORT
       super stanza
       @port = port
       @interfaces = []
@@ -50,13 +59,14 @@ module Trema
     # Add a network interface used for a virtual port
     #
     # @example
-    #   switch.add_interface "trema3-0"
+    #   vswitch << "trema3-0"
     #
-    # @return [undefined]
+    # @return [Array]
     #
-    def add_interface interface
+    def << interface
       @interfaces << interface
       restart!
+      @interfaces
     end
 
 
@@ -65,56 +75,12 @@ module Trema
     # local port
     #
     # @example
-    #   switch.network_device  #=> "vsw_0xabc"
+    #   vswitch.network_device  #=> "vsw_0xabc"
     #
     # @return [String]
     #
     def network_device
-      "vsw_#{ @stanza[ :dpid_short ] }"
-    end
-
-
-    #
-    # Runs an Open vSwitch process
-    #
-    # @example
-    #   switch.run!
-    #
-    # @return [undefined]
-    #
-    def run!
-      raise "Open vSwitch '#{ @name }' is already running!" if running?
-      FileUtils.rm_f log_file
-      sh "sudo #{ Executables.ovs_openflowd } #{ options }"
-    end
-
-
-    #
-    # Kills running Open vSwitch process
-    #
-    # @example
-    #   switch.shutdown!
-    #
-    # @return [undefined]
-    #
-    def shutdown!
-      Trema::Process.read( pid_file, @name ).kill!
-    end
-
-
-    #
-    # Restarts running Open vSwitch process
-    #
-    # @example
-    #   switch.restart!
-    #
-    # @return [undefined]
-    #
-    def restart!
-      return if not running?
-      shutdown!
-      sleep 1
-      run!
+      "vsw_#{ @stanza.fetch :dpid_short }"
     end
 
 
@@ -122,7 +88,7 @@ module Trema
     # Returns flow entries
     #
     # @example
-    #   switch.flows  #=> [ flow0, flow1, ... ]
+    #   vswitch.flows  #=> [ flow0, flow1, ... ]
     #
     # @return [Array]
     #
@@ -131,9 +97,14 @@ module Trema
     end
 
 
-    ################################################################################
+    ############################################################################
     private
-    ################################################################################
+    ############################################################################
+
+
+    def command
+      "sudo #{ Executables.ovs_openflowd } #{ options }"
+    end
 
 
     def options
@@ -160,7 +131,7 @@ module Trema
 
 
     def ip
-      @stanza[ :ip ]
+      @stanza.fetch :ip
     end
 
 
@@ -169,23 +140,8 @@ module Trema
     end
 
 
-    def running?
-      FileTest.exists? pid_file
-    end
-
-
-    def pid_file
-      File.join Trema.tmp, "openflowd.#{ @name }.pid"
-    end
-
-
-    def log_file
-      File.join Trema.tmp, "log/openflowd.#{ @name }.log"
-    end
-
-
     def unixctl
-      File.join Trema.tmp, "ovs-openflowd.#{ @name }.ctl"
+      File.join Trema.sock_directory, "ovs-openflowd.#{ name }.ctl"
     end
   end
 end

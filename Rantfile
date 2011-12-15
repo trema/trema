@@ -57,7 +57,7 @@ task :examples => [
   "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
-  "examples:repeater_hub",                 
+  "examples:repeater_hub",
   "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",
@@ -234,7 +234,7 @@ task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
 file Trema::Executables.ovs_openflowd do
   sys.unpack_tgz "#{ Trema::Vendor.openvswitch }.tar.gz", :in => Trema::Vendor.path
   sys.cd Trema::Vendor.openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.tmp }"
+    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock_directory }"
     sys "make install"
     sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
   end

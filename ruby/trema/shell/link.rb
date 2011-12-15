@@ -31,10 +31,10 @@ module Trema
       link.enable!
 
       if Switch[ peer0 ]
-        Switch[ peer0 ].add_interface link.name
+        Switch[ peer0 ] << link.name
       end
       if Switch[ peer1 ]
-        Switch[ peer1 ].add_interface link.name_peer
+        Switch[ peer1 ] << link.name_peer
       end
 
       if Host[ peer0 ]

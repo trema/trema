@@ -1022,8 +1022,8 @@ dissect_message_header( tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tr
 
   gint head = offset;
   guint8 message_type = tvb_get_guint8( tvb, offset + 1 );
-  guint16 tag = htons( tvb_get_ntohs( tvb, offset + 2 ) );
-  guint32 message_length = htonl( tvb_get_ntohl( tvb, offset + 4 ) );
+  guint16 tag = tvb_get_ntohs( tvb, offset + 2 );
+  guint32 message_length = tvb_get_ntohl( tvb, offset + 4 );
 
   PRINTF( "dissect_message_header()\n" );
 
@@ -1039,9 +1039,9 @@ dissect_message_header( tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tr
     offset += 1;
     proto_tree_add_item( message_header_tree, hf_message_type, tvb, offset, 1, FALSE );
     offset += 1;
-    proto_tree_add_item( message_header_tree, hf_tag, tvb, offset, 2, TRUE ); // FIXME: little endian
+    proto_tree_add_item( message_header_tree, hf_tag, tvb, offset, 2, FALSE );
     offset += 2;
-    proto_tree_add_item( message_header_tree, hf_message_length, tvb, offset, 4, TRUE ); // FIXME: little endian
+    proto_tree_add_item( message_header_tree, hf_message_length, tvb, offset, 4, FALSE );
     offset += 4;
 
     if ( message_type == MESSAGE_TYPE_NOTIFY &&
