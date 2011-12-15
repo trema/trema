@@ -77,21 +77,6 @@ class Trema::SubCommands
   end
 
 
-  def reset_stats
-    sanity_check
-
-    @options.banner = "Usage: #{ $0 } reset_stats [OPTIONS ...]"
-
-    add_help_option
-    add_verbose_option
-
-    @options.parse! ARGV
-
-    host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
-    Trema::Cli.new( host ).reset_stats
-  end
-
-
   ################################################################################
   private
   ################################################################################
