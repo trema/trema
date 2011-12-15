@@ -27,6 +27,10 @@ $LOAD_PATH.unshift( File.expand_path( File.join File.dirname( __FILE__ ), "ruby"
 require "English"
 require "fileutils"
 require "trema"
+require "trema/command"
+
+
+include Trema::Command
 
 
 def method_for command
@@ -63,13 +67,10 @@ FileUtils.cd Trema.home do
   FileUtils.mkdir_p Trema.sock_directory
 
   command = ARGV.shift
-  if command.nil? or method_for( command ) == :shell
-    context = shell
-    cleanup context
+  if command.nil?
+    shell
   elsif method_for( command )
     begin
-      require "trema/command"
-      include Trema::Command
       __send__ method_for( command )
     rescue
       $stderr.puts $ERROR_INFO.message

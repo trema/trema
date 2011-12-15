@@ -20,22 +20,34 @@
 #
 
 
+require "irb"
+require "trema/util"
+
+
+include Trema::Util
+
+
 module Trema
   module Command
     def shell
-      require "tempfile"
-      require "trema"
-      require "trema/shell"
-      f = Tempfile.open( "irbrc" )
-      f.print <<EOF
+      begin
+        undef :kill
+
+        require "tempfile"
+        require "trema"
+        require "trema/shell"
+        f = Tempfile.open( "irbrc" )
+        f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home
 @context = Trema::DSL::Context.new
 EOF
-      f.close
-      load f.path
-      IRB.start
-      @context
+        f.close
+        load f.path
+        IRB.start
+      ensure
+        cleanup @context
+      end
     end
   end
 end

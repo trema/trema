@@ -20,10 +20,6 @@
 #
 
 
-$verbose = false  # FIXME
-$run_as_daemon = false  # FIXME
-
-
 require "trema/command/dump_flows"
 require "trema/command/kill"
 require "trema/command/killall"
