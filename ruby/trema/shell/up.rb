@@ -26,7 +26,11 @@ require "trema/dsl"
 module Trema
   module Shell
     def up name
-      Switch[ name ].restart!
+      if Switch[ name ].running?
+        Switch[ name ].restart!
+      else
+        Switch[ name ].run!
+      end
     end
   end
 end

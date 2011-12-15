@@ -291,7 +291,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     switch_unset_timeout( switch_event_timeout_features_reply, NULL );
 
     // TODO: set keepalive-timeout
-    snprintf( new_service_name, new_service_name_len, "%s%" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
+    snprintf( new_service_name, new_service_name_len, "%s%#" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
     // checking duplicate service
     pid_t pid = get_trema_process_from_name( new_service_name );

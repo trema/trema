@@ -266,7 +266,7 @@ int phost_create_pid_file(const char *instance)
     char file[PATH_MAX];
 
     memset(file, '\0', sizeof(file));
-    snprintf(file, PATH_MAX - 1, "%s/tmp/phost.%s.pid", get_current_dir_name(), instance);
+    snprintf(file, PATH_MAX - 1, "%s/tmp/pid/phost.%s.pid", get_current_dir_name(), instance);
 
     pid = getpid();
 
@@ -289,7 +289,7 @@ int phost_delete_pid_file(const char *instance)
     char file[PATH_MAX];
 
     memset(file, '\0', sizeof(file));
-    snprintf(file, PATH_MAX - 1, "%s/tmp/phost.%s.pid", get_current_dir_name(), instance);
+    snprintf(file, PATH_MAX - 1, "%s/tmp/pid/phost.%s.pid", get_current_dir_name(), instance);
 
     return unlink(file);
 }

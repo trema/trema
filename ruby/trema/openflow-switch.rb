@@ -18,7 +18,6 @@
 #
 
 
-require "trema/datapath-id"
 require "trema/switch"
 
 
@@ -35,8 +34,6 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     attr_reader :name
 
 
@@ -48,12 +45,10 @@ module Trema
     #
     # @return [OpenflowSwitch]
     #
-    # @api public
-    #
     def initialize stanza
+      stanza.validate
       @name = stanza.name
       @stanza = stanza
-      check_dpid
       Switch.add self
     end
 
@@ -66,10 +61,8 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_long
-      @stanza[ :dpid_long ] || DatapathId.new( @name ).long
+      @stanza.fetch :dpid_long
     end
 
 
@@ -81,50 +74,8 @@ module Trema
     #
     # @return [String]
     #
-    # @api public
-    #
     def dpid_short
-      @stanza[ :dpid_short ] || DatapathId.new( @name ).short
-    end
-
-
-    #
-    # Just a placeholder, do nothing
-    #
-    # @example
-    #   switch.run!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def run!
-      # do nothing
-    end
-
-
-    #
-    # Just a placeholder, do nothing
-    #
-    # @example
-    #   switch.shutdown!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def shutdown!
-      # do nothing
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def check_dpid
-      dpid_long
+      @stanza.fetch :dpid_short
     end
   end
 end

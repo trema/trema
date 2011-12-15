@@ -115,7 +115,7 @@ module Trema
     context "when #run!" do
       describe :cli do
         before {
-          Phost.stub!( :new ).and_return( mock( "phost", :run => nil ) )
+          Phost.stub!( :new ).and_return( mock( "phost", :run! => nil ) )
         }
 
         it "should set IP and MAC address" do

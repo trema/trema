@@ -167,6 +167,27 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 }
 
 
+void
+rename_log( const char *old_ident, const char *new_ident, const char *directory ) {
+  assert( directory != NULL );
+  assert( old_ident != NULL );
+  assert( new_ident != NULL );
+
+  char old_path[ PATH_MAX ];
+  snprintf( old_path, PATH_MAX, "%s/%s.log", directory, old_ident );
+  old_path[ PATH_MAX - 1 ] = '\0';
+  char new_path[ PATH_MAX ];
+  snprintf( new_path, PATH_MAX, "%s/%s.log", directory, new_ident );
+  new_path[ PATH_MAX - 1 ] = '\0';
+
+  unlink( new_path );
+  int ret = rename( old_path, new_path );
+  if ( ret < 0 ) {
+    die( "Could not rename a log file from %s to %s.", old_path, new_path );
+  }
+}
+
+
 /**
  * Closes the log file.
  *

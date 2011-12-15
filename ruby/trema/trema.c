@@ -70,7 +70,6 @@ Init_trema() {
 
   rb_require( "trema/host" );
   rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
   rb_require( "trema/switch" );
 
   Init_action_output();
