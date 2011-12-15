@@ -34,33 +34,34 @@ include Trema::Util
 
 
 class Trema::SubCommands
-  def initialize
-    @dsl_parser = Trema::DSL::Parser.new
-    @options = OptionParser.new
-  end
-
-
   def show_stats
     sanity_check
 
     stats = nil
 
-    @options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
+    options = OptionParser.new
+    options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
 
-    @options.on( "-t", "--tx" ) do
+    options.on( "-t", "--tx" ) do
       stats = :tx
     end
-    @options.on( "-r", "--rx" ) do
+    options.on( "-r", "--rx" ) do
       stats = :rx
     end
 
-    @options.separator ""
-    add_help_option
-    add_verbose_option
+    options.separator ""
 
-    @options.parse! ARGV
+    options.on( "-h", "--help" ) do
+      puts options.to_s
+      exit 0
+    end
+    options.on( "-v", "--verbose" ) do
+      $verbose = true
+    end
 
-    host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
+    options.parse! ARGV
+
+    host = Trema::DSL::Parser.new.load_current.hosts[ ARGV[ 0 ] ]
     raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
 
     case stats
@@ -73,26 +74,6 @@ class Trema::SubCommands
       Trema::Cli.new( host ).show_tx_stats
       puts "Received packets:"
       Trema::Cli.new( host ).show_rx_stats
-    end
-  end
-
-
-  ################################################################################
-  private
-  ################################################################################
-
-
-  def add_help_option
-    @options.on( "-h", "--help" ) do
-      puts @options.to_s
-      exit 0
-    end
-  end
-
-
-  def add_verbose_option
-    @options.on( "-v", "--verbose" ) do
-      $verbose = true
     end
   end
 end
