@@ -38,6 +38,14 @@ require "trema/tremashark"
 module Trema
   module DSL
     class Syntax
+      def self.deprecate old_method, new_method
+        define_method old_method do | *args, &block |
+          $stderr.puts "Warning: #{ old_method }() is deprecated. Use #{ new_method }()."
+          __send__ new_method, *args, &block
+        end
+      end
+
+
       def initialize context
         @context = context
       end
@@ -90,11 +98,12 @@ module Trema
       end
 
 
-      def app name = nil, &block
+      def run name = nil, &block
         stanza = Trema::DSL::App.new( name )
         stanza.instance_eval( &block )
         Trema::App.new( stanza )
       end
+      deprecate :app, :run
     end
   end
 end
