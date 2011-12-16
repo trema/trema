@@ -21,13 +21,14 @@
 
 
 require "trema/app"
-require "trema/dsl/app"
 require "trema/dsl/link"
+require "trema/dsl/run"
 require "trema/dsl/switch"
 require "trema/dsl/vhost"
 require "trema/dsl/vswitch"
 require "trema/host"
 require "trema/link"
+require "trema/monkey-patch/module"
 require "trema/open-vswitch"
 require "trema/openflow-switch"
 require "trema/packetin-filter"
@@ -38,14 +39,6 @@ require "trema/tremashark"
 module Trema
   module DSL
     class Syntax
-      def self.deprecate old_method, new_method
-        define_method old_method do | *args, &block |
-          $stderr.puts "Warning: #{ old_method }() is deprecated. Use #{ new_method }()."
-          __send__ new_method, *args, &block
-        end
-      end
-
-
       def initialize context
         @context = context
       end
@@ -99,11 +92,11 @@ module Trema
 
 
       def run name = nil, &block
-        stanza = Trema::DSL::App.new( name )
+        stanza = Trema::DSL::Run.new( name )
         stanza.instance_eval( &block )
         Trema::App.new( stanza )
       end
-      deprecate :app, :run
+      deprecate :app => :run
     end
   end
 end

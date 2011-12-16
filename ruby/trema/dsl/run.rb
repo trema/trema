@@ -1,5 +1,5 @@
 #
-# run command of Trema shell.
+# The syntax definition of run { ... } stanza in Trema DSL.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,39 +20,23 @@
 #
 
 
-require "trema/dsl"
+require "trema/dsl/stanza"
 
 
 module Trema
-  module Shell
-    def run controller
-      sanity_check
-
-      if controller
-        controller = controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::Run.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
+  module DSL
+    class Run < Stanza
+      def path _path
+        @path = _path
+        if @name.nil?
+          @name = File.basename( @path )
         end
       end
 
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
 
-      @context.apps.values.last.daemonize!
+      def options *_options
+        @options = _options
+      end
     end
   end
 end
@@ -60,6 +44,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
