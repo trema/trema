@@ -70,6 +70,9 @@ FileUtils.cd Trema.home do
       __send__ method_for( command )
     rescue
       $stderr.puts $ERROR_INFO.message
+      $ERROR_INFO.backtrace.each do | each |
+        $stderr.puts each if $verbose
+      end
       exit false
     end
   else
