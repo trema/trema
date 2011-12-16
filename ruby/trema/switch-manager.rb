@@ -67,7 +67,7 @@ module Trema
     #
     # @return [SwitchManager]
     #
-    def initialize rule, port = nil
+    def initialize rule, port = nil, unix_path = nil
       @rule = rule
       @port = port
       @unix_path = unix_path
