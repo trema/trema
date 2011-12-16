@@ -1,6 +1,4 @@
 #
-# run command of Trema shell.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,38 +18,17 @@
 #
 
 
-require "trema/dsl"
-
-
-module Trema
-  module Shell
-    def run controller
-      sanity_check
-
-      if controller
-        if /ELF/=~ `file #{ controller }`
-          stanza = DSL::Run.new
-          stanza.path controller
-          App.new stanza
-        else
-          require "trema"
-          ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
-          Trema.module_eval IO.read( controller )
+module MonkeyPatch
+  module Module
+    module Deprecation
+      def deprecate method_pairs
+        method_pairs.each do | old_method, new_method |
+          define_method old_method do | *args, &block |
+            $stderr.puts "Warning: #{ old_method }() is deprecated. Use #{ new_method }()."
+            __send__ new_method, *args, &block
+          end
         end
       end
-
-      runner = DSL::Runner.new( @context )
-      runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
-        if switch.running?
-          switch.restart!
-        else
-          switch.run!
-        end
-      end
-
-      @context.apps.values.last.daemonize!
     end
   end
 end
@@ -59,6 +36,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

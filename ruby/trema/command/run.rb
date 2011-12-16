@@ -89,7 +89,7 @@ module Trema
       if ARGV[ 0 ]
         controller_file = ARGV[ 0 ].split.first
         if c_controller?
-          stanza = Trema::DSL::App.new
+          stanza = Trema::DSL::Run.new
           stanza.path controller_file
           stanza.options ARGV[ 0 ].split[ 1..-1 ]
           Trema::App.new( stanza )

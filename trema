@@ -48,8 +48,8 @@ def method_for command
       return :dump_flows
     when "version", "-V", "--version"
       return :version
-    when "shell"
-      return :shell, NilClass
+    when "shell", NilClass
+      return :shell
     when "help", "-h", "--help", "/?", "-?"
       return :usage
     else
