@@ -80,6 +80,16 @@ module Trema
   end
 
 
+  def self.pid_directory
+    File.join tmp, "pid"
+  end
+
+
+  def self.sock_directory
+    File.join tmp, "sock"
+  end
+
+
   module Vendor
     def self.path
       File.join Trema.home, "vendor"
@@ -107,7 +117,7 @@ module Trema
 
 
     def self.oflops
-      File.join path, "oflops-0.02"
+      File.join path, "oflops-0.03"
     end
   end
 end

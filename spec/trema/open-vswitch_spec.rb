@@ -19,45 +19,98 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/vswitch"
 require "trema/open-vswitch"
 
 
 module Trema
+  describe Switch do
+    around do | example |
+      begin
+        Switch.clear
+        example.run
+      ensure
+        Switch.clear
+      end
+    end
+
+    it "should keep a list of vswitches" do
+      OpenVswitch.new mock( "stanza 0", :name => "vswitch 0", :validate => true )
+      OpenVswitch.new mock( "stanza 1", :name => "vswitch 1", :validate => true )
+      OpenVswitch.new mock( "stanza 2", :name => "vswitch 2", :validate => true )
+
+      Switch.should have( 3 ).vswitches
+      Switch[ "vswitch 0" ].should_not be_nil
+      Switch[ "vswitch 1" ].should_not be_nil
+      Switch[ "vswitch 2" ].should_not be_nil
+    end
+  end
+
+
   describe OpenVswitch, %[dpid = "0xabc"] do
-    before :each do
-      stanza = DSL::Vswitch.new
-      stanza.dpid "0xabc"
-      @vswitch = OpenVswitch.new( stanza, 1234 )
+    subject {
+      stanza = { :dpid_short => "0xabc", :dpid_long => "0000000000000abc", :ip => "127.0.0.1" }
+      stanza.stub!( :validate )
+      stanza.stub!( :name ).and_return( name )
+      OpenVswitch.new stanza
+    }
+
+
+    context "when its name is not set" do
+      let( :name ) { "0xabc" }
+
+      its( :name ) { should == "0xabc" }
+      its( :dpid_short ) { should == "0xabc" }
+      its( :dpid_long ) { should == "0000000000000abc" }
+      its( :network_device ) { should == "vsw_0xabc" }
     end
 
 
-    after :each do
-      @vswitch.shutdown!
+    context "when its name is set" do
+      let( :name ) { "Otosan Switch" }
+
+      its( :name ) { should == "Otosan Switch" }
+      its( :dpid_short ) { should == "0xabc" }
+      its( :dpid_long ) { should == "0000000000000abc" }
+      its( :network_device ) { should == "vsw_0xabc" }
     end
 
 
-    it "should return its name" do
-      @vswitch.name.should == "0xabc"
+    context "when getting its flows" do
+      let( :name ) { "0xabc" }
+
+      it "should execute ofctl to get the flows" do
+        ofctl = mock( "ofctl" )
+        Ofctl.stub!( :new ).and_return( ofctl )
+
+        ofctl.should_receive( :users_flows ).with( subject ).once
+
+        subject.flows
+      end
     end
 
 
-    it "should return dpid in long format" do
-      @vswitch.dpid_long.should == "0000000000000abc"
-    end
+    context "when running it" do
+      let( :name ) { "0xabc" }
 
+      it "should execute ovs openflowd" do
+        subject.should_receive( :sh ).with do | command |
+          command.should include( Executables.ovs_openflowd )
+        end
 
-    it "should return dpid in short format" do
-      @vswitch.dpid_short.should == "0xabc"
-    end
+        subject.run!
+      end
 
+      it "should be connected to virtual ports" do
+        subject << "VirtualInterface0"
+        subject << "VirtualInterface1"
+        subject << "VirtualInterface2"
 
-    it "should execute ovs openflowd" do
-      @vswitch.should_receive( :sh ).once
+        subject.should_receive( :sh ).with do | command |
+          command.should include( "--ports=VirtualInterface0,VirtualInterface1,VirtualInterface2" )
+        end
 
-      @vswitch.add_interface "trema0-0"
-      @vswitch.add_interface "trema0-1"
-      @vswitch.run!
+        subject.run!
+      end
     end
   end
 end

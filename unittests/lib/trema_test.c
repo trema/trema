@@ -812,9 +812,10 @@ static void
 test_get_trema_process_from_name() {
   char NAME[] = "test_name";
   char TEMP_DIRECTORY[] = "/tmp";
+  char PID_DIRECTORY[] = "/tmp/pid";
   int PID = 123;
   setenv( "TREMA_TMP", TEMP_DIRECTORY, 1 );
-  expect_string( mock_read_pid, directory, TEMP_DIRECTORY );
+  expect_string( mock_read_pid, directory, PID_DIRECTORY );
   expect_string( mock_read_pid, name, NAME );
   will_return( mock_read_pid, PID );
 

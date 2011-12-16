@@ -1,5 +1,5 @@
 #
-# Datapath ID class.
+# The syntax definition of run { ... } stanza in Trema DSL.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,25 +20,23 @@
 #
 
 
-require "trema/monkey-patch/integer"
+require "trema/dsl/stanza"
 
 
 module Trema
-  class DatapathId
-    def initialize value
-      raise "Invalid dpid: #{ value }" if not /\A0x/=~ value
-      @value = value
-    end
+  module DSL
+    class Run < Stanza
+      def path _path
+        @path = _path
+        if @name.nil?
+          @name = File.basename( @path )
+        end
+      end
 
 
-    def long
-      no_0x = @value.gsub( /^0x/, "" )
-      "0" * ( 16 - no_0x.length ) + no_0x
-    end
-
-
-    def short
-      @value
+      def options *_options
+        @options = _options
+      end
     end
   end
 end

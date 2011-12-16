@@ -63,7 +63,7 @@ EOF
       link.delete!
     end
 
-    Dir.glob( File.join Trema.tmp, "*.pid" ).each do | each |
+    Dir.glob( File.join Trema.pid_directory, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
 

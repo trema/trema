@@ -1,5 +1,5 @@
 #
-# link command of Trema shell.
+# trema dump_flows command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,33 +20,36 @@
 #
 
 
+require "optparse"
 require "trema/dsl"
+require "trema/ofctl"
+require "trema/util"
 
 
 module Trema
-  module Shell
-    def link peer0, peer1
-      stanza = DSL::Link.new( peer0, peer1 )
-      link = Link.new( stanza )
-      link.enable!
+  module Command
+    include Trema::Util
 
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
-      end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
-      end
 
-      if Host[ peer0 ]
-        Host[ peer0 ].interface = link.name
-        Host[ peer0 ].run!
+    def dump_flows
+      sanity_check
+
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
       end
-      if Host[ peer1 ]
-        Host[ peer1 ].interface = link.name_peer
-        Host[ peer1 ].run!
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
       end
 
-      true
+      options.parse! ARGV
+
+      puts Trema::Ofctl.new.dump_flows( switch )
     end
   end
 end

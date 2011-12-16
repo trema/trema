@@ -1,5 +1,5 @@
 #
-# link command of Trema shell.
+# trema usage (help) command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,33 +20,34 @@
 #
 
 
-require "trema/dsl"
-
-
 module Trema
-  module Shell
-    def link peer0, peer1
-      stanza = DSL::Link.new( peer0, peer1 )
-      link = Link.new( stanza )
-      link.enable!
+  module Command
+    def usage
+      command = ARGV.shift
 
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
-      end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
-      end
+      ARGV.clear << "--help"
+      if command.nil?
+        puts <<-EOL
+usage: #{ $PROGRAM_NAME } <COMMAND> [OPTIONS ...]
 
-      if Host[ peer0 ]
-        Host[ peer0 ].interface = link.name
-        Host[ peer0 ].run!
-      end
-      if Host[ peer1 ]
-        Host[ peer1 ].interface = link.name_peer
-        Host[ peer1 ].run!
-      end
+Trema command-line tool
+Type '#{ $PROGRAM_NAME } help <COMMAND>' for help on a specific command.
 
-      true
+Available commands:
+  run            - runs a trema application.
+  kill           - terminates a trema process.
+  killall        - terminates all trema processes.
+  send_packets   - sends UDP packets to destination host.
+  show_stats     - shows stats of packets.
+  reset_stats    - resets stats of packets.
+  dump_flows     - print all flow entries.
+EOL
+      elsif method_for( command )
+        __send__ method_for( command )
+      else
+        STDERR.puts "Type '#{ $PROGRAM_NAME } help' for usage."
+        exit false
+      end
     end
   end
 end

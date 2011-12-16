@@ -52,6 +52,7 @@ typedef enum {
 
 
 bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
+void rename_log( const char *old_ident, const char *new_ident, const char *directory );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );

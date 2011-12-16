@@ -273,6 +273,8 @@ static bool run_as_daemon = false;
 static char *trema_name = NULL;
 static char *executable_name = NULL;
 static char *trema_log = NULL;
+static char *trema_pid = NULL;
+static char *trema_sock = NULL;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
@@ -317,6 +319,28 @@ get_trema_log() {
 }
 
 
+static const char *
+get_trema_pid() {
+  if ( trema_pid == NULL ) {
+    char path[ PATH_MAX ];
+    sprintf( path, "%s/pid", get_trema_tmp() );
+    trema_pid = xstrdup( path );
+  }
+  return trema_pid;
+}
+
+
+static const char *
+get_trema_sock() {
+  if ( trema_sock == NULL ) {
+    char path[ PATH_MAX ];
+    sprintf( path, "%s/sock", get_trema_tmp() );
+    trema_sock = xstrdup( path );
+  }
+  return trema_sock;
+}
+
+
 static void
 maybe_finalize_openflow_application_interface() {
   if ( openflow_application_interface_is_initialized() ) {
@@ -345,7 +369,7 @@ finalize_trema() {
   finalize_stat();
   finalize_timer();
   trema_started = false;
-  unlink_pid( get_trema_tmp(), get_trema_name() );
+  unlink_pid( get_trema_pid(), get_trema_name() );
   xfree( trema_name );
   trema_name = NULL;
   xfree( executable_name );
@@ -545,7 +569,7 @@ init_trema( int *argc, char ***argv ) {
   set_exit_handler();
   set_usr1_handler();
   set_usr2_handler();
-  init_messenger( get_trema_tmp() );
+  init_messenger( get_trema_sock() );
   init_stat();
   init_timer();
 
@@ -575,7 +599,7 @@ start_trema_up() {
   debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
-  write_pid( get_trema_tmp(), get_trema_name() );
+  write_pid( get_trema_pid(), get_trema_name() );
   trema_started = true;
 
   start_messenger();
@@ -611,7 +635,8 @@ set_trema_name( const char *name ) {
   assert( name != NULL );
   if ( trema_name != NULL ) {
     if ( trema_started ) {
-      rename_pid( get_trema_tmp(), trema_name, name );
+      rename_pid( get_trema_pid(), trema_name, name );
+      rename_log( trema_name, name, get_trema_log() );
     }
     xfree( trema_name );
   }
@@ -646,7 +671,7 @@ get_executable_name() {
 
 pid_t
 get_trema_process_from_name( const char *name ) {
-  return read_pid( get_trema_tmp(), name );
+  return read_pid( get_trema_pid(), name );
 }
 
 

@@ -64,6 +64,12 @@ module Trema
     end
 
 
+
+    def self.clear
+      instances.clear
+    end
+
+
     #
     # Iterates over the list of instances
     #

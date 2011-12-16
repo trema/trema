@@ -18,8 +18,8 @@
 #
 
 
+require "trema/daemon"
 require "trema/network-component"
-require "trema/process"
 
 
 module Trema
@@ -27,6 +27,15 @@ module Trema
   # Trema applications
   #
   class App < NetworkComponent
+    include Trema::Daemon
+
+
+    attr_reader :stanza
+
+
+    command { | app | [ app.command, app.stanza[ :options ] ].compact.join " " }
+
+
     #
     # Creates a new Trema application from {DSL::App}
     #
@@ -39,7 +48,15 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      App.add self
+      if /\.rb\Z/=~ @stanza.fetch( :name )  # ruby?
+        require "trema"
+        path = @stanza.fetch( :path )
+        ARGV.replace [ path ]
+        $LOAD_PATH << File.dirname( path )
+        Trema.module_eval IO.read( path )
+      else
+        App.add self
+      end
     end
 
 
@@ -71,54 +88,6 @@ module Trema
     def daemonize!
       sh [ command, "-d", @stanza[ :options ] ].compact.join( " " )
       self
-    end
-
-
-    #
-    # Runs an application process
-    #
-    # @example
-    #   app.run! #=> self
-    #
-    # @return [App]
-    #
-    # @api public
-    #
-    def run!
-      sh [ command, @stanza[ :options ] ].compact.join( " " )
-      self
-    end
-
-
-    #
-    # Kills running application
-    #
-    # @example
-    #   app.shutdown!
-    #
-    # @return [undefined]
-    #
-    # @api public
-    #
-    def shutdown!
-      Trema::Process.read( pid_file, @name ).kill!
-    end
-
-
-    ################################################################################
-    private
-    ################################################################################
-
-
-    #
-    # Returns the path of pid file
-    #
-    # @return [String]
-    #
-    # @api private
-    #
-    def pid_file
-      File.join Trema.tmp, "#{ @name }.pid"
     end
 
 

@@ -1,5 +1,5 @@
 #
-# link command of Trema shell.
+# trema version command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,33 +20,13 @@
 #
 
 
-require "trema/dsl"
+require "trema/version"
 
 
 module Trema
-  module Shell
-    def link peer0, peer1
-      stanza = DSL::Link.new( peer0, peer1 )
-      link = Link.new( stanza )
-      link.enable!
-
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
-      end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
-      end
-
-      if Host[ peer0 ]
-        Host[ peer0 ].interface = link.name
-        Host[ peer0 ].run!
-      end
-      if Host[ peer1 ]
-        Host[ peer1 ].interface = link.name_peer
-        Host[ peer1 ].run!
-      end
-
-      true
+  module Command
+    def version
+      puts "trema version #{ Trema::VERSION }"
     end
   end
 end

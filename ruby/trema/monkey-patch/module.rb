@@ -1,6 +1,4 @@
 #
-# The syntax definition of app { ... } stanza in Trema DSL.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,25 +18,11 @@
 #
 
 
-require "trema/dsl/stanza"
+require "trema/monkey-patch/module/deprecation"
 
 
-module Trema
-  module DSL
-    class App < Stanza
-      def path _path
-        @path = _path
-        if @name.nil?
-          @name = File.basename( @path )
-        end
-      end
-      
-
-      def options *_options
-        @options = _options
-      end
-    end
-  end
+class Module
+  include MonkeyPatch::Module::Deprecation
 end
 
 

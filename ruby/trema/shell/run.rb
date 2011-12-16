@@ -29,9 +29,8 @@ module Trema
       sanity_check
 
       if controller
-        controller = controller
         if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
+          stanza = DSL::Run.new
           stanza.path controller
           App.new stanza
         else
@@ -44,6 +43,13 @@ module Trema
 
       runner = DSL::Runner.new( @context )
       runner.maybe_run_switch_manager
+      @context.switches.each do | name, switch |
+        if switch.running?
+          switch.restart!
+        else
+          switch.run!
+        end
+      end
 
       @context.apps.values.last.daemonize!
     end

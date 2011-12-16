@@ -1,5 +1,5 @@
 #
-# link command of Trema shell.
+# trema kill command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,33 +20,32 @@
 #
 
 
+require "optparse"
 require "trema/dsl"
+require "trema/util"
 
 
 module Trema
-  module Shell
-    def link peer0, peer1
-      stanza = DSL::Link.new( peer0, peer1 )
-      link = Link.new( stanza )
-      link.enable!
+  module Command
+    include Trema::Util
 
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
-      end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
-      end
 
-      if Host[ peer0 ]
-        Host[ peer0 ].interface = link.name
-        Host[ peer0 ].run!
+    def kill
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } kill NAME [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
       end
-      if Host[ peer1 ]
-        Host[ peer1 ].interface = link.name_peer
-        Host[ peer1 ].run!
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
       end
 
-      true
+      options.parse! ARGV
+
+      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+      switch.shutdown!
     end
   end
 end

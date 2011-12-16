@@ -1,6 +1,4 @@
 #
-# link command of Trema shell.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
 # Copyright (C) 2008-2011 NEC Corporation
@@ -20,33 +18,17 @@
 #
 
 
-require "trema/dsl"
-
-
-module Trema
-  module Shell
-    def link peer0, peer1
-      stanza = DSL::Link.new( peer0, peer1 )
-      link = Link.new( stanza )
-      link.enable!
-
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
+module MonkeyPatch
+  module Module
+    module Deprecation
+      def deprecate method_pairs
+        method_pairs.each do | old_method, new_method |
+          define_method old_method do | *args, &block |
+            $stderr.puts "Warning: #{ old_method }() is deprecated. Use #{ new_method }()."
+            __send__ new_method, *args, &block
+          end
+        end
       end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
-      end
-
-      if Host[ peer0 ]
-        Host[ peer0 ].interface = link.name
-        Host[ peer0 ].run!
-      end
-      if Host[ peer1 ]
-        Host[ peer1 ].interface = link.name_peer
-        Host[ peer1 ].run!
-      end
-
-      true
     end
   end
 end
@@ -54,6 +36,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
