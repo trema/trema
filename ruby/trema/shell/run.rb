@@ -29,7 +29,6 @@ module Trema
       sanity_check
 
       if controller
-        controller = controller
         if /ELF/=~ `file #{ controller }`
           stanza = DSL::Run.new
           stanza.path controller

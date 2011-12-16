@@ -48,7 +48,15 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      App.add self
+      if /\.rb\Z/=~ @stanza.fetch( :name )  # ruby?
+        require "trema"
+        path = @stanza.fetch( :path )
+        ARGV.replace [ path ]
+        $LOAD_PATH << File.dirname( path )
+        Trema.module_eval IO.read( path )
+      else
+        App.add self
+      end
     end
 
 
