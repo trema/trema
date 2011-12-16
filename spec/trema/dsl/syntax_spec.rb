@@ -103,11 +103,11 @@ describe Trema::DSL::Syntax do
   end
 
 
-  it "should recognize 'app' directive" do
+  it "should recognize 'run' directive" do
     Trema::App.should_receive( :add ).with( an_instance_of( Trema::App ) ).once
 
     @syntax.instance_eval do
-      app { }
+      run( "My App" ) { }
     end
   end
 end
