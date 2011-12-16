@@ -215,7 +215,7 @@ delete_timer_event_callback( void ( *callback )( void *user_data ) ) {
   dlist_element *e;
 
   if ( timer_callbacks == NULL ) {
-    error( "All timer callbacks are already deleted or not created yet." );
+    debug( "All timer callbacks are already deleted or not created yet." );
     return false;
   }
 
