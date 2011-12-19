@@ -59,7 +59,6 @@ include Trema::Util
 class Network
   def initialize &block
     @context = Trema::DSL::Parser.new.eval( &block )
-    $context = @context
   end
 
 
