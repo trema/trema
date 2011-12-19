@@ -27,7 +27,8 @@
 #include "switch_manager.h"
 
 
-bool secure_channel_listen_start( struct listener_info *listener_info );
+bool secure_channel_listen_inet( struct listener_info *listener_info );
+bool secure_channel_listen_unix( struct listener_info *listener_info );
 void secure_channel_accept( int fd, void *data );
 
 

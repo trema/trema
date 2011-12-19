@@ -67,7 +67,7 @@ module Trema
               # two or more apps without switch_manager.
               raise "No event routing configured. Use `event' directive to specify event routing."
             end
-            SwitchManager.new( rule, @context.port )
+            SwitchManager.new( rule, @context.port, @context.unix_path )
           end
         switch_manager.run!
       end
