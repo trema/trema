@@ -20,7 +20,7 @@
 #
 
 
-require "trema/dsl/context"
+require "trema/dsl/configuration"
 require "trema/dsl/parser"
 require "trema/dsl/runner"
 require "trema/dsl/syntax"

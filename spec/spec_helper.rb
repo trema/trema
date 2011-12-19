@@ -25,7 +25,7 @@ require "rubygems"
 
 require "rspec"
 require "trema"
-require "trema/dsl/context"
+require "trema/dsl/configuration"
 require "trema/ofctl"
 require "trema/shell"
 require "trema/util"

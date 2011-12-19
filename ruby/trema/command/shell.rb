@@ -40,7 +40,7 @@ module Trema
         f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home
-@context = Trema::DSL::Context.new
+@context = Trema::DSL::Configuration.new
 EOF
         f.close
         load f.path

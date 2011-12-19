@@ -58,7 +58,7 @@ module Trema
 
 
       def load_current
-        Context.new.load_from CURRENT_CONTEXT
+        Configuration.new.load_from CURRENT_CONTEXT
       end
 
 
@@ -82,7 +82,7 @@ module Trema
 
 
       def new_context &block
-        context = Context.new
+        context = Configuration.new
         block.call context
         Trema::Link.each do | each |
           peers = each.peers

@@ -29,18 +29,16 @@ require "trema/switch-manager"
 module Trema
   module DSL
     #
-    # The current context of Trema DSL.
+    # The current configuration of Trema.
     #
-    class Context
+    class Configuration
       #
       # set/get the port number for switch manager to listen to
       #
       # @example
-      #   context.port = 5432
+      #   config.port = 5432
       #
       # @return [Number]
-      #
-      # @api public
       #
       attr_accessor :port
 
@@ -48,11 +46,9 @@ module Trema
       # use tremashark?
       #
       # @example
-      #   context.tremashark = true
+      #   config.tremashark = true
       #
       # @return [Boolean]
-      #
-      # @api public
       #
       attr_accessor :tremashark
 
@@ -60,12 +56,10 @@ module Trema
       # the hash of {App}
       #
       # @example
-      #   p context.apps
+      #   p config.apps
       #   #=> {"trema tetris"=>#<Trema::App:0xb73c9328>, ...}
       #
       # @return [Hash]
-      #
-      # @api public
       #
       attr_reader :apps
 
@@ -73,12 +67,10 @@ module Trema
       # the hash of {Host}
       #
       # @example
-      #   p context.hosts
+      #   p config.hosts
       #   #=> {"host #0"=>#<Trema::Host:0xb73c9328>, ...}
       #
       # @return [Hash]
-      #
-      # @api public
       #
       attr_reader :hosts
 
@@ -86,12 +78,10 @@ module Trema
       # the hash of {Link}
       #
       # @example
-      #   p context.links
+      #   p config.links
       #   #=> {"link #0"=>#<Trema::Link:0xb73c9328>, ...}
       #
       # @return [Hash]
-      #
-      # @api public
       #
       attr_reader :links
 
@@ -99,25 +89,21 @@ module Trema
       # the hash of {Switch}
       #
       # @example
-      #   p context.switches
+      #   p config.switches
       #   #=> {"switch #0"=>#<Trema::Switch:0xb73c9328>, ...}
       #
       # @return [Hash]
-      #
-      # @api public
       #
       attr_reader :switches
 
 
       #
-      # Creates a new Trema DSL context
+      # Creates a new Trema configuration
       #
       # @example
-      #   context = Trema::DSL::Context.new
+      #   config = Trema::DSL::Configuration.new
       #
-      # @return [Context]
-      #
-      # @api public
+      # @return [Configuration]
       #
       def initialize
         @port = 6633
@@ -135,11 +121,9 @@ module Trema
       # Returns {PacketinFilter} configuration
       #
       # @example
-      #   context.packetin_filter => #<Trema::PacketinFilter:0xb73c9328>
+      #   config.packetin_filter => #<Trema::PacketinFilter:0xb73c9328>
       #
       # @return [PacketinFilter]
-      #
-      # @api public
       #
       def packetin_filter
         @packetin_filter.values.last
@@ -150,11 +134,9 @@ module Trema
       # Returns {SwitchManager} configuration
       #
       # @example
-      #   context.switch_manager => #<Trema::SwitchManager:0xb73c9328>
+      #   config.switch_manager => #<Trema::SwitchManager:0xb73c9328>
       #
       # @return [SwitchManager]
-      #
-      # @api public
       #
       def switch_manager
         @switch_manager.values.last
@@ -162,14 +144,12 @@ module Trema
 
 
       #
-      # Dumps a {Context} object to <code>file_name</code>
+      # Dumps a {Configuration} object to <code>file_name</code>
       #
       # @example
-      #   context.dump_to "/tmp/.trema_session.dump"
+      #   config.dump_to "/tmp/.trema_session.dump"
       #
-      # @return [Context]
-      #
-      # @api public
+      # @return [Configuration]
       #
       def dump_to file_name
         File.open( file_name, "w" ) do | f |
@@ -180,14 +160,12 @@ module Trema
 
 
       #
-      # Loads a {Context} object from <code>file_name</code>
+      # Loads a {Configuration} object from <code>file_name</code>
       #
       # @example
-      #   context.load_from "/tmp/.trema_session.dump"
+      #   config.load_from "/tmp/.trema_session.dump"
       #
-      # @return [Context]
-      #
-      # @api public
+      # @return [Configuration]
       #
       def load_from file_name
         if FileTest.exists?( file_name )

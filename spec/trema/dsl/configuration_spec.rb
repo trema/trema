@@ -19,14 +19,14 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/context"
+require "trema/dsl/configuration"
 
 
 module Trema
   module DSL
-    describe Context do
+    describe Configuration do
       before :each do
-        @context = Context.new
+        @context = Configuration.new
       end
 
 
@@ -48,7 +48,7 @@ module Trema
 
         it "should remember hosts" do
           @context.should have( 0 ).hosts
-          
+
           Trema::Host.add mock( "host #0", :name => "host #0" )
           Trema::Host.add mock( "host #1", :name => "host #1" )
           Trema::Host.add mock( "host #2", :name => "host #2" )
@@ -63,7 +63,7 @@ module Trema
 
         it "should remember links" do
           @context.should have( 0 ).links
-          
+
           Trema::Link.add mock( "link #0", :name => "link #0" )
           Trema::Link.add mock( "link #1", :name => "link #1" )
           Trema::Link.add mock( "link #2", :name => "link #2" )
@@ -74,7 +74,7 @@ module Trema
           @context.links[ "link #1" ].name.should == "link #1"
           @context.links[ "link #2" ].name.should == "link #2"
         end
-        
+
 
         it "should remember filter settings" do
           @context.packetin_filter.should be_nil
@@ -98,7 +98,7 @@ module Trema
 
         it "should remember switches" do
           @context.should have( 0 ).switches
-          
+
           Trema::Switch.add mock( "switch #0", :name => "switch #0" )
           Trema::Switch.add mock( "switch #1", :name => "switch #1" )
           Trema::Switch.add mock( "switch #2", :name => "switch #2" )
@@ -119,7 +119,7 @@ module Trema
 
           session_file.should_receive( :print ).with( "DUMP DATA" )
           Marshal.should_receive( :dump ).with( @context ).and_return( "DUMP DATA" )
-          
+
           @context.dump_to( "SESSION FILE" ).should == @context
         end
 
@@ -130,7 +130,7 @@ module Trema
           session_io = mock( "session file handler" )
           IO.should_receive( :read ).with( "SESSION FILE" ).and_return( session_io )
           Marshal.should_receive( :load ).with( session_io )
-          
+
           @context.load_from "SESSION FILE"
         end
 
@@ -138,8 +138,8 @@ module Trema
         it "should create a new session if session file does not exist" do
           FileTest.stub!( :exists? ).and_return false
 
-          Trema::DSL::Context.should_receive( :new )
-          
+          Trema::DSL::Configuration.should_receive( :new )
+
           @context.load_from "SESSION FILE"
         end
       end
