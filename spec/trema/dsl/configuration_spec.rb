@@ -110,39 +110,6 @@ module Trema
           @context.switches[ "switch #2" ].name.should == "switch #2"
         end
       end
-
-
-      context "when saving/loading sessions" do
-        it "should be dumped to a file" do
-          session_file = mock( "file" )
-          File.stub!( :open ).and_yield( session_file )
-
-          session_file.should_receive( :print ).with( "DUMP DATA" )
-          Marshal.should_receive( :dump ).with( @context ).and_return( "DUMP DATA" )
-
-          @context.dump_to( "SESSION FILE" ).should == @context
-        end
-
-
-        it "should be loaded from a file" do
-          FileTest.stub!( :exists? ).and_return true
-
-          session_io = mock( "session file handler" )
-          IO.should_receive( :read ).with( "SESSION FILE" ).and_return( session_io )
-          Marshal.should_receive( :load ).with( session_io )
-
-          @context.load_from "SESSION FILE"
-        end
-
-
-        it "should create a new session if session file does not exist" do
-          FileTest.stub!( :exists? ).and_return false
-
-          Trema::DSL::Configuration.should_receive( :new )
-
-          @context.load_from "SESSION FILE"
-        end
-      end
     end
   end
 end

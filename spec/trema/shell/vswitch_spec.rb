@@ -31,7 +31,7 @@ describe Trema::Shell, ".vswitch" do
 
 
   context "executed without a shell" do
-    before { @context = nil }
+    before { @config = nil }
 
 
     it "should raise" do
@@ -41,7 +41,10 @@ describe Trema::Shell, ".vswitch" do
 
 
   context "executed within a shell" do
-    before { @context = mock( "context", :port => 6633 ) }
+    before {
+      @config = mock( "config", :port => 6633 )
+      @context = mock( "context", :dump => true )
+    }
     after { Trema::Switch[ "0xabc" ].shutdown! if Trema::Switch[ "0xabc" ] }
 
 

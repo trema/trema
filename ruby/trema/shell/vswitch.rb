@@ -26,12 +26,14 @@ require "trema/dsl"
 module Trema
   module Shell
     def vswitch name = nil, &block
-      raise "Not in Trema shell" if @context.nil?
+      raise "Not in Trema shell" if @config.nil?
       raise "No dpid given" if name.nil? and block.nil?
 
       stanza = DSL::Vswitch.new( name )
       stanza.instance_eval &block if block
-      OpenVswitch.new( stanza, @context.port ).restart!
+      OpenVswitch.new( stanza, @config.port ).restart!
+
+      @context.dump
 
       true
     end

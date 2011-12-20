@@ -141,39 +141,6 @@ module Trema
       def switch_manager
         @switch_manager.values.last
       end
-
-
-      #
-      # Dumps a {Configuration} object to <code>file_name</code>
-      #
-      # @example
-      #   config.dump_to "/tmp/.trema_session.dump"
-      #
-      # @return [Configuration]
-      #
-      def dump_to file_name
-        File.open( file_name, "w" ) do | f |
-          f.print Marshal.dump( self )
-        end
-        self
-      end
-
-
-      #
-      # Loads a {Configuration} object from <code>file_name</code>
-      #
-      # @example
-      #   config.load_from "/tmp/.trema_session.dump"
-      #
-      # @return [Configuration]
-      #
-      def load_from file_name
-        if FileTest.exists?( file_name )
-          Marshal.load( IO.read file_name )
-        else
-          self.class.new
-        end
-      end
     end
   end
 end

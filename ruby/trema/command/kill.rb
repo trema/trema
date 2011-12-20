@@ -44,7 +44,7 @@ module Trema
 
       options.parse! ARGV
 
-      switch = Trema::DSL::Parser.new.load_current.switches[ ARGV[ 0 ] ]
+      switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
       switch.shutdown!
     end
   end

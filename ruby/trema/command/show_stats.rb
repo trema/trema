@@ -58,7 +58,7 @@ module Trema
 
       options.parse! ARGV
 
-      host = Trema::DSL::Parser.new.load_current.hosts[ ARGV[ 0 ] ]
+      host = Trema::DSL::Context.load_current.hosts[ ARGV[ 0 ] ]
       raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
 
       case stats

@@ -46,6 +46,8 @@ module Trema
         Host[ peer1 ].run!
       end
 
+      @context.dump
+
       true
     end
   end

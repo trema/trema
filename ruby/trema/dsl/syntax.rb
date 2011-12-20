@@ -39,18 +39,18 @@ require "trema/tremashark"
 module Trema
   module DSL
     class Syntax
-      def initialize context
-        @context = context
+      def initialize config
+        @config = config
       end
 
 
       def use_tremashark
-        @context.tremashark = Trema::Tremashark.new
+        @config.tremashark = Trema::Tremashark.new
       end
 
 
       def port number
-        @context.port = number
+        @config.port = number
       end
 
 
@@ -70,7 +70,7 @@ module Trema
       def vswitch name = nil, &block
         stanza = Trema::DSL::Vswitch.new( name )
         stanza.instance_eval( &block )
-        Trema::OpenVswitch.new stanza, @context.port
+        Trema::OpenVswitch.new stanza, @config.port
       end
 
 
@@ -87,7 +87,7 @@ module Trema
 
 
       def event rule
-        Trema::SwitchManager.new( rule, @context.port )
+        Trema::SwitchManager.new( rule, @config.port )
       end
 
 

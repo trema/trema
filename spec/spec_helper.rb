@@ -26,6 +26,7 @@ require "rubygems"
 require "rspec"
 require "trema"
 require "trema/dsl/configuration"
+require "trema/dsl/context"
 require "trema/ofctl"
 require "trema/shell"
 require "trema/util"
@@ -82,7 +83,7 @@ class Network
     if not controller.is_a?( Trema::Controller )
       raise "#{ controller_class } is not a subclass of Trema::Controller"
     end
-    @context.dump_to Trema::DSL::Parser::CURRENT_CONTEXT
+    Trema::DSL::Context.new( @context ).dump
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }

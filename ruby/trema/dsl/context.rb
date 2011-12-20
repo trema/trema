@@ -18,35 +18,48 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema"
+require "fileutils"
+require "trema/dsl/configuration"
+require "trema/dsl/syntax"
+require "trema/path"
 
 
-describe Trema::Shell, ".vhost" do
-  before { @context = mock( "context", :dump => true ) }
+module Trema
+  module DSL
+    class Context
+      PATH = File.join( Trema.tmp, ".context" )
 
 
-  it "should create a new vhost if name given" do
-    vhost( "host1" )
+      def self.load_current
+        if FileTest.exists?( PATH )
+          Marshal.load( IO.read PATH )
+        else
+          Configuration.new
+        end
+      end
 
-    Trema::Host.should have( 1 ).host
-    Trema::Host[ "host1" ].name.should == "host1"
-  end
 
 
-  it "should take ip, netmask, promisc, and mac option" do
-    vhost( "host1" ) {
-      ip "192.168.100.1"
-      netmask "255.255.255.0"
-      promisc "on"
-      mac "00:00:00:1:1:1"
-    }
+      def initialize config
+        @config = config
+      end
 
-    Trema::Host.should have( 1 ).host
-    Trema::Host[ "host1" ].name.should == "host1"
-    Trema::Host[ "host1" ].ip.should == "192.168.100.1"
-    Trema::Host[ "host1" ].promisc.should be_true
-    Trema::Host[ "host1" ].mac.should == "00:00:00:1:1:1"
+
+      #
+      # Dumps a {Configuration} object to <code>PATH</code>
+      #
+      # @example
+      #   context.dump
+      #
+      # @return [Configuration]
+      #
+      def dump
+        File.open( PATH, "w" ) do | f |
+          f.print Marshal.dump( @config )
+        end
+        @config
+      end
+    end
   end
 end
 
