@@ -32,6 +32,7 @@
 #include "ipv4.h"
 #include "tcp.h"
 #include "udp.h"
+#include "etherip.h"
 
 
 enum {
@@ -45,18 +46,24 @@ enum {
   NW_IPV6 = 0x00000400,
   NW_ICMPV6 = 0x00000800,
   NW_ARP = 0x00001000,
+  NW_IGMP = 0x00002000,
+  NW_LLDP = 0x00004000,
   TP_TCP = 0x00010000,
   TP_UDP = 0x00020000,
+  TP_ETHERIP = 0x00040000,
 
   ETH_VTAG_DIX = ETH_8021Q | ETH_DIX,
   ETH_VTAG_RAW = ETH_8021Q | ETH_8023_RAW,
   ETH_VTAG_LLC = ETH_8021Q | ETH_8023_LLC,
   ETH_VTAG_SNAP = ETH_8021Q | ETH_8023_SNAP,
   ETH_ARP = ETH_DIX | NW_ARP,
+  ETH_LLDP = ETH_DIX | NW_LLDP,
   ETH_IPV4 = ETH_DIX | NW_IPV4,
   ETH_IPV4_ICMPV4 = ETH_IPV4 | NW_ICMPV4,
+  ETH_IPV4_IGMP = ETH_IPV4 | NW_IGMP,
   ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
   ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
+  ETH_IPV4_ETHERIP = ETH_IPV4 | TP_ETHERIP,
   ETH_VTAG_ARP = ETH_VTAG_DIX | NW_ARP,
   ETH_VTAG_IPV4 = ETH_VTAG_DIX | NW_IPV4,
   ETH_VTAG_IPV4_ICMPV4 = ETH_VTAG_IPV4 | NW_ICMPV4,
@@ -127,6 +134,10 @@ typedef struct {
   uint16_t icmpv4_seq;
   uint32_t icmpv4_gateway;
 
+  uint8_t igmp_type;
+  uint8_t igmp_code;
+  uint32_t igmp_group;
+
   uint16_t tcp_src_port;
   uint16_t tcp_dst_port;
   uint32_t tcp_seq_no;
@@ -141,6 +152,8 @@ typedef struct {
   uint16_t udp_dst_port;
   uint16_t udp_len;
   uint16_t udp_checksum;
+
+  uint16_t etherip_version;
 
   void *l2_header;
   void *l2_payload;
@@ -157,6 +170,7 @@ void calloc_packet_info( buffer *frame );
 void free_packet_info( buffer *frame );
 packet_info get_packet_info( const buffer *frame );
 
+bool packet_type_eth_group_addr( const buffer *frame );
 bool packet_type_eth_dix( const buffer *frame );
 bool packet_type_eth_vtag( const buffer *frame );
 bool packet_type_eth_raw( const buffer *frame );
@@ -165,9 +179,11 @@ bool packet_type_eth_snap( const buffer *frame );
 bool packet_type_ether( const buffer *frame );
 bool packet_type_arp( const buffer *frame );
 bool packet_type_ipv4( const buffer *frame );
+bool packet_type_lldp( const buffer *frame );
 bool packet_type_icmpv4( const buffer *frame );
 bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
+bool packet_type_ipv4_etherip( const buffer *frame );
 
 
 #endif // PACKET_INFO_H

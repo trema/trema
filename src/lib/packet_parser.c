@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#include <netinet/igmp.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
@@ -199,6 +200,21 @@ parse_ipv4( buffer *buf ) {
 
 
 static void
+parse_lldp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l3_header;
+  assert( ptr != NULL );
+  packet_info->l3_payload = ptr;
+
+  packet_info->format |= NW_LLDP;
+
+  return;
+}
+
+
+static void
 parse_icmp( buffer *buf ) {
   assert( buf != NULL );
 
@@ -321,6 +337,61 @@ parse_tcp( buffer *buf ) {
 };
 
 
+
+static void
+parse_igmp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < IGMP_MINLEN ) {
+    return;
+  }
+
+  struct igmp *igmp = ptr;
+  packet_info->igmp_type = igmp->igmp_type;
+  packet_info->igmp_code = igmp->igmp_code;
+  packet_info->igmp_group = igmp->igmp_group.s_addr;
+
+  packet_info->format |= NW_IGMP;
+
+  return;
+}
+
+
+static void
+parse_etherip( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( etherip_header ) ) {
+    return;
+  }
+
+  // Ether header
+  etherip_header *etherip_header = ptr;
+  packet_info->etherip_version = ntohs( etherip_header->version );
+
+  ptr = ( void * ) ( etherip_header + 1 );
+  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+    packet_info->l4_payload = ptr;
+  }
+
+  packet_info->format |= TP_ETHERIP;
+
+  return;
+}
+
+
 bool
 parse_packet( buffer *buf ) {
   assert( buf != NULL );
@@ -347,6 +418,11 @@ parse_packet( buffer *buf ) {
   case ETH_ETHTYPE_IPV4:
     packet_info->l3_header = packet_info->l2_payload;
     parse_ipv4( buf );
+    break;
+
+  case ETH_ETHTYPE_LLDP:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_lldp( buf );
     break;
 
   default:
@@ -377,6 +453,16 @@ parse_packet( buffer *buf ) {
   case IPPROTO_UDP:
     packet_info->l4_header = packet_info->l3_payload;
     parse_udp( buf );
+    break;
+
+  case IPPROTO_IGMP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_igmp( buf );
+    break;
+
+  case IPPROTO_ETHERIP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_etherip( buf );
     break;
 
   default:
