@@ -56,7 +56,7 @@ module Trema
         @value = IPAddr.new( addr )
       end
       if prefixlen < 32
-        @value.mask!( prefixlen )
+        @value = @value.mask( prefixlen )
       end
     end
 

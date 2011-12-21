@@ -151,6 +151,9 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   char nw_src[ 16 ];
   char nw_dst[ 16 ];
   struct in_addr addr;
+  unsigned int masklen;
+  unsigned int nw_src_prefixlen;
+  unsigned int nw_dst_prefixlen;
 
   addr.s_addr = htonl( match->nw_src );
   memset( nw_src, '\0', sizeof( nw_src ) );
@@ -158,6 +161,10 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   addr.s_addr = htonl( match->nw_dst );
   memset( nw_dst, '\0', sizeof( nw_dst ) );
   inet_ntop( AF_INET, &addr, nw_dst, sizeof( nw_dst ) );
+  masklen = ( match->wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+  nw_src_prefixlen = ( masklen >= 32 ? 0 : 32 - masklen );
+  masklen = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+  nw_dst_prefixlen = ( masklen >= 32 ? 0 : 32 - masklen );
 
   memset( str, '\0', size );
 
@@ -168,7 +175,7 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
               "dl_src = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_dst = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_vlan = %u, dl_vlan_pcp = %u, dl_type = %#x, "
-              "nw_tos = %u, nw_proto = %u, nw_src = %s, nw_dst = %s, "
+              "nw_tos = %u, nw_proto = %u, nw_src = %s/%u, nw_dst = %s/%u, "
               "tp_src = %u, tp_dst = %u",
               match->wildcards, match->in_port,
               match->dl_src[ 0 ], match->dl_src[ 1 ], match->dl_src[ 2 ],
@@ -176,8 +183,8 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
               match->dl_dst[ 0 ], match->dl_dst[ 1 ], match->dl_dst[ 2 ],
               match->dl_dst[ 3 ], match->dl_dst[ 4 ], match->dl_dst[ 5 ],
               match->dl_vlan, match->dl_vlan_pcp, match->dl_type,
-              match->nw_tos, match->nw_proto, nw_src, nw_dst,
-              match->tp_src, match->tp_dst
+              match->nw_tos, match->nw_proto, nw_src, nw_src_prefixlen,
+	      nw_dst, nw_dst_prefixlen, match->tp_src, match->tp_dst
             );
 
   if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {
