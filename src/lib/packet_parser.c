@@ -355,7 +355,9 @@ parse_igmp( buffer *buf ) {
   struct igmp *igmp = ptr;
   packet_info->igmp_type = igmp->igmp_type;
   packet_info->igmp_code = igmp->igmp_code;
-  packet_info->igmp_group = igmp->igmp_group.s_addr;
+  packet_info->igmp_code = igmp->igmp_code;
+  packet_info->igmp_cksum = ntohs( igmp->igmp_cksum );
+  packet_info->igmp_group = ntohl( igmp->igmp_group.s_addr );
 
   packet_info->format |= NW_IGMP;
 
@@ -380,10 +382,12 @@ parse_etherip( buffer *buf ) {
   // Ether header
   etherip_header *etherip_header = ptr;
   packet_info->etherip_version = ntohs( etherip_header->version );
+  packet_info->etherip_offset = 0;
 
   ptr = ( void * ) ( etherip_header + 1 );
   if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
     packet_info->l4_payload = ptr;
+    packet_info->etherip_offset = ( uint16_t ) ( ( char * ) ptr - ( char *) buf->data );
   }
 
   packet_info->format |= TP_ETHERIP;

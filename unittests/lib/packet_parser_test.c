@@ -515,6 +515,7 @@ test_parse_packet_igmp_query_v2_succeeds() {
 
   assert_int_equal( packet_info->igmp_type, IGMP_MEMBERSHIP_QUERY );
   assert_int_equal( packet_info->igmp_code, 100 );
+  assert_int_equal( packet_info->igmp_cksum, 0xee9b );
   assert_int_equal( packet_info->igmp_group, 0 );
 
   free_buffer( buffer );
@@ -570,14 +571,14 @@ test_parse_packet_lldp_over_ip_succeeds() {
   assert_int_equal( packet_info->ipv4_saddr, 0x0a2a7aca );
   assert_int_equal( packet_info->ipv4_daddr, 0x0a2a7ad4 );
 
+  assert_int_equal( packet_info->etherip_version, ETHERIP_VERSION );
+  assert_int_equal( packet_info->etherip_offset, 36 );
+
   copy = duplicate_buffer( buffer );
   assert_true ( copy != NULL );
   assert_true( copy->length == buffer->length );
   copy->user_data = NULL;
-
-  uint32_t offset = ( uint32_t ) ( ( char * ) packet_info->l4_payload - ( char *) buffer->data );
-  assert_true( offset == 36 );
-  remove_front_buffer( copy, offset );
+  remove_front_buffer( copy, packet_info->etherip_offset );
 
   assert_true( parse_packet( copy ) );
 

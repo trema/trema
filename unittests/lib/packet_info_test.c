@@ -44,7 +44,7 @@ mock_die( const char *format, ... ) {
   va_end( args );
   check_expected( output );
 
-  mock_assert( false, "mock_die", __FILE__, __LINE__ ); 
+  mock_assert( false, "mock_die", __FILE__, __LINE__ );
 }
 
 
@@ -60,16 +60,16 @@ setup() {
 
 
 static void
-teardown() { 
+teardown() {
   die = original_die;
-} 
+}
 
 
 /******************************************************************************
  * Tests.
  ******************************************************************************/
 
-void
+static void
 test_calloc_packet_info_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
 
@@ -80,15 +80,15 @@ test_calloc_packet_info_succeeds() {
 }
 
 
-void
+static void
 test_calloc_packet_info_fails_if_buffer_is_NULL() {
-  expect_string( mock_die, output, 
+  expect_string( mock_die, output,
                  "Argument of calloc_packet_info must not be NULL." );
   expect_assert_failure( calloc_packet_info( NULL ) ) ;
 }
 
 
-void
+static void
 test_free_buffer_succeeds() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -101,15 +101,15 @@ test_free_buffer_succeeds() {
 }
 
 
-void 
+static void
 test_packet_type_eth_dix_fails() {
-  expect_string( mock_die, output, 
+  expect_string( mock_die, output,
                  "Argument of packet_type_eth_dix must not be NULL." );
   expect_assert_failure( packet_type_eth_dix( NULL ) ) ;
 }
 
 
-void 
+static void
 test_packet_type_eth_dix() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -127,7 +127,7 @@ test_packet_type_eth_dix() {
 }
 
 
-void 
+static void
 test_packet_type_eth_vtag() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -155,7 +155,7 @@ test_packet_type_eth_vtag() {
   packet_info->format |= ETH_8021Q;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
-  
+
   packet_info->format |= ETH_8023_SNAP;
   assert_false( packet_type_eth_vtag( buf ) );
   packet_info->format |= ETH_8021Q;
@@ -166,7 +166,7 @@ test_packet_type_eth_vtag() {
 }
 
 
-void 
+static void
 test_packet_type_eth_raw() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -184,7 +184,7 @@ test_packet_type_eth_raw() {
 }
 
 
-void 
+static void
 test_packet_type_eth_llc() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -202,7 +202,7 @@ test_packet_type_eth_llc() {
 }
 
 
-void 
+static void
 test_packet_type_eth_snap() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -220,7 +220,7 @@ test_packet_type_eth_snap() {
 }
 
 
-void 
+static void
 test_packet_type_ether() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -239,7 +239,7 @@ test_packet_type_ether() {
   packet_info->format |= ETH_8023_LLC;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
-  
+
   packet_info->format |= ETH_8023_SNAP;
   assert_true( packet_type_ether( buf ) );
   packet_info->format = 0;
@@ -248,7 +248,7 @@ test_packet_type_ether() {
 }
 
 
-void 
+static void
 test_packet_type_arp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -263,7 +263,7 @@ test_packet_type_arp() {
 }
 
 
-void 
+static void
 test_packet_type_ipv4() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -278,7 +278,7 @@ test_packet_type_ipv4() {
 }
 
 
-void 
+static void
 test_packet_type_icmpv4() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -296,7 +296,7 @@ test_packet_type_icmpv4() {
 }
 
 
-void 
+static void
 test_packet_type_ipv4_udp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -314,7 +314,7 @@ test_packet_type_ipv4_udp() {
 }
 
 
-void 
+static void
 test_packet_type_ipv4_tcp() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -331,6 +331,56 @@ test_packet_type_ipv4_tcp() {
   free_buffer( buf );
 }
 
+
+static void
+test_packet_type_lldp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_lldp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_LLDP;
+  assert_true( packet_type_lldp( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_igmp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  assert_true( packet_type_igmp( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_ipv4_etherip() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_ipv4_etherip( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= TP_ETHERIP;
+  assert_false( packet_type_ipv4_etherip( buf ) );
+
+  packet_info->format |= NW_IPV4;
+  assert_true( packet_type_ipv4_etherip( buf ) );
+
+  free_buffer( buf );
+}
+
 /******************************************************************************
  * Run tests.
  ******************************************************************************/
@@ -341,7 +391,7 @@ main() {
     unit_test( test_calloc_packet_info_succeeds ),
     unit_test_setup_teardown( test_calloc_packet_info_fails_if_buffer_is_NULL,
                               setup, teardown ),
-    
+
     unit_test( test_free_buffer_succeeds ),
 
     unit_test_setup_teardown( test_packet_type_eth_dix_fails,
@@ -359,6 +409,10 @@ main() {
 
     unit_test( test_packet_type_ipv4_udp ),
     unit_test( test_packet_type_ipv4_tcp ),
+
+    unit_test( test_packet_type_lldp ),
+    unit_test( test_packet_type_igmp ),
+    unit_test( test_packet_type_ipv4_etherip ),
 
   };
   return run_tests( tests );

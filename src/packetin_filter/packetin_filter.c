@@ -136,26 +136,22 @@ usage() {
 static buffer *
 parse_etherip( const buffer *data ) {
   packet_info *packet_info = data->user_data;
-  uint32_t hdr_len = ( uint32_t ) packet_info->ipv4_ihl * 4;
-  if ( data->length < hdr_len + sizeof( etherip_header ) ) {
+  if ( packet_info->etherip_version != ETHERIP_VERSION ) {
+    error( "invalid etherip version 0x%04x.", packet_info->etherip_version );
+    return NULL;
+  }
+  if ( packet_info->etherip_offset == 0 ) {
     debug( "too short etherip message" );
     return NULL;
   }
 
-  etherip_header *etherip = packet_info->l3_payload;
-  if ( etherip->version != htons( ETHERIP_VERSION ) ) {
-    error( "invalid etherip version 0x%04x.", ntohs( etherip->version ) );
-    return NULL;
-  }
   buffer *copy = duplicate_buffer( data );
   if ( copy == NULL ) {
     error( "duplicate_buffer failed." );
     return NULL;
   }
   copy->user_data = NULL;
-  uint32_t offset = ( uint32_t ) ( ( char * ) etherip - ( char *) data->data );
-  offset += ( uint32_t ) sizeof( etherip_header );
-  remove_front_buffer( copy, offset );
+  remove_front_buffer( copy, packet_info->etherip_offset );
 
   if ( !parse_packet( copy ) ) {
     error( "parse_packet failed." );
@@ -182,8 +178,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
   buffer *copy = NULL;
   packet_info *packet_info = data->user_data;
   debug( "Receive packet. ethertype=0x%04x, ipproto=0x%x", packet_info->eth_type, packet_info->ipv4_protocol );
-  if ( packet_info->eth_type == ETH_ETHTYPE_IPV4
-       && packet_info->ipv4_protocol == IPPROTO_ETHERIP ) {
+  if ( packet_type_ipv4_etherip( data ) ) {
     copy = parse_etherip( data );
   }
   set_match_from_packet( &ofp_match, in_port, 0, copy != NULL ? copy : data );

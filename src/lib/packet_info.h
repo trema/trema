@@ -136,6 +136,7 @@ typedef struct {
 
   uint8_t igmp_type;
   uint8_t igmp_code;
+  uint16_t igmp_cksum;
   uint32_t igmp_group;
 
   uint16_t tcp_src_port;
@@ -154,6 +155,7 @@ typedef struct {
   uint16_t udp_checksum;
 
   uint16_t etherip_version;
+  uint16_t etherip_offset;
 
   void *l2_header;
   void *l2_payload;
@@ -170,7 +172,6 @@ void calloc_packet_info( buffer *frame );
 void free_packet_info( buffer *frame );
 packet_info get_packet_info( const buffer *frame );
 
-bool packet_type_eth_group_addr( const buffer *frame );
 bool packet_type_eth_dix( const buffer *frame );
 bool packet_type_eth_vtag( const buffer *frame );
 bool packet_type_eth_raw( const buffer *frame );
@@ -181,6 +182,7 @@ bool packet_type_arp( const buffer *frame );
 bool packet_type_ipv4( const buffer *frame );
 bool packet_type_lldp( const buffer *frame );
 bool packet_type_icmpv4( const buffer *frame );
+bool packet_type_igmp( const buffer *frame );
 bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
 bool packet_type_ipv4_etherip( const buffer *frame );
