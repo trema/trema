@@ -47,10 +47,10 @@ parse_ether( buffer *buf ) {
   }
 
   // Ethernet header
-  struct ether_header *ether_header = ptr;
-  memcpy( packet_info->eth_macsa, ether_header->ether_shost, ETH_ADDRLEN );
-  memcpy( packet_info->eth_macda, ether_header->ether_dhost, ETH_ADDRLEN );
-  packet_info->eth_type = ntohs( ether_header->ether_type );
+  ether_header_t *ether_header = ptr;
+  memcpy( packet_info->eth_macsa, ether_header->macsa, ETH_ADDRLEN );
+  memcpy( packet_info->eth_macda, ether_header->macda, ETH_ADDRLEN );
+  packet_info->eth_type = ntohs( ether_header->type );
 
   ptr = ( void * ) ( ether_header + 1 );
 
