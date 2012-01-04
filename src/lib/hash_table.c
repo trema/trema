@@ -137,13 +137,14 @@ new_bucket( hash_table *table, unsigned int bucket_index ) {
 
 
 /**
- * Inserts a new key and value into a hash_table. Permit insertion
- * if the key to be inserted already exists in the hash_table.
+ * Inserts a new key and value into a hash_table. If the key already
+ * exists in the hash_table its current value is replaced with the new
+ * value.
  *
  * @param table a hash_table.
  * @param key a key to insert.
  * @param value the value to associate with the key.
- * @return the value associated with the duplicate key, or NULL if the key is not duplicate.
+ * @return the old value associated with the key.
  */
 void *
 insert_hash_entry( hash_table *table, void *key, void *value ) {
@@ -152,21 +153,21 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
 
   MUTEX_LOCK( table );
 
-  void *dup_value = NULL;
+  void *old_value = NULL;
   unsigned int i = get_bucket_index( table, key );
 
   if ( table->buckets[ i ] == NULL ) {
     new_bucket( table, i );
   }
   else {
-    dlist_element *dup_element = NULL;
-    for ( dup_element = table->buckets[ i ]->next; dup_element; dup_element = dup_element->next ) {
-      if ( ( *table->compare )( key, ( ( hash_entry * ) dup_element->data )->key ) ) {
+    dlist_element *old_element = NULL;
+    for ( old_element = table->buckets[ i ]->next; old_element; old_element = old_element->next ) {
+      if ( ( *table->compare )( key, ( ( hash_entry * ) old_element->data )->key ) ) {
         break;
       }
     }
-    if ( dup_element != NULL ) {
-      dup_value = ( ( hash_entry * ) dup_element->data )->value;
+    if ( old_element != NULL ) {
+      old_value = ( ( hash_entry * ) old_element->data )->value;
     }
   }
 
@@ -178,7 +179,7 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
 
   MUTEX_UNLOCK( table );
 
-  return dup_value;
+  return old_value;
 }
 
 

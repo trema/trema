@@ -91,6 +91,7 @@ test_insert_twice_overwrites_old_value() {
 
   insert_hash_entry( table, key, old_value );
   prev = insert_hash_entry( table, key, new_value );
+  insert_hash_entry( table, key, new_value );
 
   assert_string_equal( lookup_hash_entry( table, key ), "new value" );
   assert_string_equal( prev, "old value" );
