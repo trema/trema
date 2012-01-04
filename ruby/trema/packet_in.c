@@ -26,6 +26,19 @@
 
 extern VALUE mTrema;
 VALUE cPacketIn;
+VALUE cPacketInARP;
+VALUE cPacketInIPv4;
+VALUE cPacketInTCP;
+VALUE cPacketInUDP;
+
+
+#define PACKET_IN_RETURN_MAC( packet_member )                         \
+  VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );
+
+#define PACKET_IN_RETURN_IP( packet_member )                          \
+  VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret );
 
 
 #if 0
@@ -56,6 +69,14 @@ get_packet_in( VALUE self ) {
   packet_in *cpacket;
   Data_Get_Struct( self, packet_in, cpacket );
   return cpacket;
+}
+
+
+static packet_info *
+get_packet_in_info( VALUE self ) {
+  packet_in *cpacket;
+  Data_Get_Struct( self, packet_in, cpacket );
+  return ( packet_info * ) cpacket->data->user_data;
 }
 
 
@@ -164,9 +185,7 @@ packet_in_reason( VALUE self ) {
  */
 static VALUE
 packet_in_macsa( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macsa ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
+  PACKET_IN_RETURN_MAC( eth_macsa );
 }
 
 
@@ -177,14 +196,211 @@ packet_in_macsa( VALUE self ) {
  */
 static VALUE
 packet_in_macda( VALUE self ) {
-  packet_in *cpacket_in = get_packet_in( self );
-  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macda ) );
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
+  PACKET_IN_RETURN_MAC( eth_macda );
+}
+
+
+/*
+ * Is an ARP packet?
+ *
+ * @return [bool] arp? Is an ARP packet?
+ */
+static VALUE
+packet_in_is_arp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ARP operation code.
+ *
+ * @return [integer] arp_oper Operation code.
+ */
+static VALUE
+packet_in_arp_oper( VALUE self ) {
+  return get_packet_in_info( self )->arp_ar_op;
+}
+
+
+/*
+ * The ARP source hardware address.
+ *
+ * @return [Trema::Mac] arp_sha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_sha( VALUE self ) {
+  PACKET_IN_RETURN_MAC( arp_sha );
+}
+
+
+/*
+ * The ARP source protocol address.
+ *
+ * @return [Trema::IP] arp_spa IP protocol address.
+ */
+static VALUE
+packet_in_arp_spa( VALUE self ) {
+  PACKET_IN_RETURN_IP( arp_spa );
+}
+
+
+/*
+ * The ARP target hardware address.
+ *
+ * @return [Trema::Mac] arp_tha MAC hardware address.
+ */
+static VALUE
+packet_in_arp_tha( VALUE self ) {
+  PACKET_IN_RETURN_MAC( arp_tha );
+}
+
+
+/*
+ * The ARP target protocol address.
+ *
+ * @return [Trema::IP] arp_tpa IP protocol address.
+ */
+static VALUE
+packet_in_arp_tpa( VALUE self ) {
+  PACKET_IN_RETURN_IP( arp_tpa );
+}
+
+
+/*
+ * Is an IPV4 packet?
+ *
+ * @return [bool] ipv4? Is an IPV4 packet?
+ */
+static VALUE
+packet_in_is_ipv4( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The IPV4 source protocol address.
+ *
+ * @return [Trema::IP] ipv4_saddr IP protocol address.
+ */
+static VALUE
+packet_in_ipv4_saddr( VALUE self ) {
+  PACKET_IN_RETURN_IP( ipv4_saddr );
+}
+
+
+/*
+ * The IPV4 destination protocol address.
+ *
+ * @return [Trema::IP] ipv4_daddr IP protocol address.
+ */
+static VALUE
+packet_in_ipv4_daddr( VALUE self ) {
+  PACKET_IN_RETURN_IP( ipv4_daddr );
+}
+
+
+/*
+ * Is an TCP packet?
+ *
+ * @return [bool] tcp? Is an TCP packet?
+ */
+static VALUE
+packet_in_is_tcp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & TP_TCP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The TCP source port.
+ *
+ * @return [Trema::IP] tcp_src_port TCP port.
+ */
+static VALUE
+packet_in_tcp_src_port( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->tcp_src_port );
+}
+
+
+/*
+ * The TCP destination port.
+ *
+ * @return [Trema::IP] tcp_dst_port TCP port.
+ */
+static VALUE
+packet_in_tcp_dst_port( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->tcp_dst_port );
+}
+
+
+/*
+ * Is an UDP packet?
+ *
+ * @return [bool] udp? Is an UDP packet?
+ */
+static VALUE
+packet_in_is_udp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & TP_UDP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * A String that holds the UDP payload.
+ * Length of data, total_len - 20 bytes.
+ *
+ * @return [String] the value of data.
+ */
+static VALUE
+packet_in_udp_payload( VALUE self ) {
+  packet_info *cpacket = get_packet_in_info( self );
+  return rb_str_new( cpacket->l4_payload, ( long ) cpacket->udp_len );
+}
+
+
+/*
+ * The UDP source port.
+ *
+ * @return [Trema::IP] udp_src_port UDP port.
+ */
+static VALUE
+packet_in_udp_src_port( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->udp_src_port );
+}
+
+
+/*
+ * The UDP destination port.
+ *
+ * @return [Trema::IP] udp_dst_port UDP port.
+ */
+static VALUE
+packet_in_udp_dst_port( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->udp_dst_port );
 }
 
 
 void
 Init_packet_in() {
+  rb_require( "trema/ip" );
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
@@ -203,8 +419,34 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "total_len", packet_in_total_len, 0 );
   rb_define_method( cPacketIn, "reason", packet_in_reason, 0 );
   rb_define_method( cPacketIn, "data", packet_in_data, 0 );
+
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+
+  rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
+  rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
+  rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
+
+  cPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
+  rb_define_method( cPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
+  rb_define_method( cPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
+
+  cPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
+  rb_define_method( cPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
+  rb_define_method( cPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+
+  cPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
+  rb_define_method( cPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
+  rb_define_method( cPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
+
+  cPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
+  rb_define_method( cPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
+  rb_define_method( cPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
+  rb_define_method( cPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
 }
 
 
@@ -222,6 +464,24 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   packet_in *tmp = NULL;
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
+
+  packet_info* info = ( packet_info * ) tmp->data->user_data;
+
+  if ( ( info->format & NW_ARP ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInARP );
+  }
+
+  if ( ( info->format & NW_IPV4 ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInIPv4 );
+  }
+
+  if ( ( info->format & TP_TCP ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInTCP );
+  }
+
+  if ( ( info->format & TP_UDP ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInUDP );
+  }
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }
