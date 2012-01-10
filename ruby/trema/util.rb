@@ -67,12 +67,12 @@ EOF
       Trema::Process.read( each ).kill!
     end
 
-    FileUtils.rm_f Trema::DSL::Parser::CURRENT_CONTEXT
+    FileUtils.rm_f Trema::DSL::Context::PATH
   end
 
 
   def cleanup_current_session
-    cleanup Trema::DSL::Parser.new.load_current
+    cleanup Trema::DSL::Context.load_current
   end
 end
 

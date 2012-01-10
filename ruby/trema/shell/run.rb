@@ -41,9 +41,9 @@ module Trema
         end
       end
 
-      runner = DSL::Runner.new( @context )
+      runner = DSL::Runner.new( @config )
       runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
+      @config.switches.each do | name, switch |
         if switch.running?
           switch.restart!
         else
@@ -51,7 +51,10 @@ module Trema
         end
       end
 
-      @context.apps.values.last.daemonize!
+      @config.apps.values.last.daemonize!
+      @context.dump
+
+      true
     end
   end
 end

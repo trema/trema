@@ -417,7 +417,7 @@ trim_message( tvbuff_t *tvb, gint offset ) {
     PRINTF( "trim() failed  length %d\n", length );
     return NULL;
   }
-  message_length = tvb_get_letohl( tvb, offset + offsetof( message_header, message_length ) );
+  message_length = tvb_get_ntohl( tvb, offset + offsetof( message_header, message_length ) );
   if ( length < message_length ) {
     PRINTF( "trim() failed  length %d  message_length %d\n", length, message_length );
     return NULL;
@@ -485,7 +485,7 @@ add_fragmented_stream_info( tvbuff_t *tvb, gint offset, stream_id *stream_name )
     fragment_info->temporary_length = TRUE;
   }
   else {
-    fragment_info->message_length = tvb_get_letohl( tvb, offset + offsetof( message_header, message_length ) );
+    fragment_info->message_length = tvb_get_ntohl( tvb, offset + offsetof( message_header, message_length ) );
     fragment_info->temporary_length = FALSE;
   }
   
@@ -519,7 +519,7 @@ reset_fragmented_stream_info( tvbuff_t *reassembled_tvb, fragmented_stream_info 
   received_message_length = tvb_reported_length( reassembled_tvb );
   assert( received_message_length >= sizeof( message_header ) );
 
-  fragment_info->message_length = tvb_get_letohl( reassembled_tvb, offsetof( message_header, message_length ) );
+  fragment_info->message_length = tvb_get_ntohl( reassembled_tvb, offsetof( message_header, message_length ) );
   fragment_info->unreceived_length = fragment_info->message_length - received_message_length;
   fragment_info->temporary_length = FALSE;
 
@@ -1164,7 +1164,7 @@ dissect_trema_ipc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
         return;
       }
       else {
-        guint32 message_length = tvb_get_letohl( messages_tvb, offset + offsetof( message_header, message_length ) );
+        guint32 message_length = tvb_get_ntohl( messages_tvb, offset + offsetof( message_header, message_length ) );
         
         if ( remaining_length < message_length ) {
           // new fragment

@@ -19,7 +19,7 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/context"
+require "trema/dsl/configuration"
 require "trema/dsl/runner"
 require "trema/util"
 
@@ -49,7 +49,7 @@ describe Trema::Util do
     apps.each do | name, app |
       app.should_receive( :shutdown! )
     end
-    
+
     switches = { "switch 1" => mock( "switch 1" ), "switch 2" => mock( "switch 2" ), "switch 3" => mock( "switch 3" ) }
     switches.each do | name, switch |
       switch.should_receive( :shutdown! )
@@ -59,7 +59,7 @@ describe Trema::Util do
     hosts.each do | name, host |
       host.should_receive( :shutdown! )
     end
-    
+
     links = { "link 1" => mock( "link 1" ), "link 2" => mock( "link 2" ), "link 3" => mock( "link 3" ) }
     links.each do | name, link |
       link.should_receive( :delete! )
@@ -70,11 +70,8 @@ describe Trema::Util do
     last_session.stub!( :switches ).and_return( switches )
     last_session.stub!( :hosts ).and_return( hosts )
     last_session.stub!( :links ).and_return( links )
+    Trema::DSL::Context.stub!( :load_current ).and_return( last_session )
 
-    context = mock( "context" )
-    context.stub!( :load_from ).and_return( last_session )
-    Trema::DSL::Context.stub!( :new ).and_return( context )
-    
     pid_files = [ mock( "PID file #0" ), mock( "PID file #1" ), mock( "PID file #2" ) ]
     Dir.stub!( :glob ).and_return( pid_files )
 

@@ -20,58 +20,23 @@
 #
 
 
-require "fileutils"
+require "trema/dsl/context"
 require "trema/dsl/syntax"
-require "trema/path"
 
 
 module Trema
   module DSL
     class Parser
-      CURRENT_CONTEXT = File.join( Trema.tmp, ".context" )
-
-
-      def self.dump method
-        Syntax.module_eval do
-          original = instance_method( method )
-          define_method( method ) do | *args, &block |
-            if block
-              original.bind( self ).call( *args, &block )
-            else
-              original.bind( self ).call( *args )
-            end
-            instance_variable_get( :@context ).dump_to CURRENT_CONTEXT
-          end
-        end
-      end
-
-
-      dump :app
-      dump :event
-      dump :filter
-      dump :link
-      dump :port
-      dump :switch
-      dump :use_tremashark
-      dump :vhost
-      dump :vswitch
-
-
-      def load_current
-        Context.new.load_from CURRENT_CONTEXT
-      end
-
-
       def parse file_name
-        new_context do | context |
-          Syntax.new( context ).instance_eval IO.read( file_name ), file_name
+        configure do | config |
+          Syntax.new( config ).instance_eval IO.read( file_name ), file_name
         end
       end
 
 
       def eval &block
-        new_context do | context |
-          Syntax.new( context ).instance_eval &block
+        configure do | config |
+          Syntax.new( config ).instance_eval &block
         end
       end
 
@@ -81,17 +46,17 @@ module Trema
       ################################################################################
 
 
-      def new_context &block
-        context = Context.new
-        block.call context
+      def configure &block
+        config = Configuration.new
+        block.call config
         Trema::Link.each do | each |
           peers = each.peers
-          context.hosts[ peers[ 0 ] ].interface = each.name if context.hosts[ peers[ 0 ] ]
-          context.hosts[ peers[ 1 ] ].interface = each.name_peer if context.hosts[ peers[ 1 ] ]
-          context.switches[ peers[ 0 ] ] << each.name if context.switches[ peers[ 0 ] ]
-          context.switches[ peers[ 1 ] ] << each.name_peer if context.switches[ peers[ 1 ] ]
+          config.hosts[ peers[ 0 ] ].interface = each.name if config.hosts[ peers[ 0 ] ]
+          config.hosts[ peers[ 1 ] ].interface = each.name_peer if config.hosts[ peers[ 1 ] ]
+          config.switches[ peers[ 0 ] ] << each.name if config.switches[ peers[ 0 ] ]
+          config.switches[ peers[ 1 ] ] << each.name_peer if config.switches[ peers[ 1 ] ]
         end
-        context.dump_to CURRENT_CONTEXT
+        Context.new( config ).dump
       end
     end
   end

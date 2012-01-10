@@ -135,9 +135,23 @@ packet_type_ipv4( const buffer *frame ) {
 
 
 bool
+packet_type_lldp( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_LLDP );
+}
+
+
+bool
 packet_type_icmpv4( const buffer *frame ) {
   die_if_NULL( frame );
   return if_packet_type( frame, NW_ICMPV4 );
+}
+
+
+bool
+packet_type_igmp( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_IGMP );
 }
 
 
@@ -154,6 +168,12 @@ packet_type_ipv4_udp( const buffer *frame ) {
   return if_packet_type( frame, NW_IPV4 | TP_UDP );
 }
 
+
+bool
+packet_type_ipv4_etherip( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_IPV4 | TP_ETHERIP );
+}
 
 
 /*

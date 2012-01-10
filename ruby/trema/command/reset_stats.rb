@@ -47,7 +47,7 @@ module Trema
 
       options.parse! ARGV
 
-      host = Trema::DSL::Parser.new.load_current.hosts[ ARGV[ 0 ] ]
+      host = Trema::DSL::Context.load_current.hosts[ ARGV[ 0 ] ]
       Trema::Cli.new( host ).reset_stats
     end
   end

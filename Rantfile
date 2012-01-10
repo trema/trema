@@ -73,7 +73,7 @@ gen Clean
 var[ :clean ] << Trema.objects
 var[ :clean ] << File.join( Trema.home, "objects/unittests" )
 var[ :clean ] << File.join( Trema.home, "unittests/objects" )
-var[ :clean ] << Trema::DSL::Parser::CURRENT_CONTEXT
+var[ :clean ] << Trema::DSL::Context::PATH
 
 
 desc "Cleanup everything."

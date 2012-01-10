@@ -23,6 +23,9 @@ require "trema"
 
 
 describe Trema::Shell, ".vhost" do
+  before { @context = mock( "context", :dump => true ) }
+
+
   it "should create a new vhost if name given" do
     vhost( "host1" )
 

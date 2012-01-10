@@ -415,7 +415,7 @@ parse_argv( int *argc, char ***argv ) {
   set_trema_name( basename( ( *argv )[ 0 ] ) );
   executable_name = xstrdup( get_trema_name() );
 
-  for ( int i = 0; i <= *argc; ++i ) {
+  for ( int i = 0; i < *argc; ++i ) {
     new_argv[ i ] = ( *argv )[ i ];
   }
 
@@ -464,7 +464,9 @@ parse_argv( int *argc, char ***argv ) {
       j++;
     }
   }
-  ( *argv )[ *argc ] = NULL;
+  if ( argc_tmp < *argc ) {
+    ( *argv )[ argc_tmp ] = NULL;
+  }
   *argc = argc_tmp;
 
   reset_getopt();

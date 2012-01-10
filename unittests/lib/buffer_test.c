@@ -262,13 +262,19 @@ test_append_back_buffer_succeeds_if_initialize_length_is_0() {
 
 static void
 test_duplicate_buffer_succeeds() {
-  buffer *buf = alloc_buffer_with_length( sizeof( tea ) );
+  buffer *buf = alloc_buffer_with_length( 1024 );
   assert_true( buf != NULL );
+  unsigned char *data = append_back_buffer( buf, 1024 );
+  int i;
+  for ( i = 0; i < 1024; i++ ) {
+    data[ i ] = ( unsigned char ) ( i % 0xff ) ;
+  }
 
   buffer *duplicate = duplicate_buffer( buf );
   assert_true( duplicate != NULL );
   assert_true( duplicate->user_data == buf->user_data );
   assert_true( duplicate->length == buf->length );
+  assert_memory_equal( duplicate->data, buf->data, 1024 );
 
   free_buffer( buf );
   free_buffer( duplicate );

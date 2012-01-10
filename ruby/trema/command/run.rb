@@ -83,7 +83,7 @@ module Trema
       elsif FileTest.exists?( "./trema.conf" )
         config = dsl_parser.parse( "./trema.conf" )
       else
-        config = Trema::DSL::Context.new
+        config = Trema::DSL::Configuration.new
       end
 
       if ARGV[ 0 ]

@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <netinet/ip.h>
+#include <netinet/igmp.h>
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "packet_info.h"
@@ -65,9 +66,7 @@ store_packet_to_buffer( const char *filename ) {
     fclose( fp );
     return NULL;
   }
-  buffer->length = length[ 0 ];
-  buffer->data = xcalloc( 1, buffer->length );
-  size = fread( buffer->data, 1, buffer->length, fp );
+  size = fread( append_back_buffer( buffer, length[ 0 ] ), 1, length[ 0 ], fp );
   if ( size < buffer->length ) {
     free_buffer( buffer );
     fclose( fp );
@@ -498,6 +497,106 @@ test_parse_packet_vtag_icmpv4_echo_reply_succeeds() {
 }
 
 
+static void
+test_parse_packet_igmp_query_v2_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/igmp_query_v2.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info = buffer->user_data;
+
+  assert_int_equal( packet_info->format, ETH_IPV4_IGMP );
+
+  u_char macda[] = { 0x01, 0x00, 0x5e, 0x00, 0x00, 0x01 };
+  u_char macsa[] = { 0x8c, 0x89, 0xa5, 0x15, 0x84, 0xcb };
+  assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
+
+  assert_int_equal( packet_info->igmp_type, IGMP_MEMBERSHIP_QUERY );
+  assert_int_equal( packet_info->igmp_code, 100 );
+  assert_int_equal( packet_info->igmp_cksum, 0xee9b );
+  assert_int_equal( packet_info->igmp_group, 0 );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_lldp_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/lldp.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info = buffer->user_data;
+
+  assert_int_equal( packet_info->format, ETH_LLDP );
+
+  u_char macda[] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e };
+  u_char macsa[] = { 0xba, 0x22, 0xd3, 0x75, 0x8f, 0x7c };
+  assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_lldp_over_ip_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/lldp_over_ip.cap";
+  buffer *copy;
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info = buffer->user_data;
+
+  assert_int_equal( packet_info->format, ETH_IPV4_ETHERIP );
+
+  u_char macda[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  u_char macsa[] = { 0xfe, 0xab, 0x7e, 0x15, 0x3f, 0xc6 };
+  assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
+
+  assert_int_equal( packet_info->ipv4_version, 4 );
+  assert_int_equal( packet_info->ipv4_ihl, 5 );
+  assert_int_equal( packet_info->ipv4_tos, 0 );
+  assert_int_equal( packet_info->ipv4_tot_len, 51 );
+  assert_int_equal( packet_info->ipv4_id, 0 );
+  assert_int_equal( packet_info->ipv4_frag_off, 0 );
+  assert_int_equal( packet_info->ipv4_ttl, 1 );
+  assert_int_equal( packet_info->ipv4_protocol, 97 );
+  assert_int_equal( packet_info->ipv4_checksum, 0 );
+  assert_int_equal( packet_info->ipv4_saddr, 0x0a2a7aca );
+  assert_int_equal( packet_info->ipv4_daddr, 0x0a2a7ad4 );
+
+  assert_int_equal( packet_info->etherip_version, ETHERIP_VERSION );
+  assert_int_equal( packet_info->etherip_offset, 36 );
+
+  copy = duplicate_buffer( buffer );
+  assert_true ( copy != NULL );
+  assert_true( copy->length == buffer->length );
+  copy->user_data = NULL;
+  remove_front_buffer( copy, packet_info->etherip_offset );
+
+  assert_true( parse_packet( copy ) );
+
+  packet_info = copy->user_data;
+
+  assert_int_equal( packet_info->format, ETH_LLDP );
+
+  u_char lldp_macda[] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e };
+  u_char lldp_macsa[] = { 0xfe, 0xab, 0x7e, 0x15, 0x3f, 0xc6 };
+
+  assert_memory_equal( packet_info->eth_macda, lldp_macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info->eth_macsa, lldp_macsa, ETH_ADDRLEN );
+
+  free_buffer( copy );
+
+  free_buffer( buffer );
+}
+
 /******************************************************************************
  * Run tests.
  ******************************************************************************/
@@ -520,6 +619,12 @@ main() {
 
     unit_test( test_parse_packet_vtag_icmpv4_echo_request_succeeds ),
     unit_test( test_parse_packet_vtag_icmpv4_echo_reply_succeeds ),
+
+    unit_test( test_parse_packet_igmp_query_v2_succeeds ),
+
+    unit_test( test_parse_packet_lldp_succeeds ),
+
+    unit_test( test_parse_packet_lldp_over_ip_succeeds ),
   };
   stub_logger();
   return run_tests( tests );
