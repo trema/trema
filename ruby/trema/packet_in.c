@@ -310,9 +310,9 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
- * Is an TCP packet?
+ * Is a TCP packet?
  *
- * @return [bool] tcp? Is an TCP packet?
+ * @return [bool] tcp? Is a TCP packet?
  */
 static VALUE
 packet_in_is_tcp( VALUE self ) {
@@ -328,7 +328,7 @@ packet_in_is_tcp( VALUE self ) {
 /*
  * The TCP source port.
  *
- * @return [Trema::IP] tcp_src_port TCP port.
+ * @return [Integer] tcp_src_port TCP port.
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
@@ -339,7 +339,7 @@ packet_in_tcp_src_port( VALUE self ) {
 /*
  * The TCP destination port.
  *
- * @return [Trema::IP] tcp_dst_port TCP port.
+ * @return [Integer] tcp_dst_port TCP port.
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
@@ -379,7 +379,7 @@ packet_in_udp_payload( VALUE self ) {
 /*
  * The UDP source port.
  *
- * @return [Trema::IP] udp_src_port UDP port.
+ * @return [Integer] udp_src_port UDP port.
  */
 static VALUE
 packet_in_udp_src_port( VALUE self ) {
@@ -390,7 +390,7 @@ packet_in_udp_src_port( VALUE self ) {
 /*
  * The UDP destination port.
  *
- * @return [Trema::IP] udp_dst_port UDP port.
+ * @return [Integer] udp_dst_port UDP port.
  */
 static VALUE
 packet_in_udp_dst_port( VALUE self ) {
