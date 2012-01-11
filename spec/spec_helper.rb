@@ -43,16 +43,14 @@ def controller name
 end
 
 
-def switch name
+def vswitch name
   Trema::Switch[ name ]
 end
-alias :vswitch :switch
 
 
-def host name
+def vhost name
   Trema::Host[ name ]
 end
-alias :vhost :host
 
 
 def send_packets source, dest, options = {}

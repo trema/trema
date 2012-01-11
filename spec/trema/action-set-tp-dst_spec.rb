@@ -72,10 +72,9 @@ describe ActionSetTpDst, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
-          :actions => ActionSetTpDst.new( :tp_dst => 5555 ) )
-        switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetTpDst.new( :tp_dst => 5555 ) )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
       }
     end
   end

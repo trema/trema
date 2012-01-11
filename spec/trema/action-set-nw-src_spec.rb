@@ -82,8 +82,8 @@ describe ActionSetNwSrc, ".new( VALID OPTION )" do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionSetNwSrc.new( :nw_src => IP.new( "192.168.1.1" ) ) )
-        switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ )
       }
     end
   end

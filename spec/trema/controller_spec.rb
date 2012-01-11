@@ -85,7 +85,7 @@ module Trema
           vswitch { datapath_id 0xabc }
         }.run( FlowModAddController ) {
           controller( "FlowModAddController" ).send_flow_mod_add( 0xabc )
-          switch( "0xabc" ).should have( 1 ).flows
+          vswitch( "0xabc" ).should have( 1 ).flows
         }
       end
     end
