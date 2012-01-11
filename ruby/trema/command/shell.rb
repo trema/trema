@@ -40,14 +40,14 @@ module Trema
         f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home
-@config = Trema::DSL::Configuration.new
-@context = Trema::DSL::Context.new( @config )
+$config = Trema::DSL::Configuration.new
+$context = Trema::DSL::Context.new( $config )
 EOF
         f.close
         load f.path
         IRB.start
       ensure
-        cleanup @config
+        cleanup $config
       end
     end
   end

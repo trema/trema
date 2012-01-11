@@ -19,15 +19,14 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema"
 
 
 describe Trema::Shell, ".vhost" do
-  before { @context = mock( "context", :dump => true ) }
+  before { $context = mock( "context", :dump => true ) }
 
 
   it "should create a new vhost if name given" do
-    vhost( "host1" )
+    Trema::Shell.vhost( "host1" )
 
     Trema::Host.should have( 1 ).host
     Trema::Host[ "host1" ].name.should == "host1"
@@ -35,7 +34,7 @@ describe Trema::Shell, ".vhost" do
 
 
   it "should take ip, netmask, promisc, and mac option" do
-    vhost( "host1" ) {
+    Trema::Shell.vhost( "host1" ) {
       ip "192.168.100.1"
       netmask "255.255.255.0"
       promisc "on"

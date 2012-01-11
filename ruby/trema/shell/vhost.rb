@@ -29,9 +29,10 @@ module Trema
       stanza = DSL::Vhost.new( name )
       stanza.instance_eval( &block ) if block
       Host.new stanza
-      @context.dump
+      $context.dump
       true
     end
+    module_function :vhost
   end
 end
 

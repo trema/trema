@@ -36,7 +36,6 @@ end
 
 
 include Trema
-include Trema::Shell
 
 
 def controller name
@@ -47,10 +46,17 @@ end
 def switch name
   Trema::Switch[ name ]
 end
+alias :vswitch :switch
 
 
 def host name
   Trema::Host[ name ]
+end
+alias :vhost :host
+
+
+def send_packets source, dest, options = {}
+  Trema::Shell.send_packets source, dest, options
 end
 
 

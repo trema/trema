@@ -30,6 +30,7 @@ module Trema
       Cli.new( Host[ source ] ).send_packets( Host[ dest ], options )
       true
     end
+    module_function :send_packets
   end
 end
 
