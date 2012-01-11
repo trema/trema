@@ -27,20 +27,12 @@ class FDB
 
 
   def lookup mac
-    if @db[ mac ]
-      @db[ mac ][ :port_number ]
-    else
-      nil
-    end
+    @db[ mac ]
   end
 
 
   def learn mac, port_number
-    if @db[ mac ]
-      @db[ mac ][ :port_number ] = port_number
-    else
-      @db[ mac ] = { :mac => mac, :port_number => port_number }
-    end
+    @db[ mac ] = port_number
   end
 end
 
