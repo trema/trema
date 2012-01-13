@@ -37,7 +37,6 @@ class LearningSwitch < Trema::Controller
 
 
   def packet_in datapath_id, message
-    info "packet_in"
     @fdb.learn message.macsa, message.in_port
     port_no = @fdb.port_no_of( message.macda )
     if port_no
