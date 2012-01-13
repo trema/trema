@@ -22,7 +22,6 @@
 #include "checks.h"
 #include "packet_info.h"
 #include "wrapper.h"
-#include "trema.h"
 
 
 void
