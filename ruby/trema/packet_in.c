@@ -26,19 +26,19 @@
 
 extern VALUE mTrema;
 VALUE cPacketIn;
-VALUE cPacketInARP;
-VALUE cPacketInIPv4;
-VALUE cPacketInTCP;
-VALUE cPacketInUDP;
+VALUE mPacketInARP;
+VALUE mPacketInIPv4;
+VALUE mPacketInTCP;
+VALUE mPacketInUDP;
 
 
-#define PACKET_IN_RETURN_MAC( packet_member )                         \
+#define PACKET_IN_RETURN_MAC( packet_member ) {                         \
   VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );
+  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret ); }
 
-#define PACKET_IN_RETURN_IP( packet_member )                          \
+#define PACKET_IN_RETURN_IP( packet_member ) {                          \
   VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret );
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); }
 
 
 #if 0
@@ -428,25 +428,25 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
 
-  cPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
-  rb_define_method( cPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
-  rb_define_method( cPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
-  rb_define_method( cPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
-  rb_define_method( cPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
-  rb_define_method( cPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
+  mPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
+  rb_define_method( mPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
+  rb_define_method( mPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( mPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( mPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( mPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
 
-  cPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
-  rb_define_method( cPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
-  rb_define_method( cPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+  mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
+  rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
 
-  cPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
-  rb_define_method( cPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
-  rb_define_method( cPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
+  mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
+  rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
+  rb_define_method( mPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
 
-  cPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
-  rb_define_method( cPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
-  rb_define_method( cPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
-  rb_define_method( cPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
+  mPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
+  rb_define_method( mPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
+  rb_define_method( mPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
+  rb_define_method( mPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
 }
 
 
@@ -468,19 +468,19 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   packet_info* info = ( packet_info * ) tmp->data->user_data;
 
   if ( ( info->format & NW_ARP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInARP );
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInARP );
   }
 
   if ( ( info->format & NW_IPV4 ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInIPv4 );
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIPv4 );
   }
 
   if ( ( info->format & TP_TCP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInTCP );
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInTCP );
   }
 
   if ( ( info->format & TP_UDP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, cPacketInUDP );
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInUDP );
   }
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
