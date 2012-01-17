@@ -1079,7 +1079,10 @@ insert_context( void *user_data ) {
   debug( "Inserting a new context ( transaction_id = %#x, life_count = %d, user_data = %p ).",
          context->transaction_id, context->life_count, context->user_data );
 
-  insert_hash_entry( context_db, &context->transaction_id, context );
+  messenger_context *old = insert_hash_entry( context_db, &context->transaction_id, context );
+  if ( old != NULL ) {
+    delete_context( old );
+  }
 
   return context;
 }
