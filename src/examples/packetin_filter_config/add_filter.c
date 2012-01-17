@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "timer.h"
 #include "trema.h"
 #include "utils.h"
 

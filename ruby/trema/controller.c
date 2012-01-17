@@ -35,6 +35,7 @@
 #include "queue-get-config-reply.h"
 #include "list-switches-reply.h"
 #include "trema.h"
+#include "timer.h"
 
 
 VALUE mTrema;
