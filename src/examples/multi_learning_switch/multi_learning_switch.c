@@ -23,6 +23,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <assert.h>
+#include "timer.h"
 #include "trema.h"
 
 
