@@ -51,12 +51,12 @@ void mock_debug( const char *format, ... );
 #endif // UNIT_TESTING
 
 
-typedef struct timer_callback {
-  timer_function function;
+typedef struct timer_callback_info {
+  timer_callback function;
   struct timespec expires_at;
   struct timespec interval;
   void *user_data;
-} timer_callback;
+} timer_callback_info;
 
 
 static dlist_element *timer_callbacks = NULL;
@@ -114,7 +114,7 @@ bool ( *finalize_timer )( void ) = _finalize_timer;
 
 
 static void
-on_timer( timer_callback *callback ) {
+on_timer( timer_callback_info *callback ) {
   assert( callback != NULL );
   assert( callback->function != NULL );
 
@@ -143,7 +143,7 @@ on_timer( timer_callback *callback ) {
 void
 _execute_timer_events() {
   struct timespec now;
-  timer_callback *callback;
+  timer_callback_info *callback;
   dlist_element *element, *element_next;
 
   debug( "Executing timer events ( timer_callbacks = %p ).", timer_callbacks );
@@ -171,7 +171,7 @@ void ( *execute_timer_events )( void ) = _execute_timer_events;
 
 
 bool
-_add_timer_event_callback( struct itimerspec *interval, timer_function callback, void *user_data ) {
+_add_timer_event_callback( struct itimerspec *interval, timer_callback callback, void *user_data ) {
   assert( interval != NULL );
   assert( callback != NULL );
 
@@ -179,11 +179,11 @@ _add_timer_event_callback( struct itimerspec *interval, timer_function callback,
          interval->it_interval.tv_sec, interval->it_interval.tv_nsec,
          interval->it_value.tv_sec, interval->it_value.tv_nsec, callback, user_data );
 
-  timer_callback *cb;
+  timer_callback_info *cb;
   struct timespec now;
 
-  cb = xmalloc( sizeof( timer_callback ) );
-  memset( cb, 0, sizeof( timer_callback ) );
+  cb = xmalloc( sizeof( timer_callback_info ) );
+  memset( cb, 0, sizeof( timer_callback_info ) );
   cb->function = callback;
   cb->user_data = user_data;
 
@@ -214,11 +214,11 @@ _add_timer_event_callback( struct itimerspec *interval, timer_function callback,
 
   return true;
 }
-bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_function callback, void *user_data ) = _add_timer_event_callback;
+bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_callback callback, void *user_data ) = _add_timer_event_callback;
 
 
 bool
-_add_periodic_event_callback( const time_t seconds, timer_function callback, void *user_data ) {
+_add_periodic_event_callback( const time_t seconds, timer_callback callback, void *user_data ) {
   assert( callback != NULL );
 
   debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
@@ -233,11 +233,11 @@ _add_periodic_event_callback( const time_t seconds, timer_function callback, voi
 
   return add_timer_event_callback( &interval, callback, user_data );
 }
-bool ( *add_periodic_event_callback )( const time_t seconds, timer_function callback, void *user_data ) = _add_periodic_event_callback;
+bool ( *add_periodic_event_callback )( const time_t seconds, timer_callback callback, void *user_data ) = _add_periodic_event_callback;
 
 
 bool
-_delete_timer_event( timer_function callback, void *user_data ) {
+_delete_timer_event( timer_callback callback, void *user_data ) {
   assert( callback != NULL );
 
   debug( "Deleting a timer event ( callback = %p, user_data = %p ).", callback, user_data );
@@ -250,7 +250,7 @@ _delete_timer_event( timer_function callback, void *user_data ) {
   }
 
   for ( e = timer_callbacks->next; e; e = e->next ) {
-    timer_callback *cb = e->data;
+    timer_callback_info *cb = e->data;
     if ( cb->function == callback && cb->user_data == user_data ) {
       debug( "Deleting a callback ( callback = %p, user_data = %p ).", callback, user_data );
       //xfree( cb );
@@ -269,7 +269,7 @@ _delete_timer_event( timer_function callback, void *user_data ) {
 
   return false;
 }
-bool ( *delete_timer_event )( timer_function callback, void *user_data ) = _delete_timer_event;
+bool ( *delete_timer_event )( timer_callback callback, void *user_data ) = _delete_timer_event;
 
 
 /*

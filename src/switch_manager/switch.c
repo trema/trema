@@ -183,7 +183,7 @@ secure_channel_write( int fd, void* data ) {
 
 
 static void
-switch_set_timeout( long sec, timer_function callback, void *user_data ) {
+switch_set_timeout( long sec, timer_callback callback, void *user_data ) {
   struct itimerspec interval;
 
   interval.it_value.tv_sec = sec;
@@ -196,7 +196,7 @@ switch_set_timeout( long sec, timer_function callback, void *user_data ) {
 
 
 static void
-switch_unset_timeout( timer_function callback, void *user_data ) {
+switch_unset_timeout( timer_callback callback, void *user_data ) {
   if ( switch_info.running_timer ) {
     switch_info.running_timer = false;
     delete_timer_event( callback, user_data );
