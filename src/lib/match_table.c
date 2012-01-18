@@ -52,6 +52,7 @@ typedef struct {
 
 
 typedef struct {
+  struct ofp_match *match;
   void ( * function )( struct ofp_match, uint16_t, void *, void * );
   void *user_data;
 } match_walker;
@@ -84,6 +85,42 @@ free_match_entry( match_entry *free_entry ) {
   assert( free_entry != NULL );
 
   xfree( free_entry );
+}
+
+
+static bool
+compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
+  uint32_t w_x = x->wildcards & OFPFW_ALL;
+  uint32_t w_y = y->wildcards & OFPFW_ALL;
+  uint32_t sm_x = create_nw_src_mask( w_x );
+  uint32_t dm_x = create_nw_dst_mask( w_x );
+  uint32_t sm_y = create_nw_src_mask( w_y );
+  uint32_t dm_y = create_nw_dst_mask( w_y );
+
+  w_x &= ( uint32_t ) ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  w_y &= ( uint32_t ) ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  if ( ( ~w_x & w_y ) != 0 ) {
+    return false;
+  }
+  if ( sm_x > sm_y ) {
+    return false;
+  }
+  if ( dm_x > dm_y ) {
+    return false;
+  }
+
+  return ( ( w_x & OFPFW_IN_PORT || x->in_port == y->in_port )
+           && ( w_x & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
+           && ( w_x & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
+           && ( w_x & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
+           && ( w_x & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
+           && ( w_x & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
+           && !( ( x->nw_src ^ y->nw_src ) & sm_x )
+           && !( ( x->nw_dst ^ y->nw_dst ) & dm_x )
+           && ( w_x & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
+           && ( w_x & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
+           && ( w_x & OFPFW_TP_SRC || x->tp_src == y->tp_src )
+           && ( w_x & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
 }
 
 
@@ -185,7 +222,7 @@ lookup_exact_match_strict_entry( hash_table *exact_table, struct ofp_match *matc
 }
 
 
-#define lookup_exact_match_entry( table, match ) lookup_exact_match_strict_entry( table, match)
+#define lookup_exact_match_entry( table, match ) lookup_exact_match_strict_entry( table, match )
 
 
 static bool
@@ -207,7 +244,7 @@ update_exact_match_entry( hash_table *exact_table, struct ofp_match *match, void
 
 
 static void *
-delete_exact_match_entry( hash_table *exact_table, struct ofp_match *match ) {
+delete_exact_match_strict_entry( hash_table *exact_table, struct ofp_match *match ) {
   assert( exact_table != NULL );
   assert( match != NULL );
 
@@ -234,18 +271,24 @@ exact_match_table_walker( void *key, void *value, void *user_data ) {
   assert( walker != NULL );
   assert( walker->function != NULL );
 
-  void ( * function )( struct ofp_match, uint16_t, void *, void * ) = walker->function;
   match_entry *entry = value;
+  if ( walker->match != NULL ) {
+    if ( !compare_filter_match( walker->match, &entry->match ) ) {
+      return;
+    }
+  }
+  void ( * function )( struct ofp_match, uint16_t, void *, void * ) = walker->function;
 
   function( entry->match, entry->priority, entry->data, walker->user_data );
 }
 
 
 static void
-foreach_exact_match_table( hash_table *exact_table, void function( struct ofp_match, uint16_t, void *, void * ), void *user_data ) {
+map_exact_match_table( hash_table *exact_table, struct ofp_match *match, void function( struct ofp_match, uint16_t, void *, void * ), void *user_data ) {
   assert( exact_table != NULL );
   assert( function != NULL );
   match_walker walker;
+  walker.match = match;
   walker.function = function;
   walker.user_data = user_data;
   foreach_hash( exact_table, exact_match_table_walker, &walker );
@@ -358,7 +401,7 @@ update_wildcards_match_entry( list_element *wildcards_table, struct ofp_match *m
 
 
 static void *
-delete_wildcards_match_entry( list_element **wildcards_table, struct ofp_match *match, uint16_t priority ) {
+delete_wildcards_match_strict_entry( list_element **wildcards_table, struct ofp_match *match, uint16_t priority ) {
   assert( match != NULL );
 
   match_entry *entry = lookup_wildcards_match_strict_entry( *wildcards_table, match, priority );
@@ -377,13 +420,18 @@ delete_wildcards_match_entry( list_element **wildcards_table, struct ofp_match *
 
 
 static void
-foreach_wildcards_match_table( list_element *wildcards_table, void function( struct ofp_match, uint16_t, void *, void * ), void * user_data ) {
+map_wildcards_match_table( list_element *wildcards_table, struct ofp_match *match, void function( struct ofp_match, uint16_t, void *, void * ), void * user_data ) {
   assert( function != NULL );
 
   list_element *element = wildcards_table;
   while ( element != NULL ) {
     match_entry *entry = element->data;
     element = element->next;
+    if ( match != NULL ) {
+      if ( !compare_filter_match( match, &entry->match ) ) {
+        continue;
+      }
+    }
     function( entry->match, entry->priority, entry->data, user_data );
   }
 }
@@ -505,7 +553,7 @@ update_match_entry( struct ofp_match match, uint16_t priority, void *data ) {
 
 
 void *
-delete_match_entry( struct ofp_match match, uint16_t priority ) {
+delete_match_strict_entry( struct ofp_match match, uint16_t priority ) {
   if ( _match_table_head == NULL ) {
     die( "match table is not initialized." );
   }
@@ -513,19 +561,19 @@ delete_match_entry( struct ofp_match match, uint16_t priority ) {
   pthread_mutex_lock( _match_table_head->mutex );
   void *data = NULL;
   if ( exact_match( &match ) ) {
-    data = delete_exact_match_entry( _match_table_head->exact_table, &match );
+    data = delete_exact_match_strict_entry( _match_table_head->exact_table, &match );
   }
   else {
     // wildcards flags are set
-    data = delete_wildcards_match_entry( &_match_table_head->wildcards_table, &match, priority );
+    data = delete_wildcards_match_strict_entry( &_match_table_head->wildcards_table, &match, priority );
   }
   pthread_mutex_unlock( _match_table_head->mutex );
   return data;
 }
 
 
-void
-foreach_match_table( void function( struct ofp_match, uint16_t, void *, void *), void *user_data ) {
+static void
+_map_match_table( struct ofp_match *match, void function( struct ofp_match match, uint16_t priority, void *data, void *user_data ), void *user_data ) {
   if ( _match_table_head == NULL ) {
     die( "match table is not initialized." );
   }
@@ -534,9 +582,21 @@ foreach_match_table( void function( struct ofp_match, uint16_t, void *, void *),
   }
 
   pthread_mutex_lock( _match_table_head->mutex );
-  foreach_exact_match_table( _match_table_head->exact_table, function, user_data );
-  foreach_wildcards_match_table( _match_table_head->wildcards_table, function, user_data );
+  map_exact_match_table( _match_table_head->exact_table, match, function, user_data );
+  map_wildcards_match_table( _match_table_head->wildcards_table, match, function, user_data );
   pthread_mutex_unlock( _match_table_head->mutex );
+}
+
+
+void
+foreach_match_table( void function( struct ofp_match, uint16_t, void *, void *), void *user_data ) {
+  _map_match_table( NULL, function, user_data );
+}
+
+
+void
+map_match_table( struct ofp_match match, void function( struct ofp_match match, uint16_t priority, void *data, void *user_data ), void *user_data ) {
+  _map_match_table( &match, function, user_data );
 }
 
 

@@ -98,8 +98,8 @@ set_alice_match_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = 0;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000001;
-  match->nw_dst = 0x0a000002;
+  match->nw_src = 0x0a000101;
+  match->nw_dst = 0x0a000202;
 }
 
 
@@ -108,8 +108,8 @@ set_bob_match_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = 0;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000002;
-  match->nw_dst = 0x0a000001;
+  match->nw_src = 0x0a000202;
+  match->nw_dst = 0x0a000101;
 }
 
 
@@ -118,7 +118,7 @@ set_carol_match_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = 0;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000003;
+  match->nw_src = 0x0a000303;
   match->nw_dst = 0xffffffff;
 }
 
@@ -152,7 +152,7 @@ set_alice_wildcards_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE & ~OFPFW_NW_SRC_MASK;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000001;
+  match->nw_src = 0x0a000101;
 }
 
 
@@ -161,7 +161,7 @@ set_bob_wildcards_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE & ~OFPFW_NW_SRC_MASK;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000002;
+  match->nw_src = 0x0a000202;
 }
 
 
@@ -170,7 +170,7 @@ set_carol_wildcards_entry( struct ofp_match *match ) {
   memset( match, 0, sizeof( struct ofp_match ) );
   match->wildcards = OFPFW_ALL & ~OFPFW_DL_TYPE & ~OFPFW_NW_SRC_MASK;
   match->dl_type = ETHERTYPE_IP;
-  match->nw_src = 0x0a000003;
+  match->nw_src = 0x0a000303;
 }
 
 
@@ -248,11 +248,11 @@ test_update_match_entry_dies_if_not_initialized() {
 
 
 static void
-test_delete_match_entry_dies_if_not_initialized() {
+test_delete_match_strict_entry_dies_if_not_initialized() {
   assert_true( _match_table_head == NULL );
   struct ofp_match alice;
   set_alice_match_entry( &alice );
-  expect_assert_failure( delete_match_entry( alice, DEFAULT_PRIORITY ) );
+  expect_assert_failure( delete_match_strict_entry( alice, DEFAULT_PRIORITY ) );
 }
 
 
@@ -292,7 +292,7 @@ test_insert_exact_entry_into_empty_table_succeeds() {
   assert_true( data1 != NULL );
   assert_string_equal( ( char * ) data1, ALICE_MATCH_SERVICE_NAME );
   assert_true( data0 == data1 );
-  void *data2 = delete_match_entry( alice, DEFAULT_PRIORITY );
+  void *data2 = delete_match_strict_entry( alice, DEFAULT_PRIORITY );
   assert_true( data2 != NULL );
   assert_string_equal( ( char * ) data2, ALICE_MATCH_SERVICE_NAME );
   assert_true( data1 == data2 );
@@ -330,9 +330,9 @@ test_insert_exact_entry_into_not_empty_exact_table_succeeds() {
   assert_string_equal( ( char * ) data1, CAROL_MATCH_SERVICE_NAME );
   assert_true( data0 == data1 );
 
-  XFREE( delete_match_entry( alice, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( bob, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -346,7 +346,7 @@ test_insert_existing_exact_entry_fails() {
   void *data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -360,7 +360,7 @@ test_insert_different_priority_exact_entry_fails() {
   void *data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -369,7 +369,7 @@ test_reinsert_of_deleted_exact_entry_succeeds() {
   struct ofp_match carol;
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
   void *data = lookup_match_strict_entry( carol, DEFAULT_PRIORITY );
   assert_true( data == NULL );
   data = lookup_match_entry( carol );
@@ -379,7 +379,7 @@ test_reinsert_of_deleted_exact_entry_succeeds() {
   data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -404,7 +404,7 @@ test_insert_wildcards_entry_into_empty_table_succeeds() {
   assert_string_equal( ( char * ) data1, ALICE_MATCH_SERVICE_NAME );
   assert_true( data0 == data1 );
   assert_true( lookup_match_entry( bob ) == NULL );
-  void *data2 = delete_match_entry( alice_wildcards, DEFAULT_PRIORITY );
+  void *data2 = delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY );
   assert_true( data2 != NULL );
   assert_string_equal( ( char * ) data2, ALICE_MATCH_SERVICE_NAME );
   assert_true( data1 == data2 );
@@ -446,9 +446,9 @@ test_insert_wildcards_entry_into_not_empty_exact_table_succeeds() {
   assert_string_equal( ( char * ) data1, CAROL_MATCH_SERVICE_NAME );
   assert_true( data0 == data1 );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob_wildcards, DEFAULT_PRIORITY + 1 ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY - 1 ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( bob_wildcards, DEFAULT_PRIORITY + 1 ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY - 1 ) );
 }
 
 
@@ -499,10 +499,10 @@ test_insert_existing_same_priority_wildcards_entry_succeeds() {
   assert_true( data1 != NULL );
   assert_string_equal( ( char * ) data1, BOB_MATCH_SERVICE_NAME );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( any_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( bob_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( any_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -518,7 +518,7 @@ test_insert_existing_same_match_same_priority_wildcards_entry_fails() {
   void *data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -535,8 +535,8 @@ test_insert_different_priority_wildcards_entry_succeeds() {
   void *data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY + 1 ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY + 1 ) );
 }
 
 
@@ -584,10 +584,10 @@ test_insert_highest_priority_wildcards_entry_succeeds() {
   assert_string_equal( ( char * ) data1, ANY_MATCH_SERVICE_NAME );
   assert_true( data0 != data1 );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob_wildcards, HIGH_PRIORITY ) );
-  XFREE( delete_match_entry( lldp_wildcards, HIGH_PRIORITY ) );
-  XFREE( delete_match_entry( any_wildcards, HIGH_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( bob_wildcards, HIGH_PRIORITY ) );
+  XFREE( delete_match_strict_entry( lldp_wildcards, HIGH_PRIORITY ) );
+  XFREE( delete_match_strict_entry( any_wildcards, HIGH_PRIORITY ) );
 }
 
 
@@ -635,10 +635,10 @@ test_insert_lowest_priority_wildcards_entry_succeeds() {
   assert_string_equal( ( char * ) data1, ALICE_MATCH_SERVICE_NAME );
   assert_true( data0 == data1 );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob_wildcards, LOW_PRIORITY ) );
-  XFREE( delete_match_entry( lldp_wildcards, LOW_PRIORITY ) );
-  XFREE( delete_match_entry( any_wildcards, LOW_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( bob_wildcards, LOW_PRIORITY ) );
+  XFREE( delete_match_strict_entry( lldp_wildcards, LOW_PRIORITY ) );
+  XFREE( delete_match_strict_entry( any_wildcards, LOW_PRIORITY ) );
 }
 
 
@@ -649,7 +649,7 @@ test_reinsert_of_deleted_wildcards_entry_succeeds() {
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
   void *data = lookup_match_strict_entry( carol, DEFAULT_PRIORITY );
   assert_true( data == NULL );
   data = lookup_match_entry( carol );
@@ -659,7 +659,7 @@ test_reinsert_of_deleted_wildcards_entry_succeeds() {
   data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -670,7 +670,7 @@ test_reinsert_of_deleted_highest_priority_wildcards_entry_succeeds() {
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, HIGH_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol_wildcards, HIGH_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, HIGH_PRIORITY ) );
   void *data = lookup_match_strict_entry( carol, HIGH_PRIORITY );
   assert_true( data == NULL );
   data = lookup_match_entry( carol );
@@ -680,7 +680,7 @@ test_reinsert_of_deleted_highest_priority_wildcards_entry_succeeds() {
   data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol_wildcards, HIGH_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, HIGH_PRIORITY ) );
 }
 
 
@@ -691,7 +691,7 @@ test_reinsert_of_deleted_lowhest_priority_wildcards_entry_succeeds() {
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, LOW_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol_wildcards, LOW_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, LOW_PRIORITY ) );
   void *data = lookup_match_strict_entry( carol, LOW_PRIORITY );
   assert_true( data == NULL );
   data = lookup_match_entry( carol );
@@ -701,7 +701,7 @@ test_reinsert_of_deleted_lowhest_priority_wildcards_entry_succeeds() {
   data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol_wildcards, LOW_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, LOW_PRIORITY ) );
 }
 
 
@@ -741,7 +741,7 @@ test_update_exact_entry_succeeds() {
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
 
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -762,7 +762,7 @@ test_update_nonexistent_exact_entry_fails() {
   data = lookup_match_entry( carol );
   assert_true( data == NULL );
 
-  XFREE( delete_match_entry( alice, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice, DEFAULT_PRIORITY ) );
 }
 
 
@@ -776,7 +776,7 @@ test_update_different_priority_exact_entry_succeeds() {
   void *data = lookup_match_entry( carol );
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 }
 
 
@@ -785,7 +785,7 @@ test_update_of_deleted_exact_entry_fails() {
   struct ofp_match carol;
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 
   assert_true( !update_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
 
@@ -829,7 +829,7 @@ test_update_exact_wildcards_succeeds() {
   assert_true( data != NULL );
   assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
 
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -852,7 +852,7 @@ test_update_nonexistent_wildcards_entry_fails() {
   data = lookup_match_entry( carol );
   assert_true( data == NULL );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -863,7 +863,7 @@ test_update_of_deleted_wildcards_entry_fails() {
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 
   assert_true( !update_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
 
@@ -884,7 +884,7 @@ test_update_different_priority_wildcards_entry_fails() {
 
   assert_true( !update_match_entry( carol_wildcards, DEFAULT_PRIORITY + 1, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
 
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -898,15 +898,15 @@ static void
 test_delete_nonexistent_exact_entry_fails() {
   struct ofp_match carol;
   set_carol_match_entry( &carol );
-  assert_true( delete_match_entry( carol, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) == NULL );
 
   struct ofp_match alice;
   set_alice_match_entry( &alice );
   assert_true( insert_match_entry( alice, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
 
-  assert_true( delete_match_entry( carol, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) == NULL );
 
-  XFREE( delete_match_entry( alice, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice, DEFAULT_PRIORITY ) );
 }
 
 
@@ -915,7 +915,7 @@ test_delete_different_priority_exact_entry_succeeds() {
   struct ofp_match carol;
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY + 1 ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY + 1 ) );
 }
 
 
@@ -924,9 +924,9 @@ test_delete_of_deleted_exact_entry_fails() {
   struct ofp_match carol;
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
 
-  assert_true( delete_match_entry( carol, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) == NULL );
 }
 
 // delete wildcards entry tests.
@@ -937,15 +937,15 @@ test_delete_nonexistent_wildcards_entry_fails() {
   set_carol_match_entry( &carol );
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
-  assert_true( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
 
   struct ofp_match alice_wildcards;
   set_alice_match_entry( &alice_wildcards );
   assert_true( insert_match_entry( alice_wildcards, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
 
-  assert_true( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -956,9 +956,9 @@ test_delete_of_deleted_wildcards_entry_fails() {
   struct ofp_match carol_wildcards;
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 
-  assert_true( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
+  assert_true( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) == NULL );
 }
 
 
@@ -970,9 +970,9 @@ test_delete_different_priority_wildcards_entry_fails() {
   set_carol_wildcards_entry( &carol_wildcards );
   assert_true( insert_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
 
-  assert_true( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY + 1 ) == NULL );
+  assert_true( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY + 1 ) == NULL );
 
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
 }
 
 
@@ -1002,9 +1002,11 @@ test_foreach_entry_if_empty_table() {
 }
 
 
+static int count = 0;
+
+
 static void
 test_foreach_entry_if_exact_table_only_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
-  static int count = 0;
 
   struct ofp_match alice;
   set_alice_match_entry( &alice );
@@ -1037,7 +1039,7 @@ test_foreach_entry_if_exact_table_only_helper( struct ofp_match match, uint16_t 
 
 
 static void
-test_foreach_entry_if_exact_table_only() {
+add_all_exact_entry() {
   struct ofp_match alice;
   set_alice_match_entry( &alice );
   assert_true( insert_match_entry( alice, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
@@ -1048,20 +1050,38 @@ test_foreach_entry_if_exact_table_only() {
   set_carol_match_entry( &carol );
   assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
   assert_true( update_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
-  char *user_data = xstrdup( USER_DATA );
-  foreach_match_table( test_foreach_entry_if_exact_table_only_helper, user_data );
+}
 
-  XFREE( delete_match_entry( alice, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( carol, DEFAULT_PRIORITY ) );
+
+static void
+delete_all_exact_entry() {
+  struct ofp_match alice;
+  set_alice_match_entry( &alice );
+  XFREE( delete_match_strict_entry( alice, DEFAULT_PRIORITY ) );
+  struct ofp_match bob;
+  set_bob_match_entry( &bob );
+  XFREE( delete_match_strict_entry( bob, DEFAULT_PRIORITY ) );
+  struct ofp_match carol;
+  set_carol_match_entry( &carol );
+  XFREE( delete_match_strict_entry( carol, DEFAULT_PRIORITY ) );
+}
+
+
+static void
+test_foreach_entry_if_exact_table_only() {
+  add_all_exact_entry();
+  char *user_data = xstrdup( USER_DATA );
+  count = 0;
+  foreach_match_table( test_foreach_entry_if_exact_table_only_helper, user_data );
+  assert_int_equal( count, 3 );
+
+  delete_all_exact_entry();
   XFREE( user_data );
 }
 
 
 static void
 test_foreach_entry_if_wildcards_table_only_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
-  static int count = 0;
-
   struct ofp_match alice_wildcards;
   set_alice_wildcards_entry( &alice_wildcards );
   struct ofp_match bob_wildcards;
@@ -1107,8 +1127,9 @@ test_foreach_entry_if_wildcards_table_only_helper( struct ofp_match match, uint1
   assert_string_equal( ( char * ) user_data, USER_DATA );
 }
 
+
 static void
-test_foreach_entry_if_wildcards_table_only() {
+add_all_wildcards_entry() {
   struct ofp_match alice_wildcards;
   set_alice_wildcards_entry( &alice_wildcards );
   assert_true( insert_match_entry( alice_wildcards, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
@@ -1124,25 +1145,46 @@ test_foreach_entry_if_wildcards_table_only() {
   struct ofp_match lldp_wildcards;
   set_lldp_wildcards_entry( &lldp_wildcards );
   assert_true( insert_match_entry( lldp_wildcards, HIGH_PRIORITY, xstrdup( LLDP_MATCH_SERVICE_NAME ) ) );
-
   assert_true( update_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_OTHER_SERVICE_NAME ) ) );
+}
+
+
+static void
+delete_all_wildcards_entry() {
+  struct ofp_match alice_wildcards;
+  set_alice_wildcards_entry( &alice_wildcards );
+  XFREE( delete_match_strict_entry( alice_wildcards, DEFAULT_PRIORITY ) );
+  struct ofp_match bob_wildcards;
+  set_bob_wildcards_entry( &bob_wildcards );
+  XFREE( delete_match_strict_entry( bob_wildcards, DEFAULT_PRIORITY ) );
+  struct ofp_match carol_wildcards;
+  set_carol_wildcards_entry( &carol_wildcards );
+  XFREE( delete_match_strict_entry( carol_wildcards, DEFAULT_PRIORITY ) );
+  struct ofp_match any_wildcards;
+  set_any_wildcards_entry( &any_wildcards );
+  XFREE( delete_match_strict_entry( any_wildcards, LOW_PRIORITY ) );
+  struct ofp_match lldp_wildcards;
+  set_lldp_wildcards_entry( &lldp_wildcards );
+  XFREE( delete_match_strict_entry( lldp_wildcards, HIGH_PRIORITY ) );
+}
+
+
+static void
+test_foreach_entry_if_wildcards_table_only() {
+  add_all_wildcards_entry();
 
   char *user_data = xstrdup( USER_DATA );
+  count = 0;
   foreach_match_table( test_foreach_entry_if_wildcards_table_only_helper, user_data );
+  assert_int_equal( count, 5 );
 
-  XFREE( delete_match_entry( alice_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( bob_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( carol_wildcards, DEFAULT_PRIORITY ) );
-  XFREE( delete_match_entry( any_wildcards, LOW_PRIORITY ) );
-  XFREE( delete_match_entry( lldp_wildcards, HIGH_PRIORITY ) );
+  delete_all_wildcards_entry();
   XFREE( user_data );
 }
 
 
 static void
 test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
-  static int count = 0;
-
   struct ofp_match alice;
   set_alice_match_entry( &alice );
   struct ofp_match bob;
@@ -1176,7 +1218,7 @@ test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data
       XFREE( data );
       break;
     case 1:
-      assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
+      assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
       assert_true( priority == 0 );
       assert_memory_equal( &match, &carol, sizeof( struct ofp_match ) );
       XFREE( data );
@@ -1194,7 +1236,7 @@ test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data
       XFREE( data );
       break;
     case 7:
-      assert_string_equal( ( char * ) data, CAROL_MATCH_SERVICE_NAME );
+      assert_string_equal( ( char * ) data, CAROL_MATCH_OTHER_SERVICE_NAME );
       assert_true( priority == DEFAULT_PRIORITY );
       assert_memory_equal( &match, &carol_wildcards, sizeof( struct ofp_match ) );
       XFREE( data );
@@ -1221,34 +1263,173 @@ test_foreach_entry_helper( struct ofp_match match, uint16_t priority, void *data
 
 static void
 test_foreach_entry() {
+  add_all_exact_entry();
+  add_all_wildcards_entry();
+
+  char *user_data = xstrdup( USER_DATA );
+  count = 0;
+  foreach_match_table( test_foreach_entry_helper, user_data );
+  assert_int_equal( count, 8 );
+
+  XFREE( user_data );
+}
+
+
+static void
+test_map_entry_if_match_set_nw_src_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   struct ofp_match alice;
   set_alice_match_entry( &alice );
-  assert_true( insert_match_entry( alice, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match bob;
-  set_bob_match_entry( &bob );
-  assert_true( insert_match_entry( bob, DEFAULT_PRIORITY, xstrdup( BOB_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match carol;
-  set_carol_match_entry( &carol );
-  assert_true( insert_match_entry( carol, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
 
   struct ofp_match alice_wildcards;
   set_alice_wildcards_entry( &alice_wildcards );
-  assert_true( insert_match_entry( alice_wildcards, DEFAULT_PRIORITY, xstrdup( ALICE_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match bob_wildcards;
-  set_bob_wildcards_entry( &bob_wildcards );
-  assert_true( insert_match_entry( bob_wildcards, DEFAULT_PRIORITY, xstrdup( BOB_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match carol_wildcards;
-  set_carol_wildcards_entry( &carol_wildcards );
-  assert_true( insert_match_entry( carol_wildcards, DEFAULT_PRIORITY, xstrdup( CAROL_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match any_wildcards;
-  set_any_wildcards_entry( &any_wildcards );
-  assert_true( insert_match_entry( any_wildcards, LOW_PRIORITY, xstrdup( ANY_MATCH_SERVICE_NAME ) ) );
-  struct ofp_match lldp_wildcards;
-  set_lldp_wildcards_entry( &lldp_wildcards );
-  assert_true( insert_match_entry( lldp_wildcards, HIGH_PRIORITY, xstrdup( LLDP_MATCH_SERVICE_NAME ) ) );
 
+
+  switch ( ++count ) {
+    case 1:
+      assert_string_equal( ( char * ) data, ALICE_MATCH_SERVICE_NAME );
+      assert_true( priority == 0 );
+      assert_memory_equal( &match, &alice, sizeof( struct ofp_match ) );
+      XFREE( data );
+      break;
+    case 2:
+      assert_string_equal( ( char * ) data, ALICE_MATCH_SERVICE_NAME );
+      assert_true( priority == DEFAULT_PRIORITY );
+      assert_memory_equal( &match, &alice_wildcards, sizeof( struct ofp_match ) );
+      XFREE( data );
+      break;
+    default:
+      assert_true( false );
+      break;
+  }
+  assert_string_equal( ( char * ) user_data, USER_DATA );
+}
+
+
+static void
+test_map_entry_if_match_set_nw_src() {
+  add_all_exact_entry();
+  add_all_wildcards_entry();
+
+  struct ofp_match match;
+  memset( &match, 0, sizeof( struct ofp_match ) );
+  match.wildcards = OFPFW_ALL & ~( OFPFW_DL_TYPE | OFPFW_NW_SRC_MASK );
+  match.dl_type = ETHERTYPE_IP;
+  match.nw_src = 0x0a000101;
   char *user_data = xstrdup( USER_DATA );
-  foreach_match_table( test_foreach_entry_helper, user_data );
+  count = 0;
+  map_match_table( match, test_map_entry_if_match_set_nw_src_helper, user_data );
+  assert_int_equal( count, 2 );
+
+  XFREE( user_data );
+}
+
+
+static void
+set_nw_src_prefix_20_wildcards_entry( struct ofp_match *match ) {
+  memset( match, 0, sizeof( struct ofp_match ) );
+  match->wildcards = OFPFW_ALL & ~( OFPFW_DL_TYPE | OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  match->dl_type = ETHERTYPE_IP;
+  match->nw_src = 0x0a000200;
+  match->wildcards |= ( 12 << OFPFW_NW_SRC_SHIFT );
+  match->nw_dst = 0x0a000100;
+  match->wildcards |= ( 4 << OFPFW_NW_DST_SHIFT );
+}
+
+
+static void
+set_nw_dst_prefix_20_wildcards_entry( struct ofp_match *match ) {
+  memset( match, 0, sizeof( struct ofp_match ) );
+  match->wildcards = OFPFW_ALL & ~( OFPFW_DL_TYPE | OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  match->dl_type = ETHERTYPE_IP;
+  match->nw_src = 0x0a000200;
+  match->wildcards |= ( 4 << OFPFW_NW_SRC_SHIFT );
+  match->nw_dst = 0x0a000100;
+  match->wildcards |= ( 12 << OFPFW_NW_DST_SHIFT );
+}
+
+
+static void
+set_nw_prefix_24_wildcards_entry( struct ofp_match *match ) {
+  memset( match, 0, sizeof( struct ofp_match ) );
+  match->wildcards = OFPFW_ALL & ~( OFPFW_DL_TYPE | OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  match->dl_type = ETHERTYPE_IP;
+  match->nw_src = 0x0a000200;
+  match->wildcards |= ( 8 << OFPFW_NW_SRC_SHIFT );
+  match->nw_dst = 0x0a000100;
+  match->wildcards |= ( 8 << OFPFW_NW_DST_SHIFT );
+}
+
+
+static void
+set_nw_prefix_28_wildcards_entry( struct ofp_match *match ) {
+  memset( match, 0, sizeof( struct ofp_match ) );
+  match->wildcards = OFPFW_ALL & ~( OFPFW_DL_TYPE | OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK );
+  match->dl_type = ETHERTYPE_IP;
+  match->nw_src = 0x0a000200;
+  match->wildcards |= ( 4 << OFPFW_NW_SRC_SHIFT );
+  match->nw_dst = 0x0a000100;
+  match->wildcards |= ( 4 << OFPFW_NW_DST_SHIFT );
+}
+
+
+
+#define NW_SRC_PREFIX_20_SERVICE_NAME "nw_src_prefix-20"
+#define NW_DST_PREFIX_20_SERVICE_NAME "nw_dst_prefix-20"
+#define NW_PREFIX_24_SERVICE_NAME "nw_prefix-24"
+#define NW_PREFIX_28_SERVICE_NAME "nw_prefix-28"
+
+
+static void
+test_map_entry_if_match_set_nw_prefix_helper( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
+  struct ofp_match nw_prefix_24;
+  set_nw_prefix_24_wildcards_entry( &nw_prefix_24 );
+  struct ofp_match nw_prefix_28;
+  set_nw_prefix_28_wildcards_entry( &nw_prefix_28 );
+
+
+  switch ( ++count ) {
+    case 1:
+      assert_string_equal( ( char * ) data, NW_PREFIX_24_SERVICE_NAME );
+      assert_true( priority == DEFAULT_PRIORITY );
+      assert_memory_equal( &match, &nw_prefix_24, sizeof( struct ofp_match ) );
+      XFREE( data );
+      break;
+    case 2:
+      assert_string_equal( ( char * ) data, NW_PREFIX_28_SERVICE_NAME );
+      assert_true( priority == DEFAULT_PRIORITY );
+      assert_memory_equal( &match, &nw_prefix_28, sizeof( struct ofp_match ) );
+      XFREE( data );
+      break;
+    default:
+      assert_true( false );
+      break;
+  }
+  assert_string_equal( ( char * ) user_data, USER_DATA );
+}
+
+
+static void
+test_map_entry_if_match_set_nw_prefix() {
+  struct ofp_match nw_src_prefix_20;
+  set_nw_src_prefix_20_wildcards_entry( &nw_src_prefix_20 );
+  assert_true( insert_match_entry( nw_src_prefix_20, DEFAULT_PRIORITY, xstrdup( NW_SRC_PREFIX_20_SERVICE_NAME ) ) );
+  struct ofp_match nw_dst_prefix_20;
+  set_nw_dst_prefix_20_wildcards_entry( &nw_dst_prefix_20 );
+  assert_true( insert_match_entry( nw_dst_prefix_20, DEFAULT_PRIORITY, xstrdup( NW_DST_PREFIX_20_SERVICE_NAME ) ) );
+  struct ofp_match nw_prefix_24;
+  set_nw_prefix_24_wildcards_entry( &nw_prefix_24 );
+  assert_true( insert_match_entry( nw_prefix_24, DEFAULT_PRIORITY, xstrdup( NW_PREFIX_24_SERVICE_NAME ) ) );
+  struct ofp_match nw_prefix_28;
+  set_nw_prefix_28_wildcards_entry( &nw_prefix_28 );
+  assert_true( insert_match_entry( nw_prefix_28, DEFAULT_PRIORITY, xstrdup( NW_PREFIX_28_SERVICE_NAME ) ) );
+
+  struct ofp_match match;
+  set_nw_prefix_24_wildcards_entry( &match );
+  char *user_data = xstrdup( USER_DATA );
+  count = 0;
+  map_match_table( match, test_map_entry_if_match_set_nw_prefix_helper, user_data );
+  assert_int_equal( count, 2 );
+
   XFREE( user_data );
 }
 
@@ -1268,7 +1449,7 @@ main() {
     unit_test_setup_teardown( test_lookup_match_strict_entry_dies_if_not_initialized, setup, teardown ),
     unit_test_setup_teardown( test_lookup_match_entry_dies_if_not_initialized, setup, teardown ),
     unit_test_setup_teardown( test_update_match_entry_dies_if_not_initialized, setup, teardown ),
-    unit_test_setup_teardown( test_delete_match_entry_dies_if_not_initialized, setup, teardown ),
+    unit_test_setup_teardown( test_delete_match_strict_entry_dies_if_not_initialized, setup, teardown ),
     unit_test_setup_teardown( test_foreach_match_entry_dies_if_not_initialized, setup, teardown ),
 
     // insert tests.
@@ -1312,6 +1493,8 @@ main() {
     unit_test_setup_teardown( test_foreach_entry_if_exact_table_only, setup_and_init, finalize_and_teardown ),
     unit_test_setup_teardown( test_foreach_entry_if_wildcards_table_only, setup_and_init, finalize_and_teardown ),
     unit_test_setup_teardown( test_foreach_entry, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_map_entry_if_match_set_nw_src, setup_and_init, finalize_and_teardown ),
+    unit_test_setup_teardown( test_map_entry_if_match_set_nw_prefix, setup_and_init, finalize_and_teardown ),
   };
 
   return run_tests( tests );
