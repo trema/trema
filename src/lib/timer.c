@@ -52,7 +52,7 @@ void mock_debug( const char *format, ... );
 
 
 typedef struct timer_callback {
-  void ( *function )( void *user_data );
+  timer_function function;
   struct timespec expires_at;
   struct timespec interval;
   void *user_data;
@@ -171,7 +171,7 @@ void ( *execute_timer_events )( void ) = _execute_timer_events;
 
 
 bool
-_add_timer_event_callback( struct itimerspec *interval, timer_callback_t callback, void *user_data ) {
+_add_timer_event_callback( struct itimerspec *interval, timer_function callback, void *user_data ) {
   assert( interval != NULL );
   assert( callback != NULL );
 
@@ -214,11 +214,11 @@ _add_timer_event_callback( struct itimerspec *interval, timer_callback_t callbac
 
   return true;
 }
-bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_callback_t callback, void *user_data ) = _add_timer_event_callback;
+bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_function callback, void *user_data ) = _add_timer_event_callback;
 
 
 bool
-_add_periodic_event_callback( const time_t seconds, timer_callback_t callback, void *user_data ) {
+_add_periodic_event_callback( const time_t seconds, timer_function callback, void *user_data ) {
   assert( callback != NULL );
 
   debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
@@ -233,11 +233,11 @@ _add_periodic_event_callback( const time_t seconds, timer_callback_t callback, v
 
   return add_timer_event_callback( &interval, callback, user_data );
 }
-bool ( *add_periodic_event_callback )( const time_t seconds, timer_callback_t callback, void *user_data ) = _add_periodic_event_callback;
+bool ( *add_periodic_event_callback )( const time_t seconds, timer_function callback, void *user_data ) = _add_periodic_event_callback;
 
 
 bool
-_delete_timer_event( timer_callback_t callback, void *user_data ) {
+_delete_timer_event( timer_function callback, void *user_data ) {
   assert( callback != NULL );
 
   debug( "Deleting a timer event ( callback = %p, user_data = %p ).", callback, user_data );
@@ -269,7 +269,7 @@ _delete_timer_event( timer_callback_t callback, void *user_data ) {
 
   return false;
 }
-bool ( *delete_timer_event )( timer_callback_t callback, void *user_data ) = _delete_timer_event;
+bool ( *delete_timer_event )( timer_function callback, void *user_data ) = _delete_timer_event;
 
 
 /*
