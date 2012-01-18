@@ -274,7 +274,7 @@ add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char 
 
 static int
 delete_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
-  list_element *head = delete_match_entry( match, priority );
+  list_element *head = delete_match_strict_entry( match, priority );
   if ( head == NULL ) {
     return 0;
   }
@@ -389,63 +389,20 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
 }
 
 
-static bool
-compare_filter_match( struct ofp_match *x, struct ofp_match *y ) {
-  uint32_t w_x = x->wildcards & OFPFW_ALL;
-  uint32_t w_y = y->wildcards & OFPFW_ALL;
-  uint32_t sm_x = create_nw_src_mask( w_x );
-  uint32_t dm_x = create_nw_dst_mask( w_x );
-  uint32_t sm_y = create_nw_src_mask( w_y );
-  uint32_t dm_y = create_nw_dst_mask( w_y );
-
-  if ( ( ~w_x & w_y ) != 0 ) {
-    return false;
-  }
-  if ( sm_x > sm_y ) {
-    return false;
-  }
-  if ( dm_x > dm_y ) {
-    return false;
-  }
-
-  return ( ( w_x & OFPFW_IN_PORT || x->in_port == y->in_port )
-           && ( w_x & OFPFW_DL_VLAN || x->dl_vlan == y->dl_vlan )
-           && ( w_x & OFPFW_DL_VLAN_PCP || x->dl_vlan_pcp == y->dl_vlan_pcp )
-           && ( w_x & OFPFW_DL_SRC || COMPARE_MAC( x->dl_src, y->dl_src ) )
-           && ( w_x & OFPFW_DL_DST || COMPARE_MAC( x->dl_dst, y->dl_dst ) )
-           && ( w_x & OFPFW_DL_TYPE || x->dl_type == y->dl_type )
-           && !( ( x->nw_src ^ y->nw_src ) & sm_x )
-           && !( ( x->nw_dst ^ y->nw_dst ) & dm_x )
-           && ( w_x & OFPFW_NW_TOS || x->nw_tos == y->nw_tos )
-           && ( w_x & OFPFW_NW_PROTO || x->nw_proto == y->nw_proto )
-           && ( w_x & OFPFW_TP_SRC || x->tp_src == y->tp_src )
-           && ( w_x & OFPFW_TP_DST || x->tp_dst == y->tp_dst ) ) != 0 ? true : false;
-}
-
-
-typedef struct {
-  struct ofp_match *match_criteria;
-  buffer *reply_buffer;
-} walker_param;
-
-
 static void
 delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( data );
-  walker_param *param = user_data; 
-  assert( param != NULL );
-  assert( param->reply_buffer != NULL );
+  buffer *reply_buffer = user_data; 
+  assert( reply_buffer != NULL );
 
-  if ( compare_filter_match( param->match_criteria, &match ) ) {
-    delete_packetin_filter_reply *reply = param->reply_buffer->data;
-    list_element *head = delete_match_entry( match, priority );
-    for ( list_element *services = head; services != NULL; services = services->next ) {
-      xfree( services->data );
-      reply->n_deleted++;
-    }
-    if ( head != NULL ) {
-      delete_list( head );
-    }
+  delete_packetin_filter_reply *reply = reply_buffer->data;
+  list_element *head = delete_match_strict_entry( match, priority );
+  for ( list_element *services = head; services != NULL; services = services->next ) {
+    xfree( services->data );
+    reply->n_deleted++;
+  }
+  if ( head != NULL ) {
+    delete_list( head );
   }
 }
 
@@ -468,10 +425,7 @@ handle_delete_filter_request( const messenger_context_handle *handle, delete_pac
     reply->n_deleted += ( uint32_t ) n_deleted;
   }
   else {
-    walker_param param;
-    param.match_criteria = &match;
-    param.reply_buffer = buf;
-    foreach_match_table( delete_filter_walker, &param );
+    map_match_table( match, delete_filter_walker, buf );
   }
   reply->n_deleted = htonl( reply->n_deleted );
 
@@ -485,21 +439,19 @@ handle_delete_filter_request( const messenger_context_handle *handle, delete_pac
 
 static void
 dump_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
-  walker_param *param = user_data;
-  assert( param != NULL );
-  assert( param->reply_buffer != NULL );
-  if ( compare_filter_match( param->match_criteria, &match ) ) {
-    dump_packetin_filter_reply *reply = param->reply_buffer->data;
-    list_element *services = data;
-    while ( services != NULL ) {
-      reply->n_entries++;
-      packetin_filter_entry *entry = append_back_buffer( param->reply_buffer, sizeof( packetin_filter_entry ) );
-      hton_match( &entry->match, &match );
-      entry->priority = htons( priority );
-      strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
-      entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
-      services = services->next;
-    }
+  buffer *reply_buffer = user_data;
+  assert( reply_buffer != NULL );
+
+  dump_packetin_filter_reply *reply = reply_buffer->data;
+  list_element *services = data;
+  while ( services != NULL ) {
+    reply->n_entries++;
+    packetin_filter_entry *entry = append_back_buffer( reply_buffer, sizeof( packetin_filter_entry ) );
+    hton_match( &entry->match, &match );
+    entry->priority = htons( priority );
+    strncpy( entry->service_name, services->data, sizeof( entry->service_name ) );
+    entry->service_name[ sizeof( entry->service_name ) - 1 ] = '\0';
+    services = services->next;
   }
 }
 
@@ -532,10 +484,7 @@ handle_dump_filter_request( const messenger_context_handle *handle, dump_packeti
     }
   }
   else {
-    walker_param param;
-    param.match_criteria = &match;
-    param.reply_buffer = buf;
-    foreach_match_table( dump_filter_walker, &param );
+    map_match_table( match, dump_filter_walker, buf );
   }
   reply->n_entries = htonl( reply->n_entries );
 
