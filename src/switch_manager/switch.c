@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -40,6 +40,7 @@
 #include "secure_channel_sender.h"
 #include "service_interface.h"
 #include "switch.h"
+#include "timer.h"
 #include "xid_table.h"
 
 
@@ -182,25 +183,23 @@ secure_channel_write( int fd, void* data ) {
 
 
 static void
-switch_set_timeout( long sec, void ( *callback )( void *user_data ), void *user_data ) {
+switch_set_timeout( long sec, timer_function callback, void *user_data ) {
   struct itimerspec interval;
-
-  UNUSED( user_data );
 
   interval.it_value.tv_sec = sec;
   interval.it_value.tv_nsec = 0;
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
-  add_timer_event_callback( &interval, callback, NULL );
+  add_timer_event_callback( &interval, callback, user_data );
   switch_info.running_timer = true;
 }
 
 
 static void
-switch_unset_timeout( void ( *callback )( void *user_data ) ) {
+switch_unset_timeout( timer_function callback, void *user_data ) {
   if ( switch_info.running_timer ) {
     switch_info.running_timer = false;
-    delete_timer_event_callback( callback );
+    delete_timer_event( callback, user_data );
   }
 }
 
@@ -260,7 +259,7 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
 
   if ( sw_info->state == SWITCH_STATE_WAIT_HELLO ) {
     // cancel to hello_wait-timeout timer
-    switch_unset_timeout( switch_event_timeout_hello );
+    switch_unset_timeout( switch_event_timeout_hello, NULL );
 
     ret = ofpmsg_send_featuresrequest( sw_info );
     if ( ret < 0 ) {
@@ -289,7 +288,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     sw_info->state = SWITCH_STATE_COMPLETED;
 
     // cancel to features_reply_wait-timeout timer
-    switch_unset_timeout( switch_event_timeout_features_reply );
+    switch_unset_timeout( switch_event_timeout_features_reply, NULL );
 
     // TODO: set keepalive-timeout
     snprintf( new_service_name, new_service_name_len, "%s%#" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
@@ -434,7 +433,7 @@ management_recv( uint16_t tag, void *data, size_t data_len ) {
 
   case TOGGLE_COOKIE_AGING:
     if ( age_cookie_table_enabled ) {
-      delete_periodic_event_callback( age_cookie_table );
+      delete_timer_event( age_cookie_table, NULL );
       age_cookie_table_enabled = false;
     }
     else {

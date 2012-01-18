@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -28,16 +28,17 @@
 #include <time.h>
 
 
-bool init_timer( void );
-bool finalize_timer( void );
+typedef void ( *timer_function )( void *user_data );
 
-bool add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data );
-bool delete_timer_event_callback( void ( *callback )( void *user_data ) );
+extern bool ( *init_timer )( void );
+extern bool ( *finalize_timer )( void );
 
-bool add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
-bool delete_periodic_event_callback( void ( *callback )( void *user_data ) );
+extern bool ( *add_timer_event_callback )( struct itimerspec *interval, timer_function callback, void *user_data );
+extern bool ( *add_periodic_event_callback )( const time_t seconds, timer_function callback, void *user_data );
 
-void execute_timer_events( void );
+extern bool ( *delete_timer_event )( timer_function callback, void *user_data );
+
+extern void ( *execute_timer_events )( void );
 
 
 #endif // TIMER_H
