@@ -160,10 +160,13 @@ typedef struct {
 
   void *l2_header;
   void *l2_payload;
+  size_t l2_payload_length;
   void *l3_header;
   void *l3_payload;
+  size_t l3_payload_length;
   void *l4_header;
   void *l4_payload;
+  size_t l4_payload_length;
 } packet_info;
 
 
