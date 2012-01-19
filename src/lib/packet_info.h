@@ -29,6 +29,7 @@
 #include "bool.h"
 #include "ether.h"
 #include "icmp.h"
+#include "igmp.h"
 #include "ipv4.h"
 #include "tcp.h"
 #include "udp.h"

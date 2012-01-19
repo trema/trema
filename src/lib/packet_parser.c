@@ -22,7 +22,6 @@
 #include <stdint.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
-#include <netinet/igmp.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
@@ -348,16 +347,15 @@ parse_igmp( buffer *buf ) {
 
   // Check the length of remained buffer
   size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
-  if ( length < IGMP_MINLEN ) {
+  if ( length < sizeof( igmp_header_t ) ) {
     return;
   }
 
-  struct igmp *igmp = ptr;
-  packet_info->igmp_type = igmp->igmp_type;
-  packet_info->igmp_code = igmp->igmp_code;
-  packet_info->igmp_code = igmp->igmp_code;
-  packet_info->igmp_cksum = ntohs( igmp->igmp_cksum );
-  packet_info->igmp_group = ntohl( igmp->igmp_group.s_addr );
+  igmp_header_t *igmp = ptr;
+  packet_info->igmp_type = igmp->type;
+  packet_info->igmp_code = igmp->code;
+  packet_info->igmp_cksum = ntohs( igmp->csum );
+  packet_info->igmp_group = ntohl( igmp->group );
 
   packet_info->format |= NW_IGMP;
 
