@@ -3,7 +3,7 @@
  *
  * Author: Kazuya Suzuki
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -30,15 +30,6 @@
 #include "buffer.h"
 
 
-<<<<<<< HEAD
-#define ETH_ADDRLEN 6 /*!<Length of ethernet address*/
-#define ETH_PREPADLEN 2 /*!<Length of ethernet type field*/
-#define ETH_FCS_LENGTH 4 /*!<Length of the ethernet CRC i.e, Frame Check Sequence*/
-#define ETH_MINIMUM_LENGTH 64 /*!<Minimum frame length, including CRC*/
-#define ETH_MAXIMUM_LENGTH 1518 /*!<Maximum frame length, including CRC*/
-#define ETH_HDR_LENGTH sizeof( ether_header_t ) /*!<Length of ethernet header*/
-#define ETH_MTU (ETH_MAXIMUM_LENGTH - ETH_HDR_LENGTH - ETH_FCS_LENGTH ) /*!<MTU of Ethernet*/
-=======
 #define ETH_ADDRLEN 6
 #define ETH_FCS_LENGTH 4
 #define ETH_MINIMUM_LENGTH 64
@@ -46,7 +37,6 @@
 #define ETH_HDR_LENGTH sizeof( ether_header_t )
 #define ETH_MTU ( ETH_MAXIMUM_LENGTH - ETH_HDR_LENGTH - ETH_FCS_LENGTH )
 
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 
 //Ethernet payload types
 #define ETH_ETHTYPE_8023 0x05dc
@@ -60,10 +50,6 @@
 
 
 typedef struct ether_headr {
-<<<<<<< HEAD
-//  uint16_t prepad;
-=======
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   uint8_t macda[ ETH_ADDRLEN ];
   uint8_t macsa[ ETH_ADDRLEN ];
   uint16_t type;
@@ -82,22 +68,13 @@ typedef struct snap_header {
   uint16_t type;
 } snap_header_t;
 
-/*!<Gets the User Priority from tag control information*/
-#define TCI_GET_PRIO( _tci ) ( uint8_t )( ( ( _tci ) >> 13 ) & 7 )
 
-<<<<<<< HEAD
-#define TCI_GET_CFI( _tci ) ( uint8_t )( ( ( _tci ) >> 12 ) & 1 )
-
-#define TCI_GET_VID( _tci ) ( uint8_t )( ( _tci ) & 0x0FFF )
-
-=======
 #define TCI_GET_PRIO( _tci ) ( uint8_t )( ( ( _tci ) >> 13 ) & 7 )
 
 #define TCI_GET_CFI( _tci ) ( uint8_t )( ( ( _tci ) >> 12 ) & 1 )
 
 #define TCI_GET_VID( _tci ) ( uint16_t )( ( _tci ) & 0x0FFF )
 
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 #define TCI_CREATE( _prio, _cfi, _vid )         \
   ( uint16_t )( ( ( ( _prio ) & 7 ) << 13 ) |   \
                 ( ( ( _cfi ) & 1 ) << 12 ) |    \

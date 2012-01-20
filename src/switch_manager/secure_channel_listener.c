@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -32,7 +32,6 @@
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
-#include "event_handler.h"
 
 
 const int LISTEN_SOCK_MAX = 128;

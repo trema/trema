@@ -1,7 +1,7 @@
 /*
  * Author: Yasunobu Chiba
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -22,11 +22,6 @@
 #define PCAP_PRIVATE_H
 
 
-<<<<<<< HEAD:src/lib/packet_parser.h
-/* This file will be deprecated. */
-// uint16_t get_checksum( uint16_t *pos, uint32_t size );
-// bool parse_packet( buffer *buf );
-=======
 #include <pcap.h>
 
 
@@ -39,7 +34,6 @@ typedef struct pcap_pkthdr_private {
   bpf_u_int32 caplen;
   bpf_u_int32 len;
 } pcap_pkthdr_private;
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb:src/tremashark/pcap_private.h
 
 
 #endif // PCAP_PRIVATE_H

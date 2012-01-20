@@ -1,7 +1,7 @@
 /*
  * Author: Yasunobu Chiba
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -3946,13 +3946,10 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( !( wildcards & OFPFW_DL_VLAN ) ) {
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
-<<<<<<< HEAD
-=======
       if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
         warn( "Invalid vlan id ( change %u to %u )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
 	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
       }
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
     else {
       match->dl_vlan = UINT16_MAX;
@@ -3961,13 +3958,10 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( !( wildcards & OFPFW_DL_VLAN_PCP ) ) {
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
-<<<<<<< HEAD
-=======
       if ( ( match->dl_vlan_pcp & ~VLAN_PCP_MASK ) != 0 ) {
         warn( "Invalid vlan pcp ( change %u to %u )", match->dl_vlan_pcp, match->dl_vlan_pcp & VLAN_PCP_MASK );
 	match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
       }
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
   }
   if ( !( wildcards & OFPFW_DL_TYPE ) ) {
@@ -3976,13 +3970,10 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( match->dl_type == ETH_ETHTYPE_IPV4 ) {
     if ( !( wildcards & OFPFW_NW_TOS ) ) {
       match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
-<<<<<<< HEAD
-=======
       if ( ( match->nw_tos & ~NW_TOS_MASK ) != 0 ) {
         warn( "Invalid ipv4 tos ( change %u to %u )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
         match->nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
       }
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
       match->nw_proto = ( ( packet_info * ) packet->user_data )->ipv4_protocol;

@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -67,12 +67,12 @@ EOF
       Trema::Process.read( each ).kill!
     end
 
-    FileUtils.rm_f Trema::DSL::Parser::CURRENT_CONTEXT
+    FileUtils.rm_f Trema::DSL::Context::PATH
   end
 
 
   def cleanup_current_session
-    cleanup Trema::DSL::Parser.new.load_current
+    cleanup Trema::DSL::Context.load_current
   end
 end
 

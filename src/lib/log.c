@@ -1,7 +1,7 @@
 /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -130,8 +130,11 @@ open_log( const char *ident, const char *log_directory ) {
   char pathname[ PATH_MAX ];
   sprintf( pathname, "%s/%s.log", log_directory, ident );
   FILE *log = fopen( pathname, "w" );
+
   if ( log == NULL ) {
-    perror( "fopen" );
+    char error_msg[ PATH_MAX + 32 ];
+    snprintf( error_msg, PATH_MAX + 32, "open_log: fopen( \"%s\", \"w\" )", pathname );
+    perror( error_msg );
     trema_abort();
   }
 

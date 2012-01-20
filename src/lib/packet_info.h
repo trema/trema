@@ -3,7 +3,7 @@
  *
  * Author: Kazuya Suzuki
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -29,9 +29,11 @@
 #include "bool.h"
 #include "ether.h"
 #include "icmp.h"
+#include "igmp.h"
 #include "ipv4.h"
 #include "tcp.h"
 #include "udp.h"
+#include "etherip.h"
 
 
 enum {
@@ -45,38 +47,24 @@ enum {
   NW_IPV6 = 0x00000400,
   NW_ICMPV6 = 0x00000800,
   NW_ARP = 0x00001000,
+  NW_IGMP = 0x00002000,
+  NW_LLDP = 0x00004000,
   TP_TCP = 0x00010000,
   TP_UDP = 0x00020000,
+  TP_ETHERIP = 0x00040000,
 
   ETH_VTAG_DIX = ETH_8021Q | ETH_DIX,
   ETH_VTAG_RAW = ETH_8021Q | ETH_8023_RAW,
   ETH_VTAG_LLC = ETH_8021Q | ETH_8023_LLC,
   ETH_VTAG_SNAP = ETH_8021Q | ETH_8023_SNAP,
   ETH_ARP = ETH_DIX | NW_ARP,
+  ETH_LLDP = ETH_DIX | NW_LLDP,
   ETH_IPV4 = ETH_DIX | NW_IPV4,
-<<<<<<< HEAD
-  ETH_IPV4_ICMPV4 = ETH_DIX | NW_ICMPV4,
-  ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
-  ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
-  ETH_VTAG_ARP = ETH_8021Q | ETH_DIX | NW_ARP,
-  ETH_VTAG_IPV4 = ETH_8021Q | ETH_DIX | NW_IPV4,
-  ETH_VTAG_IPV4_ICMPV4 = ETH_8021Q | ETH_DIX | NW_ICMPV4,
-  ETH_VTAG_IPV4_TCP = ETH_8021Q | ETH_IPV4 | TP_TCP,
-  ETH_VTAG_IPV4_UDP = ETH_8021Q | ETH_IPV4 | TP_UDP,
-  ETH_SNAP_ARP = ETH_8023_SNAP | NW_ARP,
-  ETH_SNAP_IPV4 = ETH_8023_SNAP | NW_IPV4,
-  ETH_SNAP_IPV4_ICMPV4 = ETH_8023_SNAP | NW_ICMPV4,
-  ETH_SNAP_IPV4_TCP = ETH_SNAP_IPV4 | TP_TCP,
-  ETH_SNAP_IPV4_UDP = ETH_SNAP_IPV4 | TP_UDP,
-  ETH_SNAP_VTAG_ARP = ETH_8021Q | ETH_8023_SNAP | NW_ARP,
-  ETH_SNAP_VTAG_IPV4 = ETH_8021Q | ETH_8023_SNAP | NW_IPV4,
-  ETH_SNAP_VTAG_IPV4_ICMPV4 = ETH_8021Q | ETH_8023_SNAP | NW_ICMPV4,
-  ETH_SNAP_VTAG_IPV4_TCP = ETH_8021Q | ETH_SNAP_IPV4 | TP_TCP,
-  ETH_SNAP_VTAG_IPV4_UDP = ETH_8021Q | ETH_SNAP_IPV4 | TP_UDP,
-=======
   ETH_IPV4_ICMPV4 = ETH_IPV4 | NW_ICMPV4,
+  ETH_IPV4_IGMP = ETH_IPV4 | NW_IGMP,
   ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
   ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
+  ETH_IPV4_ETHERIP = ETH_IPV4 | TP_ETHERIP,
   ETH_VTAG_ARP = ETH_VTAG_DIX | NW_ARP,
   ETH_VTAG_IPV4 = ETH_VTAG_DIX | NW_IPV4,
   ETH_VTAG_IPV4_ICMPV4 = ETH_VTAG_IPV4 | NW_ICMPV4,
@@ -92,7 +80,6 @@ enum {
   ETH_VTAG_SNAP_IPV4_ICMPV4 = ETH_VTAG_SNAP_IPV4 | NW_ICMPV4,
   ETH_VTAG_SNAP_IPV4_TCP = ETH_VTAG_SNAP_IPV4 | TP_TCP,
   ETH_VTAG_SNAP_IPV4_UDP = ETH_VTAG_SNAP_IPV4 | TP_UDP,
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 };
 
 
@@ -148,6 +135,11 @@ typedef struct {
   uint16_t icmpv4_seq;
   uint32_t icmpv4_gateway;
 
+  uint8_t igmp_type;
+  uint8_t igmp_code;
+  uint16_t igmp_cksum;
+  uint32_t igmp_group;
+
   uint16_t tcp_src_port;
   uint16_t tcp_dst_port;
   uint32_t tcp_seq_no;
@@ -163,16 +155,18 @@ typedef struct {
   uint16_t udp_len;
   uint16_t udp_checksum;
 
+  uint16_t etherip_version;
+  uint16_t etherip_offset;
+
   void *l2_header;
-<<<<<<< HEAD
-  void *l3_header;
-=======
   void *l2_payload;
+  size_t l2_payload_length;
   void *l3_header;
   void *l3_payload;
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
+  size_t l3_payload_length;
   void *l4_header;
   void *l4_payload;
+  size_t l4_payload_length;
 } packet_info;
 
 
@@ -187,75 +181,16 @@ bool packet_type_eth_vtag( const buffer *frame );
 bool packet_type_eth_raw( const buffer *frame );
 bool packet_type_eth_llc( const buffer *frame );
 bool packet_type_eth_snap( const buffer *frame );
-<<<<<<< HEAD
-bool packet_type_eth_vtag_dix( const buffer *frame );
-bool packet_type_eth_vtag_raw( const buffer *frame );
-bool packet_type_eth_vtag_llc( const buffer *frame );
-bool packet_type_eth_vtag_snap( const buffer *frame );
-bool packet_type_eth_arp( const buffer *frame );
-bool packet_type_eth_ipv4( const buffer *frame );
-bool packet_type_eth_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_ipv4_udp( const buffer *frame );
-bool packet_type_eth_vtag_arp( const buffer *frame );
-bool packet_type_eth_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_vtag_ipv4_udp( const buffer *frame );
-bool packet_type_eth_snap_arp( const buffer *frame );
-bool packet_type_eth_snap_ipv4( const buffer *frame );
-bool packet_type_eth_snap_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_snap_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_snap_ipv4_udp( const buffer *frame );
-bool packet_type_eth_snap_vtag_arp( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_icmpv4( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_tcp( const buffer *frame );
-bool packet_type_eth_snap_vtag_ipv4_udp( const buffer *frame );
-
-
-// DEPRECATED
-/**
- * Packet header information definitions
- */
-typedef struct packet_header_info {
-  uint16_t ethtype;
-  uint8_t nvtags;
-  uint8_t ipproto;
-  uint32_t nexthop;
-  union {
-    void *l2;
-    ether_header_t *eth;
-  } l2_data;
-  vlantag_header_t *vtag;
-  union {
-    void *l3;
-    arp_header_t *arp;
-    ipv4_header_t *ipv4;
-  } l3_data;
-  union {
-    void *l4;
-    icmp_header_t *icmp;
-    tcp_header_t *tcp;
-    udp_header_t *udp;
-  } l4_data;
-} packet_header_info;
-
-
-// #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
-/*!<Returns pointer to structure of type packet_header_info*/
-=======
 bool packet_type_ether( const buffer *frame );
 bool packet_type_arp( const buffer *frame );
 bool packet_type_ipv4( const buffer *frame );
+bool packet_type_lldp( const buffer *frame );
 bool packet_type_icmpv4( const buffer *frame );
+bool packet_type_igmp( const buffer *frame );
 bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
+bool packet_type_ipv4_etherip( const buffer *frame );
 
-
-void free_packet( buffer *frame ) DEPRECATED;
-#define alloc_packet( buf )  calloc_packet_info( buf )
 
 #endif // PACKET_INFO_H
 

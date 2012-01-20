@@ -3,7 +3,7 @@
  * 
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -91,7 +91,6 @@ test_insert_twice_overwrites_old_value() {
 
   insert_hash_entry( table, key, old_value );
   prev = insert_hash_entry( table, key, new_value );
-  insert_hash_entry( table, key, new_value );
 
   assert_string_equal( lookup_hash_entry( table, key ), "new value" );
   assert_string_equal( prev, "old value" );
@@ -127,42 +126,7 @@ test_nonexistent_entry_returns_NULL() {
 }
 
 
-static char **abc0[ 3 ] = { NULL, NULL, NULL };
-
-static void
-append_back( void *value, void *user_data ) {
-  assert_true( user_data == NULL );
-
-  int i;
-  for ( i = 0 ; i < 3 ; i++ ) {
-    if ( abc0[ i ] == NULL ) {
-      abc0[ i ] = value;
-      return;
-    }
-  }
-}
-
-
-static void
-test_map() {
-  table = create_hash( compare_string, hash_string );
-
-  char key[] = "key";
-  insert_hash_entry( table, key, alpha );
-  insert_hash_entry( table, key, bravo );
-  insert_hash_entry( table, key, charlie );
-
-  map_hash( table, key, append_back, NULL );
-
-  assert_string_equal( abc0[ 0 ], "charlie" );
-  assert_string_equal( abc0[ 1 ], "bravo" );
-  assert_string_equal( abc0[ 2 ], "alpha" );
-
-  delete_hash( table );
-}
-
-
-static char *abc1[ 3 ] = { NULL, NULL, NULL };
+static char *abc[ 3 ] = { NULL, NULL, NULL };
 
 static void
 append_back_foreach( void *key, void *value, void *user_data ) {
@@ -171,8 +135,8 @@ append_back_foreach( void *key, void *value, void *user_data ) {
 
   int i;
   for ( i = 0 ; i < 3 ; i++ ) {
-    if ( abc1[ i ] == NULL ) {
-      abc1[ i ] = value;
+    if ( abc[ i ] == NULL ) {
+      abc[ i ] = value;
       return;
     }
   }
@@ -190,9 +154,9 @@ test_foreach() {
 
   foreach_hash( table, append_back_foreach, NULL );
 
-  assert_string_equal( abc1[ 0 ], "alpha" );
-  assert_true( abc1[ 1 ] == NULL );
-  assert_true( abc1[ 2 ] == NULL );
+  assert_string_equal( abc[ 0 ], "alpha" );
+  assert_true( abc[ 1 ] == NULL );
+  assert_true( abc[ 2 ] == NULL );
 
   delete_hash( table );
 }
@@ -296,7 +260,6 @@ main() {
     unit_test( test_insert_twice_overwrites_old_value ),
     unit_test( test_delete_entry ),
     unit_test( test_nonexistent_entry_returns_NULL ),
-    unit_test( test_map ),
     unit_test( test_foreach ),
     unit_test( test_iterator ),
     unit_test( test_multiple_inserts_and_deletes_then_iterate ),

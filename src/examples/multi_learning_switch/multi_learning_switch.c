@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -23,6 +23,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <assert.h>
+#include "timer.h"
 #include "trema.h"
 
 
@@ -254,20 +255,10 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
     return;
   }
   
-<<<<<<< HEAD
-  packet_info *packet_info0 = packet_in.data->user_data;
-  assert( packet_info0 != NULL );
-  uint8_t *macsa = packet_info0->eth_macsa;
-  learn( sw->forwarding_db, packet_in.in_port, macsa );
-
-  uint8_t *macda = packet_info0->eth_macda;
-  forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, macda );
-=======
   packet_info packet_info = get_packet_info( message.data );
   learn( sw->forwarding_db, message.in_port, packet_info.eth_macsa );
   forwarding_entry *destination = lookup_hash_entry( sw->forwarding_db, 
                                                      packet_info.eth_macda );
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 
   if ( destination == NULL ) {
     do_flooding( message );

@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -40,10 +40,7 @@
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "packet_info.h"
-<<<<<<< HEAD
-=======
 #include "packetin_filter_interface.h"
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 #include "persistent_storage.h"
 #include "stat.h"
 #include "utility.h"

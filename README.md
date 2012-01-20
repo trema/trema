@@ -72,7 +72,6 @@ Please keep the list sorted.
 * Kazushi Sugyo
 * Kazuya Suzuki
 * Lei Sun
-* Naoyoshi Tada
 * Nick Karanatsios <nickkaranatsios@gmail.com>
 * Shin'ya Zenke
 * Shuji Ishii
@@ -95,7 +94,7 @@ Thanks to:
 License & Terms
 ---------------
 
-Copyright (C) 2008-2011 NEC Corporation
+Copyright (C) 2008-2012 NEC Corporation
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as

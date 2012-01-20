@@ -3,7 +3,7 @@
  *
  * Author: Kazuya Suzuki
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -34,13 +34,10 @@ typedef struct iphdr ipv4_header_t;
 #define IPV4_ADDRLEN 4
 
 
-<<<<<<< HEAD
-=======
 #define IPV4_IS_CLASSDE( _addr ) ( ( ( _addr ) & 0xe0000000UL ) == 0xe0000000UL )
 #define IPV4_IS_LOOPBACK( _addr ) ( ( ( _addr ) & 0xffffff00UL ) == 0x7f000000UL )
 #define IPV4_IS_LIMITEDBC( _addr ) ( ( _addr ) == 0xffffffffUL )
 
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 
 #endif // IPV4_H
 

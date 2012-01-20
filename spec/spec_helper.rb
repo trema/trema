@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -25,6 +25,7 @@ require "rubygems"
 
 require "rspec"
 require "trema"
+require "trema/dsl/configuration"
 require "trema/dsl/context"
 require "trema/ofctl"
 require "trema/shell"
@@ -35,7 +36,6 @@ end
 
 
 include Trema
-include Trema::Shell
 
 
 def controller name
@@ -43,13 +43,18 @@ def controller name
 end
 
 
-def switch name
+def vswitch name
   Trema::Switch[ name ]
 end
 
 
-def host name
+def vhost name
   Trema::Host[ name ]
+end
+
+
+def send_packets source, dest, options = {}
+  Trema::Shell.send_packets source, dest, options
 end
 
 
@@ -59,7 +64,6 @@ include Trema::Util
 class Network
   def initialize &block
     @context = Trema::DSL::Parser.new.eval( &block )
-    $context = @context
   end
 
 
@@ -83,7 +87,7 @@ class Network
     if not controller.is_a?( Trema::Controller )
       raise "#{ controller_class } is not a subclass of Trema::Controller"
     end
-    @context.dump_to Trema::DSL::Parser::CURRENT_CONTEXT
+    Trema::DSL::Context.new( @context ).dump
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }

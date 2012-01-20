@@ -1,7 +1,7 @@
 /*
  * Author: Toshio Koide
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -680,7 +680,7 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
          service_name, message_type, callback );
 
   if ( receive_queues == NULL ) {
-    error( "All receive queues are already deleted or not created yet." );
+    debug( "All receive queues are already deleted or not created yet." );
     return false;
   }
 
@@ -870,7 +870,7 @@ send_queue_connect_timer( send_queue *sq ) {
   }
   if ( sq->running_timer ) {
     sq->running_timer = false;
-    delete_timer_event_callback( ( void (*)(void *) )send_queue_connect_timeout );
+    delete_timer_event( ( timer_callback )send_queue_connect_timeout, sq );
   }
 
   int ret = send_queue_connect( sq );
@@ -1079,7 +1079,10 @@ insert_context( void *user_data ) {
   debug( "Inserting a new context ( transaction_id = %#x, life_count = %d, user_data = %p ).",
          context->transaction_id, context->life_count, context->user_data );
 
-  insert_hash_entry( context_db, &context->transaction_id, context );
+  messenger_context *old = insert_hash_entry( context_db, &context->transaction_id, context );
+  if ( old != NULL ) {
+    delete_context( old );
+  }
 
   return context;
 }

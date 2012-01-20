@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -22,6 +22,7 @@
 
 #include <time.h>
 #include <assert.h>
+#include "timer.h"
 #include "trema.h"
 
 
@@ -172,19 +173,6 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   }
 
   struct key new_key;
-<<<<<<< HEAD
-  packet_info *packet_info0 = packet_in.data->user_data;
-  assert( packet_info0 != NULL );
-
-  memcpy( new_key.mac, packet_info0->eth_macsa, OFP_ETH_ALEN );
-  new_key.datapath_id = packet_in.datapath_id;
-  hash_table *forwarding_db = packet_in.user_data;
-  learn( forwarding_db, new_key, packet_in.in_port );
-
-  struct key search_key;
-  memcpy( search_key.mac, packet_info0->eth_macda, OFP_ETH_ALEN );
-  search_key.datapath_id = packet_in.datapath_id;
-=======
   packet_info packet_info = get_packet_info( message.data );
   memcpy( new_key.mac, packet_info.eth_macsa, OFP_ETH_ALEN );
   new_key.datapath_id = datapath_id;
@@ -194,7 +182,6 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   struct key search_key;
   memcpy( search_key.mac, packet_info.eth_macda, OFP_ETH_ALEN );
   search_key.datapath_id = datapath_id;
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 
   if ( destination == NULL ) {

@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -70,7 +70,6 @@ Init_trema() {
 
   rb_require( "trema/host" );
   rb_require( "trema/path" );
-  rb_require( "trema/sub-commands" );
   rb_require( "trema/switch" );
 
   Init_action_output();

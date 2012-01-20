@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -26,15 +26,18 @@ require "trema/dsl"
 module Trema
   module Shell
     def vswitch name = nil, &block
-      raise "Not in Trema shell" if @context.nil?
+      raise "Not in Trema shell" if $config.nil?
       raise "No dpid given" if name.nil? and block.nil?
 
       stanza = DSL::Vswitch.new( name )
       stanza.instance_eval &block if block
-      OpenVswitch.new( stanza, @context.port ).restart!
+      OpenVswitch.new( stanza, $config.port ).restart!
+
+      $context.dump
 
       true
     end
+    module_function :vswitch
   end
 end
 

@@ -1,7 +1,7 @@
 /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -273,6 +273,8 @@ static bool run_as_daemon = false;
 static char *trema_name = NULL;
 static char *executable_name = NULL;
 static char *trema_log = NULL;
+static char *trema_pid = NULL;
+static char *trema_sock = NULL;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
@@ -319,17 +321,23 @@ get_trema_log() {
 
 static const char *
 get_trema_pid() {
-  char path[ PATH_MAX ];
-  sprintf( path, "%s/pid", get_trema_tmp() );
-  return xstrdup( path );
+  if ( trema_pid == NULL ) {
+    char path[ PATH_MAX ];
+    sprintf( path, "%s/pid", get_trema_tmp() );
+    trema_pid = xstrdup( path );
+  }
+  return trema_pid;
 }
 
 
 static const char *
 get_trema_sock() {
-  char path[ PATH_MAX ];
-  sprintf( path, "%s/sock", get_trema_tmp() );
-  return xstrdup( path );
+  if ( trema_sock == NULL ) {
+    char path[ PATH_MAX ];
+    sprintf( path, "%s/sock", get_trema_tmp() );
+    trema_sock = xstrdup( path );
+  }
+  return trema_sock;
 }
 
 
@@ -407,7 +415,7 @@ parse_argv( int *argc, char ***argv ) {
   set_trema_name( basename( ( *argv )[ 0 ] ) );
   executable_name = xstrdup( get_trema_name() );
 
-  for ( int i = 0; i <= *argc; ++i ) {
+  for ( int i = 0; i < *argc; ++i ) {
     new_argv[ i ] = ( *argv )[ i ];
   }
 
@@ -456,7 +464,9 @@ parse_argv( int *argc, char ***argv ) {
       j++;
     }
   }
-  ( *argv )[ *argc ] = NULL;
+  if ( argc_tmp < *argc ) {
+    ( *argv )[ argc_tmp ] = NULL;
+  }
   *argc = argc_tmp;
 
   reset_getopt();

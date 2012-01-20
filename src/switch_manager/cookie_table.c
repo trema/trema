@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -165,19 +165,15 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
     return &new_entry->cookie;
   }
 
-  new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
-  conflict_entry = insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
+  conflict_entry = lookup_cookie_entry_by_cookie( original_cookie );
   if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", new_entry->cookie );
-    // TODO: delete conflicted cookie entry
+    warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", original_cookie );
+    delete_cookie_entry( conflict_entry );
   }
 
-  conflict_entry = insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
-  if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#" PRIx64 ", service_name = %s ).",
-          new_entry->application.cookie, new_entry->application.service_name );
-    // TODO: delete conflicted cookie entry
-  }
+  new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
+  insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
+  insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
 
   return &new_entry->cookie;
 }
@@ -206,19 +202,7 @@ delete_cookie_entry( cookie_entry_t *entry ) {
            entry->application.cookie, entry->application.service_name );
   }
 
-  if ( delete_entry_global == delete_entry_application ) {
-    if ( delete_entry_application != NULL ) {
-      free_cookie_entry( delete_entry_application );
-    }
-  }
-  else {
-    if ( delete_entry_global != NULL ) {
-      free_cookie_entry( delete_entry_global );
-    }
-    if ( delete_entry_application != NULL ) {
-      free_cookie_entry( delete_entry_application );
-    }
-  }
+  free_cookie_entry( entry );
 }
 
 

@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -73,7 +73,7 @@ gen Clean
 var[ :clean ] << Trema.objects
 var[ :clean ] << File.join( Trema.home, "objects/unittests" )
 var[ :clean ] << File.join( Trema.home, "unittests/objects" )
-var[ :clean ] << Trema::DSL::Parser::CURRENT_CONTEXT
+var[ :clean ] << Trema::DSL::Context::PATH
 
 
 desc "Cleanup everything."
@@ -689,13 +689,8 @@ def libtrema_unit_tests
   {
     :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
     :daemon_test => [],
-<<<<<<< HEAD
-    :match_table_test => [ :hash_table, :doubly_linked_list, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
-    :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper, :log, :trema_wrapper ],
-=======
     :ether_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
     :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :timer, :log, :trema_wrapper ],
->>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
