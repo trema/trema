@@ -78,9 +78,6 @@ compare_application( const void *x, const void *y ) {
   if ( strcmp( ex->service_name, ey->service_name ) != 0 ) {
     return false;
   }
-  if ( ex->flags != ex->flags ) {
-    return false;
-  }
   return true;
 }
 
@@ -165,13 +162,12 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
     return &new_entry->cookie;
   }
 
-  conflict_entry = lookup_cookie_entry_by_cookie( original_cookie );
+  new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
+  conflict_entry = lookup_cookie_entry_by_cookie( &new_entry->cookie );
   if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", original_cookie );
+    warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", new_entry->cookie );
     delete_cookie_entry( conflict_entry );
   }
-
-  new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
   insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
   insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
 
@@ -214,13 +210,13 @@ lookup_cookie_entry_by_cookie( uint64_t *cookie ) {
 
 cookie_entry_t *
 lookup_cookie_entry_by_application( uint64_t *cookie, char *service_name ) {
-  cookie_entry_t key;
+  application_entry_t key;
   cookie_entry_t *entry;
 
-  memset( &key, 0, sizeof( cookie_entry_t ) );
-  key.application.cookie = *cookie;
-  strncpy( key.application.service_name, service_name, MESSENGER_SERVICE_NAME_LENGTH );
-  key.application.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
+  memset( &key, 0, sizeof( application_entry_t ) );
+  key.cookie = *cookie;
+  strncpy( key.service_name, service_name, MESSENGER_SERVICE_NAME_LENGTH );
+  key.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
 
   entry = lookup_hash_entry( cookie_table.application, &key );
 

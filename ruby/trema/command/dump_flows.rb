@@ -1,9 +1,9 @@
 #
-# The syntax definition of app { ... } stanza in Trema DSL.
+# trema dump_flows command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,23 +20,36 @@
 #
 
 
-require "trema/dsl/stanza"
+require "optparse"
+require "trema/dsl"
+require "trema/ofctl"
+require "trema/util"
 
 
 module Trema
-  module DSL
-    class App < Stanza
-      def path _path
-        @path = _path
-        if @name.nil?
-          @name = File.basename( @path )
-        end
-      end
+  module Command
+    include Trema::Util
 
 
-      def options *_options
-        @options = _options
+    def dump_flows
+      sanity_check
+
+      switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
+
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
       end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      puts Trema::Ofctl.new.dump_flows( switch )
     end
   end
 end
@@ -44,6 +57,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
