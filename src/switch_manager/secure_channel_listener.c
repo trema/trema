@@ -32,7 +32,6 @@
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
-#include "event_handler.h"
 
 
 const int LISTEN_SOCK_MAX = 128;

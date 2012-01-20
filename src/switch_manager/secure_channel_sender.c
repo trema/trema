@@ -23,7 +23,6 @@
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
-#include "event_handler.h"
 #include "message_queue.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_sender.h"

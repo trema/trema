@@ -30,7 +30,6 @@
 #include <unistd.h>
 #include "trema.h"
 #include "cookie_table.h"
-#include "event_handler.h"
 #include "management_interface.h"
 #include "message_queue.h"
 #include "messenger.h"
