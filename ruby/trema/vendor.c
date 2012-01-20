@@ -39,20 +39,24 @@ VALUE cVendor;
  *       :buffer => data
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :datapath_id
+ *   @option options [Number] :datapath_id
  *     message originator identifier.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     zero for unsolicited message otherwise a positive number.
  *
- *   @option options [Symbol] :vendor_id
+ *   @option options [Number] :vendor_id
  *     the vendor identifier. if MSB is zero low order bytes are IEEE OUI.
  *     If MSB not equal to zero defined by openflow.
  *
- *   @option options [Symbol] :buffer
- *     a {Buffer} object that encapsulates vendor's defined arbitrary length data.
+ *   @option options [String] :buffer
+ *     a String that holds vendor's defined arbitrary length data. 
+ *
+ *   @return [Vendor]
+ *     an object that encapsulates the +OFPT_VENDOR+ OpenFlow symmetric message.
  */
 static VALUE
 vendor_init( VALUE self, VALUE options ) {
@@ -63,7 +67,7 @@ vendor_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 vendor_datapath_id( VALUE self ) {
@@ -75,7 +79,7 @@ vendor_datapath_id( VALUE self ) {
  * Zero for unsolicited message otherwise a positive number copied from request
  * message.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 vendor_transaction_id( VALUE self ) {
@@ -95,7 +99,7 @@ vendor_vendor( VALUE self ) {
 /*
  * Vendor's arbitrary length data.
  *
- * @return [Buffer] the value of attribute buffer.
+ * @return [Buffer] the value of buffer.
  */
 static VALUE
 vendor_buffer( VALUE self ) {
@@ -133,7 +137,7 @@ handle_vendor(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "vendor" ) ), UINT2NUM( vendor ) );
 
   if ( body->length ) {
-    rb_hash_aset( attributes, ID2SYM( rb_intern( "buffer" ) ), Data_Wrap_Struct( cVendor, NULL, free_buffer, body ) );
+    rb_hash_aset( attributes, ID2SYM( rb_intern( "buffer" ) ), rb_str_new( body->data, ( long ) body->length ) );
   }
   VALUE vendor_r = rb_funcall( cVendor, rb_intern( "new" ), 1, attributes );
   rb_funcall( controller, rb_intern( "vendor" ), 1, vendor_r );

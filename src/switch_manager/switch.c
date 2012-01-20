@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include "trema.h"
 #include "cookie_table.h"
+#include "event_handler.h"
 #include "management_interface.h"
 #include "message_queue.h"
 #include "messenger.h"
@@ -149,40 +150,33 @@ service_send_state( struct switch_info *sw_info, uint64_t *dpid, uint16_t tag ) 
 
 
 static void
-secure_channel_fd_set( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
-    return;
-  }
-  FD_SET( switch_info.secure_channel_fd, read_set );
-  if ( switch_info.send_queue != NULL && switch_info.send_queue->length > 0 ) {
-    FD_SET( switch_info.secure_channel_fd, write_set );
-  }
-}
+secure_channel_read( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
 
-
-static void
-secure_channel_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  if ( switch_info.secure_channel_fd < 0 ) {
+  if ( recv_from_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
     return;
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, write_set ) ) {
-    if ( flush_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
-  }
-  if ( FD_ISSET( switch_info.secure_channel_fd, read_set ) ) {
-    if ( recv_from_secure_channel( &switch_info ) < 0 ) {
-      switch_event_disconnected( &switch_info );
-      return;
-    }
   }
 
   if ( switch_info.recv_queue->length > 0 ) {
     int ret = handle_messages_from_secure_channel( &switch_info );
     if ( ret < 0 ) {
+      stop_event_handler();
       stop_messenger();
     }
+  }
+}
+
+
+static void
+secure_channel_write( int fd, void* data ) {
+  UNUSED( fd );
+  UNUSED( data );
+
+  if ( flush_secure_channel( &switch_info ) < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
   }
 }
 
@@ -198,12 +192,16 @@ switch_set_timeout( long sec, void ( *callback )( void *user_data ), void *user_
   interval.it_interval.tv_sec = 0;
   interval.it_interval.tv_nsec = 0;
   add_timer_event_callback( &interval, callback, NULL );
+  switch_info.running_timer = true;
 }
 
 
 static void
 switch_unset_timeout( void ( *callback )( void *user_data ) ) {
-  delete_timer_event_callback( callback );
+  if ( switch_info.running_timer ) {
+    switch_info.running_timer = false;
+    delete_timer_event_callback( callback );
+  }
 }
 
 
@@ -214,8 +212,7 @@ switch_event_timeout_hello( void *user_data ) {
   if ( switch_info.state != SWITCH_STATE_WAIT_HELLO ) {
     return;
   }
-  // delete to hello_wait-timeout timer
-  switch_unset_timeout( switch_event_timeout_hello );
+  switch_info.running_timer = false;
 
   error( "Hello timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
@@ -230,8 +227,7 @@ switch_event_timeout_features_reply( void *user_data ) {
   if ( switch_info.state != SWITCH_STATE_WAIT_FEATURES_REPLY ) {
     return;
   }
-  // delete to features_reply_wait-timeout timer
-  switch_unset_timeout( switch_event_timeout_features_reply );
+  switch_info.running_timer = false;
 
   error( "Features Reply timeout. state:%d, dpid:%#" PRIx64 ", fd:%d.",
          switch_info.state, switch_info.datapath_id, switch_info.secure_channel_fd );
@@ -296,7 +292,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     switch_unset_timeout( switch_event_timeout_features_reply );
 
     // TODO: set keepalive-timeout
-    snprintf( new_service_name, new_service_name_len, "%s%" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
+    snprintf( new_service_name, new_service_name_len, "%s%#" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
     // checking duplicate service
     pid_t pid = get_trema_process_from_name( new_service_name );
@@ -367,6 +363,10 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
 
   if ( sw_info->secure_channel_fd >= 0 ) {
+    set_readable( switch_info.secure_channel_fd, false );
+    set_writable( switch_info.secure_channel_fd, false );
+    delete_fd_handler( switch_info.secure_channel_fd );
+
     close( sw_info->secure_channel_fd );
     sw_info->secure_channel_fd = -1;
   }
@@ -376,6 +376,7 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   flush_messenger();
   debug( "send disconnected state" );
 
+  stop_event_handler();
   stop_messenger();
 
   return 0;
@@ -488,6 +489,11 @@ main( int argc, char *argv[] ) {
   }
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
+
+  set_fd_handler( switch_info.secure_channel_fd, secure_channel_read, NULL, secure_channel_write, NULL );
+  set_readable( switch_info.secure_channel_fd, true );
+  set_writable( switch_info.secure_channel_fd, false );
+
   // default switch configuration
   switch_info.config_flags = OFPC_FRAG_NORMAL;
   switch_info.miss_send_len = UINT16_MAX;
@@ -495,12 +501,11 @@ main( int argc, char *argv[] ) {
   switch_info.fragment_buf = NULL;
   switch_info.send_queue = create_message_queue();
   switch_info.recv_queue = create_message_queue();
+  switch_info.running_timer = false;
 
   init_xid_table();
   init_cookie_table();
 
-  set_fd_set_callback( secure_channel_fd_set );
-  set_check_fd_isset_callback( secure_channel_fd_isset );
   add_message_received_callback( get_trema_name(), service_recv );
 
   snprintf( management_service_name , MESSENGER_SERVICE_NAME_LENGTH,
@@ -513,11 +518,16 @@ main( int argc, char *argv[] ) {
     error( "Failed to set connected state." );
     return -1;
   }
+  flush_secure_channel( &switch_info );
 
   start_trema();
 
   finalize_xid_table();
   finalize_cookie_table();
+
+  if ( switch_info.secure_channel_fd >= 0 ) {
+    delete_fd_handler( switch_info.secure_channel_fd );
+  }
 
   return 0;
 }

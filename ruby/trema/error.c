@@ -27,87 +27,96 @@ VALUE cError;
 
 
 /*
- * @overload initialize(transaction_id=nil, type=OFPET_HELLO_FAILED, code=OFPHFC_INCOMPATIBLE, user_data=nil)
+ * @overload initialize(options={})
+ *   @example
+ *     Error.new(
+ *       :type => Error::OFPET_BAD_REQUEST,
+ *       :code => Error::OFPBRC_BAD_TYPE,
+ *     )
+ *     Error.new(
+ *       :type => Errr::OFPET_BAD_REQUEST,
+ *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :transcation_id => 123
+ *     )
+ *     Error.new(
+ *       :type => Errr::OFPET_BAD_REQUEST,
+ *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :transcation_id => 123
+ *       :user_data => "Error!!"
+ *     )
  *
- * @param [Number] transaction_id
- *   a positive number, not recently attached to any previous pending commands to
- *   guarantee message integrity auto-generated if not specified.
+ *   @param [Hash] options 
+ *     the options to create a message with.
  *
- * @param [Number] type
- *   a command or action that failed. Defaults to +OFPET_HELLO_FAILED+ if 
- *   not specified.
+ *   @option options [Number] :type
+ *     a command or action that failed.
  *
- * @param [Number] code
- *   the reason of the failed type error. Defaults to +OFPHFC_INCOMPATIBLE+ if 
- *   not specified.
+ *   @option options [Number] :code
+ *     the reason of the failed type error.
  *
- * @param [String] user_data
- *   a more user friendly explanation of the error. Defaults to nil if not 
- *   specified.
+ *   @option options [Number] :transaction_id
+ *     a positive number, not recently attached to any previous pending commands to
+ *     guarantee message integrity auto-generated if not specified.
  *
- * @example Instantiate with type and code
- *   Error.new(OFPET_BAD_REQUEST, OFPBRC_BAD_TYPE)
+ *   @option options [String] :user_data
+ *     a more user friendly explanation of the error. Defaults to nil if not
+ *     specified.
  *
- * @example Instantiate with transaction_id, type and code.
- *   Error.new(1234, OFPET_BAD_ACTION, OFPBAC_BAD_VENDOR)
+ *   @raise [ArgumentError] if transaction_id is not an unsigned 32bit integer.
+ *   @raise [ArgumentError] if type and code are not supplied.
+ *   @raise [ArgumentError] if user data is not a string.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @example Instantiate with transaction_id, type, code, user_data
- *   Error.new(6789, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_EMERG_TIMEOUT, "this is a test") 
- *
- * @raise [ArgumentError] if transaction id is negative.
- * @raise [ArgumentError] if user data is not a string.
- *
- * @return [Error] 
- *   an object that encapsulates the +OFPT_ERROR+ openflow message.
+ *   @return [Error]
+ *     an object that encapsulates the +OFPT_ERROR+ OpenFlow message.
  */
 static VALUE
 error_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *data = NULL;
-  uint32_t xid = get_transaction_id();
-  VALUE xid_r;
-  VALUE user_data;
-  VALUE type_r;
-  VALUE code_r;
+  uint32_t xid;
   uint16_t type;
   uint16_t code;
+  VALUE options;
 
-  switch ( argc ) {
-    case 2:
-      // type, code specified.
-      rb_scan_args( argc, argv, "02", &type_r, &code_r );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE type_r;
+    if ( ( type_r = rb_hash_aref( options, ID2SYM( rb_intern( "type" ) ) ) ) != Qnil ) {
       type = ( uint16_t ) NUM2UINT( type_r );
+    }
+    else {
+      rb_raise( rb_eArgError, "Type is a mandatory option" );
+    }
+    VALUE code_r;
+    if ( ( code_r = rb_hash_aref( options, ID2SYM( rb_intern( "code" ) ) ) ) != Qnil ) {
       code = ( uint16_t ) NUM2UINT( code_r );
-      break;
-    case 3:
-      // transaction id, type, code specified.
-      rb_scan_args( argc, argv, "03", &xid_r, &type_r, &code_r );
-      if ( NUM2INT( xid_r ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+    }
+    else {
+      rb_raise( rb_eArgError, "Code is a mandatory option" );
+    }
+    VALUE xid_r;
+    if ( ( xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_r, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_r );
-      type = ( uint16_t ) NUM2UINT( type_r );
-      code = ( uint16_t ) NUM2UINT( code_r );
-      break;
-    case 4:
-      rb_scan_args( argc, argv, "04", &xid_r, &type_r, &code_r, &user_data );
-      if ( NUM2INT( xid_r ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
-      }
+    }
+    else {
+      xid = get_transaction_id();
+    }
+    VALUE user_data;
+    if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );
       }
-      xid = ( uint32_t ) NUM2UINT( xid_r );
-      type = ( uint16_t ) NUM2UINT( type_r );
-      code = ( uint16_t ) NUM2UINT( code_r );
       uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
       data = alloc_buffer_with_length( length );
       void *p = append_back_buffer( data, length );
       memcpy( p, RSTRING_PTR( user_data ), length );
-      break;
-    default:
-      type = OFPET_HELLO_FAILED;
-      code = OFPHFC_INCOMPATIBLE;
-      break;
+    }
+  }
+  else {
+    rb_raise( rb_eArgError, "Type and code are mandatory options" );
   }
   buffer *error = create_error( xid, type, code, data );
   if ( data != NULL ) {
@@ -128,7 +137,7 @@ get_error( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 error_transaction_id( VALUE self ) {
@@ -160,7 +169,7 @@ error_user_data( VALUE self ) {
 /*
  * Indicates the command or action that failed.
  *
- * @return [Number] the value of attribute error type.
+ * @return [Number] the value of error type.
  */
 static VALUE
 error_type( VALUE self ) {
@@ -172,7 +181,7 @@ error_type( VALUE self ) {
 /*
  * Reason of the failed type error.
  *
- * @return [Number] the value of attribute error code.
+ * @return [Number] the value of error code.
  */
 static VALUE
 error_code( VALUE self ) {
@@ -191,7 +200,7 @@ Init_error() {
   rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
   rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  
+
   rb_define_const( cError, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
   rb_define_const( cError, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
 
@@ -224,7 +233,7 @@ Init_error() {
 
   rb_define_const( cError, "OFPPMFC_BAD_PORT", INT2NUM( OFPPMFC_BAD_PORT ) );
   rb_define_const( cError, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
-  
+
   rb_define_const( cError, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
   rb_define_const( cError, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
   rb_define_const( cError, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));

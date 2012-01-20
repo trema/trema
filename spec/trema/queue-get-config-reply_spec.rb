@@ -22,51 +22,40 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe QueueGetConfigReply do
-  context "when an instance is created" do
-    it "should have valid attributes" do
-      for i in 1..2 do
-        pq = PacketQueue.new( :queue_id => i, :len => i* 64 )
-        mr = MinRateQueue.new( i, i * 64, 1024 * i, pq)
-      end
-      qr = QueueGetConfigReply.new( :datapath_id => 0xabc,
-        :transaction_id => 123,
-        :port => 1,
-        :queues => Queue.queues
-      )
-      qr.datapath_id.should == 0xabc
-      qr.transaction_id.should == 123
-      qr.port.should == 1
-      qr.queues[0].should be_an_instance_of( PacketQueue )
+describe QueueGetConfigReply, ".new( VALID OPTIONS )" do
+  subject do 
+    for i in 1..2 do
+      pq = PacketQueue.new( :queue_id => i, :len => i * 64 )
+      mr = MinRateQueue.new( i, i * 64, 1024 * i, pq)
     end
+    QueueGetConfigReply.new( :datapath_id => 0xabc,
+      :transaction_id => 123,
+      :port => 1,
+      :queues => Queue.queues
+    )
   end
-  
-  
-  context "when a PacketQueue instance is created" do
-    it "should have valid attributes" do
-      pq = PacketQueue.new( :queue_id => 123, :len => 64 )
-      pq.queue_id.should == 123
-      pq.len.should == 64
-    end
+  its( :queues ) { subject.length.should ==  2  }
+  its( :queues ) { subject[0].should be_an_instance_of PacketQueue }
+  its( :datapath_id ) { should == 0xabc }
+  its( :transaction_id ) { should == 123 }
+end
+
+
+describe PacketQueue, ".new( VALID OPTIONS )" do
+  subject { PacketQueue.new( :queue_id => 123, :len => 64 ) }
+  its( :queue_id ) { should == 123 }
+  its( :len ) { should == 64 }
+end
+
+
+describe MinRateQueue, ".new( VALID OPTIONS )" do
+  subject do
+    pq = PacketQueue.new( :queue_id => 123, :len => 64 )
+    MinRateQueue.new( 1, 64, 1024, pq )
   end
-  
-  
-  context "when a MinRateQueue instance is created" do
-    it "should have valid attributes" do
-     pq = PacketQueue.new( :queue_id => 123, :len => 64 )
-      mr = MinRateQueue.new( 1, 64, 1024, pq )
-      mr.property.should == 1
-      mr.len.should == 64
-      mr.rate.should == 1024
-    end
-  end
-  
-  
-  context "when multiple PacketQueue instances created" do
-    it "should support multiplicity of queues" do
-      Queue.should have( 3 ).queues
-    end
-  end
+  its( :property ) { should == 1 }
+  its( :len ) { should == 64 }
+  its( :rate ) { should == 1024 }
 end
 
 

@@ -27,8 +27,30 @@ require "rspec"
 require "trema"
 require "trema/dsl/context"
 require "trema/ofctl"
-require "trema/shell-commands"
+require "trema/shell"
 require "trema/util"
+Dir.glob( File.join( File.dirname( __FILE__ ), '*_supportspec.rb' ) ).each do | file |
+  require File.basename( file, File.extname( file ) )
+end
+
+
+include Trema
+include Trema::Shell
+
+
+def controller name
+  Trema::App[ name ]
+end
+
+
+def switch name
+  Trema::Switch[ name ]
+end
+
+
+def host name
+  Trema::Host[ name ]
+end
 
 
 include Trema::Util
@@ -65,8 +87,10 @@ class Network
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-    SwitchManager.new( rule, @context.port ).run! [ "--no-flow-cleanup" ]
-    
+    sm = SwitchManager.new( rule, @context.port )
+    sm.no_flow_cleanup = true
+    sm.run!
+
     @context.links.each do | name, each |
       each.add!
     end
@@ -89,7 +113,7 @@ class Network
     end
     sleep 2  # FIXME: wait until controller.up?
   end
-  
+
 
   def trema_kill
     cleanup_current_session

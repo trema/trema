@@ -46,31 +46,32 @@ module Trema
     #       :matched_count => 0
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :table_id
+    #   @option options [Number] :table_id
     #     a number that uniquely identifies the table.
     #
-    #   @option options [Symbol] :name
+    #   @option options [String] :name
     #     a meaningful name for the table.
     #
-    #   @option options [Symbol] :wildcards
+    #   @option options [Number] :wildcards
     #     wildcards that supported by the table.
     #
-    #   @option options [Symbol] :max_entries
+    #   @option options [Number] :max_entries
     #     the maximum number of flow entries the table can support.
     #
-    #   @option options [Symbol] :active_count
+    #   @option options [Number] :active_count
     #     number of active entries.
     #
-    #   @option options [Symbol] :lookup_count
+    #   @option options [Number] :lookup_count
     #     a counter of the number of packets looked up in the table.
     #
-    #   @option options [Symbol] :matched_count
+    #   @option options [Number] :matched_count
     #     a counter of the matched hit entries.
     #
-    # @return [TableStatsReply]
-    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_TABLE) openFlow message.
+    #   @return [TableStatsReply]
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_TABLE) OpenFlow message.
     #
     def initialize options
       super FIELDS, options

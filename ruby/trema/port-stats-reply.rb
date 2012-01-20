@@ -52,49 +52,50 @@ module Trema
     #       :collisions => 0
     #     )
     #
-    #   @param [Hash] options the options hash.
+    #   @param [Hash] options
+    #     the options to create this instance with.
     #
-    #   @option options [Symbol] :port_no
+    #   @option options [Number] :port_no
     #     the port_no statistics are reported for.
     #
-    #   @option options [Symbol] :rx_packets
+    #   @option options [Number] :rx_packets
     #     a counter of received packets.
     #
-    #   @option options [Symbol] :tx_packets
+    #   @option options [Number] :tx_packets
     #     a counter of transmitted packets.
     #
-    #   @option options [Symbol] :rx_bytes
+    #   @option options [Number] :rx_bytes
     #     a counter of received bytes.
     #
-    #   @option options [Symbol] :tx_bytes
+    #   @option options [Number] :tx_bytes
     #     a counter of transmitted bytes.
     #
-    #   @option options [Symbol] :rx_dropped
+    #   @option options [Number] :rx_dropped
     #     a counter of received dropped frames.
     #
-    #   @option options [Symbol] :tx_dropped
+    #   @option options [Number] :tx_dropped
     #     a counter of transmitted dropped frames.
     #
-    #   @option options [Symbol] :rx_errors
+    #   @option options [Number] :rx_errors
     #     a counter of received errors.
     #
-    #   @option options [Symbol] :tx_errors
+    #   @option options [Number] :tx_errors
     #     a counter of transmitted errors.
     #
-    #   @option options [Symbol] :rx_frame_err
+    #   @option options [Number] :rx_frame_err
     #     a counter of received frame errors.
     #
-    #   @option options [Symbol] :rx_over_err
+    #   @option options [Number] :rx_over_err
     #     a counter of received overrun errors.
     #
-    #   @option options [Symbol] :rx_crc_err
+    #   @option options [Number] :rx_crc_err
     #     a counter of crc errors.
     #
-    #   @option options [Symbol] :collisions
+    #   @option options [Number] :collisions
     #     a counter of detected collisions.
     #
-    # @return [PortStatsReply]
-    #   an object that encapsulates the OFPST_STATS_REPLY(OFPST_PORT) openFlow message.
+    #   @return [PortStatsReply]
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_PORT) OpenFlow message.
     #
     def initialize options 
       super FIELDS, options

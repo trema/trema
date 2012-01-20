@@ -54,6 +54,7 @@ enum {
   ETH_VTAG_SNAP = ETH_8021Q | ETH_8023_SNAP,
   ETH_ARP = ETH_DIX | NW_ARP,
   ETH_IPV4 = ETH_DIX | NW_IPV4,
+<<<<<<< HEAD
   ETH_IPV4_ICMPV4 = ETH_DIX | NW_ICMPV4,
   ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
   ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
@@ -72,6 +73,26 @@ enum {
   ETH_SNAP_VTAG_IPV4_ICMPV4 = ETH_8021Q | ETH_8023_SNAP | NW_ICMPV4,
   ETH_SNAP_VTAG_IPV4_TCP = ETH_8021Q | ETH_SNAP_IPV4 | TP_TCP,
   ETH_SNAP_VTAG_IPV4_UDP = ETH_8021Q | ETH_SNAP_IPV4 | TP_UDP,
+=======
+  ETH_IPV4_ICMPV4 = ETH_IPV4 | NW_ICMPV4,
+  ETH_IPV4_TCP = ETH_IPV4 | TP_TCP,
+  ETH_IPV4_UDP = ETH_IPV4 | TP_UDP,
+  ETH_VTAG_ARP = ETH_VTAG_DIX | NW_ARP,
+  ETH_VTAG_IPV4 = ETH_VTAG_DIX | NW_IPV4,
+  ETH_VTAG_IPV4_ICMPV4 = ETH_VTAG_IPV4 | NW_ICMPV4,
+  ETH_VTAG_IPV4_TCP = ETH_VTAG_IPV4 | TP_TCP,
+  ETH_VTAG_IPV4_UDP = ETH_VTAG_IPV4 | TP_UDP,
+  ETH_SNAP_ARP = ETH_8023_SNAP | NW_ARP,
+  ETH_SNAP_IPV4 = ETH_8023_SNAP | NW_IPV4,
+  ETH_SNAP_IPV4_ICMPV4 = ETH_SNAP_IPV4 | NW_ICMPV4,
+  ETH_SNAP_IPV4_TCP = ETH_SNAP_IPV4 | TP_TCP,
+  ETH_SNAP_IPV4_UDP = ETH_SNAP_IPV4 | TP_UDP,
+  ETH_VTAG_SNAP_ARP = ETH_VTAG_SNAP | NW_ARP,
+  ETH_VTAG_SNAP_IPV4 = ETH_VTAG_SNAP | NW_IPV4,
+  ETH_VTAG_SNAP_IPV4_ICMPV4 = ETH_VTAG_SNAP_IPV4 | NW_ICMPV4,
+  ETH_VTAG_SNAP_IPV4_TCP = ETH_VTAG_SNAP_IPV4 | TP_TCP,
+  ETH_VTAG_SNAP_IPV4_UDP = ETH_VTAG_SNAP_IPV4 | TP_UDP,
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 };
 
 
@@ -143,7 +164,13 @@ typedef struct {
   uint16_t udp_checksum;
 
   void *l2_header;
+<<<<<<< HEAD
   void *l3_header;
+=======
+  void *l2_payload;
+  void *l3_header;
+  void *l3_payload;
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   void *l4_header;
   void *l4_payload;
 } packet_info;
@@ -160,6 +187,7 @@ bool packet_type_eth_vtag( const buffer *frame );
 bool packet_type_eth_raw( const buffer *frame );
 bool packet_type_eth_llc( const buffer *frame );
 bool packet_type_eth_snap( const buffer *frame );
+<<<<<<< HEAD
 bool packet_type_eth_vtag_dix( const buffer *frame );
 bool packet_type_eth_vtag_raw( const buffer *frame );
 bool packet_type_eth_vtag_llc( const buffer *frame );
@@ -216,6 +244,14 @@ typedef struct packet_header_info {
 
 // #define packet_info( buf ) ( ( packet_header_info * ) ( ( buf )->user_data ) )
 /*!<Returns pointer to structure of type packet_header_info*/
+=======
+bool packet_type_ether( const buffer *frame );
+bool packet_type_arp( const buffer *frame );
+bool packet_type_ipv4( const buffer *frame );
+bool packet_type_icmpv4( const buffer *frame );
+bool packet_type_ipv4_tcp( const buffer *frame );
+bool packet_type_ipv4_udp( const buffer *frame );
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 
 
 void free_packet( buffer *frame ) DEPRECATED;

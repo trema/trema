@@ -34,7 +34,7 @@ class SwitchInfoController < Controller
     info "capabilities: %u" % message.capabilities
     info "actions: %u" % message.actions
     info "ports: %s" % message.ports.collect { | each | each.number }.sort.join( ", " )
-    stop
+    shutdown!
   end
 end
 

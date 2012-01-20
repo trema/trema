@@ -30,19 +30,42 @@ VALUE cActionSetVlanVid;
  * An action to modify the VLAN id of a packet. The VLAN id is 16-bits long but 
  * the actual VID(VLAN Identifier) of the IEEE 802.1Q frame is 12-bits.
  *
- * @overload initialize(vlan_vid)
+ * @overload initialize(options={})
  *
- * @param [Number] vlan_vid
- *   the VLAN id to set to. Only the lower 12-bits are used.
+ *   @example
+ *     ActionSetVlanVid.new( :vlan_vid => 4096 )
  *
- * @raise [ArgumentError] if vlan_vid argument is not supplied.
+ *   @param [Hash] options
+ *     the options to create this action class instance with.
  *
- * @return [ActionSetVlanVid]
- *   an object that encapsulates this action.
+ *   @option options [Number] :vlan_vid
+ *     the VLAN id to set to. Only the lower 12-bits are used.
+ *
+ *   @raise [ArgumentError] if vlan_vid argument is not supplied.
+ *   @raise [RangeError] if vlan_vid not within 1 and 4096 inclusive.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetVlanVid]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
-  rb_iv_set( self, "@vlan_vid", vlan_vid );
+action_set_vlan_vid_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE vlan_vid;
+    if ( ( vlan_vid = rb_hash_aref( options, ID2SYM( rb_intern( "vlan_vid" ) ) ) ) != Qnil ) {
+      uint16_t vvid = ( uint16_t ) NUM2UINT( vlan_vid );
+      if ( !vvid || vvid & ~4095 ) {
+        rb_raise( rb_eRangeError, "Valid VLAN id values between 1 to 4096 inclusive" );
+      }
+      rb_iv_set( self, "@vlan_vid", vlan_vid );
+    }
+    else {
+      rb_raise( rb_eArgError, "VLAN id is a mandatory option" );
+    }
+  }
   return self;
 }
 
@@ -50,7 +73,7 @@ action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
 /*
  * The VLAN id value.
  *
- * @return [Number] the value of attribute vlan_vid.
+ * @return [Number] the value of vlan_vid.
  */
 static VALUE
 action_get_vlan_vid( VALUE self ) {
@@ -87,7 +110,7 @@ action_set_vlan_vid_inspect( VALUE self ) {
 void
 Init_action_set_vlan_vid() {
   cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_cObject );
-  rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, 1 );
+  rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, -1 );
   rb_define_method( cActionSetVlanVid, "vlan_vid", action_get_vlan_vid, 0 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
   rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );

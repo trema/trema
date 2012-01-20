@@ -91,25 +91,32 @@ find_character( char *string, size_t length, char character ) {
 }
 
 
-static bool
-read_stdin( void ) {
+static void
+read_stdin( int fd, void *data ) {
+  UNUSED( data );
+
   char buf[ 1024 ];
   memset( buf, '\0', sizeof( buf ) );
-  ssize_t ret = read( STDIN_FILENO, buf, sizeof( buf ) );
+  ssize_t ret = read( fd, buf, sizeof( buf ) );
   if ( ret < 0 ) {
     if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
-      return true;
+      return;
     }
+
+    set_readable( fd, false );
+
     error( "Read error ( errno = %s [%d] ).", strerror( errno ), errno );
-    return false;
+    return;
   }
   else if ( ret == 0 ) {
-    return true;
+    return;
   }
 
   if ( stdin_read_buffer == NULL ) {
+    set_readable( fd, false );
+
     error( "Read buffer is not allocated yet" );
-    return false;
+    return;
   }
 
   char *p = append_back_buffer( stdin_read_buffer, ( size_t ) ret );
@@ -140,25 +147,6 @@ read_stdin( void ) {
   buffer *truncated = duplicate_buffer( stdin_read_buffer );
   free_buffer( stdin_read_buffer );
   stdin_read_buffer = truncated;
-
-  return true;
-}
-
-
-static void
-stdin_fd_set( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-  FD_SET( STDIN_FILENO, read_set );
-}
-
-
-static void
-stdin_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  UNUSED( write_set );
-
-  if ( FD_ISSET( STDIN_FILENO, read_set ) ) {
-    read_stdin();
-  }
 }
 
 
@@ -220,12 +208,18 @@ init_stdin_relay( int *argc, char **argv[] ) {
 
   stdin_read_buffer = alloc_buffer_with_length( 1024 );
 
+  set_fd_handler( STDIN_FILENO, read_stdin, NULL, NULL, NULL );
+  set_readable( STDIN_FILENO, true );
+
   return true;
 }
 
 
 static bool
 finalize_stdin_relay( void ) {
+  set_readable( STDIN_FILENO, false );
+  delete_fd_handler( STDIN_FILENO );
+
   if ( dump_service_name != NULL ) {
     xfree( dump_service_name );
     dump_service_name = NULL;
@@ -244,10 +238,6 @@ main( int argc, char *argv[] ) {
   // Initialize the Trema world
   init_trema( &argc, &argv );
   init_stdin_relay( &argc, &argv );
-
-  // Set external fd event handlers
-  set_fd_set_callback( stdin_fd_set );
-  set_check_fd_isset_callback( stdin_fd_isset );
 
   // Main loop
   start_trema();

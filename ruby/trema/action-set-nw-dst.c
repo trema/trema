@@ -30,24 +30,40 @@ VALUE cActionSetNwDst;
 /*
  * An action to modify the IPv4 destination address of a packet.
  *
- * @overload initialize(nw_dst)
+ * @overload initialize(options={})
  *
- * @param [IP] nw_dst
- *   a destination IPv4 address encapsulated as an {IP} object.
+ *   @example
+ *     ActionSetNwDst.new( :nw_dst => IP.new( "192.168.1.1" )
  *
- * @raise [ArgumentError] if nw_dst argument is not supplied.
- * @raise [ArgumentError] if nw_dst argument is not an {IP} object instance.
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
+ *   @option options [IP] :nw_dst
+ *     a destination IPv4 address encapsulated as an {IP} object.
  *
- * @return [ActionSetNwDst]
- *   an object that encapsulates this action.
+ *   @raise [ArgumentError] if nw_dst argument is not supplied.
+ *   @raise [TypeError] if nw_dst argument is not an {IP} object instance.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetNwDst]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_nw_dst_init( VALUE self, VALUE nw_dst ) {
-  if ( rb_obj_is_instance_of( nw_dst, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
-    rb_raise( rb_eArgError, "nw dst address should be an IP object" );
-    return self;
+action_set_nw_dst_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE nw_dst;
+    if ( ( nw_dst = rb_hash_aref( options, ID2SYM( rb_intern( "nw_dst" ) ) ) ) != Qnil ) {
+      if ( rb_obj_is_instance_of( nw_dst, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
+        rb_raise( rb_eTypeError, "nw dst address should be an IP object" );
+      }
+      rb_iv_set( self, "@nw_dst", nw_dst );
+    }
+    else {
+      rb_raise( rb_eArgError, "nw dst address is a mandatory option" );
+    }
   }
-  rb_iv_set( self, "@nw_dst", nw_dst );
   return self;
 }
 
@@ -55,7 +71,7 @@ action_set_nw_dst_init( VALUE self, VALUE nw_dst ) {
 /*
  * The destination IPv4 address as an {IP} object.
  *
- * @return [IP] the value of attribute nw_dst.
+ * @return [IP] the value of nw_dst.
  */
 static VALUE
 action_get_nw_dst( VALUE self ) {
@@ -103,7 +119,7 @@ void
 Init_action_set_nw_dst() {
   rb_require( "trema/ip" );
   cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", rb_cObject );
-  rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
+  rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, -1 );
   rb_define_method( cActionSetNwDst, "nw_dst", action_get_nw_dst, 0 );
   rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
   rb_define_method( cActionSetNwDst, "inspect", action_set_nw_dst_inspect, 0 );

@@ -62,7 +62,7 @@ describe Trema::DSL::Syntax do
     Trema::Switch.should_receive( :add ).with( an_instance_of( OpenflowSwitch ) ).once
 
     @syntax.instance_eval do
-      switch { }
+      switch { dpid "0xabc" }
     end
   end
 
@@ -71,7 +71,7 @@ describe Trema::DSL::Syntax do
     Trema::Switch.should_receive( :add ).with( an_instance_of( OpenVswitch ) ).once
 
     @syntax.instance_eval do
-      vswitch { }
+      vswitch { dpid "0xabc" }
     end
   end
 

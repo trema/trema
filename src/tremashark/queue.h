@@ -46,6 +46,7 @@ bool enqueue( queue *queue, buffer *data );
 buffer *dequeue( queue *queue );
 buffer *peek( queue *queue );
 bool sort_queue( queue *queue, bool compare( const buffer *x, const buffer *y ) );
+void foreach_queue( queue *queue, void function( buffer *data ) );
 
 
 #endif // QUEUE_H

@@ -34,30 +34,43 @@ hello_alloc( VALUE klass ) {
 
 
 /*
- * @overload initialize(transaction_id=nil)
- *   Creates a {Hello} object by specifying its transaction id. If
- *   transaction_id is not specified, an auto-generated transaction_id
- *   is set.
- * 
- *   @raise [ArgumentError] if transaction id is negative.
- * 
- *   @return [Hello] an object that encapsulates the OFPT_HELLO openflow message.
+ * Creates a Hello OpenFlow message.
+ *
+ * @overload initialize(options={})
+ *
+ *   @example
+ *     Hello.new
+ *     Hello.new( :transaction_id => 123 )
+ *
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *   @option options [Number] :transaction_id
+ *     An unsigned 32bit integer number associated with this message.
+ *     If not specified, an auto-generated value is set.
+ *
+ *   @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [Hello]
+ *     an object that encapsulates the +OPFT_HELLO+ OpenFlow message.
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
   buffer *hello;
   Data_Get_Struct( self, buffer, hello );
+  uint32_t xid = get_transaction_id();
+  VALUE options;
 
-  VALUE xid_ruby;
-  uint32_t xid;
-  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 0 ) {
-    xid = get_transaction_id();
-  }
-  else {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+      }
+      xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
-    xid = ( uint32_t ) NUM2UINT( xid_ruby );
   }
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
   return self;
@@ -65,9 +78,11 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * Transaction ids, message sequence numbers matching requests to replies.
+ * An unsigned 32bit integer number associated with this
+ * message. Replies use the same id as was in the request to
+ * facilitate pairing.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction ID.
  */
 static VALUE
 hello_transaction_id( VALUE self ) {

@@ -22,42 +22,42 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe QueueGetConfigRequest do
-  context "when an instance is created with no arguments" do
-    its( :transaction_id ) { should  >= 0 }
-    its( :port ) { should == 1 }
-  end
-  
-  
-  context "when an instance is created with arguments" do
-    subject { QueueGetConfigRequest.new( 123, 2 ) }
-    its( :transaction_id ) { should == 123 }
-    its( :port) { should == 2 }
-  end
+describe QueueGetConfigRequest, ".new( OPTIONAL OPTION MISSING )" do
+  its( :port ) { should == 1 }
+  it_should_behave_like "any Openflow message with default transaction ID"
+end  
 
-  
-  context "when an instance is created with invalid transaction_id" do
-    it "should raise an error" do
-      lambda do
-        QueueGetConfigRequest.new( -1, 1 )
-      end.should raise_error ArgumentError
-    end
-  end
-  
-  
+
+describe QueueGetConfigRequest, ".new( VALID OPTIONS )" do
+  subject { QueueGetConfigRequest.new( :transaction_id => transaction_id, :port => port ) }
+  let( :transaction_id ) { 123 }
+  let( :port ) { 2 }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
+  it_should_behave_like "any OpenFlow message with port option"
+
+
   context "when #queue_get_config_request is sent" do
     it "should #queue_get_config_reply" do
-      pending "#queue_get_config_reply is not implemented in openvswitch-1.1.2"
+      pending "#queue_get_config_reply is not implemented in #{Trema::Vendor::openvswitch}"
       class QueueGetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( QueueGetConfigController ) {
         controller( "QueueGetConfigController" ).should_receive( :queue_get_config_reply )
-        queue_get_config_request = QueueGetConfigRequest.new( 123, 1 )
+        queue_get_config_request = QueueGetConfigRequest.new( :transaction_id => 123, :port => 1 )
         controller( "QueueGetConfigController" ).send_message( 0xabc, queue_get_config_request )
         sleep 2 # FIXME: wait to send_message
       }
     end
+  end
+end
+
+
+describe QueueGetConfigRequest, ".new( INVALID OPTIONS )" do
+  it "should raise a TypeError" do
+    expect {
+     QueueGetConfigRequest.new "INVALID OPTIONS"
+    }.to raise_error( TypeError )
   end
 end
 

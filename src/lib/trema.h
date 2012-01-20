@@ -29,6 +29,8 @@
 #include "byteorder.h"
 #include "checks.h"
 #include "doubly_linked_list.h"
+#include "etherip.h"
+#include "event_handler.h"
 #include "hash_table.h"
 #include "linked_list.h"
 #include "log.h"
@@ -38,6 +40,10 @@
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
 #include "packet_info.h"
+<<<<<<< HEAD
+=======
+#include "packetin_filter_interface.h"
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 #include "persistent_storage.h"
 #include "stat.h"
 #include "utility.h"
@@ -49,6 +55,8 @@ static const char DEFAULT_DUMP_SERVICE_NAME[] = "dump_service";
 
 void init_trema( int *argc, char ***argv );
 void start_trema( void );
+void start_trema_up();
+void start_trema_down();
 void stop_trema( void );
 void flush( void );
 const char *get_trema_home( void );

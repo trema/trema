@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "cmockery_trema.h"
 #include "trema.h"
 #include "trema_private.h"
@@ -58,6 +59,8 @@ static char **default_argv = default_args;
 static bool logger_initialized;
 static bool daemonized;
 static bool pid_file_created;
+static bool event_handler_initialized;
+static bool event_handler_started;
 static bool messenger_initialized;
 static bool messenger_started;
 static bool messenger_flushed;
@@ -147,6 +150,27 @@ unsigned int
 mock_sleep( unsigned int seconds ) {
   check_expected( seconds );
   return ( unsigned int ) mock();
+}
+
+
+void
+mock_init_event_handler( void ) {
+  assert_true( logger_initialized );
+  assert_true( !messenger_initialized );
+
+  event_handler_initialized = true;
+}
+
+
+void
+mock_start_event_handler() {
+  event_handler_started = true;
+}
+
+
+void
+mock_stop_event_handler() {
+  event_handler_started = false;
 }
 
 
@@ -263,6 +287,12 @@ mock_debug( const char *format, ... ) {
 }
 
 
+void
+mock_warn( const char *format, ... ) {
+  UNUSED( format );
+}
+
+
 bool
 mock_init_stat() {
   assert_false( stat_initialized );
@@ -280,6 +310,21 @@ mock_finalize_stat() {
   stat_initialized = false;
 
   return true;
+}
+
+
+void
+mock_execute_timer_events() {
+  // Do nothing.
+}
+
+
+int
+mock_clock_gettime( clockid_t clk_id, struct timespec *tp ) {
+  UNUSED( clk_id );
+  UNUSED( tp );
+
+  return ( int ) mock();
 }
 
 
@@ -310,6 +355,13 @@ mock_finalize_timer() {
 }
 
 
+bool
+mock_finalize_packetin_filter_interface() {
+  // Do nothing.
+  return true;
+}
+
+
 /********************************************************************************
  * Setup and teardown.
  ********************************************************************************/
@@ -323,6 +375,7 @@ reset_trema() {
   unset_trema_tmp();
 
   logger_initialized = false;
+  event_handler_initialized = false;
   messenger_initialized = false;
   initialized = false;
   trema_name = NULL;
@@ -331,6 +384,7 @@ reset_trema() {
 
   daemonized = false;
   pid_file_created = false;
+  event_handler_started = false;
   messenger_started = false;
   messenger_flushed = false;
 
@@ -383,6 +437,8 @@ test_init_trema_dies_if_trema_tmp_does_not_exist() {
 /********************************************************************************
  * start_trema() tests.
  ********************************************************************************/
+
+#include <unistd.h>
 
 static void
 test_start_trema_daemonizes_if_d_option_is_ON() {
@@ -756,9 +812,10 @@ static void
 test_get_trema_process_from_name() {
   char NAME[] = "test_name";
   char TEMP_DIRECTORY[] = "/tmp";
+  char PID_DIRECTORY[] = "/tmp/pid";
   int PID = 123;
   setenv( "TREMA_TMP", TEMP_DIRECTORY, 1 );
-  expect_string( mock_read_pid, directory, TEMP_DIRECTORY );
+  expect_string( mock_read_pid, directory, PID_DIRECTORY );
   expect_string( mock_read_pid, name, NAME );
   will_return( mock_read_pid, PID );
 

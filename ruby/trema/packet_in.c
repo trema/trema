@@ -34,7 +34,7 @@ VALUE cPacketIn;
  *   Allocates and wraps a {PacketIn} object to store the details of 
  *   the +OFPT_PACKET_IN+ message.
  *
- * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ openflow message. 
+ * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ OpenFlow message. 
  */
 static VALUE
 packet_in_init( VALUE kclass ) {
@@ -62,7 +62,7 @@ get_packet_in( VALUE self ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 packet_in_datapath_id( VALUE self ) {
@@ -71,11 +71,22 @@ packet_in_datapath_id( VALUE self ) {
 
 
 /*
+ * For this asynchronous message the transaction_id is set to zero.
+ *
+ * @return [Number] the value of transaction_id.
+ */
+static VALUE
+packet_in_transaction_id( VALUE self ) {
+  return ULONG2NUM( get_packet_in( self )->transaction_id );
+}
+
+
+/*
  * Buffer id value signifies if the entire frame (packet is not buffered) or 
  * portion of it (packet is buffered) is included in the data field of 
  * this +OFPT_PACKET_IN+ message.
  *
- * @return [Number] the value of attribute buffer id.
+ * @return [Number] the value of buffer id.
  */
 static VALUE
 packet_in_buffer_id( VALUE self ) {
@@ -103,7 +114,7 @@ packet_in_is_buffered( VALUE self ) {
 /*
  * The port the frame was received.
  *
- * @return [Number] the value of attribute in_port.
+ * @return [Number] the value of in_port.
  */
 static VALUE
 packet_in_in_port( VALUE self ) {
@@ -114,7 +125,7 @@ packet_in_in_port( VALUE self ) {
 /*
  * The full length of the received frame.
  *
- * @return [Number] the value of attribute total_len.
+ * @return [Number] the value of total_len.
  */
 static VALUE
 packet_in_total_len( VALUE self ) {
@@ -123,10 +134,10 @@ packet_in_total_len( VALUE self ) {
 
 
 /*
- * A {Buffer} object that holds the entire or portion of the received frame.
+ * A String that holds the entire or portion of the received frame.
  * Length of data, total_len - 20 bytes.
  *
- * @return [String] the value of attribute data.
+ * @return [String] the value of data.
  */
 static VALUE
 packet_in_data( VALUE self ) {
@@ -138,7 +149,7 @@ packet_in_data( VALUE self ) {
 /*
  * The reason why the +OFPT_PACKET_IN+ message was sent.
  *
- * @return [Number] the value of attribute reason.
+ * @return [Number] the value of reason.
  */
 static VALUE
 packet_in_reason( VALUE self ) {
@@ -154,7 +165,11 @@ packet_in_reason( VALUE self ) {
 static VALUE
 packet_in_macsa( VALUE self ) {
   packet_in *cpacket_in = get_packet_in( self );
+<<<<<<< HEAD
   VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->user_data )->eth_macsa ) );
+=======
+  VALUE macsa = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macsa ) );
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macsa );
 }
 
@@ -167,7 +182,11 @@ packet_in_macsa( VALUE self ) {
 static VALUE
 packet_in_macda( VALUE self ) {
   packet_in *cpacket_in = get_packet_in( self );
+<<<<<<< HEAD
   VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->user_data )->eth_macda ) );
+=======
+  VALUE macda = ULL2NUM( mac_to_uint64( ( ( packet_info * ) cpacket_in->data->user_data )->eth_macda ) );
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, macda );
 }
 
@@ -179,12 +198,13 @@ Init_packet_in() {
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 #if 0
   /*
-   * Do not remote this is to fake yard to create a constructor for 
+   * Do not remove this is to fake yard to create a constructor for 
    * PacketIn object.
    */
   rb_define_method( cPacketIn, "initialize", packet_in_init, 0 );
 #endif  
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
+  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );  
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
@@ -200,7 +220,7 @@ Init_packet_in() {
  * Handler called when +OFPT_PACKET_IN+ message is received.
  */
 void
-handle_packet_in( packet_in message ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
   VALUE controller = ( VALUE ) message.user_data;
   if ( rb_respond_to( controller, rb_intern( "packet_in" ) ) == Qfalse ) {
     return;
@@ -211,7 +231,7 @@ handle_packet_in( packet_in message ) {
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
 
-  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( message.datapath_id ), r_message );
+  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }
 
 

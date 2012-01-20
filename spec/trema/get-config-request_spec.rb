@@ -22,37 +22,31 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigRequest do
-  context "when an instance is created" do  
-    it "should automatically allocate a transaction ID" do
-      get_config_request = GetConfigRequest.new
-      get_config_request.transaction_id.should be_a_kind_of( Integer )
-      get_config_request.transaction_id.should >= 0
-    end
-    
-    
-    it "should have a valid transaction ID" do
-      GetConfigRequest.new( 1234 ).transaction_id.should == 1234
-    end
-  end  
+describe GetConfigRequest, ".new( OPTIONAL OPTION MISSING )" do
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
 
-  
-  context "when creating with negative transaction ID(-1234)" do
-    it "should raise an error" do
-      lambda do 
-        GetConfigRequest.new( -1234 )
-      end.should raise_error( "Transaction ID must be >= 0" )
-    end
+
+describe GetConfigRequest, ".new( INVALID OPTION )" do
+  subject { GetConfigRequest.new "INVALID OPTION" }
+  it "should raise TypeError" do
+    expect { subject }.to raise_error( TypeError )
   end
-  
-  
+end
+
+
+describe GetConfigRequest, ".new( VALID OPTION )" do
+  subject { GetConfigRequest.new :transaction_id => transaction_id }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
+
+
   context "when #get_config_request is sent" do
     it "should #get_config_reply" do
       class GetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( 1234 )
+        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
         sleep 1 # FIXME
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
         controller( "GetConfigController" ).should_receive( :get_config_reply )
@@ -66,7 +60,7 @@ describe GetConfigRequest do
       network {
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( 1234 )
+        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
         controller( "GetConfigController" ).should_receive( :get_config_reply ) do | message |
           message.datapath_id.should == 0xabc
           message.transaction_id.should == 1234

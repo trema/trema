@@ -356,15 +356,14 @@ set_get_config_reply_handler( get_config_reply_handler callback, void *user_data
 bool
 _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
-    die( "Invalid callback function for packet_in event." );
+    die( "Callback function (packet_in_handler) must not be NULL." );
   }
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
   assert( openflow_application_interface_initialized );
 
-  debug( "Setting a packet-in handler ( callback = %p, user_data = %p ).",
-         callback, user_data );
+  debug( "Setting a packet-in handler (callback = %p, user_data = %p).", callback, user_data );
 
   event_handlers.simple_packet_in_callback = simple_callback;
   event_handlers.packet_in_callback = callback;
@@ -375,18 +374,18 @@ _set_packet_in_handler( bool simple_callback, void *callback, void *user_data ) 
 
 
 bool
-set_flow_removed_handler( flow_removed_handler callback, void *user_data ) {
+_set_flow_removed_handler( bool simple_callback, void *callback, void *user_data ) {
   if ( callback == NULL ) {
-    die( "Callback function ( flow_removed_handler ) must not be NULL." );
+    die( "Callback function (flow_removed_handler) must not be NULL." );
   }
   assert( callback != NULL );
 
   maybe_init_openflow_application_interface();
   assert( openflow_application_interface_initialized );
 
-  debug( "Setting a flow removed handler ( callback = %p, user_data = %p ).",
-         callback, user_data );
+  debug( "Setting a flow removed handler (callback = %p, user_data = %p).", callback, user_data );
 
+  event_handlers.simple_flow_removed_callback = simple_callback;
   event_handlers.flow_removed_callback = callback;
   event_handlers.flow_removed_user_data = user_data;
 
@@ -772,7 +771,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
          event_handlers.packet_in_user_data
   );
   if ( event_handlers.simple_packet_in_callback ) {
-    packet_in event = {
+    packet_in message = {
       datapath_id,
       transaction_id,
       buffer_id,
@@ -782,7 +781,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
       body,
       event_handlers.packet_in_user_data
     };
-    ( ( simple_packet_in_handler * ) event_handlers.packet_in_callback )( event );
+    ( ( simple_packet_in_handler * ) event_handlers.packet_in_callback )( datapath_id, message );
   }
   else {
     ( ( packet_in_handler * ) event_handlers.packet_in_callback )(
@@ -805,62 +804,88 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
 
 static void
 handle_flow_removed( const uint64_t datapath_id, buffer *data ) {
-  char match_string[ 1024 ];
-  uint8_t reason;
-  uint16_t priority, idle_timeout;
-  uint32_t transaction_id, duration_sec, duration_nsec;
-  uint64_t cookie, packet_count, byte_count;
-  struct ofp_match match;
-  struct ofp_flow_removed *flow_removed;
-
   if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
     critical( "An OpenFlow message must be filled before calling handle_flow_removed()." );
     assert( 0 );
   }
 
-  flow_removed = ( struct ofp_flow_removed * ) data->data;
+  struct ofp_flow_removed *_flow_removed = ( struct ofp_flow_removed * ) data->data;
+  uint32_t transaction_id = ntohl( _flow_removed->header.xid );
+  struct ofp_match match;
+  ntoh_match( &match, &_flow_removed->match );
+  uint64_t cookie = ntohll( _flow_removed->cookie );
+  uint16_t priority = ntohs( _flow_removed->priority );
+  uint8_t reason = _flow_removed->reason;
+  uint32_t duration_sec = ntohl( _flow_removed->duration_sec );
+  uint32_t duration_nsec = ntohl( _flow_removed->duration_nsec );
+  uint16_t idle_timeout = ntohs( _flow_removed->idle_timeout );
+  uint64_t packet_count = ntohll( _flow_removed->packet_count );
+  uint64_t byte_count = ntohll( _flow_removed->byte_count );
 
-  transaction_id = ntohl( flow_removed->header.xid );
-  ntoh_match( &match, &flow_removed->match );
-  cookie = ntohll( flow_removed->cookie );
-  priority = ntohs( flow_removed->priority );
-  reason = flow_removed->reason;
-  duration_sec = ntohl( flow_removed->duration_sec );
-  duration_nsec = ntohl( flow_removed->duration_nsec );
-  idle_timeout = ntohs( flow_removed->idle_timeout );
-  packet_count = ntohll( flow_removed->packet_count );
-  byte_count = ntohll( flow_removed->byte_count );
-
+  char match_string[ 1024 ];
   match_to_string( &match, match_string, sizeof( match_string ) );
 
-  debug( "A flow removed message is received from %#" PRIx64
-         " ( transaction_id = %#x, match = [%s], cookie = %#" PRIx64 ", "
-         "priority = %u, reason = %#x, duration_sec = %u, duration_nsec = %u, "
-         "idle_timeout = %u, packet_count = %" PRIu64 ", byte_count = %" PRIu64 " ).",
-         datapath_id, transaction_id, match_string, cookie,
-         priority, reason, duration_sec, duration_nsec,
-         idle_timeout, packet_count, byte_count );
+  debug(
+    "A flow removed message is received from %#" PRIx64
+    " ( transaction_id = %#x, match = [%s], cookie = %#" PRIx64 ", "
+    "priority = %u, reason = %#x, duration_sec = %u, duration_nsec = %u, "
+    "idle_timeout = %u, packet_count = %" PRIu64 ", byte_count = %" PRIu64 " ).",
+    datapath_id,
+    transaction_id,
+    match_string,
+    cookie,
+    priority,
+    reason,
+    duration_sec,
+    duration_nsec,
+    idle_timeout,
+    packet_count,
+    byte_count
+  );
 
   if ( event_handlers.flow_removed_callback == NULL ) {
     debug( "Callback function for flow removed events is not set." );
     return;
   }
 
-  debug( "Calling flow removed handler ( callback = %p, user_data = %p ).",
-         event_handlers.flow_removed_callback, event_handlers.flow_removed_user_data );
-
-  event_handlers.flow_removed_callback( datapath_id,
-                                        transaction_id,
-                                        match,
-                                        cookie,
-                                        priority,
-                                        reason,
-                                        duration_sec,
-                                        duration_nsec,
-                                        idle_timeout,
-                                        packet_count,
-                                        byte_count,
-                                        event_handlers.flow_removed_user_data );
+  debug(
+    "Calling flow removed handler (callback = %p, user_data = %p).",
+    event_handlers.flow_removed_callback,
+    event_handlers.flow_removed_user_data
+  );
+  if ( event_handlers.simple_flow_removed_callback ) {
+    flow_removed message = {
+      datapath_id,
+      transaction_id,
+      match,
+      cookie,
+      priority,
+      reason,
+      duration_sec,
+      duration_nsec,
+      idle_timeout,
+      packet_count,
+      byte_count,
+      event_handlers.flow_removed_user_data
+    };
+    ( ( simple_flow_removed_handler * ) event_handlers.flow_removed_callback )( datapath_id, message );
+  }
+  else {
+    ( ( flow_removed_handler * ) event_handlers.flow_removed_callback )(
+      datapath_id,
+      transaction_id,
+      match,
+      cookie,
+      priority,
+      reason,
+      duration_sec,
+      duration_nsec,
+      idle_timeout,
+      packet_count,
+      byte_count,
+      event_handlers.flow_removed_user_data
+    );
+  }
 }
 
 
@@ -1605,7 +1630,7 @@ send_openflow_message( const uint64_t datapath_id, buffer *message ) {
 
   memset( remote_service_name, '\0', sizeof( remote_service_name ) );
   snprintf( remote_service_name, sizeof( remote_service_name ),
-            "switch.%" PRIx64, datapath_id );
+            "switch.%#" PRIx64, datapath_id );
 
   debug( "Sending an OpenFlow message to %#" PRIx64
          " ( service_name = %s, remote_service_name = %s, "

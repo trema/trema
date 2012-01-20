@@ -57,8 +57,11 @@ task :examples => [
   "examples:multi_learning_switch",
   "examples:openflow_message",
   "examples:packet_in",
-  "examples:repeater_hub",                 
+  "examples:repeater_hub",
+  "examples:packetin_filter_config",
   "examples:switch_info",
+  "examples:switch_monitor",
+  "examples:traffic_monitor",
 ]
 
 
@@ -231,8 +234,9 @@ task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
 file Trema::Executables.ovs_openflowd do
   sys.unpack_tgz "#{ Trema::Vendor.openvswitch }.tar.gz", :in => Trema::Vendor.path
   sys.cd Trema::Vendor.openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.tmp }"
+    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock_directory }"
     sys "make install"
+    sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
   end
 end
 
@@ -563,6 +567,8 @@ standalone_examples = [
   "packet_in",
   "repeater_hub",
   "switch_info",
+  "switch_monitor",
+  "traffic_monitor",
 ]
 
 standalone_examples.each do | each |
@@ -632,6 +638,50 @@ end
 
 
 ################################################################################
+# Build packetin_filter_config
+################################################################################
+
+packetin_filter_config = [
+  "add_filter",
+  "delete_filter",
+  "delete_filter_strict",
+  "dump_filter",
+  "dump_filter_strict",
+]
+
+packetin_filter_config_source_dir = "src/examples/packetin_filter_config"
+packetin_filter_config_objects_dir = objects( "examples/packetin_filter_config" )
+
+gen C::Dependencies, dependency( "packetin_filter_config" ),
+  :search => [ trema_include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "packetin_filter_config" )
+end
+
+gen Directory, packetin_filter_config_objects_dir
+
+
+gen DirectedRule, packetin_filter_config_objects_dir => [ packetin_filter_config_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+packetin_filter_config.each do | each |
+  packetin_filter_config_utils_o = File.join( packetin_filter_config_objects_dir, "utils.o" )
+  target = File.join( packetin_filter_config_objects_dir, each )
+  task "examples:packetin_filter_config" => target
+  file target => [
+    File.join( packetin_filter_config_objects_dir, "#{ each }.o" ),
+    packetin_filter_config_utils_o,
+    libtrema
+  ] do | t |
+    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
+  end
+end
+
+
+################################################################################
 # Unit tests.
 ################################################################################
 
@@ -639,8 +689,13 @@ def libtrema_unit_tests
   {
     :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
     :daemon_test => [],
+<<<<<<< HEAD
     :match_table_test => [ :hash_table, :doubly_linked_list, :linked_list, :log, :utility, :wrapper, :trema_wrapper ],
     :messenger_test => [ :doubly_linked_list, :hash_table, :linked_list, :utility, :wrapper, :log, :trema_wrapper ],
+=======
+    :ether_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :timer, :log, :trema_wrapper ],
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
     :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
@@ -696,14 +751,18 @@ end
 tests = [
   "objects/unittests/buffer_test",
   "objects/unittests/doubly_linked_list_test",
+  "objects/unittests/ether_test",
   "objects/unittests/hash_table_test",
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
+  "objects/unittests/packetin_filter_interface_test",
+  "objects/unittests/packet_info_test",
   "objects/unittests/packet_parser_test",
   "objects/unittests/persistent_storage_test",
   "objects/unittests/trema_private_test",
   "objects/unittests/utility_test",
   "objects/unittests/wrapper_test",
+  "objects/unittests/match_table_test",
 ]
 
 
@@ -715,7 +774,7 @@ end
 tests.each do | each |
   task :build_unittests => [ "coverage:libtrema", each ]
   task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
-  file each do | t |
+  file each => "unittests/lib/#{ File.basename each }.c" do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
     sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
   end

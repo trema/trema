@@ -44,6 +44,7 @@ queue_status dequeue_pcap_packet( buffer **packet );
 bool sort_pcap_queue( void );
 void set_max_pcap_queue_length( int length );
 int get_pcap_queue_length( void );
+void foreach_pcap_queue( void function( buffer *data ) );
 
 
 #endif // PCAP_QUEUE_H

@@ -1,6 +1,4 @@
 /*
- * Hash table library.
- *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2011 NEC Corporation
@@ -19,11 +17,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 /**
- * @file hash_table.h
- * This header file contain type definitions and function declarations of hash_table.c file
- * @see hash_table.c
+ * @file
+ *
+ * @brief Associations between keys and values so that given a key the
+ * value can be found quickly.
+ *
+ * @code
+ * // Create hash table.
+ * table = create_hash( compare_string, hash_string );
+ *
+ * // Insert three key/value pairs.
+ * insert_hash_entry( table, "alpha", &object_a );
+ * insert_hash_entry( table, "bravo", &object_b );
+ * insert_hash_entry( table, "charlie", &object_c );
+ *
+ * // Look up by a key = "alpha".
+ * lookup_hash_entry( table, "alpha" ); // => object_a
+ *
+ * // Delete entire hash table.
+ * delete_hash( table );
+ * @endcode
  */
+
 
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
@@ -32,12 +49,35 @@
 #include "doubly_linked_list.h"
 
 
+/**
+ * The function is passed a key and should return a unsigned int hash
+ * value.
+ *
+ * The hash values should be evenly distributed over a fairly large
+ * range. The modulus is taken with the hash table size (a prime
+ * number) to find the 'bucket' to place each key into. The function
+ * should also be very fast, since it is called for each key lookup.
+ *
+ * @param key a key.
+ * @return the hash value corresponding to the key.
+ */
 typedef unsigned int ( *hash_function )( const void *key );
+
+/**
+ * Specifies the type of a function used to test two values for
+ * equality. The function should return true if both values are equal
+ * and false otherwise.
+ *
+ * @param x a value.
+ * @param y a value to compare with.
+ * @return true if a = b; false otherwise.
+ */
 typedef bool ( *compare_function )( const void *x, const void *y );
 
 
 /**
- * This is the type that specifies individual entry in hash table
+ * The hash_entry struct is an opaque data structure to represent a
+ * key/value pair of hash_table.
  */
 typedef struct {
   void *key;
@@ -46,30 +86,35 @@ typedef struct {
 
 
 /**
- * This is the type that specifies parameters associated with a hash table
+ * The hash_table struct is an opaque data structure to represent a
+ * hash_table. It should only be accessed via the following functions.
  */
 typedef struct {
-  unsigned int number_of_buckets; /*!<Total number of buckets allocated in hash table*/
-  compare_function compare; /*!<Function pointer to compare items*/
-  hash_function hash; /*!<Pointer to hash function*/
-  unsigned int length; /*!<Total number of entries in hash table*/
-  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
-  dlist_element *nonempty_bucket_index; /*!<List of non-empty buckets in hash table*/
+  unsigned int number_of_buckets;
+  compare_function compare;
+  hash_function hash;
+  unsigned int length;
+  dlist_element **buckets;
+  dlist_element *nonempty_bucket_index;
 } hash_table;
 
 
 /**
- * This is the type that specifies parameters used to iterate over hash table
+ * A hash_iterator structure represents an iterator that can be used
+ * to iterate over the elements of a hash_table. hash_iterator
+ * structures are typically allocated on the stack and then
+ * initialized with init_hash_iterator().
  */
 typedef struct {
-  dlist_element **buckets; /*!<Pointer to buckets in hash table*/
-  dlist_element *bucket_index; /*!<Pointer to non-empty bucket index */
-  dlist_element *next_bucket_index; /*!<Pointer to next non-empty bucket index*/
-  dlist_element *element; /*!<Pointer to hash entries in a bucket*/
+  dlist_element **buckets;
+  dlist_element *bucket_index;
+  dlist_element *next_bucket_index;
+  dlist_element *element;
 } hash_iterator;
 
 
 hash_table *create_hash( const compare_function compare, const hash_function hash );
+hash_table *create_hash_with_size( const compare_function compare, const hash_function hash, unsigned int size );
 void *insert_hash_entry( hash_table *table, void *key, void *value );
 void *lookup_hash_entry( hash_table *table, const void *key );
 void *delete_hash_entry( hash_table *table, const void *key );

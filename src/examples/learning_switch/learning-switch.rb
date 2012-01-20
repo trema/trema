@@ -37,6 +37,7 @@ class LearningSwitch < Trema::Controller
 
 
   def packet_in datapath_id, message
+    info "packet_in"
     @fdb.learn message.macsa, message.in_port
     port_no = @fdb.port_no_of( message.macda )
     if port_no
@@ -62,7 +63,7 @@ class LearningSwitch < Trema::Controller
     send_flow_mod_add(
       datapath_id,
       :match => ExactMatch.from( message ),
-      :actions => Trema::ActionOutput.new( port_no )
+      :actions => Trema::ActionOutput.new( :port => port_no )
     )
   end
 
@@ -71,7 +72,7 @@ class LearningSwitch < Trema::Controller
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => Trema::ActionOutput.new( port_no )
+      :actions => Trema::ActionOutput.new( :port => port_no )
     )
   end
 

@@ -24,8 +24,11 @@ end
 
 
 When /^wait until "([^"]*)" is up$/ do | process |
-  pid_file = File.join( Trema.tmp, "#{ process }.pid" )
+  nloop = 0
+  pid_file = File.join( Trema.pid_directory, "#{ process }.pid" )
   loop do
+    nloop += 1
+    raise "Timeout" if nloop > 30
     break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
     sleep 0.1
   end
@@ -35,6 +38,12 @@ end
 
 Then /^([^\s]*) is terminated$/ do | name |
   ps_entry_of( name ).should be_empty
+end
+
+
+Then /^vswitch ([^\s]*) is terminated$/ do | dpid |
+  pid_file = File.join( Trema.tmp, "openflowd.#{ dpid }.pid" )
+  File.exists?( pid_file ).should be_false
 end
 
 

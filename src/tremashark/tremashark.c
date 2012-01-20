@@ -37,13 +37,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "trema.h"
+#include "pcap_private.h"
 #include "pcap_queue.h"
 
 
 #define FIFO_NAME "tremashark"
 #define WIRESHARK "wireshark"
 #define TSHARK "tshark"
-#define FLUSH_INTERVAL 500000000 // nanoseconds
+#define FLUSH_INTERVAL 250000000 // nanoseconds
 #define MESSAGE_BUFFER_LENGTH 100000 // microseconds
 
 #define WRITE_SUCCESS 0
@@ -117,14 +118,12 @@ dump_message( uint16_t tag, void *data, size_t len ) {
                              "send-connected", "send-refused", "send-overflow", "send-closed",
                              "logger", "pcap", "syslog", "text" };
   size_t pcap_dump_header_length;
-  struct pcap_pkthdr pcap_header;
+  struct pcap_pkthdr_private pcap_header;
   message_dump_header *dump_hdr;
   message_pcap_dump_header *pcap_dump_hdr;
   message_header *hdr;
   buffer *packet;
   queue_status status;
-
-  assert( outfile_fd >= 0 );
 
   dump_hdr = data;
 
@@ -162,13 +161,16 @@ dump_message( uint16_t tag, void *data, size_t len ) {
     memcpy( pcap_dump_service_name, service_name, ntohs( pcap_dump_hdr->service_name_len ) );
   }
 
-  memset( &pcap_header, 0, sizeof( struct pcap_pkthdr ) );
+  memset( &pcap_header, 0, sizeof( struct pcap_pkthdr_private ) );
   if ( trust_remote_clocks ) {
-    pcap_header.ts.tv_sec = ( time_t ) ntohl( dump_hdr->sent_time.sec );
-    pcap_header.ts.tv_usec = ( suseconds_t ) ( ntohl( dump_hdr->sent_time.nsec ) / 1000 );
+    pcap_header.ts.tv_sec = ( bpf_int32 ) ntohl( dump_hdr->sent_time.sec );
+    pcap_header.ts.tv_usec = ( bpf_int32 ) ( ntohl( dump_hdr->sent_time.nsec ) / 1000 );
   }
   else {
-    gettimeofday( &pcap_header.ts, NULL );
+    struct timeval ts;
+    gettimeofday( &ts, NULL );
+    pcap_header.ts.tv_sec = ( bpf_int32 ) ts.tv_sec;
+    pcap_header.ts.tv_usec = ( bpf_int32 ) ts.tv_usec;
   }
 
   len -= dump_header_length;
@@ -176,10 +178,9 @@ dump_message( uint16_t tag, void *data, size_t len ) {
   pcap_header.caplen = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
   pcap_header.len = ( bpf_u_int32 ) ( pcap_dump_header_length + ntohl( pcap_dump_hdr->data_len ) );
 
-  packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr ),
+  packet = create_pcap_packet( &pcap_header, sizeof( struct pcap_pkthdr_private ),
                                pcap_dump_hdr, pcap_dump_header_length,
                                hdr, ntohl( pcap_dump_hdr->data_len ) );
-
   xfree( pcap_dump_hdr );
 
   if ( use_circular_buffer ) {
@@ -225,7 +226,7 @@ write_pcap_packet( void *user_data ) {
       break;
     }
 
-    struct pcap_pkthdr *p = packet->data;
+    struct pcap_pkthdr_private *p = packet->data;
     if ( ( p->ts.tv_sec > threshold.tv_sec ) ||
          ( p->ts.tv_sec == threshold.tv_sec && p->ts.tv_usec > threshold.tv_usec ) ) {
       break;
@@ -252,41 +253,6 @@ write_pcap_packet( void *user_data ) {
   fsync( outfile_fd );
 
   return;
-}
-
-
-static void
-write_circular_buffer( void ) {
-  sort_pcap_queue();
-
-  buffer *packet = NULL;
-  for ( ; ; ) {
-    packet = NULL;
-    dequeue_pcap_packet( &packet );
-    if ( packet == NULL ) {
-      break;
-    }
-
-    int ret = write_to_file( packet );
-    delete_pcap_packet( packet );
-    if ( ret != WRITE_SUCCESS ) {
-      break;
-    }
-  }
-
-  fsync( outfile_fd );
-
-  return;
-}
-
-
-static void
-set_signal_handler( void ) {
-  // Note that this overrides a default signal handler set by Trema.
-  struct sigaction signal_usr2;
-  memset( &signal_usr2, 0, sizeof( struct sigaction ) );
-  signal_usr2.sa_handler = ( void * ) write_circular_buffer;
-  sigaction( SIGUSR2, &signal_usr2, NULL );
 }
 
 
@@ -326,7 +292,7 @@ init_pcap() {
 
   mode_t mode = ( S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
   if ( output_to_pcap_file ) {
-    outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT, mode );
+    outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT | O_TRUNC, mode );
     if ( outfile_fd < 0 ) {
       critical( "Failed to open a file (%s).", pcap_file_pathname );
       assert( 0 );
@@ -360,11 +326,50 @@ init_pcap() {
 static void
 finalize_pcap() {
   if ( outfile_fd >= 0 ) {
+    fsync( outfile_fd );
     close( outfile_fd );
     outfile_fd = -1;
   }
 
   unlink( fifo_pathname );
+}
+
+
+static void
+write_circular_buffer( void ) {
+  if ( !output_to_pcap_file ) {
+    return;
+  }
+
+  if ( outfile_fd < 0 ) {
+    init_pcap();
+  }
+
+  sort_pcap_queue();
+
+  foreach_pcap_queue( ( void * ) write_to_file );
+
+  finalize_pcap();
+
+  return;
+}
+
+
+static void
+set_write_circular_buffer( void ) {
+  if ( set_external_callback != NULL ) {
+    set_external_callback( write_circular_buffer );
+  }
+}
+
+
+static void
+set_signal_handler( void ) {
+  // Note that this overrides a default signal handler set by Trema.
+  struct sigaction signal_usr2;
+  memset( &signal_usr2, 0, sizeof( struct sigaction ) );
+  signal_usr2.sa_handler = ( void * ) set_write_circular_buffer;
+  sigaction( SIGUSR2, &signal_usr2, NULL );
 }
 
 
@@ -402,7 +407,7 @@ usage( void ) {
     "  -w FILE_TO_SAVE             save messages to pcap file\n"
     "  -p                          do not launch wireshark nor tshark\n"
     "  -r                          do not trust remote clock\n"
-    "  -c [NUMBER_OF_MESSAGES]     save messages to circular buffer\n"
+    "  -c NUMBER_OF_MESSAGES       save messages to circular buffer\n"
     "  -s DUMP_SERVICE_NAME        dump service name\n"
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -d, --daemonize             run in the background\n"
@@ -425,7 +430,7 @@ parse_options( int *argc, char **argv[] ) {
   int opt;
 
   while ( 1 ) {
-    opt = getopt( *argc, *argv, "c:s:tw:p" );
+    opt = getopt( *argc, *argv, "c:s:tw:pr" );
 
     if ( opt < 0 ) {
       break;

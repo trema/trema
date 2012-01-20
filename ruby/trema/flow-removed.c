@@ -31,7 +31,7 @@ VALUE cFlowRemoved;
  * as the +OFPFF_SEND_FLOW_REM+ bit is toggled in the +flags+ bitmap during
  * flow setup. A user would not explicitly instantiate a {FlowRemoved} object but
  * would be created while parsing the +OPPT_FLOW_REMOVED+ message.
- * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ openflow message.
+ * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ OpenFlow message.
  *
  * @overload initialize(options={})
  *   @example 
@@ -49,7 +49,8 @@ VALUE cFlowRemoved;
  *       :byte_count=> 64
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
  *   @option options [Symbol] :datapath_id
  *     message originator identifier.
@@ -88,7 +89,7 @@ VALUE cFlowRemoved;
  *   @option options [Symbol] :byte_count
  *     a counter of the total number of bytes.
  *
- * @return [FlowRemoved] self
+ *   @return [FlowRemoved] self
  */
 static VALUE
 flow_removed_init( VALUE self, VALUE options ) {
@@ -100,7 +101,7 @@ flow_removed_init( VALUE self, VALUE options ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 flow_removed_datapath_id( VALUE self ) {
@@ -111,7 +112,7 @@ flow_removed_datapath_id( VALUE self ) {
 /*
  * For this asynchronous message the transaction_id is set to zero.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 flow_removed_transaction_id( VALUE self ) {
@@ -133,7 +134,7 @@ flow_removed_match( VALUE self ) {
 /*
  * An opaque handle copied from the corresponding flow setup message.
  *
- * @return [Number] the value of attribute cookie.
+ * @return [Number] the value of cookie.
  */
 static VALUE
 flow_removed_cookie( VALUE self ) {
@@ -145,7 +146,7 @@ flow_removed_cookie( VALUE self ) {
  * The priority level of the flow copied from the corresponding flow setup
  * message.
  *
- * @return [Number] the value of attribute priority.
+ * @return [Number] the value of priority.
  */
 static VALUE
 flow_removed_priority( VALUE self ) {
@@ -156,7 +157,7 @@ flow_removed_priority( VALUE self ) {
 /*
  * The reason why the flow is removed.
  *
- * @return [Number] the value of attribute reason.
+ * @return [Number] the value of reason.
  */
 static VALUE
 flow_removed_reason( VALUE self ) {
@@ -167,7 +168,7 @@ flow_removed_reason( VALUE self ) {
 /*
  * The number of seconds the flow was active.
  *
- * @return [Number] the value of attribute duration_sec.
+ * @return [Number] the value of duration_sec.
  */
 static VALUE
 flow_removed_duration_sec( VALUE self ) {
@@ -178,7 +179,7 @@ flow_removed_duration_sec( VALUE self ) {
 /*
  * The number of nanoseconds the flow was active.
  *
- * @return [Number] the value of attribute duration_nsec.
+ * @return [Number] the value of duration_nsec.
  */
 static VALUE
 flow_removed_duration_nsec( VALUE self ) {
@@ -189,7 +190,7 @@ flow_removed_duration_nsec( VALUE self ) {
 /*
  * Time elapsed in seconds before the flow is removed.
  *
- * @return [Number] the value of attribute idle_timeout.
+ * @return [Number] the value of idle_timeout.
  */
 static VALUE
 flow_removed_idle_timeout( VALUE self ) {
@@ -200,7 +201,7 @@ flow_removed_idle_timeout( VALUE self ) {
 /*
  * A counter of the total number of packets.
  *
- * @return [Number] the value of attribute packet_count.
+ * @return [Number] the value of packet_count.
  */
 static VALUE
 flow_removed_packet_count( VALUE self ) {
@@ -211,7 +212,7 @@ flow_removed_packet_count( VALUE self ) {
 /*
  * A counter of the total number of bytes.
  *
- * @return [Number] the value of attribute byte_count.
+ * @return [Number] the value of byte_count.
  */
 static VALUE
 flow_removed_byte_count( VALUE self ) {
@@ -238,44 +239,31 @@ Init_flow_removed() {
 
 
 void
-handle_flow_removed(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  struct ofp_match match,
-  uint64_t cookie,
-  uint16_t priority,
-  uint8_t reason,
-  uint32_t duration_sec,
-  uint32_t duration_nsec,
-  uint16_t idle_timeout,
-  uint64_t packet_count,
-  uint64_t byte_count,
-  void *user_data
-) {
-  VALUE controller = ( VALUE ) user_data;
+handle_flow_removed( uint64_t datapath_id, flow_removed message ) {
+  VALUE controller = ( VALUE ) message.user_data;
   if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
     return;
   }
-  VALUE attributes = rb_hash_new();
 
+  VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( message.transaction_id ) );
 
   VALUE match_obj = rb_eval_string( "Match.new" );
-  rb_funcall( match_obj, rb_intern( "replace" ), 1, Data_Wrap_Struct( cFlowRemoved, NULL, NULL, &match ) );
+  rb_funcall( match_obj, rb_intern( "replace" ), 1, Data_Wrap_Struct( cFlowRemoved, NULL, NULL, &message.match ) );
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "match" ) ), match_obj );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "cookie" ) ), ULL2NUM( cookie ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "priority" ) ), UINT2NUM( priority ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( reason ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_sec" ) ), UINT2NUM( duration_sec ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_nsec" ) ), UINT2NUM( duration_nsec ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "idle_timeout" ) ), UINT2NUM( idle_timeout ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( packet_count ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( byte_count ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "cookie" ) ), ULL2NUM( message.cookie ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "priority" ) ), UINT2NUM( message.priority ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( message.reason ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_sec" ) ), UINT2NUM( message.duration_sec ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "duration_nsec" ) ), UINT2NUM( message.duration_nsec ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "idle_timeout" ) ), UINT2NUM( message.idle_timeout ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "packet_count" ) ), ULL2NUM( message.packet_count ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "byte_count" ) ), ULL2NUM( message.byte_count ) );
 
-  VALUE flow_removed = rb_funcall( cFlowRemoved, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "flow_removed" ), 1, flow_removed );
+  VALUE r_message = rb_funcall( cFlowRemoved, rb_intern( "new" ), 1, attributes );
+  rb_funcall( controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), r_message );
 }
 
 

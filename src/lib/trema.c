@@ -37,6 +37,7 @@
 #include "log.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
+#include "packetin_filter_interface.h"
 #include "timer.h"
 #include "trema_private.h"
 #include "utility.h"
@@ -104,6 +105,24 @@ int mock_kill( pid_t pid, int sig );
 #endif
 #define sleep mock_sleep
 unsigned int mock_sleep( unsigned int seconds );
+
+#ifdef init_event_handler
+#undef init_event_handler
+#endif
+#define init_event_handler mock_init_event_handler
+void mock_init_event_handler( void );
+
+#ifdef start_event_handler
+#undef start_event_handler
+#endif
+#define start_event_handler mock_start_event_handler
+void mock_start_event_handler( void );
+
+#ifdef stop_event_handler
+#undef stop_event_handler
+#endif
+#define stop_event_handler mock_stop_event_handler
+void mock_stop_event_handler( void );
 
 #ifdef init_messenger
 #undef init_messenger
@@ -232,6 +251,12 @@ bool mock_set_external_callback( void ( *callback ) ( void ) );
 #define dump_stats mock_dump_stats
 void mock_dump_stats();
 
+#ifdef finalize_packetin_filter_interface
+#undef finalize_packetin_filter_interface
+#endif
+#define finalize_packetin_filter_interface mock_finalize_packetin_filter_interface
+bool mock_finalize_packetin_filter_interface();
+
 #define static
 
 #endif // UNIT_TESTING
@@ -292,6 +317,22 @@ get_trema_log() {
 }
 
 
+static const char *
+get_trema_pid() {
+  char path[ PATH_MAX ];
+  sprintf( path, "%s/pid", get_trema_tmp() );
+  return xstrdup( path );
+}
+
+
+static const char *
+get_trema_sock() {
+  char path[ PATH_MAX ];
+  sprintf( path, "%s/sock", get_trema_tmp() );
+  return xstrdup( path );
+}
+
+
 static void
 maybe_finalize_openflow_application_interface() {
   if ( openflow_application_interface_is_initialized() ) {
@@ -315,11 +356,12 @@ finalize_trema() {
   debug( "Terminating %s...", get_trema_name() );
 
   maybe_finalize_openflow_application_interface();
+  finalize_packetin_filter_interface();
   finalize_messenger();
   finalize_stat();
   finalize_timer();
   trema_started = false;
-  unlink_pid( get_trema_tmp(), get_trema_name() );
+  unlink_pid( get_trema_pid(), get_trema_name() );
   xfree( trema_name );
   trema_name = NULL;
   xfree( executable_name );
@@ -519,7 +561,7 @@ init_trema( int *argc, char ***argv ) {
   set_exit_handler();
   set_usr1_handler();
   set_usr2_handler();
-  init_messenger( get_trema_tmp() );
+  init_messenger( get_trema_sock() );
   init_stat();
   init_timer();
 
@@ -534,6 +576,14 @@ init_trema( int *argc, char ***argv ) {
  */
 void
 start_trema() {
+  start_trema_up();
+  start_event_handler();
+  start_trema_down();
+}
+
+
+void
+start_trema_up() {
   pthread_mutex_lock( &mutex );
 
   die_unless_initialized();
@@ -541,10 +591,15 @@ start_trema() {
   debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
-  write_pid( get_trema_tmp(), get_trema_name() );
+  write_pid( get_trema_pid(), get_trema_name() );
   trema_started = true;
-  start_messenger();
 
+  start_messenger();
+}
+
+
+void
+start_trema_down() {
   finalize_trema();
 
   pthread_mutex_unlock( &mutex );
@@ -562,6 +617,7 @@ flush() {
  */
 void
 stop_trema() {
+  stop_event_handler();
   stop_messenger();
 }
 
@@ -571,7 +627,8 @@ set_trema_name( const char *name ) {
   assert( name != NULL );
   if ( trema_name != NULL ) {
     if ( trema_started ) {
-      rename_pid( get_trema_tmp(), trema_name, name );
+      rename_pid( get_trema_pid(), trema_name, name );
+      rename_log( trema_name, name, get_trema_log() );
     }
     xfree( trema_name );
   }
@@ -606,7 +663,7 @@ get_executable_name() {
 
 pid_t
 get_trema_process_from_name( const char *name ) {
-  return read_pid( get_trema_tmp(), name );
+  return read_pid( get_trema_pid(), name );
 }
 
 

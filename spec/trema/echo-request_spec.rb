@@ -22,42 +22,47 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-module Trema
-  describe EchoRequest do
-    context "when an instance is created" do
-      its( :transaction_id ) { should be_a_kind_of( Integer ) }
-      its( :transaction_id ) { should >= 0 }
-      its( :user_data ) { should be_nil }
-    end
+describe EchoRequest, ".new( OPTIONAL OPTION MISSING )" do
+  its( :user_data ) { should be_nil }
+  it_should_behave_like "any Openflow message with default transaction ID"
+end
 
 
-    context "when an instance is created with arguments" do
-      subject { EchoRequest.new( 1234, "this is a test") }
-      its( :transaction_id ) { should == 1234 }
-      its( :user_data ) { should eq( "this is a test" ) }
-    end
+describe EchoRequest, ".new( INVALID OPTIONS ) - user_data numeric" do
+  subject { EchoRequest.new 1234, 456 }
+  it "should raise an ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
 
 
-    it "should raise an error if user data is not a string" do
-      expect {
-        EchoRequest.new( 1234, 456 )
-      }.to raise_error( ArgumentError )
-    end
+describe EchoRequest, ".new( INVALID OPTIONS ) - arguments as an Array" do
+  subject { EchoRequest.new [ 1234, "this is a test" ] }
+  it "should raise a TypeError" do
+    expect { subject }.to raise_error( TypeError )
+  end
+end
 
 
-    context "when #echo_request is sent" do
-      it "should #echo_reply" do
-        class EchoRequestController < Controller; end
-        network {
-          vswitch( "echo_request" ) { datapath_id 0xabc }
-        }.run( EchoRequestController ) {
-          echo_request = EchoRequest.new( 1234, "this is a test" )
-          controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
-          log_file = Trema.log_directory + "/openflowd.echo_request.log"
-          IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )
-          sleep 1
-        }
-      end
+describe EchoRequest, ".new( VALID OPTIONS )" do
+  subject { EchoRequest.new :transaction_id => transaction_id, :user_data => 'this is a test' }
+  let( :transaction_id ) { 1234 }
+  its( :user_data ) { should eq( "this is a test" ) }
+  it_should_behave_like "any OpenFlow message with transaction_id option"
+
+
+  context "when #echo_request is sent" do
+    it "should #echo_reply" do
+      class EchoRequestController < Controller; end
+      network {
+        vswitch( "echo_request" ) { datapath_id 0xabc }
+      }.run( EchoRequestController ) {
+        echo_request = EchoRequest.new( :transaction_id => 1234, :user_data => 'this is a test' )
+        controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
+        log_file = Trema.log_directory + "/openflowd.echo_request.log"
+        IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )
+        sleep 1
+      }
     end
   end
 end

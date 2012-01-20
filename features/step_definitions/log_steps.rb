@@ -24,7 +24,7 @@ end
 
 
 Then /^I should not get errors$/ do
-  Then "the output should be:", ""
+  step "the output should be:", ""
 end
 
 
@@ -60,6 +60,11 @@ Then /^the log file "([^"]*)" should include "([^"]*)" x (\d+)$/ do | log, messa
     matched += 1 if each.include?( message )
     matched
   end.should == n.to_i
+end
+
+
+Then /^the content of "([^"]*)" should be:$/ do | log_name, string |
+  IO.read( cucumber_log log_name ).chomp( "" ).should == string.chomp
 end
 
 

@@ -37,30 +37,39 @@ get_config_request_alloc( VALUE klass ) {
  * Creates a {GetConfigRequest} instance to query configuration parameters 
  * from the switch.
  *
- * @overload initialize(transaction_id=nil)
- *   Creates a {GetConfigRequest} object by specifying its transaction id. If
- *   transaction_id is not specified, an auto-generated transaction_id
- *   is set.
+ * @overload initialize(options={})
+ *   @example
+ *     GetConfigRequest.new
+ *     GetConfigRequest.new( :transaction_id => 123 )
  *
- * @raise [ArgumentError] if transaction id is negative.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- * @return [GetConfigRequest] an object that encapsulates the +OFPT_GET_CONFIG+ openflow message.
+ *   @option options [Number] :transaction_id
+ *     An unsigned 32-bit integer auto-generated if not supplied.
+ *
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a hash.
+ *
+ *   @return [GetConfigRequest]
+ *     an object that encapsulates the +OFPT_GET_CONFIG+ OpenFlow message.
  */
 static VALUE
 get_config_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *get_config_request;
   Data_Get_Struct( self, buffer, get_config_request );
-  
-  uint32_t xid;
-  VALUE xid_ruby;
-  if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-    if ( NUM2INT( xid_ruby ) < 0 ) {
-      rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+  uint32_t xid = get_transaction_id( );
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+      }
+      xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
-    xid = ( uint32_t ) NUM2UINT( xid_ruby );
-  } 
-  else {
-    xid = get_transaction_id();
   }
   ( ( struct ofp_header * ) ( get_config_request->data ) )->xid = htonl( xid );
   return self;
@@ -70,7 +79,7 @@ get_config_request_init( int argc, VALUE *argv, VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 get_config_request_transaction_id( VALUE self ) {

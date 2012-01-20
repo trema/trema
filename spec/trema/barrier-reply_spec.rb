@@ -22,20 +22,18 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe BarrierReply do
-  context "when an instance is created with arguments" do
-    subject { BarrierReply.new( 0xabc, 1234 ) }
-    its ( :datapath_id ) { should == 0xabc }
-    its( :transaction_id ) { should == 1234 }
-  end
-  
-  
-  context "when an instance is created with no arguments" do
-    it "should raise an error" do
-      lambda do 
-        BarrierReply.new
-      end.should raise_error ArgumentError
-    end
+describe BarrierReply, ".new( VALID OPTIONS )" do
+  subject { BarrierReply.new( 0xabc, 1234 ) }
+  its ( :datapath_id ) { should == 0xabc }
+  its( :transaction_id ) { should == 1234 }
+end
+
+
+describe BarrierReply, ".new( MANDATORY OPTIONS MISSING )" do
+  it "should raise ArgumentError" do
+    expect {
+      BarrierReply.new
+    }.to raise_error( ArgumentError )
   end
 end
 

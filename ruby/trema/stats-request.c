@@ -49,20 +49,29 @@ VALUE cVendorStatsRequest;
  *   @see QueueStatsRequest
  *   @see VendorStatsRequest
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     transaction_id for this request or auto-generated if not specified.
  *
- *   @option options [Symbol] :flags
+ *   @option options [Number] :flags
  *     flags not defined yet should be set to zero.
  *
- * @return [StatsRequest] an object that encapsulates an +OFPT_STATS_REQUEST+ openflow message.
+ *   @raise [ArgumentError] if supplied transaction_id is not an unsigned 32-bit integer.
+ *
+ *   @return [StatsRequest] 
+ *     an object that encapsulates an +OFPT_STATS_REQUEST+ OpenFlow message.
  */
 static VALUE
 stats_request_init( VALUE self, VALUE options ) {
-  VALUE transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( transaction_id == Qnil ) {
+  VALUE transaction_id;
+  if ( ( transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+    if ( rb_funcall( transaction_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+      rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+    }
+  }
+  else {
     transaction_id = UINT2NUM( get_transaction_id() );
   }
   rb_iv_set( self, "@transaction_id", transaction_id );
@@ -101,29 +110,30 @@ subclass_stats_request_init( VALUE self, VALUE options ) {
  * A {FlowStatsRequest} object instance to request flow statistics.
  *
  * @overload initialize(options={})
- *   @example 
- *     FlowStatsRequest.new( 
+ *   @example
+ *     FlowStatsRequest.new(
  *       :match => Match
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :match
+ *   @option options [Match] :match
  *     a {Match} object to match flow fields with this request.
  *     This option is mandatory.
  *
- *   @option options [Symbol] :table_id
+ *   @option options [Number] :table_id
  *     a table id to match and restrict returned results.
  *     A value of 0xff would return all tables and is set to if not specified.
  *
- *   @option options [Symbol] :out_port
+ *   @option options [Number] :out_port
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- * @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option[:match] is not specified.
  *
- * @return [FlowStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ openflow message.
+ *   @return [FlowStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ OpenFlow message.
  */
 static VALUE
 flow_stats_request_init( VALUE self, VALUE options ) {
@@ -139,24 +149,25 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  *       :match => Match
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :match
+ *   @option options [Match] :match
  *     a {Match} object to match flow fields with this request.
  *     This option is mandatory.
  *
- *   @option options [Symbol] :table_id
+ *   @option options [Number] :table_id
  *     a table id to match and restrict returned results.
  *     A value of 0xff would return all tables and is set to if not specified.
  *
- *   @option options [Symbol] :out_port
+ *   @option options [Number] :out_port
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- * @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option[:match] is not specified.
  *
- * @return [AggregateStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ openflow message.
+ *   @return [AggregateStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ OpenFlow message.
  */
 static VALUE
 aggregate_stats_request_init( VALUE self, VALUE options ) {
@@ -167,7 +178,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction_id.
+ * @return [Number] the value of transaction_id.
  */
 static VALUE
 stats_transaction_id( VALUE self ) {
@@ -178,7 +189,7 @@ stats_transaction_id( VALUE self ) {
 /*
  * Not yet defined. Set to zero.
  *
- * @return [Number] the value of attribute flags.
+ * @return [Number] the value of flags.
  */
 static VALUE
 stats_flags( VALUE self ) {
@@ -189,7 +200,7 @@ stats_flags( VALUE self ) {
 /*
  * Detailed description of each flow field.
  *
- * @return [Match] the value of attribute match.
+ * @return [Match] the value of match.
  */
 static VALUE
 stats_match( VALUE self ) {
@@ -200,7 +211,7 @@ stats_match( VALUE self ) {
 /*
  * An index into array of tables. 0xff for all tables.
  *
- * @return [Number] the value of attribute table_id.
+ * @return [Number] the value of table_id.
  */
 static VALUE
 stats_table_id( VALUE self ) {
@@ -211,7 +222,7 @@ stats_table_id( VALUE self ) {
 /*
  * Requires flow matching if defined.
  *
- * @return [Number] the value of attribute out_port.
+ * @return [Number] the value of out_port.
  */
 static VALUE
 stats_out_port( VALUE self ) {
@@ -222,7 +233,7 @@ stats_out_port( VALUE self ) {
 /*
  * Restrict port statistics to a specific port_no or to all ports.
  *
- * @return [Number] the value of attribute port_no.
+ * @return [Number] the value of port_no.
  */
 static VALUE
 stats_port_no( VALUE self ) {
@@ -233,7 +244,7 @@ stats_port_no( VALUE self ) {
 /*
  * Restrict queue statistics to a specific queue_id or to all queues.
  *
- * @return [Number] the value of attribute queue_id.
+ * @return [Number] the value of queue_id.
  */
 static VALUE
 stats_queue_id( VALUE self ) {
@@ -244,7 +255,7 @@ stats_queue_id( VALUE self ) {
 /*
  * Vendor id uniquely assigned for each vendor.
  *
- * @return [Number] the value of attribute vendor_id.
+ * @return [Number] the value of vendor_id.
  */
 static VALUE
 stats_vendor_id( VALUE self ) {
@@ -321,7 +332,7 @@ aggregate_stats_request_to_packet( VALUE self ) {
 
 
 /*
- * @return [Buffer] the stats. request type object as a {Buffer} object.
+ * @return [buffer] the stats. request type object.
  */
 static VALUE
 stats_request_buffer( VALUE self ) {
@@ -331,24 +342,25 @@ stats_request_buffer( VALUE self ) {
 
 /*
  * A {TableStatsRequest} object instance to request table statistics.
+ * Request table statistics. The table stats. request does not contain any data
+ * in the body.
  *
  * @overload initialize(options={})
- *   Request table statistics. The table stats. request does not contain any data
- *   in the body.
  *
  *   @example 
  *     TableStatsRequest.new(
  *       :transaction_id => 1234
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :transaction_id
+ *   @option options [Number] :transaction_id
  *     set the transaction_id as specified or auto-generate it.
  *
- * @return [TableStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ openflow
- *   message.
+ *   @return [TableStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ openflow
+ *     message.
  */
 static VALUE
 table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -380,24 +392,25 @@ table_stats_request_to_packet( VALUE self ) {
 
 /*
  * A {PortStatsRequest} object instance to request port statistics.
+ * Request port statistics.
  *
  * @overload initialize(options={})
- *   Request port statistics.
  *
  *   @example
  *     PortStatsRequest.new(
  *       :port_no => port_no
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :port_no
+ *   @option options [Number] :port_no
  *     request statistics for a specific port if specified, otherwise set port_no
  *     to +OFPP_NONE+ for all ports.
  *
- * @return [PortStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ openflow 
- *   message.
+ *   @return [PortStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ OpenFlow 
+ *     message.
  */
 static VALUE
 port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -435,9 +448,9 @@ port_stats_request_to_packet( VALUE self ) {
 
 /*
  * A {QueueStatsRequest} object instance to request queue statistics.
+ * Request queue statistics.
  *
  * @overload initialize(options={})
- *   Request queue statistics.
  *
  *   @example
  *     QueueStatsRequest.new(
@@ -445,19 +458,20 @@ port_stats_request_to_packet( VALUE self ) {
  *       :queue_id => queue_id
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :port_no
+ *   @option options [Number] :port_no
  *     request statistics for a specific port if specified, otherwise set port_no
  *     to +OFPP_ALL+ for all ports.
  *
- *   @option options [Symbol] :queue_id
+ *   @option options [Number] :queue_id
  *     request statistics for a specific queue_id or set queue_id to +OFPQ_ALL+
  *     for all queues.
  *
- * @return [QueueStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_QUEUE)+ openflow
- *   message.
+ *   @return [QueueStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_QUEUE)+ OpenFlow
+ *     message.
  */
 static VALUE
 queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
@@ -501,24 +515,25 @@ queue_stats_request_to_packet( VALUE self ) {
 
 /*
  * A {VendorStatsRequest} object instance to request vendor statistics.
+ * Request vendor specific statistics.
  *
  * @overload initialize(options={})
- *   Request vendor specific statistics.
  *
  *   @example
  *     VendorStatsRequeset.new(
  *       :vendor_id => vendor_id
  *     )
  *
- *   @param [Hash] options the options hash.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- *   @option options [Symbol] :vendor_id
+ *   @option options [Number] :vendor_id
  *     request statistics for a specific vendor_id, otherwise set vendor_id
  *     to a default value of 0x00004cff.
  *
- * @return [VendorStatsRequest]
- *   an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow
- *   message.
+ *   @return [VendorStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow
+ *     message.
  */
 static VALUE
 vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {

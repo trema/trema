@@ -26,7 +26,7 @@
 # threshold.
 #
 
-$coverage_threshold = 72.7
+$coverage_threshold = 73.3
 
 
 ################################################################################
@@ -35,12 +35,14 @@ $coverage_threshold = 72.7
 
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
 
+require "rubygems"
+require "bundler/setup"
+
 require "English"
 require "blocker"
 require "fileutils"
 require "find"
 require "optparse"
-require "rubygems"
 require "stringio"
 require "sub-process"
 require "trema/path"
@@ -327,7 +329,7 @@ end
 def run_acceptance_test
   test "Running acceptance tests ..." do
     sh "./build.rb"
-    sh "cucumber"
+    sh "rake cucumber"
   end
 end
 
@@ -363,7 +365,10 @@ $options.parse! ARGV
 def init_cruise
   $start_time = Time.now
   sh "./build.rb distclean"
+  sh "bundle install"
   mkdir_p Trema.log_directory
+  mkdir_p Trema.pid_directory
+  mkdir_p Trema.sock_directory
 end
 
 

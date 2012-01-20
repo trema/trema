@@ -29,19 +29,41 @@ VALUE cActionSetNwTos;
 /*
  * An action to modify the IP ToS/DSCP field of a packet.
  *
- * @overload initialize(nw_tos)
+ * @overload initialize(options={})
  *
- * @param [Number] nw_tos
- *  the ToS/DSCP field to set to.
+ *   @example
+ *     ActionSetNwTos.new( :nw_tos => 1 )
  *
- * @raise [ArgumentError] if nw_tos argument is not supplied.
+ *   @param [Hash] options
+ *     the options hash to create this action with.
  *
- * @return [ActionSetNwTos]
- *   an object that encapsulates this action.
+ *   @option options [Number] :nw_tos
+ *     the ToS/DSCP field to set to.
+ *
+ *   @raise [ArgumentError] if nw_tos argument is not supplied.
+ *   @raise [ArgumentError] if nw_tos is not an unsigned 8-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetNwTos]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
-  rb_iv_set( self, "@nw_tos", nw_tos );
+action_set_nw_tos_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE nw_tos;
+    if ( ( nw_tos = rb_hash_aref( options, ID2SYM( rb_intern( "nw_tos" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( nw_tos, rb_intern( "unsigned_8bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Nw tos must be an unsigned 8-bit integer" );
+      }
+      rb_iv_set( self, "@nw_tos", nw_tos );
+    }
+    else {
+      rb_raise( rb_eArgError, "Nw tos is a mandatory option" );
+    }
+  }
   return self;
 }
 
@@ -49,7 +71,7 @@ action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
 /*
  * The ToS/DSCP value to set to.
  *
- * @return [Number] the value of attribute nw_tos.
+ * @return [Number] the value of nw_tos.
  */
 static VALUE
 action_get_nw_tos( VALUE self ) {
@@ -87,7 +109,7 @@ action_set_nw_tos_inspect( VALUE self ) {
 void
 Init_action_set_nw_tos() {
   cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", rb_cObject );
-  rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, 1 );
+  rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, -1 );
   rb_define_method( cActionSetNwTos, "nw_tos", action_get_nw_tos, 0 );
   rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
   rb_define_method( cActionSetNwTos, "inspect", action_set_nw_tos_inspect, 0 );

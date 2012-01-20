@@ -23,6 +23,7 @@
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
+#include "event_handler.h"
 #include "message_queue.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_sender.h"
@@ -39,7 +40,11 @@ send_to_secure_channel( struct switch_info *sw_info, buffer *buf ) {
     return -1;
   }
 
-  return ( enqueue_message( sw_info->send_queue, buf ) == true ) ? 0 : -1;
+  bool res = enqueue_message( sw_info->send_queue, buf );
+  if ( res ) {
+    set_writable( sw_info->secure_channel_fd, true );
+  }
+  return res ? 0 : -1;
 }
 
 
@@ -52,10 +57,12 @@ flush_secure_channel( struct switch_info *sw_info ) {
   buffer *buf;
   ssize_t write_length;
 
+  set_writable( sw_info->secure_channel_fd, false );
   while ( ( buf = peek_message( sw_info->send_queue ) ) != NULL ) {
     write_length = write( sw_info->secure_channel_fd, buf->data, buf->length );
     if ( write_length < 0 ) {
       if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
+        set_writable( sw_info->secure_channel_fd, true );
         return 0;
       }
       error( "Failed to send a message to secure channel ( errno = %s [%d] ).",
@@ -64,6 +71,7 @@ flush_secure_channel( struct switch_info *sw_info ) {
     }
     if ( ( size_t ) write_length < buf->length ) {
       remove_front_buffer( buf, ( size_t ) write_length );
+      set_writable( sw_info->secure_channel_fd, true );
       return 0;
     }
     buf = dequeue_message( sw_info->send_queue );

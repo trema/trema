@@ -22,39 +22,61 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanPcp do
-  context "when an instance is created" do
-    subject { ActionSetVlanPcp.new( 7 ) }
-    its( :vlan_pcp ) { should  == 7 }
-    it "should print its attributes" do
-      subject.inspect.should == "#<Trema::ActionSetVlanPcp vlan_pcp=7>"
-    end
-    
-    it "should append its action to a list of actions" do
-      openflow_actions = double
-      subject.should_receive( :append ).with( openflow_actions )
-      subject.append( openflow_actions )
-    end
-    
-    
-    context "when vlan_pcp argument is not supplied" do
-      it "should raise an error" do
-        lambda do
-          ActionSetVlanPcp.new
-        end.should raise_error ArgumentError
-      end
+describe ActionSetVlanPcp, ".new( VALID OPTION )" do
+  subject { ActionSetVlanPcp.new( :vlan_pcp => 7 ) }
+  its( :vlan_pcp ) { should  == 7 }
+  it "should inspect its attributes" do
+    subject.inspect.should == "#<Trema::ActionSetVlanPcp vlan_pcp=7>"
+  end
+end
+
+
+describe ActionSetVlanPcp, ".new( MANDATORY OPTION MISSING )" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError )
+  end
+end
+
+
+describe ActionSetVlanPcp, ".new( INVALID OPTION )" do
+  context "when value outside allowed range" do
+    subject { ActionSetVlanPcp.new( :vlan_pcp => 250 ) }
+    it "should raise RangeError" do
+      expect { subject }.to raise_error( RangeError )
     end
   end
 
-  
-  context "when sending #flow_mod(add) message with action set to VLAN priority" do
+
+  context "when argument type Array instead of Hash" do
+    subject { ActionSetVlanPcp.new( [ 7 ] ) }
+    it "should raise TypeError" do
+      expect { subject }.to raise_error( TypeError )
+    end
+  end
+end
+
+
+describe ActionSetVlanPcp, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_vlan_pcp" do
+    it "should respond to #append" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        action = ActionSetVlanPcp.new( :vlan_pcp => 7 )
+        action.should_receive( :append )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
+     }
+    end
+
+
     it "should have a flow with action set to mod_vlan_pcp" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
-          :actions => ActionSetVlanPcp.new( 7 ) )
+          :actions => ActionSetVlanPcp.new( :vlan_pcp => 7 ) )
         switch( "0xabc" ).should have( 1 ).flows
         switch( "0xabc" ).flows[0].actions.should match( /mod_vlan_pcp:7/ )
       }

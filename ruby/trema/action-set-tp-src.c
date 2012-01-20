@@ -29,19 +29,41 @@ VALUE cActionSetTpSrc;
 /*
  * An action to modify the source TCP or UDP port of a packet.
  *
- * @overload initialize(tp_src)
+ * @overload initialize(options={})
  *
- * @param [Number] tp_src
- *   the source TCP or UDP port number. Any numeric 16-bit value.
+ *   @example
+ *     ActionSetTpSrc.new( :tp_src => 5555 )
  *
- * @raise [ArgumentError] if tp_src argument is not supplied.
+ *   @param [Hash] options
+ *     the options to create this action class instance with.
  *
- * @return [ActionSetTpSrc]
- *   an object that encapsulates this action.
+ *   @option options [Number] :tp_src
+ *     the source TCP or UDP port number. Any numeric 16-bit value.
+ *
+ *   @raise [ArgumentError] if tp_src argument is not supplied.
+ *   @raise [ArgumentError] if tp_src is not an unsigned 16-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionSetTpSrc]
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_set_tp_src_init( VALUE self, VALUE tp_src ) {
-  rb_iv_set( self, "@tp_src", tp_src );
+action_set_tp_src_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE tp_src;
+    if ( ( tp_src = rb_hash_aref( options, ID2SYM( rb_intern( "tp_src" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( tp_src, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Source TCP or UDP port must be an unsigned 16-bit integer" );
+      }
+      rb_iv_set( self, "@tp_src", tp_src );
+    }
+    else {
+      rb_raise( rb_eArgError, "Source TCP or UDP port is a mandatory option" );
+    }
+  }
   return self;
 }
 
@@ -49,7 +71,7 @@ action_set_tp_src_init( VALUE self, VALUE tp_src ) {
 /*
  * The source TCP or UDP port number.
  *
- * @return [Number] the value of attribute tp_src.
+ * @return [Number] the value of tp_src.
  */
 static VALUE
 action_get_tp_src( VALUE self ) {
@@ -87,7 +109,7 @@ action_set_tp_src_inspect( VALUE self ) {
 void
 Init_action_set_tp_src() {
   cActionSetTpSrc = rb_define_class_under( mTrema, "ActionSetTpSrc", rb_cObject );
-  rb_define_method( cActionSetTpSrc, "initialize", action_set_tp_src_init, 1 );
+  rb_define_method( cActionSetTpSrc, "initialize", action_set_tp_src_init, -1 );
   rb_define_method( cActionSetTpSrc, "tp_src", action_get_tp_src, 0 );
   rb_define_method( cActionSetTpSrc, "append", action_set_tp_src_append, 1 );
   rb_define_method( cActionSetTpSrc, "inspect", action_set_tp_src_inspect, 0 );

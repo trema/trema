@@ -27,6 +27,7 @@ require "trema/common-commands"
 require "trema/dsl"
 require "trema/ofctl"
 require "trema/util"
+require "trema/version"
 
 
 include Trema::Util
@@ -76,13 +77,14 @@ class Trema::SubCommands
 
 
   def start_shell
-    require "trema"
-    require "trema/shell-commands"
     require "tempfile"
+    require "trema"
+    require "trema/shell"
     f = Tempfile.open( "irbrc" )
     f.print <<EOF
-include Trema::CommonCommands
-$context = Trema::DSL::Context.new
+include Trema::Shell
+ENV[ "TREMA_HOME" ] = Trema.home
+@context = Trema::DSL::Context.new
 EOF
     f.close
     load f.path
@@ -103,10 +105,17 @@ EOF
 
 
   def kill
+    @options.banner = "Usage: #{ $0 } kill NAME [OPTIONS ...]"
+
+    add_help_option
+    add_verbose_option
+
+    @options.parse! ARGV
+
     switch = @dsl_parser.load_current.switches[ ARGV[ 0 ] ]
     switch.shutdown!
   end
-  
+
 
   def send_packets
     sanity_check
@@ -115,10 +124,11 @@ EOF
     dest = nil
     cli_options = {}
 
-    @options.banner = "Usage: #{ $0 } send_packets [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } send_packets --source HOSTNAME --dest HOSTNAME [OPTIONS ...]"
 
     @options.on( "-s", "--source HOSTNAME" ) do | v |
       source = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if source.nil?
     end
     @options.on( "--inc_ip_src [NUMBER]" ) do | v |
       if v
@@ -129,6 +139,7 @@ EOF
     end
     @options.on( "-d", "--dest HOSTNAME" ) do | v |
       dest = @dsl_parser.load_current.hosts[ v ]
+      raise "Unknown host: #{ v }" if dest.nil?
     end
     @options.on( "--inc_ip_dst [NUMBER]" ) do | v |
       if v
@@ -192,7 +203,7 @@ EOF
 
     stats = nil
 
-    @options.banner = "Usage: #{ $0 } show_stats [OPTIONS ...]"
+    @options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
 
     @options.on( "-t", "--tx" ) do
       stats = :tx
@@ -208,13 +219,18 @@ EOF
     @options.parse! ARGV
 
     host = @dsl_parser.load_current.hosts[ ARGV[ 0 ] ]
+    raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
+
     case stats
     when :tx
       Trema::Cli.new( host ).show_tx_stats
     when :rx
       Trema::Cli.new( host ).show_rx_stats
     else
-      raise "We should not reach here."      
+      puts "Sent packets:"
+      Trema::Cli.new( host ).show_tx_stats
+      puts "Received packets:"
+      Trema::Cli.new( host ).show_rx_stats
     end
   end
 
@@ -247,6 +263,11 @@ EOF
     @options.parse! ARGV
 
     puts Trema::Ofctl.new.dump_flows( switch )
+  end
+
+
+  def version
+    puts "trema version #{ Trema::VERSION }"
   end
 
 
@@ -311,16 +332,18 @@ EOL
     end
 
     if ARGV[ 0 ]
+      controller_file = ARGV[ 0 ].split.first
       if c_controller?
         stanza = Trema::DSL::App.new
-        stanza.path ARGV[ 0 ].split.first
+        stanza.path controller_file
         stanza.options ARGV[ 0 ].split[ 1..-1 ]
         Trema::App.new( stanza )
       else
         # Ruby controller
         require "trema"
-        $LOAD_PATH << File.dirname( ARGV[ 0 ] )
-        Trema.module_eval IO.read( ARGV[ 0 ] )
+        ARGV.replace ARGV[ 0 ].split
+        $LOAD_PATH << File.dirname( controller_file )
+        Trema.module_eval IO.read( controller_file )
       end
     end
 

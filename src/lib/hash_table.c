@@ -18,34 +18,6 @@
  */
 
 
-/**
- * @file
- *
- * @brief Hash table implementation
- *
- * It provides helpers through which a hash table can be created,
- * elements can be added and deleted, and data can be searched:
- *
- * @code 
- * // Create a hash table with default hash and compare function
- * hash_table *table = create_hash( NULL, NULL );
- *
- * // Insert key:value pairs into the created hash table
- * insert_hash_entry( table, "A", "Apple" );
- * insert_hash_entry( table, "B", "Bat" );
- * insert_hash_entry( table, "C", "Cat" );
- *
- * // Find some data
- * void *apple = lookup_hash_entry( table, "A" );
- * void *bat = lookup_hash_entry( table, "B" );
- * void *cat = lookup_hash_entry( table, "C" );
- *
- * // Delete the table
- * delete_hash( table );
- * @endcode
- */
-
-
 #include <assert.h>
 #include <pthread.h>
 #include <string.h>
@@ -63,14 +35,13 @@ typedef struct {
 
 
 /**
- * Default compare function which is used for creating a
- * hash_table. In case a custom function for matching keys is
- * required, same should be passed to create_hash function.
+ * Compares two pointer arguments and returns true if they are
+ * equal. It can be passed to create_hash() as the key_equal_func
+ * parameter, when using pointers as keys in a hash_table.
  *
- * @param x A void type pointer to constant identifier
- * @param y A void type pointer to constant identifier
- * @return bool True if equal, else False
- * @see create_hash
+ * @param x a key.
+ * @param y a key to compare with x.
+ * @return true if the two keys match.
  */
 bool
 compare_atom( const void *x, const void *y ) {
@@ -79,13 +50,12 @@ compare_atom( const void *x, const void *y ) {
 
 
 /**
- * Default hash function which is used for creating a hash_table. In
- * case a custom function for creating hashes is required, same should
- * be passed to create_hash function.  It should be of this form.
+ * Converts a pointer to a hash value. It can be passed to
+ * create_hash() as the hash parameter, when using pointers as keys in
+ * a hash_table.
  *
- * @param key Pointer to a address, for which hash key is generated
- * @return unsigned int Key value after right shifting by 2 bits
- * @see create_hash
+ * @param key a pointer key.
+ * @return a hash value corresponding to the key.
  */
 unsigned int
 hash_atom( const void *key ) {
@@ -94,28 +64,47 @@ hash_atom( const void *key ) {
 
 
 /**
- * Creates a hash table and initialize it to NULL.
+ * Creates a new hash_table.
  *
- * @param compare Function Pointer to compare_function
- * @param hash Function Pointer to hash_function
- * @return hash_table* Pointer to created hash table
+ * @param compare a function to check two keys for equality. This is
+ *        used when looking up keys in the hash_table. If compare is
+ *        NULL, keys are compared by compare_atom().
+ * @param hash a function to create a hash value from a key. Hash
+ *        values are used to determine where keys are stored within
+ *        the hash_table data structure. If hash_func is NULL,
+ *        hash_atom() is used.
+ * @return a new hash_table.
  */
 hash_table *
 create_hash( const compare_function compare, const hash_function hash ) {
+  return create_hash_with_size( compare, hash, default_hash_size );
+}
+
+
+/**
+ * Creates a new hash_table by specifying its bucket size.
+ *
+ * @param compare a function to check two keys for equality. This is
+ *        used when looking up keys in the hash_table. If compare is
+ *        NULL, keys are compared by compare_atom().
+ * @param hash a function to create a hash value from a key. Hash
+ *        values are used to determine where keys are stored within
+ *        the hash_table data structure. If hash_func is NULL,
+ *        hash_atom() is used.
+ * @param size the number of hash buckets.
+ * @return a new hash_table.
+ */
+hash_table *
+create_hash_with_size( const compare_function compare, const hash_function hash, unsigned int size ) {
   private_hash_table *table = xmalloc( sizeof( private_hash_table ) );
 
-  table->public.number_of_buckets = default_hash_size;
+  table->public.number_of_buckets = size;
   table->public.compare = compare ? compare : compare_atom;
   table->public.hash = hash ? hash : hash_atom;
   table->public.length = 0;
-  table->public.buckets = xmalloc( sizeof( dlist_element * ) * default_hash_size );
-  unsigned int i;
-  for ( i = 0; i < table->public.number_of_buckets; i++ ) {
-    table->public.buckets[ i ] = create_dlist();
-    assert( table->public.buckets[ i ] != NULL );
-  }
+  table->public.buckets = xmalloc( sizeof( dlist_element * ) * table->public.number_of_buckets );
+  memset( table->public.buckets, 0, sizeof( dlist_element * ) * table->public.number_of_buckets );
   table->public.nonempty_bucket_index = create_dlist();
-  assert( table->public.nonempty_bucket_index != NULL );
 
   pthread_mutexattr_t attr;
   pthread_mutexattr_init( &attr );
@@ -127,14 +116,6 @@ create_hash( const compare_function compare, const hash_function hash ) {
 }
 
 
-/**
- * Returns the index of hash bucket pointed to be the key in the
- * hash_table table.
- *
- * @param table Pointer to hash table for which bucket index is needed
- * @param key Pointer to constant key identifier
- * @return unsigned int Index of hash bucket
- */
 static unsigned int
 get_bucket_index( const hash_table *table, const void *key ) {
   assert( table != NULL );
@@ -144,52 +125,51 @@ get_bucket_index( const hash_table *table, const void *key ) {
 }
 
 
-/**
- * Searches for an element in the bucket pointed by the key.
- *
- * @param table Pointer to hash table in which element is to be searched
- * @param key Pointer to constant key identifier
- * @return void* Pointer to identified element in the bucket
- */
-static void *
-find_list_element_from_buckets( const hash_table *table, const void *key ) {
-  assert( table != NULL );
-  assert( key != NULL );
-
-  dlist_element *e = NULL;
-  unsigned int i = get_bucket_index( table, key );
-  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
-    if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
-      break;
-    }
-  }
-  return e;
+static void
+new_bucket( hash_table *table, unsigned int bucket_index ) {
+  table->buckets[ bucket_index ] = create_dlist();
+  table->buckets[ bucket_index ]->data = insert_after_dlist( table->nonempty_bucket_index, ( void * ) ( unsigned long ) bucket_index );
 }
 
 
+#define MUTEX_LOCK( table ) pthread_mutex_lock( ( ( private_hash_table * ) ( table ) )->mutex )
+#define MUTEX_UNLOCK( table ) pthread_mutex_unlock( ( ( private_hash_table * ) ( table ) )->mutex )
+
+
 /**
- * Inserts a new element into an existing hash table. In case the hash
- * entry matches an existing entry, pointer to it is returned, else
- * NULL is returned.
+ * Inserts a new key and value into a hash_table. If the key already
+ * exists in the hash_table its current value is replaced with the new
+ * value.
  *
- * @param table Pointer to hash table in which element is to be inserted
- * @param key Pointer to new element's key
- * @param value Pointer to associated data
- * @return void* Pointer to data associated with a matching key-value pair, else NULL if no match
+ * @param table a hash_table.
+ * @param key a key to insert.
+ * @param value the value to associate with the key.
+ * @return the old value associated with the key.
  */
 void *
 insert_hash_entry( hash_table *table, void *key, void *value ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
+  void *old_value = NULL;
   unsigned int i = get_bucket_index( table, key );
-  if ( table->buckets[ i ]->next == NULL ) {
-    table->buckets[ i ]->data = insert_after_dlist( table->nonempty_bucket_index, ( void * ) ( unsigned long ) i );
-  }
 
-  dlist_element *old_elem = find_list_element_from_buckets( table, key );
+  if ( table->buckets[ i ] == NULL ) {
+    new_bucket( table, i );
+  }
+  else {
+    dlist_element *old_element = NULL;
+    for ( old_element = table->buckets[ i ]->next; old_element; old_element = old_element->next ) {
+      if ( ( *table->compare )( key, ( ( hash_entry * ) old_element->data )->key ) ) {
+        break;
+      }
+    }
+    if ( old_element != NULL ) {
+      old_value = ( ( hash_entry * ) old_element->data )->value;
+    }
+  }
 
   hash_entry *new_entry = xmalloc( sizeof( hash_entry ) );
   new_entry->key = key;
@@ -197,234 +177,226 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
   insert_after_dlist( table->buckets[ i ], new_entry );
   table->length++;
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 
-  if ( old_elem == NULL ) {
-    return NULL;
-  }
-  else {
-    return ( ( hash_entry * ) old_elem->data )->value;
-  }
+  return old_value;
 }
 
 
 /**
- * Performs lookup for value associated with the key in the hash
- * table.
+ * Looks up a key in a hash_table.
  *
- * @param table Pointer to hash table
- * @param key Pointer to key
- * @return void* Pointer to value associated with the key, else NULL
+ * @param table a hash_table.
+ * @param key the key to look up.
+ * @return the associated value, or NULL if the key is not found.
  */
 void *
 lookup_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
-  dlist_element *e = find_list_element_from_buckets( table, key );
-  if ( e != NULL ) {
-    pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
-    return ( ( hash_entry * ) e->data )->value;
+  void *value = NULL;
+  unsigned int i = get_bucket_index( table, key );
+  if ( table->buckets[ i ] != NULL ) {
+    for ( dlist_element *e = table->buckets[ i ]->next; e; e = e->next ) {
+      if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
+        value = ( ( hash_entry * ) e->data )->value;
+        break;
+      }
+    }
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
-  return NULL;
+  MUTEX_UNLOCK( table );
+
+  return value;
+}
+
+
+static void
+delete_bucket( hash_table *table, unsigned int bucket_index ) {
+  if ( table->buckets[ bucket_index ]->data != NULL ) {
+    delete_dlist_element( table->buckets[ bucket_index ]->data );
+    table->buckets[ bucket_index ]->data = NULL;
+  }
+
+  delete_dlist( table->buckets[ bucket_index ] );
+  table->buckets[ bucket_index ] = NULL;
 }
 
 
 /**
- * Deletes an entry referred to by the key in the hash_table table.
+ * Deletes a key and its associated value from a hash_table.
  *
- * @param table Pointer to hash table from which element is to be deleted
- * @param key Pointer to element's key which is to be deleted
- * @return void* Pointer to data that was associated with the key, else NULL
+ * @param table a hash_table.
+ * @param key the key to remove
+ * @return the value deleted from the hash_table.
  */
 void *
 delete_hash_entry( hash_table *table, const void *key ) {
   assert( table != NULL );
   assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
   unsigned int i = get_bucket_index( table, key );
-  dlist_element *e = find_list_element_from_buckets( table, key );
-  if ( e != NULL ) {
-    hash_entry *delete_me = e->data;
-    void *deleted = delete_me->value;
-    delete_dlist_element( e );
-    xfree( delete_me );
-    if ( table->buckets[ i ]->next == NULL ) {
-      delete_dlist_element( table->buckets[ i ]->data );
-      table->buckets[ i ]->data = NULL;
-    }
-    table->length--;
-    pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
-    return deleted;
+
+  if ( table->buckets[ i ] == NULL ) {
+    MUTEX_UNLOCK( table );
+    return NULL;
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
-  return NULL;
+  void *deleted = NULL;
+  dlist_element *e = NULL;
+  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
+    if ( ( *table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
+      hash_entry *delete_me = e->data;
+      deleted = delete_me->value;
+      delete_dlist_element( e );
+      xfree( delete_me );
+      table->length--;
+      break;
+    }
+  }
+
+  if ( table->buckets[ i ]->next == NULL ) {
+    delete_bucket( table, i );
+  }
+
+  MUTEX_UNLOCK( table );
+
+  return deleted;
 }
 
 
 /**
- * Searches (maps) for the entry in hash_table corresponding to the
- * key passed as argument. A user defined function is called if the
- * search is successful. The user defiend function is passed as a
- * function pointer. The definition of the function pointer is:
+ * Calls the given function for each of the values in the hash_table
+ * associated with the given key parameter. The function is passed a
+ * key and the given user_data parameter.
  *
- * @code
- *      void <name of function> ( void *value, void *user_data);
- *      // value is the data being represented by hash key found
- *      // user_data is the 3rd argument of map_hash, which is passed directly to this function
- * @endcode
- * @param table Pointer to hash table in which element is to be searched
- * @param key Pointer to key for which function is to be called
- * @param function Pointer to funtion to be called if a matching entry is found
- * @param user_data A void pointer to user data
- * @return None
+ * @param table a hash_table.
+ * @param key the key to look up.
+ * @param function the function to call for each key.
+ * @param user_data user data to pass to the function.
  */
 void
 map_hash( hash_table *table, const void *key, void function( void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
+  assert( key != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
   unsigned int i = get_bucket_index( table, key );
-  dlist_element *e = NULL;
-  for ( e = table->buckets[ i ]->next; e; e = e->next ) {
+
+  if ( table->buckets[ i ] == NULL ) {
+    MUTEX_UNLOCK( table );
+    return;
+  }
+
+  for ( dlist_element *e = table->buckets[ i ]->next; e; e = e->next ) {
     if ( ( table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
       function( ( ( hash_entry * ) e->data )->value, user_data );
     }
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 }
 
 
 /**
- * Iterates over each hash entry in the hash_Table. Takes as argument
- * a function pointer which is called once for each bucket of the
- * table being pointed to by passed argument. It is used as an
- * iterator over each hash entry belonging to each bucket.
+ * Calls the given function for each of the key/value pairs in the
+ * hash_table. The function is passed the key and value of each pair,
+ * and the given user_data parameter.
  *
- * Example:
- * @code
- *     // Create a Hash Table
- *     hashtable_p = create_hash(<compare function>, <hash function>)
- *     ...
- *     // add entries to the hash table
- *     insert_hash_entry(key, value); // Multiple such inserts take place
- *     ...
- *     // Iterating over ALL hash entries so far in table
- *     // Second argument is pointer to a function to call for each entry
- *     // argument to this function
- *     foreach_hash(table, <function which is to be executed for each entry>);
- * @endcode
- * @param table Pointer to hash table
- * @param function The action function
- * @param user_data A void pointer to user data
- * @return None
+ * @param table a hash_table.
+ * @param function the function to call for each key/value pair.
+ * @param user_data user data to pass to the function.
  */
 void
 foreach_hash( hash_table *table, void function( void *key, void *value, void *user_data ), void *user_data ) {
   assert( table != NULL );
 
-  pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_LOCK( table );
 
-  dlist_element *nonempty = NULL;
-  for ( nonempty = table->nonempty_bucket_index->next; nonempty; ) {
+  for ( dlist_element *nonempty = table->nonempty_bucket_index->next; nonempty; ) {
     int i = ( int ) ( unsigned long ) nonempty->data;
     nonempty = nonempty->next;
-    dlist_element *e = NULL;
-    for ( e = table->buckets[ i ]->next; e; ) {
-      hash_entry *he = e->data;
+
+    if ( table->buckets[ i ] == NULL ) {
+      continue;
+    }
+
+    for ( dlist_element *e = table->buckets[ i ]->next; e != NULL; ) {
+      hash_entry *h = e->data;
       e = e->next;
-      function( he->key, he->value, user_data );
+      function( h->key, h->value, user_data );
     }
   }
 
-  pthread_mutex_unlock( ( ( private_hash_table * ) table )->mutex );
+  MUTEX_UNLOCK( table );
 }
 
 
 /**
- * Initializes an iterator over the hash_table. This iterator would
- * then be used with function iterate_hash_next to move over each hash
- * entry one at a time. This can be used for getting data associated
- * with each hash entry.
+ * Initializes a key/value pair iterator and associates it with
+ * hash_table. Modifying the hash table after calling this function
+ * invalidates the returned iterator.
  *
- * @param table Pointer to hash table to iterate over
- * @param iter Pointer to hash_iterator that needs to be initialized
- * @return None
- * @see iterate_hash_next
+ * @param table a hash_table.
+ * @param iterator an uninitialized hash_iterator
  */
 void
-init_hash_iterator( hash_table *table, hash_iterator *iter ) {
+init_hash_iterator( hash_table *table, hash_iterator *iterator ) {
   assert( table != NULL );
-  assert( iter != NULL );
+  assert( iterator != NULL );
 
-  iter->buckets = table->buckets;
+  iterator->buckets = table->buckets;
   if ( table->nonempty_bucket_index->next ) {
-    iter->bucket_index = table->nonempty_bucket_index->next;
-    iter->next_bucket_index = iter->bucket_index->next;
-    iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ]->next;
+    iterator->bucket_index = table->nonempty_bucket_index->next;
+    iterator->next_bucket_index = iterator->bucket_index->next;
+    assert( iterator->buckets[ ( int ) ( unsigned long ) iterator->bucket_index->data ] != NULL );
+    iterator->element = iterator->buckets[ ( int ) ( unsigned long ) iterator->bucket_index->data ]->next;
   }
   else {
-    iter->bucket_index = NULL;
-    iter->element = NULL;
+    iterator->bucket_index = NULL;
+    iterator->element = NULL;
   }
 }
 
 
 /**
- * Moves the hash iterator forward to next hash entry. It uses the
- * iterator initialized by init_hash_iterator. It can be used to fetch
- * the data associated with each hash entry.
+ * Advances iterator and retrieves the hash_entry that are now pointed
+ * to as a result of this advancement. If NULL is returned, the
+ * iterator becomes invalid.
  *
- * Example:
- * @code
- *     // Assuming a hash table pointed to by hashtable_p
- *     // Initializing the hash iterator
- *     hash_iterator iter;
- *     hash_entry *p = NULL;
- *     init_hash_iterator(hashtable_p, &iter);
- *     // Looping over the hash entries
- *     while ( ( p = iterate_hash_next( &iter ) ) != NULL ) {
- *         // Perform some action on the hash_entry.
- *         // For example, dump data pointed to be hash_entry on terminal
- *         dump(p->value);
- *         ...
- *     }
- * @endcode        
- * @param iter Pointer to hash_iterator to move forward
- * @return hash_entry* Pointer to valid hash entry, else NULL
- * @see init_hash_iterator
+ * @param iterator a hash_iterator.
+ * @return a hash_entry.
  */
 hash_entry *
-iterate_hash_next( hash_iterator *iter ) {
-  assert( iter != NULL );
+iterate_hash_next( hash_iterator *iterator ) {
+  assert( iterator != NULL );
 
   for ( ;; ) {
-    if ( iter->bucket_index == NULL ) {
+    if ( iterator->bucket_index == NULL ) {
       return NULL;
     }
 
-    dlist_element *e = iter->element;
+    dlist_element *e = iterator->element;
     if ( e == NULL ) { 
-      if ( iter->next_bucket_index != NULL ) {
-        iter->bucket_index = iter->next_bucket_index;
-        iter->next_bucket_index = iter->next_bucket_index->next;
-        iter->element = iter->buckets[ ( int ) ( unsigned long ) iter->bucket_index->data ]->next;
+      if ( iterator->next_bucket_index != NULL ) {
+        iterator->bucket_index = iterator->next_bucket_index;
+        iterator->next_bucket_index = iterator->next_bucket_index->next;
+        int bucket_index = ( int ) ( unsigned long ) iterator->bucket_index->data;
+        assert( iterator->buckets[ bucket_index ] != NULL );
+        iterator->element = iterator->buckets[ bucket_index ]->next;
       }
       else {
         return NULL;
       }
     }
     else {
-      iter->element = e->next;
+      iterator->element = e->next;
       return e->data;
     }
   }
@@ -432,10 +404,9 @@ iterate_hash_next( hash_iterator *iter ) {
 
 
 /**
- * Releases all the memory held by the hash table.
+ * Deletes a hash_table.
  *
- * @param hash_table Pointer to hash table which needs to be deleted
- * @return None
+ * @param table a hash_table.
  */
 void
 delete_hash( hash_table *table ) {
@@ -444,28 +415,24 @@ delete_hash( hash_table *table ) {
   pthread_mutex_lock( ( ( private_hash_table * ) table )->mutex );
   pthread_mutex_t *mutex = ( ( private_hash_table * ) table )->mutex;
 
-  bool dlist_deleted = false;
+  for ( dlist_element *nonempty = table->nonempty_bucket_index->next; nonempty; ) {
+    unsigned int i = ( unsigned int ) ( unsigned long ) nonempty->data;
+    nonempty = nonempty->next;
+    if ( table->buckets[ i ] == NULL ) {
+      continue;
+    }
 
-  unsigned int i;
-  for ( i = 0; i < table->number_of_buckets; i++ ) {
-    dlist_element *e = NULL;
-    for ( e = table->buckets[ i ]->next; e != NULL; ) {
+    for ( dlist_element *e = table->buckets[ i ]->next; e != NULL; ) {
       dlist_element *delete_me = e;
       e = e->next;
       xfree( delete_me->data );
     }
-    if ( table->buckets[ i ]->data != NULL ) {
-      dlist_deleted = delete_dlist_element( table->buckets[ i ]->data );
-      assert( dlist_deleted == true );
-    }
-    table->buckets[ i ]->data = NULL;
-    dlist_deleted = delete_dlist( table->buckets[ i ] );
-    assert( dlist_deleted == true );
+
+    delete_bucket( table, i );
   }
   xfree( table->buckets );
 
-  dlist_deleted = delete_dlist( table->nonempty_bucket_index );
-  assert( dlist_deleted == true );
+  delete_dlist( table->nonempty_bucket_index );
 
   xfree( table );
 

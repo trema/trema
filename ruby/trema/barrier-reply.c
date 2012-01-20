@@ -51,7 +51,7 @@ barrier_reply_init( VALUE self, VALUE datapath_id, VALUE transaction_id ) {
 /*
  * Message originator identifier.
  *
- * @return [Number] the value of attribute datapath_id.
+ * @return [Number] the value of datapath_id.
  */
 static VALUE
 barrier_reply_datapath_id( VALUE self ) {
@@ -62,7 +62,7 @@ barrier_reply_datapath_id( VALUE self ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction ID.
  */
 static VALUE
 barrier_reply_transaction_id( VALUE self ) {

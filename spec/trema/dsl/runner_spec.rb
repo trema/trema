@@ -28,10 +28,11 @@ module Trema
       before :each do
         ::Process.stub!( :fork ).and_yield
         ::Process.stub!( :waitpid )
-        SwitchManager.stub!( :new ).and_return( mock( "switch manager", :run! => nil ) )
+        @switch_manager = mock( "switch manager", :run! => nil )
+        SwitchManager.stub!( :new ).and_return( @switch_manager )
       end
 
-      
+
       context "when running" do
         it "should run tremashark" do
           tremashark = mock
@@ -46,7 +47,7 @@ module Trema
             :hosts => {},
             :switches => {},
             :apps => {},
-            :port => 6633                        
+            :port => 6633
           )
 
           Runner.new( context ).run
@@ -54,13 +55,13 @@ module Trema
 
 
         it "should run switch_manager" do
-          switch_manager = mock( "switch manager" )
-          switch_manager.should_receive( :run! ).once
+          @switch_manager.should_receive( :run! ).once
 
           context = mock(
             "context",
+            :port => 6633,
             :tremashark => nil,
-            :switch_manager => switch_manager,
+            :switch_manager => nil,
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -184,13 +185,13 @@ module Trema
           app1 = mock( "app1" )
           app1.should_receive( :daemonize! ).once.ordered
 
-          app2 = mock( "app2" )
+          app2 = mock( "app2", :name => "App2" )
           app2.should_receive( :run! ).once.ordered
 
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run! => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil, :rule => {} ),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -209,13 +210,13 @@ module Trema
           app1 = mock( "app1" )
           app1.should_receive( :daemonize! ).once.ordered
 
-          app2 = mock( "app2" )
+          app2 = mock( "app2", :name => "App2" )
           app2.should_receive( :daemonize! ).once.ordered
 
           context = mock(
             "context",
             :tremashark => nil,
-            :switch_manager => mock( "switch manager", :run! => nil ),
+            :switch_manager => mock( "switch manager", :run! => nil, :rule => {} ),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},

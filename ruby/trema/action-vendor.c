@@ -29,23 +29,45 @@ VALUE cActionVendor;
 /*
  * An action to set vendor specific extensions. 
  *
- * @overload initialize(vendor_id)
+ * @overload initialize(options={})
  *
- * @param [Number] vendor
- *   the vendor id this action refers to.
+ *   @example
+ *     ActionVendor.new( :vendor => VENDOR_ID )
+ *   @param [Hash] options
+ *     the options hash to create this action class instance with.
  *
- * @return [ActionVendor] an object that encapsulates this action.
+ *   @option options [Number] vendor
+ *     the vendor id this action refers to.
+ *
+ *   @raise [ArgumentError] if vendor argument is not supplied.
+ *   @raise [ArgumentError] if vendor is not an unsigned 32-bit integer.
+ *   @raise [TypeError] if options is not a Hash.
+ *
+ *   @return [ActionVendor] 
+ *     an object that encapsulates this action.
  */
 static VALUE
-action_vendor_init( VALUE self, VALUE vendor ) {
-  rb_iv_set( self, "@vendor", vendor );
+action_vendor_init( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+
+  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE vendor;
+    if ( ( vendor = rb_hash_aref( options, ID2SYM( rb_intern( "vendor" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( vendor, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Vendor id must be an unsigned 32-bit integer" );
+      }
+      rb_iv_set( self, "@vendor", vendor );
+    }
+  }
   return self;
 }
+
 
 /*
  * The vendor id of this action.
  *
- * @return [Number] the value of attribute vendor.
+ * @return [Number] the value of vendor.
  */
 static VALUE
 action_get_vendor( VALUE self ) {
@@ -84,7 +106,7 @@ action_vendor_inspect( VALUE self ) {
 void
 Init_action_vendor() {
   cActionVendor = rb_define_class_under( mTrema, "ActionVendor", rb_cObject );
-  rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
+  rb_define_method( cActionVendor, "initialize", action_vendor_init, -1 );
   rb_define_method( cActionVendor, "vendor", action_get_vendor, 0 );
   rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
   rb_define_method( cActionVendor, "inspect", action_vendor_inspect, 0 );

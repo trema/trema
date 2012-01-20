@@ -166,8 +166,13 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
 
 
 static void
-handle_packet_in( packet_in packet_in ) {
+handle_packet_in( uint64_t datapath_id, packet_in message ) {
+  if ( !packet_type_ether( message.data ) ) {
+    return;
+  }
+
   struct key new_key;
+<<<<<<< HEAD
   packet_info *packet_info0 = packet_in.data->user_data;
   assert( packet_info0 != NULL );
 
@@ -179,13 +184,24 @@ handle_packet_in( packet_in packet_in ) {
   struct key search_key;
   memcpy( search_key.mac, packet_info0->eth_macda, OFP_ETH_ALEN );
   search_key.datapath_id = packet_in.datapath_id;
+=======
+  packet_info packet_info = get_packet_info( message.data );
+  memcpy( new_key.mac, packet_info.eth_macsa, OFP_ETH_ALEN );
+  new_key.datapath_id = datapath_id;
+  hash_table *forwarding_db = message.user_data;
+  learn( forwarding_db, new_key, message.in_port );
+
+  struct key search_key;
+  memcpy( search_key.mac, packet_info.eth_macda, OFP_ETH_ALEN );
+  search_key.datapath_id = datapath_id;
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
   forwarding_entry *destination = lookup_hash_entry( forwarding_db, &search_key );
 
   if ( destination == NULL ) {
-    do_flooding( packet_in );
+    do_flooding( message );
   }
   else {
-    send_packet( destination->port_no, packet_in );
+    send_packet( destination->port_no, message );
   }
 }
 

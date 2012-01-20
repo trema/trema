@@ -1,7 +1,7 @@
 /*
- * Packet parser
+ * Traffic counter.
  *
- * Author: Naoyoshi Tada
+ * Author: Kazushi SUGYO
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -19,22 +19,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file packet_parser.h
- * Header file containing function declarations of packet_parser.c file
- * @see packet_parser.c
- */
 
-#ifndef PACKET_PARSER_H
-#define PACKET_PARSER_H
+#ifndef COUNTER_H
+#define COUNTER_H
 
 
-/* This file will be deprecated. */
-// uint16_t get_checksum( uint16_t *pos, uint32_t size );
-// bool parse_packet( buffer *buf );
+typedef struct {
+  uint8_t mac[ ETH_ADDRLEN ];
+  uint64_t packet_count;
+  uint64_t byte_count;
+} counter;
 
 
-#endif // PACKET_PARSER_H
+hash_table *create_counter( void );
+void add_counter( hash_table *db, uint8_t *mac, uint64_t packet_count, uint64_t byte_count );
+void foreach_counter( hash_table *db, void function( uint8_t *mac, counter *counter, void *user_data ), void *user_data );
+void delete_counter( hash_table *db );
+
+
+#endif // COUNTER_H
 
 
 /*

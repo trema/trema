@@ -1,5 +1,5 @@
 /*
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -17,42 +17,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file ether.c
- * This source file contains functions for handling Ethernet headers
- */
 
 #include <assert.h>
+#include "checks.h"
 #include "log.h"
 #include "packet_info.h"
 #include "wrapper.h"
 
 
-#ifdef UNIT_TESTING
-
-#ifdef debug
-#undef debug
-#endif
-#define debug mock_debug
-void mock_debug( const char *format, ... );
-
-#endif // UNIT_TESTING
-
-
-/**
- * This function pads the buffer containing Ethernet header, in case the length
- * of buffer is less than 64bytes including CRC
- * @param buf Buffer containing Ethernet header
- * @return size_t Length of the padding
- */
 uint16_t
 fill_ether_padding( buffer *buf ) {
-  assert( buf != NULL );
+  die_if_NULL( buf );
   size_t padding_length = 0;
 
   if ( buf->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH ) {
     padding_length = ETH_MINIMUM_LENGTH - buf->length - ETH_FCS_LENGTH;
-    debug( "Adding %u octets padding ( original frame length = %u ).", buf->length, padding_length );
+    debug( "Adding %u octets padding ( original frame length = %u ).", 
+           buf->length, padding_length );
     append_back_buffer( buf, padding_length );
   }
   return ( uint16_t ) padding_length;

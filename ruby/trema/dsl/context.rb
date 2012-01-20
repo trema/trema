@@ -122,12 +122,12 @@ module Trema
       def initialize
         @port = 6633
         @tremashark = false
-        @apps = Trema::App.instances.clear
-        @hosts = Trema::Host.instances.clear
-        @links = Trema::Link.instances.clear
-        @packetin_filter = Trema::PacketinFilter.instances.clear
-        @switch_manager = Trema::SwitchManager.instances.clear
-        @switches = Trema::Switch.instances.clear
+        @apps = Trema::App.clear
+        @hosts = Trema::Host.clear
+        @links = Trema::Link.clear
+        @packetin_filter = Trema::PacketinFilter.clear
+        @switch_manager = Trema::SwitchManager.clear
+        @switches = Trema::Switch.clear
       end
 
 

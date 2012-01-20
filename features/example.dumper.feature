@@ -10,19 +10,52 @@ Feature: Dump openflow events with dumper
       """
       vswitch("dumper") { datapath_id "0xabc" }
 
-      vhost("host1")
-      vhost("host2")
+      vhost("host1") {
+        ip "192.168.0.1"
+        mac "00:00:00:00:00:01"
+      }
+      vhost("host2") {
+        ip "192.168.0.2"
+        mac "00:00:00:00:00:02"
+      }
 
       link "dumper", "host1"
       link "dumper", "host2"
       """
       And wait until "dumper" is up
-    When I try to run "./trema send_packets --source host1 --dest host2"
+    When I try to run "./trema send_packets --source host1 --dest host2 --length=0"
       And I terminated all trema services
     Then the output should include:
       """
       [packet_in]
-      datapath_id: 0xabc
+        datapath_id: 0xabc
+      """
+
+
+  Scenario: Dump packet_in events (Ruby)
+    Given I try trema run "./src/examples/dumper/dumper.rb" with following configuration (backgrounded):
+      """
+      vswitch("dumper") { datapath_id "0xabc" }
+
+      vhost("host1") {
+        ip "192.168.0.1"
+        mac "00:00:00:00:00:01"
+      }
+      vhost("host2") {
+        ip "192.168.0.2"
+        mac "00:00:00:00:00:02"
+      }
+
+      link "dumper", "host1"
+      link "dumper", "host2"
+      """
+      And wait until "Dumper" is up
+    When I try to run "./trema send_packets --source host1 --dest host2 --length=0"
+      And I terminated all trema services
+    Then the output should include:
+      """
+      [packet_in]
+        datapath_id: 0xabc
       """
 
 

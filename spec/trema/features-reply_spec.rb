@@ -22,40 +22,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::FeaturesReply do
-  it "should have datapath_id" do
-    Trema::FeaturesReply.new( :datapath_id => 123 ).datapath_id.should == 123
-  end
+describe FeaturesReply, ".new( VALID OPTIONS )" do
+  subject { FeaturesReply.new( :datapath_id => 123, 
+    :transaction_id => 1234,
+    :n_buffers => 256,
+    :n_tables => 2,
+    :capabilities => 135,
+    :actions => 2047,
+    :ports => ports 
+    )
+  }
+  its( :datapath_id ) { should == 123 }
+  its( :transaction_id ) { should == 1234 }
+  its( :n_buffers ) { should == 256 }
+  its( :n_tables ) { should == 2 }
+  its( :capabilities ) { should == 135 }
+  its( :actions ) { should == 2047 }
+  let( :ports ) { [ mock( "port #0" ), mock( "port #1" ), mock( "port #2" ) ] }
+  its( :ports ) { subject.size.should == 3 }
+end
 
 
-  it "should have transaction_id" do
-    Trema::FeaturesReply.new( :transaction_id => 1234 ).transaction_id.should == 1234
-  end
-
-
-  it "should have n_buffers" do
-    Trema::FeaturesReply.new( :n_buffers => 256 ).n_buffers.should == 256
-  end
-
-
-  it "should have n_tables" do
-    Trema::FeaturesReply.new( :n_tables => 2 ).n_tables.should == 2
-  end
-
-
-  it "should have capabilities" do
-    Trema::FeaturesReply.new( :capabilities => 135 ).capabilities.should == 135
-  end
-
-
-  it "should have actions" do
-    Trema::FeaturesReply.new( :actions => 2047 ).actions.should == 2047
-  end
-
-
-  it "should have ports list" do
-    ports = [ mock( "port #0" ), mock( "port #1" ), mock( "port #2" ) ]
-    Trema::FeaturesReply.new( :ports => ports ).ports.size.should == 3
+describe FeaturesReply, ".new( MANDATORY OPTIONS MISSING)" do
+  it "should raise ArgumentError" do
+    expect { subject }.to raise_error( ArgumentError ) 
   end
 end
 
@@ -65,4 +55,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-

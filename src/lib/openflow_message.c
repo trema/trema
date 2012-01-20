@@ -103,19 +103,18 @@ init_openflow_message( void ) {
 
 static buffer *
 create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t length ) {
-  debug( "Creating an OpenFlow header ( version = %#x, type = %#x, length = %u, xid = %#x ).",
+  debug( "Creating an OpenFlow header (version = %#x, type = %#x, length = %u, xid = %#x).",
          OFP_VERSION, type, length, transaction_id );
 
   assert( length >= sizeof( struct ofp_header ) );
 
-  buffer *buffer = alloc_buffer_with_length( length );
+  buffer *buffer = alloc_buffer();
   assert( buffer != NULL );
 
-  void *data = append_back_buffer( buffer, length );
-  assert( data != NULL );
-  memset( data, 0, length );
+  struct ofp_header *header = append_back_buffer( buffer, length );
+  assert( header != NULL );
+  memset( header, 0, length );
 
-  struct ofp_header *header = data;
   header->version = OFP_VERSION;
   header->type = type;
   header->length = htons( length );
@@ -816,7 +815,6 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
   uint16_t data_length = 0;
   uint32_t *v;
   buffer *buffer;
-  struct ofp_stats_request *vendor_stats_request;
 
   if ( ( body != NULL ) && ( body->length > 0 ) ) {
     data_length = ( uint16_t ) body->length;
@@ -830,7 +828,6 @@ create_vendor_stats_request( const uint32_t transaction_id, const uint16_t flags
   buffer = create_stats_request( transaction_id, OFPST_VENDOR, length, flags );
   assert( buffer != NULL );
 
-  vendor_stats_request = ( struct ofp_stats_request * ) buffer->data;
   v = ( uint32_t * ) ( ( char * ) buffer->data + offsetof( struct ofp_stats_request, body ) );
   *v = htonl( vendor );
 
@@ -2653,9 +2650,7 @@ validate_flow_stats_reply( const buffer *message ) {
 int
 validate_aggregate_stats_reply( const buffer *message ) {
   int ret;
-  uint16_t offset;
   struct ofp_stats_reply *stats_reply;
-  struct ofp_aggregate_stats_reply *aggregate_stats;
 
   assert( message != NULL );
 
@@ -2671,8 +2666,8 @@ validate_aggregate_stats_reply( const buffer *message ) {
     return ERROR_INVALID_STATS_REPLY_FLAGS;
   }
 
-  offset = offsetof( struct ofp_stats_reply, body );
-  aggregate_stats = ( struct ofp_aggregate_stats_reply * ) ( ( char * ) message->data + offset );
+  // uint16_t offset = offsetof( struct ofp_stats_reply, body );
+  // struct ofp_aggregate_stats_reply *aggregate_stats = ( struct ofp_aggregate_stats_reply * ) ( ( char * ) message->data + offset );
 
   // aggregate_stats->packet_count
   // aggregate_stats->byte_count
@@ -3951,6 +3946,13 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( !( wildcards & OFPFW_DL_VLAN ) ) {
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
+<<<<<<< HEAD
+=======
+      if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
+        warn( "Invalid vlan id ( change %u to %u )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
+	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
+      }
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
     else {
       match->dl_vlan = UINT16_MAX;
@@ -3959,6 +3961,13 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( !( wildcards & OFPFW_DL_VLAN_PCP ) ) {
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
+<<<<<<< HEAD
+=======
+      if ( ( match->dl_vlan_pcp & ~VLAN_PCP_MASK ) != 0 ) {
+        warn( "Invalid vlan pcp ( change %u to %u )", match->dl_vlan_pcp, match->dl_vlan_pcp & VLAN_PCP_MASK );
+	match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
+      }
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
   }
   if ( !( wildcards & OFPFW_DL_TYPE ) ) {
@@ -3967,6 +3976,13 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
   if ( match->dl_type == ETH_ETHTYPE_IPV4 ) {
     if ( !( wildcards & OFPFW_NW_TOS ) ) {
       match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
+<<<<<<< HEAD
+=======
+      if ( ( match->nw_tos & ~NW_TOS_MASK ) != 0 ) {
+        warn( "Invalid ipv4 tos ( change %u to %u )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
+        match->nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
+      }
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
     }
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
       match->nw_proto = ( ( packet_info * ) packet->user_data )->ipv4_protocol;

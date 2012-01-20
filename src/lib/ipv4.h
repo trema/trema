@@ -1,7 +1,7 @@
 /*
  * IPv4 header definitions
  *
- * Author: Naoyoshi Tada
+ * Author: Kazuya Suzuki
  *
  * Copyright (C) 2008-2011 NEC Corporation
  *
@@ -19,11 +19,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file ipv4.h
- * This header file contain type definitions and function declarations of ipv4.c file
- * @see ipv4.c
- */
 
 #ifndef IPV4_H
 #define IPV4_H
@@ -33,24 +28,19 @@
 #include "buffer.h"
 
 
-/**
- * This is the type that specifies IP header definitions
- * @see RFC 791 for detailed protocol description
- * @see http://www.ietf.org/rfc/rfc791.txt
- */
 typedef struct iphdr ipv4_header_t;
 
 
-#define IPV4_ADDRLEN 4 /*!<IPv4 address length*/
+#define IPV4_ADDRLEN 4
 
 
-#define IPV4_IS_CLASSDE( _addr )     ( ( ( _addr ) & 0xe0000000UL ) == 0xe0000000UL )
-/*!<Checks if address corresponds to class D or class E of IPv4 address classes*/
-#define IPV4_IS_LOOPBACK( _addr )    ( ( ( _addr ) & 0xffffff00UL ) == 0x7f000000UL )
-/*!<Checks if address corresponds to loopback address of IPv4 address classes*/
-#define IPV4_IS_LIMITEDBC( _addr )   ( ( _addr ) == 0xffffffffUL )
-/*!<Checks if address corresponds to limited broadcast address of IPv4 address classes*/
+<<<<<<< HEAD
+=======
+#define IPV4_IS_CLASSDE( _addr ) ( ( ( _addr ) & 0xe0000000UL ) == 0xe0000000UL )
+#define IPV4_IS_LOOPBACK( _addr ) ( ( ( _addr ) & 0xffffff00UL ) == 0x7f000000UL )
+#define IPV4_IS_LIMITEDBC( _addr ) ( ( _addr ) == 0xffffffffUL )
 
+>>>>>>> 798f20ee867e0db64216dfa469b4fa9c8a7a3afb
 
 #endif // IPV4_H
 

@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +31,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include "doubly_linked_list.h"
+#include "event_handler.h"
 #include "hash_table.h"
 #include "log.h"
 #include "messenger.h"
@@ -182,20 +184,23 @@ typedef struct send_queue {
   char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   int server_socket;
   int refused_count;
-  struct timespec reconnect_at;
+  struct timespec reconnect_interval;
   struct sockaddr_un server_addr;
   message_buffer *buffer;
+  bool running_timer;
+  uint32_t overflow;
+  uint64_t overflow_total_length;
 } send_queue;
 
 
 #define MESSENGER_RECV_BUFFER 100000
-static const uint32_t messenger_send_queue_length = 400000;
-static const uint32_t messenger_bucket_size = 2000;
-static const uint32_t messenger_recv_queue_length = 200000;
-static const uint32_t messenger_recv_queue_reserved = 4000;
+static const uint32_t messenger_send_queue_length = MESSENGER_RECV_BUFFER * 4;
+static const uint32_t messenger_send_length_for_flush = MESSENGER_RECV_BUFFER;
+static const uint32_t messenger_bucket_size = MESSENGER_RECV_BUFFER;
+static const uint32_t messenger_recv_queue_length = MESSENGER_RECV_BUFFER * 2;
+static const uint32_t messenger_recv_queue_reserved = MESSENGER_RECV_BUFFER;
 
 char socket_directory[ PATH_MAX ];
-static bool running = false;
 static bool initialized = false;
 static bool finalized = false;
 static hash_table *receive_queues = NULL;
@@ -203,11 +208,12 @@ static hash_table *send_queues = NULL;
 static hash_table *context_db = NULL;
 static char *_dump_service_name = NULL;
 static char *_dump_app_name = NULL;
-static void ( *external_fd_set )( fd_set *read_set, fd_set *write_set ) = NULL;
-static void ( *external_check_fd_isset )( fd_set *read_set, fd_set *write_set ) = NULL;
 static uint32_t last_transaction_id = 0;
-static void ( *external_callback )( void ) = NULL;
 
+static void on_accept( int fd, void *data );
+static void on_recv( int fd, void *data );
+static void on_send_write( int fd, void *data );
+static void on_send_read( int fd, void *data );
 
 static void
 _delete_context( void *key, void *value, void *user_data ) {
@@ -258,6 +264,8 @@ age_context_db( void *user_data ) {
 bool
 init_messenger( const char *working_directory ) {
   assert( working_directory != NULL );
+
+  init_event_handler();
 
   if ( initialized ) {
     warn( "Messenger is already initialized." );
@@ -312,6 +320,10 @@ delete_send_queue( send_queue *sq ) {
 
   free_message_buffer( sq->buffer );
   if ( sq->server_socket != -1 ) {
+    set_readable( sq->server_socket, false );
+    set_writable( sq->server_socket, false );
+    delete_fd_handler( sq->server_socket );
+
     close( sq->server_socket );
   }
   if ( send_queues != NULL ) {
@@ -430,11 +442,17 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
 
     debug( "Closing a client socket ( fd = %d ).", client_socket->fd );
 
+    set_readable( client_socket->fd, false );
+    delete_fd_handler( client_socket->fd );
+
     close( client_socket->fd );
     xfree( client_socket );
     send_dump_message( MESSENGER_DUMP_RECV_CLOSED, rq->service_name, NULL, 0 );
   }
   delete_dlist( rq->client_sockets );
+
+  set_readable( rq->listen_socket, false );
+  delete_fd_handler( rq->listen_socket );
 
   close( rq->listen_socket );
   free_message_buffer( rq->buffer );
@@ -491,12 +509,10 @@ finalize_messenger() {
     delete_context_db();
   }
 
-  set_fd_set_callback( NULL );
-  set_check_fd_isset_callback( NULL );
-
-  running = false;
   initialized = false;
   finalized = true;
+
+  finalize_event_handler();
 
   return true;
 }
@@ -574,6 +590,9 @@ create_receive_queue( const char *service_name ) {
     return NULL;
   }
 
+  set_fd_handler( rq->listen_socket, on_accept, rq, NULL, NULL );
+  set_readable( rq->listen_socket, true );
+
   rq->message_callbacks = create_dlist();
   rq->client_sockets = create_dlist();
   rq->buffer = create_message_buffer( messenger_recv_queue_length );
@@ -612,8 +631,8 @@ add_message_callback( const char *service_name, uint8_t message_type, void *call
 }
 
 
-bool
-add_message_received_callback( const char *service_name, const callback_message_received callback ) {
+static bool
+_add_message_received_callback( const char *service_name, const callback_message_received callback ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -622,11 +641,12 @@ add_message_received_callback( const char *service_name, const callback_message_
 
   return add_message_callback( service_name, MESSAGE_TYPE_NOTIFY, callback );
 }
+bool ( *add_message_received_callback )( const char *service_name, const callback_message_received function ) = _add_message_received_callback;
 
 
-bool
-add_message_requested_callback( const char *service_name,
-                                void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
+static bool
+_add_message_requested_callback( const char *service_name,
+                                 void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -635,10 +655,11 @@ add_message_requested_callback( const char *service_name,
 
   return add_message_callback( service_name, MESSAGE_TYPE_REQUEST, callback );
 }
+bool ( *add_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) = _add_message_requested_callback;
 
 
-bool
-add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
+static bool
+_add_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -647,6 +668,7 @@ add_message_replied_callback( const char *service_name, void ( *callback )( uint
 
   return add_message_callback( service_name, MESSAGE_TYPE_REPLY, callback );
 }
+bool ( *add_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) = _add_message_replied_callback;
 
 
 static bool
@@ -682,14 +704,14 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
     }
   }
 
-  error( "No registered callback found." );
+  error( "No registered message callback found." );
 
   return false;
 }
 
 
-bool
-delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
+static bool
+_delete_message_received_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -698,10 +720,11 @@ delete_message_received_callback( const char *service_name, void ( *callback )( 
 
   return delete_message_callback( service_name, MESSAGE_TYPE_NOTIFY, callback );
 }
+bool ( *delete_message_received_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) ) = _delete_message_received_callback;
 
 
-bool
-delete_message_requested_callback( const char *service_name,
+static bool
+_delete_message_requested_callback( const char *service_name,
   void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
@@ -711,10 +734,11 @@ delete_message_requested_callback( const char *service_name,
 
   return delete_message_callback( service_name, MESSAGE_TYPE_REQUEST, callback );
 }
+bool ( *delete_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) ) = _delete_message_requested_callback;
 
 
-bool
-delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
+static bool
+_delete_message_replied_callback( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) {
   assert( service_name != NULL );
   assert( callback != NULL );
 
@@ -723,10 +747,11 @@ delete_message_replied_callback( const char *service_name, void ( *callback )( u
 
   return delete_message_callback( service_name, MESSAGE_TYPE_REPLY, callback );
 }
+bool ( *delete_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) ) = _delete_message_replied_callback;
 
 
-bool
-rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
+static bool
+_rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
   assert( old_service_name != NULL );
   assert( new_service_name != NULL );
   assert( receive_queues != NULL );
@@ -757,6 +782,7 @@ rename_message_received_callback( const char *old_service_name, const char *new_
 
   return true;
 }
+bool ( *rename_message_received_callback )( const char *old_service_name, const char *new_service_name ) = _rename_message_received_callback;
 
 
 static size_t
@@ -775,6 +801,7 @@ static int
 send_queue_connect( send_queue *sq ) {
   assert( sq != NULL );
 
+  sq->running_timer = false;
   if ( ( sq->server_socket = socket( AF_UNIX, SOCK_SEQPACKET, 0 ) ) == -1 ) {
     error( "Failed to call socket ( errno = %s [%d] ).", strerror( errno ), errno );
     return -1;
@@ -799,39 +826,100 @@ send_queue_connect( send_queue *sq ) {
   }
 
   if ( connect( sq->server_socket, ( struct sockaddr * ) &sq->server_addr, sizeof( struct sockaddr_un ) ) == -1 ) {
-    struct timespec now;
-
-    if ( clock_gettime( CLOCK_MONOTONIC, &now ) != 0 ) {
-      error( "Failed to retrieve monotonic time ( %s [%d] ).", strerror( errno ), errno );
-      close( sq->server_socket );
-      sq->server_socket = -1;
-      return -1;
-    }
-
     debug( "Connection refused ( service_name = %s, sun_path = %s, fd = %d, errno = %s [%d] ).",
            sq->service_name, sq->server_addr.sun_path, sq->server_socket, strerror( errno ), errno );
 
     send_dump_message( MESSENGER_DUMP_SEND_REFUSED, sq->service_name, NULL, 0 );
     close( sq->server_socket );
     sq->server_socket = -1;
-    sq->refused_count++;
-    sq->reconnect_at.tv_sec = now.tv_sec + ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
-
-    debug( "refused_count = %d, reconnect_at = %u.", sq->refused_count, sq->reconnect_at.tv_sec );
 
     return 0;
+  }
+
+  set_fd_handler( sq->server_socket, on_send_read, sq, &on_send_write, sq );
+  set_readable( sq->server_socket, true );
+
+  if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
+    set_writable( sq->server_socket, true );
   }
 
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
 
-  sq->refused_count = 0;
-  sq->reconnect_at.tv_sec = 0;
-  sq->reconnect_at.tv_nsec = 0;
-
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
 
   return 1;
+}
+
+
+static int send_queue_connect_timer( send_queue *sq );
+
+static int
+send_queue_connect_timeout( send_queue *sq ) {
+  sq->running_timer = false;
+  return send_queue_connect_timer( sq );
+}
+
+// Remember to clean up timer if we delete the send_queue.
+
+static int
+send_queue_connect_timer( send_queue *sq ) {
+  struct itimerspec interval;
+  if ( sq->server_socket != -1 ) {
+    return 1;
+  }
+  if ( sq->running_timer ) {
+    sq->running_timer = false;
+    delete_timer_event_callback( ( void (*)(void *) )send_queue_connect_timeout );
+  }
+
+  int ret = send_queue_connect( sq );
+
+  switch ( ret ) {
+  case -1:
+    // Print an error, and find a better way of indicating the send
+    // queue has an error.
+    sq->reconnect_interval.tv_sec = -1;
+    sq->reconnect_interval.tv_nsec = 0;
+    return -1;
+
+  case 0:
+    // Try again later.
+    sq->refused_count++;
+    sq->reconnect_interval.tv_sec = ( 1 << ( sq->refused_count > 4 ? 4 : sq->refused_count - 1 ) );
+
+    interval.it_interval.tv_sec = 0;
+    interval.it_interval.tv_nsec = 0;
+    interval.it_value = sq->reconnect_interval;
+    add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect_timeout, ( void * ) sq );
+    sq->running_timer = true;
+
+    debug( "refused_count = %d, reconnect_interval = %u.", sq->refused_count, sq->reconnect_interval.tv_sec );
+    return 0;
+
+  case 1:
+    // Success.
+    sq->refused_count = 0;
+    sq->reconnect_interval.tv_sec = 0;
+    sq->reconnect_interval.tv_nsec = 0;
+    return 1;
+
+  default:
+    die( "Got invalid value from send_queue_connect_timer( send_queue* )." );
+  };
+
+  return -1;
+}
+
+
+static int
+send_queue_try_connect( send_queue *sq ) {
+  // TODO: Add a proper check for this.
+  if ( sq->reconnect_interval.tv_sec != 0 ) {
+    return 0;
+  }
+
+  return send_queue_connect_timer( sq );
 }
 
 
@@ -845,8 +933,6 @@ create_send_queue( const char *service_name ) {
   debug( "Creating a send queue ( service_name = %s ).", service_name );
 
   send_queue *sq;
-
-  // TODO: check service_name length
 
   assert( send_queues != NULL );
 
@@ -865,11 +951,16 @@ create_send_queue( const char *service_name ) {
   sprintf( sq->server_addr.sun_path, "%s/trema.%s.sock", socket_directory, service_name );
   debug( "Set sun_path to %s.", sq->server_addr.sun_path );
 
+  sq->server_socket = -1;
+  sq->buffer = NULL;
   sq->refused_count = 0;
-  sq->reconnect_at.tv_sec = 0;
-  sq->reconnect_at.tv_nsec = 0;
+  sq->reconnect_interval.tv_sec = 0;
+  sq->reconnect_interval.tv_nsec = 0;
+  sq->running_timer = false;
+  sq->overflow = 0;
+  sq->overflow_total_length = 0;
 
-  if ( send_queue_connect( sq ) == -1 ) {
+  if ( send_queue_try_connect( sq ) == -1 ) {
     xfree( sq );
     error( "Failed to create a send queue for %s.", service_name );
     return NULL;
@@ -928,24 +1019,45 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
 
   header.version = 0;
   header.message_type = message_type;
-  header.tag = tag;
-  header.message_length = ( uint32_t ) ( sizeof( message_header ) + len );
+  header.tag = htons( tag );
+  uint32_t length = ( uint32_t ) ( sizeof( message_header ) + len );
+  header.message_length = htonl( length );
 
-  if ( message_buffer_remain_bytes( sq->buffer ) < header.message_length ) {
-    warn( "Could not write a message to send queue due to overflow ( service_name = %s ).", sq->service_name );
+  if ( message_buffer_remain_bytes( sq->buffer ) < length ) {
+    if ( sq->overflow == 0 ) {
+      warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, length = %u ).", sq->service_name, sq->server_socket, length );
+    }
+    ++sq->overflow;
+    sq->overflow_total_length += length;
     send_dump_message( MESSENGER_DUMP_SEND_OVERFLOW, sq->service_name, NULL, 0 );
     return false;
   }
+  if ( sq->overflow > 1 ) {
+    warn( "Could not write a message to send queue due to overflow ( service_name = %s, fd = %u, count = %u, total length = %" PRIu64 " ).", sq->service_name, sq->server_socket, sq->overflow, sq->overflow_total_length );
+  }
+  sq->overflow = 0;
+  sq->overflow_total_length = 0;
 
   write_message_buffer( sq->buffer, &header, sizeof( message_header ) );
   write_message_buffer( sq->buffer, data, len );
 
+  if ( sq->server_socket == -1 ) {
+    debug( "Tried to send message on closed send queue, connecting..." );
+
+    send_queue_try_connect( sq );
+    return true;
+  }
+
+  set_writable( sq->server_socket, true );
+  if ( sq->buffer->data_length  > messenger_send_length_for_flush ) {
+    on_send_write( sq->server_socket, sq );
+  }
   return true;
 }
 
 
-bool
-send_message( const char *service_name, const uint16_t tag, const void *data, size_t len ) {
+static bool
+_send_message( const char *service_name, const uint16_t tag, const void *data, size_t len ) {
   assert( service_name != NULL );
 
   debug( "Sending a message ( service_name = %s, tag = %#x, data = %p, len = %u ).",
@@ -953,6 +1065,7 @@ send_message( const char *service_name, const uint16_t tag, const void *data, si
 
   return push_message_to_send_queue( service_name, MESSAGE_TYPE_NOTIFY, tag, data, len );
 }
+bool ( *send_message )( const char *service_name, const uint16_t tag, const void *data, size_t len ) = _send_message;
 
 
 static messenger_context *
@@ -972,8 +1085,8 @@ insert_context( void *user_data ) {
 }
 
 
-bool
-send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) {
+static bool
+_send_request_message( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) {
   assert( to_service_name != NULL );
   assert( from_service_name != NULL );
 
@@ -1003,10 +1116,11 @@ send_request_message( const char *to_service_name, const char *from_service_name
 
   return return_value;
 }
+bool ( *send_request_message )( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data ) = _send_request_message;
 
 
-bool
-send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) {
+static bool
+_send_reply_message( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) {
   assert( handle != NULL );
 
   debug( "Sending a reply message ( handle = [ transaction_id = %#x, service_name_len = %u, service_name = %s ], "
@@ -1029,6 +1143,7 @@ send_reply_message( const messenger_context_handle *handle, const uint16_t tag, 
 
   return return_value;
 }
+bool ( *send_reply_message )( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) = _send_reply_message;
 
 
 static void
@@ -1080,40 +1195,6 @@ number_of_send_queue( int *connected_count, int *sending_count, int *reconnectin
 
 
 static void
-set_recv_queue_fd_set( fd_set *read_set ) {
-  assert( read_set != NULL );
-
-  debug( "Setting fds to a fd_set ( read_set = %p ).", read_set );
-
-  hash_iterator iter;
-  hash_entry *e;
-
-  assert( receive_queues != NULL );
-
-  init_hash_iterator( receive_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    receive_queue *rq = e->value;
-    dlist_element *element;
-    /*
-     * A hacky workaround to avoid the bug of glibc (#431)
-     * See also: http://www.linuxquestions.org/questions/programming-9/impossible-to-use-gcc-with-wconversion-and-standard-socket-macros-841935/
-     */
-    debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", rq->listen_socket, read_set );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-    FD_SET( rq->listen_socket, read_set );
-#undef sizeof
-    for ( element = rq->client_sockets->next; element; element = element->next ) {
-      messenger_socket *socket_item = element->data;
-      debug( "Setting a fd ( %d ) to fd_set ( read_set = %p ).", socket_item->fd, read_set );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-      FD_SET( socket_item->fd, read_set );
-#undef sizeof
-    }
-  }
-}
-
-
-static void
 add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   assert( rq != NULL );
   assert( fd >= 0 );
@@ -1125,11 +1206,16 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
   socket = xmalloc( sizeof( messenger_socket ) );
   socket->fd = fd;
   insert_after_dlist( rq->client_sockets, socket );
+
+  set_fd_handler( fd, on_recv, rq, NULL, NULL );
+  set_readable( fd, true );
 }
 
 
 static void
-on_accept( int fd, receive_queue *rq ) {
+on_accept( int fd, void *data ) {
+  receive_queue *rq = ( receive_queue* )data;
+
   assert( rq != NULL );
 
   int client_fd;
@@ -1176,6 +1262,9 @@ del_recv_queue_client_fd( receive_queue *rq, int fd ) {
   for ( element = rq->client_sockets->next; element; element = element->next ) {
     socket = element->data;
     if ( socket->fd == fd ) {
+      set_readable( fd, false );
+      delete_fd_handler( fd );
+
       debug( "Deleting fd ( %d ).", fd );
       delete_dlist_element( element );
       xfree( socket );
@@ -1233,19 +1322,20 @@ pull_from_recv_queue( receive_queue *rq, uint8_t *message_type, uint16_t *tag, v
 
   header = ( message_header * ) get_message_buffer_head( rq->buffer );
 
-  assert( header->message_length != 0 );
-  assert( header->message_length < messenger_recv_queue_length );
-  if ( rq->buffer->data_length < header->message_length ) {
+  uint32_t length = ntohl( header->message_length );
+  assert( length != 0 );
+  assert( length < messenger_recv_queue_length );
+  if ( rq->buffer->data_length < length ) {
     debug( "Queue length is smaller than message length ( queue length = %u, message length = %u ).",
-           rq->buffer->data_length, header->message_length );
+           rq->buffer->data_length, length );
     return 0;
   }
 
   *message_type = header->message_type;
-  *tag = header->tag;
-  *len = header->message_length - sizeof( message_header );
+  *tag = ntohs( header->tag );
+  *len = length - sizeof( message_header );
   memcpy( data, header->value, *len > maxlen ? maxlen : *len );
-  truncate_message_buffer( rq->buffer, header->message_length );
+  truncate_message_buffer( rq->buffer, length );
 
   debug( "A message is retrieved from receive queue ( message_type = %#x, tag = %#x, len = %u, data = %p ).",
          *message_type, *tag, *len, data );
@@ -1344,7 +1434,9 @@ call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uin
 
 
 static void
-on_recv( int fd, receive_queue *rq ) {
+on_recv( int fd, void *data ) {
+  receive_queue *rq = ( receive_queue* )data;
+
   assert( rq != NULL );
   assert( fd >= 0 );
 
@@ -1397,103 +1489,60 @@ on_recv( int fd, receive_queue *rq ) {
 }
 
 
-static void
-check_recv_queue_fd_isset( fd_set *read_set ) {
-  assert( read_set != NULL );
-
-  hash_iterator iter;
-  hash_entry *e;
-
-  debug( "Checking a fd_set for receiving data from remotes ( read_set = %p ).", read_set );
-
-  assert( receive_queues != NULL );
-
-  init_hash_iterator( receive_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    receive_queue *rq = e->value;
-    if ( FD_ISSET( rq->listen_socket, read_set ) ) {
-      on_accept( rq->listen_socket, rq );
-    }
-    dlist_element *element = rq->client_sockets->next, *next_element;
-    while ( element != NULL ) {
-      next_element = element->next;
-      messenger_socket *socket_item = element->data;
-      if ( FD_ISSET( socket_item->fd, read_set ) ) {
-        on_recv( socket_item->fd, rq );
-      }
-      element = next_element;
-    }
-  }
-}
-
-
-static void
-set_send_queue_fd_set( fd_set *read_set, fd_set *write_set ) {
-  hash_iterator iter;
-  hash_entry *e;
-
-  debug( "Setting fds to fd_sets ( read_set = %p, write_set = %p ).", read_set, write_set );
-
-  assert( send_queues != NULL );
-
-  init_hash_iterator( send_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    send_queue *sq = e->value;
-    int ret_val = 1;
-    struct timespec now;
-
-    assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 );
-
-    if ( ( sq->refused_count > 0 ) && ( sq->reconnect_at.tv_sec > now.tv_sec ) ) {
-      continue;
-    }
-
-    if ( sq->server_socket == -1 ) {
-      ret_val = send_queue_connect( sq );
-    }
-    switch ( ret_val ) {
-    case 0: // refused
-      break;
-
-    case 1: // connected
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-      FD_SET( sq->server_socket, read_set ); // for disconnect detection.
-#undef sizeof
-      if ( sq->buffer->data_length > 0 ) {
-        debug( "Adding a fd ( %d ) to fd_sets.", sq->server_socket );
-#define sizeof( X ) ( ( int ) sizeof( X ) )
-        FD_SET( sq->server_socket, write_set );
-#undef sizeof
-      }
-      break;
-
-    case -1: // error
-      return;
-    }
-  }
-}
-
-
 static uint32_t
 get_send_data( send_queue *sq, size_t offset ) {
   assert( sq != NULL );
 
-  message_header *header;
   uint32_t length = 0;
+  message_header *header;
   while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
     header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
-    if ( length + header->message_length > messenger_bucket_size ) {
+    uint32_t message_length = ntohl( header->message_length );
+    if ( length + message_length > messenger_bucket_size ) {
+      if ( length == 0 ) {
+        length = message_length;
+      }
       break;
     }
-    length += header->message_length;
-    offset += header->message_length;
+    length += message_length;
+    offset += message_length;
   }
   return length;
 }
 
 
 static void
-on_send( int fd, send_queue *sq ) {
+on_send_read( int fd, void *data ) {
+  UNUSED( fd );
+
+  char buf[ 256 ];
+  send_queue *sq = ( send_queue* )data;
+
+  if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
+    send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+
+    set_readable( sq->server_socket, false );
+    set_writable( sq->server_socket, false );
+    delete_fd_handler( sq->server_socket );
+
+    close( sq->server_socket );
+    sq->server_socket = -1;
+
+    // Tries to reconnecting immediately, else adds a reconnect timer.
+    if ( sq->buffer->data_length > 0 ) {
+      send_queue_try_connect( sq );
+    }
+    else {
+      delete_send_queue( sq );
+    }
+  }
+}
+
+
+static void
+on_send_write( int fd, void *data ) {
+  send_queue *sq = ( send_queue* )data;
+
   assert( sq != NULL );
   assert( fd >= 0 );
 
@@ -1501,26 +1550,35 @@ on_send( int fd, send_queue *sq ) {
          fd, sq->service_name, get_message_buffer_head( sq->buffer ), sq->buffer->data_length );
 
   if ( sq->buffer->data_length < sizeof( message_header ) ) {
+    set_writable( sq->server_socket, false );
     return;
   }
 
-  void *data;
+  void *send_data;
   size_t send_len;
   ssize_t sent_len;
   size_t sent_total = 0;
 
   while ( ( send_len = get_send_data( sq, sent_total ) ) > 0 ) {
-    data = ( ( char * ) get_message_buffer_head( sq->buffer ) + sent_total );
-    sent_len = send( fd, data, send_len, MSG_DONTWAIT );
+    send_data = ( ( char * ) get_message_buffer_head( sq->buffer ) + sent_total );
+    sent_len = send( fd, send_data, send_len, MSG_DONTWAIT );
     if ( sent_len == -1 ) {
       int err = errno;
       if ( err != EAGAIN && err != EWOULDBLOCK ) {
         error( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
                sq->service_name, fd, strerror( err ), err );
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
+
+        set_readable( sq->server_socket, false );
+        set_writable( sq->server_socket, false );
+        delete_fd_handler( sq->server_socket );
+
         close( sq->server_socket );
         sq->server_socket = -1;
         sq->refused_count = 0;
+
+        // Tries to reconnecting immediately, else adds a reconnect timer.
+        send_queue_try_connect( sq );
       }
       truncate_message_buffer( sq->buffer, sent_total );
       if ( err == EMSGSIZE || err == ENOBUFS || err == ENOMEM ) {
@@ -1530,90 +1588,15 @@ on_send( int fd, send_queue *sq ) {
       return;
     }
     assert( sent_len != 0 );
-    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, data, ( uint32_t ) sent_len );
+    assert( send_len == ( size_t ) sent_len );
+    send_dump_message( MESSENGER_DUMP_SENT, sq->service_name, send_data, ( uint32_t ) sent_len );
     sent_total += ( size_t ) sent_len;
   }
+
   truncate_message_buffer( sq->buffer, sent_total );
-}
-
-
-static void
-check_send_queue_fd_isset( fd_set *read_set, fd_set *write_set ) {
-  hash_iterator iter;
-  hash_entry *e;
-
-  debug( "Checking fd_sets for sending/receiving data to/from remotes ( read_set = %p, write_set = %p ).", read_set, write_set );
-
-  assert( send_queues != NULL );
-
-  init_hash_iterator( send_queues, &iter );
-  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
-    send_queue *sq = e->value;
-    if ( sq->server_socket == -1 ) {
-      continue;
-    }
-    if ( FD_ISSET( sq->server_socket, read_set ) ) {
-      char buf[ 256 ];
-      if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
-        send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
-        close( sq->server_socket );
-        sq->server_socket = -1;
-        continue;
-      }
-    }
-    if ( FD_ISSET( sq->server_socket, write_set ) ) {
-      on_send( sq->server_socket, sq );
-    }
+  if ( sq->buffer->data_length == 0 ) {
+    set_writable( sq->server_socket, false );
   }
-}
-
-
-static bool
-run_once( void ) {
-  fd_set read_set, write_set;
-  struct timeval timeout;
-  int set_count;
-
-  execute_timer_events();
-
-  if ( external_callback != NULL ) {
-    external_callback();
-    external_callback = NULL;
-  }
-
-  FD_ZERO( &read_set );
-  FD_ZERO( &write_set );
-  set_recv_queue_fd_set( &read_set );
-  set_send_queue_fd_set( &read_set, &write_set );
-  if ( external_fd_set ) {
-    external_fd_set( &read_set, &write_set );
-  }
-
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 100 * 1000;
-
-  set_count = select( FD_SETSIZE, &read_set, &write_set, NULL, &timeout );
-
-  if ( set_count == -1 ) {
-    if ( errno == EINTR ) {
-      return true;
-    }
-    error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno );
-    running = false;
-    return false;
-  }
-  else if ( set_count == 0 ) {
-    // timed out
-    return true;
-  }
-
-  check_send_queue_fd_isset( &read_set, &write_set );
-  check_recv_queue_fd_isset( &read_set );
-  if ( external_check_fd_isset ) {
-    external_check_fd_isset( &read_set, &write_set );
-  }
-
-  return true;
 }
 
 
@@ -1628,7 +1611,7 @@ flush_messenger() {
     if ( sending_count == 0 ) {
       return reconnecting_count;
     }
-    run_once();
+    run_event_handler_once();
   }
 }
 
@@ -1639,24 +1622,12 @@ start_messenger() {
 
   add_periodic_event_callback( 10, age_context_db, NULL );
 
-  running = true;
-  while ( running ) {
-    if ( !run_once() ) {
-      error( "Failed to run main loop." );
-      return false;
-    }
-  }
-
-  debug( "Messenger terminated." );
-
   return true;
 }
 
 
 bool
 stop_messenger() {
-  running = false;
-
   debug( "Terminating messenger." );
 
   return true;
@@ -1708,34 +1679,6 @@ messenger_dump_enabled( void ) {
   }
 
   return false;
-}
-
-
-void
-set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
-  debug( "Setting an external FD_SET callback ( callback = %p ).", callback );
-
-  external_fd_set = callback;
-}
-
-
-void
-set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
-  debug( "Setting an external FD_ISSET callback ( callback = %p ).", callback );
-
-  external_check_fd_isset = callback;
-}
-
-
-bool
-set_external_callback( void ( *callback ) ( void ) ) {
-  if ( external_callback != NULL ) {
-    return false;
-  }
-
-  external_callback = callback;
-
-  return true;
 }
 
 

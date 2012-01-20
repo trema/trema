@@ -27,48 +27,53 @@ VALUE cEchoRequest;
 
 
 /*
- * An echo request message can be used to measure the bandwidth of a 
+ * An echo request message can be used to measure the bandwidth of a
  * controller/switch connection as well as to verify its liveness.
  *
- * @overload initialize(transaction_id=nil, user_data=nil)
+ * @overload initialize(options={})
+ *   @example
+ *     EchoRequest.new(
+ *       :transaction_id => transaction_id,
+ *       :user_data => "Thu Aug 25 13:09:00 +0900 2011"
+ *     )
  *
- * @param [Number] transaction_id
- *   a positive number, not recently attached to any previous pending commands to
- *   guarantee message integrity auto-generated if not specified.
+ *   @param [Hash] options
+ *     the options to create a message with.
  *
- * @param [String] user_data
- *   the user data field may be a message timestamp to check latency, various
- *   lengths to measure bandwidth or zero-size(nil) to verify liveness between 
- *   the switch and controller.
+ *   @option options [Number] :transaction_id
+ *     a positive number, not recently attached to any previous pending commands to
+ *     guarantee message integrity auto-generated if not specified.
  *
- * @example Instantiate with transaction_id, user_data
- *   EchoRequest.new(1234, "Thu Aug 25 13:09:00 +0900 2011")
+ *   @option options [String] :user_data
+ *     the user data field specified as a String may be a message timestamp to check latency,
+ *     various lengths to measure bandwidth or zero-size(nil) to verify liveness between
+ *     the switch and controller.
  *
- * @raise [ArgumentError] if transaction id is negative.
- * @raise [ArgumentError] if user data is not a string.
+ *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
+ *   @raise [ArgumentError] if user data is not a string.
+ *   @raise [TypeError] if options is not a hash.
  *
- * @return [EchoRequest]
- *   a {EchoRequest} object that encapsulates the +OPFT_ECHO_REQUEST+ openflow
- *   message.
+ *   @return [EchoRequest]
+ *     an object that encapsulates the +OPFT_ECHO_REQUEST+ OpenFlow message.
  */
 static VALUE
 echo_request_new( int argc, VALUE *argv, VALUE klass ) {
   buffer *echo_request;
   buffer *body = NULL;
-  VALUE xid_ruby, user_data;
   uint32_t xid = get_transaction_id();
+  VALUE options;
 
-  if ( argc == 1 ) {
-    if ( rb_scan_args( argc, argv, "01", &xid_ruby ) == 1 ) {
-      if ( NUM2INT( xid_ruby ) < 0 ) {
-        rb_raise( rb_eArgError, "Transaction ID must be >= 0" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    Check_Type( options, T_HASH );
+    VALUE xid_ruby;
+    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
       }
       xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
-  }
-  if ( argc == 2 ) {
-    if ( rb_scan_args( argc, argv, "02", &xid_ruby, &user_data ) == 2 ) {
-      xid = ( uint32_t ) NUM2UINT( xid_ruby );
+    VALUE user_data;
+    if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
       if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
         rb_raise( rb_eArgError, "User data must be a string" );
       }
@@ -89,7 +94,7 @@ echo_request_new( int argc, VALUE *argv, VALUE klass ) {
 /*
  * Transaction ids, message sequence numbers matching requests to replies.
  *
- * @return [Number] the value of attribute transaction id.
+ * @return [Number] the value of transaction id.
  */
 static VALUE
 echo_request_transaction_id( VALUE self ) {

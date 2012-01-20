@@ -38,8 +38,10 @@ module Trema
 
       it "executes ip and ifconfig command" do
         @link.should_receive( :sh ).once.ordered.with( "sudo ip link add name trema0-0 type veth peer name trema0-1" )
-        @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-0 up" )
-        @link.should_receive( :sh ).once.with( "sudo /sbin/ifconfig trema0-1 up" )
+        @link.should_receive( :sh ).once.ordered.with( "sudo sysctl -w net.ipv6.conf.trema0-0.disable_ipv6=1 >/dev/null 2>&1" )
+        @link.should_receive( :sh ).once.ordered.with( "sudo sysctl -w net.ipv6.conf.trema0-1.disable_ipv6=1 >/dev/null 2>&1" )
+        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-0 up" )
+        @link.should_receive( :sh ).once.ordered.with( "sudo /sbin/ifconfig trema0-1 up" )
 
         @link.enable!
       end
