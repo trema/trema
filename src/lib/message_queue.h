@@ -24,13 +24,21 @@
 #define MESSAGE_QUEUE_H
 
 
-#include "trema.h"
+#include "bool.h"
+#include "buffer.h"
+
+
+typedef struct message_queue_element {
+  buffer *data;
+  struct message_queue_element *next;
+} message_queue_element;
 
 
 typedef struct {
-  list_element *head;
-  list_element *tail;
-  int length;
+  message_queue_element *head;
+  message_queue_element *divider;
+  message_queue_element *tail;
+  unsigned int length;
 } message_queue;
 
 
