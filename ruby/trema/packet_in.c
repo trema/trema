@@ -411,7 +411,7 @@ packet_in_is_udp( VALUE self ) {
 static VALUE
 packet_in_udp_payload( VALUE self ) {
   packet_info *cpacket = get_packet_in_info( self );
-  return rb_str_new( cpacket->l4_payload, ( long ) cpacket->udp_len );
+  return rb_str_new( cpacket->l4_payload, ( long ) cpacket->l4_payload_length );
 }
 
 
