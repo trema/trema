@@ -28,6 +28,7 @@ extern VALUE mTrema;
 VALUE cPacketIn;
 VALUE mPacketInARP;
 VALUE mPacketInIPv4;
+VALUE mPacketInIGMP;
 VALUE mPacketInTCP;
 VALUE mPacketInUDP;
 
@@ -310,6 +311,44 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
+ * Is an IGMP packet?
+ *
+ * @return [bool] igmp? Is an IGMP packet?
+ */
+static VALUE
+packet_in_is_igmp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_IGMP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The IGMP message type.
+ *
+ * @return [Integer] igmp_type IGMP type.
+ */
+static VALUE
+packet_in_igmp_type( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->igmp_type );
+}
+
+
+/*
+ * The IGMP group address.
+ *
+ * @return [Trema::IP] igmp_group an IGMP group address.
+ */
+static VALUE
+packet_in_igmp_group( VALUE self ) {
+  PACKET_IN_RETURN_IP( igmp_group );
+}
+
+
+/*
  * Is a TCP packet?
  *
  * @return [bool] tcp? Is a TCP packet?
@@ -372,7 +411,7 @@ packet_in_is_udp( VALUE self ) {
 static VALUE
 packet_in_udp_payload( VALUE self ) {
   packet_info *cpacket = get_packet_in_info( self );
-  return rb_str_new( cpacket->l4_payload, ( long ) cpacket->l4_payload_length );
+  return rb_str_new( cpacket->l4_payload, ( long ) cpacket->udp_len );
 }
 
 
@@ -427,6 +466,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
+  rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
 
   mPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
   rb_define_method( mPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
@@ -438,6 +478,10 @@ Init_packet_in() {
   mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
   rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
   rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+
+  mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
+  rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_group", packet_in_igmp_group, 0 );
 
   mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
   rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
@@ -473,6 +517,10 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
 
   if ( ( info->format & NW_IPV4 ) ) {
     rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIPv4 );
+  }
+
+  if ( ( info->format & NW_IGMP ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIGMP );
   }
 
   if ( ( info->format & TP_TCP ) ) {
