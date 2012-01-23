@@ -134,12 +134,6 @@ extern void mock_warn( const char *format, ... );
 #define add_periodic_event_callback mock_add_periodic_event_callback
 extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
 
-#ifdef execute_timer_events
-#undef execute_timer_events
-#endif
-#define execute_timer_events mock_execute_timer_events
-extern void mock_execute_timer_events( void );
-
 #endif // UNIT_TESTING
 
 
@@ -1614,7 +1608,7 @@ flush_messenger() {
     if ( sending_count == 0 ) {
       return reconnecting_count;
     }
-    run_event_handler_once();
+    run_event_handler_once( 100000 );
   }
 }
 

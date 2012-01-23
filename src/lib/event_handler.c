@@ -61,7 +61,7 @@ extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *call
 #undef execute_timer_events
 #endif
 #define execute_timer_events mock_execute_timer_events
-extern void mock_execute_timer_events( void );
+extern void mock_execute_timer_events( int *next_timeout_usec );
 
 #endif // UNIT_TESTING
 
@@ -125,7 +125,7 @@ void ( *finalize_event_handler )() = _finalize_event_handler;
 
 
 static bool
-_run_event_handler_once() {
+_run_event_handler_once( int timeout_usec ) {
   if ( external_callback != NULL ) {
     external_callback_t callback = external_callback;
     external_callback = NULL;
@@ -133,12 +133,12 @@ _run_event_handler_once() {
     callback();
   }
 
-  // TODO: Use the next timer event instead of 100ms.
-  struct timeval timeout = { 0, 100 * 1000 };
-
   memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
   memcpy( &current_write_set, &event_write_set, sizeof( fd_set ) );
 
+  struct timeval timeout;
+  timeout.tv_sec = timeout_usec / 1000000;
+  timeout.tv_usec = timeout_usec % 1000000;
   // TODO: Don't use FD_SETSIZE here, make it configurable.
   int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );
 
@@ -181,7 +181,7 @@ _run_event_handler_once() {
 
   return true;
 }
-bool ( *run_event_handler_once )() = _run_event_handler_once;
+bool ( *run_event_handler_once )( int ) = _run_event_handler_once;
 
 
 static bool
@@ -190,10 +190,11 @@ _start_event_handler() {
 
   event_handler_state |= EVENT_HANDLER_RUNNING;
 
+  int timeout_usec;
   while ( !( event_handler_state & EVENT_HANDLER_STOP ) ) {
-    execute_timer_events();
+    execute_timer_events( &timeout_usec );
 
-    if ( !run_event_handler_once() ) {
+    if ( !run_event_handler_once( timeout_usec ) ) {
       error( "Failed to run main loop." );
       return false;
     }

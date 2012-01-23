@@ -39,7 +39,7 @@ extern bool ( *add_periodic_event_callback )( const time_t seconds, timer_callba
 
 extern bool ( *delete_timer_event )( timer_callback callback, void *user_data );
 
-extern void ( *execute_timer_events )( void );
+extern void ( *execute_timer_events )( int *next_timeout_usec );
 
 
 #endif // TIMER_H

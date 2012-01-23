@@ -37,7 +37,7 @@ extern void ( *finalize_event_handler )();
 extern bool ( *start_event_handler )();
 extern void ( *stop_event_handler )();
 
-extern bool ( *run_event_handler_once )();
+extern bool ( *run_event_handler_once )( int timeout_usec );
 
 extern void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
 extern void ( *delete_fd_handler )( int fd );
