@@ -36,6 +36,7 @@
 #include "log.h"
 #include "match.h"
 #include "match_table.h"
+#include "message_queue.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
@@ -43,6 +44,7 @@
 #include "packetin_filter_interface.h"
 #include "persistent_storage.h"
 #include "stat.h"
+#include "timer.h"
 #include "utility.h"
 #include "wrapper.h"
 
