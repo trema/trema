@@ -151,16 +151,16 @@ describe "packet-out" do
         ].pack( "C*" )
         controller( "PacketOutController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.in_port.should > 0
-#           message.arp?.should be_true
-#           message.tcp?.should be_false
-#           message.ipv4?.should be_false
-#           message.udp?.should be_false
+          message.arp?.should be_true
+          message.tcp?.should be_false
+          message.ipv4?.should be_false
+          message.udp?.should be_false
 
-          # message.arp_oper.should == 2
-          # message.arp_sha.to_s.should == "00:00:00:00:00:01"
-          # message.arp_spa.to_s.should == "192.168.0.1"
-          # message.arp_spa.to_s.should == "00:00:00:00:00:02"
-          # message.arp_tpa.to_s.should == "192.168.0.2"
+          message.arp_oper.should == 2
+          message.arp_sha.to_s.should == "00:00:00:00:00:01"
+          message.arp_spa.to_s.should == "192.168.0.1"
+          message.arp_tha.to_s.should == "00:00:00:00:00:02"
+          message.arp_tpa.to_s.should == "192.168.0.2"
         end
 
         controller( "PacketOutController" ).send_packet_out(
