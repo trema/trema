@@ -31,7 +31,6 @@
 #include <time.h>
 #include "pcap_private.h"
 #include "queue.h"
-#include "timer.h"
 #include "trema.h"
 
 
