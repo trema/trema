@@ -139,7 +139,7 @@ bool ( *finalize_timer )( void ) = _finalize_timer;
 
 
 static void
-on_timer( timer_callback_info *callback ) {
+on_timer( timer_callback_info *callback, struct timespec *now ) {
   assert( callback != NULL );
   assert( callback->function != NULL );
 
@@ -151,6 +151,10 @@ on_timer( timer_callback_info *callback ) {
     callback->function( callback->user_data );
     if ( VALID_TIMESPEC( &callback->interval ) ) {
       ADD_TIMESPEC( &callback->expires_at, &callback->interval, &callback->expires_at );
+      if ( TIMESPEC_LESS_THEN( &callback->expires_at, now ) ) {
+        callback->expires_at.tv_sec = now->tv_sec;
+        callback->expires_at.tv_nsec = now->tv_nsec;
+      }
     }
     else {
       callback->expires_at.tv_sec = 0;
@@ -200,7 +204,7 @@ _execute_timer_events( int *next_timeout_usec ) {
       if ( TIMESPEC_LESS_THEN( &now, &callback->expires_at ) ) {
         break;
       }
-      on_timer( callback );
+      on_timer( callback, &now );
     }
     delete_dlist_element( element );
     if ( callback->function == NULL ) {
