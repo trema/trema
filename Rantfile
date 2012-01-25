@@ -338,7 +338,7 @@ gen Directory, trema_lib
 libtopology = File.join( trema_lib, "libtopology.a" )
 
 libtopology_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 
 desc "Build topology library."
