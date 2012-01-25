@@ -66,6 +66,14 @@ Please try the following command:
 EOF
 end
 
+unless find_library( "topology", "init_libtopology" )
+  error_exit <<-EOF
+ERROR: Trema is not compiled yet!
+
+Please try the following command:
+% ./build.rb
+EOF
+end
 
 create_makefile "trema", "trema"
 

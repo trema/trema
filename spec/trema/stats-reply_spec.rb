@@ -192,7 +192,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         end
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "FlowStatsController" ).send_message( 0xabc,
-          FlowStatsRequest.new( :match => match ).to_packet.buffer )
+          FlowStatsRequest.new( :match => match ) )
         sleep 2 # FIXME: wait to send_message
       }
     end
@@ -229,7 +229,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         end
         match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "AggregateStatsController" ).send_message( 0xabc,
-          AggregateStatsRequest.new( :match => match, :table_id => 0xff ).to_packet.buffer )
+          AggregateStatsRequest.new( :match => match, :table_id => 0xff ) )
         sleep 2 # FIXME: wait to send_message
       }
     end
@@ -260,7 +260,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           message.stats[0].should respond_to :to_s
         end
         controller( "PortStatsController" ).send_message( 0xabc,
-          PortStatsRequest.new( :port_no => 1 ).to_packet.buffer )
+          PortStatsRequest.new( :port_no => 1 ) )
         sleep 2 # FIXME: wait to send_message
       }
     end
@@ -291,7 +291,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           message.stats[0].should respond_to :to_s
         end
         controller( "TableStatsController" ).send_message( 0xabc,
-          TableStatsRequest.new( :transaction_id => 123 ).to_packet.buffer )
+          TableStatsRequest.new( :transaction_id => 123 ) )
         sleep 2 # FIXME: wait to send_message
       }
     end

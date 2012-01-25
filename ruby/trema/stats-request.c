@@ -32,6 +32,19 @@ VALUE cQueueStatsRequest;
 VALUE cVendorStatsRequest;
 
 
+static const struct ofp_match MATCH = { 0, 1,
+                                      { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
+                                      { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
+                                       1, 1, { 0 }, 0x800, 0xfc, 0x6, { 0, 0 },
+                                       0x0a090807, 0x0a090807, 1024, 2048 };
+static const uint32_t MY_TRANSACTION_ID = 1;
+static const uint32_t VENDOR_ID = 0x00004cff;
+static const uint16_t NO_FLAGS = 0;
+static const uint16_t OUT_PORT = 1;
+static const uint16_t VENDOR_STATS_FLAG = 0xaabb;
+static const uint8_t  TABLE_ID = 0xff;
+
+
 /*
  * @overload initialize(options={})
  *   A +OPPT_STATS_REQUEST+ message is sent to collect statistics for a
@@ -106,72 +119,52 @@ subclass_stats_request_init( VALUE self, VALUE options ) {
 }
 
 
-/*
- * A {FlowStatsRequest} object instance to request flow statistics.
- *
- * @overload initialize(options={})
- *   @example
- *     FlowStatsRequest.new(
- *       :match => Match
- *     )
- *
- *   @param [Hash] options
- *     the options to create a message with.
- *
- *   @option options [Match] :match
- *     a {Match} object to match flow fields with this request.
- *     This option is mandatory.
- *
- *   @option options [Number] :table_id
- *     a table id to match and restrict returned results.
- *     A value of 0xff would return all tables and is set to if not specified.
- *
- *   @option options [Number] :out_port
- *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
- *     specified.
- *
- *   @raise [ArgumentError] if option[:match] is not specified.
- *
- *   @return [FlowStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ OpenFlow message.
- */
-static VALUE
-flow_stats_request_init( VALUE self, VALUE options ) {
-  return subclass_stats_request_init( self, options );
+static VALUE 
+flow_stats_request_alloc( VALUE klass ) {
+  buffer *flow_stats_request = create_flow_stats_request( MY_TRANSACTION_ID, NO_FLAGS, MATCH, TABLE_ID, OUT_PORT );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, flow_stats_request );
 }
 
 
-/*
- * A {AggregateStatsRequest} object instance to request aggregate statistics.
- * @overload initialize(options={})
- *   @example
- *     AggregateStatsRequest.new(
- *       :match => Match
- *     )
- *
- *   @param [Hash] options
- *     the options to create a message with.
- *
- *   @option options [Match] :match
- *     a {Match} object to match flow fields with this request.
- *     This option is mandatory.
- *
- *   @option options [Number] :table_id
- *     a table id to match and restrict returned results.
- *     A value of 0xff would return all tables and is set to if not specified.
- *
- *   @option options [Number] :out_port
- *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
- *     specified.
- *
- *   @raise [ArgumentError] if option[:match] is not specified.
- *
- *   @return [AggregateStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ OpenFlow message.
- */
 static VALUE
-aggregate_stats_request_init( VALUE self, VALUE options ) {
-  return subclass_stats_request_init( self, options );
+aggregate_stats_request_alloc( VALUE klass ) {
+  buffer *aggregate_stats_request = create_aggregate_stats_request( MY_TRANSACTION_ID, NO_FLAGS, MATCH, TABLE_ID, OUT_PORT );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, aggregate_stats_request );
+}
+
+
+static VALUE
+table_stats_request_alloc( VALUE klass ) {
+  buffer *table_stats_request = create_table_stats_request( MY_TRANSACTION_ID, NO_FLAGS );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, table_stats_request );
+}
+
+
+static VALUE
+port_stats_request_alloc( VALUE klass ) {
+  uint16_t port_no = 1;
+  buffer *port_stats_request = create_port_stats_request( MY_TRANSACTION_ID, NO_FLAGS, port_no );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, port_stats_request );
+}
+
+
+static VALUE
+queue_stats_request_alloc( VALUE klass ) {
+  uint32_t queue_id = 10;
+  uint16_t port_no = 1;
+  buffer *queue_stats_request = create_queue_stats_request( MY_TRANSACTION_ID, NO_FLAGS, port_no, queue_id );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, queue_stats_request );
+}
+
+
+static VALUE
+vendor_stats_request_alloc( VALUE klass ) {
+  uint16_t length = 128;
+  buffer *body = alloc_buffer_with_length( length );
+  void *p = append_back_buffer( body, length );
+  memset( p, 0xaf, length );
+  buffer *vendor_stats_request = create_vendor_stats_request( MY_TRANSACTION_ID, VENDOR_STATS_FLAG, VENDOR_ID, body );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, vendor_stats_request );
 }
 
 
@@ -263,8 +256,14 @@ stats_vendor_id( VALUE self ) {
 }
 
 
-uint16_t
+uint32_t
 get_stats_request_num2uint( VALUE self, const char *field ) {
+  return NUM2UINT( rb_iv_get( self, field ) );
+}
+
+
+uint16_t
+get_stats_request_num2uint16( VALUE self, const char *field ) {
   return ( uint16_t ) NUM2UINT( rb_iv_get( self, field ) );
 }
 
@@ -277,66 +276,114 @@ get_stats_request_table_id( VALUE self ) {
 
 struct ofp_match
 get_stats_request_match( VALUE self ) {
-  struct ofp_match *match;
+  const struct ofp_match *match;
   Data_Get_Struct( rb_iv_get( self, "@match" ), struct ofp_match, match );
   return *match;
 }
 
 
-void
-stats_request_buffer_set( VALUE self, buffer *stats_request_buffer ) {
-  rb_iv_set( self,
-    "@buffer",
-    Data_Wrap_Struct( rb_eval_string( "Trema::StatsRequest" ), NULL, free_buffer, stats_request_buffer ) );
-}
-
-
 /*
- * Creates an opaque pointer to +OFPT_STATS_REQUEST(OFPST_FLOW)+ message
- * saved into its +buffer+ attribute.
+ * A {FlowStatsRequest} object instance to request flow statistics.
  *
- * @return [FlowStatsRequest] self
+ * @overload initialize(options={})
+ *   @example
+ *     FlowStatsRequest.new(
+ *       :match => Match
+ *     )
+ *
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *   @option options [Match] :match
+ *     a {Match} object to match flow fields with this request.
+ *     This option is mandatory.
+ *
+ *   @option options [Number] :table_id
+ *     a table id to match and restrict returned results.
+ *     A value of 0xff would return all tables and is set to if not specified.
+ *
+ *   @option options [Number] :out_port
+ *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
+ *     specified.
+ *
+ *   @raise [ArgumentError] if option[:match] is not specified.
+ *
+ *   @return [FlowStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ OpenFlow message.
  */
 static VALUE
-flow_stats_request_to_packet( VALUE self ) {
-  buffer *flow_stats_request;
-  flow_stats_request = create_flow_stats_request(
-    get_stats_request_num2uint( self, "@transaction_id" ),
-    get_stats_request_num2uint( self, "@flags" ),
-    get_stats_request_match( self ),
-    get_stats_request_table_id( self ),
-    get_stats_request_num2uint( self, "@out_port" ) );
-  stats_request_buffer_set( self, flow_stats_request );
+flow_stats_request_init( VALUE self, VALUE options ) {
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+
+  subclass_stats_request_init( self, options );
+
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  struct ofp_flow_stats_request *flow_stats_request;
+  flow_stats_request = ( struct ofp_flow_stats_request * ) stats_request->body;
+
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+
+  struct ofp_match m = get_stats_request_match( self );
+  hton_match( &flow_stats_request->match, &m  ) ;
+  flow_stats_request->table_id = get_stats_request_table_id( self );
+  flow_stats_request->out_port = htons( get_stats_request_num2uint16( self, "@out_port" ) );
   return self;
 }
 
 
 /*
- * Creates an opaque pointer to +OFPT_STATS_REQUEST(OFPST_AGGREAGATE)+ message
- * saved into its +buffer+ attribute.
+ * A {AggregateStatsRequest} object instance to request aggregate statistics.
+ * @overload initialize(options={})
+ *   @example
+ *     AggregateStatsRequest.new(
+ *       :match => Match
+ *     )
  *
- * @return [AggregateStatsRequest] self
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *   @option options [Match] :match
+ *     a {Match} object to match flow fields with this request.
+ *     This option is mandatory.
+ *
+ *   @option options [Number] :table_id
+ *     a table id to match and restrict returned results.
+ *     A value of 0xff would return all tables and is set to if not specified.
+ *
+ *   @option options [Number] :out_port
+ *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
+ *     specified.
+ *
+ *   @raise [ArgumentError] if option[:match] is not specified.
+ *
+ *   @return [AggregateStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ OpenFlow message.
  */
 static VALUE
-aggregate_stats_request_to_packet( VALUE self ) {
-  buffer *aggregate_stats_request;
-  aggregate_stats_request = create_aggregate_stats_request(
-    get_stats_request_num2uint( self, "@transaction_id" ),
-    get_stats_request_num2uint( self, "@flags" ),
-    get_stats_request_match( self ),
-    get_stats_request_table_id( self ),
-    get_stats_request_num2uint( self, "@out_port" ) );
-  stats_request_buffer_set( self, aggregate_stats_request );
+aggregate_stats_request_init( VALUE self, VALUE options ) {
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+
+  subclass_stats_request_init( self, options );
+
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  struct ofp_aggregate_stats_request *aggregate_stats_request;
+  aggregate_stats_request = ( struct ofp_aggregate_stats_request * ) stats_request->body;
+
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+
+  struct ofp_match m = get_stats_request_match( self );
+  hton_match( &aggregate_stats_request->match, &m  ) ;
+  aggregate_stats_request->table_id = get_stats_request_table_id( self );
+  aggregate_stats_request->out_port = htons( get_stats_request_num2uint16( self, "@out_port" ) );
   return self;
-}
-
-
-/*
- * @return [buffer] the stats. request type object.
- */
-static VALUE
-stats_request_buffer( VALUE self ) {
-  return rb_iv_get( self, "@buffer" );
 }
 
 
@@ -364,28 +411,17 @@ stats_request_buffer( VALUE self ) {
  */
 static VALUE
 table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
-  UNUSED(self);
   VALUE options;
   if ( !rb_scan_args( argc, argv, "01", &options )) {
     options = rb_hash_new();
   }
-  return rb_call_super( 1, &options );
-}
-
-
-/*
- * Creates an opaque pointer to +OFPT_STATS_REQUEST(OFPST_TABLE)+ message
- * saved into its +buffer+ attribute.
- *
- * @return [TableStatsRequest] self
- */
-static VALUE
-table_stats_request_to_packet( VALUE self ) {
-  buffer *table_stats_request;
-  table_stats_request = create_table_stats_request(
-    get_stats_request_num2uint( self, "@transaction_id" ),
-    get_stats_request_num2uint( self, "@flags" ) );
-  stats_request_buffer_set( self, table_stats_request );
+  rb_call_super( 1, &options );
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
   return self;
 }
 
@@ -424,24 +460,15 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
     port_no = UINT2NUM( OFPP_NONE );
   }
   rb_iv_set( self, "@port_no", port_no );
-  return self;
-}
 
-
-/*
- * Creates an opaque pointer to +OFPT_STATS_REQUEST(OFPST_PORT)+ message
- * saved into its +buffer+ attribute.
- *
- * @return [PortStatsRequest] self
- */
-static VALUE
-port_stats_request_to_packet( VALUE self ) {
-  buffer *port_stats_request;
-  port_stats_request = create_port_stats_request(
-    get_stats_request_num2uint( self, "@transaction_id" ),
-    get_stats_request_num2uint( self, "@flags" ),
-    get_stats_request_num2uint( self, "@port_no" ) );
-  stats_request_buffer_set( self, port_stats_request );
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+  struct ofp_port_stats_request *port_stats_request = ( struct ofp_port_stats_request * ) stats_request->body;
+  port_stats_request->port_no = htons( get_stats_request_num2uint16( self, "@port_no" ) );
   return self;
 }
 
@@ -490,25 +517,20 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
     queue_id = UINT2NUM( OFPQ_ALL );
   }
   rb_iv_set( self, "@queue_id", queue_id );
-  return self;
-}
 
 
-/*
- * Creates an opaque pointer to the +OFPT_STATS_REQUEST(OFPST_QUEUE)+ message
- * saved into its +buffer+ attribute.
- *
- * @return [QueueStatsRequest] self
- */
-static VALUE
-queue_stats_request_to_packet( VALUE self ) {
-  buffer *queue_stats_request;
-  queue_stats_request = create_queue_stats_request(
-          get_stats_request_num2uint( self, "@transaction_id" ),
-          get_stats_request_num2uint( self, "@flags" ),
-          get_stats_request_num2uint( self, "@port_no" ),
-          get_stats_request_num2uint( self, "@queue_id" ) );
-  stats_request_buffer_set( self, queue_stats_request );
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  struct ofp_queue_stats_request *queue_stats_request;
+  queue_stats_request = ( struct ofp_queue_stats_request * ) stats_request->body;
+  queue_stats_request->port_no = htons( get_stats_request_num2uint16( self, "@port_no" ) );
+  queue_stats_request->queue_id = htonl( get_stats_request_num2uint( self, "@queue_id" ) );
   return self;
 }
 
@@ -548,25 +570,15 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
     vendor_id = UINT2NUM( 0x00004cff );
   }
   rb_iv_set( self, "@vendor_id", vendor_id );
-  return self;
-}
-
-
-/*
- * Serializes this object instance and store the result into its buffer attribute.
- *
- * @return [VendorStatsRequest] self
- */
-static VALUE
-vendor_stats_request_to_packet( VALUE self ) {
-  buffer *vendor_stats_request;
-  vendor_stats_request = create_vendor_stats_request(
-          get_stats_request_num2uint( self, "@transaction_id" ),
-          get_stats_request_num2uint( self, "@flags" ),
-          get_stats_request_num2uint( self, "@vendor_id" ),
-          NULL );
-
-  stats_request_buffer_set( self, vendor_stats_request );
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+  uint32_t *vendor;
+  vendor = ( uint32_t * ) stats_request->body;
+  *vendor = htonl( get_stats_request_num2uint( self, "@vendor_id" ) );
   return self;
 }
 
@@ -579,40 +591,38 @@ Init_stats_request(){
   rb_define_method( cStatsRequest, "transaction_id", stats_transaction_id, 0 );
   rb_define_method( cStatsRequest, "flags", stats_flags, 0 );
   
+  rb_define_alloc_func( cFlowStatsRequest, flow_stats_request_alloc );
   rb_define_method( cFlowStatsRequest, "initialize", flow_stats_request_init, 1 );
   rb_define_method( cFlowStatsRequest, "match", stats_match, 0 );
   rb_define_method( cFlowStatsRequest, "table_id", stats_table_id, 0 );
   rb_define_method( cFlowStatsRequest, "out_port", stats_out_port, 0 );
-  rb_define_method( cFlowStatsRequest, "to_packet", flow_stats_request_to_packet, 0 );
 
   cAggregateStatsRequest = rb_define_class_under( mTrema, "AggregateStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cAggregateStatsRequest, aggregate_stats_request_alloc );
   rb_define_method( cAggregateStatsRequest, "initialize", aggregate_stats_request_init, 1 );
   rb_define_method( cAggregateStatsRequest, "match", stats_match, 0 );
   rb_define_method( cAggregateStatsRequest, "table_id", stats_table_id, 0 );
   rb_define_method( cAggregateStatsRequest, "out_port", stats_out_port, 0 );
-  rb_define_method( cAggregateStatsRequest, "to_packet", aggregate_stats_request_to_packet, 0 );
 
   cTableStatsRequest = rb_define_class_under( mTrema, "TableStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cTableStatsRequest, table_stats_request_alloc );
   rb_define_method( cTableStatsRequest, "initialize", table_stats_request_init, -1 );
-  rb_define_method( cTableStatsRequest, "to_packet", table_stats_request_to_packet, 0 );
 
   cPortStatsRequest = rb_define_class_under( mTrema, "PortStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cPortStatsRequest, port_stats_request_alloc );
   rb_define_method( cPortStatsRequest, "initialize", port_stats_request_init, -1 );
   rb_define_method( cPortStatsRequest, "port_no", stats_port_no, 0 );
-  rb_define_method( cPortStatsRequest, "to_packet", port_stats_request_to_packet, 0 );
 
   cQueueStatsRequest = rb_define_class_under( mTrema, "QueueStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cQueueStatsRequest, queue_stats_request_alloc );
   rb_define_method( cQueueStatsRequest, "initialize", queue_stats_request_init, -1 );
   rb_define_method( cQueueStatsRequest, "port_no", stats_port_no, 0 );
   rb_define_method( cQueueStatsRequest, "queue_id", stats_queue_id, 0 );
-  rb_define_method( cQueueStatsRequest, "to_packet", queue_stats_request_to_packet, 0 );
 
   cVendorStatsRequest = rb_define_class_under( mTrema, "VendorStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cVendorStatsRequest, vendor_stats_request_alloc );
   rb_define_method( cVendorStatsRequest, "initialize", vendor_stats_request_init, -1 );
   rb_define_method( cVendorStatsRequest, "vendor_id", stats_vendor_id, 0 );
-  rb_define_method( cVendorStatsRequest, "to_packet", vendor_stats_request_to_packet, 0 );
-
-  rb_define_method( cStatsRequest, "buffer", stats_request_buffer, 0 );
 }
 
 
