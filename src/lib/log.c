@@ -123,13 +123,13 @@ log_stdout( const char *format, va_list ap ) {
 
 
 static FILE*
-open_log( const char *ident, const char *log_directory ) {
+open_log( const char *ident, const char *log_directory, bool append ) {
   assert( ident != NULL );
   assert( log_directory != NULL );
 
   char pathname[ PATH_MAX ];
   sprintf( pathname, "%s/%s.log", log_directory, ident );
-  FILE *log = fopen( pathname, "w" );
+  FILE *log = fopen( pathname, append ? "a" : "w" );
 
   if ( log == NULL ) {
     char error_msg[ PATH_MAX + 32 ];
@@ -162,11 +162,24 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   }
 
   daemonized = run_as_daemon;
-  fd = open_log( ident, log_directory );
+  fd = open_log( ident, log_directory, false );
 
   pthread_mutex_unlock( &mutex );
 
   return true;
+}
+
+
+void
+restart_log( const char *ident, const char *log_directory ) {
+  pthread_mutex_lock( &mutex );
+
+  if ( fd != NULL ) {
+    fclose( fd );
+  }
+  fd = open_log( ident, log_directory, true );
+
+  pthread_mutex_unlock( &mutex );
 }
 
 
