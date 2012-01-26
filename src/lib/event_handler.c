@@ -94,6 +94,8 @@ fd_set event_write_set;
 fd_set current_read_set;
 fd_set current_write_set;
 
+int fd_set_size = 0;
+
 external_callback_t external_callback = ( external_callback_t ) NULL;
 
 
@@ -139,8 +141,7 @@ _run_event_handler_once( int timeout_usec ) {
   struct timeval timeout;
   timeout.tv_sec = timeout_usec / 1000000;
   timeout.tv_usec = timeout_usec % 1000000;
-  // TODO: Don't use FD_SETSIZE here, make it configurable.
-  int set_count = select( FD_SETSIZE, &current_read_set, &current_write_set, NULL, &timeout );
+  int set_count = select( fd_set_size, &current_read_set, &current_write_set, NULL, &timeout );
 
   if ( set_count == -1 ) {
     if ( errno == EINTR ) {
@@ -247,6 +248,10 @@ _set_fd_handler( int fd,
   event_last->write_data = write_data;
 
   event_fd_set[ fd ] = event_last++;
+
+  if ( fd >= fd_set_size ) {
+    fd_set_size = fd + 1;
+  }
 }
 void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data ) = _set_fd_handler;
 
@@ -290,6 +295,16 @@ _delete_fd_handler( int fd ) {
 
   memset( event_last, 0, sizeof( event_fd ) );
   event_last->fd = -1;
+
+  if ( fd == ( fd_set_size  - 1 ) ) {
+    int i;
+    for ( i = ( fd_set_size - 2 ); i >= 0; --i ) {
+      if ( event_fd_set[ i ] != NULL ) {
+        break;
+      }
+    }
+    fd_set_size = i + 1;
+  }
 }
 void ( *delete_fd_handler )( int fd ) = _delete_fd_handler;
 
