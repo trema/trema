@@ -64,7 +64,7 @@ service_send_to_reply( char *service_name, uint16_t message_type, uint64_t *data
 
   buf = create_openflow_application_message( datapath_id, data );
   if ( !send_message( service_name, message_type, buf->data, buf->length ) ) {
-    error( "Failed to send message." );
+    error( "Failed to send to reply ( service_name = %s ).", service_name );
   }
   free_buffer( buf );
 }
@@ -82,11 +82,18 @@ service_send_to_application( list_element *service_name_list, uint16_t message_t
 
   buf = create_openflow_application_message( datapath_id, data );
 
+  static const char *error_service_name = NULL;
   for ( list = service_name_list; list != NULL; list = list->next ) {
     service_name = list->data;
     if ( !send_message( service_name, message_type, 
                         buf->data, buf->length ) ) {
-      error( "Failed to send message." );
+      if ( error_service_name != service_name ) {
+        warn( "Failed to send message ( service_name = %s ).", service_name );
+      }
+      error_service_name = service_name;
+    }
+    else {
+      error_service_name = NULL;
     }
   }
   free_buffer( buf );
