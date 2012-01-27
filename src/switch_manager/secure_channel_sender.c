@@ -92,6 +92,9 @@ flush_secure_channel( struct switch_info *sw_info ) {
            strerror( errno ), errno );
     return -1;
   }
+  if ( write_length == 0 ) {
+    return 0;
+  }
   while ( ( buf = peek_message( sw_info->send_queue ) ) != NULL ) {
     if ( ( size_t ) write_length < buf->length ) {
       remove_front_buffer( buf, ( size_t ) write_length );
