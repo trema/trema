@@ -81,6 +81,10 @@ flush_secure_channel( struct switch_info *sw_info ) {
   args.iov = xmalloc( sizeof( struct iovec ) * ( size_t ) sw_info->send_queue->length );
   args.iovcnt = 0;
   foreach_message_queue( sw_info->send_queue, append_to_writev_args, &args );
+  if ( args.iovcnt == 0 ) {
+    xfree( args.iov );
+    return 0;
+  }
   write_length = writev( sw_info->secure_channel_fd, args.iov, args.iovcnt );
   xfree( args.iov );
   if ( write_length < 0 ) {
@@ -96,6 +100,10 @@ flush_secure_channel( struct switch_info *sw_info ) {
     return 0;
   }
   while ( ( buf = peek_message( sw_info->send_queue ) ) != NULL ) {
+    if ( write_length == 0 ) {
+      set_writable( sw_info->secure_channel_fd, true );
+      return 0;
+    }
     if ( ( size_t ) write_length < buf->length ) {
       remove_front_buffer( buf, ( size_t ) write_length );
       set_writable( sw_info->secure_channel_fd, true );
