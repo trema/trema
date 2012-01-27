@@ -1,5 +1,5 @@
 #
-# trema usage (help) command.
+# trema ruby command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,35 +20,29 @@
 #
 
 
+require "optparse"
+
+
 module Trema
   module Command
-    def usage
-      command = ARGV.shift
+    include Trema::Util
 
-      ARGV.clear << "--help"
-      if command.nil?
-        puts <<-EOL
-usage: #{ $PROGRAM_NAME } <COMMAND> [OPTIONS ...]
 
-Trema command-line tool
-Type '#{ $PROGRAM_NAME } help <COMMAND>' for help on a specific command.
+    def ruby
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } ruby [OPTIONS ...]"
 
-Available commands:
-  run            - runs a trema application.
-  kill           - terminates a trema process.
-  killall        - terminates all trema processes.
-  send_packets   - sends UDP packets to destination host.
-  show_stats     - shows stats of packets.
-  reset_stats    - resets stats of packets.
-  dump_flows     - print all flow entries.
-  ruby           - opens Trema Ruby API document with your browser.
-EOL
-      elsif method_for( command )
-        __send__ method_for( command )
-      else
-        STDERR.puts "Type '#{ $PROGRAM_NAME } help' for usage."
-        exit false
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
       end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      sh "x-www-browser http://rubydoc.info/github/trema/trema/master/frames"
     end
   end
 end
