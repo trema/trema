@@ -31,6 +31,8 @@
 
 #define RESERVED_COOKIE 0
 
+#define COOKIE_MAX_ENTRIES ( 128 * 1024 )
+
 
 typedef struct application_entry {
   uint64_t cookie;
@@ -43,9 +45,12 @@ typedef struct cookie_entry {
   application_entry_t application;
   int reference_count;
   time_t expire_at;
+  int index;
 } cookie_entry_t;
 
 typedef struct cookie_table {
+  cookie_entry_t *entries[ COOKIE_MAX_ENTRIES ];
+  int next_index;
   hash_table *global;
   hash_table *application;
 } cookie_table_t;
