@@ -41,7 +41,7 @@ Available commands:
   show_stats     - shows stats of packets.
   reset_stats    - resets stats of packets.
   dump_flows     - print all flow entries.
-  ruby           - opens Trema Ruby API document with your browser.
+  ruby           - opens in your browser Trema's Ruby API documentation.
 EOL
       elsif method_for( command )
         __send__ method_for( command )
