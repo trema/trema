@@ -27,7 +27,7 @@ describe Trema::OpenflowError, "new" do
     it "should receive #error(type=Error::OFPET_PORT_MOD_FAILED,code=Error::OFPPMFC_BAD_PORT)" do
       class OpenflowErrorController < Controller; end
       network {
-        vswitch { datapath_id 0xabc }
+        vswitch( "error-port") { datapath_id 0xabc }
       }.run( OpenflowErrorController ) {
         port_mod = Trema::PortMod.new( :port_no => 2, 
           :hw_addr => Trema::Mac.new( "11:22:33:44:55:66" ),
@@ -35,12 +35,13 @@ describe Trema::OpenflowError, "new" do
           :mask => 1,
           :advertise => 0
         )
-        controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | arg |
           arg.datapath_id.should == 0xabc
           arg.type.should == Error::OFPET_PORT_MOD_FAILED
           arg.code.should == Error::OFPPMFC_BAD_PORT 
         end
+        controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
@@ -62,12 +63,13 @@ describe Trema::OpenflowError, "new" do
           :mask => 1,
           :advertise => 0
         )
-        controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | arg |
           arg.datapath_id.should == 0xabc
           arg.type.should == Error::OFPET_PORT_MOD_FAILED
           arg.code.should == Error::OFPPMFC_BAD_HW_ADDR
         end
+        controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
@@ -77,18 +79,19 @@ describe Trema::OpenflowError, "new" do
     it "should receive #error(type=Error::OFPET_BAD_ACTION,code=Error::OFPBAC_BAD_OUT_PORT)" do
       class OpenflowErrorController < Controller; end
       network {
-        vswitch( "error-port") { datapath_id 0xabc }
+        vswitch( "error-out-port") { datapath_id 0xabc }
         vhost "host1"
         vhost "host2"
         link "host1", "error-port"
         link "host2", "error-port"
       }.run( OpenflowErrorController ) {
-        controller( "OpenflowErrorController" ).send_flow_mod_add( 0xabc, :actions => ActionOutput.new( :port => 0x5555 ) )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | arg |
           arg.datapath_id.should == 0xabc
           arg.type.should == Error::OFPET_BAD_ACTION
           arg.code.should == Error::OFPBAC_BAD_OUT_PORT
         end
+        controller( "OpenflowErrorController" ).send_flow_mod_add( 0xabc, :actions => ActionOutput.new( :port => 0x5555 ) )
+        sleep 2 # FIXME: wait to send_flow_mod_add
       }
     end
   end
@@ -98,10 +101,9 @@ describe Trema::OpenflowError, "new" do
     it "should receive an openflow error with valid attributes" do
       class OpenflowController < Controller; end
       network {
-        vswitch { datapath_id 0xabc }
+        vswitch( "error-request") { datapath_id 0xabc }
       }.run( OpenflowController ) {
         queue_get_config_request = Trema::QueueGetConfigRequest.new( :port => 1 )
-        controller( "OpenflowController" ).send_message( 0xabc, queue_get_config_request )
         controller( "OpenflowController" ).should_receive( :openflow_error ) do | message |
           message.datapath_id.should == 0xabc
           message.type.should satisfy { | n |
@@ -124,6 +126,8 @@ describe Trema::OpenflowError, "new" do
             }
           end
         end
+        controller( "OpenflowController" ).send_message( 0xabc, queue_get_config_request )
+        sleep 2 # FIXME: wait to send_message
       }
     end
   end
