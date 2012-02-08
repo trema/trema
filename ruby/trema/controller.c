@@ -18,24 +18,25 @@
  */
 
 
+#include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
 #include "features-reply.h"
+#include "flow-removed.h"
+#include "get-config-reply.h"
+#include "list-switches-reply.h"
 #include "logger.h"
+#include "openflow-error.h"
 #include "openflow.h"
 #include "packet_in.h"
-#include "flow-removed.h"
-#include "switch-disconnected.h"
 #include "port-status.h"
-#include "stats-reply.h"
-#include "openflow-error.h"
-#include "get-config-reply.h"
-#include "barrier-reply.h"
-#include "vendor.h"
 #include "queue-get-config-reply.h"
-#include "list-switches-reply.h"
+#include "ruby.h"
+#include "rubysig.h"
+#include "stats-reply.h"
+#include "switch-disconnected.h"
 #include "trema.h"
-#include "timer.h"
+#include "vendor.h"
 
 
 VALUE mTrema;
@@ -149,7 +150,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     if ( opt_cookie != Qnil ) {
       cookie = NUM2ULL( opt_cookie );
     }
-    
+
     VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
     if ( opt_idle_timeout != Qnil ) {
       idle_timeout = ( uint16_t )NUM2UINT( opt_idle_timeout );
@@ -234,14 +235,14 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     A {Match} object describing the fields of the flow.
  *
  *   @option options [Number] :idle_timeout (0)
- *     The idle time in seconds before discarding. 
+ *     The idle time in seconds before discarding.
  *     Zero means flow never expires.
  *
  *   @option options [Number] :cookie
  *     An opaque issued identifier.
  *
  *   @option options [Number] :hard_timeout (0)
- *     The maximum time before discarding in seconds. 
+ *     The maximum time before discarding in seconds.
  *     Zero means flow never expires.
  *
  *   @option options [Number] :priority (0xffff)
@@ -279,13 +280,13 @@ controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
 /*
  * @overload send_flow_mod_modify(datapath, options={})
  *   Sends a flow_mod message to either modify or modify strict a flow from datapath.
- *   Both flow_mod modify and flow_mod modify strict commands would modify 
- *   matched flow actions. The strict option adds the flow priority to the 
+ *   Both flow_mod modify and flow_mod modify strict commands would modify
+ *   matched flow actions. The strict option adds the flow priority to the
  *   matched criteria. Accepts the same options as #send_flow_mod_add with the
  *   following additional option.
  *
  *   @option options [Symbol] :strict
- *     If set to true modify_strict command is invoked otherwise the modify 
+ *     If set to true modify_strict command is invoked otherwise the modify
  *     command is invoked.
  */
 static VALUE
@@ -450,7 +451,7 @@ controller_run( VALUE self ) {
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
-  argv[ 3 ] = NULL; 
+  argv[ 3 ] = NULL;
   init_trema( &argc, &argv );
   xfree( argv );
 
@@ -499,12 +500,12 @@ controller_shutdown( VALUE self ) {
 static void
 thread_pass( void *user_data ) {
   UNUSED( user_data );
-  rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
+  CHECK_INTS;
 }
 
 
 /*
- * In the context of trema framework invokes the scheduler to start its applications. 
+ * In the context of trema framework invokes the scheduler to start its applications.
  */
 static VALUE
 controller_start_trema( VALUE self ) {
@@ -569,7 +570,7 @@ Init_controller() {
   rb_define_const( cController, "OFPAT_VENDOR", INT2NUM( OFPAT_VENDOR ) );
 
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );  
+  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
   rb_define_method( cController, "send_flow_mod_modify", controller_send_flow_mod_modify, -1 );
   rb_define_method( cController, "send_flow_mod_delete", controller_send_flow_mod_delete, -1 );
