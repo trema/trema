@@ -89,7 +89,7 @@ hash_application( const void *key ) {
 
 
 static cookie_entry_t *
-allocate_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t flags, int index ) {
+allocate_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t flags ) {
   cookie_entry_t *new_entry;
 
   new_entry = xmalloc( sizeof ( cookie_entry_t ) );
@@ -107,7 +107,6 @@ allocate_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t f
   new_entry->application.flags = flags;
   new_entry->reference_count = 1;
   new_entry->expire_at = time( NULL ) + COOKIE_ENTRY_LIFETIME;
-  new_entry->index = index;
 
   return new_entry;
 }
@@ -134,7 +133,6 @@ void
 init_cookie_table( void ) {
   cookie_table.global = create_hash_with_size( compare_cookie, hash_cookie_entry, BUCKETS_SIZE );
   cookie_table.application = create_hash_with_size( compare_application, hash_application, BUCKETS_SIZE );
-  cookie_table.next_index = 0;
 }
 
 
@@ -145,7 +143,6 @@ finalize_cookie_table( void ) {
   delete_hash( cookie_table.application );
   cookie_table.global = NULL;
   cookie_table.application = NULL;
-  cookie_table.next_index = 0;
 }
 
 
@@ -165,15 +162,7 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
     return &new_entry->cookie;
   }
 
-  if ( cookie_table.next_index >= COOKIE_MAX_ENTRIES ) {
-    cookie_table.next_index = 0;
-  }
-
-  if ( cookie_table.entries[ cookie_table.next_index ] != NULL ) {
-    delete_cookie_entry( cookie_table.entries[ cookie_table.next_index ] );
-  }
-
-  new_entry = allocate_cookie_entry( original_cookie, service_name, flags, cookie_table.next_index );
+  new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
   conflict_entry = lookup_cookie_entry_by_cookie( &new_entry->cookie );
   if ( conflict_entry != NULL ) {
     warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", new_entry->cookie );
@@ -181,8 +170,6 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
   }
   insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
   insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
-  cookie_table.entries[ cookie_table.next_index ] = new_entry;
-  cookie_table.next_index++;
 
   return &new_entry->cookie;
 }
@@ -210,7 +197,6 @@ delete_cookie_entry( cookie_entry_t *entry ) {
     error( "No cookie entry found ( cookie = %#" PRIx64 ", service_name = %s ).",
            entry->application.cookie, entry->application.service_name );
   }
-  cookie_table.entries[ entry->index ] = NULL;
 
   free_cookie_entry( entry );
 }
