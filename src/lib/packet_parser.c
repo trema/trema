@@ -209,7 +209,12 @@ parse_lldp( buffer *buf ) {
   packet_info *packet_info = buf->user_data;
   void *ptr = packet_info->l3_header;
   assert( ptr != NULL );
-  packet_info->l3_payload = ptr;
+
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
+    packet_info->l3_payload = ptr;
+    packet_info->l3_payload_length = payload_length;
+  }
 
   packet_info->format |= NW_LLDP;
 

@@ -588,6 +588,10 @@ test_parse_packet_lldp_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
 
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  assert_int_equal( sample, 0x0205 );
+  assert_int_equal( packet_info->l3_payload_length, 46 );
+
   free_buffer( buffer );
 }
 
@@ -645,6 +649,10 @@ test_parse_packet_lldp_over_ip_succeeds() {
 
   assert_memory_equal( packet_info->eth_macda, lldp_macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, lldp_macsa, ETH_ADDRLEN );
+
+  sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  assert_int_equal( sample, 0x0205 );
+  assert_int_equal( packet_info->l3_payload_length, 17 );
 
   free_buffer( copy );
 
