@@ -22,8 +22,6 @@
 
 #include "action-output.h"
 #include "controller.h"
-#include "path-resolver.h"
-#include "topology.h"
 #include "features-reply.h"
 #include "features-request.h"
 #include "set-config.h"
@@ -92,8 +90,6 @@ Init_trema() {
   Init_error();
   Init_logger();
   Init_controller();
-  Init_path_resolver();
-  Init_topology();
   Init_features_reply();
   Init_features_request();
   Init_set_config();
