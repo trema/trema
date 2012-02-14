@@ -621,6 +621,10 @@ test_parse_packet_lldp_over_ip_succeeds() {
   assert_int_equal( packet_info->ipv4_saddr, 0x0a2a7aca );
   assert_int_equal( packet_info->ipv4_daddr, 0x0a2a7ad4 );
 
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  assert_int_equal( sample, 0x0180 );
+  assert_int_equal( packet_info->l4_payload_length, 31 );
+
   assert_int_equal( packet_info->etherip_version, ETHERIP_VERSION );
   assert_int_equal( packet_info->etherip_offset, 36 );
 
