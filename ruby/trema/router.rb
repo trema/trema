@@ -24,7 +24,9 @@ require "model"
 
 module Trema
   module Router
-    include PathResolver, Topology, Model
+    include PathResolver
+    include Topology
+    include Model
 
 
     def start_router options
