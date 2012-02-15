@@ -106,6 +106,11 @@ module Trema
     end
 
 
+    def self.openflow_wireshark_plugin
+      File.join path, "openflow.git"
+    end
+
+
     def self.openvswitch
       File.join path, "openvswitch-1.2.2"
     end
