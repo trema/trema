@@ -1,0 +1,8 @@
+$Id: TODO,v 1.1.1.1 2005/07/02 19:10:57 hobe Exp $
+
+Clean up code to reduce duplicate code as much as possible.
+
+Test on more platforms
+
+Add concept of 'sub platform'.  For example BSD->NetBSD1.4 might be different 
+from BSD->NetBSD1.5

@@ -1,0 +1,10 @@
+lo0: flags=1000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4> mtu 8232 index 1
+        inet 127.0.0.1 netmask ff000000
+        inet6 ::1/128
+bge0: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 2
+        inet 10.32.4.138 netmask ffffff00 broadcast 10.32.4.255
+        ether 0:3:ba:42:9d:ef
+        inet6 fe80::a00:20ff:fe72:9724/10
+le1: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 3
+        inet 172.16.254.99 netmask ffff0000 broadcast 172.16.255.255
+        ether 8:0:20:1d:71:eb

@@ -18,6 +18,7 @@
 #
 
 
+require "ifconfig"
 require "trema/network-component"
 
 
@@ -69,9 +70,16 @@ module Trema
     #
     def initialize stanza
       @link_id = Link.instances.size
-      @name = "trema#{ @link_id }-0"
-      @name_peer = "trema#{ @link_id }-1"
-      @peers = stanza.peers
+      @stanza = stanza
+      if real_eth?
+        @name = real_eth
+        @name_peer = nil
+        @peers = @stanza.peers - [ real_eth ]
+      else
+        @name = "trema#{ @link_id }-0"
+        @name_peer = "trema#{ @link_id }-1"
+        @peers = @stanza.peers
+      end
       Link.add self
     end
 
@@ -85,6 +93,7 @@ module Trema
     # @return [undefined]
     #
     def add!
+      return if real_eth?
       sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
       sh "sudo sysctl -w net.ipv6.conf.#{ @name }.disable_ipv6=1 >/dev/null 2>&1"
       sh "sudo sysctl -w net.ipv6.conf.#{ @name_peer }.disable_ipv6=1 >/dev/null 2>&1"
@@ -100,6 +109,7 @@ module Trema
     # @return [undefined]
     #
     def up!
+      return if real_eth?
       sh "sudo /sbin/ifconfig #{ @name } up"
       sh "sudo /sbin/ifconfig #{ @name_peer } up"
     end
@@ -128,8 +138,32 @@ module Trema
     # @return [undefined]
     #
     def delete!
+      return if real_eth?
       # FIXME: do not rescue nil
       sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def real_eth
+      interfaces = IfconfigWrapper.new.parse.interfaces
+      @stanza.peers.each do | each |
+        return each if interfaces.include?( each )
+      end
+      raise
+    end
+
+
+    def real_eth?
+      interfaces = IfconfigWrapper.new.parse.interfaces
+      @stanza.peers.each do | each |
+        return true if interfaces.include?( each )
+      end
+      false
     end
   end
 end

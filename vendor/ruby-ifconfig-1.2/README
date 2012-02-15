@@ -1,0 +1,38 @@
+$Id: README,v 1.1.1.1 2005/07/02 19:10:57 hobe Exp $
+
+This is a Ruby wrapper around the ifconfig command.  The goal is to make
+getting any information that ifconfig provides easy to access.
+
+It was developed on Linux 2.6 with ifconfig from net-tools 1.60.  It also has
+support for SunOS, Darwin and Open, Free, Net, and DragonflyBSD.  These have
+not been thoroughly tested.  Non Linux platforms call netstat for interface
+packet information
+
+Please send me ifconfig / netstat output for platforms that don't work.
+
+see test/*.rb for usage examples.
+
+Thanks to Peter Johnson for the *BSD examples
+Thanks to Jeremy Tregunna for Darwin and DragonflyBSD support
+
+INSTALLATION
+------------
+
+Please see the INSTALL file for details of how to install Ruby-Ifconfig
+
+TESTING
+-------
+> rake
+to run all the unit tests.
+
+LICENCE
+-------
+
+This software is offered under the GNU GENERAL PUBLIC LICENSE, a copy of which
+is included.
+
+Section 2, paragraph b and section 5 of the GNU General Public License does not apply when the Software (Ruby/Ifconfig) is included in the program Corgi.
+
+--
+Daniel Hobe
+daniel@nightrunner.com
