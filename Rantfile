@@ -46,8 +46,7 @@ task :default => [
   :syslog_relay,
   :stdin_relay,
   :vendor,
-  :examples,
-  :openflow_wireshark_plugin,
+  :examples
 ]
 
 
