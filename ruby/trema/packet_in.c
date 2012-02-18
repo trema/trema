@@ -202,6 +202,17 @@ packet_in_macda( VALUE self ) {
 
 
 /*
+ * The ethernet type.
+ *
+ * @return [integer] eth_type The ehternet type.
+ */
+static VALUE
+packet_in_eth_type( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->eth_type );
+}
+
+
+/*
  * Is an ARP packet?
  *
  * @return [bool] arp? Is an ARP packet?
@@ -461,6 +472,7 @@ Init_packet_in() {
 
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
+  rb_define_method( cPacketIn, "eth_type", packet_in_eth_type, 0 );
 
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
