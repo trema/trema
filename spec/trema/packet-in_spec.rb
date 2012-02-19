@@ -132,10 +132,31 @@ describe Trema::PacketIn do
         link "test", "host2"
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.ipv4?.should == true
           message.ipv4_saddr.should be_instance_of( Trema::IP )
           message.ipv4_saddr.to_s.should == "192.168.1.1"
           message.ipv4_daddr.should be_instance_of( Trema::IP )
           message.ipv4_daddr.to_s.should == "192.168.1.2"
+        end
+        send_and_wait
+      }
+    end
+
+
+    it "should have user L4 information (udp)" do
+      network {
+        vswitch( "test" ) { datapath_id 0xabc }
+        vhost( "host1" ) { mac "00:00:00:00:00:01"
+                           ip "192.168.1.1" }
+        vhost( "host2" ) { mac "00:00:00:00:00:02"
+                           ip "192.168.1.2" }
+        link "test", "host1"
+        link "test", "host2"
+      }.run( PacketInController ) {
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.udp?.should == true
+          message.udp_src_port.should > 0
+          message.udp_dst_port.should > 0
         end
         send_and_wait
       }
