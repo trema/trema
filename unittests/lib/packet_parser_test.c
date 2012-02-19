@@ -568,6 +568,8 @@ test_parse_packet_igmp_query_v2_succeeds() {
   assert_int_equal( packet_info->igmp_cksum, 0xee9b );
   assert_int_equal( packet_info->igmp_group, 0 );
 
+  assert_true( packet_type_igmp_membership_query( buffer ) );
+
   free_buffer( buffer );
 }
 
