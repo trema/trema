@@ -28,6 +28,7 @@ extern VALUE mTrema;
 VALUE cPacketIn;
 VALUE mPacketInARP;
 VALUE mPacketInIPv4;
+VALUE mPacketInICMPv4;
 VALUE mPacketInIGMP;
 VALUE mPacketInTCP;
 VALUE mPacketInUDP;
@@ -322,6 +323,88 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
+ * Is an ICMPv4 packet?
+ *
+ * @return [bool] icmpv4? Is an ICMPv4 packet?
+ */
+static VALUE
+packet_in_is_icmpv4( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_ICMPV4 ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The ICMPv4 message type.
+ *
+ * @return [Integer] icmpv4_type The ICMPv4 message type.
+ */
+static VALUE
+packet_in_icmpv4_type( VALUE self ) {
+  return get_packet_in_info( self )->icmpv4_type;
+}
+
+
+/*
+ * The ICMPv4 message code.
+ *
+ * @return [Integer] icmpv4_code The ICMPv4 message code.
+ */
+static VALUE
+packet_in_icmpv4_code( VALUE self ) {
+  return get_packet_in_info( self )->icmpv4_code;
+}
+
+
+/*
+ * The ICMPv4 message checksum.
+ *
+ * @return [Integer] icmpv4_checksum The ICMPv4 message checksum.
+ */
+static VALUE
+packet_in_icmpv4_checksum( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->icmpv4_checksum );
+}
+
+
+/*
+ * The identifier of ICMPv4 echo.
+ *
+ * @return [Integer] icmpv4_id The identifier of ICMPv4 echo.
+ */
+static VALUE
+packet_in_icmpv4_id( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->icmpv4_id );
+}
+
+
+/*
+ * The sequence number of ICMPv4 echo.
+ *
+ * @return [Integer] icmpv4_id The sequence number of ICMPv4 echo.
+ */
+static VALUE
+packet_in_icmpv4_seq( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->icmpv4_seq );
+}
+
+
+/*
+ * The gateway address of ICMPv4 redicect.
+ *
+ * @return [Trema::IP] icmp_gateway The gateway address of ICMPv4 redicect.
+ */
+static VALUE
+packet_in_icmpv4_gateway( VALUE self ) {
+  PACKET_IN_RETURN_IP( icmpv4_gateway );
+}
+
+
+/*
  * Is an IGMP packet?
  *
  * @return [bool] igmp? Is an IGMP packet?
@@ -556,9 +639,10 @@ Init_packet_in() {
 
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
+  rb_define_method( cPacketIn, "icmpv4?", packet_in_is_icmpv4, 0 );
+  rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
-  rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
 
   mPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
   rb_define_method( mPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
@@ -570,6 +654,14 @@ Init_packet_in() {
   mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
   rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
   rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+
+  mPacketInICMPv4 = rb_define_module_under( mTrema, "PacketInICMPv4" );
+  rb_define_method( mPacketInICMPv4, "icmpv4_type", packet_in_icmpv4_type, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_code", packet_in_icmpv4_code, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_id", packet_in_icmpv4_id, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
 
   mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
   rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
@@ -614,6 +706,10 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
 
   if ( ( info->format & NW_IPV4 ) ) {
     rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIPv4 );
+  }
+
+  if ( ( info->format & NW_ICMPV4 ) ) {
+    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInICMPv4 );
   }
 
   if ( ( info->format & NW_IGMP ) ) {
