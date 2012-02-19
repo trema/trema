@@ -338,6 +338,86 @@ packet_in_is_igmp( VALUE self ) {
 
 
 /*
+ * Is an IGMP membership query packet?
+ *
+ * @return [bool] igmp_membership_query? Is an IGMP membership query packet?
+ */
+static VALUE
+packet_in_is_igmp_membership_query( VALUE self ) {
+  if ( packet_type_igmp_membership_query( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an IGMP v1 membership report packet?
+ *
+ * @return [bool] igmp_v1_membership_report? Is an IGMP v1 membership report packet?
+ */
+static VALUE
+packet_in_is_igmp_v1_membership_report( VALUE self ) {
+  if ( packet_type_igmp_v1_membership_report( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an IGMP v2 membership report packet?
+ *
+ * @return [bool] igmp_v2_membership_report? Is an IGMP v2 membership report packet?
+ */
+static VALUE
+packet_in_is_igmp_v2_membership_report( VALUE self ) {
+  if ( packet_type_igmp_v2_membership_report( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an IGMP v2 leave group packet?
+ *
+ * @return [bool] igmp_v2_leave_group? Is an IGMP v2 leave group packet?
+ */
+static VALUE
+packet_in_is_igmp_v2_leave_group( VALUE self ) {
+  if ( packet_type_igmp_v2_leave_group( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an IGMP v3 membership report packet?
+ *
+ * @return [bool] igmp_v3_membership_report? Is an IGMP v3 membership report packet?
+ */
+static VALUE
+packet_in_is_igmp_v3_membership_report( VALUE self ) {
+  if ( packet_type_igmp_v3_membership_report( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
  * The IGMP message type.
  *
  * @return [Integer] igmp_type IGMP type.
@@ -494,6 +574,11 @@ Init_packet_in() {
   mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
   rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
   rb_define_method( mPacketInIGMP, "igmp_group", packet_in_igmp_group, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_v2_leave_group?", packet_in_is_igmp_v2_leave_group, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_v3_membership_report?", packet_in_is_igmp_v3_membership_report, 0 );
 
   mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
   rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
