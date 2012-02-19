@@ -191,6 +191,12 @@ bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
 bool packet_type_ipv4_etherip( const buffer *frame );
 
+bool packet_type_igmp_membership_query( const buffer *frame );
+bool packet_type_igmp_v1_membership_report( const buffer *frame );
+bool packet_type_igmp_v2_membership_report( const buffer *frame );
+bool packet_type_igmp_v2_leave_group( const buffer *frame );
+bool packet_type_igmp_v3_membership_report( const buffer *frame );
+
 
 #endif // PACKET_INFO_H
 

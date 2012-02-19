@@ -175,6 +175,53 @@ packet_type_ipv4_etherip( const buffer *frame ) {
 }
 
 
+static bool
+if_igmp_type( const buffer *frame, const uint32_t type ) {
+  die_if_NULL( frame );
+  packet_info packet_info = get_packet_info( frame );
+  return ( packet_info.igmp_type == type );
+}
+
+
+bool 
+packet_type_igmp_membership_query( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_IGMP ) &
+           if_igmp_type( frame, IGMP_TYPE_MEMBERSHIP_QUERY ) );
+}
+
+ 
+bool 
+packet_type_igmp_v1_membership_report( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_IGMP ) &
+           if_igmp_type( frame, IGMP_TYPE_V1_MEMBERSHIP_REPORT ) );
+}
+
+bool 
+packet_type_igmp_v2_membership_report( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_IGMP ) &
+           if_igmp_type( frame, IGMP_TYPE_V2_MEMBERSHIP_REPORT ) );
+}
+
+
+bool 
+packet_type_igmp_v2_leave_group( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_IGMP ) &
+           if_igmp_type( frame, IGMP_TYPE_V2_LEAVE_GROUP ) );
+}
+
+
+bool 
+packet_type_igmp_v3_membership_report( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_IGMP ) &
+           if_igmp_type( frame, IGMP_TYPE_V3_MEMBERSHIP_REPORT ) );
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2
