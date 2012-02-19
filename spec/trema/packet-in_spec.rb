@@ -127,17 +127,18 @@ describe Trema::PacketIn do
     it "should have user L4 information (udp)" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { ip "192.168.1.1" }
-        vhost( "host2" ) { ip "192.168.1.2" }
+        vhost( "host1" )
+        vhost( "host2" )
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.udp?.should == true
-          message.udp_src_port.should > 0
-          message.udp_dst_port.should > 0
+          message.udp_src_port.should == 9000
+          message.udp_dst_port.should == 9001
         end
-        send_and_wait
+        send_packets "host1", "host2", :tp_src => 9000, :tp_dst => 9001
+        sleep 2
       }
     end
 
