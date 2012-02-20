@@ -21,7 +21,6 @@
 
 
 #include <inttypes.h>
-#include "timer.h"
 #include "trema.h"
 
 

@@ -209,7 +209,12 @@ parse_lldp( buffer *buf ) {
   packet_info *packet_info = buf->user_data;
   void *ptr = packet_info->l3_header;
   assert( ptr != NULL );
-  packet_info->l3_payload = ptr;
+
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
+    packet_info->l3_payload = ptr;
+    packet_info->l3_payload_length = payload_length;
+  }
 
   packet_info->format |= NW_LLDP;
 
@@ -393,8 +398,10 @@ parse_etherip( buffer *buf ) {
   packet_info->etherip_offset = 0;
 
   ptr = ( void * ) ( etherip_header + 1 );
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l4_payload = ptr;
+    packet_info->l4_payload_length = payload_length;
     packet_info->etherip_offset = ( uint16_t ) ( ( char * ) ptr - ( char *) buf->data );
   }
 

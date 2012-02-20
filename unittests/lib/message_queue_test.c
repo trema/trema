@@ -259,6 +259,94 @@ test_peek_message_if_queue_is_not_created() {
 
 
 /*************************************************************************
+ * foreach_message_queue tests.
+ *************************************************************************/
+
+
+static int count = 0;
+
+static void
+test_foreach_message_queue_helper( buffer *message, void *user_data ) {
+  const char *str = message->data;
+  assert_string_equal( ( char * ) user_data, "user_data" );
+  switch ( ++count ) {
+    case 1:
+      assert_string_equal( str, "second_buffer" );
+      break;
+    case 2:
+      assert_string_equal( str, "third_buffer" );
+      break;
+    default:
+      assert_true( false );
+      break;
+  }
+}
+
+
+static void
+append_string( buffer *buf, const char *str ) {
+  char *text = append_back_buffer( buf, strlen( str ) + 1 );
+  strcpy( text, str );
+}
+
+
+static void
+test_foreach_message_queue() {
+  message_queue *queue = create_message_queue();
+  assert_true( queue != NULL );
+
+  buffer *first_buf = alloc_buffer();
+  append_string( first_buf, "first_buffer" );
+  assert_true( enqueue_message( queue, first_buf ) );
+  assert_int_equal( queue->length, 1 );
+  buffer *second_buf = alloc_buffer();
+  append_string( second_buf, "second_buffer" );
+  assert_true( enqueue_message( queue, second_buf ) );
+  assert_int_equal( queue->length, 2 );
+  buffer *third_buf = alloc_buffer();
+  append_string( third_buf, "third_buffer" );
+  assert_true( enqueue_message( queue, third_buf ) );
+  assert_int_equal( queue->length, 3 );
+
+  buffer *deq_buf = dequeue_message( queue );
+  assert_true( deq_buf == first_buf );
+
+  char *user_data = xstrdup( "user_data" );
+  count = 0;
+
+  foreach_message_queue( queue, test_foreach_message_queue_helper, user_data );
+
+  assert_int_equal( count, 2 );
+
+  xfree( user_data );
+  assert_true( delete_message_queue( queue ) );
+}
+
+
+static void
+test_foreach_message_queue_if_queue_is_empty_helper( buffer *message, void *user_data ) {
+  UNUSED( message );
+  UNUSED( user_data );
+  assert_true( false );
+}
+
+
+static void
+test_foreach_message_queue_if_queue_is_empty() {
+  message_queue *queue = create_message_queue();
+  assert_true( queue != NULL );
+
+  char *user_data = xstrdup( "user_data" );
+  foreach_message_queue( queue, test_foreach_message_queue_if_queue_is_empty_helper, user_data );
+
+  assert_int_equal( count, 2 );
+
+  xfree( user_data );
+  assert_true( delete_message_queue( queue ) );
+}
+
+
+/*************************************************************************
  * Run tests.
  *************************************************************************/
 
@@ -275,6 +363,8 @@ main() {
     unit_test_setup_teardown( test_dequeue_message_if_queue_is_not_created, setup, teardown ),
     unit_test_setup_teardown( test_peek_message, setup, teardown ),
     unit_test_setup_teardown( test_peek_message_if_queue_is_not_created, setup, teardown ),
+    unit_test_setup_teardown( test_foreach_message_queue, setup, teardown ),
+    unit_test_setup_teardown( test_foreach_message_queue_if_queue_is_empty, setup, teardown ),
   };
 
   return run_tests( tests );

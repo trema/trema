@@ -123,7 +123,6 @@ static void free_message_buffer( message_buffer *buf );
 static size_t message_buffer_remain_bytes( message_buffer *buf );
 
 static void delete_timer_callbacks( void );
-//static void execute_timer_events( void );
 
 static messenger_context* insert_context( void *user_data );
 static messenger_context* get_context( uint32_t transaction_id );
@@ -167,7 +166,8 @@ static uint32_t last_transaction_id;
  ********************************************************************************/
 
 void
-mock_execute_timer_events() {
+mock_execute_timer_events( int *next_timeout_usec ) {
+  UNUSED( next_timeout_usec );
   // Do nothing.
 }
 

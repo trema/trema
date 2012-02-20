@@ -1,0 +1,20 @@
+eth0      Link encap:Ethernet  HWaddr 00:50:DA:C1:C3:45  
+          inet addr:216.87.223.240  Bcast:216.87.223.255  Mask:255.255.255.0
+          inet6 addr: fe80::250:daff:fec1:c345/10 Scope:Link
+          inet6 addr: 3ffe:b00:c18:1fff::2bd/0 Scope:Global
+          IPX/Ethernet II addr:CA008137:00204808C79B
+          IPX/Ethernet SNAP addr:00204808C79B
+          IPX/Ethernet 802.2 addr:00204808C79B
+          IPX/Ethernet 802.3 addr:00204808C79B
+          EtherTalk Phase 2 addr:7349/195
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:90170 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:2854 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          RX bytes:1037052545 (989.0 MiB)  TX bytes:32859376 (31.3 MiB)
+          Interrupt:10 Base address:0xe400 
+
+eth0:0    Link encap:Ethernet  HWaddr 00:50:DA:C1:C3:45  
+          inet addr:172.16.0.93  Bcast:172.16.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          Interrupt:10 Base address:0xe400

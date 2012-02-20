@@ -24,8 +24,10 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <linux/limits.h>
+#include <linux/sockios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
@@ -134,12 +136,6 @@ extern void mock_warn( const char *format, ... );
 #define add_periodic_event_callback mock_add_periodic_event_callback
 extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
 
-#ifdef execute_timer_events
-#undef execute_timer_events
-#endif
-#define execute_timer_events mock_execute_timer_events
-extern void mock_execute_timer_events( void );
-
 #endif // UNIT_TESTING
 
 
@@ -190,6 +186,7 @@ typedef struct send_queue {
   bool running_timer;
   uint32_t overflow;
   uint64_t overflow_total_length;
+  int socket_buffer_size;
 } send_queue;
 
 
@@ -846,6 +843,11 @@ send_queue_connect( send_queue *sq ) {
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
 
+  socklen_t optlen = sizeof ( sq->socket_buffer_size );
+  if ( getsockopt( sq->server_socket, SOL_SOCKET, SO_SNDBUF, &sq->socket_buffer_size, &optlen ) == -1 ) {
+    sq->socket_buffer_size = 0;
+  }
+
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
 
   return 1;
@@ -959,6 +961,7 @@ create_send_queue( const char *service_name ) {
   sq->running_timer = false;
   sq->overflow = 0;
   sq->overflow_total_length = 0;
+  sq->socket_buffer_size = 0;
 
   if ( send_queue_try_connect( sq ) == -1 ) {
     xfree( sq );
@@ -1496,12 +1499,30 @@ static uint32_t
 get_send_data( send_queue *sq, size_t offset ) {
   assert( sq != NULL );
 
+  uint32_t bucket_size = messenger_bucket_size;
+  if ( sq->socket_buffer_size != 0 ) {
+    int used;
+    if ( ioctl( sq->server_socket, SIOCOUTQ, &used ) == 0 ) {
+      if ( used < sq->socket_buffer_size ) {
+        bucket_size = ( uint32_t ) ( sq->socket_buffer_size - used ) << 1;
+	if ( bucket_size > messenger_bucket_size ) {
+	  bucket_size = messenger_bucket_size;
+	}
+      }
+      else {
+        bucket_size = 1;
+      }
+    }
+  }
+
   uint32_t length = 0;
   message_header *header;
   while ( ( sq->buffer->data_length - offset ) >= sizeof( message_header ) ) {
     header = ( message_header * ) ( ( char * ) get_message_buffer_head( sq->buffer ) + offset );
     uint32_t message_length = ntohl( header->message_length );
-    if ( length + message_length > messenger_bucket_size ) {
+    assert( message_length != 0 );
+    assert( message_length < messenger_recv_queue_length );
+    if ( length + message_length > bucket_size ) {
       if ( length == 0 ) {
         length = message_length;
       }
@@ -1614,7 +1635,7 @@ flush_messenger() {
     if ( sending_count == 0 ) {
       return reconnecting_count;
     }
-    run_event_handler_once();
+    run_event_handler_once( 100000 );
   }
 }
 

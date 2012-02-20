@@ -1,0 +1,17 @@
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+	inet6 ::1 prefixlen 128 
+	inet6 fe80::1 prefixlen 64 scopeid 0x1 
+	inet 127.0.0.1 netmask 0xff000000 
+gif0: flags=8010<POINTOPOINT,MULTICAST> mtu 1280
+stf0: flags=0<> mtu 1280
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	inet6 fe80::203:93ff:fe0a:1676 prefixlen 64 scopeid 0x4 
+	inet 192.168.0.14 netmask 0xffffff00 broadcast 192.168.0.255
+	inet6 2001:5c0:8116::203:93ff:fe0a:1676 prefixlen 64 autoconf 
+	ether 00:03:93:0a:16:76 
+	media: autoselect (100baseTX <full-duplex>) status: active
+	supported media: none autoselect 10baseT/UTP <half-duplex> 10baseT/UTP <full-duplex> 10baseT/UTP <full-duplex,hw-loopback> 100baseTX <half-duplex> 100baseTX <full-duplex> 100baseTX <full-duplex,hw-loopback>
+fw0: flags=8822<BROADCAST,SMART,SIMPLEX,MULTICAST> mtu 2030
+	lladdr 00:03:93:ff:fe:0a:16:76 
+	media: autoselect <full-duplex> status: inactive
+	supported media: autoselect <full-duplex>

@@ -39,7 +39,6 @@
 #include "trema.h"
 #include "pcap_private.h"
 #include "pcap_queue.h"
-#include "timer.h"
 
 
 #define FIFO_NAME "tremashark"

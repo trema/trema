@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include "doubly_linked_list.h"
 #include "log.h"
 #include "timer.h"
@@ -98,7 +99,7 @@ _finalize_timer() {
 bool ( *finalize_timer )( void ) = _finalize_timer;
 
 
-#define VALID_TIMESPEC( _a )                                    \
+#define VALID_TIMESPEC( _a )                                  \
   ( ( ( _a )->tv_sec > 0 || ( _a )->tv_nsec > 0 ) ? 1 : 0 )
 
 #define ADD_TIMESPEC( _a, _b, _return )                       \
@@ -112,9 +113,33 @@ bool ( *finalize_timer )( void ) = _finalize_timer;
   }                                                           \
   while ( 0 )
 
+#define SUB_TIMESPEC( _a, _b, _return )                       \
+  do {                                                        \
+    ( _return )->tv_sec = ( _a )->tv_sec - ( _b )->tv_sec;    \
+    ( _return )->tv_nsec = ( _a )->tv_nsec - ( _b )->tv_nsec; \
+    if ( ( _return )->tv_nsec < 0 ) {                         \
+      ( _return )->tv_sec--;                                  \
+      ( _return )->tv_nsec += 1000000000;                     \
+    }                                                         \
+  }                                                           \
+  while ( 0 )
+
+#define TIMESPEC_LESS_THEN( _a, _b )                          \
+  ( ( ( _a )->tv_sec == ( _b )->tv_sec ) ?                    \
+    ( ( _a )->tv_nsec < ( _b )->tv_nsec ) :                   \
+    ( ( _a )->tv_sec < ( _b )->tv_sec ) )
+
+#define TIMESPEC_TO_MICROSECONDS( _a, _b )                    \
+  do {                                                        \
+    struct timespec round = { 0, 999 };                       \
+    ADD_TIMESPEC( _a, &round, &round );                       \
+    ( *( _b ) = ( int ) ( round.tv_sec * 1000000 + round.tv_nsec / 1000 ) ); \
+  }                                                           \
+  while ( 0 )
+
 
 static void
-on_timer( timer_callback_info *callback ) {
+on_timer( timer_callback_info *callback, struct timespec *now ) {
   assert( callback != NULL );
   assert( callback->function != NULL );
 
@@ -126,6 +151,10 @@ on_timer( timer_callback_info *callback ) {
     callback->function( callback->user_data );
     if ( VALID_TIMESPEC( &callback->interval ) ) {
       ADD_TIMESPEC( &callback->expires_at, &callback->interval, &callback->expires_at );
+      if ( TIMESPEC_LESS_THEN( &callback->expires_at, now ) ) {
+        callback->expires_at.tv_sec = now->tv_sec;
+        callback->expires_at.tv_nsec = now->tv_nsec;
+      }
     }
     else {
       callback->expires_at.tv_sec = 0;
@@ -140,8 +169,25 @@ on_timer( timer_callback_info *callback ) {
 }
 
 
+static void
+insert_timer_callback( timer_callback_info *new_cb ) {
+  assert( timer_callbacks != NULL );
+  dlist_element *element, *last = timer_callbacks;
+  for ( element = timer_callbacks->next; element != NULL; element = element->next ) {
+    timer_callback_info *cb = element->data;
+    if ( TIMESPEC_LESS_THEN( &new_cb->expires_at, &cb->expires_at ) ) {
+      insert_before_dlist( element, new_cb );
+      return;
+    }
+    last = element;
+  }
+  insert_after_dlist( last, new_cb );
+}
+
+
 void
-_execute_timer_events() {
+_execute_timer_events( int *next_timeout_usec ) {
+  assert( next_timeout_usec != NULL );
   struct timespec now;
   timer_callback_info *callback;
   dlist_element *element, *element_next;
@@ -151,23 +197,47 @@ _execute_timer_events() {
   assert( clock_gettime( CLOCK_MONOTONIC, &now ) == 0 );
   assert( timer_callbacks != NULL );
 
-  // TODO: timer_callbacks should be a list which is sorted by expiry time
   for ( element = timer_callbacks->next; element; element = element_next ) {
     element_next = element->next;
     callback = element->data;
-    if ( callback->function != NULL
-         && ( ( callback->expires_at.tv_sec < now.tv_sec )
-              || ( ( callback->expires_at.tv_sec == now.tv_sec )
-                   && ( callback->expires_at.tv_nsec <= now.tv_nsec ) ) ) ) {
-      on_timer( callback );
+    if ( callback->function != NULL ) {
+      if ( TIMESPEC_LESS_THEN( &now, &callback->expires_at ) ) {
+        break;
+      }
+      on_timer( callback, &now );
     }
+    delete_dlist_element( element );
     if ( callback->function == NULL ) {
       xfree( callback );
-      delete_dlist_element( element );
+    }
+    else {
+      insert_timer_callback( callback );
+    }
+  }
+
+  struct timespec max_timeout = { ( INT_MAX / 1000000 ), 0 };
+  struct timespec min_timeout = { 0, 0 };
+  if ( timer_callbacks->next == NULL ) {
+    TIMESPEC_TO_MICROSECONDS( &max_timeout, next_timeout_usec );
+  }
+  else {
+    callback = timer_callbacks->next->data;
+    if ( TIMESPEC_LESS_THEN( &callback->expires_at, &now ) ) {
+      TIMESPEC_TO_MICROSECONDS( &min_timeout, next_timeout_usec );
+    }
+    else {
+      struct timespec timeout;
+      SUB_TIMESPEC( &callback->expires_at, &now, &timeout );
+      if ( TIMESPEC_LESS_THEN( &timeout, &max_timeout ) ) {
+        TIMESPEC_TO_MICROSECONDS( &timeout, next_timeout_usec );
+      }
+      else {
+        TIMESPEC_TO_MICROSECONDS( &max_timeout, next_timeout_usec );
+      }
     }
   }
 }
-void ( *execute_timer_events )( void ) = _execute_timer_events;
+void ( *execute_timer_events )( int * ) = _execute_timer_events;
 
 
 bool
@@ -210,7 +280,7 @@ _add_timer_event_callback( struct itimerspec *interval, timer_callback callback,
   debug( "Set an initial expiration time to %u.%09u.", now.tv_sec, now.tv_nsec );
 
   assert( timer_callbacks != NULL );
-  insert_after_dlist( timer_callbacks, cb );
+  insert_timer_callback( cb );
 
   return true;
 }

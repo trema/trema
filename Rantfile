@@ -19,6 +19,8 @@
 
 
 $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "vendor", "ruby-ifconfig-1.2", "lib" )
+
 
 require "trema/executables"
 require "trema/path"
@@ -44,7 +46,7 @@ task :default => [
   :syslog_relay,
   :stdin_relay,
   :vendor,
-  :examples,
+  :examples
 ]
 
 
@@ -223,6 +225,32 @@ end
 
 task "vendor:openflow:distclean" do
   sys.rm_rf Trema::Vendor.openflow
+end
+
+
+#
+# Use the Stanford openflow reference software to compile and copy the wireshark
+# plugin to enable viewing of openflow messages.
+# The plugin would be compiled and copied to your home directory
+# (.wireshark/plugins) if it is found, otherwise it is left for you to copy
+# from openflow.git/utilities/wireshark_dissectors/openflow directory
+#
+desc "Build openflow wireshark plugin"
+task :openflow_wireshark_plugin => Trema::Vendor.openflow_wireshark_plugin
+file Trema::Vendor.openflow_wireshark_plugin do | t |
+  sys.unpack_tgz "#{ t.name }.tar.gz", :in => Trema::Vendor.path
+  subpath = "utilities/wireshark_dissectors/openflow"
+  sys.cd "#{ Trema::Vendor.openflow_wireshark_plugin }/#{ subpath }" do
+    sys "make"
+    plugin_path = "#{ File.expand_path(" ~ ") }/.wireshark/plugins"
+    sys.cp "packet-openflow.so", plugin_path if File.directory?( plugin_path )
+  end
+end
+
+
+task "openflow_wireshark_plugin:clean" => "openflow_wireshark_plugin:distclean"
+task "openflow_wireshark_plugin:distclean" do
+  sys.rm_rf Trema::Vendor.openflow_wireshark_plugin
 end
 
 

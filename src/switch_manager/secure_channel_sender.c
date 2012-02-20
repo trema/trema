@@ -23,6 +23,7 @@
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
+#include "event_handler.h"
 #include "message_queue.h"
 #include "ofpmsg_send.h"
 #include "secure_channel_sender.h"
@@ -47,6 +48,22 @@ send_to_secure_channel( struct switch_info *sw_info, buffer *buf ) {
 }
 
 
+typedef struct {
+  struct iovec *iov;
+  int iovcnt;
+} writev_args;
+
+
+static void
+append_to_writev_args( buffer *message, void *user_data ) {
+  writev_args *args = user_data;
+
+  args->iov[ args->iovcnt ].iov_base = message->data;
+  args->iov[ args->iovcnt ].iov_len = message->length;
+  args->iovcnt++;
+}
+
+
 int
 flush_secure_channel( struct switch_info *sw_info ) {
   assert( sw_info != NULL );
@@ -56,23 +73,43 @@ flush_secure_channel( struct switch_info *sw_info ) {
   buffer *buf;
   ssize_t write_length;
 
+  if ( sw_info->send_queue->length == 0 ) {
+    return 0;
+  }
   set_writable( sw_info->secure_channel_fd, false );
+  writev_args args;
+  args.iov = xmalloc( sizeof( struct iovec ) * ( size_t ) sw_info->send_queue->length );
+  args.iovcnt = 0;
+  foreach_message_queue( sw_info->send_queue, append_to_writev_args, &args );
+  if ( args.iovcnt == 0 ) {
+    xfree( args.iov );
+    return 0;
+  }
+  write_length = writev( sw_info->secure_channel_fd, args.iov, args.iovcnt );
+  xfree( args.iov );
+  if ( write_length < 0 ) {
+    if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
+      set_writable( sw_info->secure_channel_fd, true );
+      return 0;
+    }
+    error( "Failed to send a message to secure channel ( errno = %s [%d] ).",
+           strerror( errno ), errno );
+    return -1;
+  }
+  if ( write_length == 0 ) {
+    return 0;
+  }
   while ( ( buf = peek_message( sw_info->send_queue ) ) != NULL ) {
-    write_length = write( sw_info->secure_channel_fd, buf->data, buf->length );
-    if ( write_length < 0 ) {
-      if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
-        set_writable( sw_info->secure_channel_fd, true );
-        return 0;
-      }
-      error( "Failed to send a message to secure channel ( errno = %s [%d] ).",
-             strerror( errno ), errno );
-      return -1;
+    if ( write_length == 0 ) {
+      set_writable( sw_info->secure_channel_fd, true );
+      return 0;
     }
     if ( ( size_t ) write_length < buf->length ) {
       remove_front_buffer( buf, ( size_t ) write_length );
       set_writable( sw_info->secure_channel_fd, true );
       return 0;
     }
+    write_length -= ( ssize_t ) buf->length;
     buf = dequeue_message( sw_info->send_queue );
     free_buffer( buf );
   }

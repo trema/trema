@@ -22,6 +22,7 @@
 
 
 $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "vendor", "ruby-ifconfig-1.2", "lib" )
 
 
 require "English"
@@ -44,6 +45,8 @@ def method_for command
       return :show_stats
     when "reset_stats"
       return :reset_stats
+    when "ruby"
+      return :ruby
     when "dump_flows", "dump_flow"
       return :dump_flows
     when "version", "-V", "--version"

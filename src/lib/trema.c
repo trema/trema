@@ -645,7 +645,7 @@ set_trema_name( const char *name ) {
   trema_name = xstrdup( name );
 
   if ( initialized ) {
-    init_log( trema_name, get_trema_log(), run_as_daemon );
+    restart_log( trema_name, get_trema_log() );
   }
 }
 

@@ -381,6 +381,117 @@ test_packet_type_ipv4_etherip() {
   free_buffer( buf );
 }
 
+
+static void
+test_packet_type_igmp_membership_query() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  packet_info->igmp_type = IGMP_TYPE_MEMBERSHIP_QUERY;
+
+  assert_true( packet_type_igmp_membership_query( buf ) );
+  assert_false( packet_type_igmp_v1_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_leave_group( buf ) );
+  assert_false( packet_type_igmp_v3_membership_report( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_igmp_v1_membership_report() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  packet_info->igmp_type = IGMP_TYPE_V1_MEMBERSHIP_REPORT;
+
+  assert_false( packet_type_igmp_membership_query( buf ) );
+  assert_true( packet_type_igmp_v1_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_leave_group( buf ) );
+  assert_false( packet_type_igmp_v3_membership_report( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_igmp_v2_membership_report() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  packet_info->igmp_type = IGMP_TYPE_V2_MEMBERSHIP_REPORT;
+
+  assert_false( packet_type_igmp_membership_query( buf ) );
+  assert_false( packet_type_igmp_v1_membership_report( buf ) );
+  assert_true( packet_type_igmp_v2_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_leave_group( buf ) );
+  assert_false( packet_type_igmp_v3_membership_report( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_igmp_v2_leave_group() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  packet_info->igmp_type = IGMP_TYPE_V2_LEAVE_GROUP;
+
+  assert_false( packet_type_igmp_membership_query( buf ) );
+  assert_false( packet_type_igmp_v1_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_membership_report( buf ) );
+  assert_true( packet_type_igmp_v2_leave_group( buf ) );
+  assert_false( packet_type_igmp_v3_membership_report( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
+test_packet_type_igmp_v3_membership_report() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_igmp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+
+  packet_info->format |= NW_IGMP;
+  packet_info->igmp_type = IGMP_TYPE_V3_MEMBERSHIP_REPORT;
+
+  assert_false( packet_type_igmp_membership_query( buf ) );
+  assert_false( packet_type_igmp_v1_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_membership_report( buf ) );
+  assert_false( packet_type_igmp_v2_leave_group( buf ) );
+  assert_true( packet_type_igmp_v3_membership_report( buf ) );
+
+  free_buffer( buf );
+}
+
+
 /******************************************************************************
  * Run tests.
  ******************************************************************************/
@@ -413,6 +524,12 @@ main() {
     unit_test( test_packet_type_lldp ),
     unit_test( test_packet_type_igmp ),
     unit_test( test_packet_type_ipv4_etherip ),
+
+    unit_test( test_packet_type_igmp_membership_query ),
+    unit_test( test_packet_type_igmp_v1_membership_report ),
+    unit_test( test_packet_type_igmp_v2_membership_report ),
+    unit_test( test_packet_type_igmp_v2_leave_group ),
+    unit_test( test_packet_type_igmp_v3_membership_report ),
 
   };
   return run_tests( tests );

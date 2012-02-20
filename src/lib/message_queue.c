@@ -122,6 +122,19 @@ peek_message( message_queue *queue ) {
 }
 
 
+void foreach_message_queue( message_queue *queue, void function( buffer *message, void *user_data ),     void *user_data ) {
+  if ( queue->divider == queue->tail ) {
+    return;
+  }
+  message_queue_element *element;
+  for ( element = queue->divider->next; element != NULL; element = element->next ) {
+    buffer *message = element->data;
+    assert( message != NULL );
+    function( message, user_data );
+  }
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2

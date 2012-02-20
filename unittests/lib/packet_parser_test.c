@@ -568,6 +568,8 @@ test_parse_packet_igmp_query_v2_succeeds() {
   assert_int_equal( packet_info->igmp_cksum, 0xee9b );
   assert_int_equal( packet_info->igmp_group, 0 );
 
+  assert_true( packet_type_igmp_membership_query( buffer ) );
+
   free_buffer( buffer );
 }
 
@@ -587,6 +589,10 @@ test_parse_packet_lldp_succeeds() {
   u_char macsa[] = { 0xba, 0x22, 0xd3, 0x75, 0x8f, 0x7c };
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
+
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  assert_int_equal( sample, 0x0205 );
+  assert_int_equal( packet_info->l3_payload_length, 46 );
 
   free_buffer( buffer );
 }
@@ -621,6 +627,10 @@ test_parse_packet_lldp_over_ip_succeeds() {
   assert_int_equal( packet_info->ipv4_saddr, 0x0a2a7aca );
   assert_int_equal( packet_info->ipv4_daddr, 0x0a2a7ad4 );
 
+  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  assert_int_equal( sample, 0x0180 );
+  assert_int_equal( packet_info->l4_payload_length, 31 );
+
   assert_int_equal( packet_info->etherip_version, ETHERIP_VERSION );
   assert_int_equal( packet_info->etherip_offset, 36 );
 
@@ -641,6 +651,10 @@ test_parse_packet_lldp_over_ip_succeeds() {
 
   assert_memory_equal( packet_info->eth_macda, lldp_macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, lldp_macsa, ETH_ADDRLEN );
+
+  sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  assert_int_equal( sample, 0x0205 );
+  assert_int_equal( packet_info->l3_payload_length, 17 );
 
   free_buffer( copy );
 
