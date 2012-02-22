@@ -19,46 +19,62 @@
 
 
 require "rubygems"
+require "bundler"
 
-require "rake/tasklib"
-require "cucumber/rake/task"
-require "flay"
-require "flay_task"
-require "flog"
-require "reek/rake/task"
-require "roodi"
-require "roodi_task"
+
+begin
+  Bundler.setup :default, :development
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+
+
+require "rake"
+
+task :default => :spec
+
+
+require "jeweler"
+
+Jeweler::Tasks.new do |gem|
+  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
+  gem.name = "trema"
+  gem.homepage = "http://github.com/trema/trema"
+  gem.license = "GPL2"
+  gem.summary = %Q{Full-Stack OpenFlow Framework for Ruby/C}
+  gem.description = %Q{Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C}
+  gem.email = "yasuhito@gmail.com"
+  gem.authors = ["Yasuhito Takamiya"]
+  # dependencies defined in Gemfile
+end
+Jeweler::RubygemsDotOrgTasks.new
+
+
+require "rspec/core"
 require "rspec/core/rake_task"
-require 'yard'
-require 'yard/rake/yardoc_task'
 
+RSpec::Core::RakeTask.new( :spec ) do | spec |
+  spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+end
 
-desc "Generate a monolithic rant file"
-task "build.rb" do
-  sh "rant-import --force --auto .mono.rant"
+RSpec::Core::RakeTask.new( :rcov ) do | spec |
+  spec.pattern = "spec/**/*_spec.rb"
+  spec.rcov = true
 end
 
 
-YARD::Rake::YardocTask.new do | t |
-  t.options << "--debug" << "--verbose" if $trace
-end
-
-
-desc "Run all examples with RCov"
-RSpec::Core::RakeTask.new do | t |
-  t.pattern = [ "spec/**/*_spec.rb", "src/examples/**/*_spec.rb" ]
-  t.rspec_opts = "--color --format documentation --profile"
-end
+require "cucumber/rake/task"
+Cucumber::Rake::Task.new( :features )
 
 
 desc "Enforce Ruby code quality with static analysis of code"
 task :quality => [ :reek, :roodi, :flog, :flay ]
 
 
-#
-# See the follwing URL for details:
-# http://wiki.github.com/kevinrutherford/reek/rake-task
-#
+require "reek/rake/task"
+
 Reek::Rake::Task.new do | t |
   t.fail_on_error = true
   t.verbose = false
@@ -68,10 +84,16 @@ Reek::Rake::Task.new do | t |
 end
 
 
+require "roodi"
+require "roodi_task"
+
 RoodiTask.new do | t |
+  t.verbose = false
   t.patterns = %w(ruby/**/*.rb spec/**/*.rb features/**/*.rb)
 end
 
+
+require "flog"
 
 desc "Analyze for code complexity"
 task :flog do
@@ -93,6 +115,9 @@ task :flog do
 end
 
 
+require "flay"
+require "flay_task"
+
 FlayTask.new do | t |
   # add directories such as app, bin, spec and test if need be.
   t.dirs = %w( ruby )
@@ -100,13 +125,14 @@ FlayTask.new do | t |
 end
 
 
-Cucumber::Rake::Task.new do | t |
-  t.cucumber_opts = [ "features" ]
+desc "Generate a monolithic rant file"
+task "build.rb" do
+  sh "rant-import --force --auto .mono.rant"
 end
 
 
-### Local variables:
-### mode: Ruby
-### coding: utf-8-unix
-### indent-tabs-mode: nil
-### End:
+require "yard"
+
+YARD::Rake::YardocTask.new do | t |
+  t.options << "--debug" << "--verbose" if $trace
+end

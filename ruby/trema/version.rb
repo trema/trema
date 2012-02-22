@@ -19,7 +19,7 @@
 
 
 module Trema
-  VERSION = "0.1.3".freeze
+  VERSION = IO.read( File.join File.dirname( __FILE__ ), "..", "..", "VERSION" ).chomp.freeze
 end
 
 

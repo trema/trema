@@ -3,19 +3,20 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
-
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "cucumber"
-  gem "flay"
-  gem "flog"
-  gem "rake"
-  gem "rcov"
-  gem "rdoc"
-  gem "redcarpet"
-  gem "reek"
-  gem "roodi"
-  gem "rspec"
-  gem "yard"
+  gem "bundler", "~> 1.0.0"
+  gem "cucumber", ">= 0"
+  gem "flay", ">= 0"
+  gem "flog", ">= 0"
+  gem "jeweler", "~> 1.8.3"
+  gem "rake", ">= 0"
+  gem "rcov", ">= 0"
+  gem "rdoc", "~> 3.12"
+  gem "redcarpet", ">= 0"
+  gem "reek", "~> 1.2.8"
+  gem "roodi", "~> 2.1.0"
+  gem "rspec", "~> 2.8.0"
+  gem "yard", "~> 0.7"
 end
