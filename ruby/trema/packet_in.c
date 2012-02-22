@@ -660,6 +660,83 @@ packet_in_tcp_dst_port( VALUE self ) {
 
 
 /*
+ * The TCP sequence number.
+ *
+ * @return [Integer] tcp_seq_no a TCP sequence number.
+ */
+static VALUE
+packet_in_tcp_seq_no( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->tcp_seq_no );
+}
+
+
+/*
+ * The TCP acknowledge number.
+ *
+ * @return [Integer] tcp_ack_no a TCP acknowkedge number.
+ */
+static VALUE
+packet_in_tcp_ack_no( VALUE self ) {
+  return ULONG2NUM( get_packet_in_info( self )->tcp_ack_no );
+}
+
+
+/*
+ * The TCP offset.
+ *
+ * @return [Integer] tcp_offset a TCP offset.
+ */
+static VALUE
+packet_in_tcp_offset( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_offset );
+}
+
+
+/*
+ * The TCP flags.
+ *
+ * @return [Integer] tcp_flags TCP flags.
+ */
+static VALUE
+packet_in_tcp_flags( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_flags );
+}
+
+
+/*
+ * The TCP window.
+ *
+ * @return [Integer] tcp_window a TCP window.
+ */
+static VALUE
+packet_in_tcp_window( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->tcp_window );
+}
+
+
+/*
+ * The TCP checksum.
+ *
+ * @return [Integer] tcp_checksum a TCP checksum.
+ */
+static VALUE
+packet_in_tcp_checksum( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->tcp_checksum );
+}
+
+
+/*
+ * The TCP urgent.
+ *
+ * @return [Integer] tcp_urgent a TCP urgent.
+ */
+static VALUE
+packet_in_tcp_urgent( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->tcp_urgent );
+}
+
+
+/*
  * Is an UDP packet?
  *
  * @return [bool] udp? Is an UDP packet?
@@ -783,6 +860,13 @@ Init_packet_in() {
   mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
   rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
   rb_define_method( mPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
+  rb_define_method( mPacketInTCP, "tcp_seq_no", packet_in_tcp_seq_no, 0 );
+  rb_define_method( mPacketInTCP, "tcp_ack_no", packet_in_tcp_ack_no, 0 );
+  rb_define_method( mPacketInTCP, "tcp_offset", packet_in_tcp_offset, 0 );
+  rb_define_method( mPacketInTCP, "tcp_flags", packet_in_tcp_flags, 0 );
+  rb_define_method( mPacketInTCP, "tcp_window", packet_in_tcp_window, 0 );
+  rb_define_method( mPacketInTCP, "tcp_checksum", packet_in_tcp_checksum, 0 );
+  rb_define_method( mPacketInTCP, "tcp_urgent", packet_in_tcp_urgent, 0 );
 
   mPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
   rb_define_method( mPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
