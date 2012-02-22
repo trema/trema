@@ -236,7 +236,7 @@ packet_in_is_arp( VALUE self ) {
  */
 static VALUE
 packet_in_arp_oper( VALUE self ) {
-  return get_packet_in_info( self )->arp_ar_op;
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->arp_ar_op );
 }
 
 
