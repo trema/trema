@@ -501,6 +501,7 @@ static void
 thread_pass( void *user_data ) {
   UNUSED( user_data );
   CHECK_INTS;
+  rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
 }
 
 
