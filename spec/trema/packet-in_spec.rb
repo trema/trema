@@ -177,7 +177,6 @@ describe Trema::PacketIn do
 
   context "when reading packet content" do
     it "should have correct ARP packet fields" do
-      pending "ARP unit test is broken, fixme"
       network {
         vswitch( "packet-in" ) { datapath_id 0xabc }
         vhost "host1"
@@ -223,7 +222,7 @@ describe Trema::PacketIn do
         controller( "PacketInSendController" ).send_packet_out(
           0xabc,
           :data => data,
-          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
         )
         sleep 2
       }
@@ -283,7 +282,7 @@ describe Trema::PacketIn do
         controller( "PacketInSendController" ).send_packet_out(
           0xabc,
           :data => data,
-          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
         )
         sleep 2
       }
@@ -340,7 +339,7 @@ describe Trema::PacketIn do
         controller( "PacketInSendController" ).send_packet_out(
           0xabc,
           :data => data,
-          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
         )
         sleep 2
       }
