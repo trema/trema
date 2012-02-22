@@ -16,7 +16,7 @@ Feature: Packet-In filter configuration example
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/add_filter"
     Then the output should include:
       """
-      A packetin filter was added ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], service_name = dumper ).
+      A packetin filter was added ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], service_name = dumper ).
       """
 
   Scenario: dump filter
@@ -30,9 +30,9 @@ Feature: Packet-In filter configuration example
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/dump_filter"
     Then the output should include:
       """
-      2 packetin filters found ( match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0, nw_dst = 0.0.0.0, tp_src = 0, tp_dst = 0], service_name = dumper, strict = false ).
-      [#0] match = [wildcards = 0x3fffef, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0x88cc, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0, nw_dst = 0.0.0.0, tp_src = 0, tp_dst = 0], priority = 32768, service_name = dumper.
-      [#1] match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0, nw_dst = 0.0.0.0, tp_src = 0, tp_dst = 0], priority = 0, service_name = dumper.
+      2 packetin filters found ( match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0/0, nw_dst = 0.0.0.0/0, tp_src = 0, tp_dst = 0], service_name = dumper, strict = false ).
+      [#0] match = [wildcards = 0x3fffef, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0x88cc, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0/0, nw_dst = 0.0.0.0/0, tp_src = 0, tp_dst = 0], priority = 32768, service_name = dumper.
+      [#1] match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0/0, nw_dst = 0.0.0.0/0, tp_src = 0, tp_dst = 0], priority = 0, service_name = dumper.
       """
 
   Scenario: dump filter strict
@@ -46,14 +46,14 @@ Feature: Packet-In filter configuration example
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/dump_filter_strict"
     Then the output should include:
       """
-      0 packetin filter found ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
+      0 packetin filter found ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
       """
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/add_filter"
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/dump_filter_strict"
     Then the output should include:
       """
-      1 packetin filter found ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
-      [#0] match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], priority = 65535, service_name = dumper.
+      1 packetin filter found ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
+      [#0] match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], priority = 65535, service_name = dumper.
       """
 
   Scenario: delete filter strict
@@ -67,13 +67,13 @@ Feature: Packet-In filter configuration example
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/delete_filter_strict"
     Then the output should include:
       """
-      0 packetin filter was deleted ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
+      0 packetin filter was deleted ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
       """
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/add_filter"
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/delete_filter_strict"
     Then the output should include:
       """
-      1 packetin filter was deleted ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1, nw_dst = 10.0.0.2, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
+      1 packetin filter was deleted ( match = [wildcards = 0xc, in_port = 1, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 65535, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 10, nw_src = 10.0.0.1/32, nw_dst = 10.0.0.2/32, tp_src = 1024, tp_dst = 2048], service_name = dumper, strict = true ).
       """
 
   Scenario: delete filter
@@ -87,5 +87,5 @@ Feature: Packet-In filter configuration example
       And I try to run "TREMA_HOME=`pwd` ./objects/examples/packetin_filter_config/delete_filter"
     Then the output should include:
       """
-      2 packetin filters were deleted ( match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0, nw_dst = 0.0.0.0, tp_src = 0, tp_dst = 0], service_name = dumper, strict = false ).
+      2 packetin filters were deleted ( match = [wildcards = 0x3fffff, in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0/0, nw_dst = 0.0.0.0/0, tp_src = 0, tp_dst = 0], service_name = dumper, strict = false ).
       """
