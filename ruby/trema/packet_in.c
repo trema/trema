@@ -141,7 +141,7 @@ packet_in_is_buffered( VALUE self ) {
  */
 static VALUE
 packet_in_in_port( VALUE self ) {
-  return INT2NUM( get_packet_in( self )->in_port );
+  return UINT2NUM( get_packet_in( self )->in_port );
 }
 
 
@@ -152,7 +152,7 @@ packet_in_in_port( VALUE self ) {
  */
 static VALUE
 packet_in_total_len( VALUE self ) {
-  return INT2NUM( get_packet_in( self )->total_len );
+  return UINT2NUM( get_packet_in( self )->total_len );
 }
 
 
@@ -176,7 +176,7 @@ packet_in_data( VALUE self ) {
  */
 static VALUE
 packet_in_reason( VALUE self ) {
-  return INT2NUM( get_packet_in( self )->reason );
+  return UINT2NUM( ( unsigned int ) get_packet_in( self )->reason );
 }
 
 
@@ -345,7 +345,7 @@ packet_in_is_icmpv4( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_type( VALUE self ) {
-  return get_packet_in_info( self )->icmpv4_type;
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_type );
 }
 
 
@@ -356,7 +356,7 @@ packet_in_icmpv4_type( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_code( VALUE self ) {
-  return get_packet_in_info( self )->icmpv4_code;
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_code );
 }
 
 
@@ -507,7 +507,7 @@ packet_in_is_igmp_v3_membership_report( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_type( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->igmp_type );
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->igmp_type );
 }
 
 
@@ -545,7 +545,7 @@ packet_in_is_tcp( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_src_port );
+  return UINT2NUM( get_packet_in_info( self )->tcp_src_port );
 }
 
 
@@ -556,7 +556,7 @@ packet_in_tcp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_dst_port );
+  return UINT2NUM( get_packet_in_info( self )->tcp_dst_port );
 }
 
 
@@ -596,7 +596,7 @@ packet_in_udp_payload( VALUE self ) {
  */
 static VALUE
 packet_in_udp_src_port( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->udp_src_port );
+  return UINT2NUM( get_packet_in_info( self )->udp_src_port );
 }
 
 
@@ -607,7 +607,7 @@ packet_in_udp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_udp_dst_port( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->udp_dst_port );
+  return UINT2NUM( get_packet_in_info( self )->udp_dst_port );
 }
 
 
