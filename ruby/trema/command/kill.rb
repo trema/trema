@@ -44,8 +44,21 @@ module Trema
 
       options.parse! ARGV
 
-      switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
-      switch.shutdown!
+      context = Trema::DSL::Context.load_current
+
+      # [FIXME] Trema apps does not appear in context.apps. why?
+      pid_file = File.join( Trema.pid_directory, "#{ ARGV[ 0 ] }.pid" )
+      if FileTest.exist?( pid_file )
+        Trema::Process.read( pid_file ).kill!
+      end
+
+      host = context.hosts[ ARGV[ 0 ] ]
+      host.shutdown! if host
+
+      switch = context.switches[ ARGV[ 0 ] ]
+      switch.shutdown! if switch
+
+      # [TODO] kill a link by its name. Needs a good naming convension for link.
     end
   end
 end
