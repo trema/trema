@@ -163,6 +163,25 @@ match_from( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
+ * Compare context of {Match} self with {Match} other.
+ *
+ * @example
+ *   def packet_in datapath_id, message
+ *     match = Match.new( :dl_type => 0x0800, :nw_src => "192.168.0.1" )
+ *     if match.compare( ExactMatch.form( message ) )
+ *       info "Received packet from 192.168.0.1"
+ *     end
+ *   end
+ *
+ * @return [Boolean] true if the {Match} match
+ */
+static VALUE
+match_compare( VALUE self, VALUE other ) {
+  return compare_match( get_match( self ), get_match( other ) ) ? Qtrue : Qfalse;
+}
+
+
+/*
  * Replaces context of {Match} self with {Match} other.
  *
  * @return [Match] self
@@ -285,25 +304,44 @@ match_nw_proto( VALUE self ) {
 }
 
 
+static VALUE
+match_nw( VALUE self, uint8_t which ) {
+  struct ofp_match *match;
+  uint32_t nw_addr;
+  uint32_t masklen;
+
+  match = get_match( self );
+  if ( which ) {
+    nw_addr = match->nw_src;
+    masklen = ( match->wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+  } else {
+    nw_addr = match->nw_dst;
+    masklen = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+  }
+  uint32_t prefixlen = masklen > 32 ? 0 : 32 - masklen;
+  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 2, UINT2NUM( nw_addr ), UINT2NUM( prefixlen ) );
+}
+
+
 /*
  * An IPv4 source address in its numeric representation.
  *
- * @return [Number] the value of nw_src.
+ * @return [IP] the value of nw_src.
  */
 static VALUE
 match_nw_src( VALUE self ) {
-  return UINT2NUM( ( get_match( self ) )->nw_src );
+  return match_nw( self, 1 );
 }
 
 
 /*
  * An IPv4 destination address in its numeric representation.
  * 
- * @return [Number] the value of nw_dst.
+ * @return [IP] the value of nw_dst.
  */
 static VALUE
 match_nw_dst( VALUE self ) {
-  return UINT2NUM( ( get_match( self ) )->nw_dst );
+  return match_nw( self, 0 );
 }
 
 
@@ -487,15 +525,23 @@ match_init( int argc, VALUE *argv, VALUE self ) {
       VALUE nw_src = rb_hash_aref( options, ID2SYM( rb_intern( "nw_src" ) ) );
       if ( nw_src != Qnil ) {
         VALUE nw_addr = rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, nw_src );
-        match->nw_src = nw_addr_to_i( nw_addr );
-        match->wildcards &= ( uint32_t ) ~OFPFW_NW_SRC_MASK;
+        uint32_t prefixlen = ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "prefixlen" ), 0 ) );
+        if ( prefixlen > 0 ) {
+          match->nw_src = nw_addr_to_i( nw_addr );
+          match->wildcards &= ( uint32_t ) ~OFPFW_NW_SRC_MASK;
+          match->wildcards |= ( uint32_t ) ( ( 32 - prefixlen ) << OFPFW_NW_SRC_SHIFT );
+        }
       }
 
       VALUE nw_dst = rb_hash_aref( options, ID2SYM( rb_intern( "nw_dst" ) ) );
       if ( nw_dst != Qnil ) {
         VALUE nw_addr = rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, nw_dst );
-        match->nw_dst = nw_addr_to_i( nw_addr );
-        match->wildcards &= ( uint32_t ) ~OFPFW_NW_DST_MASK;
+        uint32_t prefixlen = ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "prefixlen" ), 0 ) );
+        if ( prefixlen > 0 ) {
+          match->nw_dst = nw_addr_to_i( nw_addr );
+          match->wildcards &= ( uint32_t ) ~OFPFW_NW_DST_MASK;
+          match->wildcards |= ( uint32_t ) ( ( 32 - prefixlen ) << OFPFW_NW_DST_SHIFT );
+        }
       }
 
       VALUE tp_src = rb_hash_aref( options, ID2SYM( rb_intern( "tp_src" ) ) );
@@ -520,6 +566,7 @@ Init_match() {
   cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );
   rb_define_alloc_func( cMatch, match_alloc );
   rb_define_method( cMatch, "initialize", match_init, -1 );
+  rb_define_method( cMatch, "compare", match_compare, 1 );
   rb_define_method( cMatch, "replace", match_replace, 1 );
   rb_define_method( cMatch, "to_s", match_to_s, 0 );
   rb_define_method( cMatch, "wildcards", match_wildcards, 0 );
