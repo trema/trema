@@ -787,6 +787,28 @@ packet_in_udp_dst_port( VALUE self ) {
 }
 
 
+/*
+ * The UDP length.
+ *
+ * @return [Integer] udp_len a UDP length.
+ */
+static VALUE
+packet_in_udp_len( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->udp_len );
+}
+
+
+/*
+ * The UDP checksum.
+ *
+ * @return [Integer] udp_checksum a UDP checksum.
+ */
+static VALUE
+packet_in_udp_checksum( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->udp_checksum );
+}
+
+
 void
 Init_packet_in() {
   rb_require( "trema/ip" );
@@ -872,6 +894,8 @@ Init_packet_in() {
   rb_define_method( mPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
   rb_define_method( mPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
   rb_define_method( mPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
+  rb_define_method( mPacketInUDP, "udp_checksum", packet_in_udp_checksum, 0 );
+  rb_define_method( mPacketInUDP, "udp_len", packet_in_udp_len, 0 );
 }
 
 
