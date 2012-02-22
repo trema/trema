@@ -201,7 +201,7 @@ test_string_to_datapath_id() {
 static void
 test_match_to_string() {
   char match_str[ 256 ];
-  char expected_match_str[] = "wildcards = 0, in_port = 1, dl_src = 01:02:03:04:05:07, dl_dst = 08:09:0a:0b:0c:0d, dl_vlan = 1, dl_vlan_pcp = 1, dl_type = 0x800, nw_tos = 1, nw_proto = 6, nw_src = 10.9.8.7, nw_dst = 6.5.4.3, tp_src = 1024, tp_dst = 2048";
+  char expected_match_str[] = "wildcards = 0, in_port = 1, dl_src = 01:02:03:04:05:07, dl_dst = 08:09:0a:0b:0c:0d, dl_vlan = 1, dl_vlan_pcp = 1, dl_type = 0x800, nw_tos = 1, nw_proto = 6, nw_src = 10.9.8.7/32, nw_dst = 6.5.4.3/32, tp_src = 1024, tp_dst = 2048";
   struct ofp_match match = { 0, 1,
                              { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
                              { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },

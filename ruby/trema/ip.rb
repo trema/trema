@@ -40,18 +40,39 @@ module Trema
     # @param [String, Number] addr
     #   an IPv4 address specified either as a String or Number.
     #
+    # @param [Number] prefixlen
+    #   masking IPv4 address with given prefixlen.
+    #
     # @raise [ArgumentError] invalid address if supplied argument is invalid
     #   IPv4 address.
     #
     # @return [IP] self
     #   a proxy to IPAddr.
     #
-    def initialize addr
+    def initialize addr, prefixlen = 32
       if !addr.kind_of? String
         @value = IPAddr.new( addr, Socket::AF_INET )
       else
         @value = IPAddr.new( addr )
       end
+      if prefixlen < 32
+        @value = @value.mask( prefixlen )
+      end
+    end
+
+
+    #
+    # @return [ Number ] prefixlen of IPv4 address.
+    #
+    def prefixlen
+      range = @value.to_range
+      mask = range.first.to_i ^ range.last.to_i
+      masklen = 0
+      while mask != 0 do
+        mask = mask >> 1
+        masklen += 1
+      end
+      return 32 - masklen
     end
 
 
