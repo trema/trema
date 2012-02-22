@@ -301,6 +301,105 @@ packet_in_is_ipv4( VALUE self ) {
 
 
 /*
+ * The IPv4 version number.
+ *
+ * @return [Integer] ipv4_version The IPv4 version number.
+ */
+static VALUE
+packet_in_ipv4_version( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_version );
+}
+
+
+/*
+ * The IPv4 internet header length.
+ *
+ * @return [Integer] ipv4_ihl The IPv4 internet header length.
+ */
+static VALUE
+packet_in_ipv4_ihl( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ihl );
+}
+
+
+/*
+ * The IPv4 tos value.
+ *
+ * @return [Integer] ipv4_tos The IPv4 tos value.
+ */
+static VALUE
+packet_in_ipv4_tos( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_tos );
+}
+
+
+/*
+ * The IPv4 total length.
+ *
+ * @return [Integer] ipv4_tot_len The IPv4 total length.
+ */
+static VALUE
+packet_in_ipv4_tot_len( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->ipv4_tot_len );
+}
+
+
+/*
+ * The IPv4 identifier.
+ *
+ * @return [Integer] ipv4_id The IPv4 identifier.
+ */
+static VALUE
+packet_in_ipv4_id( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->ipv4_id );
+}
+
+
+/*
+ * The IPv4 fragment offset.
+ *
+ * @return [Integer] ipv4_frag_off The IPv4 fragment offset.
+ */
+static VALUE
+packet_in_ipv4_frag_off( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->ipv4_frag_off );
+}
+
+
+/*
+ * The IPv4 ttl value.
+ *
+ * @return [Integer] ipv4_ttl The IPv4 ttl value.
+ */
+static VALUE
+packet_in_ipv4_ttl( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ttl );
+}
+
+
+/*
+ * The IPv4 protocol number.
+ *
+ * @return [Integer] ipv4_protocol The IPv4 protocol number.
+ */
+static VALUE
+packet_in_ipv4_protocol( VALUE self ) {
+  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_protocol );
+}
+
+
+/*
+ * The IPv4 checksum.
+ *
+ * @return [Integer] ipv4_checksum The IPv4 checksum.
+ */
+static VALUE
+packet_in_ipv4_checksum( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->ipv4_checksum );
+}
+
+
+/*
  * The IPV4 source protocol address.
  *
  * @return [Trema::IP] ipv4_saddr IP protocol address.
@@ -652,6 +751,15 @@ Init_packet_in() {
   rb_define_method( mPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
 
   mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
+  rb_define_method( mPacketInIPv4, "ipv4_version", packet_in_ipv4_version, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_tos", packet_in_ipv4_tos, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_tot_len", packet_in_ipv4_tot_len, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_id", packet_in_ipv4_id, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_frag_off", packet_in_ipv4_frag_off, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_ttl", packet_in_ipv4_ttl, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_protocol", packet_in_ipv4_protocol, 0 );
+  rb_define_method( mPacketInIPv4, "ipv4_checksum", packet_in_ipv4_checksum, 0 );
   rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
   rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
 
