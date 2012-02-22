@@ -33,7 +33,9 @@ end
 
 require "rake"
 
-task :default => :spec
+task :default do
+  system "./build.rb"
+end
 
 
 require "jeweler"
