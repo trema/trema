@@ -114,6 +114,8 @@ describe Trema::PacketIn do
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.eth_type.should == 0x0800
           message.ipv4?.should == true
+          message.ipv4_version.should == 4
+          message.ipv4_protocol == 17
           message.ipv4_saddr.should be_instance_of( Trema::IP )
           message.ipv4_saddr.to_s.should == "192.168.1.1"
           message.ipv4_daddr.should be_instance_of( Trema::IP )
