@@ -3,16 +3,18 @@
 # Instead, edit Jeweler::Tasks in Rakefile, and run 'rake gemspec'
 # -*- encoding: utf-8 -*-
 
-
 Gem::Specification.new do |s|
-  s.name = %q{trema}
+  s.name = "trema"
   s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yasuhito Takamiya"]
-  s.date = %q{2012-02-22}
-  s.description = %q{Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C}
-  s.email = %q{yasuhito@gmail.com}
+  s.bindir = ["."]
+  s.date = "2012-02-23"
+  s.description = "Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C"
+  s.email = "yasuhito@gmail.com"
+  s.executables = ["trema", "trema-config"]
+  s.extensions = ["Rakefile"]
   s.extra_rdoc_files = [
     "README.md"
   ]
@@ -479,6 +481,7 @@ Gem::Specification.new do |s|
     "src/tremashark/tremashark.c",
     "trema",
     "trema-config",
+    "trema.gemspec",
     "unittests/buffer_stubs.c",
     "unittests/cmockery_trema.c",
     "unittests/cmockery_trema.h",
@@ -611,16 +614,11 @@ Gem::Specification.new do |s|
     "vendor/ruby-ifconfig-1.2/test/unit/tc_openbsd.rb",
     "vendor/ruby-ifconfig-1.2/test/unit/tc_sunos.rb"
   ]
-  s.homepage = %q{http://github.com/trema/trema}
+  s.homepage = "http://github.com/trema/trema"
   s.licenses = ["GPL2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{Full-Stack OpenFlow Framework for Ruby/C}
-
-  s.bindir = ["."]
-  s.executables = ["trema","trema-config"]
-
-  s.extensions = ["Rakefile"]
+  s.rubygems_version = "1.8.17"
+  s.summary = "Full-Stack OpenFlow Framework for Ruby/C"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

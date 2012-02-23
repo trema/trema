@@ -49,6 +49,9 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C}
   gem.email = "yasuhito@gmail.com"
   gem.authors = ["Yasuhito Takamiya"]
+  gem.bindir = ["."]
+  gem.executables = ["trema","trema-config"]
+  gem.extensions = ["Rakefile"]
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
