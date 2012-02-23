@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -86,24 +86,23 @@ describe ActionOutput, ".new( VALID OPTIONS )" do
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc,
           :actions => ActionOutput.new( :port => 1 ) )
         sleep 2 # FIXME: wait to send_flow_mod_add
-        switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /output:1/ )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[0].actions.should match( /output:1/ )
       }
     end
   end
-  
-  
+
+
   context "when multiple output actions assigned to #flow_mod(add)" do
     it "should have its actions set to output:1\/output:2" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, 
-          :actions => [ ActionOutput.new( :port => 1 ), ActionOutput.new( :port => 2 ) ] )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => [ ActionOutput.new( :port => 1 ), ActionOutput.new( :port => 2 ) ] )
         sleep 2 # FIXME: wait to send_flow_mod_add
-        switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /output:1\/output:2/ )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[0].actions.should match( /output:1\/output:2/ )
       }
     end
   end

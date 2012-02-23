@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -76,9 +76,6 @@ compare_application( const void *x, const void *y ) {
     return false;
   }
   if ( strcmp( ex->service_name, ey->service_name ) != 0 ) {
-    return false;
-  }
-  if ( ex->flags != ex->flags ) {
     return false;
   }
   return true;
@@ -166,18 +163,13 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
   }
 
   new_entry = allocate_cookie_entry( original_cookie, service_name, flags );
-  conflict_entry = insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
+  conflict_entry = lookup_cookie_entry_by_cookie( &new_entry->cookie );
   if ( conflict_entry != NULL ) {
     warn( "Conflicted cookie ( cookie = %#" PRIx64 " ).", new_entry->cookie );
-    // TODO: delete conflicted cookie entry
+    delete_cookie_entry( conflict_entry );
   }
-
-  conflict_entry = insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
-  if ( conflict_entry != NULL ) {
-    warn( "Conflicted cookie ( cookie = %#" PRIx64 ", service_name = %s ).",
-          new_entry->application.cookie, new_entry->application.service_name );
-    // TODO: delete conflicted cookie entry
-  }
+  insert_hash_entry( cookie_table.global, &new_entry->cookie, new_entry );
+  insert_hash_entry( cookie_table.application, &new_entry->application, new_entry );
 
   return &new_entry->cookie;
 }
@@ -206,19 +198,7 @@ delete_cookie_entry( cookie_entry_t *entry ) {
            entry->application.cookie, entry->application.service_name );
   }
 
-  if ( delete_entry_global == delete_entry_application ) {
-    if ( delete_entry_application != NULL ) {
-      free_cookie_entry( delete_entry_application );
-    }
-  }
-  else {
-    if ( delete_entry_global != NULL ) {
-      free_cookie_entry( delete_entry_global );
-    }
-    if ( delete_entry_application != NULL ) {
-      free_cookie_entry( delete_entry_application );
-    }
-  }
+  free_cookie_entry( entry );
 }
 
 
@@ -230,13 +210,13 @@ lookup_cookie_entry_by_cookie( uint64_t *cookie ) {
 
 cookie_entry_t *
 lookup_cookie_entry_by_application( uint64_t *cookie, char *service_name ) {
-  cookie_entry_t key;
+  application_entry_t key;
   cookie_entry_t *entry;
 
-  memset( &key, 0, sizeof( cookie_entry_t ) );
-  key.application.cookie = *cookie;
-  strncpy( key.application.service_name, service_name, MESSENGER_SERVICE_NAME_LENGTH );
-  key.application.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
+  memset( &key, 0, sizeof( application_entry_t ) );
+  key.cookie = *cookie;
+  strncpy( key.service_name, service_name, MESSENGER_SERVICE_NAME_LENGTH );
+  key.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
 
   entry = lookup_hash_entry( cookie_table.application, &key );
 

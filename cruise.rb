@@ -4,7 +4,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -26,7 +26,7 @@
 # threshold.
 #
 
-$coverage_threshold = 73.3
+$coverage_threshold = 74.2
 
 
 ################################################################################
@@ -329,7 +329,7 @@ end
 def run_acceptance_test
   test "Running acceptance tests ..." do
     sh "./build.rb"
-    sh "rake cucumber"
+    sh "rake features"
   end
 end
 

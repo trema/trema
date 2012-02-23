@@ -3,7 +3,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -36,6 +36,7 @@
 #include "log.h"
 #include "match.h"
 #include "match_table.h"
+#include "message_queue.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "openflow_message.h"
@@ -43,6 +44,7 @@
 #include "packetin_filter_interface.h"
 #include "persistent_storage.h"
 #include "stat.h"
+#include "timer.h"
 #include "utility.h"
 #include "wrapper.h"
 

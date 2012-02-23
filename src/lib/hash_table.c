@@ -1,7 +1,7 @@
 /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -156,10 +156,7 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
   void *old_value = NULL;
   unsigned int i = get_bucket_index( table, key );
 
-  if ( table->buckets[ i ] == NULL ) {
-    new_bucket( table, i );
-  }
-  else {
+  if ( table->buckets[ i ] != NULL ) {
     dlist_element *old_element = NULL;
     for ( old_element = table->buckets[ i ]->next; old_element; old_element = old_element->next ) {
       if ( ( *table->compare )( key, ( ( hash_entry * ) old_element->data )->key ) ) {
@@ -168,7 +165,12 @@ insert_hash_entry( hash_table *table, void *key, void *value ) {
     }
     if ( old_element != NULL ) {
       old_value = ( ( hash_entry * ) old_element->data )->value;
+      delete_hash_entry( table, key );
     }
+  }
+
+  if ( table->buckets[ i ] == NULL ) {
+    new_bucket( table, i );
   }
 
   hash_entry *new_entry = xmalloc( sizeof( hash_entry ) );
@@ -267,40 +269,6 @@ delete_hash_entry( hash_table *table, const void *key ) {
   MUTEX_UNLOCK( table );
 
   return deleted;
-}
-
-
-/**
- * Calls the given function for each of the values in the hash_table
- * associated with the given key parameter. The function is passed a
- * key and the given user_data parameter.
- *
- * @param table a hash_table.
- * @param key the key to look up.
- * @param function the function to call for each key.
- * @param user_data user data to pass to the function.
- */
-void
-map_hash( hash_table *table, const void *key, void function( void *value, void *user_data ), void *user_data ) {
-  assert( table != NULL );
-  assert( key != NULL );
-
-  MUTEX_LOCK( table );
-
-  unsigned int i = get_bucket_index( table, key );
-
-  if ( table->buckets[ i ] == NULL ) {
-    MUTEX_UNLOCK( table );
-    return;
-  }
-
-  for ( dlist_element *e = table->buckets[ i ]->next; e; e = e->next ) {
-    if ( ( table->compare )( key, ( ( hash_entry * ) e->data )->key ) ) {
-      function( ( ( hash_entry * ) e->data )->value, user_data );
-    }
-  }
-
-  MUTEX_UNLOCK( table );
 }
 
 

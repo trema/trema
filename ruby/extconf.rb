@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -66,14 +66,6 @@ Please try the following command:
 EOF
 end
 
-unless find_library( "topology", "init_libtopology" )
-  error_exit <<-EOF
-ERROR: Trema is not compiled yet!
-
-Please try the following command:
-% ./build.rb
-EOF
-end
 
 create_makefile "trema", "trema"
 

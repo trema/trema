@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -19,6 +19,8 @@
 
 
 $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "vendor", "ruby-ifconfig-1.2", "lib" )
+
 
 require "trema/executables"
 require "trema/path"
@@ -35,7 +37,6 @@ import "directedrule"
 desc "Build trema."
 task :default => [
   :libtrema,
-  :libtopology,
   :rubylib,
   :switch_manager,
   :switch,
@@ -45,7 +46,7 @@ task :default => [
   :syslog_relay,
   :stdin_relay,
   :vendor,
-  :examples,
+  :examples
 ]
 
 
@@ -74,7 +75,7 @@ gen Clean
 var[ :clean ] << Trema.objects
 var[ :clean ] << File.join( Trema.home, "objects/unittests" )
 var[ :clean ] << File.join( Trema.home, "unittests/objects" )
-var[ :clean ] << Trema::DSL::Parser::CURRENT_CONTEXT
+var[ :clean ] << Trema::DSL::Context::PATH
 
 
 desc "Cleanup everything."
@@ -228,6 +229,32 @@ end
 
 
 #
+# Use the Stanford openflow reference software to compile and copy the wireshark
+# plugin to enable viewing of openflow messages.
+# The plugin would be compiled and copied to your home directory
+# (.wireshark/plugins) if it is found, otherwise it is left for you to copy
+# from openflow.git/utilities/wireshark_dissectors/openflow directory
+#
+desc "Build openflow wireshark plugin"
+task :openflow_wireshark_plugin => Trema::Vendor.openflow_wireshark_plugin
+file Trema::Vendor.openflow_wireshark_plugin do | t |
+  sys.unpack_tgz "#{ t.name }.tar.gz", :in => Trema::Vendor.path
+  subpath = "utilities/wireshark_dissectors/openflow"
+  sys.cd "#{ Trema::Vendor.openflow_wireshark_plugin }/#{ subpath }" do
+    sys "make"
+    plugin_path = "#{ File.expand_path(" ~ ") }/.wireshark/plugins"
+    sys.cp "packet-openflow.so", plugin_path if File.directory?( plugin_path )
+  end
+end
+
+
+task "openflow_wireshark_plugin:clean" => "openflow_wireshark_plugin:distclean"
+task "openflow_wireshark_plugin:distclean" do
+  sys.rm_rf Trema::Vendor.openflow_wireshark_plugin
+end
+
+
+#
 # Open vSwitch
 #
 
@@ -321,33 +348,6 @@ end
 
 
 ################################################################################
-# Build libtopology.a
-################################################################################
-
-build_libtopology_a = Proc.new do | t |
-  sys "rm -f #{ t.name }"
-  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
-  sys "ranlib #{ t.name }"
-end
-
-gen C::Dependencies, dependency( "libtopology" ),
-  :search => [ trema_include ],
-  :sources => sys[ "#{ trema_include }/*.c" ]
-
-gen Directory, trema_lib
-libtopology = File.join( trema_lib, "libtopology.a" )
-
-libtopology_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
-desc "Build topology library."
-task :libtopology => libtopology
-file libtopology => libtopology_o.candidates do | t |
-  build_libtopology_a.call t
-end
-
-################################################################################
 # Build libtrema.a
 ################################################################################
 
@@ -406,7 +406,7 @@ desc "Build ruby library."
 task :rubylib => "ruby/trema.so"
 file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h", libtrema ] do
   sys.cd "ruby" do
-    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-topology-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
+    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
     sys "make"
   end
 end
@@ -461,7 +461,6 @@ end
 
 switch_objects = [
   "cookie_table.o",
-  "message_queue.o",
   "ofpmsg_recv.o",
   "ofpmsg_send.o",
   "secure_channel_receiver.o",
@@ -786,6 +785,7 @@ tests = [
   "objects/unittests/utility_test",
   "objects/unittests/wrapper_test",
   "objects/unittests/match_table_test",
+  "objects/unittests/message_queue_test",
 ]
 
 

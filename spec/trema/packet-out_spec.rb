@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -66,7 +66,7 @@ describe "packet-out" do
       }.run( PacketOutController ) {
         send_packets "host2", "host1"
         sleep 2
-        host( "host1" ).rx_stats.n_pkts.should == 1
+        vhost( "host1" ).rx_stats.n_pkts.should == 1
       }
     end
   end
@@ -114,7 +114,7 @@ describe "packet-out" do
           :actions => Trema::ActionOutput.new( :port => 1 )
 	)
         sleep 2
-        host( "host2" ).rx_stats.n_pkts.should == 1
+        vhost( "host2" ).rx_stats.n_pkts.should == 1
       }
     end
   end

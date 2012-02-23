@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -19,12 +19,14 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema"
 
 
 describe Trema::Shell, ".vhost" do
+  before { $context = mock( "context", :dump => true ) }
+
+
   it "should create a new vhost if name given" do
-    vhost( "host1" )
+    Trema::Shell.vhost( "host1" )
 
     Trema::Host.should have( 1 ).host
     Trema::Host[ "host1" ].name.should == "host1"
@@ -32,7 +34,7 @@ describe Trema::Shell, ".vhost" do
 
 
   it "should take ip, netmask, promisc, and mac option" do
-    vhost( "host1" ) {
+    Trema::Shell.vhost( "host1" ) {
       ip "192.168.100.1"
       netmask "255.255.255.0"
       promisc "on"

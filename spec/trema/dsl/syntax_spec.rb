@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -103,11 +103,11 @@ describe Trema::DSL::Syntax do
   end
 
 
-  it "should recognize 'app' directive" do
+  it "should recognize 'run' directive" do
     Trema::App.should_receive( :add ).with( an_instance_of( Trema::App ) ).once
 
     @syntax.instance_eval do
-      app { }
+      run( "My App" ) { }
     end
   end
 end

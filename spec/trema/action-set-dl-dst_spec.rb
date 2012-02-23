@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -75,13 +75,13 @@ describe ActionSetDlDst, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 
-          0xabc, 
-          :actions =>  ActionSetDlDst.new( :dl_dst => Mac.new( "52:54:00:a8:ad:8c" ) ) 
+        controller( "FlowModAddController" ).send_flow_mod_add(
+          0xabc,
+          :actions =>  ActionSetDlDst.new( :dl_dst => Mac.new( "52:54:00:a8:ad:8c" ) )
         )
         sleep 2 # FIXME: wait to send_flow_mod
-        switch( "0xabc" ).should have( 1 ).flows
-        switch( "0xabc" ).flows[0].actions.should match( /mod_dl_dst:52:54:00:a8:ad:8c/ )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_dl_dst:52:54:00:a8:ad:8c/ )
       }
     end
   end

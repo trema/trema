@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -27,7 +27,6 @@ require "fdb"
 # A OpenFlow controller class that emulates a layer-2 switch.
 #
 class LearningSwitch < Trema::Controller
-  include Timers
   add_timer_event :age_fdb, 5, :periodic
 
 
@@ -37,7 +36,6 @@ class LearningSwitch < Trema::Controller
 
 
   def packet_in datapath_id, message
-    info "packet_in"
     @fdb.learn message.macsa, message.in_port
     port_no = @fdb.port_no_of( message.macda )
     if port_no

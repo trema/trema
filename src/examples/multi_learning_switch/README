@@ -8,7 +8,7 @@ layer 2 switches.
 
 # How to run (Ruby version)
 
-  % ./trema run ./src/examples/multi_learning_switch/multi_learning_switch.rb -c ./src/examples/multi_learning_switch/multi_learning_switch.conf
+  % ./trema run ./src/examples/multi_learning_switch/multi-learning-switch.rb -c ./src/examples/multi_learning_switch/multi_learning_switch.conf
 
 
 Enjoy!

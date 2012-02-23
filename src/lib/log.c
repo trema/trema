@@ -1,7 +1,7 @@
 /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -123,15 +123,18 @@ log_stdout( const char *format, va_list ap ) {
 
 
 static FILE*
-open_log( const char *ident, const char *log_directory ) {
+open_log( const char *ident, const char *log_directory, bool append ) {
   assert( ident != NULL );
   assert( log_directory != NULL );
 
   char pathname[ PATH_MAX ];
   sprintf( pathname, "%s/%s.log", log_directory, ident );
-  FILE *log = fopen( pathname, "w" );
+  FILE *log = fopen( pathname, append ? "a" : "w" );
+
   if ( log == NULL ) {
-    perror( "fopen" );
+    char error_msg[ PATH_MAX + 32 ];
+    snprintf( error_msg, PATH_MAX + 32, "open_log: fopen( \"%s\", \"w\" )", pathname );
+    perror( error_msg );
     trema_abort();
   }
 
@@ -159,11 +162,24 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
   }
 
   daemonized = run_as_daemon;
-  fd = open_log( ident, log_directory );
+  fd = open_log( ident, log_directory, false );
 
   pthread_mutex_unlock( &mutex );
 
   return true;
+}
+
+
+void
+restart_log( const char *ident, const char *log_directory ) {
+  pthread_mutex_lock( &mutex );
+
+  if ( fd != NULL ) {
+    fclose( fd );
+  }
+  fd = open_log( ident, log_directory, true );
+
+  pthread_mutex_unlock( &mutex );
 }
 
 

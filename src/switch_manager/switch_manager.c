@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -33,7 +33,6 @@
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
 #include "dpid_table.h"
-#include "event_handler.h"
 
 
 #ifdef UNIT_TESTING

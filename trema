@@ -4,7 +4,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -21,32 +21,38 @@
 #
 
 
-$LOAD_PATH.unshift( File.expand_path( File.join File.dirname( __FILE__ ), "ruby" ) )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "ruby" )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "vendor", "ruby-ifconfig-1.2", "lib" )
 
 
 require "English"
 require "fileutils"
-require "trema"
+require "trema/command"
+require "trema/path"
 
 
-def method_for sub_command
-  case sub_command
+def method_for command
+  case command
     when "run", "start"
       return :run
     when "kill", "stop", "off", "down"
       return :kill
     when "killall"
       return :killall
-    when "send_packets"
+    when "send_packets", "send_packet"
       return :send_packets
     when "show_stats"
       return :show_stats
     when "reset_stats"
       return :reset_stats
-    when "dump_flows"
+    when "ruby"
+      return :ruby
+    when "dump_flows", "dump_flow"
       return :dump_flows
     when "version", "-V", "--version"
       return :version
+    when "shell", NilClass
+      return :shell
     when "help", "-h", "--help", "/?", "-?"
       return :usage
     else
@@ -55,33 +61,26 @@ def method_for sub_command
 end
 
 
-FileUtils.cd Trema.home do
-  unless FileTest.directory?( Trema.log_directory )
-    FileUtils.mkdir_p Trema.log_directory
-  end
-  unless FileTest.directory?( Trema.pid_directory )
-    FileUtils.mkdir_p Trema.pid_directory
-  end
-  unless FileTest.directory?( Trema.sock_directory )
-    FileUtils.mkdir_p Trema.sock_directory
-  end
+FileUtils.mkdir_p Trema.log_directory
+FileUtils.mkdir_p Trema.pid_directory
+FileUtils.mkdir_p Trema.sock_directory
 
-  sub_command = ARGV.shift
-  if sub_command.nil?
-    Trema::SubCommands.new.start_shell
-    cleanup @context
-  elsif method_for( sub_command )
-    begin
-      Trema::SubCommands.new.__send__ method_for( sub_command )
-    rescue
-      $stderr.puts $ERROR_INFO.message
-      exit false
+command = ARGV.shift
+if method_for( command )
+  begin
+    include Trema::Command
+    __send__ method_for( command )
+  rescue
+    $stderr.puts $ERROR_INFO.message
+    $ERROR_INFO.backtrace.each do | each |
+      $stderr.puts each if $verbose
     end
-  else
-    $stderr.puts "Unknown command: '#{ sub_command }'"
-    $stderr.puts "Type '#{ $0 } --help' for usage."
     exit false
   end
+else
+  $stderr.puts "Unknown command: '#{ command }'"
+  $stderr.puts "Type '#{ $0 } --help' for usage."
+  exit false
 end
 
 

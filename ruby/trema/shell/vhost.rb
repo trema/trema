@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -29,8 +29,10 @@ module Trema
       stanza = DSL::Vhost.new( name )
       stanza.instance_eval( &block ) if block
       Host.new stanza
+      $context.dump
       true
     end
+    module_function :vhost
   end
 end
 

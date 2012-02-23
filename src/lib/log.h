@@ -6,7 +6,7 @@
  *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -52,6 +52,7 @@ typedef enum {
 
 
 bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
+void restart_log( const char *ident, const char *log_directory );
 void rename_log( const char *old_ident, const char *new_ident, const char *directory );
 bool finalize_log( void );
 

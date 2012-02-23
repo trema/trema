@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -27,20 +27,12 @@ class FDB
 
 
   def lookup mac
-    if @db[ mac ]
-      @db[ mac ][ :port_number ]
-    else
-      nil
-    end
+    @db[ mac ]
   end
 
 
   def learn mac, port_number
-    if @db[ mac ]
-      @db[ mac ][ :port_number ] = port_number
-    else
-      @db[ mac ] = { :mac => mac, :port_number => port_number }
-    end
+    @db[ mac ] = port_number
   end
 end
 

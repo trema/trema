@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -99,6 +99,48 @@ describe Trema::PacketIn do
           message.macda.to_s.should == "00:00:00:00:00:02"
         end
         send_and_wait
+      }
+    end
+
+
+    it "should have user L3 information" do
+      network {
+        vswitch( "test" ) { datapath_id 0xabc }
+        vhost( "host1" ) { ip "192.168.1.1" }
+        vhost( "host2" ) { ip "192.168.1.2" }
+        link "test", "host1"
+        link "test", "host2"
+      }.run( PacketInController ) {
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.eth_type.should == 0x0800
+          message.ipv4?.should == true
+          message.ipv4_version.should == 4
+          message.ipv4_protocol == 17
+          message.ipv4_saddr.should be_instance_of( Trema::IP )
+          message.ipv4_saddr.to_s.should == "192.168.1.1"
+          message.ipv4_daddr.should be_instance_of( Trema::IP )
+          message.ipv4_daddr.to_s.should == "192.168.1.2"
+        end
+        send_and_wait
+      }
+    end
+
+
+    it "should have user L4 information (udp)" do
+      network {
+        vswitch( "test" ) { datapath_id 0xabc }
+        vhost( "host1" )
+        vhost( "host2" )
+        link "test", "host1"
+        link "test", "host2"
+      }.run( PacketInController ) {
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.udp?.should == true
+          message.udp_src_port.should == 9000
+          message.udp_dst_port.should == 9001
+        end
+        send_packets "host1", "host2", :tp_src => 9000, :tp_dst => 9001
+        sleep 2
       }
     end
 

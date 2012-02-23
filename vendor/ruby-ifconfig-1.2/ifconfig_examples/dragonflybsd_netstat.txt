@@ -1,0 +1,14 @@
+ppp0: flags=8010<POINTOPOINT,MULTICAST> mtu 1500
+sl0: flags=c010<POINTOPOINT,LINK2,MULTICAST> mtu 552
+faith0: flags=8002<BROADCAST,MULTICAST> mtu 1500
+Name    Mtu   Network       Address            Ipkts Ierrs    Opkts Oerrs  Coll
+rl0     1500  <Link#1>    00:02:44:8f:bb:15      606     0      549     0     0
+rl0     1500  fe80:2::202 fe80:2::202:44ff:        0     -        0     -     -
+rl0     1500  192.168.1     192.168.1.24         605     -      544     -     -
+lo0     16384 <Link#2>                             0     0        0     0     0
+lo0     16384 ::1/128     ::1                      0     -        0     -     -
+lo0     16384 fe80:4::1/6 fe80:4::1                0     -        0     -     -
+lo0     16384 127           127.0.0.1              0     -        0     -     -
+ppp0*   1500  <Link#3>                             0     0        0     0     0
+sl0*    552   <Link#4>                             0     0        0     0     0
+faith0* 1500  <Link#5>                             0     0        0     0     0

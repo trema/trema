@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -47,9 +47,9 @@ describe GetConfigRequest, ".new( VALID OPTION )" do
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
+        controller( "GetConfigController" ).should_receive( :get_config_reply )
         sleep 1 # FIXME
         controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
-        controller( "GetConfigController" ).should_receive( :get_config_reply )
         sleep 2 # FIXME: wait to send_message
       }
     end
