@@ -112,12 +112,13 @@ describe "packet-out" do
           0xabc,
           :data => data,
           :actions => Trema::ActionOutput.new( :port => 1 )
-	)
+        )
         sleep 2
         vhost( "host2" ).rx_stats.n_pkts.should == 1
       }
     end
   end
+
 end
 
 
