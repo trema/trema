@@ -27,11 +27,12 @@ module Trema
 
       ARGV.clear << "--help"
       if command.nil?
+        trema = File.basename( $PROGRAM_NAME )
         puts <<-EOL
-usage: #{ $PROGRAM_NAME } <COMMAND> [OPTIONS ...]
+usage: #{ trema } <COMMAND> [OPTIONS ...]
 
 Trema command-line tool
-Type '#{ $PROGRAM_NAME } help <COMMAND>' for help on a specific command.
+Type '#{ trema } help <COMMAND>' for help on a specific command.
 
 Available commands:
   run            - runs a trema application.
@@ -46,7 +47,7 @@ EOL
       elsif method_for( command )
         __send__ method_for( command )
       else
-        STDERR.puts "Type '#{ $PROGRAM_NAME } help' for usage."
+        STDERR.puts "Type '#{ trema } help' for usage."
         exit false
       end
     end
