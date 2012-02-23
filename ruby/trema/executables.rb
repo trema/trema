@@ -21,6 +21,7 @@
 
 
 require "trema/monkey-patch/module"
+require "trema/monkey-patch/string"
 require "trema/path"
 
 
@@ -48,7 +49,7 @@ class Trema::Executables
 
 
     def path path
-      name = File.basename( path ).gsub( "-", "_" )
+      name = File.basename( path ).underscore
       define_class_method( name ) do
         File.join Trema.objects, path
       end
