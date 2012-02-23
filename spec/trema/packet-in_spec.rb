@@ -31,6 +31,20 @@ describe Trema::PacketIn do
   
   class PacketInController < Controller; end
 
+  class PacketInSendController < Controller 
+    def packet_in datapath_id, message
+      send_flow_mod_add(
+                        datapath_id,
+                        :match => Match.from( message ),
+                        :actions => Trema::ActionOutput.new( :port => 2 )
+                        )
+      send_packet_out(
+                      datapath_id,
+                      :packet_in => message,
+                      :actions => Trema::ActionOutput.new( :port => 2 )
+                      )
+    end
+  end
   
   context "when instance is created" do
     it "should have valid datapath_id" do
@@ -158,6 +172,180 @@ describe Trema::PacketIn do
       }
     end
   end
+
+  context "when reading packet content" do
+    it "should have correct ARP packet fields" do
+      pending "ARP unit test is broken, fixme"
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) { mac "00:00:00:00:00:02" }
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          0x08, 0x06, # ether type
+          # arp
+          0x00, 0x01, # hardware type
+          0x08, 0x00, # protocol type
+          0x06, # hardware address length
+          0x04, # protocol address length
+          0x00, 0x02, # operation
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # sender hardware address
+          0xc0, 0xa8, 0x00, 0x01, # sender protocol address
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # target hardware address
+          0xc0, 0xa8, 0x00, 0x02, # target protocol address
+          # padding to 64 bytes
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.in_port.should > 0
+          message.arp?.should be_true
+          message.tcp?.should be_false
+          message.ipv4?.should be_false
+          message.udp?.should be_false
+
+          message.arp_oper.should == 2
+          message.arp_sha.to_s.should == "00:00:00:00:00:01"
+          message.arp_spa.to_s.should == "192.168.0.1"
+          message.arp_tha.to_s.should == "00:00:00:00:00:02"
+          message.arp_tpa.to_s.should == "192.168.0.2"
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+        )
+        sleep 2
+      }
+    end
+
+    it "should have correct TCP packet fields" do
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) {
+          ip "192.168.0.2"
+          netmask "255.255.0.0"
+          mac "00:00:00:00:00:02"
+        }
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          0x08, 0x00, # ether type
+          # ipv4
+          0x45, 0x00, # version
+          0x00, 0x28, # length
+          0x00, 0x00,
+          0x00, 0x00,
+          0x00,       # ttl
+          0x06,       # protocol
+          0x39, 0x7d, # checksum
+          0xc0, 0xa8, 0x00, 0x01, # src
+          0xc0, 0xa8, 0x00, 0x02, # dst
+          # tcp
+          0x00, 0x01, # src port
+          0x00, 0x02, # dst port
+          0x00, 0x00, 0x00, 0x00, # sequence number
+          0x00, 0x00, 0x00, 0x00, # acknowledgement number
+          0x50, # data offset, 
+          0x00, # flags
+          0x00, 0x00, # window size
+          0x2e, 0x86, # checksum
+          0x00, 0x00, # urgent pointer
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.in_port.should > 0
+          message.arp?.should be_false
+          message.udp?.should be_false
+          message.ipv4?.should be_true
+          message.tcp?.should be_true
+
+          message.ipv4_saddr.to_s.should == "192.168.0.1"
+          message.ipv4_daddr.to_s.should == "192.168.0.2"
+          message.tcp_src_port.should == 1
+          message.tcp_dst_port.should == 2
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+        )
+        sleep 2
+      }
+    end
+
+    it "should have correct UDP packet fields" do
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) {
+          ip "192.168.0.2"
+          netmask "255.255.0.0"
+          mac "00:00:00:00:00:02"
+        }
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          0x08, 0x00, # ether type
+          # ipv4
+          0x45, 0x00, # version
+          0x00, 0x32, # length
+          0x00, 0x00,
+          0x00, 0x00,
+          0x40,       # ttl
+          0x11,       # protocol
+          0xf9, 0x68, # checksum
+          0xc0, 0xa8, 0x00, 0x01, # src
+          0xc0, 0xa8, 0x00, 0x02, # dst
+          # udp
+          0x00, 0x01, # src port
+          0x00, 0x02, # dst port
+          0x00, 0x1e, # length
+          0x00, 0x00, # checksum
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.in_port.should > 0
+          message.arp?.should be_false
+          message.tcp?.should be_false
+          message.ipv4?.should be_true
+          message.udp?.should be_true
+
+          message.ipv4_saddr.to_s.should == "192.168.0.1"
+          message.ipv4_daddr.to_s.should == "192.168.0.2"
+          message.udp_src_port.should == 1
+          message.udp_dst_port.should == 2
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_TABLE )
+        )
+        sleep 2
+      }
+    end
+
+  end
+
 end
 
 
