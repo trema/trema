@@ -23,47 +23,28 @@ require "trema/executables"
 
 
 describe Trema::Executables do
-  it "should know the path of tremashark executable" do
-    Trema::Executables.should respond_to( :tremashark )
+  subject { Trema::Executables }
+
+  its ( :cli ) { should be_a( String ) }
+  its ( :ovs_ofctl ) { should be_a( String ) }
+  its ( :ovs_openflowd ) { should be_a( String ) }
+  its ( :packet_capture ) { should be_a( String ) }
+  its ( :packetin_filter ) { should be_a( String ) }
+  its ( :phost ) { should be_a( String ) }
+  its ( :stdin_relay ) { should be_a( String ) }
+  its ( :switch ) { should be_a( String ) }
+  its ( :switch_manager ) { should be_a( String ) }
+  its ( :syslog_relay ) { should be_a( String ) }
+  its ( :tremashark ) { should be_a( String ) }
+
+  context "when Trema is compiled" do
+    before { FileTest.stub!( :executable? ).and_return( true ) }
+    its ( :compiled? ) { should be_true }
   end
 
-
-  it "should know the path of switch_manager executable" do
-    Trema::Executables.should respond_to( :switch_manager )
-  end
-
-
-  it "should know the path of switch_manager executable" do
-    Trema::Executables.should respond_to( :switch_manager )
-  end
-
-
-  it "should know the path of packetin_filter executable" do
-    Trema::Executables.should respond_to( :packetin_filter )
-  end
-
-
-  it "should know the path of phost executable" do
-    Trema::Executables.should respond_to( :phost )
-  end
-
-
-  it "should know the path of phost's cli executable" do
-    Trema::Executables.should respond_to( :cli )
-  end
-
-
-  it "should know the path of ovs-openflowd executable" do
-    Trema::Executables.should respond_to( :ovs_openflowd )
-  end
-
-
-  it "should detect if all executables are compled or not" do
-    FileTest.stub!( :executable? ).and_return( true )
-    Trema::Executables.compiled?.should be_true
-
-    FileTest.stub!( :executable? ).and_return( false )
-    Trema::Executables.compiled?.should be_false
+  context "when Trema is not compiled" do
+    before { FileTest.stub!( :executable? ).and_return( false ) }
+    its ( :compiled? ) { should be_false }
   end
 end
 

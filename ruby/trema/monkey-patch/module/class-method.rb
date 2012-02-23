@@ -18,13 +18,18 @@
 #
 
 
-require "trema/monkey-patch/module/class-method"
-require "trema/monkey-patch/module/deprecation"
-
-
-class Module
-  include MonkeyPatch::Module::ClassMethod
-  include MonkeyPatch::Module::Deprecation
+module MonkeyPatch
+  module Module
+    module ClassMethod
+      def define_class_method name, &block
+        self.extend ::Module.new {
+          define_method name.to_s do
+            block.call
+          end
+        }
+      end
+    end
+  end
 end
 
 

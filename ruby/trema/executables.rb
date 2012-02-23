@@ -20,71 +20,54 @@
 #
 
 
+require "trema/monkey-patch/module"
 require "trema/path"
 
 
+#
+# Holds the list of executalbes found in {Trema.objects} directory.
+#
 class Trema::Executables
-  def self.tremashark
-    File.join Trema.objects, "tremashark/tremashark"
-  end
+  class << self
+    def compiled?
+      @list.each do | each |
+        return false if not FileTest.executable?( __send__ each )
+      end
+    end
 
 
-  def self.packet_capture
-    File.join Trema.objects, "tremashark/packet_capture"
-  end
+    ############################################################################
+    private
+    ############################################################################
 
 
-  def self.syslog_relay
-    File.join Trema.objects, "tremashark/syslog_relay"
-  end
+    def add name
+      @list ||= []
+      @list << name
+    end
 
 
-  def self.stdin_relay
-    File.join Trema.objects, "tremashark/stdin_relay"
-  end
-
-
-  def self.switch_manager
-    File.join Trema.objects, "switch_manager/switch_manager"
-  end
-
-
-  def self.switch
-    File.join Trema.objects, "switch_manager/switch"
-  end
-
-
-  def self.packetin_filter
-    File.join Trema.objects, "packetin_filter/packetin_filter"
-  end
-
-
-  def self.phost
-    File.join Trema.objects, "phost/phost"
-  end
-
-
-  def self.cli
-    File.join Trema.objects, "phost/cli"
-  end
-
-
-  def self.ovs_openflowd
-    File.join Trema.objects, "openvswitch/bin/ovs-openflowd"
-  end
-
-
-  def self.ovs_ofctl
-    File.join Trema.objects, "openvswitch/bin/ovs-ofctl"
-  end
-
-
-  def self.compiled?
-    m = singleton_methods - [ "const_missing", "to_yaml", "yaml_tag_subclasses?", "compiled?" ]
-    m.inject( true ) do | result, each |
-      result &&= FileTest.executable?( eval each )
+    def path path
+      name = File.basename( path ).gsub( "-", "_" )
+      define_class_method( name ) do
+        File.join Trema.objects, path
+      end
+      add name
     end
   end
+
+
+  path "openvswitch/bin/ovs-ofctl"
+  path "openvswitch/bin/ovs-openflowd"
+  path "packetin_filter/packetin_filter"
+  path "phost/cli"
+  path "phost/phost"
+  path "switch_manager/switch"
+  path "switch_manager/switch_manager"
+  path "tremashark/packet_capture"
+  path "tremashark/stdin_relay"
+  path "tremashark/syslog_relay"
+  path "tremashark/tremashark"
 end
 
 
