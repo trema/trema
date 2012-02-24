@@ -59,7 +59,7 @@ describe EchoRequest, ".new( VALID OPTIONS )" do
       }.run( EchoRequestController ) {
         echo_request = EchoRequest.new( :transaction_id => 1234, :user_data => 'this is a test' )
         controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
-        log_file = Trema.log_directory + "/openflowd.echo_request.log"
+        log_file = Trema.log + "/openflowd.echo_request.log"
         IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )
         sleep 1
       }

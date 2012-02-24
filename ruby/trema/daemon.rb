@@ -111,9 +111,9 @@ module Trema
     def pid_file
       prefix = self.class.name.demodulize.underscore
       if self.class.class_eval { class_variable_get :@@singleton_daemon }
-        File.join Trema.pid_directory, "#{ prefix }.pid"
+        File.join Trema.pid, "#{ prefix }.pid"
       else
-        File.join Trema.pid_directory, "#{ prefix }.#{ daemon_id }.pid"
+        File.join Trema.pid, "#{ prefix }.#{ daemon_id }.pid"
       end
     end
 
@@ -134,7 +134,7 @@ module Trema
       end
       return nil if log_file_block.nil?
       name = log_file_block.call( self )
-      File.join Trema.log_directory, name
+      File.join Trema.log, name
     end
 
 

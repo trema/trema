@@ -38,7 +38,7 @@ describe QueueGetConfigRequest, ".new( VALID OPTIONS )" do
 
   context "when #queue_get_config_request is sent" do
     it "should #queue_get_config_reply" do
-      pending "#queue_get_config_reply is not implemented in #{Trema::Vendor::openvswitch}"
+      pending "#queue_get_config_reply is not implemented in #{Trema.vendor_openvswitch}"
       class QueueGetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }

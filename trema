@@ -61,9 +61,9 @@ def method_for command
 end
 
 
-FileUtils.mkdir_p Trema.log_directory
-FileUtils.mkdir_p Trema.pid_directory
-FileUtils.mkdir_p Trema.sock_directory
+FileUtils.mkdir_p Trema.log
+FileUtils.mkdir_p Trema.pid
+FileUtils.mkdir_p Trema.sock
 
 command = ARGV.shift
 if method_for( command )
