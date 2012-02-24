@@ -219,12 +219,12 @@ gen Directory, Trema.objects
 
 task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h => Trema.objects do
-  sys.unpack_tgz "#{ Trema::Vendor.openflow }.tar.gz", :in => Trema::Vendor.path
-  sys.cp_r "#{ Trema::Vendor.openflow }/include/openflow", Trema.objects
+  sys.unpack_tgz "#{ Trema.vendor_openflow }.tar.gz", :in => Trema.vendor
+  sys.cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
 end
 
 task "vendor:openflow:distclean" do
-  sys.rm_rf Trema::Vendor.openflow
+  sys.rm_rf Trema.vendor_openflow
 end
 
 
@@ -236,11 +236,11 @@ end
 # from openflow.git/utilities/wireshark_dissectors/openflow directory
 #
 desc "Build openflow wireshark plugin"
-task :openflow_wireshark_plugin => Trema::Vendor.openflow_wireshark_plugin
-file Trema::Vendor.openflow_wireshark_plugin do | t |
-  sys.unpack_tgz "#{ t.name }.tar.gz", :in => Trema::Vendor.path
+task :openflow_wireshark_plugin => Trema.vendor_openflow_git
+file Trema.vendor_openflow_git do | t |
+  sys.unpack_tgz "#{ t.name }.tar.gz", :in => Trema.vendor
   subpath = "utilities/wireshark_dissectors/openflow"
-  sys.cd "#{ Trema::Vendor.openflow_wireshark_plugin }/#{ subpath }" do
+  sys.cd "#{ Trema.vendor_openflow_git }/#{ subpath }" do
     sys "make"
     plugin_path = "#{ File.expand_path(" ~ ") }/.wireshark/plugins"
     sys.cp "packet-openflow.so", plugin_path if File.directory?( plugin_path )
@@ -250,7 +250,7 @@ end
 
 task "openflow_wireshark_plugin:clean" => "openflow_wireshark_plugin:distclean"
 task "openflow_wireshark_plugin:distclean" do
-  sys.rm_rf Trema::Vendor.openflow_wireshark_plugin
+  sys.rm_rf Trema.vendor_openflow_git
 end
 
 
@@ -260,16 +260,16 @@ end
 
 task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
 file Trema::Executables.ovs_openflowd do
-  sys.unpack_tgz "#{ Trema::Vendor.openvswitch }.tar.gz", :in => Trema::Vendor.path
-  sys.cd Trema::Vendor.openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock_directory }"
+  sys.unpack_tgz "#{ Trema.vendor_openvswitch }.tar.gz", :in => Trema.vendor
+  sys.cd Trema.vendor_openvswitch do
+    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock }"
     sys "make install"
     sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
   end
 end
 
 task "vendor:openvswitch:distclean" do
-  sys.rm_rf Trema::Vendor.openvswitch
+  sys.rm_rf Trema.vendor_openvswitch
 end
 
 
@@ -279,15 +279,15 @@ end
 
 task "vendor:oflops" => cbench_command
 file cbench_command => Trema.openflow_h do
-  sys.unpack_tgz "#{ Trema::Vendor.oflops }.tar.gz", :in => Trema::Vendor.path
-  sys.cd Trema::Vendor.oflops do
-    sys "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema::Vendor.openflow }"
+  sys.unpack_tgz "#{ Trema.vendor_oflops }.tar.gz", :in => Trema.vendor
+  sys.cd Trema.vendor_oflops do
+    sys "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
     sys "make install"
   end
 end
 
 task "vendor:oflops:distclean" do
-  sys.rm_rf Trema::Vendor.oflops
+  sys.rm_rf Trema.vendor_oflops
 end
 
 
@@ -296,7 +296,7 @@ end
 #
 
 def phost_src
-  File.join Trema::Vendor.phost, "src"
+  File.join Trema.vendor_phost, "src"
 end
 
 
@@ -335,15 +335,15 @@ end
 
 task "vendor:cmockery" => Trema.libcmockery_a
 file Trema.libcmockery_a do
-  sys.unpack_tgz "#{ Trema::Vendor.cmockery }.tar.gz", :in => Trema::Vendor.path
-  sys.cd Trema::Vendor.cmockery do
+  sys.unpack_tgz "#{ Trema.vendor_cmockery }.tar.gz", :in => Trema.vendor
+  sys.cd Trema::vendor_cmockery do
     sys "./configure --prefix=#{ Trema.cmockery }"
     sys "make install"
   end
 end
 
 task "vendor:cmockery:distclean" do
-  sys.rm_rf Trema::Vendor.cmockery
+  sys.rm_rf Trema.vendor_cmockery
 end
 
 

@@ -47,7 +47,7 @@ module Trema
       context = Trema::DSL::Context.load_current
 
       # [FIXME] Trema apps does not appear in context.apps. why?
-      pid_file = File.join( Trema.pid_directory, "#{ ARGV[ 0 ] }.pid" )
+      pid_file = File.join( Trema.pid, "#{ ARGV[ 0 ] }.pid" )
       if FileTest.exist?( pid_file )
         Trema::Process.read( pid_file ).kill!
       end
