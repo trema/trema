@@ -157,13 +157,13 @@ def cbench controller, options
 end
 
 
-def get_cbench_controller task
-  key = task.split( ":" )[ 1 ]
-  bench_program = {
-    "ruby" => "./trema run src/examples/cbench_switch/cbench-switch.rb -d",
-    "c" => "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
-  }
-  bench_program[ key ]
+def cbench_c_controller
+  "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
+end
+
+
+def cbench_ruby_controller
+  "./trema run src/examples/cbench_switch/cbench-switch.rb -d"
 end
 
 
@@ -179,7 +179,7 @@ var[ :clean ].include sys[ "callgrind.out.*" ]
 def cbench_profile options
   valgrind = "valgrind --tool=callgrind --trace-children=yes"
   begin
-    sys "#{ valgrind } #{ get_cbench_controller( 'cbench:c' ) }"
+    sys "#{ valgrind } #{ cbench_c_controller }"
     sys "#{ cbench_command } #{ options }"
   ensure
     sys "./trema killall"
@@ -188,14 +188,18 @@ end
 
 
 desc "Run the c cbench switch controller to benchmark"
+task "cbench" => "cbench:c"
+
+
+desc "Run the c cbench switch controller to benchmark"
 task "cbench:c" => :default do | t |
-  run_cbench get_cbench_controller( t.name )
+  run_cbench cbench_c_controller
 end
 
 
 desc "Run the ruby cbench switch controller to benchmark"
 task "cbench:ruby" => :default do | t |
-  run_cbench get_cbench_controller( t.name )
+  run_cbench cbench_ruby_controller
 end
 
 
