@@ -55,8 +55,10 @@ module Trema
 
 
   dir :home, "objects"
+  dir :home, "src/lib", :include
   dir :home, "vendor"
   dir :objects, "cmockery"
+  dir :objects, "lib"
   dir :objects, "oflops"
   dir :objects, "openflow"
   dir :objects, "openvswitch"

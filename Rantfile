@@ -105,21 +105,6 @@ def dependency name
 end
 
 
-def trema_include
-  "#{ Trema.home }/src/lib"
-end
-
-
-def trema_lib
-  "#{ Trema.home }/objects/lib"
-end
-
-
-def openflow_include
-  "#{ Trema.home }/objects/openflow"
-end
-
-
 ################################################################################
 # !!!!!! DO NOT MODIFY !!!!!!
 ################################################################################
@@ -382,24 +367,24 @@ end
 
 task dependency( "libtrema" ) => "vendor:openflow"
 gen C::Dependencies, dependency( "libtrema" ),
-  :search => [ trema_include, objects( "openflow" ) ],
-  :sources => sys[ "#{ trema_include }/*.c" ]
+  :search => [ Trema.include, objects( "openflow" ) ],
+  :sources => sys[ "#{ Trema.include }/*.c" ]
 
 gen Action do
   source dependency( "libtrema" )
 end
 
 
-gen Directory, trema_lib
+gen Directory, Trema.lib
 gen Directory, "#{ Trema.home }/objects/unittests"
 
-libtrema = File.join( trema_lib, "libtrema.a" )
+libtrema = File.join( Trema.lib, "libtrema.a" )
 libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
 
-libtrema_o = gen DirectedRule, trema_lib => [ trema_include ], :o => :c do | t |
+libtrema_o = gen DirectedRule, Trema.lib => [ Trema.include ], :o => :c do | t |
   sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
-libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ trema_include ], :o => :c do | t |
+libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ Trema.include ], :o => :c do | t |
   sys "gcc --coverage -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 
@@ -428,7 +413,7 @@ desc "Build ruby library."
 task :rubylib => "ruby/trema.so"
 file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h", libtrema ] do
   sys.cd "ruby" do
-    sys "ruby extconf.rb --with-trema-include=#{ trema_include } --with-trema-lib=#{ trema_lib } --with-openflow-include=#{ openflow_include }"
+    sys "ruby extconf.rb --with-trema-include=#{ Trema.include } --with-trema-lib=#{ Trema.lib } --with-openflow-include=#{ Trema.openflow }"
     sys "make"
   end
 end
@@ -452,7 +437,7 @@ end
 switch_manager_objects_dir = objects( "switch_manager" )
 
 gen C::Dependencies, dependency( "switch_manager" ),
-  :search => [ "src/switch_manager", trema_include ], :sources => sys[ "src/switch_manager/*.c" ]
+  :search => [ "src/switch_manager", Trema.include ], :sources => sys[ "src/switch_manager/*.c" ]
 
 gen Action do
   source dependency( "switch_manager" )
@@ -462,7 +447,7 @@ end
 gen Directory, switch_manager_objects_dir
 
 gen DirectedRule, switch_manager_objects_dir => [ "src/switch_manager" ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 
@@ -477,7 +462,7 @@ end
 desc "Build switch manager."
 task :switch_manager => Trema::Executables.switch_manager
 file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -497,7 +482,7 @@ end
 desc "Build switch."
 task :switch => Trema::Executables.switch
 file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -506,7 +491,7 @@ end
 ################################################################################
 
 gen C::Dependencies, dependency( "packetin_filter" ),
-  :search => [ "src/packetin_filter", trema_include ], :sources => sys[ "src/packetin_filter/*.c" ]
+  :search => [ "src/packetin_filter", Trema.include ], :sources => sys[ "src/packetin_filter/*.c" ]
 
 gen Action do
   source dependency( "packetin_filter" )
@@ -516,13 +501,13 @@ end
 gen Directory, objects( "packetin_filter" )
 
 packetin_filter_objects = gen DirectedRule, objects( "packetin_filter" ) => [ "src/packetin_filter" ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 desc "Build packetin filter."
 task :packetin_filter => Trema::Executables.packetin_filter
 file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
 end
 
 
@@ -533,7 +518,7 @@ end
 tremashark_objects_dir = objects( "tremashark" )
 
 gen C::Dependencies, dependency( "tremashark" ),
-  :search => [ "src/tremashark", trema_include ], :sources => sys[ "src/tremashark/*.c" ]
+  :search => [ "src/tremashark", Trema.include ], :sources => sys[ "src/tremashark/*.c" ]
 
 gen Action do
   source dependency( "tremashark" )
@@ -543,7 +528,7 @@ end
 gen Directory, tremashark_objects_dir
 
 gen DirectedRule, tremashark_objects_dir => [ "src/tremashark" ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 
@@ -558,7 +543,7 @@ end
 desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
 file Trema::Executables.tremashark => tremashark_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
 end
 
 
@@ -572,7 +557,7 @@ end
 desc "Build packet_capture."
 task :packet_capture => Trema::Executables.packet_capture
 file Trema::Executables.packet_capture => packet_capture_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
 end
 
 
@@ -585,7 +570,7 @@ end
 desc "Build syslog_relay."
 task :syslog_relay => Trema::Executables.syslog_relay
 file Trema::Executables.syslog_relay => syslog_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
 end
 
 
@@ -598,7 +583,7 @@ end
 desc "Build stdin_relay."
 task :stdin_relay => Trema::Executables.stdin_relay
 file Trema::Executables.stdin_relay => stdin_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
 end
 
 
@@ -625,7 +610,7 @@ standalone_examples.each do | each |
   target = objects( "examples/#{ each }/#{ each }" )
 
   gen C::Dependencies, dependency( each ),
-    :search => [ "src/examples/#{ each }", trema_include ], :sources => sys[ "src/examples/#{ each }/*.c" ]
+    :search => [ "src/examples/#{ each }", Trema.include ], :sources => sys[ "src/examples/#{ each }/*.c" ]
 
   gen Action do
     source dependency( each )
@@ -635,14 +620,14 @@ standalone_examples.each do | each |
   gen Directory, objects_dir
 
   objects = gen DirectedRule, objects_dir => [ "src/examples/#{ each }" ], :o => :c do | t |
-    sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+    sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
   end
 
 
   desc "Build #{ each } example."
   task "examples:#{ each }" => target
   file target => objects.candidates + [ libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -663,7 +648,7 @@ openflow_message_source_dir = "src/examples/openflow_message"
 openflow_message_objects_dir = objects( "examples/openflow_message" )
 
 gen C::Dependencies, dependency( "openflow_message" ),
-  :search => [ trema_include ], :sources => sys[ "#{ openflow_message_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ openflow_message_source_dir }/*.c" ]
 
 gen Action do
   source dependency( "openflow_message" )
@@ -673,7 +658,7 @@ gen Directory, openflow_message_objects_dir
 
 
 gen DirectedRule, openflow_message_objects_dir => [ openflow_message_source_dir ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 
@@ -681,7 +666,7 @@ openflow_messages.each do | each |
   target = File.join( openflow_message_objects_dir, each )
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -702,7 +687,7 @@ packetin_filter_config_source_dir = "src/examples/packetin_filter_config"
 packetin_filter_config_objects_dir = objects( "examples/packetin_filter_config" )
 
 gen C::Dependencies, dependency( "packetin_filter_config" ),
-  :search => [ trema_include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
 
 gen Action do
   source dependency( "packetin_filter_config" )
@@ -712,7 +697,7 @@ gen Directory, packetin_filter_config_objects_dir
 
 
 gen DirectedRule, packetin_filter_config_objects_dir => [ packetin_filter_config_source_dir ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 
@@ -725,7 +710,7 @@ packetin_filter_config.each do | each |
     packetin_filter_config_utils_o,
     libtrema
   ] do | t |
-    sys "gcc -L#{ trema_lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
   end
 end
 
@@ -765,7 +750,7 @@ end
 
 
 gen C::Dependencies, dependency( "unittests" ),
-  :search => [ trema_include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.c" ]
+  :search => [ Trema.include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.c" ]
 
 gen Action do
   source dependency( "unittests" )
@@ -776,7 +761,7 @@ gen Directory, "unittests/objects"
 gen Directory, "objects/unittests"
 
 gen DirectedRule, "unittests/objects" => [ "unittests", "unittests/lib", "src/lib" ], :o => :c do | t |
-  sys "gcc -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } -I#{ File.dirname Trema.cmockery_h } -Iunittests -DUNIT_TESTING --coverage #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 
@@ -812,7 +797,7 @@ tests = [
 
 
 file "objects/unittests/cmockery_trema.o" do | t |
-  sys "gcc --coverage -c unittests/#{ File.basename t.name, ".o" }.c -o #{ t.name } #{ var :CFLAGS } -I#{ trema_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
+  sys "gcc --coverage -c unittests/#{ File.basename t.name, ".o" }.c -o #{ t.name } #{ var :CFLAGS } -I#{ Trema.include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
 end
 
 
@@ -820,7 +805,7 @@ tests.each do | each |
   task :build_unittests => [ "coverage:libtrema", each ]
   task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
   file each => "unittests/lib/#{ File.basename each }.c" do | t |
-    sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ trema_include } -I#{ openflow_include } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
+    sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ Trema.include } -I#{ Trema.openflow } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
     sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
   end
 end
