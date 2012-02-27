@@ -131,13 +131,9 @@ var :CFLAGS => "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -
 # Run cbench benchmarks.
 ################################################################################
 
+
 def cbench_command
   File.join Trema.objects, "oflops/bin/cbench"
-end
-
-
-def trema_cbench_command
-  "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
 end
 
 
@@ -151,22 +147,39 @@ def cbench_throughput_mode_options
 end
 
 
-def cbench options
+def cbench controller, options
   begin
-    sys trema_cbench_command
+    sys "#{ controller }"
     sys "#{ cbench_command } #{ options }"
   ensure
     sys "./trema killall"
   end
+end
+
+
+def get_cbench_controller task
+  key = task.split( ":" )[ 1 ]
+  bench_program = {
+    "ruby" => "./trema run src/examples/cbench_switch/cbench-switch.rb -d",
+    "c" => "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
+  }
+  bench_program[ key ]
+end
+
+
+def run_cbench controller
+  cbench controller, cbench_latency_mode_options
+  cbench controller, cbench_throughput_mode_options
 end
 
 
 var[ :clean ].include sys[ "callgrind.out.*" ]
 
+
 def cbench_profile options
   valgrind = "valgrind --tool=callgrind --trace-children=yes"
   begin
-    sys "#{ valgrind } #{ trema_cbench_command }"
+    sys "#{ valgrind } #{ get_cbench_controller( 'cbench:c' ) }"
     sys "#{ cbench_command } #{ options }"
   ensure
     sys "./trema killall"
@@ -174,10 +187,15 @@ def cbench_profile options
 end
 
 
-desc "Run cbench openflow controller benchmarks."
-task :cbench => :default do
-  cbench cbench_latency_mode_options
-  cbench cbench_throughput_mode_options
+desc "Run the c cbench switch controller to benchmark"
+task "cbench:c" => :default do | t |
+  run_cbench get_cbench_controller( t.name )
+end
+
+
+desc "Run the ruby cbench switch controller to benchmark"
+task "cbench:ruby" => :default do | t |
+  run_cbench get_cbench_controller( t.name )
 end
 
 
