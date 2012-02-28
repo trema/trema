@@ -369,7 +369,7 @@ parse_igmp( buffer *buf ) {
   igmp_header_t *igmp = ptr;
   packet_info->igmp_type = igmp->type;
   packet_info->igmp_code = igmp->code;
-  packet_info->igmp_cksum = ntohs( igmp->csum );
+  packet_info->igmp_checksum = ntohs( igmp->csum );
   packet_info->igmp_group = ntohl( igmp->group );
 
   packet_info->format |= NW_IGMP;

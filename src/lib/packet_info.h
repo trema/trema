@@ -137,7 +137,7 @@ typedef struct {
 
   uint8_t igmp_type;
   uint8_t igmp_code;
-  uint16_t igmp_cksum;
+  uint16_t igmp_checksum;
   uint32_t igmp_group;
 
   uint16_t tcp_src_port;
