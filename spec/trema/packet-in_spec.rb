@@ -100,6 +100,91 @@ describe Trema::PacketIn do
   end
 
   context "when reading packet content" do
+    it "should have correct VLAN and ICMP packet fields" do
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) {
+          ip "192.168.32.1"
+          netmask "255.255.255.0"
+          mac "00:00:00:00:00:02"
+        }
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          # vlan tag
+          0x81, 0x00, # tpid
+          0x0f, 0x9f, # tci
+          0x08, 0x00, # ether type
+          # ipv4
+          0x45, 0x00, # version
+          0x00, 0x3c, # length
+          0x8c, 0x1b,
+          0x00, 0x00,
+          0x80,       # ttl
+          0x01,       # protocol
+          0xed, 0x09, # checksum
+          0xc0, 0xa8, 0x20, 0x4a, # src
+          0xc0, 0xa8, 0x20, 0x01, # dst
+          # icmp
+          0x08, # type
+          0x00, # code
+          0xe9, 0x5b, # checksum
+          0x04, 0x00, # id
+          0x60, 0x00, # seq
+          0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68,
+          0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70,
+          0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
+          0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+          message.in_port.should > 0
+          message.vtag?.should be_true
+          message.arp?.should be_false
+          message.ipv4?.should be_true
+          message.udp?.should be_false
+          message.tcp?.should be_false
+          message.icmpv4?.should be_true
+          message.igmp?.should be_false
+
+          message.vlan_tpid.should == 0x8100
+          message.vlan_tci.should == 0x0f9f
+          message.vlan_prio.should == 0
+          message.vlan_cfi.should == 0
+          message.vlan_vid.should == 0xf9f
+          message.eth_type.should == 0x0800
+
+          message.ipv4_version.should == 4
+          message.ipv4_ihl.should == 5
+          message.ipv4_tos.should == 0
+          message.ipv4_tot_len.should == 0x003c
+          message.ipv4_id.should == 0x8c1b
+          message.ipv4_frag_off.should == 0
+          message.ipv4_ttl.should == 0x80
+          message.ipv4_protocol.should == 1
+          message.ipv4_checksum.should == 0xed09
+          message.ipv4_saddr.to_s.should == "192.168.32.74"
+          message.ipv4_daddr.to_s.should == "192.168.32.1"
+
+          message.icmpv4_type.should == 8
+          message.icmpv4_code.should == 0
+          message.icmpv4_checksum.should == 0xe95b
+          message.icmpv4_id.should == 0x0400
+          message.icmpv4_seq.should == 0x6000
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
+        )
+        sleep 2
+      }
+    end
+
     it "should have correct ARP packet fields" do
       network {
         vswitch( "packet-in" ) { datapath_id 0xabc }
@@ -131,10 +216,13 @@ describe Trema::PacketIn do
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.in_port.should > 0
+          message.vtag?.should be_false
           message.arp?.should be_true
-          message.tcp?.should be_false
           message.ipv4?.should be_false
+          message.tcp?.should be_false
           message.udp?.should be_false
+          message.icmpv4?.should be_false
+          message.igmp?.should be_false
 
           message.arp_oper.should == 2
           message.arp_sha.to_s.should == "00:00:00:00:00:01"
@@ -192,10 +280,13 @@ describe Trema::PacketIn do
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.in_port.should > 0
+          message.vtag?.should be_false
           message.arp?.should be_false
-          message.udp?.should be_false
           message.ipv4?.should be_true
+          message.udp?.should be_false
           message.tcp?.should be_true
+          message.icmpv4?.should be_false
+          message.igmp?.should be_false
 
           message.ipv4_version.should == 4
           message.ipv4_ihl.should == 5
@@ -266,10 +357,13 @@ describe Trema::PacketIn do
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.in_port.should > 0
+          message.vtag?.should be_false
           message.arp?.should be_false
-          message.tcp?.should be_false
           message.ipv4?.should be_true
+          message.tcp?.should be_false
           message.udp?.should be_true
+          message.icmpv4?.should be_false
+          message.igmp?.should be_false
 
           message.ipv4_version.should == 4
           message.ipv4_ihl.should == 5
