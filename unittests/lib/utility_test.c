@@ -529,7 +529,7 @@ test_get_checksum_udp_packet() {
   ipv4_header.frag_off = htons( 0 );
   ipv4_header.ttl = 0x80;
   ipv4_header.protocol = 0x11;
-  ipv4_header.check = 0;
+  ipv4_header.csum = 0;
   ipv4_header.saddr = htonl( 0x0a3835af );
   ipv4_header.daddr = htonl( 0x0a3837ff );
 
@@ -553,7 +553,7 @@ test_get_checksum_icmp_packet() {
   ipv4_header.frag_off = htons( 0 );
   ipv4_header.ttl = 0x40;
   ipv4_header.protocol = 0x01;
-  ipv4_header.check = 0;
+  ipv4_header.csum = 0;
   ipv4_header.saddr = htonl( 0xc0a8642b );
   ipv4_header.daddr = htonl( 0xc0a8642c );
 
