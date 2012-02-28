@@ -1,4 +1,4 @@
-#
+
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2012 NEC Corporation
@@ -275,8 +275,16 @@ describe Trema::PacketIn do
 
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
+
           message.tcp_src_port.should == 1
           message.tcp_dst_port.should == 2
+          message.tcp_seq_no.should == 0
+          message.tcp_ack_no.should == 0
+          message.tcp_offset.should == 5
+          message.tcp_flags.should == 0
+          message.tcp_window.should == 0
+          message.tcp_checksum.should == 11910 # 0x2e86
+          message.tcp_urgent.should == 0
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -332,8 +340,11 @@ describe Trema::PacketIn do
 
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
+
           message.udp_src_port.should == 1
           message.udp_dst_port.should == 2
+          message.udp_checksum.should == 0
+          message.udp_len.should == 30 # 0x1e
         end
 
         controller( "PacketInSendController" ).send_packet_out(
