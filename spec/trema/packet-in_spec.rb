@@ -47,7 +47,7 @@ describe Trema::PacketIn do
   end
   
   context "when instance is created" do
-    it "should have valid datapath_id" do
+    it "should have valid datapath_id and in_port" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
         vhost "host1"
@@ -58,17 +58,20 @@ describe Trema::PacketIn do
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           datapath_id.should == 0xabc
           message.datapath_id.should == 0xabc
+          message.in_port.should > 0
         end
         send_and_wait
       }
     end
     
     
-    it "should have user data" do
+    it "should have vaild user data" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
+        vhost( "host1" ) { mac "00:00:00:00:00:01" 
+                           ip "192.168.1.1" }
+        vhost( "host2" ) { mac "00:00:00:00:00:02" 
+                           ip "192.168.1.2" }
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
@@ -77,98 +80,19 @@ describe Trema::PacketIn do
           message.total_len.should > 20
           message.data.should be_instance_of( String )
           message.buffered?.should be_false
-        end
-        send_and_wait
-      }
-    end
 
-    
-    it "should have user L2 information (macsa)" do
-      network {
-        vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { mac "00:00:00:00:00:01" }
-        vhost( "host2" ) { mac "00:00:00:00:00:02" }
-        link "test", "host1"
-        link "test", "host2"
-      }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.macsa.should be_instance_of( Trema::Mac )
           message.macsa.to_s.should == "00:00:00:00:00:01"
-        end
-        send_and_wait
-      }
-    end
-    
-
-    it "should have user L2 information (macda)" do
-      network {
-        vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { mac "00:00:00:00:00:01" }
-        vhost( "host2" ) { mac "00:00:00:00:00:02" }
-        link "test", "host1"
-        link "test", "host2"
-      }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.macda.should be_instance_of( Trema::Mac )
           message.macda.to_s.should == "00:00:00:00:00:02"
-        end
-        send_and_wait
-      }
-    end
 
-
-    it "should have user L3 information" do
-      network {
-        vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { ip "192.168.1.1" }
-        vhost( "host2" ) { ip "192.168.1.2" }
-        link "test", "host1"
-        link "test", "host2"
-      }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
           message.eth_type.should == 0x0800
           message.ipv4?.should == true
           message.ipv4_version.should == 4
-          message.ipv4_protocol == 17
           message.ipv4_saddr.should be_instance_of( Trema::IP )
           message.ipv4_saddr.to_s.should == "192.168.1.1"
           message.ipv4_daddr.should be_instance_of( Trema::IP )
           message.ipv4_daddr.to_s.should == "192.168.1.2"
-        end
-        send_and_wait
-      }
-    end
-
-
-    it "should have user L4 information (udp)" do
-      network {
-        vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" )
-        vhost( "host2" )
-        link "test", "host1"
-        link "test", "host2"
-      }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
-          message.udp?.should == true
-          message.udp_src_port.should == 9000
-          message.udp_dst_port.should == 9001
-        end
-        send_packets "host1", "host2", :tp_src => 9000, :tp_dst => 9001
-        sleep 2
-      }
-    end
-
-    
-    it "should have valid input port" do
-      network {
-        vswitch( "test" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
-        link "test", "host1"
-        link "test", "host2"
-      }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
-          message.in_port.should > 0
         end
         send_and_wait
       }
@@ -276,12 +200,12 @@ describe Trema::PacketIn do
           message.ipv4_version.should == 4
           message.ipv4_ihl.should == 5
           message.ipv4_tos.should == 0
-          message.ipv4_tot_len.should == 40 # 0x28
+          message.ipv4_tot_len.should == 0x28
           message.ipv4_id.should == 0
           message.ipv4_frag_off.should == 0
           message.ipv4_ttl.should == 0
           message.ipv4_protocol.should == 6
-          message.ipv4_checksum.should == 14717 # 0x397d
+          message.ipv4_checksum.should == 0x397d
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
 
@@ -350,19 +274,19 @@ describe Trema::PacketIn do
           message.ipv4_version.should == 4
           message.ipv4_ihl.should == 5
           message.ipv4_tos.should == 0
-          message.ipv4_tot_len.should == 50 # 0x32
+          message.ipv4_tot_len.should == 0x32
           message.ipv4_id.should == 0
           message.ipv4_frag_off.should == 0
-          message.ipv4_ttl.should == 64 # 0x40
+          message.ipv4_ttl.should == 0x40
           message.ipv4_protocol.should == 17
-          message.ipv4_checksum.should == 63848 # 0xf968
+          message.ipv4_checksum.should == 0xf968
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
 
           message.udp_src_port.should == 1
           message.udp_dst_port.should == 2
           message.udp_checksum.should == 0
-          message.udp_len.should == 30 # 0x1e
+          message.udp_len.should == 0x1e
         end
 
         controller( "PacketInSendController" ).send_packet_out(
