@@ -273,6 +273,15 @@ describe Trema::PacketIn do
           message.ipv4?.should be_true
           message.tcp?.should be_true
 
+          message.ipv4_version.should == 4
+          message.ipv4_ihl.should == 5
+          message.ipv4_tos.should == 0
+          message.ipv4_tot_len.should == 40 # 0x28
+          message.ipv4_id.should == 0
+          message.ipv4_frag_off.should == 0
+          message.ipv4_ttl.should == 0
+          message.ipv4_protocol.should == 6
+          message.ipv4_checksum.should == 14717 # 0x397d
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
 
@@ -338,6 +347,15 @@ describe Trema::PacketIn do
           message.ipv4?.should be_true
           message.udp?.should be_true
 
+          message.ipv4_version.should == 4
+          message.ipv4_ihl.should == 5
+          message.ipv4_tos.should == 0
+          message.ipv4_tot_len.should == 50 # 0x32
+          message.ipv4_id.should == 0
+          message.ipv4_frag_off.should == 0
+          message.ipv4_ttl.should == 64 # 0x40
+          message.ipv4_protocol.should == 17
+          message.ipv4_checksum.should == 63848 # 0xf968
           message.ipv4_saddr.to_s.should == "192.168.0.1"
           message.ipv4_daddr.to_s.should == "192.168.0.2"
 
