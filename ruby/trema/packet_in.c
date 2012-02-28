@@ -622,6 +622,17 @@ packet_in_igmp_group( VALUE self ) {
 
 
 /*
+ * The IGMP checksum.
+ *
+ * @return [Integer] igmp_checksum a IGMP checksum.
+ */
+static VALUE
+packet_in_igmp_checksum( VALUE self ) {
+  return UINT2NUM( get_packet_in_info( self )->igmp_checksum );
+}
+
+
+/*
  * Is a TCP packet?
  *
  * @return [bool] tcp? Is a TCP packet?
@@ -873,6 +884,7 @@ Init_packet_in() {
   mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
   rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
   rb_define_method( mPacketInIGMP, "igmp_group", packet_in_igmp_group, 0 );
+  rb_define_method( mPacketInIGMP, "igmp_checksum", packet_in_igmp_checksum, 0 );
   rb_define_method( mPacketInIGMP, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
   rb_define_method( mPacketInIGMP, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
   rb_define_method( mPacketInIGMP, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
