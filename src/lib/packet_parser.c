@@ -185,7 +185,7 @@ parse_ipv4( buffer *buf ) {
   packet_info->ipv4_frag_off = ntohs( ipv4_header->frag_off );
   packet_info->ipv4_ttl = ipv4_header->ttl;
   packet_info->ipv4_protocol = ipv4_header->protocol;
-  packet_info->ipv4_checksum = ntohs( ipv4_header->check );
+  packet_info->ipv4_checksum = ntohs( ipv4_header->csum );
   packet_info->ipv4_saddr = ntohl( ipv4_header->saddr );
   packet_info->ipv4_daddr = ntohl( ipv4_header->daddr );
 

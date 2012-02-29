@@ -5072,7 +5072,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
   ipv4->tos = 0;
   ipv4->tot_len = htons( sizeof( ipv4_header_t ) );
   ipv4->ttl = 0;
-  ipv4->check = 0;
+  ipv4->csum = 0;
   ipv4->saddr = htonl( 0xC0A80067 );
   ipv4->daddr = htonl( 0xC0A80036 );
   ipv4->frag_off = htons( 0 );
