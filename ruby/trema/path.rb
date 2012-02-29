@@ -71,6 +71,7 @@ module Trema
   dir :vendor, "openflow.git", :vendor_openflow_git
   dir :vendor, "openvswitch-1.2.2", :vendor_openvswitch
   dir :vendor, "phost", :vendor_phost
+  dir :vendor, "ruby-ifconfig-1.2", :vendor_ruby_ifconfig
   file :cmockery, "include/google/cmockery.h"
   file :cmockery, "lib/libcmockery.a"
   file :openflow, "openflow.h"
