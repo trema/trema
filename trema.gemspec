@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = "trema"
-  s.version = "0.1.3.2"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yasuhito Takamiya"]
   s.bindir = ["."]
-  s.date = "2012-02-23"
+  s.date = "2012-02-29"
   s.description = "Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C"
   s.email = "yasuhito@gmail.com"
   s.executables = ["trema", "trema-config"]
@@ -172,6 +172,7 @@ Gem::Specification.new do |s|
     "ruby/trema/monkey-patch/integer/base-conversions.rb",
     "ruby/trema/monkey-patch/integer/ranges.rb",
     "ruby/trema/monkey-patch/module.rb",
+    "ruby/trema/monkey-patch/module/class-method.rb",
     "ruby/trema/monkey-patch/module/deprecation.rb",
     "ruby/trema/monkey-patch/string.rb",
     "ruby/trema/monkey-patch/string/inflectors.rb",
