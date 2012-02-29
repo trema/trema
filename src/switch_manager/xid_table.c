@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -119,7 +119,11 @@ insert_xid_entry( uint32_t original_xid, char *service_name ) {
   }
 
   new_entry = allocate_xid_entry( original_xid, service_name, xid_table.next_index );
-  insert_hash_entry( xid_table.hash, &new_entry->xid, new_entry );
+  xid_entry_t *old = insert_hash_entry( xid_table.hash, &new_entry->xid, new_entry );
+  if ( old != NULL ) {
+    xid_table.entries[ old->index ] = NULL;
+    free_xid_entry( old );
+  }
   xid_table.entries[ xid_table.next_index ] = new_entry;
   xid_table.next_index++;
 

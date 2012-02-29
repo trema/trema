@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -48,7 +48,15 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      App.add self
+      if /\.rb\Z/=~ @stanza.fetch( :name )  # ruby?
+        require "trema"
+        path = @stanza.fetch( :path )
+        ARGV.replace [ path ]
+        $LOAD_PATH << File.dirname( path )
+        Trema.module_eval IO.read( path )
+      else
+        App.add self
+      end
     end
 
 

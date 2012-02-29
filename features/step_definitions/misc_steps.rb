@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -25,10 +25,10 @@ end
 
 When /^wait until "([^"]*)" is up$/ do | process |
   nloop = 0
-  pid_file = File.join( Trema.pid_directory, "#{ process }.pid" )
+  pid_file = File.join( Trema.pid, "#{ process }.pid" )
   loop do
     nloop += 1
-    raise "Timeout" if nloop > 30
+    raise "Timeout" if nloop > 50 # FIXME
     break if FileTest.exists?( pid_file ) and not ps_entry_of( process ).nil?
     sleep 0.1
   end

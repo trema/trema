@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -60,7 +60,7 @@ describe RepeaterHub do
     describe "switch" do
       before { send_packets "host1", "host2" }
 
-      subject { switch( "switch" ) }
+      subject { vswitch( "switch" ) }
 
       it { should have( 1 ).flows }
       its( "flows.first.actions" ) { should == "FLOOD" }
@@ -70,7 +70,7 @@ describe RepeaterHub do
     describe "host" do
       before { send_packets "host1", "host2" }
 
-      subject { host( host_name ) }
+      subject { vhost( host_name ) }
 
       context "RX stats of host2" do
         let( :host_name ) { "host2" }
@@ -104,7 +104,7 @@ describe RepeaterHub do
     describe "switch" do
       before { send_packets "host1", "host2" }
 
-      subject { switch( "switch" ) }
+      subject { vswitch( "switch" ) }
 
       it { should have( 1 ).flows }
       its( "flows.first.actions" ) { should == "FLOOD" }
@@ -114,7 +114,7 @@ describe RepeaterHub do
     describe "host" do
       before { send_packets "host1", "host2" }
 
-      subject { host( host_name ) }
+      subject { vhost( host_name ) }
 
       context "RX stats of host2" do
         let( :host_name ) { "host2" }
@@ -133,7 +133,7 @@ describe RepeaterHub do
     describe "host" do
       before { send_packets "host1", "host2", :pps => 100 }
 
-      subject { host( host_name ) }
+      subject { vhost( host_name ) }
 
       context "RX stats of host2" do
         let( :host_name ) { "host2" }

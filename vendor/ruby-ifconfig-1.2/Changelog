@@ -1,0 +1,16 @@
+Version 1.2
+- All IP addresses (v4 and v6) are ipaddr objects now.
+- Rework unit tests to run from rake
+
+Version 1.1
+- New features courtesy of Jeremy Tregunna
+* Fixed "command not found" error when executing "netstat" on some of the BSD's
+* Added support for Darwin and DragonFly BSD
+* Added unit tests for Darwin and DragonFly as well as ifconfig examples
+* Added three methods (1 public, 2 private) to common/ifconfig.rb:
+  - valid_addr? - Checks the supplied type and executes one of two private
+  methods to verify that the specified address is valid. Returns false if not.
+
+  - valid_v4? and valid_v6? private methods will return true if the supplied
+  address is a valid ipv4 or ipv6 address (respectfully).
+

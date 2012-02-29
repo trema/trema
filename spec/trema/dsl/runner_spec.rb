@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,6 +20,7 @@
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
 require "trema/dsl/runner"
+require "trema/ordered-hash"
 
 
 module Trema
@@ -128,13 +129,25 @@ module Trema
           host2 = mock( "host2" )
 
           host0.should_receive( :run! ).once.ordered
-          host0.should_receive( :add_arp_entry ).with( [ host1, host2 ] ).once.ordered
+          host0.should_receive( :add_arp_entry ).with do | arg |
+            arg.size.should == 2
+            arg.should include( host1 )
+            arg.should include( host2 )
+          end
 
           host1.should_receive( :run! ).once.ordered
-          host1.should_receive( :add_arp_entry ).with( [ host0, host2 ] ).once.ordered
+          host1.should_receive( :add_arp_entry ).with do | arg |
+            arg.size.should == 2
+            arg.should include( host0 )
+            arg.should include( host2 )
+          end
 
           host2.should_receive( :run! ).once.ordered
-          host2.should_receive( :add_arp_entry ).with( [ host0, host1 ] ).once.ordered
+          host2.should_receive( :add_arp_entry ).with do | arg |
+            arg.size.should == 2
+            arg.should include( host0 )
+            arg.should include( host1 )
+          end
 
           context = mock(
             "context",
@@ -179,14 +192,19 @@ module Trema
 
 
         it "should run apps" do
-          app0 = mock( "app0" )
+          apps = OrderedHash.new
+
+          app0 = mock( "app0", :name => "app0" )
           app0.should_receive( :daemonize! ).once.ordered
+          apps[ "app0" ] = app0
 
-          app1 = mock( "app1" )
+          app1 = mock( "app1", :name => "app1" )
           app1.should_receive( :daemonize! ).once.ordered
+          apps[ "app1" ] = app1
 
-          app2 = mock( "app2", :name => "App2" )
+          app2 = mock( "app2", :name => "app2" )
           app2.should_receive( :run! ).once.ordered
+          apps[ "app2" ] = app2
 
           context = mock(
             "context",
@@ -196,7 +214,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
+            :apps => apps
           )
 
           Runner.new( context ).run
@@ -204,14 +222,19 @@ module Trema
 
 
         it "should daemonize apps" do
+          apps = OrderedHash.new
+
           app0 = mock( "app0" )
           app0.should_receive( :daemonize! ).once.ordered
+          apps[ "app0" ] = app0
 
           app1 = mock( "app1" )
           app1.should_receive( :daemonize! ).once.ordered
+          apps[ "app1" ] = app1
 
           app2 = mock( "app2", :name => "App2" )
           app2.should_receive( :daemonize! ).once.ordered
+          apps[ "app2" ] = app2
 
           context = mock(
             "context",
@@ -221,7 +244,7 @@ module Trema
             :links => {},
             :hosts => {},
             :switches => {},
-            :apps => { "app0" => app0, "app1" => app1, "app2" => app2 }
+            :apps => apps
           )
 
           Runner.new( context ).daemonize

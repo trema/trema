@@ -3,7 +3,7 @@
  *
  * Author: Toshio Koide
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -121,11 +121,6 @@ extern bool ( *delete_message_replied_callback )( const char *service_name, void
 extern bool ( *send_message )( const char *service_name, const uint16_t tag, const void *data, size_t len );
 extern bool ( *send_request_message )( const char *to_service_name, const char *from_service_name, const uint16_t tag, const void *data, size_t len, void *user_data );
 extern bool ( *send_reply_message )( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len );
-
-bool add_timer_event_callback( struct itimerspec *interval, void ( *callback )( void *user_data ), void *user_data );
-bool add_periodic_event_callback( const time_t seconds, void ( *callback )( void *user_data ), void *user_data );
-bool delete_timer_event_callback( void ( *callback )( void *user_data ) );
-bool delete_periodic_event_callback( void ( *callback )( void *user_data ) );
 
 bool init_messenger( const char *working_directory );
 bool finalize_messenger( void );

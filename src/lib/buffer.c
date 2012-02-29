@@ -1,7 +1,7 @@
 /*
  * Author: Shin-ya Zenke
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -93,12 +93,13 @@ static private_buffer *
 append_front( private_buffer *pbuf, size_t length ) {
   assert( pbuf != NULL );
 
-  void *new_data = xmalloc( front_length_of( pbuf ) + pbuf->public.length + length );
+  size_t new_length = front_length_of( pbuf ) + pbuf->public.length + length;
+  void *new_data = xmalloc( new_length );
   memcpy( ( char * ) new_data + front_length_of( pbuf ) + length, pbuf->public.data, pbuf->public.length );
   xfree( pbuf->top );
 
   pbuf->public.data = ( char * ) new_data + front_length_of( pbuf );
-  pbuf->real_length = sizeof( new_data );
+  pbuf->real_length = new_length;
   pbuf->top = new_data;
 
   return pbuf;
@@ -109,12 +110,13 @@ static private_buffer *
 append_back( private_buffer *pbuf, size_t length ) {
   assert( pbuf != NULL );
 
-  void *new_data = xmalloc( front_length_of( pbuf ) + pbuf->public.length + length );
+  size_t new_length = front_length_of( pbuf ) + pbuf->public.length + length;
+  void *new_data = xmalloc( new_length );
   memcpy( ( char * ) new_data + front_length_of( pbuf ), pbuf->public.data, pbuf->public.length );
   xfree( pbuf->top );
 
   pbuf->public.data = ( char * ) new_data + front_length_of( pbuf );
-  pbuf->real_length = sizeof( new_data );
+  pbuf->real_length = new_length;
   pbuf->top = new_data;
 
   return pbuf;

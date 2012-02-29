@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,18 +20,83 @@
 #
 
 
-require "trema/common-commands"
+require "trema/app"
+require "trema/dsl/link"
+require "trema/dsl/run"
+require "trema/dsl/switch"
+require "trema/dsl/vhost"
+require "trema/dsl/vswitch"
+require "trema/host"
+require "trema/link"
+require "trema/monkey-patch/module"
+require "trema/open-vswitch"
+require "trema/openflow-switch"
+require "trema/packetin-filter"
+require "trema/switch-manager"
+require "trema/tremashark"
 
 
 module Trema
   module DSL
     class Syntax
-      include Trema::CommonCommands
-
-
-      def initialize context
-        @context = context
+      def initialize config
+        @config = config
       end
+
+
+      def use_tremashark
+        @config.tremashark = Trema::Tremashark.new
+      end
+
+
+      def port number
+        @config.port = number
+      end
+
+
+      def link peer0, peer1
+        stanza = Trema::DSL::Link.new( peer0, peer1 )
+        Trema::Link.new( stanza )
+      end
+
+
+      def switch name = nil, &block
+        stanza = Trema::DSL::Switch.new( name )
+        stanza.instance_eval( &block )
+        Trema::OpenflowSwitch.new( stanza )
+      end
+
+
+      def vswitch name = nil, &block
+        stanza = Trema::DSL::Vswitch.new( name )
+        stanza.instance_eval( &block )
+        Trema::OpenVswitch.new stanza, @config.port
+      end
+
+
+      def vhost name = nil, &block
+        stanza = Trema::DSL::Vhost.new( name )
+        stanza.instance_eval( &block ) if block
+        Trema::Host.new( stanza )
+      end
+
+
+      def filter rule
+        Trema::PacketinFilter.new( rule )
+      end
+
+
+      def event rule
+        Trema::SwitchManager.new( rule, @config.port )
+      end
+
+
+      def run name = nil, &block
+        stanza = Trema::DSL::Run.new( name )
+        stanza.instance_eval( &block )
+        Trema::App.new( stanza )
+      end
+      deprecate :app => :run
     end
   end
 end

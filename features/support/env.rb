@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,6 +16,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+
+
+require "bundler"
+begin
+  Bundler.setup :default, :development
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
 
 
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" ) )
@@ -38,13 +48,13 @@ end
 
 
 def cucumber_log name
-  File.join Trema.log_directory, name
+  File.join Trema.log, name
 end
 
 
 def new_tmp_log
-  system "rm #{ Trema.log_directory }/tmp.*" # cleanup
-  `mktemp --tmpdir=#{ Trema.log_directory }`.chomp  
+  system "rm #{ Trema.log }/tmp.*" # cleanup
+  `mktemp --tmpdir=#{ Trema.log }`.chomp  
 end
 
 

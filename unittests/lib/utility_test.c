@@ -3,7 +3,7 @@
  * 
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -201,7 +201,7 @@ test_string_to_datapath_id() {
 static void
 test_match_to_string() {
   char match_str[ 256 ];
-  char expected_match_str[] = "wildcards = 0, in_port = 1, dl_src = 01:02:03:04:05:07, dl_dst = 08:09:0a:0b:0c:0d, dl_vlan = 1, dl_vlan_pcp = 1, dl_type = 0x800, nw_tos = 1, nw_proto = 6, nw_src = 10.9.8.7, nw_dst = 6.5.4.3, tp_src = 1024, tp_dst = 2048";
+  char expected_match_str[] = "wildcards = 0, in_port = 1, dl_src = 01:02:03:04:05:07, dl_dst = 08:09:0a:0b:0c:0d, dl_vlan = 1, dl_vlan_pcp = 1, dl_type = 0x800, nw_tos = 1, nw_proto = 6, nw_src = 10.9.8.7/32, nw_dst = 6.5.4.3/32, tp_src = 1024, tp_dst = 2048";
   struct ofp_match match = { 0, 1,
                              { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07 },
                              { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
@@ -529,7 +529,7 @@ test_get_checksum_udp_packet() {
   ipv4_header.frag_off = htons( 0 );
   ipv4_header.ttl = 0x80;
   ipv4_header.protocol = 0x11;
-  ipv4_header.check = 0;
+  ipv4_header.csum = 0;
   ipv4_header.saddr = htonl( 0x0a3835af );
   ipv4_header.daddr = htonl( 0x0a3837ff );
 
@@ -553,7 +553,7 @@ test_get_checksum_icmp_packet() {
   ipv4_header.frag_off = htons( 0 );
   ipv4_header.ttl = 0x40;
   ipv4_header.protocol = 0x01;
-  ipv4_header.check = 0;
+  ipv4_header.csum = 0;
   ipv4_header.saddr = htonl( 0xc0a8642b );
   ipv4_header.daddr = htonl( 0xc0a8642c );
 

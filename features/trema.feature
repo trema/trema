@@ -8,10 +8,10 @@ Feature: trema help
     When I try to run "./trema help"
     Then the output should be:
       """
-      usage: ./trema <COMMAND> [OPTIONS ...]
+      usage: trema <COMMAND> [OPTIONS ...]
 
       Trema command-line tool
-      Type './trema help <COMMAND>' for help on a specific command.
+      Type 'trema help <COMMAND>' for help on a specific command.
 
       Available commands:
         run            - runs a trema application.
@@ -21,4 +21,5 @@ Feature: trema help
         show_stats     - shows stats of packets.
         reset_stats    - resets stats of packets.
         dump_flows     - print all flow entries.
+        ruby           - opens in your browser Trema's Ruby API documentation.
       """

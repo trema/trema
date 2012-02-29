@@ -1,9 +1,7 @@
 #
-# The syntax definition of app { ... } stanza in Trema DSL.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,22 +18,15 @@
 #
 
 
-require "trema/dsl/stanza"
-
-
-module Trema
-  module DSL
-    class App < Stanza
-      def path _path
-        @path = _path
-        if @name.nil?
-          @name = File.basename( @path )
-        end
-      end
-
-
-      def options *_options
-        @options = _options
+module MonkeyPatch
+  module Module
+    module ClassMethod
+      def define_class_method name, &block
+        self.extend ::Module.new {
+          define_method name.to_s do
+            block.call
+          end
+        }
       end
     end
   end

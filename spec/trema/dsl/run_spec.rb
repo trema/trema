@@ -1,7 +1,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -19,51 +19,51 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/app"
+require "trema/dsl/run"
 
 
 module Trema
   module DSL
-    describe App do
+    describe Run do
       before :each do
-        @app = App.new
+        @run = Run.new
       end
 
 
-      context %[when parsing "app { ... }"] do
+      context %[when parsing "run { ... }"] do
         it %[recognizes "path COMMAND_PATH" directive] do
           lambda do
-            @app.path "/usr/bin/tremario"
+            @run.path "/usr/bin/tremario"
           end.should_not raise_error
         end
 
 
         it %[recognizes "options OPTIONS..." directive] do
           lambda do
-            @app.options "--verbose", "--color"
+            @run.options "--verbose", "--color"
           end.should_not raise_error
         end
       end
 
 
-      context "when getting the attributes of an app" do
+      context "when getting the attributes of an run" do
         it "returns its name" do
-          @app.path "/usr/bin/tremario"
-          @app[ :name ].should == "tremario"
+          @run.path "/usr/bin/tremario"
+          @run[ :name ].should == "tremario"
         end
 
 
         it "returns its path" do
-          @app.path "/usr/bin/tremario"
-          @app[ :path ].should == "/usr/bin/tremario"
+          @run.path "/usr/bin/tremario"
+          @run[ :path ].should == "/usr/bin/tremario"
         end
 
 
         it "returns its options" do
-          @app.options "--verbose", "--color"
-          @app[ :options ].size.should == 2
-          @app[ :options ].should include( "--verbose" )
-          @app[ :options ].should include( "--color" )
+          @run.options "--verbose", "--color"
+          @run[ :options ].size.should == 2
+          @run[ :options ].should include( "--verbose" )
+          @run[ :options ].should include( "--color" )
         end
       end
     end

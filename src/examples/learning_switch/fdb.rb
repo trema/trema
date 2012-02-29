@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -26,13 +26,15 @@ class ForwardingEntry
 
   attr_reader :mac
   attr_reader :port_no
+  attr_reader :dpid
   attr_writer :age_max
 
 
-  def initialize mac, port_no, age_max
+  def initialize mac, port_no, age_max, dpid
     @mac = mac
     @port_no = port_no
     @age_max = age_max
+    @dpid = dpid
     @last_update = Time.now
     debug "New entry: MAC address = #{ @mac.to_s }, port number = #{ @port_no }"
   end
@@ -75,12 +77,21 @@ class FDB
   end
 
 
-  def learn mac, port_no
+  def lookup mac
+    if dest = @db[ mac ]
+      [ dest.dpid, dest.port_no ]
+    else
+      nil
+    end
+  end
+
+
+  def learn mac, port_no, dpid = nil
     entry = @db[ mac ]
     if entry
       entry.update port_no
     else
-      new_entry = ForwardingEntry.new( mac, port_no, DEFAULT_AGE_MAX )
+      new_entry = ForwardingEntry.new( mac, port_no, DEFAULT_AGE_MAX, dpid )
       @db[ new_entry.mac ] = new_entry
     end
   end

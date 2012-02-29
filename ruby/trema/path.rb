@@ -1,9 +1,7 @@
 #
-# Trema paths.
-#
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,106 +18,63 @@
 #
 
 
+require "trema/monkey-patch/module"
+
+
 module Trema
-  def self.home
-    File.expand_path File.join( File.dirname( __FILE__ ), "..", ".." )
-  end
+  HOME = File.expand_path( File.join( File.dirname( __FILE__ ), "..", ".." ) )
 
 
-  def self.objects
-    File.join home, "objects"
-  end
-
-
-  def self.cmockery
-    File.join objects, "cmockery"
-  end
-
-
-  def self.openvswitch
-    File.join objects, "openvswitch"
-  end
-
-
-  def self.cmockery_h
-    File.join cmockery, "include/google/cmockery.h"
-  end
-
-
-  def self.libcmockery_a
-    File.join cmockery, "lib/libcmockery.a"
-  end
-
-
-  def self.openflow
-    File.join objects, "openflow"
-  end
-
-
-  def self.openflow_h
-    File.join openflow, "openflow.h"
-  end
-
-
-  def self.oflops
-    File.join objects, "oflops"
-  end
-
-
-  def self.tmp
-    if ENV.key?( "TREMA_TMP" )
-      File.expand_path ENV[ "TREMA_TMP" ]
-    else
-      File.join home, "tmp"
-    end
-  end
-
-
-  def self.log_directory
-    File.join tmp, "log"
-  end
-
-
-  def self.pid_directory
-    File.join tmp, "pid"
-  end
-
-
-  def self.sock_directory
-    File.join tmp, "sock"
-  end
-
-
-  module Vendor
-    def self.path
-      File.join Trema.home, "vendor"
+  class << self
+    def home
+      HOME
     end
 
 
-    def self.cmockery
-      File.join path, "cmockery-20110428"
+    def tmp
+      if ENV.key?( "TREMA_TMP" )
+        File.expand_path ENV[ "TREMA_TMP" ]
+      else
+        File.join home, "tmp"
+      end
     end
 
 
-    def self.openflow
-      File.join path, "openflow-1.0.0"
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def file base, path, name = nil
+      define_class_method( name || File.basename( path ).gsub( ".", "_" ) ) do
+        File.join __send__( base ), path
+      end
     end
-
-
-    def self.openvswitch
-      File.join path, "openvswitch-1.2.2"
-    end
-
-
-    def self.phost
-      File.join path, "phost"
-    end
-
-
-    def self.oflops
-      File.join path, "oflops-0.02"
-    end
+    alias :dir :file
   end
+
+
+  dir :home, "objects"
+  dir :home, "src/lib", :include
+  dir :home, "vendor"
+  dir :objects, "cmockery"
+  dir :objects, "lib"
+  dir :objects, "oflops"
+  dir :objects, "openflow"
+  dir :objects, "openvswitch"
+  dir :tmp, "log"
+  dir :tmp, "pid"
+  dir :tmp, "sock"
+  dir :vendor, "cmockery-20110428", :vendor_cmockery
+  dir :vendor, "oflops-0.03", :vendor_oflops
+  dir :vendor, "openflow-1.0.0", :vendor_openflow
+  dir :vendor, "openflow.git", :vendor_openflow_git
+  dir :vendor, "openvswitch-1.2.2", :vendor_openvswitch
+  dir :vendor, "phost", :vendor_phost
+  dir :vendor, "ruby-ifconfig-1.2", :vendor_ruby_ifconfig
+  file :cmockery, "include/google/cmockery.h"
+  file :cmockery, "lib/libcmockery.a"
+  file :openflow, "openflow.h"
 end
 
 

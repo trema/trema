@@ -1,7 +1,7 @@
 #
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -38,7 +38,7 @@ describe QueueGetConfigRequest, ".new( VALID OPTIONS )" do
 
   context "when #queue_get_config_request is sent" do
     it "should #queue_get_config_reply" do
-      pending "#queue_get_config_reply is not implemented in #{Trema::Vendor::openvswitch}"
+      pending "#queue_get_config_reply is not implemented in #{Trema.vendor_openvswitch}"
       class QueueGetConfigController < Controller; end
       network {
         vswitch { datapath_id 0xabc }

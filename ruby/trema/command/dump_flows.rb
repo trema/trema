@@ -1,10 +1,9 @@
-#! /usr/bin/env ruby
 #
-# Trema demo
+# trema dump_flows command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -21,11 +20,38 @@
 #
 
 
-require "fileutils"
+require "optparse"
+require "trema/dsl"
+require "trema/ofctl"
+require "trema/util"
 
 
-FileUtils.cd File.dirname( __FILE__ ) do
-  system "./build.rb cbench"
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def dump_flows
+      sanity_check
+
+      switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
+
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      puts Trema::Ofctl.new.dump_flows( switch )
+    end
+  end
 end
 
 

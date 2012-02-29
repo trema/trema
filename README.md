@@ -18,7 +18,7 @@ Getting Started
 Trema requires several third-party software. You can install the
 prerequisites as follows:
 
-  $ sudo apt-get install gcc make ruby ruby-dev irb sudo file libpcap-dev libsqlite3-dev
+  $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
 
 Download Trema source tree then run its build script:
 
@@ -26,6 +26,7 @@ Download Trema source tree then run its build script:
 
 NOTE: Trema has been tested ONLY on the following environments:
 
+* Ubuntu 11.10 (i386/amd64, Desktop Edition)
 * Ubuntu 11.04 (i386/amd64, Desktop Edition)
 * Ubuntu 10.10 (i386/amd64, Desktop Edition)
 * Ubuntu 10.04 (i386/amd64, Desktop Edition)
@@ -72,7 +73,6 @@ Please keep the list sorted.
 * Kazushi Sugyo
 * Kazuya Suzuki
 * Lei Sun
-* Naoyoshi Tada
 * Nick Karanatsios <nickkaranatsios@gmail.com>
 * Shin'ya Zenke
 * Shuji Ishii
@@ -95,7 +95,7 @@ Thanks to:
 License & Terms
 ---------------
 
-Copyright (C) 2008-2011 NEC Corporation
+Copyright (C) 2008-2012 NEC Corporation
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as

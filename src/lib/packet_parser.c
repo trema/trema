@@ -1,7 +1,7 @@
 /*
  * Author: Kazuya Suzuki
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -46,10 +46,10 @@ parse_ether( buffer *buf ) {
   }
 
   // Ethernet header
-  struct ether_header *ether_header = ptr;
-  memcpy( packet_info->eth_macsa, ether_header->ether_shost, ETH_ADDRLEN );
-  memcpy( packet_info->eth_macda, ether_header->ether_dhost, ETH_ADDRLEN );
-  packet_info->eth_type = ntohs( ether_header->ether_type );
+  ether_header_t *ether_header = ptr;
+  memcpy( packet_info->eth_macsa, ether_header->macsa, ETH_ADDRLEN );
+  memcpy( packet_info->eth_macda, ether_header->macda, ETH_ADDRLEN );
+  packet_info->eth_type = ntohs( ether_header->type );
 
   ptr = ( void * ) ( ether_header + 1 );
 
@@ -111,8 +111,10 @@ parse_ether( buffer *buf ) {
     packet_info->format |= ETH_DIX;
   }
 
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l2_payload = ptr;
+    packet_info->l2_payload_length = payload_length;
   }
 
   return;
@@ -183,16 +185,38 @@ parse_ipv4( buffer *buf ) {
   packet_info->ipv4_frag_off = ntohs( ipv4_header->frag_off );
   packet_info->ipv4_ttl = ipv4_header->ttl;
   packet_info->ipv4_protocol = ipv4_header->protocol;
-  packet_info->ipv4_checksum = ntohs( ipv4_header->check );
+  packet_info->ipv4_checksum = ntohs( ipv4_header->csum );
   packet_info->ipv4_saddr = ntohl( ipv4_header->saddr );
   packet_info->ipv4_daddr = ntohl( ipv4_header->daddr );
 
   ptr = ( char * ) ipv4_header + packet_info->ipv4_ihl * 4;
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l3_payload = ptr;
+    packet_info->l3_payload_length = payload_length;
   }
 
   packet_info->format |= NW_IPV4;
+
+  return;
+}
+
+
+static void
+parse_lldp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l3_header;
+  assert( ptr != NULL );
+
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
+    packet_info->l3_payload = ptr;
+    packet_info->l3_payload_length = payload_length;
+  }
+
+  packet_info->format |= NW_LLDP;
 
   return;
 }
@@ -234,8 +258,10 @@ parse_icmp( buffer *buf ) {
   }
 
   ptr = ( void * ) ( icmp_header + 1 );
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l4_payload = ptr;
+    packet_info->l4_payload_length = payload_length;
   }
 
   packet_info->format |= NW_ICMPV4;
@@ -266,8 +292,10 @@ parse_udp( buffer *buf ) {
   packet_info->udp_checksum = ntohs( udp_header->csum );
 
   ptr = ( void * ) ( udp_header + 1 );
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l4_payload = ptr;
+    packet_info->l4_payload_length = payload_length;
   }
 
   packet_info->format |= TP_UDP;
@@ -311,14 +339,76 @@ parse_tcp( buffer *buf ) {
   packet_info->tcp_urgent = ntohs( tcp_header->urgent );
 
   ptr = ( char * ) tcp_header + packet_info->tcp_offset * 4;
-  if ( REMAINED_BUFFER_LENGTH( buf, ptr ) > 0 ) {
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
     packet_info->l4_payload = ptr;
+    packet_info->l4_payload_length = payload_length;
   }
 
   packet_info->format |= TP_TCP;
 
   return;
 };
+
+
+
+static void
+parse_igmp( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( igmp_header_t ) ) {
+    return;
+  }
+
+  igmp_header_t *igmp = ptr;
+  packet_info->igmp_type = igmp->type;
+  packet_info->igmp_code = igmp->code;
+  packet_info->igmp_checksum = ntohs( igmp->csum );
+  packet_info->igmp_group = ntohl( igmp->group );
+
+  packet_info->format |= NW_IGMP;
+
+  return;
+}
+
+
+static void
+parse_etherip( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l4_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( etherip_header ) ) {
+    return;
+  }
+
+  // Ether header
+  etherip_header *etherip_header = ptr;
+  packet_info->etherip_version = ntohs( etherip_header->version );
+  packet_info->etherip_offset = 0;
+
+  ptr = ( void * ) ( etherip_header + 1 );
+  size_t payload_length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( payload_length > 0 ) {
+    packet_info->l4_payload = ptr;
+    packet_info->l4_payload_length = payload_length;
+    packet_info->etherip_offset = ( uint16_t ) ( ( char * ) ptr - ( char *) buf->data );
+  }
+
+  packet_info->format |= TP_ETHERIP;
+
+  return;
+}
 
 
 bool
@@ -349,6 +439,11 @@ parse_packet( buffer *buf ) {
     parse_ipv4( buf );
     break;
 
+  case ETH_ETHTYPE_LLDP:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_lldp( buf );
+    break;
+
   default:
     // Unknown L3 type
     return true;
@@ -377,6 +472,16 @@ parse_packet( buffer *buf ) {
   case IPPROTO_UDP:
     packet_info->l4_header = packet_info->l3_payload;
     parse_udp( buf );
+    break;
+
+  case IPPROTO_IGMP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_igmp( buf );
+    break;
+
+  case IPPROTO_ETHERIP:
+    packet_info->l4_header = packet_info->l3_payload;
+    parse_etherip( buf );
     break;
 
   default:

@@ -1,0 +1,24 @@
+Name  Mtu   Network       Address            Ipkts Ierrs     Ibytes    Opkts Oerrs     Obytes  Coll Time Drop
+xl0   1500  <Link#1>    00:01:02:c6:4b:ea  7878752     2  404325088  5502452     0 1276760877     0   0   0
+                        33:33:46:5d:24:5a
+                        33:33:00:00:00:01
+                        33:33:ff:c6:4b:ea
+                        01:00:5e:00:00:01
+xl0   1500  192.168.0     beleriand        7865045     -  287935758  5496244     - 1199565347     -   -   -
+                        ALL-SYSTEMS.MCAST.NET
+xl0   1500  fe80:1::201 fe80:1::201:2ff:f        0     -          0        0     -          0     -   -   -
+                        ff02:1::2:465d:245a(refs: 1)
+                        ff02:1::1          (refs: 1)
+                        ff02:1::1:ffc6:4bea(refs: 1)
+lo0   16384 <Link#2>                           574     0     118916      574     0     118916     0   0   0
+lo0   16384 localhost   ::1                      0     -          0        0     -          0     -   -   -
+                        ff01::1            (refs: 1)
+                        ff02:2::1          (refs: 1)
+                        ff02:2::1:ff00:1   (refs: 2)
+lo0   16384 fe80:2::1   fe80:2::1                0     -          0        0     -          0     -   -   -
+                        ff01::1            (refs: 1)
+                        ff02:2::1          (refs: 1)
+                        ff02:2::1:ff00:1   (refs: 2)
+lo0   16384 your-net      localhost            574     -     118916      574     -     118916     -   -   -
+                        ALL-SYSTEMS.MCAST.NET
+

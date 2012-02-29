@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2011 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -29,9 +29,8 @@ module Trema
       sanity_check
 
       if controller
-        controller = controller
         if /ELF/=~ `file #{ controller }`
-          stanza = DSL::App.new
+          stanza = DSL::Run.new
           stanza.path controller
           App.new stanza
         else
@@ -42,9 +41,9 @@ module Trema
         end
       end
 
-      runner = DSL::Runner.new( @context )
+      runner = DSL::Runner.new( $config )
       runner.maybe_run_switch_manager
-      @context.switches.each do | name, switch |
+      $config.switches.each do | name, switch |
         if switch.running?
           switch.restart!
         else
@@ -52,7 +51,10 @@ module Trema
         end
       end
 
-      @context.apps.values.last.daemonize!
+      $config.apps.values.last.daemonize!
+      $context.dump
+
+      true
     end
   end
 end
