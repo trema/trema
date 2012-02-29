@@ -27,7 +27,7 @@ Feature: Tutorial: Handling packet_in events example
 
 
   Scenario: Handle packet_in in Ruby
-    When I try trema run "./src/examples/packet_in/packet_in.rb" with following configuration (backgrounded):
+    When I try trema run "./src/examples/packet_in/packet-in.rb" with following configuration (backgrounded):
       """
       vswitch("packet_in") { dpid "0xabc" }
 
