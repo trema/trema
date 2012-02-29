@@ -23,6 +23,13 @@
 class PacketinDumper < Controller
   def packet_in datapath_id, event
     puts "received a packet_in"
+    info "datapath_id: #{ datapath_id.to_hex }"
+    info "transaction_id: #{ event.transaction_id.to_hex }"
+    info "buffer_id: #{ event.buffer_id.to_hex }"
+    info "total_len: #{ event.total_len }"
+    info "in_port: #{ event.in_port }"
+    info "reason: #{ event.reason.to_hex }"
+    info "data: #{ event.data.unpack "H*" }"
   end
 end
 
