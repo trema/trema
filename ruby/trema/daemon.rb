@@ -87,6 +87,20 @@ module Trema
     #
     # @return [undefined]
     #
+    def shutdown
+      raise "'#{ name }' is not running!" if not running?
+      shutdown!
+    end
+
+
+    #
+    # Kills running daemon process. Errors are ignored.
+    #
+    # @example
+    #   daemon.shutdown!
+    #
+    # @return [undefined]
+    #
     def shutdown!
       Trema::Process.read( pid_file, name ).kill!
     end
