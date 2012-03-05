@@ -35,7 +35,7 @@ module Trema
       sanity_check
 
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } reset_stats [OPTIONS ...]"
+      options.banner = "Usage: trema reset_stats [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s

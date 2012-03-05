@@ -46,7 +46,7 @@ Feature: kill a trema process with `trema kill' command
     When I try to run "./trema help kill"
     Then the output should be:
       """
-      Usage: ./trema kill NAME [OPTIONS ...]
+      Usage: trema kill NAME [OPTIONS ...]
           -h, --help
           -v, --verbose
 

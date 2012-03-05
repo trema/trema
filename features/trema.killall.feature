@@ -23,7 +23,7 @@ Feature: kill all trema processes with `trema killall' command
     When I try to run "./trema help killall"
     Then the output should be:
       """
-      Usage: ./trema killall [OPTIONS ...]
+      Usage: trema killall [OPTIONS ...]
           -h, --help
           -v, --verbose
 

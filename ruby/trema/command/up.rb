@@ -32,7 +32,7 @@ module Trema
 
     def up
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } up NAME [OPTIONS ...]"
+      options.banner = "Usage: trema up NAME [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s

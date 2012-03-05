@@ -31,7 +31,7 @@ module Trema
 
     def killall
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } killall [OPTIONS ...]"
+      options.banner = "Usage: trema killall [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s

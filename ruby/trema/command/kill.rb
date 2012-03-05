@@ -32,7 +32,7 @@ module Trema
 
     def kill
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } kill NAME [OPTIONS ...]"
+      options.banner = "Usage: trema kill NAME [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s
