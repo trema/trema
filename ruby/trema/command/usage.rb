@@ -37,6 +37,7 @@ Type '#{ trema } help <COMMAND>' for help on a specific command.
 Available commands:
   run            - runs a trema application.
   kill           - terminates a trema process.
+  up             - starts a killed trema process again.
   killall        - terminates all trema processes.
   send_packets   - sends UDP packets to destination host.
   show_stats     - shows stats of packets.

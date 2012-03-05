@@ -1,5 +1,5 @@
 #
-# Trema sub-commands.
+# trema up command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,18 +20,37 @@
 #
 
 
-require "trema/command/dump_flows"
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/reset_stats"
-require "trema/command/ruby"
-require "trema/command/run"
-require "trema/command/send_packets"
-require "trema/command/shell"
-require "trema/command/show_stats"
-require "trema/command/up"
-require "trema/command/usage"
-require "trema/command/version"
+require "optparse"
+require "trema/dsl"
+require "trema/util"
+
+
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def up
+      options = OptionParser.new
+      options.banner = "Usage: #{ $PROGRAM_NAME } up NAME [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      context = Trema::DSL::Context.load_current
+
+      switch = context.switches[ ARGV[ 0 ] ]
+      switch.run! if switch
+    end
+  end
+end
 
 
 ### Local variables:

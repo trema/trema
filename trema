@@ -34,6 +34,8 @@ def method_for command
   case command
     when "run", "start"
       return :run
+    when "up"
+      return :up
     when "kill", "stop", "off", "down"
       return :kill
     when "killall"
