@@ -64,8 +64,13 @@ module Trema
     end
 
 
-    def run!
+    def run
       raise "'#{ name }' is already running!" if running?
+      run!
+    end
+
+
+    def run!
       FileUtils.rm_f log_file if log_file
       command_block = self.class.class_eval do
         class_variable_get( :@@command )

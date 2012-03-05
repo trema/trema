@@ -47,7 +47,12 @@ module Trema
       context = Trema::DSL::Context.load_current
 
       switch = context.switches[ ARGV[ 0 ] ]
-      switch.run! if switch
+      if switch
+        switch.run
+        return
+      end
+
+      raise "Unknown name: #{ ARGV[ 0 ] }"
     end
   end
 end
