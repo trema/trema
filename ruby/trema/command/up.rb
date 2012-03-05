@@ -1,5 +1,5 @@
 #
-# Dumps packet-in message.
+# trema up command.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,9 +20,40 @@
 #
 
 
-class PacketinDumper < Controller
-  def packet_in datapath_id, event
-    puts "received a packet_in"
+require "optparse"
+require "trema/dsl"
+require "trema/util"
+
+
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def up
+      options = OptionParser.new
+      options.banner = "Usage: trema up NAME [OPTIONS ...]"
+
+      options.on( "-h", "--help" ) do
+        puts options.to_s
+        exit 0
+      end
+      options.on( "-v", "--verbose" ) do
+        $verbose = true
+      end
+
+      options.parse! ARGV
+
+      context = Trema::DSL::Context.load_current
+
+      switch = context.switches[ ARGV[ 0 ] ]
+      if switch
+        switch.run
+        return
+      end
+
+      raise "Unknown name: #{ ARGV[ 0 ] }"
+    end
   end
 end
 

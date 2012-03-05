@@ -37,7 +37,7 @@ module Trema
       switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
 
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } dump_flows SWITCH [OPTIONS ...]"
+      options.banner = "Usage: trema dump_flows SWITCH [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s

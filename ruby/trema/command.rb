@@ -29,6 +29,7 @@ require "trema/command/run"
 require "trema/command/send_packets"
 require "trema/command/shell"
 require "trema/command/show_stats"
+require "trema/command/up"
 require "trema/command/usage"
 require "trema/command/version"
 

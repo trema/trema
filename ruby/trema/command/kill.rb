@@ -32,7 +32,7 @@ module Trema
 
     def kill
       options = OptionParser.new
-      options.banner = "Usage: #{ $PROGRAM_NAME } kill NAME [OPTIONS ...]"
+      options.banner = "Usage: trema kill NAME [OPTIONS ...]"
 
       options.on( "-h", "--help" ) do
         puts options.to_s
@@ -50,13 +50,22 @@ module Trema
       pid_file = File.join( Trema.pid, "#{ ARGV[ 0 ] }.pid" )
       if FileTest.exist?( pid_file )
         Trema::Process.read( pid_file ).kill!
+        return
       end
 
       host = context.hosts[ ARGV[ 0 ] ]
-      host.shutdown! if host
+      if host
+        host.shutdown
+        return
+      end
 
       switch = context.switches[ ARGV[ 0 ] ]
-      switch.shutdown! if switch
+      if switch
+        switch.shutdown
+        return
+      end
+
+      raise "Unknown name: #{ ARGV[ 0 ] }"
 
       # [TODO] kill a link by its name. Needs a good naming convension for link.
     end

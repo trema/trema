@@ -48,7 +48,7 @@ GEM
       sexp_processor (~> 3.0)
     ruby_parser (2.3.1)
       sexp_processor (~> 3.0)
-    sexp_processor (3.0.10)
+    sexp_processor (3.1.0)
     term-ansicolor (1.0.7)
     yard (0.7.5)
 

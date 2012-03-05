@@ -8,7 +8,7 @@ Feature: reset network stats with `trema reset_stats' command
     When I try to run "./trema help reset_stats"
     Then the output should be:
       """
-      Usage: ./trema reset_stats [OPTIONS ...]
+      Usage: trema reset_stats [OPTIONS ...]
           -h, --help
           -v, --verbose
       """

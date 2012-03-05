@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = "trema"
-  s.version = "0.1.3.2"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yasuhito Takamiya"]
   s.bindir = ["."]
-  s.date = "2012-02-23"
+  s.date = "2012-03-05"
   s.description = "Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C"
   s.email = "yasuhito@gmail.com"
   s.executables = ["trema", "trema-config"]
@@ -117,6 +117,7 @@ Gem::Specification.new do |s|
     "ruby/trema/command/send_packets.rb",
     "ruby/trema/command/shell.rb",
     "ruby/trema/command/show_stats.rb",
+    "ruby/trema/command/up.rb",
     "ruby/trema/command/usage.rb",
     "ruby/trema/command/version.rb",
     "ruby/trema/controller.c",
@@ -172,6 +173,7 @@ Gem::Specification.new do |s|
     "ruby/trema/monkey-patch/integer/base-conversions.rb",
     "ruby/trema/monkey-patch/integer/ranges.rb",
     "ruby/trema/monkey-patch/module.rb",
+    "ruby/trema/monkey-patch/module/class-method.rb",
     "ruby/trema/monkey-patch/module/deprecation.rb",
     "ruby/trema/monkey-patch/string.rb",
     "ruby/trema/monkey-patch/string/inflectors.rb",
@@ -339,9 +341,9 @@ Gem::Specification.new do |s|
     "src/examples/openflow_message/set-config.rb",
     "src/examples/openflow_message/set_config.c",
     "src/examples/packet_in/README",
+    "src/examples/packet_in/packet-in.rb",
     "src/examples/packet_in/packet_in.c",
     "src/examples/packet_in/packet_in.conf",
-    "src/examples/packet_in/packet_in.rb",
     "src/examples/packetin_filter_config/README",
     "src/examples/packetin_filter_config/add_filter.c",
     "src/examples/packetin_filter_config/delete_filter.c",

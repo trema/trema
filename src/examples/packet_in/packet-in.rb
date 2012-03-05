@@ -1,5 +1,5 @@
 #
-# trema killall command.
+# Dumps packet-in message.
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
@@ -20,31 +20,16 @@
 #
 
 
-require "optparse"
-require "trema/util"
-
-
-module Trema
-  module Command
-    include Trema::Util
-
-
-    def killall
-      options = OptionParser.new
-      options.banner = "Usage: trema killall [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      cleanup_current_session
-    end
+class PacketinDumper < Controller
+  def packet_in datapath_id, event
+    puts "received a packet_in"
+    info "datapath_id: #{ datapath_id.to_hex }"
+    info "transaction_id: #{ event.transaction_id.to_hex }"
+    info "buffer_id: #{ event.buffer_id.to_hex }"
+    info "total_len: #{ event.total_len }"
+    info "in_port: #{ event.in_port }"
+    info "reason: #{ event.reason.to_hex }"
+    info "data: #{ event.data.unpack "H*" }"
   end
 end
 

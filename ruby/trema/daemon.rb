@@ -64,8 +64,13 @@ module Trema
     end
 
 
-    def run!
+    def run
       raise "'#{ name }' is already running!" if running?
+      run!
+    end
+
+
+    def run!
       FileUtils.rm_f log_file if log_file
       command_block = self.class.class_eval do
         class_variable_get( :@@command )
@@ -81,6 +86,20 @@ module Trema
 
     #
     # Kills running daemon process
+    #
+    # @example
+    #   daemon.shutdown!
+    #
+    # @return [undefined]
+    #
+    def shutdown
+      raise "'#{ name }' is not running!" if not running?
+      shutdown!
+    end
+
+
+    #
+    # Kills running daemon process. Errors are ignored.
     #
     # @example
     #   daemon.shutdown!
