@@ -30,7 +30,30 @@ require "trema/command"
 require "trema/path"
 
 
+def setup_tmp
+  if not FileTest.writable?( Trema.tmp )
+    # Trema is system widely installed with gem command
+    sh "sudo chmod o+w -R #{ Trema.tmp }"
+  end
+
+  FileUtils.mkdir_p Trema.log
+  FileUtils.mkdir_p Trema.pid
+  FileUtils.mkdir_p Trema.sock
+end
+
+
 def method_for command
+  case command
+    when "version", "-V", "--version"
+      return :version
+    when "ruby"
+      return :ruby
+    when "help", "-h", "--help", "/?", "-?"
+      return :usage
+  end
+
+  setup_tmp
+
   case command
     when "run", "start"
       return :run
@@ -46,25 +69,15 @@ def method_for command
       return :show_stats
     when "reset_stats"
       return :reset_stats
-    when "ruby"
-      return :ruby
     when "dump_flows", "dump_flow"
       return :dump_flows
-    when "version", "-V", "--version"
-      return :version
     when "shell", NilClass
       return :shell
-    when "help", "-h", "--help", "/?", "-?"
-      return :usage
     else
       return nil
   end
 end
 
-
-FileUtils.mkdir_p Trema.log
-FileUtils.mkdir_p Trema.pid
-FileUtils.mkdir_p Trema.sock
 
 command = ARGV.shift
 if method_for( command )
