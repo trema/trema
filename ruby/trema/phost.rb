@@ -29,7 +29,7 @@ module Trema
     include Trema::Daemon
 
 
-    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -D" }
+    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -D" }
     wait_until_up
     daemon_id :interface
 

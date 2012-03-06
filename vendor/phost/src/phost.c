@@ -50,6 +50,8 @@ static int phost_promiscuous = 0;
 static int run = 1;
 static char *pkt_dump;
 static char program_name[PATH_MAX];
+static char pid_dir[PATH_MAX];
+static char log_dir[PATH_MAX];
 
 int main(int argc, char **argv)
 {
@@ -67,7 +69,7 @@ int main(int argc, char **argv)
 
     /* parse options */
     while(1){
-        opt = getopt(argc, argv, "Dd:i:v");
+        opt = getopt(argc, argv, "Dd:i:p:l:v");
         if(opt < 0){
             break;
         }
@@ -98,7 +100,25 @@ int main(int argc, char **argv)
             else{
                 err |= 1;
             }
-            break;            
+            break;
+        case 'p':
+            if(optarg){
+                memset(pid_dir, '\0', sizeof(pid_dir));
+                strncpy(pid_dir, optarg, sizeof(pid_dir) - 1);
+            }
+            else{
+                err |= 1;
+            }
+            break;
+        case 'l':
+            if(optarg){
+                memset(log_dir, '\0', sizeof(log_dir));
+                strncpy(log_dir, optarg, sizeof(log_dir) - 1);
+            }
+            else{
+                err |= 1;
+            }
+            break;
         case 'v':
             log_file = LOG_OUT_STDOUT;
             log_level = LOG_DEBUG;
@@ -114,10 +134,10 @@ int main(int argc, char **argv)
     }
 
     if(log_file == NULL){
-        log_file = (char*)malloc(sizeof(char)*(strlen(PHOST_LOG_FILE)+strlen(dev_if)+2));
-        sprintf(log_file, "%s.%s", PHOST_LOG_FILE, dev_if);
+        log_file = (char*)malloc(sizeof(char)*(strlen(log_dir)+strlen(PHOST_LOG_FILE)+strlen(dev_if)+3));
+        sprintf(log_file, "%s/%s.%s", log_dir, PHOST_LOG_FILE, dev_if);
     }
- 
+
     /* check if this process is run with root privilege */
     if(getuid() != 0){
         fprintf(stderr, "[ERROR] `%s' must be run with root privilege.\n", program_name);
@@ -228,27 +248,27 @@ int phost_run()
 int phost_daemonize()
 {
     pid_t pid, sid;
-  
+
     pid = fork();
     if(pid < 0){
         return -1;
     }
-    
+
     if(pid > 0){
         exit(0);
     }
-    
+
     sid = setsid();
     if(sid < 0){
         return -1;
     }
-    
+
     umask(0);
-    
+
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
-    
+
     return 0;
 }
 
@@ -266,7 +286,7 @@ int phost_create_pid_file(const char *instance)
     char file[PATH_MAX];
 
     memset(file, '\0', sizeof(file));
-    snprintf(file, PATH_MAX - 1, "%s/tmp/pid/phost.%s.pid", get_current_dir_name(), instance);
+    snprintf(file, PATH_MAX - 1, "%s/phost.%s.pid", pid_dir, instance);
 
     pid = getpid();
 
@@ -289,7 +309,7 @@ int phost_delete_pid_file(const char *instance)
     char file[PATH_MAX];
 
     memset(file, '\0', sizeof(file));
-    snprintf(file, PATH_MAX - 1, "%s/tmp/pid/phost.%s.pid", get_current_dir_name(), instance);
+    snprintf(file, PATH_MAX - 1, "%s/phost.%s.pid", pid_dir, instance);
 
     return unlink(file);
 }
@@ -325,7 +345,7 @@ int phost_set_global_params()
         return -1;
     }
     close(fd);
-    
+
     /* max_dgram_qlen */
     fd = open(PHOST_MAX_DGRAM_QLEN_FILE, O_RDWR);
     if(fd < 0){
@@ -378,7 +398,7 @@ int phost_unset_global_params()
         return -1;
     }
     close(fd);
-    
+
     /* max_dgram_qlen */
     fd = open(PHOST_MAX_DGRAM_QLEN_FILE, O_RDWR);
     if(fd < 0){
@@ -419,7 +439,7 @@ void phost_handle_signals(int signum)
 
 int phost_print_usage()
 {
-    printf("usage: %s [-i dev] [-d debug_level] [-D] [-v]\n",
+    printf("usage: %s [-i dev] [-d debug_level] [-p pid_dir] [-l log_dir] [-D] [-v]\n",
            program_name);
     return 0;
 }

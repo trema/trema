@@ -18,7 +18,7 @@
 #ifndef _PHOST_H_
 #define _PHOST_H_
 
-#define PHOST_LOG_FILE "./tmp/log/phost.log"
+#define PHOST_LOG_FILE "phost.log"
 
 #define PHOST_DEFAULT_TAP_DEVICE "tap0"
 
