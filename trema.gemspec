@@ -2,21 +2,21 @@
 $:.push File.expand_path("../ruby", __FILE__)
 require "trema/version"
 
-Gem::Specification.new do |s|
+Gem::Specification.new do | s |
   s.name        = "trema"
   s.version     = Trema::VERSION
-  s.authors     = ["Yasuhito Takamiya"]
-  s.email       = ["yasuhito@gmail.com"]
+  s.authors     = [ "Yasuhito Takamiya" ]
+  s.email       = [ "yasuhito@gmail.com" ]
   s.homepage    = "http://github.com/trema/trema"
-  s.summary     = %q{Full-Stack OpenFlow Framework for Ruby/C}
-  s.description = %q{Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby/C}
-  s.license = "GPL2"
+  s.summary     = %q{Full-Stack OpenFlow Framework for Ruby and C}
+  s.description = %q{Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby and C}
+  s.license     = "GPL2"
 
-  s.files            = `git ls-files`.split("\n")
-  s.test_files       = `git ls-files -- {spec,features}/*`.split("\n")
+  s.files            = `git ls-files`.split( "\n" )
+  s.test_files       = `git ls-files -- {spec,features}/*`.split( "\n" )
   s.bindir           = "."
-  s.executables      = ["trema", "trema-config"]
-  s.extensions       = ["Rakefile"]
+  s.executables      = [ "trema", "trema-config" ]
+  s.extensions       = [ "Rakefile" ]
   s.extra_rdoc_files = [ "README.md" ]
 
   # specify any dependencies here; for example:
