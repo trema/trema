@@ -1,6 +1,7 @@
-*.gem
+# bundler generated
 .bundle
 Gemfile.lock
+*.gem
 pkg/*
 
 # rcov generated
@@ -13,6 +14,18 @@ rdoc
 # yard generated
 doc
 .yardoc
+
+# other generated files
+*.dependency
+/tmp
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+TAGS
+callgrind.out.*
+html
+objects
 
 # Have editor/IDE/OS specific files you need to ignore? Consider using a global gitignore: 
 #
@@ -40,14 +53,3 @@ doc
 
 # For vim:
 *.swp
-
-*.dependency
-/tmp
-GPATH
-GRTAGS
-GSYMS
-GTAGS
-TAGS
-callgrind.out.*
-html
-objects
