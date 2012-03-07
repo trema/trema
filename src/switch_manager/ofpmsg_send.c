@@ -216,7 +216,7 @@ ofpmsg_send_delete_all_flows( struct switch_info *sw_info ) {
   match.wildcards = OFPFW_ALL;
 
   buf = create_flow_mod( generate_xid(), match, RESERVED_COOKIE,
-                         OFPFC_DELETE, 0, 0, 0, 0, OFPP_NONE, 0, NULL );
+                         OFPFC_DELETE, 0, 0, 0, UINT32_MAX, OFPP_NONE, 0, NULL );
 
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
