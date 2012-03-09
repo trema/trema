@@ -462,7 +462,7 @@ end
 desc "Build switch manager."
 task :switch_manager => Trema::Executables.switch_manager
 file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
 end
 
 
@@ -482,7 +482,7 @@ end
 desc "Build switch."
 task :switch => Trema::Executables.switch
 file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
 end
 
 
@@ -507,7 +507,7 @@ end
 desc "Build packetin filter."
 task :packetin_filter => Trema::Executables.packetin_filter
 file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lpthread -lsqlite3 -ldl -lrt"
 end
 
 
@@ -543,7 +543,7 @@ end
 desc "Build tremashark."
 task :tremashark => Trema::Executables.tremashark
 file Trema::Executables.tremashark => tremashark_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
 end
 
 
@@ -557,7 +557,7 @@ end
 desc "Build packet_capture."
 task :packet_capture => Trema::Executables.packet_capture
 file Trema::Executables.packet_capture => packet_capture_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
 end
 
 
@@ -570,7 +570,7 @@ end
 desc "Build syslog_relay."
 task :syslog_relay => Trema::Executables.syslog_relay
 file Trema::Executables.syslog_relay => syslog_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
 end
 
 
@@ -583,7 +583,7 @@ end
 desc "Build stdin_relay."
 task :stdin_relay => Trema::Executables.stdin_relay
 file Trema::Executables.stdin_relay => stdin_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap"
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
 end
 
 
@@ -627,7 +627,7 @@ standalone_examples.each do | each |
   desc "Build #{ each } example."
   task "examples:#{ each }" => target
   file target => objects.candidates + [ libtrema ] do | t |
-    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
   end
 end
 
@@ -666,7 +666,7 @@ openflow_messages.each do | each |
   target = File.join( openflow_message_objects_dir, each )
   task "examples:openflow_message" => target
   file target => [ File.join( openflow_message_objects_dir, "#{ each }.o" ), libtrema ] do | t |
-    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
   end
 end
 
@@ -710,7 +710,7 @@ packetin_filter_config.each do | each |
     packetin_filter_config_utils_o,
     libtrema
   ] do | t |
-    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt"
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } #{ packetin_filter_config_utils_o } -ltrema -lsqlite3 -ldl -lrt -lpthread"
   end
 end
 
