@@ -23,4 +23,5 @@ Feature: trema help
         reset_stats    - resets stats of packets.
         dump_flows     - print all flow entries.
         ruby           - opens in your browser Trema's Ruby API documentation.
+        version        - displays the current runtime version.
       """
