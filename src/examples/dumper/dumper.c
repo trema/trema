@@ -102,16 +102,8 @@ static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
-  buffer *buffer;
-
   dump( "[switch_ready]" );
   dump( "datapath_id: %#" PRIx64, datapath_id );
-
-  buffer = create_features_request( get_transaction_id() );
-
-  send_openflow_message( datapath_id, buffer );
-
-  free_buffer( buffer );
 }
 
 
