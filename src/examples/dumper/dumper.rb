@@ -21,9 +21,57 @@
 
 
 class Dumper < Controller
+  def switch_ready datapath_id
+    info "[switch_ready]"
+    info "  datapath_id: #{ datapath_id.to_hex }"
+  end
+
+
   def switch_disconnected datapath_id
     info "[switch_disconnected]"
     info "  datapath_id: #{ datapath_id.to_hex }"
+  end
+
+
+  def openflow_error message
+    info "[error]"
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ message.transaction_id.to_hex }"
+    info "type: #{ message.type.to_hex }"
+    info "code: #{ message.code.to_hex }"
+    info "data: #{ message.data.unpack "H*" }"
+  end
+
+
+  def vendor message
+    info "[vendor]"
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ message.transaction_id.to_hex }"
+    info "data:"
+    info "#{ message.buffer.unpack "H*" }"
+  end
+
+
+  def features_reply message
+    info "[features_reply]"
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ message.transaction_id.to_hex }"
+    info "n_buffers: #{ message.n_buffers }"
+    info "n_tables: #{ message.n_tables }"
+    info "capabilities: #{ message.capabilities.to_hex }"
+    info "actions: #{ message.actions.to_hex }"
+    message.ports.each do | each |
+      dump_phy_port each
+    end
+  end
+
+
+  def get_config_reply message
+    info "[get_config_reply]"
+    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "transaction_id: #{ message.transaction_id.to_hex }"
+    info "flags: #{ message.flags.to_hex }"
+    info "miss_send_len: #{ message.miss_send_len }"
   end
 
 
@@ -70,15 +118,6 @@ class Dumper < Controller
   end
 
 
-  def get_config_reply message
-    info "[get_config_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
-    info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "flags: #{ message.flags.to_hex }"
-    info "miss_send_len: #{ message.miss_send_len }"
-  end
-
-
   def port_status message
     info "[port_status]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
@@ -98,13 +137,10 @@ class Dumper < Controller
   end
 
 
-  def openflow_error message
-    info "[error]"
+  def barrier_reply message
+    info "[barrier_reply]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "type: #{ message.type.to_hex }"
-    info "code: #{ message.code.to_hex }"
-    info "data: #{ message.data.unpack "H*" }"
   end
 
 
@@ -115,42 +151,6 @@ class Dumper < Controller
     info "port: #{ message.port }"
     info( "queues:" );
     dump_packet_queue message.queues
-  end
-
-
-  def barrier_reply message
-    info "[barrier_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
-    info "transaction_id: #{ message.transaction_id.to_hex }"
-  end
-
-
-  def features_reply message
-    info "[features_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
-    info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "n_buffers: #{ message.n_buffers }"
-    info "n_tables: #{ message.n_tables }"
-    info "capabilities: #{ message.capabilities.to_hex }"
-    info "actions: #{ message.actions.to_hex }"
-    message.ports.each do | each |
-      dump_phy_port each
-    end
-  end
-
-
-  def vendor message
-    info "[vendor]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
-    info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "data:"
-    info message.buffer.unpack( "H*" )
-  end
-
-
-  def list_switches_reply dpids
-    info "[list_switches_reply]"
-    info "switches = %s" % dpids.collect { | each | each.to_hex }.join( ", " )
   end
 
 

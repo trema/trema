@@ -53,6 +53,7 @@
 #include "get-config-request.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
+#include "vendor.h"
 #include "vendor-request.h"
 #include "queue-get-config-request.h"
 #include "queue-get-config-reply.h"
@@ -108,6 +109,7 @@ Init_trema() {
   Init_barrier_reply();
   Init_queue_get_config_request();
   Init_queue_get_config_reply();
+  Init_vendor();
   Init_vendor_request();
   Init_port_mod();
   rb_require( "trema/exact-match" );
