@@ -38,9 +38,9 @@ describe StatsRequest do
 
 
   context "when .FlowStatsRequest.new( OPTIONAL OPTIONS MISSING )" do
-    subject { FlowStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
+    subject { FlowStatsRequest.new( :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
     it_should_behave_like "any stats-request"
-    its( :match ) { should be_an_instance_of( Match ) }
+    its( :match ) { should be_an_instance_of( Trema::Match ) }
     its( :table_id ) { should == 0xff }
     its( :out_port ) { should == 0xffff }
   end
@@ -49,13 +49,13 @@ describe StatsRequest do
   context "when .FlowStatsRequest.new( VALID OPTIONS )" do
     subject do 
       FlowStatsRequest.new( 
-        :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+        :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
         :table_id => 1,
         :out_port => 2
       )
     end
     it_should_behave_like "any stats-request"
-    its( :match ) { should be_an_instance_of( Match ) }
+    its( :match ) { should be_an_instance_of( Trema::Match ) }
     its( :table_id ) { should == 1 }
     its( :out_port ) { should == 2 }
   end
@@ -70,9 +70,9 @@ describe StatsRequest do
 
 
   context "when .AggregateStatsRequest.new( OPTIONAL OPTIONS MISSING )" do
-    subject { AggregateStatsRequest.new( :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
+    subject { AggregateStatsRequest.new( :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ) ) }
     it_should_behave_like "any stats-request"
-    its( :match ) { should be_an_instance_of( Match ) }
+    its( :match ) { should be_an_instance_of( Trema::Match ) }
     its( :table_id ) { should == 0xff }
     its( :out_port ) { should == 0xffff }
   end
@@ -81,13 +81,13 @@ describe StatsRequest do
   context "when .AggregateStatsRequest.new( VALID OPTIONS )" do
     subject do 
       AggregateStatsRequest.new( 
-        :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+        :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
         :table_id => 1,
         :out_port => 2
       )
     end
     it_should_behave_like "any stats-request"
-    its( :match ) { should be_an_instance_of( Match ) }
+    its( :match ) { should be_an_instance_of( Trema::Match ) }
     its( :table_id ) { should == 1 }
     its( :out_port ) { should == 2 }
   end

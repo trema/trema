@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 #include "action-common.h"
 
 
@@ -56,7 +56,7 @@ action_set_nw_src_init( int argc, VALUE *argv, VALUE self ) {
     Check_Type( options, T_HASH );
     VALUE nw_src;
     if ( ( nw_src = rb_hash_aref( options, ID2SYM( rb_intern( "nw_src" ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_instance_of( nw_src, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
+      if ( !RB_OBJ_IS_INSTANCE_OF( nw_src, rb_eval_string( "Trema::IP" ) ) ) {
         rb_raise( rb_eTypeError, "nw src address should be an IP object" );
       }
       rb_iv_set( self, "@nw_src", nw_src );

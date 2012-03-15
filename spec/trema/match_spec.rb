@@ -22,9 +22,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Match, ".new" do
+describe Trema::Match, ".new" do
   subject {
-    Match.new(
+    Trema::Match.new(
       :in_port => 1,
       :dl_src => "00:00:00:00:00:01",
       :dl_dst => "00:00:00:00:00:02",
@@ -57,9 +57,9 @@ describe Match, ".new" do
 end
 
 
-describe Match, ".compare" do
+describe Trema::Match, ".compare" do
   it "Should match" do
-    tester = Match.new(
+    tester = Trema::Match.new(
       :in_port => 1,
       :dl_src => "00:00:00:00:00:01",
       :dl_dst => "00:00:00:00:00:02",
@@ -73,7 +73,7 @@ describe Match, ".compare" do
       :tp_src => 10,
       :tp_dst => 20
     )
-    pattern = Match.new(
+    pattern = Trema::Match.new(
       :in_port => 1,
       :nw_src => "192.168.0.0/24",
       :nw_dst => "192.168.0.0/24"
@@ -82,7 +82,7 @@ describe Match, ".compare" do
   end
 
   it "Should not match" do
-    tester = Match.new(
+    tester = Trema::Match.new(
       :in_port => 1,
       :dl_src => "00:00:00:00:00:01",
       :dl_dst => "00:00:00:00:00:02",
@@ -96,7 +96,7 @@ describe Match, ".compare" do
       :tp_src => 10,
       :tp_dst => 20
     )
-    pattern = Match.new(
+    pattern = Trema::Match.new(
       :in_port => 1,
       :nw_src => "10.0.0.0/8",
       :nw_dst => "10.0.0.0/8"

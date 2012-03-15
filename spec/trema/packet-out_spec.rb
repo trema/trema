@@ -26,7 +26,7 @@ class PacketOutController < Controller
   def packet_in datapath_id, message
     send_flow_mod_add(
       datapath_id,
-      :match => Match.from( message ),
+      :match => Trema::Match.from( message ),
       :actions => Trema::ActionOutput.new( :port => 2 )
     )
     send_packet_out(
@@ -48,7 +48,7 @@ describe "packet-out" do
   
   context "when invoked with no datapath_id" do
     it "should raise an error" do
-      lambda do
+      lambda do |arg|
         PacketOutController.new.send_packet_out
       end.should raise_error("wrong number of arguments (0 for 1)")
     end

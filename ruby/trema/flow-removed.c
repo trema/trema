@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -241,7 +241,7 @@ Init_flow_removed() {
 void
 handle_flow_removed( uint64_t datapath_id, flow_removed message ) {
   VALUE controller = ( VALUE ) message.user_data;
-  if ( rb_respond_to( controller, rb_intern( "flow_removed" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "flow_removed" ) ) ) {
     return;
   }
 

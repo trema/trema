@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 #include "action-common.h"
 
 
@@ -57,7 +57,7 @@ action_set_dl_dst_init( int argc, VALUE *argv, VALUE self ) {
     Check_Type( options, T_HASH );
     VALUE dl_dst;
     if ( ( dl_dst = rb_hash_aref( options, ID2SYM( rb_intern( "dl_dst" ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_instance_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
+      if ( !RB_OBJ_IS_INSTANCE_OF( dl_dst, rb_eval_string( "Trema::Mac" ) ) ) {
         rb_raise( rb_eTypeError, "dl dst address should be a Mac object" );
       }
       rb_iv_set( self, "@dl_dst", dl_dst );

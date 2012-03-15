@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -59,7 +59,7 @@ VALUE cActionOutput;
  */
 static VALUE
 action_output_init( VALUE self, VALUE options ) {
-  if ( rb_obj_is_kind_of( options, rb_cHash ) ) {
+  if ( RB_OBJ_IS_KIND_OF( options, rb_cHash ) ) {
     VALUE port;
     if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
       if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
@@ -81,7 +81,7 @@ action_output_init( VALUE self, VALUE options ) {
     }
     rb_iv_set( self, "@max_len", max_len );
   }
-  else if ( rb_obj_is_kind_of( options, rb_cInteger ) ) {
+  else if ( RB_OBJ_IS_KIND_OF( options, rb_cInteger ) ) {
     if ( rb_funcall( options, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
       rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
     }

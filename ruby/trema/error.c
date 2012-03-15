@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -106,7 +106,7 @@ error_new( int argc, VALUE *argv, VALUE klass ) {
     }
     VALUE user_data;
     if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
+      if ( !RB_OBJ_IS_KIND_OF( user_data, rb_cString ) ) {
         rb_raise( rb_eArgError, "User data must be a string" );
       }
       uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );

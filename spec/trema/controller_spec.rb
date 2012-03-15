@@ -27,41 +27,41 @@ module Trema
     context "when using OpenFlow constants" do
       subject { Controller.constants }
 
-      it { should include "OFPP_MAX" }
-      it { should include "OFPP_IN_PORT" }
-      it { should include "OFPP_TABLE" }
-      it { should include "OFPP_NORMAL" }
-      it { should include "OFPP_FLOOD" }
-      it { should include "OFPP_ALL" }
-      it { should include "OFPP_CONTROLLER" }
-      it { should include "OFPP_LOCAL" }
-      it { should include "OFPP_NONE" }
+      it { should include :OFPP_MAX }
+      it { should include :OFPP_IN_PORT }
+      it { should include :OFPP_TABLE }
+      it { should include :OFPP_NORMAL }
+      it { should include :OFPP_FLOOD }
+      it { should include :OFPP_ALL }
+      it { should include :OFPP_CONTROLLER }
+      it { should include :OFPP_LOCAL }
+      it { should include :OFPP_NONE }
 
-      it { should include "OFPPR_ADD" }
-      it { should include "OFPPR_DELETE" }
-      it { should include "OFPPR_MODIFY" }
+      it { should include :OFPPR_ADD }
+      it { should include :OFPPR_DELETE }
+      it { should include :OFPPR_MODIFY }
 
-      it { should include "OFPC_FLOW_STATS" }
-      it { should include "OFPC_TABLE_STATS" }
-      it { should include "OFPC_PORT_STATS" }
-      it { should include "OFPC_STP" }
-      it { should include "OFPC_RESERVED" }
-      it { should include "OFPC_IP_REASM" }
-      it { should include "OFPC_QUEUE_STATS" }
-      it { should include "OFPC_ARP_MATCH_IP" }
+      it { should include :OFPC_FLOW_STATS }
+      it { should include :OFPC_TABLE_STATS }
+      it { should include :OFPC_PORT_STATS }
+      it { should include :OFPC_STP }
+      it { should include :OFPC_RESERVED }
+      it { should include :OFPC_IP_REASM }
+      it { should include :OFPC_QUEUE_STATS }
+      it { should include :OFPC_ARP_MATCH_IP }
 
-      it { should include "OFPAT_OUTPUT" }
-      it { should include "OFPAT_SET_VLAN_VID" }
-      it { should include "OFPAT_SET_VLAN_PCP" }
-      it { should include "OFPAT_STRIP_VLAN" }
-      it { should include "OFPAT_SET_DL_SRC" }
-      it { should include "OFPAT_SET_DL_DST" }
-      it { should include "OFPAT_SET_NW_SRC" }
-      it { should include "OFPAT_SET_NW_DST" }
-      it { should include "OFPAT_SET_NW_TOS" }
-      it { should include "OFPAT_SET_TP_DST" }
-      it { should include "OFPAT_ENQUEUE" }
-      it { should include "OFPAT_VENDOR" }
+      it { should include :OFPAT_OUTPUT }
+      it { should include :OFPAT_SET_VLAN_VID }
+      it { should include :OFPAT_SET_VLAN_PCP }
+      it { should include :OFPAT_STRIP_VLAN }
+      it { should include :OFPAT_SET_DL_SRC }
+      it { should include :OFPAT_SET_DL_DST }
+      it { should include :OFPAT_SET_NW_SRC }
+      it { should include :OFPAT_SET_NW_DST }
+      it { should include :OFPAT_SET_NW_TOS }
+      it { should include :OFPAT_SET_TP_DST }
+      it { should include :OFPAT_ENQUEUE }
+      it { should include :OFPAT_VENDOR }
     end
 
 

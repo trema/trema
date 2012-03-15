@@ -18,13 +18,13 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 void
 handle_list_switches_reply( const list_element *switches, void *controller ) {
-  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "list_switches_reply" ) ) == Qfalse ) { 
+  if ( !RB_RESPOND_TO( ( VALUE ) controller, rb_intern( "list_switches_reply" ) ) ) { 
    return;
   }
   VALUE dpids = rb_ary_new();

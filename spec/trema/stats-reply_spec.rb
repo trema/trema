@@ -26,7 +26,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
   context "when #flow-stats-reply is created" do
     subject do
       actions = [ ActionOutput.new( :port => 1 ) ]
-      match = Match.new
+      match = Trema::Match.new
       FlowStatsReply.new(
         :length => 96,
         :table_id => 0,
@@ -46,7 +46,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     it { should respond_to( :to_s ) }
     its ( :length ) { should == 96 }
     its ( :table_id ) { should == 0 }
-    its ( :match ) { should be_an_instance_of Match }
+    its ( :match ) { should be_an_instance_of Trema::Match }
     its ( :duration_sec ) { should == 3 }
     its ( :duration_nsec ) { should == 106000000 }
     its ( :priority ) { should == 65535 } 
@@ -176,7 +176,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         controller( "FlowStatsController" ).send_flow_mod_add(
           0xabc, 
           # match the UDP packet
-          :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+          :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
           :actions => ActionOutput.new( :port => FlowStatsController::OFPP_FLOOD ) 
         )
@@ -190,7 +190,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           message.stats[0].packet_count.should == 2
           message.stats[0].should respond_to :to_s
         end
-        match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
+        match = Trema::Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "FlowStatsController" ).send_message( 0xabc,
           FlowStatsRequest.new( :match => match ) )
         sleep 2 # FIXME: wait to send_message
@@ -212,7 +212,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         controller( "AggregateStatsController" ).send_flow_mod_add(
           0xabc,
           # match the UDP packet
-          :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+          :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
           :actions => ActionOutput.new( :port => AggregateStatsController::OFPP_FLOOD ) 
         )
@@ -227,7 +227,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           message.stats[0].flow_count.should == 1
           message.stats[0].should respond_to :to_s
         end
-        match = Match.new( :dl_type =>0x800, :nw_proto => 17 )
+        match = Trema::Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "AggregateStatsController" ).send_message( 0xabc,
           AggregateStatsRequest.new( :match => match, :table_id => 0xff ) )
         sleep 2 # FIXME: wait to send_message
@@ -248,7 +248,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
       }.run( PortStatsController) {
         controller( "PortStatsController" ).send_flow_mod_add(
           0xabc,
-          :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
+          :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           :actions => ActionOutput.new( :port => PortStatsController::OFPP_FLOOD ) 
         )
         send_packets "host1", "host2"

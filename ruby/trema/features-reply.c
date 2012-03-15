@@ -19,8 +19,8 @@
 
 
 #include <string.h>
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 #include "port.h"
 
 
@@ -193,7 +193,7 @@ ports_from( const list_element *phy_ports ) {
 
 void
 handle_switch_ready( uint64_t datapath_id, void *controller ) {
-  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "switch_ready" ) ) == Qtrue ) {
+  if ( RB_RESPOND_TO( ( VALUE ) controller, rb_intern( "switch_ready" ) ) ) {
     rb_funcall( ( VALUE ) controller, rb_intern( "switch_ready" ), 1, ULL2NUM( datapath_id ) );
   }
 }
@@ -212,7 +212,7 @@ handle_features_reply(
   const list_element *phy_ports,
   void *controller
 ) {
-  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "features_reply" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( ( VALUE ) controller, rb_intern( "features_reply" ) ) ) {
     return;
   }
 

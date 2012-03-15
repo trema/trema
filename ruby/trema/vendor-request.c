@@ -18,8 +18,8 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 #define VENDOR_ID 0xccddeeff
@@ -103,7 +103,7 @@ vendor_request_init( int argc, VALUE *argv, VALUE self ) {
         int32_t i;
         buf = ( uint8_t * ) ( ( char * ) vendor_request->data + sizeof( struct ofp_vendor_header ) );
         memset( buf, 0, data_length );
-        for ( i = 0; i < data_length && i < RARRAY( data_r )->len; i++ ) {
+        for ( i = 0; i < data_length && i < RARRAY_LEN( data_r ); i++ ) {
           buf[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( data_r )[ i ] );
         }
       }

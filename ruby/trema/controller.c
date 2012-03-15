@@ -18,6 +18,10 @@
  */
 
 
+#include "ruby.h"
+#include "trema.h"
+
+
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
@@ -31,11 +35,9 @@
 #include "packet_in.h"
 #include "port-status.h"
 #include "queue-get-config-reply.h"
-#include "ruby.h"
 #include "rubysig.h"
 #include "stats-reply.h"
 #include "switch-disconnected.h"
-#include "trema.h"
 #include "vendor.h"
 
 
@@ -45,7 +47,7 @@ VALUE cController;
 
 static void
 handle_timer_event( void *self ) {
-  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) == Qtrue ) {
+  if ( RB_RESPOND_TO( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) ) {
     rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
   }
 }
@@ -441,7 +443,8 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 controller_run( VALUE self ) {
-  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+  VALUE home = rb_funcall( mTrema, rb_intern( "home" ), 0 );
+  setenv( "TREMA_HOME", STR2CSTR( home ), 1 );
 
   VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
   rb_gv_set( "$PROGRAM_NAME", name );
@@ -476,7 +479,7 @@ controller_run( VALUE self ) {
   interval.it_value.tv_nsec = 0;
   add_timer_event_callback( &interval, handle_timer_event, ( void * ) self );
 
-  if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
+  if ( RB_RESPOND_TO( self, rb_intern( "start" ) ) ) {
     rb_funcall( self, rb_intern( "start" ), 0 );
   }
 

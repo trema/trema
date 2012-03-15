@@ -381,7 +381,7 @@ gen Directory, "#{ Trema.home }/objects/unittests"
 libtrema = File.join( Trema.lib, "libtrema.a" )
 libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
 
-libtrema_o = gen DirectedRule, Trema.lib => [ Trema.include ], :o => :c do | t |
+libtrema_o = gen DirectedRule, Trema.lib => [ "#{Trema.include}" ], :o => :c do | t |
   sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ Trema.include ], :o => :c do | t |

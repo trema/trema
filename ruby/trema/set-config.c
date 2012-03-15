@@ -19,8 +19,8 @@
 
 
 #include <openflow.h>
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;

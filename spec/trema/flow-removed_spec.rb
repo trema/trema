@@ -25,7 +25,7 @@ require "trema"
 describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
   context "when an instance is created" do
     subject do
-      match = Match.new(
+      match = Trema::Match.new(
         :in_port => 1,
         :dl_src => "00:00:00:00:00:01",
         :dl_dst => "00:00:00:00:00:02",
@@ -56,7 +56,7 @@ describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
     end
     its ( :datapath_id ) { should == 2748 }
     its ( :transaction_id ) { should == 0 }
-    its ( :match ) { should be_instance_of( Match ) }
+    its ( :match ) { should be_instance_of( Trema::Match ) }
     its ( :cookie ) { should == 123456789 }
     its ( :priority ) { should == 65535 }
     its ( :reason ) { should == 0 }
@@ -87,7 +87,7 @@ describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
     
     it "should #flow_removed with valid attributes as per flow mod add" do
       class FlowRemovedController < Controller; end
-      match = Match.new( 
+      match = Trema::Match.new( 
         :in_port=> 1, 
         :dl_src => "00:00:00:00:00:01",
         :dl_dst => "00:00:00:00:00:02",
