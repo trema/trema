@@ -48,7 +48,7 @@ describe "packet-out" do
   
   context "when invoked with no datapath_id" do
     it "should raise an error" do
-      lambda do |arg|
+      lambda do
         PacketOutController.new.send_packet_out
       end.should raise_error("wrong number of arguments (0 for 1)")
     end
