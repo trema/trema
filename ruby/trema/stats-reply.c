@@ -305,13 +305,13 @@ handle_stats_reply(
       VALUE desc_stats_reply;
 
       rb_hash_aset( options, ID2SYM( rb_intern( "mfr_desc" ) ), 
-        rb_str_new( desc_stats->mfr_desc, ( long ) strlen( desc_stats->mfr_desc) ) );
+        rb_str_new( desc_stats->mfr_desc, ( long ) strnlen( desc_stats->mfr_desc, DESC_STR_LEN - 1 ) ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "hw_desc" ) ), 
-        rb_str_new( desc_stats->hw_desc, ( long ) strlen( desc_stats->hw_desc) ) );
+        rb_str_new( desc_stats->hw_desc, ( long ) strnlen( desc_stats->hw_desc, DESC_STR_LEN  - 1 ) ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "sw_desc" ) ), 
-        rb_str_new( desc_stats->sw_desc, ( long ) strlen( desc_stats->sw_desc) ) );
+        rb_str_new( desc_stats->sw_desc, ( long ) strnlen( desc_stats->sw_desc, DESC_STR_LEN  - 1 ) ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "serial_num" ) ), 
-        rb_str_new( desc_stats->serial_num, ( long ) strlen( desc_stats->serial_num) ) );
+        rb_str_new( desc_stats->serial_num, ( long ) strnlen( desc_stats->serial_num, SERIAL_NUM_LEN  - 1 ) ) );
       desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( desc_stats_arr, desc_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), desc_stats_arr );
