@@ -78,6 +78,7 @@ Please keep the list sorted.
 * Shuji Ishii
 * Sundell Jari <sundell.software@gmail.com>
 * Toshio Koide
+* Vladimir Olteanu <vladimir.olteanu@cs.pub.ro>
 * Yasuhito Takamiya <yasuhito@gmail.com>
 * Yasunobu Chiba
 * Yasunori Nakazawa

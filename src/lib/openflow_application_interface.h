@@ -252,10 +252,10 @@ bool set_openflow_event_handlers( const openflow_event_handlers_t handlers );
 #define set_switch_ready_handler( callback, user_data )                                      \
   {                                                                                          \
     if ( __builtin_types_compatible_p( typeof( callback ), simple_switch_ready_handler ) ) { \
-      _set_switch_ready_handler( true, callback, user_data );                                \
+      _set_switch_ready_handler( true, ( void * ) callback, user_data );                     \
     }                                                                                        \
     else if ( __builtin_types_compatible_p( typeof( callback ), switch_ready_handler ) ) {   \
-      _set_switch_ready_handler( false, callback, user_data );                               \
+      _set_switch_ready_handler( false, ( void * ) callback, user_data );                    \
     }                                                                                        \
     else {                                                                                   \
       _set_switch_ready_handler( false, NULL, NULL );                                        \
@@ -274,10 +274,10 @@ bool set_get_config_reply_handler( get_config_reply_handler callback, void *user
 #define set_packet_in_handler( callback, user_data )                                      \
   {                                                                                       \
     if ( __builtin_types_compatible_p( typeof( callback ), simple_packet_in_handler ) ) { \
-      _set_packet_in_handler( true, callback, user_data );                                \
+      _set_packet_in_handler( true, ( void * ) callback, user_data );                     \
     }                                                                                     \
     else if ( __builtin_types_compatible_p( typeof( callback ), packet_in_handler ) ) {   \
-      _set_packet_in_handler( false, callback, user_data );                               \
+      _set_packet_in_handler( false, ( void * ) callback, user_data );                    \
     }                                                                                     \
     else {                                                                                \
       _set_packet_in_handler( false, NULL, NULL );                                        \
@@ -289,10 +289,10 @@ bool _set_packet_in_handler( bool simple_callback, void *callback, void *user_da
 #define set_flow_removed_handler( callback, user_data )                                      \
   {                                                                                          \
     if ( __builtin_types_compatible_p( typeof( callback ), simple_flow_removed_handler ) ) { \
-      _set_flow_removed_handler( true, callback, user_data );                                \
+      _set_flow_removed_handler( true, ( void * ) callback, user_data );                     \
     }                                                                                        \
     else if ( __builtin_types_compatible_p( typeof( callback ), flow_removed_handler ) ) {   \
-      _set_flow_removed_handler( false, callback, user_data );                               \
+      _set_flow_removed_handler( false, ( void * ) callback, user_data );                    \
     }                                                                                        \
     else {                                                                                   \
       _set_flow_removed_handler( false, NULL, NULL );                                        \
