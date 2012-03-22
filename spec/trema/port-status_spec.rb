@@ -92,7 +92,7 @@ end
 
 module Trema
   class PortStatusController < Controller
-    def features_reply message
+    def features_reply dpid, message
       message.ports.select( &:up? ).each do | each |
         port_mod = PortMod.new(
           :port_no => each.number,
@@ -101,7 +101,7 @@ module Trema
           :mask => Port::OFPPC_PORT_DOWN,
           :advertise => 0
         )
-        send_message message.datapath_id, port_mod
+        send_message dpid, port_mod
       end
     end
   end
@@ -115,8 +115,8 @@ module Trema
           vhost "host"
           link "host", "0xabc"
         }.run( PortStatusController ) {
-          controller( "PortStatusController" ).should_receive( :port_status ).with do | message |
-            message.datapath_id.should == 0xabc
+          controller( "PortStatusController" ).should_receive( :port_status ).with do | dpid, message |
+            dpid.should == 0xabc
             message.reason.should == PortStatus::OFPPR_MODIFY
           end
 

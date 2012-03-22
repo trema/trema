@@ -164,7 +164,7 @@ handle_port_status(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "phy_port" ) ), port_from( &phy_port ) );
 
   VALUE port_status = rb_funcall( cPortStatus, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "port_status" ), 1, port_status );
+  rb_funcall( controller, rb_intern( "port_status" ), 2, ULL2NUM( datapath_id ), port_status );
 }
 
 
