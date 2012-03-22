@@ -23,9 +23,6 @@
 
 
 extern VALUE cPortStatus;
-extern VALUE cPortStatusAdd;
-extern VALUE cPortStatusDelete;
-extern VALUE cPortStatusModify;
 
 
 void Init_port_status( void );
