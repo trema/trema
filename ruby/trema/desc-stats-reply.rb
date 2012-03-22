@@ -36,10 +36,10 @@ module Trema
     #
     #   @example 
     #     DescStatsReply.new(
-    #       :mfr_desc => 96,
-    #       :hw_desc => 0, 
-    #       :sw_desc => Match.new
-    #       :serial_num => 10
+    #       :mfr_desc => "Nicira Networks, Inc.",
+    #       :hw_desc => "Open vSwitch", 
+    #       :sw_desc => "1.2.2"
+    #       :serial_num => "None"
     #     )
     #
     #   @param [Hash] options
