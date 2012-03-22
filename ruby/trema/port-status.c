@@ -135,6 +135,10 @@ Init_port_status() {
   rb_alias( cPortStatus, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cPortStatus, "reason", port_status_reason, 0 );
   rb_define_method( cPortStatus, "phy_port", port_status_phy_port, 0 );
+
+  rb_require( "trema/port-status-add" );
+  rb_require( "trema/port-status-delete" );
+  rb_require( "trema/port-status-modify" );
 }
 
 
@@ -162,15 +166,12 @@ handle_port_status(
 
   VALUE port_status = Qnil;
   if ( reason == OFPPR_ADD ) {
-    rb_require( "trema/port-status-add" );
     port_status = rb_funcall( rb_eval_string( "Trema::PortStatusAdd" ), rb_intern( "new" ), 1, attributes );
   }
   else if ( reason == OFPPR_DELETE ) {
-    rb_require( "trema/port-status-delete" );
     port_status = rb_funcall( rb_eval_string( "Trema::PortStatusDelete" ), rb_intern( "new" ), 1, attributes );
   }
   else if ( reason == OFPPR_MODIFY ) {
-    rb_require( "trema/port-status-modify" );
     port_status = rb_funcall( rb_eval_string( "Trema::PortStatusModify" ), rb_intern( "new" ), 1, attributes );
   }
   else {
