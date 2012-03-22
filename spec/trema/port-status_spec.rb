@@ -24,19 +24,60 @@ require "trema"
 
 describe Trema::PortStatus do
   context "when created" do
-    subject {
-      PortStatus.new(
-        :datapath_id => 0xabc,
-        :transaction_id => 123,
-        :reason => 2,
-        :phy_port => "PHY_PORT"
+    subject do
+      Trema::PortStatus.new(
+        :datapath_id => datapath_id,
+        :transaction_id => transaction_id,
+        :reason => reason,
+        :phy_port => phy_port
       )
-    }
+    end
 
-    its( :datapath_id ) { should == 0xabc }
-    its( :transaction_id ) { should == 123 }
-    its( :reason ) { should == 2 }
-    its( :phy_port ) { should == "PHY_PORT" }
+    let( :datapath_id ) { 0xabc }
+    let( :transaction_id ) { 123 }
+    let( :reason ) { 2 }
+    let( :phy_port ) { "PHY_PORT" }
+
+
+    context "with datapath_id (0xabc)" do
+      its( :datapath_id ) { should == 0xabc }
+    end
+
+    context "without datapath_id" do
+      let( :datapath_id ) { nil }
+      it { expect { subject }.to raise_error( ArgumentError, ":datapath_id is a mandatory option" ) }
+    end
+
+
+    context "with transaction_id" do
+      its( :transaction_id ) { should == 123 }
+    end
+
+    context "without transaction_id" do
+      let( :transaction_id ) { nil }
+      it { expect { subject }.to raise_error( ArgumentError, ":transaction_id is a mandatory option" ) }
+    end
+
+
+    context "with reason" do
+      its( :reason ) { should == 2 }
+    end
+
+    context "without reason" do
+      let( :reason ) { nil }
+      it { expect { subject }.to raise_error( ArgumentError, ":reason is a mandatory option" ) }
+    end
+
+
+    context "with phy_port" do
+      let( :phy_port ) { "PHY_PORT" }
+      its( :phy_port ) { should == "PHY_PORT" }
+    end
+
+    context "without phy_port" do
+      let( :phy_port ) { nil }
+      it { expect { subject }.to raise_error( ArgumentError, ":phy_port is a mandatory option" ) }
+    end
   end
 end
 
@@ -47,10 +88,10 @@ class PortStatusController < Controller
       each.config == 0
     end.sort
 
-    if ports.length > 0 
-      port_mod = PortMod.new( 
+    if ports.length > 0
+      port_mod = PortMod.new(
         :port_no => ports[ 0 ].number,
-        :hw_addr => ports[ 0 ].hw_addr, 
+        :hw_addr => ports[ 0 ].hw_addr,
         :config => 1, #config port down
         :mask => 1, #mask
         :advertise => 0

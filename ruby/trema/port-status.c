@@ -61,6 +61,19 @@ VALUE cPortStatus;
  */
 static VALUE
 port_status_init( VALUE self, VALUE options ) {
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "datapath_id" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":datapath_id is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":transaction_id is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "reason" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":reason is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "phy_port" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":phy_port is a mandatory option" );
+  }
+
   rb_iv_set( self, "@attribute", options );
   return self;
 }
