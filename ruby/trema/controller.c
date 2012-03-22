@@ -543,10 +543,6 @@ Init_controller() {
   rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
   rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
 
-  rb_define_const( cController, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
-  rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
-  rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
-
   rb_define_const( cController, "OFPC_FLOW_STATS", INT2NUM( OFPC_FLOW_STATS ) );
   rb_define_const( cController, "OFPC_TABLE_STATS", INT2NUM( OFPC_TABLE_STATS ) );
   rb_define_const( cController, "OFPC_PORT_STATS", INT2NUM( OFPC_PORT_STATS ) );

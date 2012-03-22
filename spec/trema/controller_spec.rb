@@ -37,10 +37,6 @@ module Trema
       it { should include "OFPP_LOCAL" }
       it { should include "OFPP_NONE" }
 
-      it { should include "OFPPR_ADD" }
-      it { should include "OFPPR_DELETE" }
-      it { should include "OFPPR_MODIFY" }
-
       it { should include "OFPC_FLOW_STATS" }
       it { should include "OFPC_TABLE_STATS" }
       it { should include "OFPC_PORT_STATS" }

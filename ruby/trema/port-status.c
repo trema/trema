@@ -127,6 +127,10 @@ void
 Init_port_status() {
   cPortStatus = rb_define_class_under( mTrema, "PortStatus", rb_cObject );
 
+  rb_define_const( cPortStatus, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
+  rb_define_const( cPortStatus, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
+  rb_define_const( cPortStatus, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
+
   rb_define_method( cPortStatus, "initialize", port_status_init, 1 );
   rb_define_method( cPortStatus, "datapath_id", port_status_datapath_id, 0 );
   rb_alias( cPortStatus, rb_intern( "dpid" ), rb_intern( "datapath_id" ) );

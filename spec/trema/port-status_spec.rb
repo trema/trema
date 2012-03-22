@@ -23,6 +23,12 @@ require "trema"
 
 
 describe Trema::PortStatus do
+  subject { Trema::PortStatus }
+  its( :constants ) { should include "OFPPR_ADD" }
+  its( :constants ) { should include "OFPPR_DELETE" }
+  its( :constants ) { should include "OFPPR_MODIFY" }
+
+
   context "when created" do
     subject do
       Trema::PortStatus.new(
@@ -35,7 +41,7 @@ describe Trema::PortStatus do
 
     let( :datapath_id ) { 0xabc }
     let( :transaction_id ) { 123 }
-    let( :reason ) { 2 }
+    let( :reason ) { Trema::PortStatus::OFPPR_ADD }
     let( :phy_port ) { "PHY_PORT" }
 
 
@@ -62,7 +68,7 @@ describe Trema::PortStatus do
 
 
     context "with reason" do
-      its( :reason ) { should == 2 }
+      its( :reason ) { should == Trema::PortStatus::OFPPR_ADD }
     end
 
     context "without reason" do
