@@ -126,12 +126,16 @@ port_status_phy_port( VALUE self ) {
 void
 Init_port_status() {
   cPortStatus = rb_define_class_under( mTrema, "PortStatus", rb_cObject );
+
   rb_define_method( cPortStatus, "initialize", port_status_init, 1 );
   rb_define_method( cPortStatus, "datapath_id", port_status_datapath_id, 0 );
+  rb_alias( cPortStatus, rb_intern( "dpid" ), rb_intern( "datapath_id" ) );
   rb_define_method( cPortStatus, "transaction_id", port_status_transaction_id, 0 );
+  rb_alias( cPortStatus, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cPortStatus, "reason", port_status_reason, 0 );
   rb_define_method( cPortStatus, "phy_port", port_status_phy_port, 0 );
 }
+
 
 /*
  * Handler called when +OFPT_PORT_STATUS+ message is received.
@@ -153,7 +157,6 @@ handle_port_status(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( reason ) );
-
   rb_hash_aset( attributes, ID2SYM( rb_intern( "phy_port" ) ), port_from( &phy_port ) );
 
   VALUE port_status = rb_funcall( cPortStatus, rb_intern( "new" ), 1, attributes );

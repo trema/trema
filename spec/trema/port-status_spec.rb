@@ -41,6 +41,7 @@ describe Trema::PortStatus do
 
     context "with datapath_id (0xabc)" do
       its( :datapath_id ) { should == 0xabc }
+      its( :dpid ) { should == 0xabc }
     end
 
     context "without datapath_id" do
@@ -51,6 +52,7 @@ describe Trema::PortStatus do
 
     context "with transaction_id" do
       its( :transaction_id ) { should == 123 }
+      its( :xid ) { should == 123 }
     end
 
     context "without transaction_id" do
