@@ -90,62 +90,40 @@ describe Trema::PortStatus do
 end
 
 
-class PortStatusController < Controller
-  def features_reply message
-    ports = message.ports.select do | each |
-      each.config == 0
-    end.sort
-
-    if ports.length > 0
-      port_mod = PortMod.new(
-        :port_no => ports[ 0 ].number,
-        :hw_addr => ports[ 0 ].hw_addr,
-        :config => 1, #config port down
-        :mask => 1, #mask
-        :advertise => 0
-      )
-      send_message message.datapath_id, port_mod
-    end
-  end
-end
-
-
-describe PortStatusController do
-  context "when port_mod is sent to switch" do
-    it "should receive #port_status" do
-      network {
-        vswitch("port-status") { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
-        link "host1", "port-status"
-        link "host2", "port-status"
-      }.run( PortStatusController ) {
-        controller( "PortStatusController" ).should_receive( :port_status )
-        controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
-        sleep 2 # FIXME: wait to receive port_status
-      }
+module Trema
+  class PortStatusController < Controller
+    def features_reply message
+      message.ports.select( &:up? ).each do | each |
+        port_mod = PortMod.new(
+          :port_no => each.number,
+          :hw_addr => each.hw_addr,
+          :config => Port::OFPPC_PORT_DOWN,
+          :mask => Port::OFPPC_PORT_DOWN,
+          :advertise => 0
+        )
+        send_message message.datapath_id, port_mod
+      end
     end
   end
 
 
-  context "when port_mod(port#1, down) is sent switch" do
-    it "should #port_status(port#1,down)"  do
-      network {
-        vswitch( "port-status" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
-        link "host1", "port-status"
-        link "host2", "port-status"
-      }.run( PortStatusController ) {
-        controller( "PortStatusController" ).send_message( 0xabc, FeaturesRequest.new )
-        controller( "PortStatusController" ).should_receive( :port_status ) do | message |
-          message.datapath_id.should == 0xabc
-          message.phy_port.number.should == 1
-          message.phy_port.config.should == 1
-          message.reason.should == 2
-        end
-        sleep 1 # FIXME: wait to receive port_status
-      }
+  describe Controller do
+    context "when one port goes down" do
+      it "should receive port_status" do
+        network {
+          vswitch { datapath_id 0xabc }
+          vhost "host"
+          link "host", "0xabc"
+        }.run( PortStatusController ) {
+          controller( "PortStatusController" ).should_receive( :port_status ).with do | message |
+            message.datapath_id.should == 0xabc
+            message.reason.should == PortStatus::OFPPR_MODIFY
+          end
+
+          controller( "PortStatusController" ).send_message 0xabc, FeaturesRequest.new
+          sleep 2  # FIXME: wait to receive port_status
+        }
+      end
     end
   end
 end
