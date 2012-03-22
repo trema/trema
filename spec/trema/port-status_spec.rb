@@ -117,6 +117,7 @@ module Trema
         }.run( PortStatusController ) {
           controller( "PortStatusController" ).should_receive( :port_status ).with do | dpid, message |
             dpid.should == 0xabc
+            message.should be_an_instance_of( PortStatusModify )
             message.reason.should == PortStatus::OFPPR_MODIFY
           end
 
