@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,15 +16,18 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require "rubygems"
+require "rspec"
 
 
-describe Trema::PortStatus do
-  subject { Trema::PortStatus }
-  its( :constants ) { should include "OFPPR_ADD" }
-  its( :constants ) { should include "OFPPR_DELETE" }
-  its( :constants ) { should include "OFPPR_MODIFY" }
+shared_examples_for "port status message" do | options |
+  it_should_behave_like(
+    "any Openflow message with mandatory options",
+    :klass => options[ :klass ],
+    :options => [ { :name => :datapath_id, :alias => :dpid, :sample_value => 0xabc },
+                  { :name => :transaction_id, :alias => :xid, :sample_value => 123 },
+                  { :name => :phy_port, :sample_value => "PHY_PORT" } ]
+  )
 end
 
 

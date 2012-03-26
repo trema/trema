@@ -40,8 +40,8 @@ describe FeaturesRequest, ".new( VALID OPTION )" do
       }.run( FeaturesController ) {
         features_request = FeaturesRequest.new( :transaction_id => 1234 )
         controller( "FeaturesController" ).send_message( 0xabc, features_request )
-        controller( "FeaturesController" ).should_receive( :features_reply ) do | arg |
-          arg.datapath_id.should == 0xabc
+        controller( "FeaturesController" ).should_receive( :features_reply ) do | dpid, arg |
+          dpid.should == 0xabc
           arg.transaction_id.should == 1234
         end
       }

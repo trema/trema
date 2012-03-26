@@ -28,17 +28,15 @@ VALUE cPortStatus;
 
 
 /*
- * An object that is implemented to wrap the details of the +OFPT_PORT_STATUS+
- * asynchronous message. This message is sent when a state transition on any
- * physical port is detected.
+ * Creates a port status message.
  *
- * @overload initialize(options={})
+ * @overload initialize(options)
  *   @example
  *     PortStatus.new(
- *       :datapath_id => 2748,
- *       :transaction_id => 0,
- *       :reason => 2,
- *       :phy_port => Port
+ *       :datapath_id => 0xabc,
+ *       :transaction_id => 123,
+ *       :reason => PortStatus::OFPPR_ADD,
+ *       :phy_port => port
  *     )
  *
  *   @param [Hash] options
@@ -57,10 +55,22 @@ VALUE cPortStatus;
  *     a {Port} object describing the properties of the port.
  *
  *   @return [PortStatus]
- *     an object that encapsulates the +OFPT_PORT_STATUS+ OpenFlow message.
  */
 static VALUE
 port_status_init( VALUE self, VALUE options ) {
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "datapath_id" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":datapath_id is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":transaction_id is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "reason" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":reason is a mandatory option" );
+  }
+  if ( rb_hash_aref( options, ID2SYM( rb_intern( "phy_port" ) ) ) == Qnil ) {
+    rb_raise( rb_eArgError, ":phy_port is a mandatory option" );
+  }
+
   rb_iv_set( self, "@attribute", options );
   return self;
 }
@@ -113,15 +123,27 @@ port_status_phy_port( VALUE self ) {
 void
 Init_port_status() {
   cPortStatus = rb_define_class_under( mTrema, "PortStatus", rb_cObject );
+
+  rb_define_const( cPortStatus, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
+  rb_define_const( cPortStatus, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
+  rb_define_const( cPortStatus, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
+
   rb_define_method( cPortStatus, "initialize", port_status_init, 1 );
   rb_define_method( cPortStatus, "datapath_id", port_status_datapath_id, 0 );
+  rb_alias( cPortStatus, rb_intern( "dpid" ), rb_intern( "datapath_id" ) );
   rb_define_method( cPortStatus, "transaction_id", port_status_transaction_id, 0 );
+  rb_alias( cPortStatus, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cPortStatus, "reason", port_status_reason, 0 );
   rb_define_method( cPortStatus, "phy_port", port_status_phy_port, 0 );
+
+  rb_require( "trema/port-status-add" );
+  rb_require( "trema/port-status-delete" );
+  rb_require( "trema/port-status-modify" );
 }
 
+
 /*
- * Handler called when +OFPT_PORT_STATUS+ message is received.
+ * Handler called when a port status message is received.
  */
 void
 handle_port_status(
@@ -132,19 +154,30 @@ handle_port_status(
   void *user_data
 ) {
   VALUE controller = ( VALUE ) user_data;
+
   if ( rb_respond_to( controller, rb_intern( "port_status" ) ) == Qfalse ) {
     return;
   }
-  VALUE attributes = rb_hash_new();
 
+  VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "reason" ) ), UINT2NUM( reason ) );
-
   rb_hash_aset( attributes, ID2SYM( rb_intern( "phy_port" ) ), port_from( &phy_port ) );
 
-  VALUE port_status = rb_funcall( cPortStatus, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "port_status" ), 1, port_status );
+  VALUE port_status = Qnil;
+  if ( reason == OFPPR_ADD ) {
+    port_status = rb_funcall( rb_eval_string( "Trema::PortStatusAdd" ), rb_intern( "new" ), 1, attributes );
+  }
+  else if ( reason == OFPPR_DELETE ) {
+    port_status = rb_funcall( rb_eval_string( "Trema::PortStatusDelete" ), rb_intern( "new" ), 1, attributes );
+  }
+  else if ( reason == OFPPR_MODIFY ) {
+    port_status = rb_funcall( rb_eval_string( "Trema::PortStatusModify" ), rb_intern( "new" ), 1, attributes );
+  }
+  else {
+    rb_raise( rb_eArgError, "Unknown port-status reason." );
+  }
+  rb_funcall( controller, rb_intern( "port_status" ), 2, ULL2NUM( datapath_id ), port_status );
 }
 
 

@@ -254,6 +254,9 @@ port_compare( VALUE self, VALUE other ) {
 void
 Init_port() {
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
+
+  rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
+
   rb_define_method( cPort, "initialize", port_init, 1 );
   rb_define_method( cPort, "number", port_number, 0 );
   rb_define_method( cPort, "hw_addr", port_hw_addr, 0 );

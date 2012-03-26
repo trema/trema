@@ -226,7 +226,7 @@ handle_features_reply(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( phy_ports ) );
 
   VALUE features_reply = rb_funcall( cFeaturesReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( ( VALUE ) controller, rb_intern( "features_reply" ), 1, features_reply );
+  rb_funcall( ( VALUE ) controller, rb_intern( "features_reply" ), 2, ULL2NUM( datapath_id ), features_reply );
 }
 
 

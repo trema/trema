@@ -1,6 +1,6 @@
 Trema ![Project status](http://stillmaintained.com/trema/trema.png)
 =====
-An Open Source modular framework for developing OpenFlow controllers in Ruby/C
+Full-Stack OpenFlow Framework in Ruby and C
 
 
 What's Trema?
@@ -18,11 +18,11 @@ Getting Started
 Trema requires several third-party software. You can install the
 prerequisites as follows:
 
-  $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
 
 Download Trema source tree then run its build script:
 
-  $ ./build.rb
+    $ ./build.rb
 
 NOTE: Trema has been tested ONLY on the following environments:
 
@@ -78,6 +78,7 @@ Please keep the list sorted.
 * Shuji Ishii
 * Sundell Jari <sundell.software@gmail.com>
 * Toshio Koide
+* Vladimir Olteanu <vladimir.olteanu@cs.pub.ro>
 * Yasuhito Takamiya <yasuhito@gmail.com>
 * Yasunobu Chiba
 * Yasunori Nakazawa

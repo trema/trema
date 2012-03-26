@@ -1,7 +1,9 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
+ * Trema C++ wrapper.
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Author: Vladimir Olteanu <vladimir.olteanu@cs.pub.ro>
+ *
+ * Copyright (C) 2012 Vladimir Olteanu
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -18,21 +20,27 @@
  */
 
 
-#include "ruby.h"
+#ifndef TREMA_HPP
+#define TREMA_HPP
+
+
+template <typename type1, typename type2> struct _types_compatible_p {
+  static const bool result = false;
+};
+
+template <typename type1> struct _types_compatible_p<type1, type1> {
+  static const bool result = true;
+};
+
+#define __builtin_types_compatible_p( type1, type2 ) _types_compatible_p< type1, type2 >::result
+
+
+extern "C" {
 #include "trema.h"
+}
 
 
-extern VALUE cPortStatus;
-
-
-void Init_port_status( void );
-void handle_port_status(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint8_t reason,
-  struct ofp_phy_port phy_port,
-  void *user_data
-);
+#endif // TREMA_HPP
 
 
 /*

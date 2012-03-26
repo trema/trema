@@ -26,8 +26,8 @@ class SwitchInfoController < Controller
   end
 
 
-  def features_reply message
-    info "datapath_id: %#x" % message.datapath_id
+  def features_reply datapath_id, message
+    info "datapath_id: %#x" % datapath_id
     info "transaction_id: %#x" % message.transaction_id
     info "n_buffers: %u" % message.n_buffers
     info "n_tables: %u" % message.n_tables
