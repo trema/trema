@@ -26,13 +26,6 @@
 
 extern VALUE mTrema;
 VALUE cPacketIn;
-VALUE mPacketInVTAG;
-VALUE mPacketInARP;
-VALUE mPacketInIPv4;
-VALUE mPacketInICMPv4;
-VALUE mPacketInIGMP;
-VALUE mPacketInTCP;
-VALUE mPacketInUDP;
 
 
 #define PACKET_IN_RETURN_MAC( packet_member ) {                         \
@@ -926,68 +919,61 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
 
-  mPacketInVTAG = rb_define_module_under( mTrema, "PacketInVTAG" );
-  rb_define_method( mPacketInVTAG, "vlan_tpid", packet_in_vlan_tpid, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_tci", packet_in_vlan_tci, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_prio", packet_in_vlan_prio, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_cfi", packet_in_vlan_cfi, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_vid", packet_in_vlan_vid, 0 );
+  rb_define_method( cPacketIn, "vlan_tpid", packet_in_vlan_tpid, 0 );
+  rb_define_method( cPacketIn, "vlan_tci", packet_in_vlan_tci, 0 );
+  rb_define_method( cPacketIn, "vlan_prio", packet_in_vlan_prio, 0 );
+  rb_define_method( cPacketIn, "vlan_cfi", packet_in_vlan_cfi, 0 );
+  rb_define_method( cPacketIn, "vlan_vid", packet_in_vlan_vid, 0 );
 
-  mPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
-  rb_define_method( mPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
-  rb_define_method( mPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
-  rb_define_method( mPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
-  rb_define_method( mPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
-  rb_define_method( mPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
+  rb_define_method( cPacketIn, "arp_oper", packet_in_arp_oper, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
 
-  mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
-  rb_define_method( mPacketInIPv4, "ipv4_version", packet_in_ipv4_version, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_tos", packet_in_ipv4_tos, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_tot_len", packet_in_ipv4_tot_len, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_id", packet_in_ipv4_id, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_frag_off", packet_in_ipv4_frag_off, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_ttl", packet_in_ipv4_ttl, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_protocol", packet_in_ipv4_protocol, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_checksum", packet_in_ipv4_checksum, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+  rb_define_method( cPacketIn, "ipv4_version", packet_in_ipv4_version, 0 );
+  rb_define_method( cPacketIn, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
+  rb_define_method( cPacketIn, "ipv4_tos", packet_in_ipv4_tos, 0 );
+  rb_define_method( cPacketIn, "ipv4_tot_len", packet_in_ipv4_tot_len, 0 );
+  rb_define_method( cPacketIn, "ipv4_id", packet_in_ipv4_id, 0 );
+  rb_define_method( cPacketIn, "ipv4_frag_off", packet_in_ipv4_frag_off, 0 );
+  rb_define_method( cPacketIn, "ipv4_ttl", packet_in_ipv4_ttl, 0 );
+  rb_define_method( cPacketIn, "ipv4_protocol", packet_in_ipv4_protocol, 0 );
+  rb_define_method( cPacketIn, "ipv4_checksum", packet_in_ipv4_checksum, 0 );
+  rb_define_method( cPacketIn, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
+  rb_define_method( cPacketIn, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
 
-  mPacketInICMPv4 = rb_define_module_under( mTrema, "PacketInICMPv4" );
-  rb_define_method( mPacketInICMPv4, "icmpv4_type", packet_in_icmpv4_type, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_code", packet_in_icmpv4_code, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_id", packet_in_icmpv4_id, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( cPacketIn, "icmpv4_type", packet_in_icmpv4_type, 0 );
+  rb_define_method( cPacketIn, "icmpv4_code", packet_in_icmpv4_code, 0 );
+  rb_define_method( cPacketIn, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
+  rb_define_method( cPacketIn, "icmpv4_id", packet_in_icmpv4_id, 0 );
+  rb_define_method( cPacketIn, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
+  rb_define_method( cPacketIn, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
 
-  mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
-  rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_group", packet_in_igmp_group, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_checksum", packet_in_igmp_checksum, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v2_leave_group?", packet_in_is_igmp_v2_leave_group, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v3_membership_report?", packet_in_is_igmp_v3_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_type", packet_in_igmp_type, 0 );
+  rb_define_method( cPacketIn, "igmp_group", packet_in_igmp_group, 0 );
+  rb_define_method( cPacketIn, "igmp_checksum", packet_in_igmp_checksum, 0 );
+  rb_define_method( cPacketIn, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
+  rb_define_method( cPacketIn, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_v2_leave_group?", packet_in_is_igmp_v2_leave_group, 0 );
+  rb_define_method( cPacketIn, "igmp_v3_membership_report?", packet_in_is_igmp_v3_membership_report, 0 );
 
-  mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
-  rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
-  rb_define_method( mPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
-  rb_define_method( mPacketInTCP, "tcp_seq_no", packet_in_tcp_seq_no, 0 );
-  rb_define_method( mPacketInTCP, "tcp_ack_no", packet_in_tcp_ack_no, 0 );
-  rb_define_method( mPacketInTCP, "tcp_offset", packet_in_tcp_offset, 0 );
-  rb_define_method( mPacketInTCP, "tcp_flags", packet_in_tcp_flags, 0 );
-  rb_define_method( mPacketInTCP, "tcp_window", packet_in_tcp_window, 0 );
-  rb_define_method( mPacketInTCP, "tcp_checksum", packet_in_tcp_checksum, 0 );
-  rb_define_method( mPacketInTCP, "tcp_urgent", packet_in_tcp_urgent, 0 );
+  rb_define_method( cPacketIn, "tcp_src_port", packet_in_tcp_src_port, 0 );
+  rb_define_method( cPacketIn, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
+  rb_define_method( cPacketIn, "tcp_seq_no", packet_in_tcp_seq_no, 0 );
+  rb_define_method( cPacketIn, "tcp_ack_no", packet_in_tcp_ack_no, 0 );
+  rb_define_method( cPacketIn, "tcp_offset", packet_in_tcp_offset, 0 );
+  rb_define_method( cPacketIn, "tcp_flags", packet_in_tcp_flags, 0 );
+  rb_define_method( cPacketIn, "tcp_window", packet_in_tcp_window, 0 );
+  rb_define_method( cPacketIn, "tcp_checksum", packet_in_tcp_checksum, 0 );
+  rb_define_method( cPacketIn, "tcp_urgent", packet_in_tcp_urgent, 0 );
 
-  mPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
-  rb_define_method( mPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
-  rb_define_method( mPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
-  rb_define_method( mPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
-  rb_define_method( mPacketInUDP, "udp_checksum", packet_in_udp_checksum, 0 );
-  rb_define_method( mPacketInUDP, "udp_len", packet_in_udp_len, 0 );
+  rb_define_method( cPacketIn, "udp_payload", packet_in_udp_payload, 0 );
+  rb_define_method( cPacketIn, "udp_src_port", packet_in_udp_src_port, 0 );
+  rb_define_method( cPacketIn, "udp_dst_port", packet_in_udp_dst_port, 0 );
+  rb_define_method( cPacketIn, "udp_checksum", packet_in_udp_checksum, 0 );
+  rb_define_method( cPacketIn, "udp_len", packet_in_udp_len, 0 );
 }
 
 
@@ -1007,34 +993,6 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   memcpy( tmp, &message, sizeof( packet_in ) );
 
   packet_info* info = ( packet_info * ) tmp->data->user_data;
-
-  if ( ( info->format & ETH_8021Q ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInVTAG );
-  }
-
-  if ( ( info->format & NW_ARP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInARP );
-  }
-
-  if ( ( info->format & NW_IPV4 ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIPv4 );
-  }
-
-  if ( ( info->format & NW_ICMPV4 ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInICMPv4 );
-  }
-
-  if ( ( info->format & NW_IGMP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIGMP );
-  }
-
-  if ( ( info->format & TP_TCP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInTCP );
-  }
-
-  if ( ( info->format & TP_UDP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInUDP );
-  }
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }
