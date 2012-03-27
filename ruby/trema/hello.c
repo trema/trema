@@ -34,24 +34,30 @@ hello_alloc( VALUE klass ) {
 /*
  * Creates a Hello OpenFlow message.
  *
- * @overload initialize(options={})
- *
+ * @overload initialize()
  *   @example
  *     Hello.new
- *     Hello.new( :transaction_id => 123 )
  *
+ * @overload initialize(transaction_id)
+ *   @example
+ *     Hello.new( 123 )
+ *   @param [Integer] transaction_id
+ *     An unsigned 32bit integer number associated with this message.
+ *
+ * @overload initialize(options)
+ *   @example
+ *     Hello.new( :xid => 123 )
+ *     Hello.new( :transaction_id => 123 )
  *   @param [Hash] options
  *     the options to create a message with.
- *
+ *   @option options [Number] :xid
  *   @option options [Number] :transaction_id
  *     An unsigned 32bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *
- *   @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
- *   @raise [TypeError] if options is not a Hash.
- *
- *   @return [Hello]
- *     an object that encapsulates the +OPFT_HELLO+ OpenFlow message.
+ * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
+ * @raise [TypeError] if options is not a Hash or a Integer.
+ * @return [Hello]
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
@@ -62,12 +68,18 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
     if ( options != Qnil ) {
-      Check_Type( options, T_HASH );
-      VALUE xid_ruby;
-      if ( rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) != Qnil ) {
-        xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-      } else if ( rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) ) != Qnil ) {
-        xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      VALUE xid_ruby = Qnil;
+      if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
+        xid_ruby = options;
+      }
+      else {
+        Check_Type( options, T_HASH );
+        VALUE tmp;
+        if ( ( tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+          xid_ruby = tmp;
+        } else if ( ( tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) ) ) != Qnil ) {
+          xid_ruby = tmp;
+        }
       }
       if ( xid_ruby != Qnil ) {
         if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {

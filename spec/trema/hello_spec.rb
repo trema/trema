@@ -39,6 +39,39 @@ module Trema
     end
 
 
+    context "options: number" do
+      subject { Hello.new( transaction_id ) }
+
+      context "transaction_id: -123" do
+        let( :transaction_id ) { -123 }
+        it { expect { subject }.to raise_error( ArgumentError ) }
+      end
+
+      context "transaction_id: 0" do
+        let( :transaction_id ) { 0 }
+        its( :transaction_id ) { should == 0 }
+        its( :xid ) { should == 0 }
+      end
+
+      context "transaction_id: 123" do
+        let( :transaction_id ) { 123 }
+        its( :transaction_id ) { should == 123 }
+        its( :xid ) { should == 123 }
+      end
+
+      context "transaction_id: UINT32_MAX" do
+        let( :transaction_id ) { 2 ** 32 - 1 }
+        its( :transaction_id ) { should == 2 ** 32 - 1 }
+        its( :xid ) { should == 2 ** 32 - 1 }
+      end
+
+      context "transaction_id: UINT32_MAX + 1" do
+        let( :transaction_id ) { 2 ** 32 }
+        it { expect { subject }.to raise_error( ArgumentError ) }
+      end
+    end
+
+
     context "options: :transaction_id => ..." do
       let( :options ) { { :transaction_id => transaction_id } }
 
