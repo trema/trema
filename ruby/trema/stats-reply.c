@@ -18,6 +18,7 @@
  */
 
 
+#include <arpa/inet.h>
 #include "trema.h"
 #include "ruby.h"
 #include "action-common.h"
@@ -325,11 +326,12 @@ handle_stats_reply(
       VALUE flow_stats_reply;
       VALUE match_obj;
       VALUE options = rb_hash_new();
-      VALUE actions_arr = rb_ary_new();
+      VALUE actions_arr;
 
       flow_stats = ( struct ofp_flow_stats * ) body->data;
 
       while ( body_length > 0 ) {
+        actions_arr = rb_ary_new();
 
         match_obj = rb_funcall( rb_eval_string( "Match.new" ), rb_intern( "replace" ), 1, Data_Wrap_Struct( cStatsReply, NULL, NULL, &flow_stats->match ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "length" ) ), UINT2NUM( flow_stats->length ) );
