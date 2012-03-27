@@ -26,6 +26,9 @@ task :default do
 end
 
 
+task :travis => [ :default, "spec:travis" ]
+
+
 begin
   require "bundler/gem_tasks"
 rescue LoadError
@@ -39,6 +42,11 @@ begin
 
   RSpec::Core::RakeTask.new( :spec ) do | spec |
     spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+  end
+
+  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
+    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+    spec.rspec_opts = "--tag nosudo -fs -c"
   end
 
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
