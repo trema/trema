@@ -305,7 +305,12 @@ packet_in_arp_oper( VALUE self ) {
  */
 static VALUE
 packet_in_arp_sha( VALUE self ) {
-  PACKET_IN_RETURN_MAC( arp_sha );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_sha );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -316,7 +321,12 @@ packet_in_arp_sha( VALUE self ) {
  */
 static VALUE
 packet_in_arp_spa( VALUE self ) {
-  PACKET_IN_RETURN_IP( arp_spa );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_IP( arp_spa );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -327,7 +337,12 @@ packet_in_arp_spa( VALUE self ) {
  */
 static VALUE
 packet_in_arp_tha( VALUE self ) {
-  PACKET_IN_RETURN_MAC( arp_tha );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_tha );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -338,7 +353,12 @@ packet_in_arp_tha( VALUE self ) {
  */
 static VALUE
 packet_in_arp_tpa( VALUE self ) {
-  PACKET_IN_RETURN_IP( arp_tpa );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_IP( arp_tpa );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
