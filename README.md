@@ -1,6 +1,14 @@
-Trema [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
+Trema
 =====
+
 Full-Stack OpenFlow Framework in Ruby and C
+
+
+Project Status
+--------------
+
+* Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
+* Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
 
 
 What's Trema?
