@@ -96,16 +96,16 @@ module Trema
 
         it "should create links" do
           link0 = mock( "link0" )
-          link0.should_receive( :delete! ).once.ordered
-          link0.should_receive( :enable! ).once.ordered
+          link0.should_receive( :delete! ).once
+          link0.should_receive( :enable! ).once
 
           link1 = mock( "link1" )
-          link1.should_receive( :delete! ).once.ordered
-          link1.should_receive( :enable! ).once.ordered
+          link1.should_receive( :delete! ).once
+          link1.should_receive( :enable! ).once
 
           link2 = mock( "link2" )
-          link2.should_receive( :delete! ).once.ordered
-          link2.should_receive( :enable! ).once.ordered
+          link2.should_receive( :delete! ).once
+          link2.should_receive( :enable! ).once
 
           context = mock(
             "context",
@@ -128,21 +128,21 @@ module Trema
           host1 = mock( "host1" )
           host2 = mock( "host2" )
 
-          host0.should_receive( :run! ).once.ordered
+          host0.should_receive( :run! ).once
           host0.should_receive( :add_arp_entry ).with do | arg |
             arg.size.should == 2
             arg.should include( host1 )
             arg.should include( host2 )
           end
 
-          host1.should_receive( :run! ).once.ordered
+          host1.should_receive( :run! ).once
           host1.should_receive( :add_arp_entry ).with do | arg |
             arg.size.should == 2
             arg.should include( host0 )
             arg.should include( host2 )
           end
 
-          host2.should_receive( :run! ).once.ordered
+          host2.should_receive( :run! ).once
           host2.should_receive( :add_arp_entry ).with do | arg |
             arg.size.should == 2
             arg.should include( host0 )
@@ -167,13 +167,13 @@ module Trema
 
         it "should run switches" do
           switch0 = mock( "switch0" )
-          switch0.should_receive( :run! ).once.ordered
+          switch0.should_receive( :run! ).once
 
           switch1 = mock( "switch1" )
-          switch1.should_receive( :run! ).once.ordered
+          switch1.should_receive( :run! ).once
 
           switch2 = mock( "switch2" )
-          switch2.should_receive( :run! ).once.ordered
+          switch2.should_receive( :run! ).once
 
           context = mock(
             "context",
