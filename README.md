@@ -1,5 +1,4 @@
 Trema [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
-
 =====
 Full-Stack OpenFlow Framework in Ruby and C
 
