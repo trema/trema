@@ -9,7 +9,6 @@ gemspec
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "bundler", "~> 1.1.0"
   gem "cucumber", "~> 1.1.9"
   gem "flay", "~> 1.4.3"
   gem "flog", "~> 2.5.3"
@@ -19,6 +18,6 @@ group :development do
   gem "redcarpet", "~> 2.1.0"
   gem "reek", "~> 1.2.8"
   gem "roodi", "~> 2.1.0"
-  gem "rspec", "~> 2.8.0"
+  gem "rspec", "~> 2.9.0"
   gem "yard", "~> 0.7"
 end

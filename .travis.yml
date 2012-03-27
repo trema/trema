@@ -1,0 +1,10 @@
+script: "rake travis"
+
+branches:
+  only:
+    - master
+    - develop
+
+before_install:
+ - sudo apt-get update
+ - sudo apt-get install libpcap-dev
