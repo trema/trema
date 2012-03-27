@@ -9,7 +9,6 @@ gemspec
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "bundler", "~> 1.1.0"
   gem "cucumber", "~> 1.1.9"
   gem "flay", "~> 1.4.3"
   gem "flog", "~> 2.5.3"
