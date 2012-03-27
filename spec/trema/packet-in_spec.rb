@@ -160,15 +160,19 @@ describe Trema::PacketIn do
           message.ipv4_ttl.should be_nil
           message.ipv4_protocol.should be_nil
           message.ipv4_checksum.should be_nil
+          message.ipv4_saddr.should be_nil
+          message.ipv4_daddr.should be_nil
 
           message.icmpv4_type.should be_nil
           message.icmpv4_code.should be_nil
           message.icmpv4_checksum.should be_nil
           message.icmpv4_id.should be_nil
           message.icmpv4_seq.should be_nil
+          message.icmpv4_gateway.should be_nil
 
           message.igmp_type.should be_nil
           message.igmp_checksum.should be_nil
+          message.igmp_group.should be_nil
 
           message.tcp_src_port.should be_nil
           message.tcp_dst_port.should be_nil

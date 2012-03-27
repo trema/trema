@@ -499,7 +499,12 @@ packet_in_ipv4_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_saddr( VALUE self ) {
-  PACKET_IN_RETURN_IP( ipv4_saddr );
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    PACKET_IN_RETURN_IP( ipv4_saddr );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -510,7 +515,12 @@ packet_in_ipv4_saddr( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_daddr( VALUE self ) {
-  PACKET_IN_RETURN_IP( ipv4_daddr );
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    PACKET_IN_RETURN_IP( ipv4_daddr );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -592,7 +602,12 @@ packet_in_icmpv4_seq( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_gateway( VALUE self ) {
-  PACKET_IN_RETURN_IP( icmpv4_gateway );
+  if ( ( get_packet_in_info( self )->format & NW_ICMPV4 ) ) {
+    PACKET_IN_RETURN_IP( icmpv4_gateway );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -710,7 +725,12 @@ packet_in_igmp_type( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_group( VALUE self ) {
-  PACKET_IN_RETURN_IP( igmp_group );
+  if ( ( get_packet_in_info( self )->format & NW_IGMP ) ) {
+    PACKET_IN_RETURN_IP( igmp_group );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -976,7 +996,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
   rb_define_method( cPacketIn, "icmpv4_id", packet_in_icmpv4_id, 0 );
   rb_define_method( cPacketIn, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( cPacketIn, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );  
 
   rb_define_method( cPacketIn, "igmp_type", packet_in_igmp_type, 0 );
   rb_define_method( cPacketIn, "igmp_group", packet_in_igmp_group, 0 );
