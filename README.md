@@ -33,17 +33,31 @@ diagnose internal data-flows among functional modules is provided.
 Getting Started
 ---------------
 
-Trema requires several third-party software. You can install the
-prerequisites as follows:
+1. Install the prerequisites at the command prompt:
 
     $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
 
-Download Trema source tree then run its build script:
+2. Install Trema at the command prompt:
 
-    $ ./build.rb
+    $ gem install trema
 
-Please refer to the quick start guide
-(https://github.com/trema/trema/wiki/Quick-start) for details.
+3. Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
+
+* The [Getting Started with Trema](https://github.com/trema/trema/wiki/Quick-start).
+* The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
+* The [Trema Tutorial](http://trema-tutorial.heroku.com/).
+* The [Trema Ruby API documents](http://rubydoc.info/github/trema/trema/master/frames).
+* The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
+
+
+Meta
+----
+
+* Web Page: http://trema.github.com/trema/
+* Bugs: https://github.com/trema/trema/issues
+* Mailing List: https://groups.google.com/group/trema-dev
+* Twitter: http://twitter.com/trema_news
+* Contributors: https://github.com/trema/trema/contributors
 
 
 Supported Platforms
@@ -61,55 +75,9 @@ It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
 
 
-Meta
-----
+License
+-------
 
-* Ruby API documents: http://rubydoc.info/github/trema/trema/master/frames
-* Bugs: https://github.com/trema/trema/issues
-* Mailing List: https://groups.google.com/group/trema-dev
-* Twitter: http://twitter.com/trema_news
-* Web Page: http://trema.github.com/trema/
-* Contributors: https://github.com/trema/trema/contributors
+Trema is released under the GNU General Public License version 2.0:
 
-
-License & Terms
----------------
-
-Copyright (C) 2008-2012 NEC Corporation
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as
-published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
-
-
-### Terms
-
-Terms of Contributing to Trema program ("Program")
-
-Please read the following terms before you submit to the Trema project
-("Project") any original works of corrections, modifications,
-additions, patches and so forth to the Program ("Contribution").  By
-submitting the Contribution, you are agreeing to be bound by the
-following terms.  If you do not or cannot agree to any of the terms,
-please do not submit the Contribution:
-
-1. You hereby grant to any person or entity receiving or distributing
-   the Program through the Project a worldwide, perpetual,
-   non-exclusive, royalty free license to use, reproduce, modify,
-   prepare derivative works of, display, perform, sublicense, and
-   distribute the Contribution and such derivative works.
-
-2. You warrant that you have all rights necessary to submit the
-   Contribution and, to the best of your knowledge, the Contribution
-   does not infringe copyright, patent, trademark, trade secret, or
-   other intellectual property rights of any third parties.
-
-3. In the event that the Contribution is combined with third parties'
-   programs, you notify to Project maintainers including NEC
-   Corporation ("Maintainers") the author, the license condition, and
-   the name of such third parties' programs.
+* http://www.opensource.org/licenses/GPL-2.0
