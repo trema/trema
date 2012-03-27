@@ -36,6 +36,14 @@ VALUE cPacketIn;
   VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
   return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); }
 
+#define PACKET_IN_RETURN_NUM( flag, func, packet_member ) {             \
+    if ( get_packet_in_info( self )->format & flag ) {                  \
+      return func( get_packet_in_info( self )->packet_member );         \
+    } else {                                                            \
+      return Qnil;                                                      \
+    }                                                                   \
+  }
+
 
 #if 0
 /*
@@ -230,7 +238,7 @@ packet_in_is_vtag( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_tpid( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_tpid );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_tpid );
 }
 
 
@@ -241,7 +249,7 @@ packet_in_vlan_tpid( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_tci( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_tci );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_tci );
 }
 
 
@@ -252,7 +260,7 @@ packet_in_vlan_tci( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_prio( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->vlan_prio );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_prio );
 }
 
 
@@ -263,7 +271,7 @@ packet_in_vlan_prio( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_cfi( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->vlan_cfi );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_cfi );
 }
 
 
@@ -274,7 +282,7 @@ packet_in_vlan_cfi( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_vid( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_vid );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_vid );
 }
 
 
@@ -301,7 +309,7 @@ packet_in_is_arp( VALUE self ) {
  */
 static VALUE
 packet_in_arp_oper( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->arp_ar_op );
+  PACKET_IN_RETURN_NUM( NW_ARP, UINT2NUM, arp_ar_op );
 }
 
 
@@ -372,7 +380,7 @@ packet_in_is_ipv4( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_version( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_version );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_version );
 }
 
 
@@ -383,7 +391,7 @@ packet_in_ipv4_version( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_ihl( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ihl );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_ihl );
 }
 
 
@@ -394,7 +402,7 @@ packet_in_ipv4_ihl( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_tos( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_tos );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_tos );
 }
 
 
@@ -405,7 +413,7 @@ packet_in_ipv4_tos( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_tot_len( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_tot_len );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_tot_len );
 }
 
 
@@ -416,7 +424,7 @@ packet_in_ipv4_tot_len( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_id( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_id );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_id );
 }
 
 
@@ -427,7 +435,7 @@ packet_in_ipv4_id( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_frag_off( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_frag_off );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_frag_off );
 }
 
 
@@ -438,7 +446,7 @@ packet_in_ipv4_frag_off( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_ttl( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ttl );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_ttl );
 }
 
 
@@ -449,7 +457,7 @@ packet_in_ipv4_ttl( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_protocol( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_protocol );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_protocol );
 }
 
 
@@ -460,7 +468,7 @@ packet_in_ipv4_protocol( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_checksum );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_checksum );
 }
 
 
@@ -509,7 +517,7 @@ packet_in_is_icmpv4( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_type( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_type );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_type );
 }
 
 
@@ -520,7 +528,7 @@ packet_in_icmpv4_type( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_code( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_code );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_code );
 }
 
 
@@ -531,7 +539,7 @@ packet_in_icmpv4_code( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_checksum );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_checksum );
 }
 
 
@@ -542,7 +550,7 @@ packet_in_icmpv4_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_id( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_id );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_id );
 }
 
 
@@ -553,7 +561,7 @@ packet_in_icmpv4_id( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_seq( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_seq );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_seq );
 }
 
 
@@ -671,7 +679,7 @@ packet_in_is_igmp_v3_membership_report( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_type( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->igmp_type );
+  PACKET_IN_RETURN_NUM( NW_IGMP, UINT2NUM, igmp_type );
 }
 
 
@@ -693,7 +701,7 @@ packet_in_igmp_group( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->igmp_checksum );
+  PACKET_IN_RETURN_NUM( NW_IGMP, UINT2NUM, igmp_checksum );
 }
 
 
@@ -720,7 +728,7 @@ packet_in_is_tcp( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_src_port );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_src_port );
 }
 
 
@@ -731,7 +739,7 @@ packet_in_tcp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_dst_port );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_dst_port );
 }
 
 
@@ -742,7 +750,7 @@ packet_in_tcp_dst_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_seq_no( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_seq_no );
+  PACKET_IN_RETURN_NUM( TP_TCP, ULONG2NUM, tcp_seq_no );
 }
 
 
@@ -753,7 +761,7 @@ packet_in_tcp_seq_no( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_ack_no( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_ack_no );
+  PACKET_IN_RETURN_NUM( TP_TCP, ULONG2NUM, tcp_ack_no );
 }
 
 
@@ -764,7 +772,7 @@ packet_in_tcp_ack_no( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_offset( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_offset );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_offset );
 }
 
 
@@ -775,7 +783,7 @@ packet_in_tcp_offset( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_flags( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_flags );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_flags );
 }
 
 
@@ -786,7 +794,7 @@ packet_in_tcp_flags( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_window( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_window );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_window );
 }
 
 
@@ -797,7 +805,7 @@ packet_in_tcp_window( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_checksum );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_checksum );
 }
 
 
@@ -808,7 +816,7 @@ packet_in_tcp_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_urgent( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_urgent );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_urgent );
 }
 
 
@@ -848,7 +856,7 @@ packet_in_udp_payload( VALUE self ) {
  */
 static VALUE
 packet_in_udp_src_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_src_port );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_src_port );
 }
 
 
@@ -859,7 +867,7 @@ packet_in_udp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_udp_dst_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_dst_port );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_dst_port );
 }
 
 
@@ -870,7 +878,7 @@ packet_in_udp_dst_port( VALUE self ) {
  */
 static VALUE
 packet_in_udp_len( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_len );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_len );
 }
 
 
@@ -881,7 +889,7 @@ packet_in_udp_len( VALUE self ) {
  */
 static VALUE
 packet_in_udp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_checksum );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_checksum );
 }
 
 
@@ -991,8 +999,6 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   packet_in *tmp = NULL;
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
-
-  packet_info* info = ( packet_info * ) tmp->data->user_data;
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }
