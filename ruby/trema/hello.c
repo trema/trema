@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -63,13 +61,15 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE xid_ruby;
-    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
-      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+    if ( options != Qnil ) {
+      Check_Type( options, T_HASH );
+      VALUE xid_ruby;
+      if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+        if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+          rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+        }
+        xid = ( uint32_t ) NUM2UINT( xid_ruby );
       }
-      xid = ( uint32_t ) NUM2UINT( xid_ruby );
     }
   }
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
