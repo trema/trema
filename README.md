@@ -33,15 +33,15 @@ diagnose internal data-flows among functional modules is provided.
 Getting Started
 ---------------
 
-1. Install the prerequisites at the command prompt:
+1.Install the prerequisites at the command prompt:
 
     $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
 
-2. Install Trema at the command prompt:
+2.Install Trema at the command prompt:
 
     $ gem install trema
 
-3. Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
+3.Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
 
 * The [Getting Started with Trema](https://github.com/trema/trema/wiki/Quick-start).
 * The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
