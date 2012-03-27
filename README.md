@@ -17,6 +17,18 @@ What's Trema?
 Trema is a OpenFlow controller framework that includes everything
 needed to create OpenFlow controllers in Ruby and C.
 
+This distribution includes all the source code of Trema you need to
+develop your own OpenFlow controllers. The source tree includes basic
+libraries and functional modules that work as an interface to OpenFlow
+switches.
+
+Several sample applications developed on top of Trema are also
+provided, so you can run them as a sample of OpenFlow
+controllers. Additionally, a simple but powerful framework that
+emulates an OpenFlow-based network and end-hosts is provided for
+testing your own controllers. For debugging, a wireshark plug-in to
+diagnose internal data-flows among functional modules is provided.
+
 
 Getting Started
 ---------------
@@ -47,22 +59,6 @@ Trema has been tested ONLY on the following environments:
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
-
-
-What's here?
-------------
-
-This distribution includes all the source code of Trema you need to
-develop your own OpenFlow controllers. The source tree includes basic
-libraries and functional modules that work as an interface to OpenFlow
-switches.
-
-Several sample applications developed on top of Trema are also
-provided, so you can run them as a sample of OpenFlow
-controllers. Additionally, a simple but powerful framework that
-emulates an OpenFlow-based network and end-hosts is provided for
-testing your own controllers. For debugging, a wireshark plug-in to
-diagnose internal data-flows among functional modules is provided.
 
 
 Meta
