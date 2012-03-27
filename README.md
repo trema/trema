@@ -14,10 +14,8 @@ Project Status
 What's Trema?
 -------------
 
-Welcome to the Trema OpenFlow programming framework. The scope of
-Trema is to help developers to easily create their own OpenFlow
-controllers, and NOT aiming at providing a specific OpenFlow
-controller implementation.
+Trema is a OpenFlow controller framework that includes everything
+needed to create OpenFlow controllers in Ruby and C.
 
 
 Getting Started
@@ -32,7 +30,14 @@ Download Trema source tree then run its build script:
 
     $ ./build.rb
 
-NOTE: Trema has been tested ONLY on the following environments:
+Please refer to the quick start guide
+(https://github.com/trema/trema/wiki/Quick-start) for details.
+
+
+Supported Platforms
+-------------------
+
+Trema has been tested ONLY on the following environments:
 
 * Ubuntu 11.10 (i386/amd64, Desktop Edition)
 * Ubuntu 11.04 (i386/amd64, Desktop Edition)
@@ -59,9 +64,6 @@ emulates an OpenFlow-based network and end-hosts is provided for
 testing your own controllers. For debugging, a wireshark plug-in to
 diagnose internal data-flows among functional modules is provided.
 
-Please refer to the quick start guide
-(https://github.com/trema/trema/wiki/Quick-start) for details.
-
 
 Meta
 ----
@@ -71,34 +73,7 @@ Meta
 * Mailing List: https://groups.google.com/group/trema-dev
 * Twitter: http://twitter.com/trema_news
 * Web Page: http://trema.github.com/trema/
-
-
-Authors
--------
-
-Please keep the list sorted.
-
-* Kazushi Sugyo
-* Kazuya Suzuki
-* Lei Sun
-* Nick Karanatsios <nickkaranatsios@gmail.com>
-* Shin'ya Zenke
-* Shuji Ishii
-* Sundell Jari <sundell.software@gmail.com>
-* Toshio Koide
-* Vladimir Olteanu <vladimir.olteanu@cs.pub.ro>
-* Yasuhito Takamiya <yasuhito@gmail.com>
-* Yasunobu Chiba
-* Yasunori Nakazawa
-
-
-### Contributors
-
-Thanks to:
-
-* Initial Helios development team for implementing prototype versions.
-* HIDEyuki Shimonishi for providing much-needed coffee, snacks, and christmas cakes!
-* Anonymous alpha/beta testers for finding potential issues.
+* Contributors: https://github.com/trema/trema/contributors
 
 
 License & Terms
