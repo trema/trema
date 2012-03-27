@@ -64,7 +64,12 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     if ( options != Qnil ) {
       Check_Type( options, T_HASH );
       VALUE xid_ruby;
-      if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
+      if ( rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) != Qnil ) {
+        xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+      } else if ( rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) ) != Qnil ) {
+        xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      }
+      if ( xid_ruby != Qnil ) {
         if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
           rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
         }
@@ -99,6 +104,7 @@ Init_hello() {
   rb_define_alloc_func( cHello, hello_alloc );
   rb_define_method( cHello, "initialize", hello_init, -1 );
   rb_define_method( cHello, "transaction_id", hello_transaction_id, 0 );
+  rb_alias( cHello, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
 }
 
 

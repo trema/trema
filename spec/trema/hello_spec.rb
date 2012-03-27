@@ -28,12 +28,14 @@ module Trema
     context "options: none" do
       subject { Hello.new }
       its( :transaction_id ) { should be_unsigned_32bit }
+      its( :xid ) { should be_unsigned_32bit }
     end
 
 
     context "options: nil" do
       let( :options ) { nil }
       its( :transaction_id ) { should be_unsigned_32bit }
+      its( :xid ) { should be_unsigned_32bit }
     end
 
 
@@ -48,20 +50,56 @@ module Trema
       context "transaction_id: 0" do
         let( :transaction_id ) { 0 }
         its( :transaction_id ) { should == 0 }
+        its( :xid ) { should == 0 }
       end
 
       context "transaction_id: 123" do
         let( :transaction_id ) { 123 }
         its( :transaction_id ) { should == 123 }
+        its( :xid ) { should == 123 }
       end
 
       context "transaction_id: UINT32_MAX" do
         let( :transaction_id ) { 2 ** 32 - 1 }
         its( :transaction_id ) { should == 2 ** 32 - 1 }
+        its( :xid ) { should == 2 ** 32 - 1 }
       end
 
       context "transaction_id: UINT32_MAX + 1" do
         let( :transaction_id ) { 2 ** 32 }
+        it { expect { subject }.to raise_error( ArgumentError ) }
+      end
+    end
+
+
+    context "options: :xid => ..." do
+      let( :options ) { { :xid => xid } }
+
+      context "xid: -123" do
+        let( :xid ) { -123 }
+        it { expect { subject }.to raise_error( ArgumentError ) }
+      end
+
+      context "xid: 0" do
+        let( :xid ) { 0 }
+        its( :xid ) { should == 0 }
+        its( :transaction_id ) { should == 0 }
+      end
+
+      context "xid: 123" do
+        let( :xid ) { 123 }
+        its( :xid ) { should == 123 }
+        its( :transaction_id ) { should == 123 }
+      end
+
+      context "xid: UINT32_MAX" do
+        let( :xid ) { 2 ** 32 - 1 }
+        its( :xid ) { should == 2 ** 32 - 1 }
+        its( :transaction_id ) { should == 2 ** 32 - 1 }
+      end
+
+      context "xid: UINT32_MAX + 1" do
+        let( :xid ) { 2 ** 32 }
         it { expect { subject }.to raise_error( ArgumentError ) }
       end
     end
