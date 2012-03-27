@@ -24,7 +24,7 @@ require "rubygems"
 require "rake"
 
 task :default do
-  system "./build.rb"
+  sh "./build.rb"
 end
 
 
