@@ -1,18 +1,5 @@
-Trema
-=====
-
-Full-Stack OpenFlow Framework in Ruby and C
-
-
-Project Status
---------------
-
-* Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
-* Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
-
-
-What's Trema?
--------------
+Welcome to Trema
+================
 
 Trema is a OpenFlow controller framework that includes everything
 needed to create OpenFlow controllers in Ruby and C.
@@ -65,14 +52,18 @@ Supported Platforms
 
 Trema has been tested ONLY on the following environments:
 
-* Ubuntu 11.10 (i386/amd64, Desktop Edition)
-* Ubuntu 11.04 (i386/amd64, Desktop Edition)
-* Ubuntu 10.10 (i386/amd64, Desktop Edition)
-* Ubuntu 10.04 (i386/amd64, Desktop Edition)
+* Ubuntu 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
+
+
+Project Status
+--------------
+
+* Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
+* Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
 
 
 License
