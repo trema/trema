@@ -31,6 +31,14 @@ hello_alloc( VALUE klass ) {
 }
 
 
+static void
+validate_xid( VALUE xid ) {
+  if ( rb_funcall( xid, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+    rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+  }
+}
+
+
 /*
  * Creates a Hello OpenFlow message.
  *
@@ -61,35 +69,48 @@ hello_alloc( VALUE klass ) {
  */
 static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
-  buffer *hello;
+  buffer *hello = NULL;
   Data_Get_Struct( self, buffer, hello );
-  uint32_t xid = get_transaction_id();
-  VALUE options;
+  uint32_t xid;
+  VALUE options = Qnil;
 
-  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
-    if ( options != Qnil ) {
+  if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
+    xid = get_transaction_id();
+  }
+  else {
+    if ( options == Qnil ) {
+      xid = get_transaction_id();
+    }
+    else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
+      validate_xid( options );
+      xid = ( uint32_t ) NUM2UINT( options );
+    }
+    else {
+      Check_Type( options, T_HASH );
+      VALUE tmp = Qnil;
       VALUE xid_ruby = Qnil;
-      if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
-        xid_ruby = options;
+
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+      if ( tmp != Qnil ) {
+        xid_ruby = tmp;
+      }
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      if ( tmp != Qnil ) {
+        xid_ruby = tmp;
+      }
+
+      if ( xid_ruby != Qnil ) {
+        validate_xid( xid_ruby );
+        xid = ( uint32_t ) NUM2UINT( xid_ruby );
       }
       else {
-        Check_Type( options, T_HASH );
-        VALUE tmp;
-        if ( ( tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
-          xid_ruby = tmp;
-        } else if ( ( tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) ) ) != Qnil ) {
-          xid_ruby = tmp;
-        }
-      }
-      if ( xid_ruby != Qnil ) {
-        if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-          rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
-        }
-        xid = ( uint32_t ) NUM2UINT( xid_ruby );
+        xid = get_transaction_id();
       }
     }
   }
+
   ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
+
   return self;
 }
 

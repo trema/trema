@@ -39,7 +39,7 @@ module Trema
 
     context "transaction_id: -123" do
       let( :transaction_id ) { -123 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
 
     context "transaction_id: 0" do
@@ -62,7 +62,7 @@ module Trema
 
     context "transaction_id: UINT32_MAX + 1" do
       let( :transaction_id ) { 2 ** 32 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
   end
 
@@ -72,7 +72,7 @@ module Trema
 
     context "transaction_id: -123" do
       let( :transaction_id ) { -123 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
 
     context "transaction_id: 0" do
@@ -95,7 +95,7 @@ module Trema
 
     context "transaction_id: UINT32_MAX + 1" do
       let( :transaction_id ) { 2 ** 32 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
   end
 
@@ -105,7 +105,7 @@ module Trema
 
     context "xid: -123" do
       let( :xid ) { -123 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
 
     context "xid: 0" do
@@ -128,7 +128,7 @@ module Trema
 
     context "xid: UINT32_MAX + 1" do
       let( :xid ) { 2 ** 32 }
-      it { expect { subject }.to raise_error( ArgumentError ) }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
     end
   end
 
