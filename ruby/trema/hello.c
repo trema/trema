@@ -56,7 +56,7 @@ hello_alloc( VALUE klass ) {
  *     If not specified, an auto-generated value is set.
  *
  * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
- * @raise [TypeError] if options is not a Hash or a Integer.
+ * @raise [TypeError] if argument is not a Integer or a Hash.
  * @return [Hello]
  */
 static VALUE
