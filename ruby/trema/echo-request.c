@@ -26,63 +26,103 @@ extern VALUE mTrema;
 VALUE cEchoRequest;
 
 
+// FIXME
+static void
+validate_xid( VALUE xid ) {
+  if ( rb_funcall( xid, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+    rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+  }
+}
+
+
 /*
- * An echo request message can be used to measure the bandwidth of a
- * controller/switch connection as well as to verify its liveness.
+ * Creates a EchoRequest OpenFlow message. This message can be used to
+ * measure the bandwidth of a controller/switch connection as well as
+ * to verify its liveness.
  *
- * @overload initialize(options={})
+ * @overload initialize()
+ *   @example
+ *     EchoRequest.new
+ *
+ * @overload initialize(transaction_id)
+ *   @example
+ *     EchoRequest.new( 123 )
+ *   @param [Integer] transaction_id
+ *     An unsigned 32bit integer number associated with this message.
+ *
+ * @overload initialize(options)
  *   @example
  *     EchoRequest.new(
  *       :transaction_id => transaction_id,
  *       :user_data => "Thu Aug 25 13:09:00 +0900 2011"
  *     )
- *
  *   @param [Hash] options
  *     the options to create a message with.
- *
+ *   @option options [Number] :xid
  *   @option options [Number] :transaction_id
- *     a positive number, not recently attached to any previous pending commands to
- *     guarantee message integrity auto-generated if not specified.
- *
+ *     An unsigned 32bit integer number associated with this message.
+ *     If not specified, an auto-generated value is set.
  *   @option options [String] :user_data
  *     the user data field specified as a String may be a message timestamp to check latency,
  *     various lengths to measure bandwidth or zero-size(nil) to verify liveness between
  *     the switch and controller.
  *
- *   @raise [ArgumentError] if transaction id is not an unsigned 32-bit integer.
- *   @raise [ArgumentError] if user data is not a string.
- *   @raise [TypeError] if options is not a hash.
- *
- *   @return [EchoRequest]
- *     an object that encapsulates the +OPFT_ECHO_REQUEST+ OpenFlow message.
+ * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
+ * @raise [ArgumentError] if user data is not a string.
+ * @raise [TypeError] if argument is not a hash.
+ * @return [EchoRequest]
  */
 static VALUE
-echo_request_new( int argc, VALUE *argv, VALUE klass ) {
-  buffer *echo_request;
+echo_request_init( int argc, VALUE *argv, VALUE klass ) {
+  buffer *echo_request = NULL;
   buffer *body = NULL;
-  uint32_t xid = get_transaction_id();
-  VALUE options;
+  uint32_t xid;
+  VALUE options = Qnil;
 
-  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE xid_ruby;
-    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
-      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
-      }
-      xid = ( uint32_t ) NUM2UINT( xid_ruby );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
+    xid = get_transaction_id();
+  }
+  else {
+    if ( options == Qnil ) {
+      xid = get_transaction_id();
     }
-    VALUE user_data;
-    if ( ( user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
-        rb_raise( rb_eArgError, "User data must be a string" );
+    else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
+      validate_xid( options );
+      xid = ( uint32_t ) NUM2UINT( options );
+    }
+    else {
+      Check_Type( options, T_HASH );
+      VALUE xid_tmp = Qnil;
+      VALUE xid_ruby = Qnil;
+      xid_tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+      if ( xid_tmp != Qnil ) {
+        xid_ruby = xid_tmp;
       }
-      uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
-      body = alloc_buffer_with_length( length );
-      void *p = append_back_buffer( body, length );
-      memcpy( p, RSTRING_PTR( user_data ), length );
+      xid_tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      if ( xid_tmp != Qnil ) {
+        xid_ruby = xid_tmp;
+      }
+      if ( xid_ruby != Qnil ) {
+        validate_xid( xid_ruby );
+        xid = ( uint32_t ) NUM2UINT( xid_ruby );
+      }
+      else {
+        xid = get_transaction_id();
+      }
+
+      VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
+      if ( user_data != Qnil ) {
+        if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
+          rb_raise( rb_eArgError, "User data must be a string" );
+        }
+        uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
+        body = alloc_buffer_with_length( length );
+        void *p = append_back_buffer( body, length );
+        memcpy( p, RSTRING_PTR( user_data ), length );
+      }
     }
   }
+
   echo_request = create_echo_request( xid, body );
   if ( body != NULL ) {
     free_buffer( body );
@@ -126,8 +166,9 @@ echo_request_user_data( VALUE self ) {
 void
 Init_echo_request() {
   cEchoRequest = rb_define_class_under( mTrema, "EchoRequest", rb_cObject );
-  rb_define_singleton_method( cEchoRequest, "new", echo_request_new, -1 );
+  rb_define_singleton_method( cEchoRequest, "new", echo_request_init, -1 );
   rb_define_method( cEchoRequest, "transaction_id", echo_request_transaction_id, 0 );
+  rb_alias( cEchoRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cEchoRequest, "user_data", echo_request_user_data, 0 );
 }
 

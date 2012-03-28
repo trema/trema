@@ -46,6 +46,7 @@ begin
 
   RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
     spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+    # FIXME: use --tag ~sudo
     spec.rspec_opts = "--tag nosudo -fs -c"
   end
 

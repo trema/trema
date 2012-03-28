@@ -21,7 +21,7 @@ require "trema"
 
 
 module Trema
-  describe Hello, :nosudo => true do
+  describe Hello, ".new", :nosudo => true do
     its( :transaction_id ) { should be_unsigned_32bit }
     its( :xid ) { should be_unsigned_32bit }
   end
