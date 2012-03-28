@@ -28,8 +28,7 @@ module Trema
 
   describe Hello, ".new(nil)", :nosudo => true do
     subject { Hello.new( nil ) }
-    its( :transaction_id ) { should be_unsigned_32bit }
-    its( :xid ) { should be_unsigned_32bit }
+    it_should_behave_like "any Openflow message with default transaction ID"
   end
 
 
