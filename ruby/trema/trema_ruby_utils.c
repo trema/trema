@@ -36,6 +36,12 @@ get_xid( VALUE self ) {
 
 
 void
+set_length( const buffer *openflow_message, uint16_t length ) {
+  ( ( struct ofp_header * ) ( openflow_message->data ) )->length = htons( ( uint16_t ) ( sizeof( struct ofp_header ) + length ) );
+}
+
+
+void
 validate_xid( VALUE xid ) {
   if ( rb_obj_is_kind_of( xid, rb_cInteger ) != Qtrue ) {
     rb_raise( rb_eTypeError, "Transaction ID must be an integer" );

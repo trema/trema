@@ -64,45 +64,42 @@ static VALUE
 hello_init( int argc, VALUE *argv, VALUE self ) {
   buffer *hello = NULL;
   Data_Get_Struct( self, buffer, hello );
-  uint32_t xid;
   VALUE options = Qnil;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
-    xid = get_transaction_id();
+    set_xid( hello, get_transaction_id() );
   }
   else {
     if ( options == Qnil ) {
-      xid = get_transaction_id();
+      set_xid( hello, get_transaction_id() );
     }
     else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
       validate_xid( options );
-      xid = ( uint32_t ) NUM2UINT( options );
+      set_xid( hello, ( uint32_t ) NUM2UINT( options ) );
     }
     else {
       Check_Type( options, T_HASH );
       VALUE tmp = Qnil;
-      VALUE xid_ruby = Qnil;
+      VALUE xid = Qnil;
 
       tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
       if ( tmp != Qnil ) {
-        xid_ruby = tmp;
+        xid = tmp;
       }
       tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
       if ( tmp != Qnil ) {
-        xid_ruby = tmp;
+        xid = tmp;
       }
 
-      if ( xid_ruby != Qnil ) {
-        validate_xid( xid_ruby );
-        xid = ( uint32_t ) NUM2UINT( xid_ruby );
+      if ( xid != Qnil ) {
+        validate_xid( xid );
+        set_xid( hello, ( uint32_t ) NUM2UINT( xid ) );
       }
       else {
-        xid = get_transaction_id();
+        set_xid( hello, get_transaction_id() );
       }
     }
   }
-
-  set_xid( hello, xid );
 
   return self;
 }

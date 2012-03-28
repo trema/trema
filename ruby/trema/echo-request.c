@@ -75,38 +75,38 @@ static VALUE
 echo_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *echo_request = NULL;
   Data_Get_Struct( self, buffer, echo_request );
-  uint32_t xid;
   VALUE options = Qnil;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
-    xid = get_transaction_id();
+    set_xid( echo_request, get_transaction_id() );
   }
   else {
     if ( options == Qnil ) {
-      xid = get_transaction_id();
+      set_xid( echo_request, get_transaction_id() );
     }
     else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
       validate_xid( options );
-      xid = ( uint32_t ) NUM2UINT( options );
+      set_xid( echo_request, ( uint32_t ) NUM2UINT( options ) );
     }
     else {
       Check_Type( options, T_HASH );
-      VALUE xid_tmp = Qnil;
-      VALUE xid_ruby = Qnil;
-      xid_tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-      if ( xid_tmp != Qnil ) {
-        xid_ruby = xid_tmp;
+      VALUE tmp = Qnil;
+      VALUE xid = Qnil;
+
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+      if ( tmp != Qnil ) {
+        xid = tmp;
       }
-      xid_tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
-      if ( xid_tmp != Qnil ) {
-        xid_ruby = xid_tmp;
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      if ( tmp != Qnil ) {
+        xid = tmp;
       }
-      if ( xid_ruby != Qnil ) {
-        validate_xid( xid_ruby );
-        xid = ( uint32_t ) NUM2UINT( xid_ruby );
+      if ( xid != Qnil ) {
+        validate_xid( xid );
+        set_xid( echo_request, ( uint32_t ) NUM2UINT( xid ) );
       }
       else {
-        xid = get_transaction_id();
+        set_xid( echo_request, get_transaction_id() );
       }
 
       VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
@@ -114,13 +114,11 @@ echo_request_init( int argc, VALUE *argv, VALUE self ) {
         Check_Type( user_data, T_STRING );
         uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
         append_back_buffer( echo_request, length );
-        ( ( struct ofp_header * ) ( echo_request->data ) )->length = htons( ( uint16_t ) ( sizeof( struct ofp_header ) + length ) );
+        set_length( echo_request, length );
         memcpy( ( char * ) echo_request->data + sizeof( struct ofp_header ), RSTRING_PTR( user_data ), length );
       }
     }
   }
-
-  set_xid( echo_request, xid );
 
   return self;
 }
