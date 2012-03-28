@@ -91,8 +91,6 @@ echo_user_data( VALUE self ) {
 }
 
 
-
-
 /*
  * Local variables:
  * c-basic-offset: 2
