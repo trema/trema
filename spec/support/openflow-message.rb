@@ -92,6 +92,28 @@ shared_examples_for "any Openflow message with xid" do
 end
 
 
+shared_examples_for "any Openflow message with user_data" do
+  context "user_data: nil" do
+    let( :user_data ) { nil }
+    its( :user_data ) { should be_nil }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
+
+
+  context 'user_data: "USER DATA"' do
+    let( :user_data ) { "USER DATA" }
+    its( :user_data ) { should == "USER DATA" }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
+
+
+  context "user_data: :INVALID_DATA" do
+    let( :user_data ) { :INVALID_DATA }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
+end
+
+
 shared_examples_for "any OpenFlow message" do | options |
   option = options[ :option ]
   name = options[ :name ]

@@ -54,25 +54,7 @@ module Trema
 
   describe EchoReply, ".new(:user_data => value)", :nosudo => true do
     subject { EchoReply.new( :user_data => user_data ) }
-
-    context "user_data: nil" do
-      let( :user_data ) { nil }
-      its( :user_data ) { should be_nil }
-      it_should_behave_like "any Openflow message with default transaction ID"
-    end
-
-
-    context 'user_data: "USER DATA"' do
-      let( :user_data ) { "USER DATA" }
-      its( :user_data ) { should == "USER DATA" }
-      it_should_behave_like "any Openflow message with default transaction ID"
-    end
-
-
-    context "user_data: :INVALID_DATA" do
-      let( :user_data ) { :INVALID_DATA }
-      it { expect { subject }.to raise_error( TypeError ) }
-    end
+    it_should_behave_like "any Openflow message with user_data"
   end
 
 
