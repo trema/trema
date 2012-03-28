@@ -636,8 +636,9 @@ Init_stats_request(){
   cFlowStatsRequest = rb_define_class_under( mTrema, "FlowStatsRequest", cStatsRequest );
   rb_define_method( cStatsRequest, "initialize", stats_request_init, 1 );
   rb_define_method( cStatsRequest, "transaction_id", stats_transaction_id, 0 );
+  rb_alias( cStatsRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cStatsRequest, "flags", stats_flags, 0 );
-  
+
   rb_define_alloc_func( cFlowStatsRequest, flow_stats_request_alloc );
   rb_define_method( cFlowStatsRequest, "initialize", flow_stats_request_init, 1 );
   rb_define_method( cFlowStatsRequest, "match", stats_match, 0 );

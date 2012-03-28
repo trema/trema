@@ -239,6 +239,7 @@ Init_error() {
   rb_define_const( cError, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));
 
   rb_define_method( cError, "transaction_id", error_transaction_id, 0 );
+  rb_alias( cError, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cError, "user_data", error_user_data, 0 );
   rb_define_method( cError, "error_type", error_type, 0 );
   rb_define_method( cError, "code", error_code, 0 );

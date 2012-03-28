@@ -98,6 +98,7 @@ Init_features_request() {
   rb_define_alloc_func( cFeaturesRequest, features_request_alloc );
   rb_define_method( cFeaturesRequest, "initialize", features_request_init, -1 );
   rb_define_method( cFeaturesRequest, "transaction_id", features_request_transaction_id, 0 );
+  rb_alias( cFeaturesRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
 }
 
 

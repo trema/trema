@@ -180,6 +180,7 @@ Init_vendor_request() {
   rb_define_alloc_func( cVendorRequest, vendor_request_alloc );
   rb_define_method( cVendorRequest, "initialize", vendor_request_init, -1 );
   rb_define_method( cVendorRequest, "transaction_id", vendor_request_transaction_id, 0 );
+  rb_alias( cVendorRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cVendorRequest, "vendor", vendor_request_vendor, 0 );
   rb_define_method( cVendorRequest, "data", vendor_request_data, 0 );
 }

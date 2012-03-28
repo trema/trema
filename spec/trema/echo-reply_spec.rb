@@ -22,8 +22,7 @@ require "trema"
 
 module Trema
   describe EchoReply, ".new", :nosudo => true do
-    its( :transaction_id ) { should be_unsigned_32bit }
-    its( :xid ) { should be_unsigned_32bit }
+    it_should_behave_like "any Openflow message with default transaction ID"
     its( :user_data ) { should be_nil }
   end
 

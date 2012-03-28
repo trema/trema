@@ -25,6 +25,8 @@ require "rspec"
 shared_examples_for "any Openflow message with default transaction ID" do
   its( :transaction_id ) { should be_a_kind_of( Integer ) }
   its( :transaction_id ) { should be_unsigned_32bit }
+  its( :xid ) { should be_a_kind_of( Integer ) }
+  its( :xid ) { should be_unsigned_32bit }
 end
 
 
