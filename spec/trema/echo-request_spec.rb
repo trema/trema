@@ -156,7 +156,7 @@ module Trema
 
     context "user_data: :INVALID_DATA" do
       let( :user_data ) { :INVALID_DATA }
-      it { expect { subject }.to raise_error( ArgumentError, "User data must be a string" ) }
+      it { expect { subject }.to raise_error( TypeError ) }
     end
   end
 

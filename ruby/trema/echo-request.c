@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +23,15 @@
 
 extern VALUE mTrema;
 VALUE cEchoRequest;
+
+
+static VALUE
+echo_request_alloc( VALUE klass ) {
+  buffer *body = alloc_buffer();
+  buffer *echo_request = create_echo_request( 0, body );
+  free_buffer( body );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, echo_request );
+}
 
 
 /*
@@ -65,9 +72,9 @@ VALUE cEchoRequest;
  * @return [EchoRequest]
  */
 static VALUE
-echo_request_init( int argc, VALUE *argv, VALUE klass ) {
+echo_request_init( int argc, VALUE *argv, VALUE self ) {
   buffer *echo_request = NULL;
-  buffer *body = NULL;
+  Data_Get_Struct( self, buffer, echo_request );
   uint32_t xid;
   VALUE options = Qnil;
 
@@ -104,22 +111,18 @@ echo_request_init( int argc, VALUE *argv, VALUE klass ) {
 
       VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
       if ( user_data != Qnil ) {
-        if ( rb_obj_is_kind_of( user_data, rb_cString ) == Qfalse ) {
-          rb_raise( rb_eArgError, "User data must be a string" );
-        }
+        Check_Type( user_data, T_STRING );
         uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
-        body = alloc_buffer_with_length( length );
-        void *p = append_back_buffer( body, length );
-        memcpy( p, RSTRING_PTR( user_data ), length );
+        append_back_buffer( echo_request, length );
+        ( ( struct ofp_header * ) ( echo_request->data ) )->length = htons( ( uint16_t ) ( sizeof( struct ofp_header ) + length ) );
+        memcpy( ( char * ) echo_request->data + sizeof( struct ofp_header ), RSTRING_PTR( user_data ), length );
       }
     }
   }
 
-  echo_request = create_echo_request( xid, body );
-  if ( body != NULL ) {
-    free_buffer( body );
-  }
-  return Data_Wrap_Struct( klass, NULL, free_buffer, echo_request );
+  ( ( struct ofp_header * ) ( echo_request->data ) )->xid = htonl( xid );
+
+  return self;
 }
 
 
@@ -156,7 +159,8 @@ echo_request_user_data( VALUE self ) {
 void
 Init_echo_request() {
   cEchoRequest = rb_define_class_under( mTrema, "EchoRequest", rb_cObject );
-  rb_define_singleton_method( cEchoRequest, "new", echo_request_init, -1 );
+  rb_define_alloc_func( cEchoRequest, echo_request_alloc );
+  rb_define_method( cEchoRequest, "initialize", echo_request_init, -1 );
   rb_define_method( cEchoRequest, "transaction_id", echo_request_transaction_id, 0 );
   rb_alias( cEchoRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cEchoRequest, "user_data", echo_request_user_data, 0 );
