@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,22 +20,162 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe EchoReply, ".new( OPTIONAL OPTION MISSING )" do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+module Trema
+  describe EchoReply, ".new", :nosudo => true do
+    its( :transaction_id ) { should be_unsigned_32bit }
+    its( :xid ) { should be_unsigned_32bit }
+    its( :user_data ) { should be_nil }
+  end
 
 
-describe EchoReply, ".new( VALID OPTION )" do
-  subject { EchoReply.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
-end
+  describe EchoReply, ".new(nil)", :nosudo => true do
+    subject { EchoReply.new( nil ) }
+    its( :transaction_id ) { should be_unsigned_32bit }
+    its( :xid ) { should be_unsigned_32bit }
+    its( :user_data ) { should be_nil }
+  end
 
 
-describe EchoReply, ".new( INVALID OPTION )" do
-  it "should raise TypeError" do
-    expect {
-      EchoReply.new "INVALID OPTION"
-    }.to raise_error( TypeError )
+  describe EchoReply, ".new(transaction_id)", :nosudo => true do
+    subject { EchoReply.new( transaction_id ) }
+
+    context "transaction_id: -123" do
+      let( :transaction_id ) { -123 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+
+    context "transaction_id: 0" do
+      let( :transaction_id ) { 0 }
+      its( :transaction_id ) { should == 0 }
+      its( :xid ) { should == 0 }
+    end
+
+    context "transaction_id: 123" do
+      let( :transaction_id ) { 123 }
+      its( :transaction_id ) { should == 123 }
+      its( :xid ) { should == 123 }
+    end
+
+    context "transaction_id: UINT32_MAX" do
+      let( :transaction_id ) { 2 ** 32 - 1 }
+      its( :transaction_id ) { should == 2 ** 32 - 1 }
+      its( :xid ) { should == 2 ** 32 - 1 }
+    end
+
+    context "transaction_id: UINT32_MAX + 1" do
+      let( :transaction_id ) { 2 ** 32 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+  end
+
+
+  describe EchoReply, ".new(:transaction_id => value)", :nosudo => true do
+    subject { EchoReply.new( :transaction_id => transaction_id ) }
+
+    context "transaction_id: -123" do
+      let( :transaction_id ) { -123 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+
+    context "transaction_id: 0" do
+      let( :transaction_id ) { 0 }
+      its( :transaction_id ) { should == 0 }
+      its( :xid ) { should == 0 }
+    end
+
+    context "transaction_id: 123" do
+      let( :transaction_id ) { 123 }
+      its( :transaction_id ) { should == 123 }
+      its( :xid ) { should == 123 }
+    end
+
+    context "transaction_id: UINT32_MAX" do
+      let( :transaction_id ) { 2 ** 32 - 1 }
+      its( :transaction_id ) { should == 2 ** 32 - 1 }
+      its( :xid ) { should == 2 ** 32 - 1 }
+    end
+
+    context "transaction_id: UINT32_MAX + 1" do
+      let( :transaction_id ) { 2 ** 32 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+  end
+
+
+  describe EchoReply, ".new(:xid => value)", :nosudo => true do
+    subject { EchoReply.new( :xid => xid ) }
+
+    context "xid: -123" do
+      let( :xid ) { -123 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+
+    context "xid: 0" do
+      let( :xid ) { 0 }
+      its( :xid ) { should == 0 }
+      its( :transaction_id ) { should == 0 }
+    end
+
+    context "xid: 123" do
+      let( :xid ) { 123 }
+      its( :xid ) { should == 123 }
+      its( :transaction_id ) { should == 123 }
+    end
+
+    context "xid: UINT32_MAX" do
+      let( :xid ) { 2 ** 32 - 1 }
+      its( :xid ) { should == 2 ** 32 - 1 }
+      its( :transaction_id ) { should == 2 ** 32 - 1 }
+    end
+
+    context "xid: UINT32_MAX + 1" do
+      let( :xid ) { 2 ** 32 }
+      it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+    end
+  end
+
+
+  describe EchoReply, ".new(:user_data => value)", :nosudo => true do
+    subject { EchoReply.new( :user_data => user_data ) }
+
+    context "user_data: nil" do
+      let( :user_data ) { nil }
+      its( :user_data ) { should be_nil }
+      its( :transaction_id ) { should be_unsigned_32bit }
+      its( :xid ) { should be_unsigned_32bit }
+    end
+
+
+    context 'user_data: "USER DATA"' do
+      let( :user_data ) { "USER DATA" }
+      its( :user_data ) { should == "USER DATA" }
+      its( :transaction_id ) { should be_unsigned_32bit }
+      its( :xid ) { should be_unsigned_32bit }
+    end
+
+
+    context "user_data: :INVALID_DATA" do
+      let( :user_data ) { :INVALID_DATA }
+      it { expect { subject }.to raise_error( TypeError ) }
+    end
+  end
+
+
+  describe EchoReply, ".new(:transaction_id => value, :user_data => value)", :nosudo => true do
+    subject { EchoReply.new( :transaction_id => transaction_id, :user_data => user_data ) }
+
+    context 'transaction_id: 123, user_data: "USER DATA"' do
+      let( :transaction_id ) { 123 }
+      let( :user_data ) { "USER DATA" }
+      its( :transaction_id ) { should == 123 }
+      its( :xid ) { should == 123 }
+      its( :user_data ) { should == "USER DATA" }
+    end
+  end
+
+
+  describe EchoReply, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { EchoReply.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 
