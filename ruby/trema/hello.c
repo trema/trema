@@ -102,7 +102,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
     }
   }
 
-  ( ( struct ofp_header * ) ( hello->data ) )->xid = htonl( xid );
+  set_xid( hello, xid );
 
   return self;
 }

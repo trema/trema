@@ -20,6 +20,12 @@
 #include "trema.h"
 
 
+void
+set_xid( const buffer *openflow_message, uint32_t xid ) {
+  ( ( struct ofp_header * ) ( openflow_message->data ) )->xid = htonl( xid );
+}
+
+
 VALUE
 get_xid( VALUE self ) {
   buffer *openflow_message;

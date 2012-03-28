@@ -23,6 +23,7 @@
 #include "ruby.h"
 
 
+void set_xid( const buffer *openflow_message, uint32_t xid );
 VALUE get_xid( VALUE self );
 void validate_xid( VALUE xid );
 
