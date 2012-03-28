@@ -20,77 +20,102 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
+shared_examples_for "echo reply message" do
+  class EchoReplyController < Controller; end
+
+  it "should be logged to the switch's log", :sudo => true do
+    network {
+      vswitch( "echo" ) { datapath_id 0xabc }
+    }.run( EchoReplyController ) {
+      controller( "EchoReplyController" ).send_message( 0xabc, subject )
+      IO.read( File.join( Trema.log, "openflowd.echo.log" ) ).should include( "OFPT_ECHO_REPLY" )
+    }
+  end
+end
+
+
 module Trema
-  describe EchoRequest, ".new", :nosudo => true do
+  describe EchoRequest, ".new" do
     it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "echo reply message"
     its( :user_data ) { should be_nil }
   end
 
 
-  describe EchoRequest, ".new(nil)", :nosudo => true do
+  describe EchoRequest, ".new(nil)" do
     subject { EchoRequest.new( nil ) }
     it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "echo reply message"
     its( :user_data ) { should be_nil }
   end
 
 
-  describe EchoRequest, ".new(transaction_id)", :nosudo => true do
+  describe EchoRequest, ".new(transaction_id)" do
     subject { EchoRequest.new( transaction_id ) }
     it_should_behave_like "any Openflow message with transaction ID"
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "echo reply message"
+    end
   end
 
 
-  describe EchoRequest, ".new(:transaction_id => value)", :nosudo => true do
+  describe EchoRequest, ".new(:transaction_id => value)" do
     subject { EchoRequest.new( :transaction_id => transaction_id ) }
     it_should_behave_like "any Openflow message with transaction ID"
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "echo reply message"
+    end
   end
 
 
-  describe EchoRequest, ".new(:xid => value)", :nosudo => true do
+  describe EchoRequest, ".new(:xid => value)" do
     subject { EchoRequest.new( :xid => xid ) }
     it_should_behave_like "any Openflow message with xid"
+
+    context "when sent to a switch" do
+      let( :xid ) { 123 }
+      it_should_behave_like "echo reply message"
+    end
   end
 
 
-  describe EchoRequest, ".new(:user_data => value)", :nosudo => true do
+  describe EchoRequest, ".new(:user_data => value)" do
     subject { EchoRequest.new( :user_data => user_data ) }
     it_should_behave_like "any Openflow message with user_data"
+
+    context "when sent to a switch" do
+      let( :user_data ) { "USER DATA" }
+      it_should_behave_like "echo reply message"
+    end
   end
 
 
-  describe EchoRequest, ".new(:transaction_id => value, :user_data => value)", :nosudo => true do
+  describe EchoRequest, ".new(:transaction_id => value, :user_data => value)" do
     subject { EchoRequest.new( :transaction_id => transaction_id, :user_data => user_data ) }
 
-    context 'transaction_id: 123, user_data: "USER DATA"' do
+    context 'transaction_id: 123, user_data: "USER DATA"', :nosudo => true do
       let( :transaction_id ) { 123 }
       let( :user_data ) { "USER DATA" }
+
       its( :transaction_id ) { should == 123 }
       its( :xid ) { should == 123 }
       its( :user_data ) { should == "USER DATA" }
+    end
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      let( :user_data ) { "USER DATA" }
+      it_should_behave_like "echo reply message"
     end
   end
 
 
   describe EchoRequest, '.new("INVALID OPTION")', :nosudo => true do
     it { expect { EchoRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
-  end
-end
-
-
-describe EchoRequest do
-  context "when #echo_request is sent" do
-    it "should #echo_reply" do
-      class EchoRequestController < Controller; end
-      network {
-        vswitch( "echo_request" ) { datapath_id 0xabc }
-      }.run( EchoRequestController ) {
-        echo_request = EchoRequest.new( :transaction_id => 1234, :user_data => 'this is a test' )
-        controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
-        log_file = Trema.log + "/openflowd.echo_request.log"
-        IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )
-        sleep 1
-      }
-    end
   end
 end
 
