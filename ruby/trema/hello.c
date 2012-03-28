@@ -16,8 +16,9 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
+#include "trema_ruby_utils.h"
 
 
 extern VALUE mTrema;
@@ -28,14 +29,6 @@ static VALUE
 hello_alloc( VALUE klass ) {
   buffer *hello = create_hello( 0 );
   return Data_Wrap_Struct( klass, NULL, free_buffer, hello );
-}
-
-
-static void
-validate_xid( VALUE xid ) {
-  if ( rb_funcall( xid, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-    rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
-  }
 }
 
 

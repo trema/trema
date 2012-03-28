@@ -18,21 +18,13 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
+#include "trema.h"
+#include "trema_ruby_utils.h"
 
 
 extern VALUE mTrema;
 VALUE cEchoRequest;
-
-
-// FIXME
-static void
-validate_xid( VALUE xid ) {
-  if ( rb_funcall( xid, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-    rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
-  }
-}
 
 
 /*
