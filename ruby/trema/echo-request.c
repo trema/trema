@@ -28,10 +28,7 @@ VALUE cEchoRequest;
 
 static VALUE
 echo_request_alloc( VALUE klass ) {
-  buffer *body = alloc_buffer();
-  buffer *echo_request = create_echo_request( 0, body );
-  free_buffer( body );
-  return Data_Wrap_Struct( klass, NULL, free_buffer, echo_request );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, create_echo_request( 0, NULL ) );
 }
 
 
