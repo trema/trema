@@ -17,7 +17,7 @@
 
 
 #include "ruby.h"
-#include "trema_ruby_utils.h"
+#include "trema-ruby-utils.h"
 
 
 VALUE
