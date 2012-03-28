@@ -16,21 +16,19 @@
  */
 
 
-#ifndef TREMA_RUBY_UTILS_H
-#define TREMA_RUBY_UTILS_H
+#ifndef ECHO_H
+#define ECHO_H
 
 
 #include "ruby.h"
-#include "trema.h"
 
 
-void set_xid( const buffer *openflow_message, uint32_t xid );
-VALUE get_xid( VALUE self );
-void set_length( const buffer *openflow_message, uint16_t length );
-void validate_xid( VALUE xid );
+VALUE echo_init( int argc, VALUE *argv, VALUE self );
+VALUE echo_transaction_id( VALUE self );
+VALUE echo_user_data( VALUE self );
 
 
-#endif // TREMA_RUBY_UTILS_H
+#endif // ECHO_H
 
 
 /*

@@ -16,6 +16,7 @@
  */
 
 
+#include "echo.h"
 #include "ruby.h"
 #include "trema.h"
 #include "trema_ruby_utils.h"
@@ -34,6 +35,7 @@ echo_reply_alloc( VALUE klass ) {
 }
 
 
+#if 0
 /*
  * Creates a EchoReply OpenFlow message. This message can be used to
  * measure the bandwidth of a controller/switch connection as well as
@@ -71,97 +73,43 @@ echo_reply_alloc( VALUE klass ) {
  * @raise [TypeError] if argument is not a hash.
  * @return [EchoReply]
  */
-static VALUE
-echo_reply_init( int argc, VALUE *argv, VALUE self ) {
-  buffer *echo_reply = NULL;
-  Data_Get_Struct( self, buffer, echo_reply );
-  VALUE options = Qnil;
-
-  if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
-    set_xid( echo_reply, get_transaction_id() );
-  }
-  else {
-    if ( options == Qnil ) {
-      set_xid( echo_reply, get_transaction_id() );
-    }
-    else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
-      validate_xid( options );
-      set_xid( echo_reply, ( uint32_t ) NUM2UINT( options ) );
-    }
-    else {
-      Check_Type( options, T_HASH );
-      VALUE tmp = Qnil;
-      VALUE xid = Qnil;
-
-      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-      if ( tmp != Qnil ) {
-        xid = tmp;
-      }
-      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
-      if ( tmp != Qnil ) {
-        xid = tmp;
-      }
-      if ( xid != Qnil ) {
-        validate_xid( xid );
-        set_xid( echo_reply, ( uint32_t ) NUM2UINT( xid ) );
-      }
-      else {
-        set_xid( echo_reply, get_transaction_id() );
-      }
-
-      VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
-      if ( user_data != Qnil ) {
-        Check_Type( user_data, T_STRING );
-        uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
-        append_back_buffer( echo_reply, length );
-        set_length( echo_reply, length );
-        memcpy( ( char * ) echo_reply->data + sizeof( struct ofp_header ), RSTRING_PTR( user_data ), length );
-      }
-    }
-  }
-
-  return self;
-}
+VALUE
+echo_init( int argc, VALUE *argv, VALUE self ) {}
+#endif
 
 
+#if 0
 /*
  * Transaction ids, message sequence numbers matching requests to
  * replies.
  *
  * @return [Number] the value of transaction id.
  */
-static VALUE
-echo_reply_transaction_id( VALUE self ) {
-  return get_xid( self );
-}
+VALUE
+echo_transaction_id( VALUE self ) {}
+#endif
 
 
+#if 0
 /*
  * An arbitrary length user data payload.
  *
  * @return [String] a user data payload is set.
  * @return [nil] a user data payload is not set.
  */
-static VALUE
-echo_reply_user_data( VALUE self ) {
-  buffer *echo_reply;
-  Data_Get_Struct( self, buffer, echo_reply );
-  if ( echo_reply->length > sizeof( struct ofp_header ) ) {
-    return rb_str_new( ( char * ) echo_reply->data + sizeof( struct ofp_header ),
-                       ( long ) ( echo_reply->length - sizeof( struct ofp_header ) ) );
-  }
-  return Qnil;
-}
+VALUE
+echo_user_data( VALUE self ) {}
+#endif
 
 
 void
 Init_echo_reply() {
   cEchoReply = rb_define_class_under( mTrema, "EchoReply", rb_cObject );
   rb_define_alloc_func( cEchoReply, echo_reply_alloc );
-  rb_define_method( cEchoReply, "initialize", echo_reply_init, -1 );
-  rb_define_method( cEchoReply, "transaction_id", echo_reply_transaction_id, 0 );
+  rb_define_method( cEchoReply, "initialize", echo_init, -1 );
+  rb_define_method( cEchoReply, "transaction_id", echo_transaction_id, 0 );
   rb_alias( cEchoReply, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
-  rb_define_method( cEchoReply, "user_data", echo_reply_user_data, 0 );
+  rb_define_method( cEchoReply, "user_data", echo_user_data, 0 );
 }
 
 
