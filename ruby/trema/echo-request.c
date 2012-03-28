@@ -124,16 +124,14 @@ echo_request_init( int argc, VALUE *argv, VALUE klass ) {
 
 
 /*
- * Transaction ids, message sequence numbers matching requests to replies.
+ * Transaction ids, message sequence numbers matching requests to
+ * replies.
  *
  * @return [Number] the value of transaction id.
  */
 static VALUE
 echo_request_transaction_id( VALUE self ) {
-  buffer *echo_request;
-  Data_Get_Struct( self, buffer, echo_request );
-  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( echo_request->data ) )->xid );
-  return UINT2NUM( xid );
+  return get_xid( self );
 }
 
 

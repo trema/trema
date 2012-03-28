@@ -17,6 +17,16 @@
 
 
 #include "ruby.h"
+#include "trema.h"
+
+
+VALUE
+get_xid( VALUE self ) {
+  buffer *openflow_message;
+  Data_Get_Struct( self, buffer, openflow_message );
+  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( openflow_message->data ) )->xid );
+  return UINT2NUM( xid );
+}
 
 
 void

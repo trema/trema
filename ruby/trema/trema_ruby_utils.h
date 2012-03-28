@@ -23,6 +23,7 @@
 #include "ruby.h"
 
 
+VALUE get_xid( VALUE self );
 void validate_xid( VALUE xid );
 
 

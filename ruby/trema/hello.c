@@ -109,18 +109,14 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * An unsigned 32bit integer number associated with this
- * message. Replies use the same id as was in the request to
- * facilitate pairing.
+ * Transaction ids, message sequence numbers matching requests to
+ * replies.
  *
  * @return [Number] the value of transaction ID.
  */
 static VALUE
 hello_transaction_id( VALUE self ) {
-  buffer *hello;
-  Data_Get_Struct( self, buffer, hello );
-  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( hello->data ) )->xid );
-  return UINT2NUM( xid );
+  return get_xid( self );
 }
 
 
