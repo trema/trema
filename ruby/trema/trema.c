@@ -27,7 +27,7 @@
 #include "set-config.h"
 #include "hello.h"
 #include "logger.h"
-#include "packet_in.h"
+#include "packet-in.h"
 #include "port.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"

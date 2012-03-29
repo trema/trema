@@ -28,7 +28,7 @@
 #include "logger.h"
 #include "openflow-error.h"
 #include "openflow.h"
-#include "packet_in.h"
+#include "packet-in.h"
 #include "port-status.h"
 #include "queue-get-config-reply.h"
 #include "ruby.h"
