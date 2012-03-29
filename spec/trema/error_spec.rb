@@ -21,7 +21,7 @@ require "trema"
 
 
 module Trema
-  describe Error, ".constants" do
+  describe Error, ".constants", :nosudo => true do
     subject { Error.constants }
     it { should include "OFPET_HELLO_FAILED" }
     it { should include "OFPHFC_INCOMPATIBLE" }
@@ -68,23 +68,23 @@ module Trema
   end
 
 
-  describe Error, ".new" do
+  describe Error, ".new", :nosudo => true do
     it { expect { subject }.to raise_error( ArgumentError, "Type and code are mandatory options" ) }
   end
 
 
-  describe Error, ".new(nil)" do
+  describe Error, ".new(nil)", :nosudo => true do
     it { expect { subject }.to raise_error( ArgumentError, "Type and code are mandatory options" ) }
   end
 
 
-  describe Error, ".new(:type => value)" do
+  describe Error, ".new(:type => value)", :nosudo => true do
     subject { Error.new( :type => Error::OFPET_BAD_REQUEST ) }
     it { expect { subject }.to raise_error( ArgumentError, "Code is a mandatory option" ) }
   end
 
 
-  describe Error, ".new(:code => value)" do
+  describe Error, ".new(:code => value)", :nosudo => true do
     subject { Error.new( :code => Error::OFPBRC_BAD_TYPE ) }
     it { expect { subject }.to raise_error( ArgumentError, "Type is a mandatory option" ) }
   end
