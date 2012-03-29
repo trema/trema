@@ -21,8 +21,8 @@ require "trema"
 
 
 module Trema
-  describe Error, ".constants", :nosudo => true do
-    subject { Error.constants }
+  describe Trema, ".constants", :nosudo => true do
+    subject { Trema.constants }
     it { should include "OFPET_HELLO_FAILED" }
     it { should include "OFPHFC_INCOMPATIBLE" }
     it { should include "OFPHFC_EPERM" }
@@ -78,43 +78,43 @@ module Trema
 
 
   describe Error, ".new(:type => value)", :nosudo => true do
-    subject { Error.new( :type => Error::OFPET_BAD_REQUEST ) }
+    subject { Error.new( :type => OFPET_BAD_REQUEST ) }
     it { expect { subject }.to raise_error( ArgumentError, "Code is a mandatory option" ) }
   end
 
 
   describe Error, ".new(:code => value)", :nosudo => true do
-    subject { Error.new( :code => Error::OFPBRC_BAD_TYPE ) }
+    subject { Error.new( :code => OFPBRC_BAD_TYPE ) }
     it { expect { subject }.to raise_error( ArgumentError, "Type is a mandatory option" ) }
   end
 
 
   describe Error, ".new(:type => value, :code => value)" do
-    subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE ) }
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE ) }
     it_should_behave_like "any Openflow message with default transaction ID"
-    its( :error_type ) { should == Error::OFPET_BAD_REQUEST }
-    its( :code ) { should == Error::OFPBRC_BAD_TYPE }
+    its( :error_type ) { should == OFPET_BAD_REQUEST }
+    its( :code ) { should == OFPBRC_BAD_TYPE }
     its( :user_data ) { should be_nil }
   end
 
 
   describe Error, ".new(:type => value, :code => value, :transaction_id => value)" do
-    subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE, :transaction_id => transaction_id ) }
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :transaction_id => transaction_id ) }
     it_should_behave_like "any Openflow message with transaction ID"
   end
 
 
   describe Error, ".new(:type => value, :code => value, :xid => value)" do
-    subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE, :xid => xid ) }
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :xid => xid ) }
     it_should_behave_like "any Openflow message with xid"
   end
 
 
   describe Error, ".new(:type => value, :code => value, :user_data => value)" do
-    subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE, :user_data => "deadbeef" ) }
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :user_data => "deadbeef" ) }
     it_should_behave_like "any Openflow message with default transaction ID"
-    its( :error_type ) { should == Error::OFPET_BAD_REQUEST }
-    its( :code ) { should == Error::OFPBRC_BAD_TYPE }
+    its( :error_type ) { should == OFPET_BAD_REQUEST }
+    its( :code ) { should == OFPBRC_BAD_TYPE }
     its( :user_data ) { should == "deadbeef" }
   end
 end

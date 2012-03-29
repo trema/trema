@@ -36,17 +36,17 @@ error_alloc( VALUE klass ) {
  * @overload initialize(options)
  *   @example
  *     Error.new(
- *       :type => Error::OFPET_BAD_REQUEST,
- *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :type => OFPET_BAD_REQUEST,
+ *       :code => OFPBRC_BAD_TYPE,
  *     )
  *     Error.new(
- *       :type => Error::OFPET_BAD_REQUEST,
- *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :type => OFPET_BAD_REQUEST,
+ *       :code => OFPBRC_BAD_TYPE,
  *       :transcation_id => 123
  *     )
  *     Error.new(
- *       :type => Error::OFPET_BAD_REQUEST,
- *       :code => Error::OFPBRC_BAD_TYPE,
+ *       :type => OFPET_BAD_REQUEST,
+ *       :code => OFPBRC_BAD_TYPE,
  *       :transcation_id => 123
  *       :user_data => "Error!!"
  *     )
@@ -195,50 +195,50 @@ error_code( VALUE self ) {
 
 void
 Init_error() {
+  rb_define_const( mTrema, "OFPET_HELLO_FAILED", INT2NUM( OFPET_HELLO_FAILED ) );
+  rb_define_const( mTrema, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
+  rb_define_const( mTrema, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
+
+  rb_define_const( mTrema, "OFPET_BAD_REQUEST", INT2NUM( OFPET_BAD_REQUEST ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_VERSION", INT2NUM( OFPBRC_BAD_VERSION ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_TYPE", INT2NUM( OFPBRC_BAD_TYPE ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_STAT", INT2NUM( OFPBRC_BAD_STAT ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_VENDOR", INT2NUM( OFPBRC_BAD_VENDOR ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_SUBTYPE", INT2NUM( OFPBRC_BAD_SUBTYPE ) );
+  rb_define_const( mTrema, "OFPBRC_EPERM", INT2NUM( OFPBRC_EPERM ) );
+  rb_define_const( mTrema, "OFPBRC_BAD_LEN", INT2NUM( OFPBRC_BAD_LEN ) );
+  rb_define_const( mTrema, "OFPBRC_BUFFER_EMPTY", INT2NUM( OFPBRC_BUFFER_EMPTY ) );
+  rb_define_const( mTrema, "OFPBRC_BUFFER_UNKNOWN", INT2NUM( OFPBRC_BUFFER_UNKNOWN ) );
+
+  rb_define_const( mTrema, "OFPET_BAD_ACTION", INT2NUM( OFPET_BAD_ACTION ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_TYPE", INT2NUM( OFPBAC_BAD_TYPE ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_LEN", INT2NUM( OFPBAC_BAD_LEN ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_VENDOR", INT2NUM( OFPBAC_BAD_VENDOR ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_VENDOR_TYPE", INT2NUM( OFPBAC_BAD_VENDOR_TYPE ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_OUT_PORT", INT2NUM( OFPBAC_BAD_OUT_PORT ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_ARGUMENT", INT2NUM( OFPBAC_BAD_ARGUMENT ) );
+  rb_define_const( mTrema, "OFPBAC_EPERM", INT2NUM( OFPBAC_EPERM ) );
+  rb_define_const( mTrema, "OFPBAC_TOO_MANY", INT2NUM( OFPBAC_TOO_MANY ) );
+  rb_define_const( mTrema, "OFPBAC_BAD_QUEUE", INT2NUM( OFPBAC_BAD_QUEUE ) );
+
+  rb_define_const( mTrema, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
+  rb_define_const( mTrema, "OFPFMFC_ALL_TABLES_FULL", INT2NUM( OFPFMFC_ALL_TABLES_FULL ) );
+  rb_define_const( mTrema, "OFPFMFC_OVERLAP", INT2NUM( OFPFMFC_OVERLAP ) );
+  rb_define_const( mTrema, "OFPFMFC_EPERM", INT2NUM( OFPFMFC_EPERM ) );
+  rb_define_const( mTrema, "OFPFMFC_BAD_EMERG_TIMEOUT", INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ) );
+  rb_define_const( mTrema, "OFPFMFC_BAD_COMMAND", INT2NUM( OFPFMFC_BAD_COMMAND ) );
+  rb_define_const( mTrema, "OFPFMFC_UNSUPPORTED", INT2NUM( OFPFMFC_UNSUPPORTED ) );
+
+  rb_define_const( mTrema, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
+  rb_define_const( mTrema, "OFPPMFC_BAD_PORT", INT2NUM( OFPPMFC_BAD_PORT ) );
+  rb_define_const( mTrema, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
+
+  rb_define_const( mTrema, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
+  rb_define_const( mTrema, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
+  rb_define_const( mTrema, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
+  rb_define_const( mTrema, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));
+
   cError = rb_define_class_under( mTrema, "Error", rb_cObject );
-
-  rb_define_const( cError, "OFPET_HELLO_FAILED", INT2NUM( OFPET_HELLO_FAILED ) );
-  rb_define_const( cError, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
-  rb_define_const( cError, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );
-
-  rb_define_const( cError, "OFPET_BAD_REQUEST", INT2NUM( OFPET_BAD_REQUEST ) );
-  rb_define_const( cError, "OFPBRC_BAD_VERSION", INT2NUM( OFPBRC_BAD_VERSION ) );
-  rb_define_const( cError, "OFPBRC_BAD_TYPE", INT2NUM( OFPBRC_BAD_TYPE ) );
-  rb_define_const( cError, "OFPBRC_BAD_STAT", INT2NUM( OFPBRC_BAD_STAT ) );
-  rb_define_const( cError, "OFPBRC_BAD_VENDOR", INT2NUM( OFPBRC_BAD_VENDOR ) );
-  rb_define_const( cError, "OFPBRC_BAD_SUBTYPE", INT2NUM( OFPBRC_BAD_SUBTYPE ) );
-  rb_define_const( cError, "OFPBRC_EPERM", INT2NUM( OFPBRC_EPERM ) );
-  rb_define_const( cError, "OFPBRC_BAD_LEN", INT2NUM( OFPBRC_BAD_LEN ) );
-  rb_define_const( cError, "OFPBRC_BUFFER_EMPTY", INT2NUM( OFPBRC_BUFFER_EMPTY ) );
-  rb_define_const( cError, "OFPBRC_BUFFER_UNKNOWN", INT2NUM( OFPBRC_BUFFER_UNKNOWN ) );
-
-  rb_define_const( cError, "OFPET_BAD_ACTION", INT2NUM( OFPET_BAD_ACTION ) );
-  rb_define_const( cError, "OFPBAC_BAD_TYPE", INT2NUM( OFPBAC_BAD_TYPE ) );
-  rb_define_const( cError, "OFPBAC_BAD_LEN", INT2NUM( OFPBAC_BAD_LEN ) );
-  rb_define_const( cError, "OFPBAC_BAD_VENDOR", INT2NUM( OFPBAC_BAD_VENDOR ) );
-  rb_define_const( cError, "OFPBAC_BAD_VENDOR_TYPE", INT2NUM( OFPBAC_BAD_VENDOR_TYPE ) );
-  rb_define_const( cError, "OFPBAC_BAD_OUT_PORT", INT2NUM( OFPBAC_BAD_OUT_PORT ) );
-  rb_define_const( cError, "OFPBAC_BAD_ARGUMENT", INT2NUM( OFPBAC_BAD_ARGUMENT ) );
-  rb_define_const( cError, "OFPBAC_EPERM", INT2NUM( OFPBAC_EPERM ) );
-  rb_define_const( cError, "OFPBAC_TOO_MANY", INT2NUM( OFPBAC_TOO_MANY ) );
-  rb_define_const( cError, "OFPBAC_BAD_QUEUE", INT2NUM( OFPBAC_BAD_QUEUE ) );
-
-  rb_define_const( cError, "OFPET_FLOW_MOD_FAILED", INT2NUM( OFPET_FLOW_MOD_FAILED ) );
-  rb_define_const( cError, "OFPFMFC_ALL_TABLES_FULL", INT2NUM( OFPFMFC_ALL_TABLES_FULL ) );
-  rb_define_const( cError, "OFPFMFC_OVERLAP", INT2NUM( OFPFMFC_OVERLAP ) );
-  rb_define_const( cError, "OFPFMFC_EPERM", INT2NUM( OFPFMFC_EPERM ) );
-  rb_define_const( cError, "OFPFMFC_BAD_EMERG_TIMEOUT", INT2NUM( OFPFMFC_BAD_EMERG_TIMEOUT ) );
-  rb_define_const( cError, "OFPFMFC_BAD_COMMAND", INT2NUM( OFPFMFC_BAD_COMMAND ) );
-  rb_define_const( cError, "OFPFMFC_UNSUPPORTED", INT2NUM( OFPFMFC_UNSUPPORTED ) );
-
-  rb_define_const( cError, "OFPET_PORT_MOD_FAILED", INT2NUM( OFPET_PORT_MOD_FAILED ) );
-  rb_define_const( cError, "OFPPMFC_BAD_PORT", INT2NUM( OFPPMFC_BAD_PORT ) );
-  rb_define_const( cError, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
-
-  rb_define_const( cError, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  rb_define_const( cError, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
-  rb_define_const( cError, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
-  rb_define_const( cError, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));
 
   rb_define_alloc_func( cError, error_alloc );
   rb_define_method( cError, "initialize", error_init, -1 );
