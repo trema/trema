@@ -27,6 +27,7 @@
 void set_xid( const buffer *openflow_message, uint32_t xid );
 VALUE get_xid( VALUE self );
 void set_length( const buffer *openflow_message, uint16_t length );
+uint16_t get_length( const buffer *openflow_message );
 void validate_xid( VALUE xid );
 
 
