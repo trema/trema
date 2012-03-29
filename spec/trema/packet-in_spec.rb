@@ -27,11 +27,11 @@ describe Trema::PacketIn do
     send_packets "host1", "host2"
     sleep 2
   end
-  
-  
+
+
   class PacketInController < Controller; end
 
-  class PacketInSendController < Controller 
+  class PacketInSendController < Controller
     def packet_in datapath_id, message
       send_flow_mod_add(
                         datapath_id,
@@ -45,7 +45,7 @@ describe Trema::PacketIn do
                       )
     end
   end
-  
+
   context "when instance is created" do
     it "should have valid datapath_id and in_port" do
       network {
@@ -55,7 +55,7 @@ describe Trema::PacketIn do
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
           datapath_id.should == 0xabc
           message.datapath_id.should == 0xabc
           message.in_port.should > 0
@@ -63,19 +63,19 @@ describe Trema::PacketIn do
         send_and_wait
       }
     end
-    
-    
+
+
     it "should have vaild user data" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { mac "00:00:00:00:00:01" 
+        vhost( "host1" ) { mac "00:00:00:00:00:01"
                            ip "192.168.1.1" }
-        vhost( "host2" ) { mac "00:00:00:00:00:02" 
+        vhost( "host2" ) { mac "00:00:00:00:00:02"
                            ip "192.168.1.2" }
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
            # packet_in expected to have data portion.
           message.total_len.should > 20
           message.data.should be_instance_of( String )
@@ -129,7 +129,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_true
@@ -186,14 +186,14 @@ describe Trema::PacketIn do
           0x00, 0x02, # dst port
           0x00, 0x00, 0x00, 0x00, # sequence number
           0x00, 0x00, 0x00, 0x00, # acknowledgement number
-          0x50, # data offset, 
+          0x50, # data offset,
           0x00, # flags
           0x00, 0x00, # window size
           0x2e, 0x86, # checksum
           0x00, 0x00, # urgent pointer
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false
@@ -270,7 +270,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false
@@ -347,7 +347,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_true
           message.arp?.should be_false
@@ -425,7 +425,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false

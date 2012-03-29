@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,29 +33,17 @@ VALUE mPacketInTCP;
 VALUE mPacketInUDP;
 
 
-#define PACKET_IN_RETURN_MAC( packet_member ) {                         \
-  VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret ); }
+#define PACKET_IN_RETURN_MAC( packet_member )                                          \
+  {                                                                                    \
+    VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
+    return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );   \
+  }
 
-#define PACKET_IN_RETURN_IP( packet_member ) {                          \
-  VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); }
-
-
-#if 0
-/*
- * @overload initialize()
- *   Allocates and wraps a {PacketIn} object to store the details of 
- *   the +OFPT_PACKET_IN+ message.
- *
- * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ OpenFlow message. 
- */
-static VALUE
-packet_in_init( VALUE kclass ) {
-  packet_in *_packet_in = xmalloc( sizeof( packet_in ) );
-  return Data_Wrap_Struct( klass, 0, xfree, _packet_in );
-}
-#endif
+#define PACKET_IN_RETURN_IP( packet_member )                                        \
+  {                                                                                 \
+    VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );             \
+    return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); \
+  }
 
 
 static VALUE
@@ -106,8 +92,8 @@ packet_in_transaction_id( VALUE self ) {
 
 
 /*
- * Buffer id value signifies if the entire frame (packet is not buffered) or 
- * portion of it (packet is buffered) is included in the data field of 
+ * Buffer id value signifies if the entire frame (packet is not buffered) or
+ * portion of it (packet is buffered) is included in the data field of
  * this +OFPT_PACKET_IN+ message.
  *
  * @return [Number] the value of buffer id.
@@ -898,15 +884,9 @@ Init_packet_in() {
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
-#if 0
-  /*
-   * Do not remove this is to fake yard to create a constructor for 
-   * PacketIn object.
-   */
-  rb_define_method( cPacketIn, "initialize", packet_in_init, 0 );
-#endif  
+
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
-  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );  
+  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
@@ -959,7 +939,7 @@ Init_packet_in() {
   rb_define_method( mPacketInICMPv4, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
   rb_define_method( mPacketInICMPv4, "icmpv4_id", packet_in_icmpv4_id, 0 );
   rb_define_method( mPacketInICMPv4, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );
 
   mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
   rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
