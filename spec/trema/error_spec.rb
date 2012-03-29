@@ -52,7 +52,6 @@ module Trema
     it { should include "OFPET_FLOW_MOD_FAILED" }
     it { should include "OFPFMFC_ALL_TABLES_FULL" }
     it { should include "OFPFMFC_OVERLAP" }
-    it { should include "OFPFMFC_OVERLAP" }
     it { should include "OFPFMFC_BAD_EMERG_TIMEOUT" }
     it { should include "OFPFMFC_BAD_COMMAND" }
     it { should include "OFPFMFC_UNSUPPORTED" }
