@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,15 +28,13 @@ extern VALUE cVendor;
 
 
 void Init_vendor( void );
-
-
 void handle_vendor(
-        uint64_t datapath_id,
-        uint32_t transaction_id,
-        uint32_t vendor,
-        const buffer *body,
-        void *user_data
-        );
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  uint32_t vendor,
+  const buffer *data,
+  void *user_data
+);
 
 
 #endif // VENDOR_H
