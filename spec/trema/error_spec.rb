@@ -94,7 +94,7 @@ module Trema
     it_should_behave_like "any Openflow message with default transaction ID"
     its( :error_type ) { should == OFPET_BAD_REQUEST }
     its( :code ) { should == OFPBRC_BAD_TYPE }
-    its( :user_data ) { should be_nil }
+    its( :data ) { should be_nil }
   end
 
 
@@ -110,12 +110,12 @@ module Trema
   end
 
 
-  describe Error, ".new(:type => value, :code => value, :user_data => value)" do
-    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :user_data => "deadbeef" ) }
+  describe Error, ".new(:type => value, :code => value, :data => value)" do
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :data => "deadbeef" ) }
     it_should_behave_like "any Openflow message with default transaction ID"
     its( :error_type ) { should == OFPET_BAD_REQUEST }
     its( :code ) { should == OFPBRC_BAD_TYPE }
-    its( :user_data ) { should == "deadbeef" }
+    its( :data ) { should == "deadbeef" }
   end
 end
 

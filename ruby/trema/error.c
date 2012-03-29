@@ -48,7 +48,7 @@ error_alloc( VALUE klass ) {
  *       :type => OFPET_BAD_REQUEST,
  *       :code => OFPBRC_BAD_TYPE,
  *       :transcation_id => 123
- *       :user_data => "Error!!"
+ *       :data => "Error!!"
  *     )
  *   @param [Hash] options
  *     the options to create a message with.
@@ -56,7 +56,7 @@ error_alloc( VALUE klass ) {
  *     a command or action that failed.
  *   @option options [Number] :code
  *     the reason of the failed type error.
- *   @option options [String] :user_data
+ *   @option options [String] :data
  *     a more user friendly explanation of the error. Defaults to nil
  *     if not specified.
  *   @option options [Number] :xid
@@ -112,13 +112,13 @@ error_init( int argc, VALUE *argv, VALUE self ) {
       set_xid( error, get_transaction_id() );
     }
 
-    VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
-    if ( user_data != Qnil ) {
-      Check_Type( user_data, T_STRING );
-      uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
+    VALUE data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
+    if ( data != Qnil ) {
+      Check_Type( data, T_STRING );
+      uint16_t length = ( u_int16_t ) RSTRING_LEN( data );
       append_back_buffer( error, length );
       ( ( struct ofp_header * ) ( error->data ) )->length = htons( ( uint16_t ) ( offsetof( struct ofp_error_msg, data ) + length ) );
-      memcpy( ( char * ) error->data + offsetof( struct ofp_error_msg, data ), RSTRING_PTR( user_data ), length );
+      memcpy( ( char * ) error->data + offsetof( struct ofp_error_msg, data ), RSTRING_PTR( data ), length );
     }
   }
   else {
@@ -157,7 +157,7 @@ error_transaction_id( VALUE self ) {
  * @return [nil] user data payload is not set.
  */
 static VALUE
-error_user_data( VALUE self ) {
+error_data( VALUE self ) {
   struct ofp_error_msg *error = get_error( self );
   long length = ( long ) ( ntohs( error->header.length ) - sizeof( struct ofp_error_msg ) );
   if ( length > 0 ) {
@@ -244,7 +244,7 @@ Init_error() {
   rb_define_method( cError, "initialize", error_init, -1 );
   rb_define_method( cError, "transaction_id", error_transaction_id, 0 );
   rb_alias( cError, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
-  rb_define_method( cError, "user_data", error_user_data, 0 );
+  rb_define_method( cError, "data", error_data, 0 );
   rb_define_method( cError, "error_type", error_type, 0 );
   rb_define_method( cError, "code", error_code, 0 );
 }
