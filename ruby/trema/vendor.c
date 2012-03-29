@@ -54,12 +54,12 @@ vendor_alloc( VALUE klass ) {
  *     the options to create a message with.
  *   @option options [Number] :xid
  *   @option options [Number] :transaction_id
- *     An unsigned 32bit integer number associated with this message.
- *     If not specified, an auto-generated value is set.
+ *     an unsigned 32bit integer number associated with this message.
+ *     if not specified, an auto-generated value is set.
  *   @option options [Number] :vendor
- *     The assigned vendor id.
+ *     the vendor identifier. If MSB is zero low order bytes are IEEE OUI. Otherwise defined by openflow.
  *   @option options [Array] :data
- *     Vendor specific data.
+ *     a String that holds vendor's defined arbitrary length data.
  *
  * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
  * @raise [ArgumentError] if user data is not an array of bytes.
