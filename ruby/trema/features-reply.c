@@ -40,7 +40,7 @@ VALUE cFeaturesReply;
  *       :n_tables => 1,
  *       :capabilities => 135,
  *       :actions => 2048,
- *       :port => [ Trema::Port ]
+ *       :port => [ port1, port2, ... ]
  *     )
  *   @param [Hash] options
  *     the options to create a message with.
@@ -63,7 +63,6 @@ VALUE cFeaturesReply;
  *   @option options [Port] :port
  *     an array of {Port} objects detailing physical port description and function.
  *   @return [FeaturesReply]
- *     an object that encapsulates the +OFPT_FEATURES_REPLY+ OpenFlow message.
  */
 static VALUE
 features_reply_init( VALUE self, VALUE options ) {
