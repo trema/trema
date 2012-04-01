@@ -229,7 +229,7 @@ bool switch_set_openflow_event_handlers( const openflow_event_handlers handlers 
 bool set_controller_connected_handler( controller_connected_handler callback, void *user_data );
 bool set_controller_disconnected_handler( controller_disconnected_handler callback, void *user_data );
 bool set_hello_handler( hello_handler callback, void *user_data );
-bool set_error_handler( error_handler callback, void *user_data );
+bool switch_set_error_handler( error_handler callback, void *user_data );
 bool set_echo_request_handler( echo_request_handler callback, void *user_data );
 bool set_echo_reply_handler( echo_reply_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );

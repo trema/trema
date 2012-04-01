@@ -227,7 +227,7 @@ set_hello_handler( hello_handler callback, void *user_data ) {
 
 
 bool
-set_error_handler( error_handler callback, void *user_data ) {
+switch_set_error_handler( error_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
