@@ -2,8 +2,6 @@
 #
 # Unit test & acceptance test runner for Trema.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,7 +24,7 @@
 # threshold.
 #
 
-$coverage_threshold = 74.2
+$coverage_threshold = 69.0
 
 
 ################################################################################
@@ -94,7 +92,7 @@ class Testee
   def name
     File.basename( @path )
   end
-  
+
 
   def lines
     return @lines if @lines != 0
@@ -118,7 +116,7 @@ class Testee
     end
     n
   end
-  
+
 
   def lines_tested
     @lines * @coverage / 100.0
@@ -350,7 +348,7 @@ end
 
 $options.separator ""
 
-$options.on( "-h", "--help" ) do 
+$options.on( "-h", "--help" ) do
   puts $options.to_s
   exit
 end
