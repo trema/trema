@@ -20,15 +20,15 @@
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema/dsl/switch"
-require "trema/openflow-switch"
+require "trema/hardware-switch"
 
 
 module Trema
-  describe OpenflowSwitch, %[dpid = "0xabc"] do
+  describe HardwareSwitch, %[dpid = "0xabc"] do
     before :each do
       stanza = DSL::Switch.new
       stanza.dpid "0xabc"
-      @switch = OpenflowSwitch.new( stanza )
+      @switch = HardwareSwitch.new( stanza )
     end
 
 

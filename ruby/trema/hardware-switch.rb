@@ -25,7 +25,7 @@ module Trema
   #
   # Hardware switch that supports OpenFlow protocol.
   #
-  class OpenflowSwitch
+  class HardwareSwitch
     #
     # The name of this switch
     #
@@ -38,12 +38,12 @@ module Trema
 
 
     #
-    # Creates a new OpenflowSwitch from {DSL::Switch}
+    # Creates a new HardwareSwitch from {DSL::Switch}
     #
     # @example
-    #   switch = Trema::OpenflowSwitch.new( stanza )
+    #   switch = Trema::HardwareSwitch.new( stanza )
     #
-    # @return [OpenflowSwitch]
+    # @return [HardwareSwitch]
     #
     def initialize stanza
       stanza.validate

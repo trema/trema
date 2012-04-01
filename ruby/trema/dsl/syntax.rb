@@ -26,11 +26,11 @@ require "trema/dsl/run"
 require "trema/dsl/switch"
 require "trema/dsl/vhost"
 require "trema/dsl/vswitch"
+require "trema/hardware-switch"
 require "trema/host"
 require "trema/link"
 require "trema/monkey-patch/module"
 require "trema/open-vswitch"
-require "trema/openflow-switch"
 require "trema/packetin-filter"
 require "trema/switch-manager"
 require "trema/tremashark"
@@ -63,7 +63,7 @@ module Trema
       def switch name = nil, &block
         stanza = Trema::DSL::Switch.new( name )
         stanza.instance_eval( &block )
-        Trema::OpenflowSwitch.new( stanza )
+        Trema::HardwareSwitch.new( stanza )
       end
 
 
