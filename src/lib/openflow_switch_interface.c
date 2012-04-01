@@ -1060,7 +1060,7 @@ send_openflow_message_to_local( buffer *message, void *user_data ) {
 
 
 bool
-send_openflow_message( buffer *message ) {
+switch_send_openflow_message( buffer *message ) {
   assert( message != NULL );
   assert( message->length >= sizeof( struct ofp_header ) );
 
@@ -1355,7 +1355,7 @@ send_error_message( uint32_t transaction_id, uint16_t type, uint16_t code ) {
   }
 
   buffer *err = create_error( transaction_id, type, code, data );
-  bool ret = send_openflow_message( err );
+  bool ret = switch_send_openflow_message( err );
   if ( !ret ) {
     error( "Failed to send an error message ( transaction_id = %#x, type = %#x, code = %#x ).",
            transaction_id, type, code );

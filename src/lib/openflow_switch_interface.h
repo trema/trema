@@ -248,7 +248,7 @@ bool set_queue_get_config_request_handler( queue_get_config_request_handler call
  * Function for sending/receiving OpenFlow messages.
  ********************************************************************************/
 
-bool send_openflow_message( buffer *message );
+bool switch_send_openflow_message( buffer *message );
 bool handle_secure_channel_message( buffer *message );
 bool send_error_message( uint32_t transaction_id, uint16_t type, uint16_t code );
 
