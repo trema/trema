@@ -269,7 +269,7 @@ set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
 
 
 bool
-set_vendor_handler( vendor_handler callback, void *user_data ) {
+switch_set_vendor_handler( vendor_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
