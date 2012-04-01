@@ -225,7 +225,7 @@ typedef struct {
  * Functions for setting callback functions for OpenFlow related events.
  ********************************************************************************/
 
-bool set_openflow_event_handlers( const openflow_event_handlers handlers );
+bool switch_set_openflow_event_handlers( const openflow_event_handlers handlers );
 bool set_controller_connected_handler( controller_connected_handler callback, void *user_data );
 bool set_controller_disconnected_handler( controller_disconnected_handler callback, void *user_data );
 bool set_hello_handler( hello_handler callback, void *user_data );

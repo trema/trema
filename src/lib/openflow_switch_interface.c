@@ -175,7 +175,7 @@ openflow_switch_interface_is_initialized() {
 
 
 bool
-set_openflow_event_handlers( const openflow_event_handlers handlers ) {
+switch_set_openflow_event_handlers( const openflow_event_handlers handlers ) {
   assert( openflow_switch_interface_initialized );
 
   memcpy( &event_handlers, &handlers, sizeof( event_handlers ) );
