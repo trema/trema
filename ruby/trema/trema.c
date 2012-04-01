@@ -27,7 +27,7 @@
 #include "set-config.h"
 #include "hello.h"
 #include "logger.h"
-#include "packet_in.h"
+#include "packet-in.h"
 #include "port.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
@@ -54,7 +54,6 @@
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "vendor.h"
-#include "vendor-request.h"
 #include "queue-get-config-request.h"
 #include "queue-get-config-reply.h"
 #include "port-mod.h"
@@ -110,7 +109,6 @@ Init_trema() {
   Init_queue_get_config_request();
   Init_queue_get_config_reply();
   Init_vendor();
-  Init_vendor_request();
   Init_port_mod();
   rb_require( "trema/exact-match" );
 }

@@ -21,127 +21,37 @@ require "trema"
 
 
 module Trema
-  describe Hello, ".new( options )", :nosudo => true do
-    subject { Hello.new( options ) }
+  describe Hello, ".new", :nosudo => true do
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
 
 
-    context "options: none" do
-      subject { Hello.new }
-      its( :transaction_id ) { should be_unsigned_32bit }
-      its( :xid ) { should be_unsigned_32bit }
-    end
+  describe Hello, ".new(nil)", :nosudo => true do
+    subject { Hello.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
 
 
-    context "options: nil" do
-      let( :options ) { nil }
-      its( :transaction_id ) { should be_unsigned_32bit }
-      its( :xid ) { should be_unsigned_32bit }
-    end
+  describe Hello, ".new(transaction_id)", :nosudo => true do
+    subject { Hello.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
 
 
-    context "options: number" do
-      subject { Hello.new( transaction_id ) }
-
-      context "transaction_id: -123" do
-        let( :transaction_id ) { -123 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-
-      context "transaction_id: 0" do
-        let( :transaction_id ) { 0 }
-        its( :transaction_id ) { should == 0 }
-        its( :xid ) { should == 0 }
-      end
-
-      context "transaction_id: 123" do
-        let( :transaction_id ) { 123 }
-        its( :transaction_id ) { should == 123 }
-        its( :xid ) { should == 123 }
-      end
-
-      context "transaction_id: UINT32_MAX" do
-        let( :transaction_id ) { 2 ** 32 - 1 }
-        its( :transaction_id ) { should == 2 ** 32 - 1 }
-        its( :xid ) { should == 2 ** 32 - 1 }
-      end
-
-      context "transaction_id: UINT32_MAX + 1" do
-        let( :transaction_id ) { 2 ** 32 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-    end
+  describe Hello, ".new(:transaction_id => value)", :nosudo => true do
+    subject { Hello.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
 
 
-    context "options: :transaction_id => ..." do
-      let( :options ) { { :transaction_id => transaction_id } }
-
-      context "transaction_id: -123" do
-        let( :transaction_id ) { -123 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-
-      context "transaction_id: 0" do
-        let( :transaction_id ) { 0 }
-        its( :transaction_id ) { should == 0 }
-        its( :xid ) { should == 0 }
-      end
-
-      context "transaction_id: 123" do
-        let( :transaction_id ) { 123 }
-        its( :transaction_id ) { should == 123 }
-        its( :xid ) { should == 123 }
-      end
-
-      context "transaction_id: UINT32_MAX" do
-        let( :transaction_id ) { 2 ** 32 - 1 }
-        its( :transaction_id ) { should == 2 ** 32 - 1 }
-        its( :xid ) { should == 2 ** 32 - 1 }
-      end
-
-      context "transaction_id: UINT32_MAX + 1" do
-        let( :transaction_id ) { 2 ** 32 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-    end
+  describe Hello, ".new(:xid => value)", :nosudo => true do
+    subject { Hello.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+  end
 
 
-    context "options: :xid => ..." do
-      let( :options ) { { :xid => xid } }
-
-      context "xid: -123" do
-        let( :xid ) { -123 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-
-      context "xid: 0" do
-        let( :xid ) { 0 }
-        its( :xid ) { should == 0 }
-        its( :transaction_id ) { should == 0 }
-      end
-
-      context "xid: 123" do
-        let( :xid ) { 123 }
-        its( :xid ) { should == 123 }
-        its( :transaction_id ) { should == 123 }
-      end
-
-      context "xid: UINT32_MAX" do
-        let( :xid ) { 2 ** 32 - 1 }
-        its( :xid ) { should == 2 ** 32 - 1 }
-        its( :transaction_id ) { should == 2 ** 32 - 1 }
-      end
-
-      context "xid: UINT32_MAX + 1" do
-        let( :xid ) { 2 ** 32 }
-        it { expect { subject }.to raise_error( ArgumentError ) }
-      end
-    end
-
-
-    context 'options: "INVALID OPTIONS"' do
-      let( :options ) { "INVALID OPTIONS" }
-      it { expect { subject }.to raise_error( TypeError ) }
-    end
+  describe Hello, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { Hello.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 

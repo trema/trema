@@ -16,28 +16,22 @@
  */
 
 
-#ifndef VENDOR_H
-#define VENDOR_H
+#ifndef TREMA_RUBY_UTILS_H
+#define TREMA_RUBY_UTILS_H
 
 
 #include "ruby.h"
 #include "trema.h"
 
 
-extern VALUE cVendor;
+void set_xid( const buffer *openflow_message, uint32_t xid );
+VALUE get_xid( VALUE self );
+void set_length( const buffer *openflow_message, uint16_t length );
+uint16_t get_length( const buffer *openflow_message );
+void validate_xid( VALUE xid );
 
 
-void Init_vendor( void );
-void handle_vendor(
-  uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint32_t vendor,
-  const buffer *data,
-  void *user_data
-);
-
-
-#endif // VENDOR_H
+#endif // TREMA_RUBY_UTILS_H
 
 
 /*

@@ -1,8 +1,4 @@
 /*
- * Ruby wrapper class for OFPT_VENDOR message.
- *
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,20 +16,19 @@
  */
 
 
-#ifndef VENDOR_REQUEST_H
-#define VENDOR_REQUEST_H
+#ifndef ECHO_H
+#define ECHO_H
 
 
 #include "ruby.h"
 
 
-extern VALUE cVendorRequest;
+VALUE echo_init( int argc, VALUE *argv, VALUE self );
+VALUE echo_transaction_id( VALUE self );
+VALUE echo_user_data( VALUE self );
 
 
-void Init_vendor_request( void );
-
-
-#endif // VENDOR_REQUEST_H
+#endif // ECHO_H
 
 
 /*
