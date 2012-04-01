@@ -939,7 +939,7 @@ Init_packet_in() {
   rb_define_method( mPacketInICMPv4, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
   rb_define_method( mPacketInICMPv4, "icmpv4_id", packet_in_icmpv4_id, 0 );
   rb_define_method( mPacketInICMPv4, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );
+  rb_define_method( mPacketInICMPv4, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );
 
   mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
   rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
