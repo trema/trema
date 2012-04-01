@@ -144,6 +144,50 @@ describe Trema::PacketIn do
           message.arp_spa.to_s.should == "192.168.0.1"
           message.arp_tha.to_s.should == "00:00:00:00:00:02"
           message.arp_tpa.to_s.should == "192.168.0.2"
+
+          message.vlan_tpid.should be_nil
+          message.vlan_tci.should be_nil
+          message.vlan_prio.should be_nil
+          message.vlan_cfi.should be_nil
+          message.vlan_vid.should be_nil
+
+          message.ipv4_version.should be_nil
+          message.ipv4_ihl.should be_nil
+          message.ipv4_tos.should be_nil
+          message.ipv4_tot_len.should be_nil
+          message.ipv4_id.should be_nil
+          message.ipv4_frag_off.should be_nil
+          message.ipv4_ttl.should be_nil
+          message.ipv4_protocol.should be_nil
+          message.ipv4_checksum.should be_nil
+          message.ipv4_saddr.should be_nil
+          message.ipv4_daddr.should be_nil
+
+          message.icmpv4_type.should be_nil
+          message.icmpv4_code.should be_nil
+          message.icmpv4_checksum.should be_nil
+          message.icmpv4_id.should be_nil
+          message.icmpv4_seq.should be_nil
+          message.icmpv4_gateway.should be_nil
+
+          message.igmp_type.should be_nil
+          message.igmp_checksum.should be_nil
+          message.igmp_group.should be_nil
+
+          message.tcp_src_port.should be_nil
+          message.tcp_dst_port.should be_nil
+          message.tcp_seq_no.should be_nil
+          message.tcp_ack_no.should be_nil
+          message.tcp_offset.should be_nil
+          message.tcp_flags.should be_nil
+          message.tcp_window.should be_nil
+          message.tcp_checksum.should be_nil
+          message.tcp_urgent.should be_nil
+
+          message.udp_src_port.should be_nil
+          message.udp_dst_port.should be_nil
+          message.udp_checksum.should be_nil
+          message.udp_len.should be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -224,6 +268,12 @@ describe Trema::PacketIn do
           message.tcp_window.should == 0
           message.tcp_checksum.should == 11910 # 0x2e86
           message.tcp_urgent.should == 0
+
+          message.arp_oper.should be_nil
+          message.arp_sha.should be_nil
+          message.arp_spa.should be_nil
+          message.arp_tha.should be_nil
+          message.arp_tpa.should be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
