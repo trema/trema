@@ -22,6 +22,7 @@
 
 require "trema/app"
 require "trema/dsl/link"
+require "trema/dsl/rswitch"
 require "trema/dsl/run"
 require "trema/dsl/switch"
 require "trema/dsl/vhost"
@@ -32,6 +33,7 @@ require "trema/link"
 require "trema/monkey-patch/module"
 require "trema/open-vswitch"
 require "trema/packetin-filter"
+require "trema/ruby-switch"
 require "trema/switch-manager"
 require "trema/tremashark"
 
@@ -71,6 +73,13 @@ module Trema
         stanza = Trema::DSL::Vswitch.new( name )
         stanza.instance_eval( &block )
         Trema::OpenVswitch.new stanza, @config.port
+      end
+
+
+      def rswitch name = nil, &block
+        stanza = Trema::DSL::Rswitch.new( name )
+        stanza.instance_eval( &block )
+        Trema::RubySwitch.new( stanza )
       end
 
 

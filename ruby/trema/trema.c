@@ -59,6 +59,7 @@
 #include "port-mod.h"
 #include "match.h"
 #include "ruby.h"
+#include "switch.h"
 
 
 VALUE mTrema;
@@ -110,6 +111,8 @@ Init_trema() {
   Init_queue_get_config_reply();
   Init_vendor();
   Init_port_mod();
+  Init_switch();
+
   rb_require( "trema/exact-match" );
 }
 

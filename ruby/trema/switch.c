@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2008-2012 NEC Corporation
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+#include "chibach.h"
+#include "logger.h"
+#include "ruby.h"
+#include "rubysig.h"
+#include "switch.h"
+
+
+VALUE mTrema;
+VALUE cSwitch;
+
+
+static void
+handle_controller_connected( void *rbswitch ) {
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "controller_connected" ) ) == Qtrue ) {
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "controller_connected" ), 0 );
+  }
+}
+
+
+static VALUE
+switch_run( VALUE self ) {
+  setenv( "CHIBACH_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+
+  VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
+  rb_gv_set( "$PROGRAM_NAME", name );
+
+  int argc = 6;
+  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  argv[ 0 ] = STR2CSTR( name );
+  argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
+  argv[ 2 ] = STR2CSTR( name );
+  argv[ 3 ] = ( char * ) ( uintptr_t ) "--datapath_id";
+  argv[ 4 ] = STR2CSTR( rb_iv_get( self, "@dpid" ) );
+  argv[ 5 ] = ( char * ) ( uintptr_t ) "--daemonize";
+  argv[ 6 ] = NULL;
+  init_chibach( &argc, &argv );
+  xfree( argv );
+
+  set_controller_connected_handler( handle_controller_connected, ( void * ) self );
+
+  if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
+    rb_funcall( self, rb_intern( "start" ), 0 );
+  }
+
+  rb_funcall( self, rb_intern( "start_chibach" ), 0 );
+
+  return self;
+}
+
+
+static void
+thread_pass( void *user_data ) {
+  UNUSED( user_data );
+  CHECK_INTS;
+  rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
+}
+
+
+static VALUE
+switch_start_chibach( VALUE self ) {
+  struct itimerspec interval;
+  interval.it_interval.tv_sec = 0;
+  interval.it_interval.tv_nsec = 1000000;
+  interval.it_value.tv_sec = 0;
+  interval.it_value.tv_nsec = 0;
+  add_timer_event_callback( &interval, thread_pass, NULL );
+
+  start_chibach();
+
+  return self;
+}
+
+
+/********************************************************************************
+ * Init Switch module.
+ ********************************************************************************/
+
+void
+Init_switch() {
+  cSwitch = rb_define_class_under( mTrema, "Switch", rb_cObject );
+  rb_include_module( cSwitch, mLogger );
+
+  rb_define_method( cSwitch, "run!", switch_run, 0 );
+  rb_define_private_method( cSwitch, "start_chibach", switch_start_chibach, 0 );
+
+  rb_require( "trema/switch" );
+}
+
+
+/*
+ * Local variables:
+ * c-basic-offset: 2
+ * indent-tabs-mode: nil
+ * End:
+ */
