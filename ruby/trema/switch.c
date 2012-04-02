@@ -52,6 +52,23 @@ handle_hello( uint32_t transaction_id, uint8_t version, void *rbswitch ) {
 }
 
 
+static void
+handle_features_request( uint32_t transaction_id, void *rbswitch ) {
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "features_request" ) ) == Qtrue ) {
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "features_request" ), 1, UINT2NUM( transaction_id ) );
+  }
+}
+
+
+static void
+handle_echo_request( uint32_t transaction_id, const buffer *body, void *rbswitch ) {
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "echo_request" ) ) == Qtrue ) {
+    VALUE rbody = rb_str_new( body->data, ( long ) body->length );
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "echo_request" ), 2, UINT2NUM( transaction_id ), rbody );
+  }
+}
+
+
 static VALUE
 switch_run( VALUE self ) {
   setenv( "CHIBACH_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
@@ -60,12 +77,12 @@ switch_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 6;
-  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  char **argv = xmalloc( sizeof( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
   argv[ 3 ] = ( char * ) ( uintptr_t ) "--datapath_id";
-  argv[ 4 ] = STR2CSTR( rb_iv_get( self, "@dpid" ) );
+  argv[ 4 ] = STR2CSTR( rb_funcall( rb_iv_get( self, "@dpid" ), rb_intern( "to_hex" ), 0 ) );
   argv[ 5 ] = ( char * ) ( uintptr_t ) "--daemonize";
   argv[ 6 ] = NULL;
   init_chibach( &argc, &argv );
@@ -73,6 +90,8 @@ switch_run( VALUE self ) {
 
   set_controller_connected_handler( handle_controller_connected, ( void * ) self );
   set_hello_handler( handle_hello, ( void * ) self );
+  set_features_request_handler( handle_features_request, ( void * ) self );
+  set_echo_request_handler( handle_echo_request, ( void * ) self );
 
   if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
     rb_funcall( self, rb_intern( "start" ), 0 );

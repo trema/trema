@@ -19,7 +19,7 @@
 module Trema
   class Switch
     def self.inherited subclass
-      at_exit { subclass.new( ARGV[ 0 ] ).run! }
+      at_exit { subclass.new( eval ARGV[ 0 ] ).run! }
     end
 
 
