@@ -31,13 +31,18 @@ module Trema
 
 
     def command
-      "#{ ruby } -I#{ File.join Trema.home, "ruby" } -rtrema #{ @stanza.path } #{ dpid_short }"
+      "#{ ruby } -I#{ libruby } -rtrema -e \"Trema.module_eval IO.read( '#{ @stanza.path }' )\" #{ dpid_short }"
     end
 
 
     ############################################################################
     private
     ############################################################################
+
+
+    def libruby
+      File.join Trema.home, "ruby"
+    end
 
 
     def ruby
