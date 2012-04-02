@@ -27,10 +27,27 @@ VALUE mTrema;
 VALUE cSwitch;
 
 
+static VALUE
+switch_send_message( VALUE self, VALUE message ) {
+  buffer *buf;
+  Data_Get_Struct( message, buffer, buf );
+  switch_send_openflow_message( buf );
+  return self;
+}
+
+
 static void
 handle_controller_connected( void *rbswitch ) {
   if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "controller_connected" ) ) == Qtrue ) {
     rb_funcall( ( VALUE ) rbswitch, rb_intern( "controller_connected" ), 0 );
+  }
+}
+
+
+static void
+handle_hello( uint32_t transaction_id, uint8_t version, void *rbswitch ) {
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "hello" ) ) == Qtrue ) {
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "hello" ), 2, UINT2NUM( transaction_id ), UINT2NUM( version ) );
   }
 }
 
@@ -55,6 +72,7 @@ switch_run( VALUE self ) {
   xfree( argv );
 
   set_controller_connected_handler( handle_controller_connected, ( void * ) self );
+  set_hello_handler( handle_hello, ( void * ) self );
 
   if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
     rb_funcall( self, rb_intern( "start" ), 0 );
@@ -99,6 +117,7 @@ Init_switch() {
   rb_include_module( cSwitch, mLogger );
 
   rb_define_method( cSwitch, "run!", switch_run, 0 );
+  rb_define_method( cSwitch, "send_message", switch_send_message, 1 );
   rb_define_private_method( cSwitch, "start_chibach", switch_start_chibach, 0 );
 
   rb_require( "trema/switch" );
