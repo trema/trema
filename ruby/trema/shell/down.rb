@@ -26,7 +26,7 @@ require "trema/dsl"
 module Trema
   module Shell
     def down name
-      Switch[ name ].shutdown!
+      OpenflowSwitch[ name ].shutdown!
     end
   end
 end

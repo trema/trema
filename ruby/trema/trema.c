@@ -69,8 +69,8 @@ Init_trema() {
   mTrema = rb_define_module( "Trema" );
 
   rb_require( "trema/host" );
+  rb_require( "trema/openflow-switch" );
   rb_require( "trema/path" );
-  rb_require( "trema/switch" );
 
   Init_action_output();
   Init_action_set_dl_dst();

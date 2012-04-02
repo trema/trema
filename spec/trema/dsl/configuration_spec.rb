@@ -99,9 +99,9 @@ module Trema
         it "should remember switches" do
           @context.should have( 0 ).switches
 
-          Trema::Switch.add mock( "switch #0", :name => "switch #0" )
-          Trema::Switch.add mock( "switch #1", :name => "switch #1" )
-          Trema::Switch.add mock( "switch #2", :name => "switch #2" )
+          Trema::OpenflowSwitch.add mock( "switch #0", :name => "switch #0" )
+          Trema::OpenflowSwitch.add mock( "switch #1", :name => "switch #1" )
+          Trema::OpenflowSwitch.add mock( "switch #2", :name => "switch #2" )
 
           @context.should have( 3 ).switches
 

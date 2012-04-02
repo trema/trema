@@ -25,7 +25,7 @@ module Trema
   #
   # Keeps a list of {HardwareSwitch} and {OpenVswitch}
   #
-  class Switch < NetworkComponent
+  class OpenflowSwitch < NetworkComponent
   end
 end
 

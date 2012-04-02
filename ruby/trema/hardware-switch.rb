@@ -18,7 +18,7 @@
 #
 
 
-require "trema/switch"
+require "trema/openflow-switch"
 
 
 module Trema
@@ -49,7 +49,7 @@ module Trema
       stanza.validate
       @name = stanza.name
       @stanza = stanza
-      Switch.add self
+      OpenflowSwitch.add self
     end
 
 

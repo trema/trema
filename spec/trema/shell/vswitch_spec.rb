@@ -23,9 +23,9 @@ require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
 
 describe Trema::Shell, ".vswitch" do
   around do | example |
-    Trema::Switch.clear
+    Trema::OpenflowSwitch.clear
     example.run
-    Trema::Switch.clear
+    Trema::OpenflowSwitch.clear
   end
 
 
@@ -46,25 +46,25 @@ describe Trema::Shell, ".vswitch" do
       $config = mock( "config", :port => 6633 )
       $context = mock( "context", :dump => true )
     }
-    after { Trema::Switch[ "0xabc" ].shutdown! if Trema::Switch[ "0xabc" ] }
+    after { Trema::OpenflowSwitch[ "0xabc" ].shutdown! if Trema::OpenflowSwitch[ "0xabc" ] }
 
 
     it "should create a new vswitch if name given" do
       Trema::Shell.vswitch { dpid "0xabc" }
-      Trema::Switch.should have( 1 ).switch
-      Trema::Switch[ "0xabc" ].name.should == "0xabc"
-      Trema::Switch[ "0xabc" ].dpid_short.should == "0xabc"
-      Trema::Switch[ "0xabc" ].dpid_long.should == "0000000000000abc"
+      Trema::OpenflowSwitch.should have( 1 ).switch
+      Trema::OpenflowSwitch[ "0xabc" ].name.should == "0xabc"
+      Trema::OpenflowSwitch[ "0xabc" ].dpid_short.should == "0xabc"
+      Trema::OpenflowSwitch[ "0xabc" ].dpid_long.should == "0000000000000abc"
     end
 
 
     it "should create a new vswitch if dpid given" do
       Trema::Shell.vswitch "0xabc"
 
-      Trema::Switch.should have( 1 ).switch
-      Trema::Switch[ "0xabc" ].name.should == "0xabc"
-      Trema::Switch[ "0xabc" ].dpid_short.should == "0xabc"
-      Trema::Switch[ "0xabc" ].dpid_long.should == "0000000000000abc"
+      Trema::OpenflowSwitch.should have( 1 ).switch
+      Trema::OpenflowSwitch[ "0xabc" ].name.should == "0xabc"
+      Trema::OpenflowSwitch[ "0xabc" ].dpid_short.should == "0xabc"
+      Trema::OpenflowSwitch[ "0xabc" ].dpid_long.should == "0000000000000abc"
     end
 
 
