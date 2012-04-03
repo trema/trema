@@ -69,6 +69,29 @@ void
 Init_trema() {
   mTrema = rb_define_module( "Trema" );
 
+  rb_define_const( mTrema, "OFPC_FLOW_STATS", INT2NUM( OFPC_FLOW_STATS ) );
+  rb_define_const( mTrema, "OFPC_TABLE_STATS", INT2NUM( OFPC_TABLE_STATS ) );
+  rb_define_const( mTrema, "OFPC_PORT_STATS", INT2NUM( OFPC_PORT_STATS ) );
+  rb_define_const( mTrema, "OFPC_STP", INT2NUM( OFPC_STP) );
+  rb_define_const( mTrema, "OFPC_RESERVED", INT2NUM( OFPC_RESERVED ) );
+  rb_define_const( mTrema, "OFPC_IP_REASM", INT2NUM( OFPC_IP_REASM ) );
+  rb_define_const( mTrema, "OFPC_QUEUE_STATS", INT2NUM( OFPC_QUEUE_STATS ) );
+  rb_define_const( mTrema, "OFPC_ARP_MATCH_IP", INT2NUM( OFPC_ARP_MATCH_IP ) );
+
+  rb_define_const( mTrema, "OFPAT_OUTPUT", INT2NUM( OFPAT_OUTPUT ) );
+  rb_define_const( mTrema, "OFPAT_SET_VLAN_VID", INT2NUM( OFPAT_SET_VLAN_VID ) );
+  rb_define_const( mTrema, "OFPAT_SET_VLAN_PCP", INT2NUM( OFPAT_SET_VLAN_PCP ) );
+  rb_define_const( mTrema, "OFPAT_STRIP_VLAN", INT2NUM( OFPAT_STRIP_VLAN ) );
+  rb_define_const( mTrema, "OFPAT_SET_DL_SRC", INT2NUM( OFPAT_SET_DL_SRC) );
+  rb_define_const( mTrema, "OFPAT_SET_DL_DST", INT2NUM( OFPAT_SET_DL_DST) );
+  rb_define_const( mTrema, "OFPAT_SET_NW_SRC", INT2NUM( OFPAT_SET_NW_SRC ) );
+  rb_define_const( mTrema, "OFPAT_SET_NW_DST", INT2NUM( OFPAT_SET_NW_DST ) );
+  rb_define_const( mTrema, "OFPAT_SET_NW_TOS", INT2NUM( OFPAT_SET_NW_TOS ) );
+  rb_define_const( mTrema, "OFPAT_SET_TP_SRC", INT2NUM( OFPAT_SET_TP_SRC ) );
+  rb_define_const( mTrema, "OFPAT_SET_TP_DST", INT2NUM( OFPAT_SET_TP_DST ) );
+  rb_define_const( mTrema, "OFPAT_ENQUEUE", INT2NUM( OFPAT_ENQUEUE ) );
+  rb_define_const( mTrema, "OFPAT_VENDOR", INT2NUM( OFPAT_VENDOR ) );
+
   rb_require( "trema/host" );
   rb_require( "trema/openflow-switch" );
   rb_require( "trema/path" );
