@@ -61,6 +61,14 @@ handle_features_request( uint32_t transaction_id, void *rbswitch ) {
 
 
 static void
+handle_set_config( uint32_t transaction_id, uint16_t flags, uint16_t miss_send_len, void *rbswitch ) {
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "set_config" ) ) == Qtrue ) {
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "set_config" ), 3, UINT2NUM( transaction_id ), UINT2NUM( flags ), UINT2NUM( miss_send_len ) );
+  }
+}
+
+
+static void
 handle_echo_request( uint32_t transaction_id, const buffer *body, void *rbswitch ) {
   if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "echo_request" ) ) == Qtrue ) {
     VALUE rbody = rb_str_new( body->data, ( long ) body->length );
@@ -91,6 +99,7 @@ switch_run( VALUE self ) {
   set_controller_connected_handler( handle_controller_connected, ( void * ) self );
   set_hello_handler( handle_hello, ( void * ) self );
   set_features_request_handler( handle_features_request, ( void * ) self );
+  set_set_config_handler( handle_set_config, ( void * ) self );
   set_echo_request_handler( handle_echo_request, ( void * ) self );
 
   if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {

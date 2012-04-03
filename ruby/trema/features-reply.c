@@ -26,6 +26,13 @@ extern VALUE mTrema;
 VALUE cFeaturesReply;
 
 
+static VALUE
+features_reply_alloc( VALUE klass ) {
+  buffer *features_reply = create_features_reply( 0, 0, 0, 0, 0, 0, NULL );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, features_reply );
+}
+
+
 /*
  * Creates a FeaturesReply message. A user would not explicitly
  * instantiate a {FeaturesReply} object but would be created while
@@ -66,29 +73,54 @@ VALUE cFeaturesReply;
  */
 static VALUE
 features_reply_init( VALUE self, VALUE options ) {
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "datapath_id" ) ) ) == Qnil ) {
+  buffer *buf = NULL;
+  Data_Get_Struct( self, buffer, buf );
+  struct ofp_switch_features *features_reply = buf->data;
+  VALUE tmp = Qnil;
+
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "datapath_id" ) ) );
+  if ( tmp == Qnil ) {
     rb_raise( rb_eArgError, ":datapath_id is a mandatory option" );
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) == Qnil &&
-       rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":transaction_id is a mandatory option" );
+  features_reply->datapath_id = htonl( NUM2ULL( tmp ) );
+
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  if ( tmp == Qnil ) {
+    tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+    if ( tmp == Qnil ) {
+      rb_raise( rb_eArgError, ":transaction_id is a mandatory option" );
+    }
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "n_buffers" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":n_buffers is a mandatory option" );
+  features_reply->header.xid = htonl( NUM2UINT( tmp ) );
+
+  features_reply->n_buffers = 0;
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "n_buffers" ) ) );
+  if ( tmp != Qnil ) {
+    features_reply->n_buffers = htonl( NUM2UINT( tmp ) );
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "n_tables" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":n_tables is a mandatory option" );
+
+  features_reply->n_tables = 1;
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "n_tables" ) ) );
+  if ( tmp != Qnil ) {
+    features_reply->n_tables = ( uint8_t ) NUM2UINT( tmp );
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "capabilities" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":capabilities is a mandatory option" );
+
+  features_reply->capabilities = 0;
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "capabilities" ) ) );
+  if ( tmp != Qnil ) {
+    features_reply->capabilities = htonl( NUM2UINT( tmp ) );
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":actions is a mandatory option" );
+
+  features_reply->actions = htonl( 1 << OFPAT_OUTPUT );
+  tmp = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
+  if ( tmp != Qnil ) {
+    features_reply->actions = htonl( NUM2UINT( tmp ) );
   }
-  if ( rb_hash_aref( options, ID2SYM( rb_intern( "ports" ) ) ) == Qnil ) {
-    rb_raise( rb_eArgError, ":ports is a mandatory option" );
-  }
+
+  // TODO: ports
+
   rb_iv_set( self, "@attribute", options );
+
   return self;
 }
 
@@ -184,6 +216,7 @@ features_reply_ports( VALUE self ) {
 void
 Init_features_reply() {
   cFeaturesReply = rb_define_class_under( mTrema, "FeaturesReply", rb_cObject );
+  rb_define_alloc_func( cFeaturesReply, features_reply_alloc );
   rb_define_method( cFeaturesReply, "initialize", features_reply_init, 1 );
   rb_define_method( cFeaturesReply, "datapath_id", features_reply_datapath_id, 0 );
   rb_define_method( cFeaturesReply, "transaction_id", features_reply_transaction_id, 0 );
