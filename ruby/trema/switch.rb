@@ -36,6 +36,11 @@ module Trema
     def hello xid, version
       send_message Hello.new( xid )
     end
+
+
+    def features_request xid
+      send_message FeaturesReply.new( :datapath_id => @dpid, :transaction_id => xid )
+    end
   end
 end
 
