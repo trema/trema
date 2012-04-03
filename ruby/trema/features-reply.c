@@ -82,7 +82,7 @@ features_reply_init( VALUE self, VALUE options ) {
   if ( tmp == Qnil ) {
     rb_raise( rb_eArgError, ":datapath_id is a mandatory option" );
   }
-  features_reply->datapath_id = htonl( NUM2ULL( tmp ) );
+  features_reply->datapath_id = htonll( NUM2ULL( tmp ) );
 
   tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
   if ( tmp == Qnil ) {
