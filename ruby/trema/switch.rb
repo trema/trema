@@ -37,8 +37,8 @@ module Trema
     end
 
 
-    def hello xid, version
-      send_message Hello.new( xid )
+    def controller_connected
+      send_message Hello.new
     end
 
 
