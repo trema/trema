@@ -18,6 +18,10 @@
 
 module Trema
   class Switch
+    attr_reader :dpid
+    alias :datapath_id :dpid
+
+
     def self.inherited subclass
       at_exit { subclass.new( eval ARGV[ 0 ] ).run! }
     end
