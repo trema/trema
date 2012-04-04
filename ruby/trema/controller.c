@@ -136,6 +136,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
   uint32_t buffer_id = UINT32_MAX;
+  uint16_t out_port = OFPP_NONE;
   uint16_t flags = OFPFF_SEND_FLOW_REM;
   openflow_actions *actions = create_actions();
 
@@ -171,6 +172,11 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
       buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
+    VALUE opt_out_port = rb_hash_aref( options, ID2SYM( rb_intern( "out_port" ) ) );
+    if ( opt_out_port != Qnil ) {
+      out_port = ( uint16_t )NUM2UINT( opt_out_port );
+    }
+
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem == Qfalse ) {
       flags &= ( uint16_t ) ~OFPFF_SEND_FLOW_REM;
@@ -201,7 +207,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     hard_timeout,
     priority,
     buffer_id,
-    OFPP_NONE,
+    out_port,
     flags,
     actions
   );
