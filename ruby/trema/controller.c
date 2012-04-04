@@ -259,6 +259,10 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
  *     applied to flow actions.
  *
+ *   @option options [Number] :out_port (0xffff)
+ *     If the option contains a value other than OFPP_NONE(0xffff), 
+ *     it introduces a constraint when deleting flow entries.
+ *
  *   @option options [Boolean] :send_flow_rem (true)
  *     If true, send a flow_removed message when the flow expires or
  *     is deleted.
