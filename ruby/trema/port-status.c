@@ -155,7 +155,7 @@ handle_port_status(
 ) {
   VALUE controller = ( VALUE ) user_data;
 
-  if ( rb_respond_to( controller, rb_intern( "port_status" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "port_status" ) ) ) {
     return;
   }
 

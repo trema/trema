@@ -18,6 +18,7 @@
  */
 
 
+#include "ruby.h"
 #include "action-enqueue.h"
 #include "action-output.h"
 #include "action-set-dl-dst.h"
@@ -53,7 +54,6 @@
 #include "port.h"
 #include "queue-get-config-reply.h"
 #include "queue-get-config-request.h"
-#include "ruby.h"
 #include "set-config.h"
 #include "stats-reply.h"
 #include "stats-request.h"
