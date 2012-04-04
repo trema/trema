@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,6 +17,7 @@
 
 
 require "trema/app"
+require "trema/logger"
 require "trema/monkey-patch/integer"
 require "trema/monkey-patch/string"
 require "trema/timers"
@@ -29,6 +28,7 @@ module Trema
   # The base class of Trema controller.
   #
   class Controller < App
+    include Logger
     include Timers
 
 

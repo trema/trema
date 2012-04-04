@@ -39,7 +39,7 @@
 #include "vendor.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
 VALUE cController;
 
 
@@ -532,7 +532,6 @@ Init_controller() {
   rb_require( "trema/app" );
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
-  rb_include_module( cController, mLogger );
 
   rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
   rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
@@ -553,8 +552,6 @@ Init_controller() {
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
-
-  // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
 
   rb_require( "trema/controller" );
