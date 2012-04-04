@@ -16,6 +16,7 @@
  */
 
 
+#include "trema.h"
 #include "trema-ruby-utils.h"
 
 

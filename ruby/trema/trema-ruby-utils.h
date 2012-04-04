@@ -20,7 +20,9 @@
 #define TREMA_RUBY_UTILS_H
 
 
+#include <inttypes.h>
 #include "ruby.h"
+#include "buffer.h"
 
 
 void set_xid( const buffer *openflow_message, uint32_t xid );

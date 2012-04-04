@@ -23,7 +23,6 @@
 
 
 #include "trema-ruby-utils.h"
-#include "trema.h"
 
 
 extern VALUE cGetConfigReply;
