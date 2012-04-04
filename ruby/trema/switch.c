@@ -17,6 +17,7 @@
 
 
 #include "chibach.h"
+#include "flow-mod.h"
 #include "logger.h"
 #include "ruby.h"
 #include "rubysig.h"
@@ -69,6 +70,33 @@ handle_set_config( uint32_t transaction_id, uint16_t flags, uint16_t miss_send_l
 
 
 static void
+handle_flow_mod(
+  uint32_t transaction_id,
+  struct ofp_match match,
+  uint64_t cookie,
+  uint16_t command,
+  uint16_t idle_timeout,
+  uint16_t hard_timeout,
+  uint16_t priority,
+  uint32_t buffer_id,
+  uint16_t out_port,
+  uint16_t flags,
+  const openflow_actions *actions,
+  void *rbswitch
+){
+  if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "flow_mod" ) ) == Qtrue ) {
+    VALUE options = rb_hash_new();
+    rb_hash_aset( options, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
+    rb_hash_aset( options, ID2SYM( rb_intern( "command" ) ), UINT2NUM( command ) );
+    rb_hash_aset( options, ID2SYM( rb_intern( "idle_timeout" ) ), UINT2NUM( idle_timeout ) );
+    rb_hash_aset( options, ID2SYM( rb_intern( "hard_timeout" ) ), UINT2NUM( hard_timeout ) );
+    VALUE flow_mod = rb_funcall( cFlowMod, rb_intern( "new" ), 1, options );
+    rb_funcall( ( VALUE ) rbswitch, rb_intern( "flow_mod" ), 2, UINT2NUM( transaction_id ), flow_mod );
+  }
+}
+
+
+static void
 handle_echo_request( uint32_t transaction_id, const buffer *body, void *rbswitch ) {
   if ( rb_respond_to( ( VALUE ) rbswitch, rb_intern( "echo_request" ) ) == Qtrue ) {
     VALUE rbody = rb_str_new( body->data, ( long ) body->length );
@@ -100,6 +128,7 @@ switch_run( VALUE self ) {
   set_hello_handler( handle_hello, ( void * ) self );
   set_features_request_handler( handle_features_request, ( void * ) self );
   set_set_config_handler( handle_set_config, ( void * ) self );
+  set_flow_mod_handler( handle_flow_mod, ( void * ) self );
   set_echo_request_handler( handle_echo_request, ( void * ) self );
 
   if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
