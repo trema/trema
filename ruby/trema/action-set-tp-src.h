@@ -22,7 +22,7 @@
 #define ACTION_SET_TP_SRC_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionSetTpSrc;

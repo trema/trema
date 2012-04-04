@@ -20,7 +20,7 @@
 #define VENDOR_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 
 

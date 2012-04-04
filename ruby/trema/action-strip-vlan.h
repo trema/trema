@@ -22,7 +22,7 @@
 #define ACTION_STRIP_VLAN_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionStripVlan;

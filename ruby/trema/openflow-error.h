@@ -22,7 +22,7 @@
 #define OPENFLOW_ERROR_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 
 

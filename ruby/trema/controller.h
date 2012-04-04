@@ -24,7 +24,7 @@
 #define CONTROLLER_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cController;

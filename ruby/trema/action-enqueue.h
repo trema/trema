@@ -22,7 +22,7 @@
 #define ACTION_ENQUEUE_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionEnqueue;

@@ -19,7 +19,7 @@
 #include "chibach.h"
 #include "flow-mod.h"
 #include "logger.h"
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "rubysig.h"
 #include "switch.h"
 

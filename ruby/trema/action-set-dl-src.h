@@ -24,7 +24,7 @@
 #define ACTION_SET_DL_SRC_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionSetDlSrc;

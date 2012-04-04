@@ -22,7 +22,7 @@
 #define ACTION_SET_NW_TOS_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionSetNwTos;

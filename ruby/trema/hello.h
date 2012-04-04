@@ -22,7 +22,7 @@
 #define HELLO_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cHello;

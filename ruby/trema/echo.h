@@ -20,7 +20,7 @@
 #define ECHO_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 VALUE echo_init( int argc, VALUE *argv, VALUE self );

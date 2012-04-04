@@ -22,7 +22,7 @@
 #define ACTION_VENDOR_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionVendor;

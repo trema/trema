@@ -22,7 +22,7 @@
 #define ACTION_OUTPUT_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cActionOutput;
