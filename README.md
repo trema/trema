@@ -44,7 +44,6 @@ Meta
 * Bugs: https://github.com/trema/trema/issues
 * Mailing List: https://groups.google.com/group/trema-dev
 * Twitter: http://twitter.com/trema_news
-* Contributors: https://github.com/trema/trema/contributors
 
 
 Supported Platforms
