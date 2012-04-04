@@ -20,8 +20,8 @@
 
 require "trema/daemon"
 require "trema/executables"
+require "trema/hardware-switch"
 require "trema/ofctl"
-require "trema/openflow-switch"
 require "trema/path"
 
 
@@ -29,7 +29,7 @@ module Trema
   #
   # Open vSwitch support (http://openvswitch.org)
   #
-  class OpenVswitch < OpenflowSwitch
+  class OpenVswitch < HardwareSwitch
     include Trema::Daemon
 
 

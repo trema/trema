@@ -24,6 +24,7 @@
 
 extern VALUE mTrema;
 VALUE cStatsRequest;
+VALUE cDescStatsRequest;
 VALUE cFlowStatsRequest;
 VALUE cAggregateStatsRequest;
 VALUE cTableStatsRequest;
@@ -116,6 +117,13 @@ subclass_stats_request_init( VALUE self, VALUE options ) {
   }
   rb_iv_set( self, "@out_port", out_port );
   return self;
+}
+
+
+static VALUE
+desc_stats_request_alloc( VALUE klass ) {
+  buffer *desc_stats_request = create_desc_stats_request( MY_TRANSACTION_ID, NO_FLAGS );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, desc_stats_request );
 }
 
 
@@ -226,7 +234,7 @@ stats_out_port( VALUE self ) {
 /*
  * Restrict port statistics to a specific port_no or to all ports.
  *
- * @return [Number] the value of port_no.
+  @return [Number] the value of port_no.
  */
 static VALUE
 stats_port_no( VALUE self ) {
@@ -279,6 +287,51 @@ get_stats_request_match( VALUE self ) {
   const struct ofp_match *match;
   Data_Get_Struct( rb_iv_get( self, "@match" ), struct ofp_match, match );
   return *match;
+}
+
+
+static VALUE
+parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
+  VALUE options;
+  if ( !rb_scan_args( argc, argv, "01", &options )) {
+    options = rb_hash_new();
+  }
+  rb_call_super( 1, &options );
+  buffer *message;
+  Data_Get_Struct( self, buffer, message );
+  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
+  struct ofp_stats_request *stats_request;
+  stats_request = ( struct ofp_stats_request * ) message->data;
+  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
+  return self;
+}
+
+
+
+/*
+ * A {DescStatsRequest} object instance to request descriptive information of vswitch.
+ * Such information includes switch manufacturer, hardware revision and serial number
+ *
+ * @overload initialize(options={})
+ *
+ *   @example 
+ *     DescStatsRequest.new(
+ *       :transaction_id => 1234
+ *     )
+ *
+ *   @param [Hash] options
+ *     the options to create a message with.
+ *
+ *   @option options [Number] :transaction_id
+ *     set the transaction_id as specified or auto-generate it.
+ *
+ *   @return [TableStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DSST)+ openflow
+ *     message.
+ */
+static VALUE
+desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
+  return parse_common_arguments( argc, argv, self );
 }
 
 
@@ -411,18 +464,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  */
 static VALUE
 table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
-    options = rb_hash_new();
-  }
-  rb_call_super( 1, &options );
-  buffer *message;
-  Data_Get_Struct( self, buffer, message );
-  ( ( struct ofp_header * ) ( message->data ) )->xid = htonl( get_stats_request_num2uint( self, "@transaction_id" ) );
-  struct ofp_stats_request *stats_request;
-  stats_request = ( struct ofp_stats_request * ) message->data;
-  stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
-  return self;
+  return parse_common_arguments( argc, argv, self );
 }
 
 
@@ -586,11 +628,17 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 void
 Init_stats_request(){
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
+
+  cDescStatsRequest = rb_define_class_under( mTrema, "DescStatsRequest", cStatsRequest );
+  rb_define_alloc_func( cDescStatsRequest, desc_stats_request_alloc );
+  rb_define_method( cDescStatsRequest, "initialize", desc_stats_request_init, -1 );
+
   cFlowStatsRequest = rb_define_class_under( mTrema, "FlowStatsRequest", cStatsRequest );
   rb_define_method( cStatsRequest, "initialize", stats_request_init, 1 );
   rb_define_method( cStatsRequest, "transaction_id", stats_transaction_id, 0 );
+  rb_alias( cStatsRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cStatsRequest, "flags", stats_flags, 0 );
-  
+
   rb_define_alloc_func( cFlowStatsRequest, flow_stats_request_alloc );
   rb_define_method( cFlowStatsRequest, "initialize", flow_stats_request_init, 1 );
   rb_define_method( cFlowStatsRequest, "match", stats_match, 0 );

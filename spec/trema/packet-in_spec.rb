@@ -27,11 +27,11 @@ describe Trema::PacketIn do
     send_packets "host1", "host2"
     sleep 2
   end
-  
-  
+
+
   class PacketInController < Controller; end
 
-  class PacketInSendController < Controller 
+  class PacketInSendController < Controller
     def packet_in datapath_id, message
       send_flow_mod_add(
                         datapath_id,
@@ -45,7 +45,7 @@ describe Trema::PacketIn do
                       )
     end
   end
-  
+
   context "when instance is created" do
     it "should have valid datapath_id and in_port" do
       network {
@@ -55,7 +55,7 @@ describe Trema::PacketIn do
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
           datapath_id.should == 0xabc
           message.datapath_id.should == 0xabc
           message.in_port.should > 0
@@ -63,19 +63,19 @@ describe Trema::PacketIn do
         send_and_wait
       }
     end
-    
-    
+
+
     it "should have vaild user data" do
       network {
         vswitch( "test" ) { datapath_id 0xabc }
-        vhost( "host1" ) { mac "00:00:00:00:00:01" 
+        vhost( "host1" ) { mac "00:00:00:00:00:01"
                            ip "192.168.1.1" }
-        vhost( "host2" ) { mac "00:00:00:00:00:02" 
+        vhost( "host2" ) { mac "00:00:00:00:00:02"
                            ip "192.168.1.2" }
         link "test", "host1"
         link "test", "host2"
       }.run( PacketInController ) {
-        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
            # packet_in expected to have data portion.
           message.total_len.should > 20
           message.data.should be_instance_of( String )
@@ -129,7 +129,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_true
@@ -144,6 +144,50 @@ describe Trema::PacketIn do
           message.arp_spa.to_s.should == "192.168.0.1"
           message.arp_tha.to_s.should == "00:00:00:00:00:02"
           message.arp_tpa.to_s.should == "192.168.0.2"
+
+          message.vlan_tpid.should be_nil
+          message.vlan_tci.should be_nil
+          message.vlan_prio.should be_nil
+          message.vlan_cfi.should be_nil
+          message.vlan_vid.should be_nil
+
+          message.ipv4_version.should be_nil
+          message.ipv4_ihl.should be_nil
+          message.ipv4_tos.should be_nil
+          message.ipv4_tot_len.should be_nil
+          message.ipv4_id.should be_nil
+          message.ipv4_frag_off.should be_nil
+          message.ipv4_ttl.should be_nil
+          message.ipv4_protocol.should be_nil
+          message.ipv4_checksum.should be_nil
+          message.ipv4_saddr.should be_nil
+          message.ipv4_daddr.should be_nil
+
+          message.icmpv4_type.should be_nil
+          message.icmpv4_code.should be_nil
+          message.icmpv4_checksum.should be_nil
+          message.icmpv4_id.should be_nil
+          message.icmpv4_seq.should be_nil
+          message.icmpv4_gateway.should be_nil
+
+          message.igmp_type.should be_nil
+          message.igmp_checksum.should be_nil
+          message.igmp_group.should be_nil
+
+          message.tcp_src_port.should be_nil
+          message.tcp_dst_port.should be_nil
+          message.tcp_seq_no.should be_nil
+          message.tcp_ack_no.should be_nil
+          message.tcp_offset.should be_nil
+          message.tcp_flags.should be_nil
+          message.tcp_window.should be_nil
+          message.tcp_checksum.should be_nil
+          message.tcp_urgent.should be_nil
+
+          message.udp_src_port.should be_nil
+          message.udp_dst_port.should be_nil
+          message.udp_checksum.should be_nil
+          message.udp_len.should be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -186,14 +230,14 @@ describe Trema::PacketIn do
           0x00, 0x02, # dst port
           0x00, 0x00, 0x00, 0x00, # sequence number
           0x00, 0x00, 0x00, 0x00, # acknowledgement number
-          0x50, # data offset, 
+          0x50, # data offset,
           0x00, # flags
           0x00, 0x00, # window size
           0x2e, 0x86, # checksum
           0x00, 0x00, # urgent pointer
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false
@@ -224,6 +268,12 @@ describe Trema::PacketIn do
           message.tcp_window.should == 0
           message.tcp_checksum.should == 11910 # 0x2e86
           message.tcp_urgent.should == 0
+
+          message.arp_oper.should be_nil
+          message.arp_sha.should be_nil
+          message.arp_spa.should be_nil
+          message.arp_tha.should be_nil
+          message.arp_tpa.should be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -270,7 +320,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false
@@ -347,7 +397,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_true
           message.arp?.should be_false
@@ -425,7 +475,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
-        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message | 
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
           message.in_port.should > 0
           message.vtag?.should be_false
           message.arp?.should be_false

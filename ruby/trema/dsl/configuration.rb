@@ -21,8 +21,8 @@
 require "trema/app"
 require "trema/host"
 require "trema/link"
+require "trema/openflow-switch"
 require "trema/packetin-filter"
-require "trema/switch"
 require "trema/switch-manager"
 
 
@@ -90,7 +90,7 @@ module Trema
       #
       # @example
       #   p config.switches
-      #   #=> {"switch #0"=>#<Trema::Switch:0xb73c9328>, ...}
+      #   #=> {"switch #0"=>#<Trema::OpenflowSwitch:0xb73c9328>, ...}
       #
       # @return [Hash]
       #
@@ -113,7 +113,7 @@ module Trema
         @links = Trema::Link.clear
         @packetin_filter = Trema::PacketinFilter.clear
         @switch_manager = Trema::SwitchManager.clear
-        @switches = Trema::Switch.clear
+        @switches = Trema::OpenflowSwitch.clear
       end
 
 

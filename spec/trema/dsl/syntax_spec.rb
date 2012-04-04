@@ -59,7 +59,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'switch' directive" do
-    Trema::Switch.should_receive( :add ).with( an_instance_of( OpenflowSwitch ) ).once
+    Trema::OpenflowSwitch.should_receive( :add ).with( an_instance_of( HardwareSwitch ) ).once
 
     @syntax.instance_eval do
       switch { dpid "0xabc" }
@@ -68,7 +68,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'vswitch' directive" do
-    Trema::Switch.should_receive( :add ).with( an_instance_of( OpenVswitch ) ).once
+    Trema::OpenflowSwitch.should_receive( :add ).with( an_instance_of( OpenVswitch ) ).once
 
     @syntax.instance_eval do
       vswitch { dpid "0xabc" }

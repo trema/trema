@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,20 +16,41 @@
 #
 
 
-require "trema/network-component"
-
-
 module Trema
-  #
-  # Keeps a list of {OpenflowSwitch} and {OpenVswitch}
-  #
-  class Switch < NetworkComponent
+  class Switch
+    attr_reader :dpid
+    alias :datapath_id :dpid
+
+
+    def self.inherited subclass
+      at_exit { subclass.new( eval ARGV[ 0 ] ).run! }
+    end
+
+
+    def initialize dpid
+      @dpid = dpid
+    end
+
+
+    def name
+      self.class.to_s.split( "::" ).last
+    end
+
+
+    def controller_connected
+      send_message Hello.new
+    end
+
+
+    def features_request xid
+      send_message FeaturesReply.new( :datapath_id => @dpid, :transaction_id => xid )
+    end
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

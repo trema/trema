@@ -23,8 +23,92 @@ require "rspec"
 
 
 shared_examples_for "any Openflow message with default transaction ID" do
-  its( :transaction_id ) { should be_a_kind_of( Integer ) }
   its( :transaction_id ) { should be_unsigned_32bit }
+  its( :xid ) { should be_unsigned_32bit }
+end
+
+
+shared_examples_for "any Openflow message with transaction ID" do
+  context "transaction_id: -123", :nosudo => true do
+    let( :transaction_id ) { -123 }
+    it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+  end
+
+  context "transaction_id: 0", :nosudo => true do
+    let( :transaction_id ) { 0 }
+    its( :transaction_id ) { should == 0 }
+    its( :xid ) { should == 0 }
+  end
+
+  context "transaction_id: 123", :nosudo => true do
+    let( :transaction_id ) { 123 }
+    its( :transaction_id ) { should == 123 }
+    its( :xid ) { should == 123 }
+  end
+
+  context "transaction_id: UINT32_MAX", :nosudo => true do
+    let( :transaction_id ) { 2 ** 32 - 1 }
+    its( :transaction_id ) { should == 2 ** 32 - 1 }
+    its( :xid ) { should == 2 ** 32 - 1 }
+  end
+
+  context "transaction_id: UINT32_MAX + 1", :nosudo => true do
+    let( :transaction_id ) { 2 ** 32 }
+    it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+  end
+end
+
+
+shared_examples_for "any Openflow message with xid" do
+  context "xid: -123", :nosudo => true do
+    let( :xid ) { -123 }
+    it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+  end
+
+  context "xid: 0", :nosudo => true do
+    let( :xid ) { 0 }
+    its( :xid ) { should == 0 }
+    its( :transaction_id ) { should == 0 }
+  end
+
+  context "xid: 123", :nosudo => true do
+    let( :xid ) { 123 }
+    its( :xid ) { should == 123 }
+    its( :transaction_id ) { should == 123 }
+  end
+
+  context "xid: UINT32_MAX", :nosudo => true do
+    let( :xid ) { 2 ** 32 - 1 }
+    its( :xid ) { should == 2 ** 32 - 1 }
+    its( :transaction_id ) { should == 2 ** 32 - 1 }
+  end
+
+  context "xid: UINT32_MAX + 1", :nosudo => true do
+    let( :xid ) { 2 ** 32 }
+    it { expect { subject }.to raise_error( ArgumentError, "Transaction ID must be an unsigned 32-bit integer" ) }
+  end
+end
+
+
+shared_examples_for "any Openflow message with user_data" do
+  context "user_data: nil", :nosudo => true do
+    let( :user_data ) { nil }
+    its( :user_data ) { should be_nil }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
+
+
+  context 'user_data: "USER DATA"', :nosudo => true do
+    let( :user_data ) { "USER DATA" }
+    its( :user_data ) { should == "USER DATA" }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
+
+
+  context "user_data: :INVALID_DATA", :nosudo => true do
+    let( :user_data ) { :INVALID_DATA }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 end
 
 

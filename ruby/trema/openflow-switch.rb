@@ -18,65 +18,14 @@
 #
 
 
-require "trema/switch"
+require "trema/network-component"
 
 
 module Trema
   #
-  # Hardware switch that supports OpenFlow protocol.
+  # Keeps a list of {HardwareSwitch} and {OpenVswitch}
   #
-  class OpenflowSwitch
-    #
-    # The name of this switch
-    #
-    # @example
-    #   switch.name #=> "My expensive OpenFlow switch"
-    #
-    # @return [String]
-    #
-    attr_reader :name
-
-
-    #
-    # Creates a new OpenflowSwitch from {DSL::Switch}
-    #
-    # @example
-    #   switch = Trema::OpenflowSwitch.new( stanza )
-    #
-    # @return [OpenflowSwitch]
-    #
-    def initialize stanza
-      stanza.validate
-      @name = stanza.name
-      @stanza = stanza
-      Switch.add self
-    end
-
-
-    #
-    # Returns datapath id in long format
-    #
-    # @example
-    #   switch.dpid_long #=> "0000000000000abc"
-    #
-    # @return [String]
-    #
-    def dpid_long
-      @stanza.fetch :dpid_long
-    end
-
-
-    #
-    # Returns datapath id prefixed with "0x"
-    #
-    # @example
-    #   switch.dpid_short #=> "0xabc"
-    #
-    # @return [String]
-    #
-    def dpid_short
-      @stanza.fetch :dpid_short
-    end
+  class OpenflowSwitch < NetworkComponent
   end
 end
 

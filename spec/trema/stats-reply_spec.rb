@@ -23,6 +23,24 @@ require "trema"
 
 
 describe StatsReply, ".new( VALID OPTIONS )" do
+  context "when #desc-stats-reply is created" do
+    subject do
+      DescStatsReply.new(
+        :mfr_desc => "NEC Corporation",
+        :hw_desc => "no hardware description",
+        :sw_desc => "version xx.xx",
+        :serial_num => "1234"
+      )
+    end
+
+    it { should respond_to( :to_s ) }
+    its ( :mfr_desc ) { should eq( "NEC Corporation" ) }
+    its ( :hw_desc ) { should eq( "no hardware description" ) }
+    its ( :sw_desc ) { should eq( "version xx.xx" ) }
+    its ( :serial_num ) { should eq( "1234" ) }
+  end
+
+
   context "when #flow-stats-reply is created" do
     subject do
       actions = [ ActionOutput.new( :port => 1 ) ]
@@ -163,6 +181,27 @@ describe StatsReply, ".new( VALID OPTIONS )" do
   end
   
   
+  context "when #stats_request(desc-stats) is sent" do
+    it "should #stats_reply(desc-stats)" do
+      class DescStatsController < Controller; end
+      network {
+        vswitch( "desc-stats" ) { datapath_id 0xabc }
+      }.run( DescStatsController ) {
+        controller( "DescStatsController" ).should_receive( :stats_reply ) do | message |
+          message.type.should == 0
+          message.stats[ 0 ].mfr_desc.should eq( "Nicira Networks, Inc." )
+          message.stats[ 0 ].hw_desc.should eq( "Open vSwitch" )
+          message.stats[ 0 ].should respond_to :to_s
+        end
+        
+        controller( "DescStatsController" ).send_message( 0xabc,
+          DescStatsRequest.new( :transaction_id => 1234 ) )
+        sleep 2 # FIXME: wait to send_message
+      }
+    end
+  end
+
+
   context "when #stats_request(flow-stats) is sent" do
     it "should #stats_reply(flow-stats)" do
       class FlowStatsController < Controller; end
@@ -187,8 +226,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
 
         controller( "FlowStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 1
-          message.stats[0].packet_count.should == 2
-          message.stats[0].should respond_to :to_s
+          message.stats[ 0 ].packet_count.should == 2
+          message.stats[ 0 ].should respond_to :to_s
         end
         match = Trema::Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "FlowStatsController" ).send_message( 0xabc,
@@ -223,9 +262,9 @@ describe StatsReply, ".new( VALID OPTIONS )" do
 
         controller( "AggregateStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 2
-          message.stats[0].packet_count.should == 10
-          message.stats[0].flow_count.should == 1
-          message.stats[0].should respond_to :to_s
+          message.stats[ 0 ].packet_count.should == 10
+          message.stats[ 0 ].flow_count.should == 1
+          message.stats[ 0 ].should respond_to :to_s
         end
         match = Trema::Match.new( :dl_type =>0x800, :nw_proto => 17 )
         controller( "AggregateStatsController" ).send_message( 0xabc,
@@ -256,8 +295,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         
         controller( "PortStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 4
-          message.stats[0].should be_an_instance_of(Trema::PortStatsReply)
-          message.stats[0].should respond_to :to_s
+          message.stats[ 0 ].should be_an_instance_of(Trema::PortStatsReply)
+          message.stats[ 0 ].should respond_to :to_s
         end
         controller( "PortStatsController" ).send_message( 0xabc,
           PortStatsRequest.new( :port_no => 1 ) )
@@ -287,8 +326,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         controller( "TableStatsController" ).should_receive( :stats_reply ) do | message |
           message.type.should == 3
           message.transaction_id.should == 123
-          message.stats[0].should be_an_instance_of(Trema::TableStatsReply)
-          message.stats[0].should respond_to :to_s
+          message.stats[ 0 ].should be_an_instance_of(Trema::TableStatsReply)
+          message.stats[ 0 ].should respond_to :to_s
         end
         controller( "TableStatsController" ).send_message( 0xabc,
           TableStatsRequest.new( :transaction_id => 123 ) )

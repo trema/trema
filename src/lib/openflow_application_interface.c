@@ -1286,39 +1286,41 @@ handle_switch_ready( uint64_t datapath_id ) {
 
 
 static void
-handle_switch_events( uint16_t type, void *data, size_t length ) {
-  uint64_t datapath_id;
-  openflow_service_header_t *message;
+handle_messenger_openflow_disconnected( uint64_t datapath_id ) {
+  if ( event_handlers.switch_disconnected_callback != NULL ) {
+    debug( "Calling switch disconnected handler (callback = %p, user_data = %p).",
+           event_handlers.switch_disconnected_callback, event_handlers.switch_disconnected_user_data );
+    event_handlers.switch_disconnected_callback( datapath_id, event_handlers.switch_disconnected_user_data );
+  }
+  else {
+    debug( "Callback function for switch disconnected events is not set." );
+  }
+}
 
+
+static void
+handle_switch_events( uint16_t type, void *data, size_t length ) {
   assert( data != NULL );
   assert( length == sizeof( openflow_service_header_t ) );
 
-  debug( "A switch event is received from remote ( type = %u ).", type );
+  debug( "Received a switch event (type = %u) from remote.", type );
 
-  message = ( openflow_service_header_t * ) data;
-
-  datapath_id = ntohll( message->datapath_id );
+  openflow_service_header_t *message = data;
+  uint64_t datapath_id = ntohll( message->datapath_id );
 
   switch ( type ) {
-  case MESSENGER_OPENFLOW_CONNECTED:
-    break;
-  case MESSENGER_OPENFLOW_READY:
-    handle_switch_ready( datapath_id );
-    break;
-  case MESSENGER_OPENFLOW_DISCONNECTED:
-    if ( event_handlers.switch_disconnected_callback != NULL ) {
-      debug( "Calling switch disconnected handler ( callback = %p, user_data = %p ).",
-             event_handlers.switch_disconnected_callback, event_handlers.switch_disconnected_user_data );
-      event_handlers.switch_disconnected_callback( datapath_id,
-                                                   event_handlers.switch_disconnected_user_data );
-    }
-    else {
-      debug( "Callback function for switch disconnected events is not set." );
-    }
-    break;
-  default:
-    error( "Unhandled switch event ( type = %u ).", type );
-    break;
+    case MESSENGER_OPENFLOW_CONNECTED:
+      // Do nothing.
+      break;
+    case MESSENGER_OPENFLOW_READY:
+      handle_switch_ready( datapath_id );
+      break;
+    case MESSENGER_OPENFLOW_DISCONNECTED:
+      handle_messenger_openflow_disconnected( datapath_id );
+      break;
+    default:
+      error( "Unhandled switch event (type = %u).", type );
+      break;
   }
 
   update_switch_event_stats( type, OPENFLOW_MESSAGE_RECEIVE, true );

@@ -29,6 +29,12 @@ end
 
 
 describe StatsRequest do
+  context "when .DescStatsRequest.new( VALID OPTIONS )" do
+    subject { DescStatsRequest.new }
+    it_should_behave_like "any stats-request"
+  end
+
+
   context "when .FlowStatsRequest.new( MANDATORY OPTION MISSING )" do
     subject { FlowStatsRequest.new }
     it "should raise ArgumentError" do

@@ -129,6 +129,7 @@ Init_queue_get_config_request() {
   rb_define_alloc_func( cQueueGetConfigRequest, queue_get_config_request_alloc );
   rb_define_method( cQueueGetConfigRequest, "initialize", queue_get_config_request_init, -1 );
   rb_define_method( cQueueGetConfigRequest, "transaction_id", queue_get_config_request_transaction_id, 0 );
+  rb_alias( cQueueGetConfigRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cQueueGetConfigRequest, "port", queue_get_config_request_port, 0 );
 }
 

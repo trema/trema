@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,19 +20,14 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Error, ".new( VALID OPTIONS )" do
-  context "when using Error constants" do
-    subject { Error.constants }
+module Trema
+  describe Trema, ".constants", :nosudo => true do
+    subject { Trema.constants }
     it { should include "OFPET_HELLO_FAILED" }
-    it { should include "OFPET_BAD_REQUEST" }
-    it { should include "OFPET_BAD_ACTION" }
-    it { should include "OFPET_FLOW_MOD_FAILED" }
-    it { should include "OFPET_PORT_MOD_FAILED" }
-    it { should include "OFPET_QUEUE_OP_FAILED" }
-
     it { should include "OFPHFC_INCOMPATIBLE" }
     it { should include "OFPHFC_EPERM" }
 
+    it { should include "OFPET_BAD_REQUEST" }
     it { should include "OFPBRC_BAD_VERSION" }
     it { should include "OFPBRC_BAD_TYPE" }
     it { should include "OFPBRC_BAD_STAT" }
@@ -45,6 +38,7 @@ describe Error, ".new( VALID OPTIONS )" do
     it { should include "OFPBRC_BUFFER_EMPTY" }
     it { should include "OFPBRC_BUFFER_UNKNOWN" }
 
+    it { should include "OFPET_BAD_ACTION" }
     it { should include "OFPBAC_BAD_TYPE" }
     it { should include "OFPBAC_BAD_LEN" }
     it { should include "OFPBAC_BAD_VENDOR" }
@@ -55,83 +49,74 @@ describe Error, ".new( VALID OPTIONS )" do
     it { should include "OFPBAC_TOO_MANY" }
     it { should include "OFPBAC_BAD_QUEUE" }
 
+    it { should include "OFPET_FLOW_MOD_FAILED" }
     it { should include "OFPFMFC_ALL_TABLES_FULL" }
-    it { should include "OFPFMFC_OVERLAP" }
     it { should include "OFPFMFC_OVERLAP" }
     it { should include "OFPFMFC_BAD_EMERG_TIMEOUT" }
     it { should include "OFPFMFC_BAD_COMMAND" }
     it { should include "OFPFMFC_UNSUPPORTED" }
 
+    it { should include "OFPET_PORT_MOD_FAILED" }
     it { should include "OFPPMFC_BAD_PORT" }
     it { should include "OFPPMFC_BAD_HW_ADDR" }
 
+    it { should include "OFPET_QUEUE_OP_FAILED" }
     it { should include "OFPQOFC_BAD_PORT" }
     it { should include "OFPQOFC_BAD_QUEUE" }
     it { should include "OFPQOFC_EPERM" }
   end
-end
 
 
-describe Error, ".new( MANDATORY OPTIONS MISSING ) - type, code" do
-  subject{ Error.new }
-  exception = "Type and code are mandatory options"
-  it "should raise '#{ exception }'" do
-    expect { subject }.to raise_error( exception )
-  end
-end
-
-
-describe Error, ".new( MANDATORY OPTION MISSING ) - code" do
-  subject { Error.new( :type => Error::OFPET_BAD_REQUEST ) }
-  exception = "Code is a mandatory option"
-  it "should raise '#{ exception }'" do
-    expect { subject }.to raise_error( exception )
-  end
-end
-
-
-  
-describe Error, ".new( MANDATORY OPTION MISSING ) - type" do
-  subject { Error.new( :code => Error::OFPBRC_BAD_TYPE ) }
-  exception = "Type is a mandatory option"
-  it "should raise '#{ exception }'" do
-    expect { subject }.to raise_error( exception )
-  end
-end
-
-
-describe Error, ".new( OPTIONAL OPTION MISSING ) - transaction_id" do
-  subject { Error.new( :type => Error::OFPET_BAD_REQUEST, :code => Error::OFPBRC_BAD_TYPE ) }
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
-
-
-describe Error, ".new( OPTIONAL OPTION MISSING ) - user_data" do
-    subject do 
-      Error.new(
-        :type => Error::OFPET_BAD_REQUEST,
-        :code => Error::OFPBRC_BAD_TYPE,
-        :transaction_id => 123
-      )
-    end
-    its( :user_data ) { should be_nil }
+  describe Error, ".new", :nosudo => true do
+    it { expect { subject }.to raise_error( ArgumentError, "Type and code are mandatory options" ) }
   end
 
 
-describe Error, ".new( VALID OPTIONS )" do
-  subject do 
-    Error.new(
-      :type => Error::OFPET_BAD_REQUEST,
-      :code => Error::OFPBRC_BAD_TYPE,
-      :transaction_id => transaction_id,
-      :user_data => "this is a test"
-    )
+  describe Error, ".new(nil)", :nosudo => true do
+    it { expect { subject }.to raise_error( ArgumentError, "Type and code are mandatory options" ) }
   end
-  let( :transaction_id ) { 1234 }
-  its( :error_type ) { should == Error::OFPET_BAD_REQUEST }
-  its( :code ) { should == Error::OFPBRC_BAD_TYPE }
-  its( :user_data ) { should eq "this is a test" }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
+
+
+  describe Error, ".new(:type => value)", :nosudo => true do
+    subject { Error.new( :type => OFPET_BAD_REQUEST ) }
+    it { expect { subject }.to raise_error( ArgumentError, "Code is a mandatory option" ) }
+  end
+
+
+  describe Error, ".new(:code => value)", :nosudo => true do
+    subject { Error.new( :code => OFPBRC_BAD_TYPE ) }
+    it { expect { subject }.to raise_error( ArgumentError, "Type is a mandatory option" ) }
+  end
+
+
+  describe Error, ".new(:type => value, :code => value)" do
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    its( :error_type ) { should == OFPET_BAD_REQUEST }
+    its( :code ) { should == OFPBRC_BAD_TYPE }
+    its( :data ) { should be_nil }
+  end
+
+
+  describe Error, ".new(:type => value, :code => value, :transaction_id => value)" do
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
+
+
+  describe Error, ".new(:type => value, :code => value, :xid => value)" do
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+  end
+
+
+  describe Error, ".new(:type => value, :code => value, :data => value)" do
+    subject { Error.new( :type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :data => "deadbeef" ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    its( :error_type ) { should == OFPET_BAD_REQUEST }
+    its( :code ) { should == OFPBRC_BAD_TYPE }
+    its( :data ) { should == "deadbeef" }
+  end
 end
 
 

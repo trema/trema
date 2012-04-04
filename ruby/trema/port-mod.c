@@ -210,6 +210,7 @@ Init_port_mod() {
   rb_define_alloc_func( cPortMod, port_mod_alloc );
   rb_define_method( cPortMod, "initialize", port_mod_init, -1 );
   rb_define_method( cPortMod, "transaction_id", port_mod_transaction_id, 0 );
+  rb_alias( cPortMod, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cPortMod, "port_no", port_mod_port_no, 0 );
   rb_define_method( cPortMod, "hw_addr", port_mod_hw_addr, 0 );
   rb_define_method( cPortMod, "config", port_mod_config, 0 );

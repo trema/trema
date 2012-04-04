@@ -139,7 +139,7 @@ create_error( const uint32_t transaction_id, const uint16_t type,
   debug( "Creating an error ( xid = %#x, type = %#x, code = %#x, data length = %u ).",
          transaction_id, type, code, data_len );
 
-  length =  ( uint16_t ) ( sizeof( struct ofp_error_msg ) + data_len );
+  length = ( uint16_t ) ( sizeof( struct ofp_error_msg ) + data_len );
   buffer = create_header( transaction_id, OFPT_ERROR, length );
   assert( buffer != NULL );
 

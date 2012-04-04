@@ -32,7 +32,7 @@
 #include "logger.h"
 #include "openflow-error.h"
 #include "openflow.h"
-#include "packet_in.h"
+#include "packet-in.h"
 #include "port-status.h"
 #include "queue-get-config-reply.h"
 #include "rubysig.h"
@@ -41,7 +41,7 @@
 #include "vendor.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
 VALUE cController;
 
 
@@ -138,6 +138,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
   uint32_t buffer_id = UINT32_MAX;
+  uint16_t out_port = OFPP_NONE;
   uint16_t flags = OFPFF_SEND_FLOW_REM;
   openflow_actions *actions = create_actions();
 
@@ -173,6 +174,11 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
       buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
     }
 
+    VALUE opt_out_port = rb_hash_aref( options, ID2SYM( rb_intern( "out_port" ) ) );
+    if ( opt_out_port != Qnil ) {
+      out_port = ( uint16_t )NUM2UINT( opt_out_port );
+    }
+
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
     if ( opt_send_flow_rem == Qfalse ) {
       flags &= ( uint16_t ) ~OFPFF_SEND_FLOW_REM;
@@ -203,7 +209,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     hard_timeout,
     priority,
     buffer_id,
-    OFPP_NONE,
+    out_port,
     flags,
     actions
   );
@@ -254,6 +260,10 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     The buffer ID assigned by the datapath of a buffered packet to
  *     apply the flow to. If 0xffffffff, no buffered packet is to be
  *     applied to flow actions.
+ *
+ *   @option options [Number] :out_port (0xffff)
+ *     If the option contains a value other than OFPP_NONE(0xffff), 
+ *     it introduces a constraint when deleting flow entries.
  *
  *   @option options [Boolean] :send_flow_rem (true)
  *     If true, send a flow_removed message when the flow expires or
@@ -525,6 +535,7 @@ controller_start_trema( VALUE self ) {
   return self;
 }
 
+
 /********************************************************************************
  * Init Controller module.
  ********************************************************************************/
@@ -534,7 +545,6 @@ Init_controller() {
   rb_require( "trema/app" );
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
-  rb_include_module( cController, mLogger );
 
   rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
   rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
@@ -546,33 +556,6 @@ Init_controller() {
   rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
   rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
 
-  rb_define_const( cController, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
-  rb_define_const( cController, "OFPPR_DELETE", INT2NUM( OFPPR_DELETE ) );
-  rb_define_const( cController, "OFPPR_MODIFY", INT2NUM( OFPPR_MODIFY ) );
-
-  rb_define_const( cController, "OFPC_FLOW_STATS", INT2NUM( OFPC_FLOW_STATS ) );
-  rb_define_const( cController, "OFPC_TABLE_STATS", INT2NUM( OFPC_TABLE_STATS ) );
-  rb_define_const( cController, "OFPC_PORT_STATS", INT2NUM( OFPC_PORT_STATS ) );
-  rb_define_const( cController, "OFPC_STP", INT2NUM( OFPC_STP) );
-  rb_define_const( cController, "OFPC_RESERVED", INT2NUM( OFPC_RESERVED ) );
-  rb_define_const( cController, "OFPC_IP_REASM", INT2NUM( OFPC_IP_REASM ) );
-  rb_define_const( cController, "OFPC_QUEUE_STATS", INT2NUM( OFPC_QUEUE_STATS ) );
-  rb_define_const( cController, "OFPC_ARP_MATCH_IP", INT2NUM( OFPC_ARP_MATCH_IP ) );
-
-  rb_define_const( cController, "OFPAT_OUTPUT", INT2NUM( OFPAT_OUTPUT ) );
-  rb_define_const( cController, "OFPAT_SET_VLAN_VID", INT2NUM( OFPAT_SET_VLAN_VID ) );
-  rb_define_const( cController, "OFPAT_SET_VLAN_PCP", INT2NUM( OFPAT_SET_VLAN_PCP ) );
-  rb_define_const( cController, "OFPAT_STRIP_VLAN", INT2NUM( OFPAT_STRIP_VLAN ) );
-  rb_define_const( cController, "OFPAT_SET_DL_SRC", INT2NUM( OFPAT_SET_DL_SRC) );
-  rb_define_const( cController, "OFPAT_SET_DL_DST", INT2NUM( OFPAT_SET_DL_DST) );
-  rb_define_const( cController, "OFPAT_SET_NW_SRC", INT2NUM( OFPAT_SET_NW_SRC ) );
-  rb_define_const( cController, "OFPAT_SET_NW_DST", INT2NUM( OFPAT_SET_NW_DST ) );
-  rb_define_const( cController, "OFPAT_SET_NW_TOS", INT2NUM( OFPAT_SET_NW_TOS ) );
-  rb_define_const( cController, "OFPAT_SET_TP_SRC", INT2NUM( OFPAT_SET_TP_SRC ) );
-  rb_define_const( cController, "OFPAT_SET_TP_DST", INT2NUM( OFPAT_SET_TP_DST ) );
-  rb_define_const( cController, "OFPAT_ENQUEUE", INT2NUM( OFPAT_ENQUEUE ) );
-  rb_define_const( cController, "OFPAT_VENDOR", INT2NUM( OFPAT_VENDOR ) );
-
   rb_define_method( cController, "send_message", controller_send_message, 2 );
   rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
   rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
@@ -582,8 +565,6 @@ Init_controller() {
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
-
-  // Private
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
 
   rb_require( "trema/controller" );

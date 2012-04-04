@@ -96,6 +96,7 @@ Init_get_config_request() {
   rb_define_alloc_func( cGetConfigRequest, get_config_request_alloc );
   rb_define_method( cGetConfigRequest, "initialize", get_config_request_init, -1 );
   rb_define_method( cGetConfigRequest, "transaction_id", get_config_request_transaction_id, 0 );
+  rb_alias( cGetConfigRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
 }
 
 

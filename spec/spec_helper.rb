@@ -49,7 +49,7 @@ end
 
 
 def vswitch name
-  Trema::Switch[ name ]
+  Trema::OpenflowSwitch[ name ]
 end
 
 

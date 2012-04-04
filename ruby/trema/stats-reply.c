@@ -18,6 +18,7 @@
  */
 
 
+#include <arpa/inet.h>
 #include "ruby.h"
 #include "trema.h"
 #include "action-common.h"
@@ -140,6 +141,7 @@ stats_reply_stats( VALUE self ) {
 
 void
 Init_stats_reply() {
+  rb_require( "trema/desc-stats-reply" );
   rb_require( "trema/flow-stats-reply" );
   rb_require( "trema/aggregate-stats-reply" );
   rb_require( "trema/table-stats-reply" );
@@ -296,6 +298,26 @@ handle_stats_reply(
 
   uint16_t body_length = ( uint16_t ) body->length;
   switch ( type ) {
+    case OFPST_DESC:
+    {
+      struct ofp_desc_stats *desc_stats = ( struct ofp_desc_stats * ) body->data;
+      VALUE options = rb_hash_new();
+      VALUE desc_stats_arr = rb_ary_new();
+      VALUE desc_stats_reply;
+
+      rb_hash_aset( options, ID2SYM( rb_intern( "mfr_desc" ) ), 
+        rb_str_new( desc_stats->mfr_desc, ( long ) strnlen( desc_stats->mfr_desc, DESC_STR_LEN - 1 ) ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "hw_desc" ) ), 
+        rb_str_new( desc_stats->hw_desc, ( long ) strnlen( desc_stats->hw_desc, DESC_STR_LEN  - 1 ) ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "sw_desc" ) ), 
+        rb_str_new( desc_stats->sw_desc, ( long ) strnlen( desc_stats->sw_desc, DESC_STR_LEN  - 1 ) ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "serial_num" ) ), 
+        rb_str_new( desc_stats->serial_num, ( long ) strnlen( desc_stats->serial_num, SERIAL_NUM_LEN  - 1 ) ) );
+      desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
+      rb_ary_push( desc_stats_arr, desc_stats_reply );
+      rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), desc_stats_arr );
+    }
+      break;
     case OFPST_FLOW:
     {
       struct ofp_flow_stats *flow_stats;
@@ -304,11 +326,12 @@ handle_stats_reply(
       VALUE flow_stats_reply;
       VALUE match_obj;
       VALUE options = rb_hash_new();
-      VALUE actions_arr = rb_ary_new();
+      VALUE actions_arr;
 
       flow_stats = ( struct ofp_flow_stats * ) body->data;
 
       while ( body_length > 0 ) {
+        actions_arr = rb_ary_new();
 
         match_obj = rb_funcall( rb_eval_string( "Match.new" ), rb_intern( "replace" ), 1, Data_Wrap_Struct( cStatsReply, NULL, NULL, &flow_stats->match ) );
         rb_hash_aset( options, ID2SYM( rb_intern( "length" ) ), UINT2NUM( flow_stats->length ) );

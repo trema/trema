@@ -158,6 +158,7 @@ Init_set_config() {
 
   rb_define_method( cSetConfig, "initialize", set_config_init, -1 );
   rb_define_method( cSetConfig, "transaction_id", set_config_transaction_id, 0 );
+  rb_alias( cSetConfig, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cSetConfig, "flags", set_config_flags, 0 );
   rb_define_method( cSetConfig, "miss_send_len", set_config_miss_send_len, 0 );
 }

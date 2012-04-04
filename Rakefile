@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,8 +22,11 @@ require "rubygems"
 require "rake"
 
 task :default do
-  system "./build.rb"
+  sh "./build.rb"
 end
+
+
+task :travis => [ :default, "spec:travis" ]
 
 
 begin
@@ -41,6 +42,12 @@ begin
 
   RSpec::Core::RakeTask.new( :spec ) do | spec |
     spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+  end
+
+  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
+    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+    # FIXME: use --tag ~sudo
+    spec.rspec_opts = "--tag nosudo -fs -c"
   end
 
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
@@ -142,6 +149,8 @@ begin
   require "yard"
 
   YARD::Rake::YardocTask.new do | t |
+    t.files = [ "ruby/trema/**/*.c", "ruby/trema/**/*.rb" ]
+    t.options = []
     t.options << "--debug" << "--verbose" if $trace
   end
 rescue LoadError

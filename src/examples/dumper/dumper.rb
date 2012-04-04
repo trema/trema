@@ -52,9 +52,9 @@ class Dumper < Controller
   end
 
 
-  def features_reply message
+  def features_reply datapath_id, message
     info "[features_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "n_buffers: #{ message.n_buffers }"
     info "n_tables: #{ message.n_tables }"
@@ -118,9 +118,9 @@ class Dumper < Controller
   end
 
 
-  def port_status message
+  def port_status datapath_id, message
     info "[port_status]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "reason: #{ message.reason.to_hex }"
     dump_phy_port message.phy_port

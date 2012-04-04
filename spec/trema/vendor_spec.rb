@@ -1,7 +1,5 @@
 #
-# Author: SUGYO Kazushi
-#
-# Copyright (C) 2012 NEC Corporation
+# Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -22,20 +20,52 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Vendor, ".new( VALID OPTIONS )" do
-  subject do
-    Vendor.new(
-      :datapath_id => 0xabc,
-      :transaction_id => 1234,
-      :vendor => 0x5555,
-      :buffer => vendor_data
-    )
+module Trema
+  describe Vendor, ".new" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    its ( :vendor ) { should == 0 }
+    its ( :data ) { should be_nil }
   end
-  its( :datapath_id ) { should == 0xabc }
-  its( :transaction_id ) { should == 1234 }
-  its( :vendor ) { should == 0x5555 }
-  let( :vendor_data ) { [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ] }
-  its( :buffer ) { should == [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ] }
+
+
+  describe Vendor, ".new(nil)" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    its ( :vendor ) { should == 0 }
+    its ( :data ) { should be_nil }
+  end
+
+
+  describe Vendor, ".new(:transaction_id => value)" do
+    subject { Vendor.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
+
+
+  describe Vendor, ".new(:xid => value)" do
+    subject { Vendor.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+  end
+
+
+  describe Vendor, ".new(:vendor_id => value)", :nosudo => true do
+    subject { Vendor.new( :vendor => vendor ) }
+    let( :vendor ) { 0xdeadbeef }
+    its( :vendor ) { should == 0xdeadbeef }
+    its ( :data ) { should be_nil }
+  end
+
+
+  describe Vendor, ".new(:data => value)", :nosudo => true do
+    subject { Vendor.new( :data => data ) }
+    let( :data ) { "VENDOR DATA".unpack( "C*" ) }
+    its( :data ) { should == [86, 69, 78, 68, 79, 82, 32, 68, 65, 84, 65] }
+    its ( :vendor ) { should == 0 }
+  end
+
+
+  describe Vendor, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { Vendor.new "INVALID OPTION" }.to raise_error( TypeError ) }
+  end
 end
 
 

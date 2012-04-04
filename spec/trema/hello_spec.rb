@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,22 +20,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Hello, ".new( OPTIONAL OPTION MISSING )" do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+module Trema
+  describe Hello, ".new", :nosudo => true do
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
 
 
-describe Hello, ".new( VALID OPTION )" do
-  subject { Hello.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
-end
+  describe Hello, ".new(nil)", :nosudo => true do
+    subject { Hello.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+  end
 
 
-describe Hello, ".new( INVALID_OPTIONS )" do
-  it "should raise a TypeError" do
-    expect {
-      Hello.new "INVALID OPTIONS"
-    }.to raise_error( TypeError )
+  describe Hello, ".new(transaction_id)", :nosudo => true do
+    subject { Hello.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
+
+
+  describe Hello, ".new(:transaction_id => value)", :nosudo => true do
+    subject { Hello.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+  end
+
+
+  describe Hello, ".new(:xid => value)", :nosudo => true do
+    subject { Hello.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+  end
+
+
+  describe Hello, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { Hello.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 

@@ -97,6 +97,7 @@ Init_barrier_request() {
   rb_define_alloc_func( cBarrierRequest, barrier_request_alloc );
   rb_define_method( cBarrierRequest, "initialize", barrier_request_init, -1 );
   rb_define_method( cBarrierRequest, "transaction_id", barrier_request_transaction_id, 0 );
+  rb_alias( cBarrierRequest, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
 }
 
 

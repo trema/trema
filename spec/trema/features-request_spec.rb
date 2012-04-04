@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,39 +20,67 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe FeaturesRequest, ".new( OPTIONAL OPTION MISSING )" do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+shared_examples_for "features request message" do
+  class FeaturesRequestController < Controller; end
 
-
-describe FeaturesRequest, ".new( VALID OPTION )" do
-  subject { FeaturesRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
-
-
-  context "when #features_request is sent with transaction ID(1234)" do
-    it "should receive #features_reply with transaction ID(1234)" do
-      class FeaturesController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( FeaturesController ) {
-        features_request = FeaturesRequest.new( :transaction_id => 1234 )
-        controller( "FeaturesController" ).send_message( 0xabc, features_request )
-        controller( "FeaturesController" ).should_receive( :features_reply ) do | arg |
-          arg.datapath_id.should == 0xabc
-          arg.transaction_id.should == 1234
-        end
-      }
-    end
+  it "should be logged to the switch's log", :sudo => true do
+    network {
+      vswitch( "features-request" ) { datapath_id 0xabc }
+    }.run( FeaturesRequestController ) {
+      controller( "FeaturesRequestController" ).send_message( 0xabc, subject )
+      IO.read( File.join( Trema.log, "openflowd.features-request.log" ) ).should include( "OFPT_FEATURES_REQUEST" )
+    }
   end
 end
 
 
-describe FeaturesRequest, ".new( INVALID OPTION )" do
-  it "should raise TypeError" do
-    expect {
-      FeaturesRequest.new "INVALID_OPTION"
-    }.to raise_error( TypeError )
+module Trema
+  describe FeaturesRequest, ".new" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "features request message"
+  end
+
+
+  describe FeaturesRequest, ".new(nil)" do
+    subject { FeaturesRequest.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "features request message"
+  end
+
+
+  describe FeaturesRequest, ".new(transaction_id)" do
+    subject { FeaturesRequest.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "features request message"
+    end
+  end
+
+
+  describe FeaturesRequest, ".new(:transaction_id => value)" do
+    subject { FeaturesRequest.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "features request message"
+    end
+  end
+
+
+  describe FeaturesRequest, ".new(:xid => value)" do
+    subject { FeaturesRequest.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+
+    context "when sent to a switch" do
+      let( :xid ) { 123 }
+      it_should_behave_like "features request message"
+    end
+  end
+
+
+  describe FeaturesRequest, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { FeaturesRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 

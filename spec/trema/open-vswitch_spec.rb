@@ -23,13 +23,13 @@ require "trema/open-vswitch"
 
 
 module Trema
-  describe Switch do
+  describe OpenflowSwitch do
     around do | example |
       begin
-        Switch.clear
+        OpenflowSwitch.clear
         example.run
       ensure
-        Switch.clear
+        OpenflowSwitch.clear
       end
     end
 
@@ -38,10 +38,10 @@ module Trema
       OpenVswitch.new mock( "stanza 1", :name => "vswitch 1", :validate => true )
       OpenVswitch.new mock( "stanza 2", :name => "vswitch 2", :validate => true )
 
-      Switch.should have( 3 ).vswitches
-      Switch[ "vswitch 0" ].should_not be_nil
-      Switch[ "vswitch 1" ].should_not be_nil
-      Switch[ "vswitch 2" ].should_not be_nil
+      OpenflowSwitch.should have( 3 ).vswitches
+      OpenflowSwitch[ "vswitch 0" ].should_not be_nil
+      OpenflowSwitch[ "vswitch 1" ].should_not be_nil
+      OpenflowSwitch[ "vswitch 2" ].should_not be_nil
     end
   end
 

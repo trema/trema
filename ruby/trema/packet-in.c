@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,38 +24,28 @@
 
 extern VALUE mTrema;
 VALUE cPacketIn;
-VALUE mPacketInVTAG;
-VALUE mPacketInARP;
-VALUE mPacketInIPv4;
-VALUE mPacketInICMPv4;
-VALUE mPacketInIGMP;
-VALUE mPacketInTCP;
-VALUE mPacketInUDP;
 
 
-#define PACKET_IN_RETURN_MAC( packet_member ) {                         \
-  VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret ); }
+#define PACKET_IN_RETURN_MAC( packet_member )                                          \
+  {                                                                                    \
+    VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
+    return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );   \
+  }
 
-#define PACKET_IN_RETURN_IP( packet_member ) {                          \
-  VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );   \
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); }
+#define PACKET_IN_RETURN_IP( packet_member )                                        \
+  {                                                                                 \
+    VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );             \
+    return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); \
+  }
 
-
-#if 0
-/*
- * @overload initialize()
- *   Allocates and wraps a {PacketIn} object to store the details of 
- *   the +OFPT_PACKET_IN+ message.
- *
- * @return [PacketIn] an object that encapsulates the +OPFT_PACKET_IN+ OpenFlow message. 
- */
-static VALUE
-packet_in_init( VALUE kclass ) {
-  packet_in *_packet_in = xmalloc( sizeof( packet_in ) );
-  return Data_Wrap_Struct( klass, 0, xfree, _packet_in );
-}
-#endif
+#define PACKET_IN_RETURN_NUM( flag, func, packet_member )               \
+  {                                                                     \
+    if ( get_packet_in_info( self )->format & flag ) {                  \
+      return func( get_packet_in_info( self )->packet_member );         \
+    } else {                                                            \
+      return Qnil;                                                      \
+    }                                                                   \
+  }
 
 
 static VALUE
@@ -106,8 +94,8 @@ packet_in_transaction_id( VALUE self ) {
 
 
 /*
- * Buffer id value signifies if the entire frame (packet is not buffered) or 
- * portion of it (packet is buffered) is included in the data field of 
+ * Buffer id value signifies if the entire frame (packet is not buffered) or
+ * portion of it (packet is buffered) is included in the data field of
  * this +OFPT_PACKET_IN+ message.
  *
  * @return [Number] the value of buffer id.
@@ -237,7 +225,7 @@ packet_in_is_vtag( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_tpid( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_tpid );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_tpid );
 }
 
 
@@ -248,7 +236,7 @@ packet_in_vlan_tpid( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_tci( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_tci );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_tci );
 }
 
 
@@ -259,7 +247,7 @@ packet_in_vlan_tci( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_prio( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->vlan_prio );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_prio );
 }
 
 
@@ -270,7 +258,7 @@ packet_in_vlan_prio( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_cfi( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->vlan_cfi );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_cfi );
 }
 
 
@@ -281,7 +269,7 @@ packet_in_vlan_cfi( VALUE self ) {
  */
 static VALUE
 packet_in_vlan_vid( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->vlan_vid );
+  PACKET_IN_RETURN_NUM( ETH_8021Q, UINT2NUM, vlan_vid );
 }
 
 
@@ -308,7 +296,7 @@ packet_in_is_arp( VALUE self ) {
  */
 static VALUE
 packet_in_arp_oper( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->arp_ar_op );
+  PACKET_IN_RETURN_NUM( NW_ARP, UINT2NUM, arp_ar_op );
 }
 
 
@@ -319,7 +307,12 @@ packet_in_arp_oper( VALUE self ) {
  */
 static VALUE
 packet_in_arp_sha( VALUE self ) {
-  PACKET_IN_RETURN_MAC( arp_sha );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_sha );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -330,7 +323,12 @@ packet_in_arp_sha( VALUE self ) {
  */
 static VALUE
 packet_in_arp_spa( VALUE self ) {
-  PACKET_IN_RETURN_IP( arp_spa );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_IP( arp_spa );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -341,7 +339,12 @@ packet_in_arp_spa( VALUE self ) {
  */
 static VALUE
 packet_in_arp_tha( VALUE self ) {
-  PACKET_IN_RETURN_MAC( arp_tha );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_tha );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -352,7 +355,12 @@ packet_in_arp_tha( VALUE self ) {
  */
 static VALUE
 packet_in_arp_tpa( VALUE self ) {
-  PACKET_IN_RETURN_IP( arp_tpa );
+  if ( ( get_packet_in_info( self )->format & NW_ARP ) ) {
+    PACKET_IN_RETURN_IP( arp_tpa );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -379,7 +387,7 @@ packet_in_is_ipv4( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_version( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_version );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_version );
 }
 
 
@@ -390,7 +398,7 @@ packet_in_ipv4_version( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_ihl( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ihl );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_ihl );
 }
 
 
@@ -401,7 +409,7 @@ packet_in_ipv4_ihl( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_tos( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_tos );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_tos );
 }
 
 
@@ -412,7 +420,7 @@ packet_in_ipv4_tos( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_tot_len( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_tot_len );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_tot_len );
 }
 
 
@@ -423,7 +431,7 @@ packet_in_ipv4_tot_len( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_id( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_id );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_id );
 }
 
 
@@ -434,7 +442,7 @@ packet_in_ipv4_id( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_frag_off( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_frag_off );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_frag_off );
 }
 
 
@@ -445,7 +453,7 @@ packet_in_ipv4_frag_off( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_ttl( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_ttl );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_ttl );
 }
 
 
@@ -456,7 +464,7 @@ packet_in_ipv4_ttl( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_protocol( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->ipv4_protocol );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_protocol );
 }
 
 
@@ -467,7 +475,7 @@ packet_in_ipv4_protocol( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->ipv4_checksum );
+  PACKET_IN_RETURN_NUM( NW_IPV4, UINT2NUM, ipv4_checksum );
 }
 
 
@@ -478,7 +486,12 @@ packet_in_ipv4_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_saddr( VALUE self ) {
-  PACKET_IN_RETURN_IP( ipv4_saddr );
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    PACKET_IN_RETURN_IP( ipv4_saddr );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -489,7 +502,12 @@ packet_in_ipv4_saddr( VALUE self ) {
  */
 static VALUE
 packet_in_ipv4_daddr( VALUE self ) {
-  PACKET_IN_RETURN_IP( ipv4_daddr );
+  if ( ( get_packet_in_info( self )->format & NW_IPV4 ) ) {
+    PACKET_IN_RETURN_IP( ipv4_daddr );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -516,7 +534,7 @@ packet_in_is_icmpv4( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_type( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_type );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_type );
 }
 
 
@@ -527,7 +545,7 @@ packet_in_icmpv4_type( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_code( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->icmpv4_code );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_code );
 }
 
 
@@ -538,7 +556,7 @@ packet_in_icmpv4_code( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_checksum );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_checksum );
 }
 
 
@@ -549,7 +567,7 @@ packet_in_icmpv4_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_id( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_id );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_id );
 }
 
 
@@ -560,7 +578,7 @@ packet_in_icmpv4_id( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_seq( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->icmpv4_seq );
+  PACKET_IN_RETURN_NUM( NW_ICMPV4, UINT2NUM, icmpv4_seq );
 }
 
 
@@ -571,7 +589,12 @@ packet_in_icmpv4_seq( VALUE self ) {
  */
 static VALUE
 packet_in_icmpv4_gateway( VALUE self ) {
-  PACKET_IN_RETURN_IP( icmpv4_gateway );
+  if ( ( get_packet_in_info( self )->format & NW_ICMPV4 ) ) {
+    PACKET_IN_RETURN_IP( icmpv4_gateway );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -678,7 +701,7 @@ packet_in_is_igmp_v3_membership_report( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_type( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->igmp_type );
+  PACKET_IN_RETURN_NUM( NW_IGMP, UINT2NUM, igmp_type );
 }
 
 
@@ -689,7 +712,12 @@ packet_in_igmp_type( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_group( VALUE self ) {
-  PACKET_IN_RETURN_IP( igmp_group );
+  if ( ( get_packet_in_info( self )->format & NW_IGMP ) ) {
+    PACKET_IN_RETURN_IP( igmp_group );
+  }
+  else {
+    return Qnil;
+  }
 }
 
 
@@ -700,7 +728,7 @@ packet_in_igmp_group( VALUE self ) {
  */
 static VALUE
 packet_in_igmp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->igmp_checksum );
+  PACKET_IN_RETURN_NUM( NW_IGMP, UINT2NUM, igmp_checksum );
 }
 
 
@@ -727,7 +755,7 @@ packet_in_is_tcp( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_src_port );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_src_port );
 }
 
 
@@ -738,7 +766,7 @@ packet_in_tcp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_dst_port );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_dst_port );
 }
 
 
@@ -749,7 +777,7 @@ packet_in_tcp_dst_port( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_seq_no( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_seq_no );
+  PACKET_IN_RETURN_NUM( TP_TCP, ULONG2NUM, tcp_seq_no );
 }
 
 
@@ -760,7 +788,7 @@ packet_in_tcp_seq_no( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_ack_no( VALUE self ) {
-  return ULONG2NUM( get_packet_in_info( self )->tcp_ack_no );
+  PACKET_IN_RETURN_NUM( TP_TCP, ULONG2NUM, tcp_ack_no );
 }
 
 
@@ -771,7 +799,7 @@ packet_in_tcp_ack_no( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_offset( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_offset );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_offset );
 }
 
 
@@ -782,7 +810,7 @@ packet_in_tcp_offset( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_flags( VALUE self ) {
-  return UINT2NUM( ( unsigned int ) get_packet_in_info( self )->tcp_flags );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_flags );
 }
 
 
@@ -793,7 +821,7 @@ packet_in_tcp_flags( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_window( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_window );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_window );
 }
 
 
@@ -804,7 +832,7 @@ packet_in_tcp_window( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_checksum );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_checksum );
 }
 
 
@@ -815,7 +843,7 @@ packet_in_tcp_checksum( VALUE self ) {
  */
 static VALUE
 packet_in_tcp_urgent( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->tcp_urgent );
+  PACKET_IN_RETURN_NUM( TP_TCP, UINT2NUM, tcp_urgent );
 }
 
 
@@ -855,7 +883,7 @@ packet_in_udp_payload( VALUE self ) {
  */
 static VALUE
 packet_in_udp_src_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_src_port );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_src_port );
 }
 
 
@@ -866,7 +894,7 @@ packet_in_udp_src_port( VALUE self ) {
  */
 static VALUE
 packet_in_udp_dst_port( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_dst_port );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_dst_port );
 }
 
 
@@ -877,7 +905,7 @@ packet_in_udp_dst_port( VALUE self ) {
  */
 static VALUE
 packet_in_udp_len( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_len );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_len );
 }
 
 
@@ -888,7 +916,7 @@ packet_in_udp_len( VALUE self ) {
  */
 static VALUE
 packet_in_udp_checksum( VALUE self ) {
-  return UINT2NUM( get_packet_in_info( self )->udp_checksum );
+  PACKET_IN_RETURN_NUM( TP_UDP, UINT2NUM, udp_checksum );
 }
 
 
@@ -898,15 +926,9 @@ Init_packet_in() {
   rb_require( "trema/mac" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
-#if 0
-  /*
-   * Do not remove this is to fake yard to create a constructor for 
-   * PacketIn object.
-   */
-  rb_define_method( cPacketIn, "initialize", packet_in_init, 0 );
-#endif  
+
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
-  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );  
+  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
   rb_define_method( cPacketIn, "buffered?", packet_in_is_buffered, 0 );
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
@@ -926,68 +948,61 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
 
-  mPacketInVTAG = rb_define_module_under( mTrema, "PacketInVTAG" );
-  rb_define_method( mPacketInVTAG, "vlan_tpid", packet_in_vlan_tpid, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_tci", packet_in_vlan_tci, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_prio", packet_in_vlan_prio, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_cfi", packet_in_vlan_cfi, 0 );
-  rb_define_method( mPacketInVTAG, "vlan_vid", packet_in_vlan_vid, 0 );
+  rb_define_method( cPacketIn, "vlan_tpid", packet_in_vlan_tpid, 0 );
+  rb_define_method( cPacketIn, "vlan_tci", packet_in_vlan_tci, 0 );
+  rb_define_method( cPacketIn, "vlan_prio", packet_in_vlan_prio, 0 );
+  rb_define_method( cPacketIn, "vlan_cfi", packet_in_vlan_cfi, 0 );
+  rb_define_method( cPacketIn, "vlan_vid", packet_in_vlan_vid, 0 );
 
-  mPacketInARP = rb_define_module_under( mTrema, "PacketInARP" );
-  rb_define_method( mPacketInARP, "arp_oper", packet_in_arp_oper, 0 );
-  rb_define_method( mPacketInARP, "arp_sha", packet_in_arp_sha, 0 );
-  rb_define_method( mPacketInARP, "arp_spa", packet_in_arp_spa, 0 );
-  rb_define_method( mPacketInARP, "arp_tha", packet_in_arp_tha, 0 );
-  rb_define_method( mPacketInARP, "arp_tpa", packet_in_arp_tpa, 0 );
+  rb_define_method( cPacketIn, "arp_oper", packet_in_arp_oper, 0 );
+  rb_define_method( cPacketIn, "arp_sha", packet_in_arp_sha, 0 );
+  rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
+  rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
+  rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
 
-  mPacketInIPv4 = rb_define_module_under( mTrema, "PacketInIPv4" );
-  rb_define_method( mPacketInIPv4, "ipv4_version", packet_in_ipv4_version, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_tos", packet_in_ipv4_tos, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_tot_len", packet_in_ipv4_tot_len, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_id", packet_in_ipv4_id, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_frag_off", packet_in_ipv4_frag_off, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_ttl", packet_in_ipv4_ttl, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_protocol", packet_in_ipv4_protocol, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_checksum", packet_in_ipv4_checksum, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
-  rb_define_method( mPacketInIPv4, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
+  rb_define_method( cPacketIn, "ipv4_version", packet_in_ipv4_version, 0 );
+  rb_define_method( cPacketIn, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
+  rb_define_method( cPacketIn, "ipv4_tos", packet_in_ipv4_tos, 0 );
+  rb_define_method( cPacketIn, "ipv4_tot_len", packet_in_ipv4_tot_len, 0 );
+  rb_define_method( cPacketIn, "ipv4_id", packet_in_ipv4_id, 0 );
+  rb_define_method( cPacketIn, "ipv4_frag_off", packet_in_ipv4_frag_off, 0 );
+  rb_define_method( cPacketIn, "ipv4_ttl", packet_in_ipv4_ttl, 0 );
+  rb_define_method( cPacketIn, "ipv4_protocol", packet_in_ipv4_protocol, 0 );
+  rb_define_method( cPacketIn, "ipv4_checksum", packet_in_ipv4_checksum, 0 );
+  rb_define_method( cPacketIn, "ipv4_saddr", packet_in_ipv4_saddr, 0 );
+  rb_define_method( cPacketIn, "ipv4_daddr", packet_in_ipv4_daddr, 0 );
 
-  mPacketInICMPv4 = rb_define_module_under( mTrema, "PacketInICMPv4" );
-  rb_define_method( mPacketInICMPv4, "icmpv4_type", packet_in_icmpv4_type, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_code", packet_in_icmpv4_code, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_id", packet_in_icmpv4_id, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( mPacketInICMPv4, "icmpv4_group", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( cPacketIn, "icmpv4_type", packet_in_icmpv4_type, 0 );
+  rb_define_method( cPacketIn, "icmpv4_code", packet_in_icmpv4_code, 0 );
+  rb_define_method( cPacketIn, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
+  rb_define_method( cPacketIn, "icmpv4_id", packet_in_icmpv4_id, 0 );
+  rb_define_method( cPacketIn, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
+  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );  
 
-  mPacketInIGMP = rb_define_module_under( mTrema, "PacketInIGMP" );
-  rb_define_method( mPacketInIGMP, "igmp_type", packet_in_igmp_type, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_group", packet_in_igmp_group, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_checksum", packet_in_igmp_checksum, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v2_leave_group?", packet_in_is_igmp_v2_leave_group, 0 );
-  rb_define_method( mPacketInIGMP, "igmp_v3_membership_report?", packet_in_is_igmp_v3_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_type", packet_in_igmp_type, 0 );
+  rb_define_method( cPacketIn, "igmp_group", packet_in_igmp_group, 0 );
+  rb_define_method( cPacketIn, "igmp_checksum", packet_in_igmp_checksum, 0 );
+  rb_define_method( cPacketIn, "igmp_membership_query?", packet_in_is_igmp_membership_query, 0 );
+  rb_define_method( cPacketIn, "igmp_v1_membership_report?", packet_in_is_igmp_v1_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_v2_membership_report?", packet_in_is_igmp_v2_membership_report, 0 );
+  rb_define_method( cPacketIn, "igmp_v2_leave_group?", packet_in_is_igmp_v2_leave_group, 0 );
+  rb_define_method( cPacketIn, "igmp_v3_membership_report?", packet_in_is_igmp_v3_membership_report, 0 );
 
-  mPacketInTCP = rb_define_module_under( mTrema, "PacketInTCP" );
-  rb_define_method( mPacketInTCP, "tcp_src_port", packet_in_tcp_src_port, 0 );
-  rb_define_method( mPacketInTCP, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
-  rb_define_method( mPacketInTCP, "tcp_seq_no", packet_in_tcp_seq_no, 0 );
-  rb_define_method( mPacketInTCP, "tcp_ack_no", packet_in_tcp_ack_no, 0 );
-  rb_define_method( mPacketInTCP, "tcp_offset", packet_in_tcp_offset, 0 );
-  rb_define_method( mPacketInTCP, "tcp_flags", packet_in_tcp_flags, 0 );
-  rb_define_method( mPacketInTCP, "tcp_window", packet_in_tcp_window, 0 );
-  rb_define_method( mPacketInTCP, "tcp_checksum", packet_in_tcp_checksum, 0 );
-  rb_define_method( mPacketInTCP, "tcp_urgent", packet_in_tcp_urgent, 0 );
+  rb_define_method( cPacketIn, "tcp_src_port", packet_in_tcp_src_port, 0 );
+  rb_define_method( cPacketIn, "tcp_dst_port", packet_in_tcp_dst_port, 0 );
+  rb_define_method( cPacketIn, "tcp_seq_no", packet_in_tcp_seq_no, 0 );
+  rb_define_method( cPacketIn, "tcp_ack_no", packet_in_tcp_ack_no, 0 );
+  rb_define_method( cPacketIn, "tcp_offset", packet_in_tcp_offset, 0 );
+  rb_define_method( cPacketIn, "tcp_flags", packet_in_tcp_flags, 0 );
+  rb_define_method( cPacketIn, "tcp_window", packet_in_tcp_window, 0 );
+  rb_define_method( cPacketIn, "tcp_checksum", packet_in_tcp_checksum, 0 );
+  rb_define_method( cPacketIn, "tcp_urgent", packet_in_tcp_urgent, 0 );
 
-  mPacketInUDP = rb_define_module_under( mTrema, "PacketInUDP" );
-  rb_define_method( mPacketInUDP, "udp_payload", packet_in_udp_payload, 0 );
-  rb_define_method( mPacketInUDP, "udp_src_port", packet_in_udp_src_port, 0 );
-  rb_define_method( mPacketInUDP, "udp_dst_port", packet_in_udp_dst_port, 0 );
-  rb_define_method( mPacketInUDP, "udp_checksum", packet_in_udp_checksum, 0 );
-  rb_define_method( mPacketInUDP, "udp_len", packet_in_udp_len, 0 );
+  rb_define_method( cPacketIn, "udp_payload", packet_in_udp_payload, 0 );
+  rb_define_method( cPacketIn, "udp_src_port", packet_in_udp_src_port, 0 );
+  rb_define_method( cPacketIn, "udp_dst_port", packet_in_udp_dst_port, 0 );
+  rb_define_method( cPacketIn, "udp_checksum", packet_in_udp_checksum, 0 );
+  rb_define_method( cPacketIn, "udp_len", packet_in_udp_len, 0 );
 }
 
 
@@ -1005,36 +1020,6 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   packet_in *tmp = NULL;
   Data_Get_Struct( r_message, packet_in, tmp );
   memcpy( tmp, &message, sizeof( packet_in ) );
-
-  packet_info* info = ( packet_info * ) tmp->data->user_data;
-
-  if ( ( info->format & ETH_8021Q ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInVTAG );
-  }
-
-  if ( ( info->format & NW_ARP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInARP );
-  }
-
-  if ( ( info->format & NW_IPV4 ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIPv4 );
-  }
-
-  if ( ( info->format & NW_ICMPV4 ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInICMPv4 );
-  }
-
-  if ( ( info->format & NW_IGMP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInIGMP );
-  }
-
-  if ( ( info->format & TP_TCP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInTCP );
-  }
-
-  if ( ( info->format & TP_UDP ) ) {
-    rb_funcall( cPacketIn, rb_intern( "include" ), 1, mPacketInUDP );
-  }
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }

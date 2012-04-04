@@ -27,12 +27,12 @@ class FeaturesRequestController < Controller
   end
 
 
-  def features_reply message
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+  def features_reply datapath_id, message
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "n_buffers: #{ message.n_buffers }"
     info "n_tables: #{ message.n_tables }"
-    print_capabilities message.capabilities 
+    print_capabilities message.capabilities
     print_actions message.actions
     print_ports message.ports
   end

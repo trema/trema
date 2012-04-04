@@ -37,7 +37,7 @@ module Trema
 
 
     #
-    # Creates a new Trema application from {DSL::App}
+    # Creates a new Trema application from {Trema::DSL::App}
     #
     # @example
     #   app = Trema::App.new( stanza )

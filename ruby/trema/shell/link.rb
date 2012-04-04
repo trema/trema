@@ -30,11 +30,11 @@ module Trema
       link = Link.new( stanza )
       link.enable!
 
-      if Switch[ peer0 ]
-        Switch[ peer0 ] << link.name
+      if OpenflowSwitch[ peer0 ]
+        OpenflowSwitch[ peer0 ] << link.name
       end
-      if Switch[ peer1 ]
-        Switch[ peer1 ] << link.name_peer
+      if OpenflowSwitch[ peer1 ]
+        OpenflowSwitch[ peer1 ] << link.name_peer
       end
 
       if Host[ peer0 ]

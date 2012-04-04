@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,34 +16,18 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/switch"
-require "trema/openflow-switch"
+require "rubygems"
+require "rspec"
 
 
-module Trema
-  describe OpenflowSwitch, %[dpid = "0xabc"] do
-    before :each do
-      stanza = DSL::Switch.new
-      stanza.dpid "0xabc"
-      @switch = OpenflowSwitch.new( stanza )
-    end
-
-
-    it "should return its name" do
-      @switch.name.should == "0xabc"
-    end
-
-
-    it "should return dpid in long format" do
-      @switch.dpid_long.should == "0000000000000abc"
-    end
-
-
-    it "should return dpid in short format" do
-      @switch.dpid_short.should == "0xabc"
-    end
-  end
+shared_examples_for "port status message" do | options |
+  it_should_behave_like(
+    "any Openflow message with mandatory options",
+    :klass => options[ :klass ],
+    :options => [ { :name => :datapath_id, :alias => :dpid, :sample_value => 0xabc },
+                  { :name => :transaction_id, :alias => :xid, :sample_value => 123 },
+                  { :name => :phy_port, :sample_value => "PHY_PORT" } ]
+  )
 end
 
 

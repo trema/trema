@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,48 +20,102 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe EchoRequest, ".new( OPTIONAL OPTION MISSING )" do
-  its( :user_data ) { should be_nil }
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+shared_examples_for "echo reply message" do
+  class EchoReplyController < Controller; end
 
-
-describe EchoRequest, ".new( INVALID OPTIONS ) - user_data numeric" do
-  subject { EchoRequest.new 1234, 456 }
-  it "should raise an ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
+  it "should be logged to the switch's log", :sudo => true do
+    network {
+      vswitch( "echo" ) { datapath_id 0xabc }
+    }.run( EchoReplyController ) {
+      controller( "EchoReplyController" ).send_message( 0xabc, subject )
+      IO.read( File.join( Trema.log, "openflowd.echo.log" ) ).should include( "OFPT_ECHO_REPLY" )
+    }
   end
 end
 
 
-describe EchoRequest, ".new( INVALID OPTIONS ) - arguments as an Array" do
-  subject { EchoRequest.new [ 1234, "this is a test" ] }
-  it "should raise a TypeError" do
-    expect { subject }.to raise_error( TypeError )
+module Trema
+  describe EchoRequest, ".new" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "echo reply message"
+    its( :user_data ) { should be_nil }
   end
-end
 
 
-describe EchoRequest, ".new( VALID OPTIONS )" do
-  subject { EchoRequest.new :transaction_id => transaction_id, :user_data => 'this is a test' }
-  let( :transaction_id ) { 1234 }
-  its( :user_data ) { should eq( "this is a test" ) }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
+  describe EchoRequest, ".new(nil)" do
+    subject { EchoRequest.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "echo reply message"
+    its( :user_data ) { should be_nil }
+  end
 
 
-  context "when #echo_request is sent" do
-    it "should #echo_reply" do
-      class EchoRequestController < Controller; end
-      network {
-        vswitch( "echo_request" ) { datapath_id 0xabc }
-      }.run( EchoRequestController ) {
-        echo_request = EchoRequest.new( :transaction_id => 1234, :user_data => 'this is a test' )
-        controller( "EchoRequestController" ).send_message( 0xabc, echo_request )
-        log_file = Trema.log + "/openflowd.echo_request.log"
-        IO.read( log_file ).should include( "OFPT_ECHO_REPLY" )
-        sleep 1
-      }
+  describe EchoRequest, ".new(transaction_id)" do
+    subject { EchoRequest.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "echo reply message"
     end
+  end
+
+
+  describe EchoRequest, ".new(:transaction_id => value)" do
+    subject { EchoRequest.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "echo reply message"
+    end
+  end
+
+
+  describe EchoRequest, ".new(:xid => value)" do
+    subject { EchoRequest.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+
+    context "when sent to a switch" do
+      let( :xid ) { 123 }
+      it_should_behave_like "echo reply message"
+    end
+  end
+
+
+  describe EchoRequest, ".new(:user_data => value)" do
+    subject { EchoRequest.new( :user_data => user_data ) }
+    it_should_behave_like "any Openflow message with user_data"
+
+    context "when sent to a switch" do
+      let( :user_data ) { "USER DATA" }
+      it_should_behave_like "echo reply message"
+    end
+  end
+
+
+  describe EchoRequest, ".new(:transaction_id => value, :user_data => value)" do
+    subject { EchoRequest.new( :transaction_id => transaction_id, :user_data => user_data ) }
+
+    context 'transaction_id: 123, user_data: "USER DATA"', :nosudo => true do
+      let( :transaction_id ) { 123 }
+      let( :user_data ) { "USER DATA" }
+
+      its( :transaction_id ) { should == 123 }
+      its( :xid ) { should == 123 }
+      its( :user_data ) { should == "USER DATA" }
+    end
+
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      let( :user_data ) { "USER DATA" }
+      it_should_behave_like "echo reply message"
+    end
+  end
+
+
+  describe EchoRequest, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { EchoRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 
