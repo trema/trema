@@ -59,6 +59,14 @@ It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
 
 
+Contributors
+------------
+
+Special thanks to all contributors for submitting patches. A full list of contributors including their patches can be found at:
+
+https://github.com/trema/trema/contributors
+
+
 Project Status
 --------------
 
