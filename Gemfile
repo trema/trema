@@ -12,7 +12,6 @@ group :development do
   gem "cucumber", "~> 1.1.9"
   gem "flay", "~> 1.4.3"
   gem "flog", "~> 2.5.3"
-  gem "libnet4r", "~> 0.2"
   gem "rake", "~> 0.9.2.2"
   gem "rcov", "~> 1.0.0"
   gem "rdoc", "~> 3.12"
