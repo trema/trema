@@ -29,7 +29,7 @@ require "fdb"
 #
 # A OpenFlow controller class that emulates multiple layer-2 switches.
 #
-class MultiLearningSwitch < Trema::Controller
+class MultiLearningSwitch < Controller
   add_timer_event :age_fdbs, 5, :periodic
 
 
@@ -69,7 +69,7 @@ class MultiLearningSwitch < Trema::Controller
     send_flow_mod_add(
       datapath_id,
       :match => ExactMatch.from( message ),
-      :actions => Trema::ActionOutput.new( :port => port_no )
+      :actions => ActionOutput.new( :port => port_no )
     )
   end
 
@@ -78,7 +78,7 @@ class MultiLearningSwitch < Trema::Controller
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => Trema::ActionOutput.new( :port => port_no )
+      :actions => ActionOutput.new( :port => port_no )
     )
   end
 
