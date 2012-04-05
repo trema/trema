@@ -669,9 +669,9 @@ msgstr ""
 msgid "tag|param|transaction_id"
 msgstr ""
 
-# @param [Number]
+# @param [Number] transaction_id
 #: ../ruby/trema/barrier-reply.c:43
-msgid "tag|param|datapath_id"
+msgid "value copied from the +OFPT_BARRIER_REQUEST+ message."
 msgstr ""
 
 # @return [BarrierReply]
@@ -679,14 +679,14 @@ msgstr ""
 msgid "self an object that encapsulates the +OFPT_BARRIER_REPLY+ message."
 msgstr ""
 
-# @param [Number] transaction_id
-#: ../ruby/trema/barrier-reply.c:43
-msgid "value copied from the +OFPT_BARRIER_REQUEST+ message."
-msgstr ""
-
 # @param [Number] datapath_id
 #: ../ruby/trema/barrier-reply.c:43
 msgid "a unique name that identifies an OpenVSwitch, the message originator."
+msgstr ""
+
+# @param [Number]
+#: ../ruby/trema/barrier-reply.c:43
+msgid "tag|param|datapath_id"
 msgstr ""
 
 # Trema::FeaturesReply#datapath_id
@@ -723,6 +723,7 @@ msgid "the value of datapath_id."
 msgstr ""
 
 # Trema::PortMod#transaction_id
+# Trema::Hello#transaction_id
 # Trema::FeaturesReply#transaction_id
 # Trema::Vendor#transaction_id
 # Trema::GetConfigRequest#transaction_id
@@ -735,6 +736,7 @@ msgstr ""
 # Trema::QueueGetConfigReply#transaction_id
 # Trema::QueueGetConfigRequest#transaction_id
 #: ../ruby/trema/port-mod.c:141
+#: ../ruby/trema/hello.c:109
 #: ../ruby/trema/features-reply.c:140
 #: ../ruby/trema/vendor.c:129
 #: ../ruby/trema/get-config-request.c:80
@@ -750,7 +752,7 @@ msgid "Transaction ids, message sequence numbers matching requests to replies."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/hello.c:114
+#: ../ruby/trema/hello.c:113
 #: ../ruby/trema/features-request.c:114
 #: ../ruby/trema/barrier-reply.c:67
 msgid "the value of transaction ID."
@@ -1138,6 +1140,12 @@ msgid "Creates a EchoReply OpenFlow message. This message can be used to\n"
 "to verify its liveness."
 msgstr ""
 
+# @raise [TypeError]
+#: ../ruby/trema/echo-reply.c:76
+#: ../ruby/trema/echo-request.c:73
+msgid "if argument is not a hash."
+msgstr ""
+
 # @raise [ArgumentError]
 #: ../ruby/trema/hello.c:63
 #: ../ruby/trema/features-request.c:63
@@ -1153,17 +1161,9 @@ msgstr ""
 msgid "if user data is not a string."
 msgstr ""
 
-# @raise [TypeError]
-#: ../ruby/trema/echo-reply.c:76
-#: ../ruby/trema/echo-request.c:73
-msgid "if argument is not a hash."
-msgstr ""
-
-# Trema::Hello#transaction_id
 # Trema::FeaturesRequest#transaction_id
 # Trema::EchoReply#transaction_id
 # Trema::EchoRequest#transaction_id
-#: ../ruby/trema/hello.c:109
 #: ../ruby/trema/features-request.c:109
 #: ../ruby/trema/echo-reply.c:83
 #: ../ruby/trema/echo-request.c:80
@@ -1202,14 +1202,14 @@ msgstr ""
 msgid "An optional user data payload field, possibly detailed explanation of the error."
 msgstr ""
 
-# @return [String]
-#: ../ruby/trema/error.c:159
-msgid "user data payload is set."
-msgstr ""
-
 # @return [nil]
 #: ../ruby/trema/error.c:159
 msgid "user data payload is not set."
+msgstr ""
+
+# @return [String]
+#: ../ruby/trema/error.c:159
+msgid "user data payload is set."
 msgstr ""
 
 # Trema::Error#error_type
@@ -1691,6 +1691,11 @@ msgid "self\n"
 "a proxy to IPAddr."
 msgstr ""
 
+# @param [String, Number] addr
+#: ../ruby/trema/ip.rb:52
+msgid "an IPv4 address specified either as a String or Number."
+msgstr ""
+
 # @param [Number] prefixlen
 #: ../ruby/trema/ip.rb:52
 msgid "masking IPv4 address with given prefixlen."
@@ -1702,19 +1707,14 @@ msgid "invalid address if supplied argument is invalid\n"
 "IPv4 address."
 msgstr ""
 
-# @param [String, Number]
-#: ../ruby/trema/ip.rb:52
-msgid "tag|param|addr"
-msgstr ""
-
-# @param [String, Number] addr
-#: ../ruby/trema/ip.rb:52
-msgid "an IPv4 address specified either as a String or Number."
-msgstr ""
-
 # @param [Number]
 #: ../ruby/trema/ip.rb:52
 msgid "tag|param|prefixlen"
+msgstr ""
+
+# @param [String, Number]
+#: ../ruby/trema/ip.rb:52
+msgid "tag|param|addr"
 msgstr ""
 
 # @return [Number]
@@ -1862,39 +1862,14 @@ msgstr ""
 msgid "Creates a {Mac} instance that encapsulates Ethernet MAC addresses."
 msgstr ""
 
-# @example address as a hexadecimal number
-#: ../ruby/trema/mac.rb:56
-msgid "Mac.new(0xffffffffffff)"
-msgstr ""
-
-# @raise [ArgumentError]
-#: ../ruby/trema/mac.rb:56
-msgid "if invalid format is detected."
-msgstr ""
-
-# @example
-#: ../ruby/trema/mac.rb:56
-msgid "tag|example|address as a hexadecimal string"
-msgstr ""
-
-# @example
-#: ../ruby/trema/mac.rb:56
-msgid "tag|example|address as a hexadecimal number"
-msgstr ""
-
-# @param [String, Integer]
-#: ../ruby/trema/mac.rb:56
-msgid "tag|param|value"
-msgstr ""
-
 # @param [String, Integer] value
 #: ../ruby/trema/mac.rb:56
 msgid "the MAC address to set to."
 msgstr ""
 
-# @example address as a hexadecimal string
+# @example
 #: ../ruby/trema/mac.rb:56
-msgid "Mac.new(\"11:22:33:44:55:66\")"
+msgid "tag|example|address as a hexadecimal number"
 msgstr ""
 
 # @raise [ArgumentError]
@@ -1905,6 +1880,31 @@ msgstr ""
 # @return [Mac]
 #: ../ruby/trema/mac.rb:56
 msgid "a new instance of Mac"
+msgstr ""
+
+# @example address as a hexadecimal string
+#: ../ruby/trema/mac.rb:56
+msgid "Mac.new(\"11:22:33:44:55:66\")"
+msgstr ""
+
+# @param [String, Integer]
+#: ../ruby/trema/mac.rb:56
+msgid "tag|param|value"
+msgstr ""
+
+# @example
+#: ../ruby/trema/mac.rb:56
+msgid "tag|example|address as a hexadecimal string"
+msgstr ""
+
+# @example address as a hexadecimal number
+#: ../ruby/trema/mac.rb:56
+msgid "Mac.new(0xffffffffffff)"
+msgstr ""
+
+# @raise [ArgumentError]
+#: ../ruby/trema/mac.rb:56
+msgid "if invalid format is detected."
 msgstr ""
 
 # @return [String]
@@ -1937,16 +1937,16 @@ msgid "Creates a {Match} instance from packet_in's data, the method accepts an\n
 "to don't care and ignore while matching flow entries."
 msgstr ""
 
-# @overload
-#: ../ruby/trema/match.c:108
-msgid "tag|overload|match_from"
-msgstr ""
-
 # @return [Match]
 #: ../ruby/trema/match.c:108
 msgid "self\n"
 "the modified or exact match from packet depending on whether the options\n"
 "argument supplied or not."
+msgstr ""
+
+# @overload
+#: ../ruby/trema/match.c:108
+msgid "tag|overload|match_from"
 msgstr ""
 
 # Trema::Match#compare
@@ -2095,11 +2095,6 @@ msgstr ""
 msgid "Looks up a instance DB by its name"
 msgstr ""
 
-# @return [Object]
-#: ../ruby/trema/network-component.rb:107
-msgid "the associated object"
-msgstr ""
-
 # @example 
 #: ../ruby/trema/network-component.rb:107
 msgid "ttetris = TremaTetris.new\n"
@@ -2108,6 +2103,11 @@ msgid "ttetris = TremaTetris.new\n"
 "App.add ttetris\n"
 "\n"
 "App[ \"trema tetris\" ] => ttetris"
+msgstr ""
+
+# @return [Object]
+#: ../ruby/trema/network-component.rb:107
+msgid "the associated object"
 msgstr ""
 
 # Trema::NetworkComponent.size
@@ -2237,14 +2237,14 @@ msgstr ""
 msgid "Variable length data interpreted based on type and code."
 msgstr ""
 
-# @return [Array]
-#: ../ruby/trema/openflow-error.c:124
-msgid "an array of bytes of the offending message for any other error type."
-msgstr ""
-
 # @return [String]
 #: ../ruby/trema/openflow-error.c:124
 msgid "if error type is +OFPET_HELLO_FAILED+."
+msgstr ""
+
+# @return [Array]
+#: ../ruby/trema/openflow-error.c:124
+msgid "an array of bytes of the offending message for any other error type."
 msgstr ""
 
 # Trema::OpenflowSwitch
@@ -2274,14 +2274,14 @@ msgstr ""
 msgid "A buffer_id value either than +UINT32_MAX+ marks the packet_in as buffered."
 msgstr ""
 
-# @return [false]
-#: ../ruby/trema/packet-in.c:115
-msgid "if packet_in is not buffered."
-msgstr ""
-
 # @return [true]
 #: ../ruby/trema/packet-in.c:115
 msgid "if packet_in is buffered."
+msgstr ""
+
+# @return [false]
+#: ../ruby/trema/packet-in.c:115
+msgid "if packet_in is not buffered."
 msgstr ""
 
 # Trema::PacketIn#in_port
@@ -2902,10 +2902,9 @@ msgstr ""
 msgid "udp_checksum a UDP checksum."
 msgstr ""
 
-# @return [Array]
+# @param [PacketQueue] queue
 #: ../ruby/trema/packet-queue.rb:25
-#: ../ruby/trema/packet-queue.rb:39
-msgid "an array of {PacketQueue} objects."
+msgid "the {PacketQueue} to append to the list."
 msgstr ""
 
 # @param [PacketQueue]
@@ -2916,9 +2915,10 @@ msgstr ""
 msgid "tag|param|queue"
 msgstr ""
 
-# @param [PacketQueue] queue
+# @return [Array]
 #: ../ruby/trema/packet-queue.rb:25
-msgid "the {PacketQueue} to append to the list."
+#: ../ruby/trema/packet-queue.rb:39
+msgid "an array of {PacketQueue} objects."
 msgstr ""
 
 # Queue.append
@@ -2987,9 +2987,17 @@ msgid "properties\n"
 "the value of attribute properties."
 msgstr ""
 
-# @return [PacketQueue]
+# @option
+#: ../ruby/trema/port-status-add.rb:49
+#: ../ruby/trema/port-status-delete.rb:49
+#: ../ruby/trema/port-status-modify.rb:49
 #: ../ruby/trema/packet-queue.rb:82
-msgid "a new instance of PacketQueue"
+msgid "tag|option|options"
+msgstr ""
+
+# @param [Hash] options
+#: ../ruby/trema/packet-queue.rb:82
+msgid "ths options hash."
 msgstr ""
 
 # @param [Hash]
@@ -3001,17 +3009,9 @@ msgstr ""
 msgid "tag|param|options"
 msgstr ""
 
-# @param [Hash] options
+# @return [PacketQueue]
 #: ../ruby/trema/packet-queue.rb:82
-msgid "ths options hash."
-msgstr ""
-
-# @option
-#: ../ruby/trema/port-status-add.rb:49
-#: ../ruby/trema/port-status-delete.rb:49
-#: ../ruby/trema/port-status-modify.rb:49
-#: ../ruby/trema/packet-queue.rb:82
-msgid "tag|option|options"
+msgid "a new instance of PacketQueue"
 msgstr ""
 
 # @param [MinRateQueue] queue
@@ -3055,21 +3055,10 @@ msgid "Each queue is described by a set of properties, each of a specific type a
 "configuration."
 msgstr ""
 
-# @param [Number] len
-#: ../ruby/trema/packet-queue.rb:158
-#: ../ruby/trema/packet-queue.rb:128
-msgid "length in bytes of the property queue."
-msgstr ""
-
 # @param [Number] property
 #: ../ruby/trema/packet-queue.rb:158
 #: ../ruby/trema/packet-queue.rb:128
 msgid "property queue id."
-msgstr ""
-
-# @return [QueueProperty]
-#: ../ruby/trema/packet-queue.rb:128
-msgid "a new instance of QueueProperty"
 msgstr ""
 
 # @param [Number]
@@ -3082,6 +3071,17 @@ msgstr ""
 #: ../ruby/trema/packet-queue.rb:158
 #: ../ruby/trema/packet-queue.rb:128
 msgid "tag|param|len"
+msgstr ""
+
+# @return [QueueProperty]
+#: ../ruby/trema/packet-queue.rb:128
+msgid "a new instance of QueueProperty"
+msgstr ""
+
+# @param [Number] len
+#: ../ruby/trema/packet-queue.rb:158
+#: ../ruby/trema/packet-queue.rb:128
+msgid "length in bytes of the property queue."
 msgstr ""
 
 # @return [String]
@@ -3110,14 +3110,14 @@ msgstr ""
 msgid "a new instance of MinRateQueue"
 msgstr ""
 
-# @param [PacketQueue]
-#: ../ruby/trema/packet-queue.rb:158
-msgid "tag|param|packet_queue"
-msgstr ""
-
 # @param [Number] rate
 #: ../ruby/trema/packet-queue.rb:158
 msgid "the rate value of the mimimum rate queue."
+msgstr ""
+
+# @param [PacketQueue] packet_queue
+#: ../ruby/trema/packet-queue.rb:158
+msgid "A {PacketQueue} instance to use to save the minimum rate queue."
 msgstr ""
 
 # @param [Number]
@@ -3125,9 +3125,9 @@ msgstr ""
 msgid "tag|param|rate"
 msgstr ""
 
-# @param [PacketQueue] packet_queue
+# @param [PacketQueue]
 #: ../ruby/trema/packet-queue.rb:158
-msgid "A {PacketQueue} instance to use to save the minimum rate queue."
+msgid "tag|param|packet_queue"
 msgstr ""
 
 # @return [String]
@@ -3271,13 +3271,6 @@ msgstr ""
 msgid "Creates a port-added message."
 msgstr ""
 
-# @param [Hash] options
-#: ../ruby/trema/port-status-add.rb:49
-#: ../ruby/trema/port-status-delete.rb:49
-#: ../ruby/trema/port-status-modify.rb:49
-msgid "the options to create a message with."
-msgstr ""
-
 # @example 
 #: ../ruby/trema/port-status-add.rb:49
 msgid "PortStatusAdd.new(\n"
@@ -3285,6 +3278,13 @@ msgid "PortStatusAdd.new(\n"
 "  :transaction_id => 123,\n"
 "  :phy_port => port\n"
 ")"
+msgstr ""
+
+# @param [Hash] options
+#: ../ruby/trema/port-status-add.rb:49
+#: ../ruby/trema/port-status-delete.rb:49
+#: ../ruby/trema/port-status-modify.rb:49
+msgid "the options to create a message with."
 msgstr ""
 
 # Trema::PortStatusDelete
@@ -3530,9 +3530,9 @@ msgid "Invoked by each StatsReply subclass to assign their instance attributes \
 "to a value."
 msgstr ""
 
-# @param [Array] fields
+# @param [Hash] options
 #: ../ruby/trema/stats-helper.rb:38
-msgid "an array of attribute names."
+msgid "key/value pairs of attributes to match against the fields to set."
 msgstr ""
 
 # @param [Array]
@@ -3540,9 +3540,9 @@ msgstr ""
 msgid "tag|param|fields"
 msgstr ""
 
-# @param [Hash] options
+# @param [Array] fields
 #: ../ruby/trema/stats-helper.rb:38
-msgid "key/value pairs of attributes to match against the fields to set."
+msgid "an array of attribute names."
 msgstr ""
 
 # @return [String]
@@ -3579,9 +3579,9 @@ msgstr ""
 msgid "A list of reply type objects for this message."
 msgstr ""
 
-# @return [Array<FlowStatsReply>]
+# @return [Array<PortStatsReply>]
 #: ../ruby/trema/stats-reply.c:136
-msgid "an array of {FlowStatsReply} objects if type is +OFPST_FLOW+."
+msgid "an array of {PortStatsReply} objects if type is +OFPST_PORT+."
 msgstr ""
 
 # @return [AggregateStatsReply]
@@ -3589,24 +3589,24 @@ msgstr ""
 msgid "a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+."
 msgstr ""
 
-# @return [Array<QueueStatsReply>]
-#: ../ruby/trema/stats-reply.c:136
-msgid "an array of {QueueStatsReply} objects if type is +OFPST_QUEUE+."
-msgstr ""
-
-# @return [Array<PortStatsReply>]
-#: ../ruby/trema/stats-reply.c:136
-msgid "an array of {PortStatsReply} objects if type is +OFPST_PORT+."
-msgstr ""
-
 # @return [Array<TableStatsReply>]
 #: ../ruby/trema/stats-reply.c:136
 msgid "an array of {TableStatsReply} objects if type is +OFPST_TABLE+."
 msgstr ""
 
+# @return [Array<QueueStatsReply>]
+#: ../ruby/trema/stats-reply.c:136
+msgid "an array of {QueueStatsReply} objects if type is +OFPST_QUEUE+."
+msgstr ""
+
 # @return [VendorStatsReply]
 #: ../ruby/trema/stats-reply.c:136
 msgid "a {VendorStatsReply} object if type is +OFPST_VENDOR+."
+msgstr ""
+
+# @return [Array<FlowStatsReply>]
+#: ../ruby/trema/stats-reply.c:136
+msgid "an array of {FlowStatsReply} objects if type is +OFPST_FLOW+."
 msgstr ""
 
 # @return [SwitchDaemon]
@@ -3714,14 +3714,14 @@ msgid "Creates a VendorReqeust OpenFlow message. This message can be used\n"
 "to facilitate sending of vendor experimental messages."
 msgstr ""
 
-# @raise [ArgumentError]
-#: ../ruby/trema/vendor.c:67
-msgid "if user data is not an array of bytes."
-msgstr ""
-
 # @raise [TypeError]
 #: ../ruby/trema/vendor.c:67
 msgid "if options is not a hash."
+msgstr ""
+
+# @raise [ArgumentError]
+#: ../ruby/trema/vendor.c:67
+msgid "if user data is not an array of bytes."
 msgstr ""
 
 # Trema::Vendor#vendor
@@ -3739,13 +3739,13 @@ msgstr ""
 msgid "Vendor specific data payload."
 msgstr ""
 
-# @return [nil]
-#: ../ruby/trema/vendor.c:159
-msgid "vendor specific data not found."
-msgstr ""
-
 # @return [Array]
 #: ../ruby/trema/vendor.c:159
 msgid "an array of data payload bytes."
+msgstr ""
+
+# @return [nil]
+#: ../ruby/trema/vendor.c:159
+msgid "vendor specific data not found."
 msgstr ""
 

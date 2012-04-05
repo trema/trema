@@ -5,15 +5,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Trema VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-20 22:17+0900\n"
-"PO-Revision-Date: 2012-04-05 10:24+0900\n"
+"PO-Revision-Date: 2012-04-05 11:10+0900\n"
 "Last-Translator: Yasuhito TAKAMIYA <yasuhito@gmail.com>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -715,13 +715,13 @@ msgstr ""
 #: ../ruby/trema/queue-get-config-reply.c:80
 #: ../ruby/trema/queue-get-config-request.c:99
 msgid "Transaction ids, message sequence numbers matching requests to replies."
-msgstr ""
+msgstr "トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番号。"
 
 # @return [Number]
 #: ../ruby/trema/hello.c:114 ../ruby/trema/features-request.c:114
 #: ../ruby/trema/barrier-reply.c:67
 msgid "the value of transaction ID."
-msgstr ""
+msgstr "トランザクション ID の値。"
 
 # Trema::BarrierRequest#initialize
 #: ../ruby/trema/barrier-request.c:37
@@ -1116,7 +1116,7 @@ msgstr ""
 #: ../ruby/trema/vendor.c:67 ../ruby/trema/echo-reply.c:76
 #: ../ruby/trema/echo-request.c:73
 msgid "if transaction ID is not an unsigned 32-bit integer."
-msgstr ""
+msgstr "トランザクション ID が符号無し 32 ビット整数でなかった場合。"
 
 # @raise [TypeError]
 #: ../ruby/trema/echo-reply.c:76 ../ruby/trema/echo-request.c:73
@@ -1137,7 +1137,7 @@ msgstr ""
 msgid ""
 "Transaction ids, message sequence numbers matching requests to\n"
 "replies."
-msgstr ""
+msgstr "トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番号。"
 
 # Trema::EchoReply#user_data
 # Trema::EchoRequest#user_data
@@ -1277,7 +1277,7 @@ msgstr ""
 # @raise [TypeError]
 #: ../ruby/trema/hello.c:63 ../ruby/trema/features-request.c:63
 msgid "if argument is not a Integer or a Hash."
-msgstr ""
+msgstr "引数が Integer または Hash でなかった場合。"
 
 # Trema::FlowRemoved#initialize
 #: ../ruby/trema/flow-removed.c:30
@@ -1509,7 +1509,7 @@ msgstr ""
 # Trema::Hello#initialize
 #: ../ruby/trema/hello.c:36
 msgid "Creates a Hello OpenFlow message."
-msgstr ""
+msgstr "OpenFlow Hello メッセージを作る。"
 
 # Trema::Host
 #: ../ruby/trema/host.rb:28

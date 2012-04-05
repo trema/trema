@@ -148,13 +148,18 @@ end
 begin
   require "yard"
 
-
   YARD::Rake::YardocTask.new do | t |
     t.files = [ "ruby/trema/**/*.c", "ruby/trema/**/*.rb" ]
     t.options = []
     t.options << "--debug" << "--verbose" if $trace
   end
 
+  namespace :yard do
+    desc "Generate YARD Documentation in Japanese"
+    task :ja => "yard:po" do
+      sh "../yard.i18n/bin/yardoc --language ja ruby/trema"
+    end
+  end
 
   locale_base_dir = "locale"
   locale_dir = "#{ locale_base_dir }/ja"
