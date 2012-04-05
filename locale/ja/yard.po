@@ -1,6 +1,6 @@
-# Japanese translations for PACKAGE package.
-# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Japanese translations for Trema http://trema.github.com/trema/.
+# Copyright (C) 2012 NEC Corporation. 
+# This file is distributed under the same license as the Trema.
 # Yasuhito TAKAMIYA <yasuhito@gmail.com>, 2012.
 #
 msgid ""
@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Trema VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-20 22:17+0900\n"
-"PO-Revision-Date: 2012-04-05 11:10+0900\n"
+"PO-Revision-Date: 2012-04-05 11:28+0900\n"
 "Last-Translator: Yasuhito TAKAMIYA <yasuhito@gmail.com>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"

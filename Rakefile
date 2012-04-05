@@ -154,10 +154,12 @@ begin
     t.options << "--debug" << "--verbose" if $trace
   end
 
+  yardoc_i18n = "./vendor/yard.i18n/bin/yardoc"
+
   namespace :yard do
     desc "Generate YARD Documentation in Japanese"
     task :ja => "yard:po" do
-      sh "../yard.i18n/bin/yardoc --language ja ruby/trema"
+      sh "#{ yardoc_i18n } --language ja ruby/trema"
     end
   end
 
@@ -179,8 +181,7 @@ begin
 
     namespace :pot do
       task :generate do
-        sh( "./vendor/yard.i18n/bin/yardoc", 
-            "--no-yardopts", "--output", locale_base_dir, "--format", "pot", "ruby/trema" )
+        sh( yardoc_i18n, "--no-yardopts", "--output", locale_base_dir, "--format", "pot", "ruby/trema" )
       end
     end
 
@@ -194,10 +195,7 @@ begin
         if File.exist?( po )
           sh( "msgmerge", "--update", "--sort-by-file", po, pot )
         else
-          sh( "msginit",
-              "--input", pot,
-              "--output", po,
-              "--locale", "ja.UTF-8" )
+          sh( "msginit", "--input", pot, "--output", po, "--locale", "ja.UTF-8" )
         end
       end
     end
