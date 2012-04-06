@@ -107,9 +107,11 @@ handle_echo_request( uint32_t transaction_id, const buffer *body, void *rbswitch
 
 static VALUE
 switch_run( VALUE self ) {
-  setenv( "CHIBACH_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
-
+  VALUE home = rb_funcall( mTrema, rb_intern( "home" ), 0 );
   VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
+  VALUE dpid = rb_funcall( rb_iv_get( self, "@dpid" ), rb_intern( "to_hex" ), 0 );
+
+  setenv( "CHIBACH_HOME", STR2CSTR( home ), 1 );
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 6;
@@ -118,7 +120,7 @@ switch_run( VALUE self ) {
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );
   argv[ 3 ] = ( char * ) ( uintptr_t ) "--datapath_id";
-  argv[ 4 ] = STR2CSTR( rb_funcall( rb_iv_get( self, "@dpid" ), rb_intern( "to_hex" ), 0 ) );
+  argv[ 4 ] = STR2CSTR( dpid );
   argv[ 5 ] = ( char * ) ( uintptr_t ) "--daemonize";
   argv[ 6 ] = NULL;
   init_chibach( &argc, &argv );
