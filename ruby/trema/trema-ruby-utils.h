@@ -25,6 +25,11 @@
 #include "buffer.h"
 
 
+#if HAVE_RUBY_VERSION_H == 1
+#include "ruby/version.h"
+#endif
+
+
 void set_xid( const buffer *openflow_message, uint32_t xid );
 VALUE get_xid( VALUE self );
 void set_length( const buffer *openflow_message, uint16_t length );
@@ -32,8 +37,9 @@ uint16_t get_length( const buffer *openflow_message );
 void validate_xid( VALUE xid );
 
 
-// Define Ruby 1.9 compatible wrappers for struct manipulation
-#ifndef RUBY_19
+// Define Ruby 1.9 compatible wrappers for struct manipulation.
+#if RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR < 9
+
 
 #ifndef RFLOAT_VALUE
 #define RFLOAT_VALUE( v ) ( RFLOAT( v )->value )
@@ -44,20 +50,20 @@ void validate_xid( VALUE xid );
 #ifndef RARRAY_PTR
 #define RARRAY_PTR( v ) ( RARRAY( v )->ptr )
 #endif
-#ifndef STR2CSTR
-#define STR2CSTR( v ) ( StringValuePtr( v ) )
-#endif
-
 #define RB_OBJ_IS_KIND_OF( v, t ) ( rb_obj_is_kind_of( v, t ) == Qtrue )
 #define RB_OBJ_IS_INSTANCE_OF( v, t ) ( rb_obj_is_instance_of( v, t ) == Qtrue )
 #define RB_RESPOND_TO( v, t ) ( rb_respond_to( v, t ) == Qtrue )
 
+
 #else
 
+
+#ifndef STR2CSTR
+#define STR2CSTR( v ) ( StringValuePtr( v ) )
+#endif
 #define RB_OBJ_IS_KIND_OF( v, t ) ( rb_obj_is_kind_of( v, t ) )
 #define RB_OBJ_IS_INSTANCE_OF( v, t ) ( rb_obj_is_instance_of( v, t ) )
 #define RB_RESPOND_TO( v, t ) ( rb_respond_to( v, t ) )
-
 #endif
 
 
