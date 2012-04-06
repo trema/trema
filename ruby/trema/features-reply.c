@@ -17,7 +17,7 @@
 
 
 #include <string.h>
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 #include "port.h"
 
