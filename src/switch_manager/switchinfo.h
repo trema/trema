@@ -42,7 +42,10 @@ struct switch_info {
   struct notify_info *notify_info;
 
   int secure_channel_fd;        // socket file descriptor of secure channel
+
   bool flow_cleanup;
+  bool cookie_translation;
+  bool deny_packet_in_on_startup;
 
   int state;                    // state of switch secure channel
   uint64_t datapath_id;

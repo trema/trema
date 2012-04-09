@@ -36,6 +36,7 @@ int ofpmsg_send_setconfig( struct switch_info *sw_info );
 int ofpmsg_send_error_msg( struct switch_info *sw_info, uint16_t type, uint16_t code, buffer *data );
 int ofpmsg_send( struct switch_info *sw_info, buffer *buf, char *service_name );
 int ofpmsg_send_delete_all_flows( struct switch_info *sw_info );
+int ofpmsg_send_deny_all( struct switch_info *sw_info );
 
 
 #endif // OFPMSG_SEND_H

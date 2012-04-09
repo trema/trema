@@ -44,11 +44,15 @@
 
 enum long_options_val {
   NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
+  NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE = 2,
+  NO_PACKET_IN_LONG_OPTION_VALUE = 3,
 };
 
 static struct option long_options[] = {
   { "socket", 1, NULL, 's' },
   { "no-flow-cleanup", 0, NULL, NO_FLOW_CLEANUP_LONG_OPTION_VALUE },
+  { "no-cookie-translation", 0, NULL, NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE },
+  { "no-packet_in", 0, NULL, NO_PACKET_IN_LONG_OPTION_VALUE },
   { NULL, 0, NULL, 0  },
 };
 
@@ -71,7 +75,9 @@ usage() {
     "  -s, --socket=fd             secure channnel socket\n"
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -l, --logging_level=LEVEL   set logging level\n"
-    "      --no-flow-cleanup       do not cleanup flows on start\n"
+    "      --no-flow-cleanup       do not cleanup flows on startup\n"
+    "      --no-cookie-translation do not translate cookie values\n"
+    "      --no-packet_in          do not allow packet-ins on startup\n"
     "  -h, --help                  display this help and exit\n"
     "\n"
     "DESTINATION-RULE:\n"
@@ -109,6 +115,8 @@ option_parser( int argc, char *argv[] ) {
 
   switch_info.secure_channel_fd = 0; // stdin
   switch_info.flow_cleanup = true;
+  switch_info.cookie_translation = true;
+  switch_info.deny_packet_in_on_startup = false;
   while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
     switch ( c ) {
       case 's':
@@ -117,6 +125,14 @@ option_parser( int argc, char *argv[] ) {
 
       case NO_FLOW_CLEANUP_LONG_OPTION_VALUE:
         switch_info.flow_cleanup = false;
+        break;
+
+      case NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE:
+        switch_info.cookie_translation = false;
+        break;
+
+      case NO_PACKET_IN_LONG_OPTION_VALUE:
+        switch_info.deny_packet_in_on_startup = true;
         break;
 
       default:
@@ -258,6 +274,13 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
   if ( sw_info->state == SWITCH_STATE_WAIT_HELLO ) {
     // cancel to hello_wait-timeout timer
     switch_unset_timeout( switch_event_timeout_hello, NULL );
+
+    if ( sw_info->deny_packet_in_on_startup ) {
+      ret = ofpmsg_send_deny_all( sw_info );
+      if ( ret < 0 ) {
+        return ret;
+      }
+    }
 
     ret = ofpmsg_send_featuresrequest( sw_info );
     if ( ret < 0 ) {
@@ -426,10 +449,16 @@ management_recv( uint16_t tag, void *data, size_t data_len ) {
     break;
 
   case DUMP_COOKIE_TABLE:
+    if ( !switch_info.cookie_translation ) {
+      break;
+    }
     dump_cookie_table();
     break;
 
   case TOGGLE_COOKIE_AGING:
+    if ( !switch_info.cookie_translation ) {
+      break;
+    }
     if ( age_cookie_table_enabled ) {
       delete_timer_event( age_cookie_table, NULL );
       age_cookie_table_enabled = false;
@@ -501,7 +530,9 @@ main( int argc, char *argv[] ) {
   switch_info.running_timer = false;
 
   init_xid_table();
-  init_cookie_table();
+  if ( switch_info.cookie_translation ) {
+    init_cookie_table();
+  }
 
   add_message_received_callback( get_trema_name(), service_recv );
 
@@ -520,7 +551,9 @@ main( int argc, char *argv[] ) {
   start_trema();
 
   finalize_xid_table();
-  finalize_cookie_table();
+  if ( switch_info.cookie_translation ) {
+    finalize_cookie_table();
+  }
 
   if ( switch_info.secure_channel_fd >= 0 ) {
     delete_fd_handler( switch_info.secure_channel_fd );
