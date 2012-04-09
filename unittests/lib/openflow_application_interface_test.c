@@ -242,6 +242,14 @@ mock_delete_message_replied_callback( char *service_name,
 
 
 bool
+mock_clear_send_queue( const char *service_name ) {
+  check_expected( service_name );
+
+  return ( bool ) mock();
+}
+
+
+bool
 mock_parse_packet( buffer *buf ) {
   calloc_packet_info( buf );
   return ( bool ) mock();
@@ -2665,6 +2673,9 @@ test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED() {
   expect_memory( mock_switch_disconnected_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
   expect_value( mock_switch_disconnected_handler, user_data, SWITCH_DISCONNECTED_USER_DATA );
 
+  expect_string( mock_clear_send_queue, service_name, REMOTE_SERVICE_NAME );
+  will_return( mock_clear_send_queue, true );
+
   set_switch_disconnected_handler( mock_switch_disconnected_handler, SWITCH_DISCONNECTED_USER_DATA );
   handle_switch_events( MESSENGER_OPENFLOW_DISCONNECTED, data->data, data->length );
 
@@ -3272,6 +3283,9 @@ test_handle_message_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED() {
   expect_memory( mock_switch_disconnected_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
   expect_value( mock_switch_disconnected_handler, user_data, SWITCH_DISCONNECTED_USER_DATA );
 
+  expect_string( mock_clear_send_queue, service_name, REMOTE_SERVICE_NAME );
+  will_return( mock_clear_send_queue, true );
+
   set_switch_disconnected_handler( mock_switch_disconnected_handler, SWITCH_DISCONNECTED_USER_DATA );
   handle_message( MESSENGER_OPENFLOW_DISCONNECTED, data->data, data->length );
 
@@ -3320,12 +3334,35 @@ test_handle_message_if_unhandled_message_type() {
 
 
 /********************************************************************************
+ * delete_openflow_messages() tests.
+ ********************************************************************************/
+
+static void
+test_delete_openflow_messages() {
+  expect_string( mock_clear_send_queue, service_name, REMOTE_SERVICE_NAME );
+  will_return( mock_clear_send_queue, true );
+
+  assert_true( delete_openflow_messages( DATAPATH_ID ) );
+}
+
+
+static void
+test_delete_openflow_messages_if_clear_send_queue_fails() {
+  expect_string( mock_clear_send_queue, service_name, REMOTE_SERVICE_NAME );
+  will_return( mock_clear_send_queue, false );
+
+  assert_false( delete_openflow_messages( DATAPATH_ID ) );
+}
+
+
+/********************************************************************************
  * Run tests.
  ********************************************************************************/
 
 int
 main() {
   const UnitTest tests[] = {
+    // initialization and finalization tests.
     unit_test_setup_teardown( test_init_openflow_application_interface_with_valid_custom_service_name, cleanup, cleanup ),
     unit_test_setup_teardown( test_init_openflow_application_interface_with_too_long_custom_service_name, cleanup, cleanup ),
     unit_test_setup_teardown( test_init_openflow_application_interface_if_already_initialized, init, cleanup ),
@@ -3342,78 +3379,47 @@ main() {
     unit_test_setup_teardown( test_handle_switch_ready, init, cleanup ),
     unit_test_setup_teardown( test_handle_switch_ready_with_simple_handler, init, cleanup ),
 
+    // switch disconnected handler tests.
     unit_test_setup_teardown( test_set_switch_disconnected_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_switch_disconnected_handler_if_handler_is_NULL, init, cleanup ),
 
+    // error handler tests.
     unit_test_setup_teardown( test_set_error_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_error_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_vendor_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_vendor_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_features_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_features_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_get_config_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_flow_removed_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_flow_removed_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_port_status_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_port_status_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_stats_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_stats_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_barrier_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_barrier_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_queue_get_config_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_queue_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_set_list_switches_reply_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_list_switches_reply_handler_if_handler_is_NULL, init, cleanup ),
-
-    unit_test_setup_teardown( test_send_openflow_message, init, cleanup ),
-    unit_test_setup_teardown( test_send_openflow_message_if_message_is_NULL, init, cleanup ),
-    unit_test_setup_teardown( test_send_openflow_message_if_message_length_is_zero, init, cleanup ),
-
     unit_test_setup_teardown( test_handle_error, init, cleanup ),
     unit_test_setup_teardown( test_handle_error_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_error_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_error_if_message_length_is_zero, init, cleanup ),
 
+    // vendor handler tests.
+    unit_test_setup_teardown( test_set_vendor_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_vendor_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_without_data, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_if_message_length_is_zero, init, cleanup ),
 
+    // features reply handler tests.
+    unit_test_setup_teardown( test_set_features_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_features_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_features_reply, init, cleanup ),
     unit_test_setup_teardown( test_handle_features_reply_without_phy_port, init, cleanup ),
     unit_test_setup_teardown( test_handle_features_reply_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_features_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_features_reply_if_message_length_is_zero, init, cleanup ),
 
+    // get config reply handler tests.
+    unit_test_setup_teardown( test_set_get_config_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_get_config_reply, init, cleanup ),
     unit_test_setup_teardown( test_handle_get_config_reply_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_get_config_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_get_config_reply_if_message_length_is_zero, init, cleanup ),
 
-    // Packet in handler tests.
-    unit_test_setup_teardown( test_set_packet_in_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_simple_packet_in_handler, init, cleanup ),
-    unit_test_setup_teardown( test_set_packet_in_handler_should_die_if_handler_is_NULL, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_with_simple_handler, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_with_malformed_packet, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_without_data, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_without_handler, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_is_NULL, init, cleanup ),
-    unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_length_is_zero, init, cleanup ),
-
-    // Flow removed handler tests.
+    // flow removed handler tests.
+    unit_test_setup_teardown( test_set_flow_removed_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_flow_removed_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed_with_simple_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_simple_flow_removed_handler, init, cleanup ),
@@ -3421,11 +3427,17 @@ main() {
     unit_test_setup_teardown( test_handle_flow_removed_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_flow_removed_if_message_length_is_zero, init, cleanup ),
 
+    // port status handler tests.
+    unit_test_setup_teardown( test_set_port_status_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_port_status_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_port_status, init, cleanup ),
     unit_test_setup_teardown( test_handle_port_status_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_port_status_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_port_status_if_message_length_is_zero, init, cleanup ),
 
+    // stats reply handler tests.
+    unit_test_setup_teardown( test_set_stats_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_stats_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_stats_reply_if_type_is_OFPST_DESC, init, cleanup ),
     unit_test_setup_teardown( test_handle_stats_reply_if_type_is_OFPST_FLOW, init, cleanup ),
     unit_test_setup_teardown( test_handle_stats_reply_if_type_is_OFPST_AGGREGATE, init, cleanup ),
@@ -3438,23 +3450,46 @@ main() {
     unit_test_setup_teardown( test_handle_stats_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_stats_reply_if_message_length_is_zero, init, cleanup ),
 
+    // barrier reply handler tests.
+    unit_test_setup_teardown( test_set_barrier_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_barrier_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_barrier_reply, init, cleanup ),
     unit_test_setup_teardown( test_handle_barrier_reply_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_barrier_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_barrier_reply_if_message_length_is_zero, init, cleanup ),
 
+    // queue get config reply handler tests.
+    unit_test_setup_teardown( test_set_queue_get_config_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_queue_get_config_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_without_queues, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_handler_is_not_registered, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_queue_get_config_reply_if_message_length_is_zero, init, cleanup ),
 
-    unit_test_setup_teardown( test_insert_dpid, init, cleanup ),
-    unit_test_setup_teardown( test_insert_dpid_if_head_is_NULL, init, cleanup ),
-    unit_test_setup_teardown( test_insert_dpid_if_dpid_is_NULL, init, cleanup ),
+    // list switches reply handler tests.
+    unit_test_setup_teardown( test_set_list_switches_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_list_switches_reply_handler_if_handler_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_list_switches_reply, init, cleanup ),
     unit_test_setup_teardown( test_handle_list_switches_reply_if_data_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_list_switches_reply_if_length_is_zero, init, cleanup ),
+
+    // packet-in handler tests.
+    unit_test_setup_teardown( test_set_packet_in_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_simple_packet_in_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_packet_in_handler_should_die_if_handler_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_with_simple_handler, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_with_malformed_packet, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_without_data, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_without_handler, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_packet_in_should_die_if_message_length_is_zero, init, cleanup ),
+
+    // miscellaneous tests.
+    unit_test_setup_teardown( test_insert_dpid, init, cleanup ),
+    unit_test_setup_teardown( test_insert_dpid_if_head_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_insert_dpid_if_dpid_is_NULL, init, cleanup ),
 
     unit_test_setup_teardown( test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_CONNECTED, init, cleanup ),
     unit_test_setup_teardown( test_handle_switch_events_if_type_is_MESSENGER_OPENFLOW_DISCONNECTED, init, cleanup ),
@@ -3475,6 +3510,15 @@ main() {
     unit_test_setup_teardown( test_handle_message_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_message_if_message_length_is_zero, init, cleanup ),
     unit_test_setup_teardown( test_handle_message_if_unhandled_message_type, init, cleanup ),
+
+    // send_openflow_message() tests.
+    unit_test_setup_teardown( test_send_openflow_message, init, cleanup ),
+    unit_test_setup_teardown( test_send_openflow_message_if_message_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_send_openflow_message_if_message_length_is_zero, init, cleanup ),
+
+    // delete_openflow_messages() tests.
+    unit_test_setup_teardown( test_delete_openflow_messages, init, cleanup ),
+    unit_test_setup_teardown( test_delete_openflow_messages_if_clear_send_queue_fails, init, cleanup ),
   };
   return run_tests( tests );
 }

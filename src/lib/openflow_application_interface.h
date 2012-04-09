@@ -315,7 +315,19 @@ bool set_list_switches_reply_handler( list_switches_reply_handler callback );
 
 bool send_openflow_message( const uint64_t datapath_id, buffer *message );
 
+
+/********************************************************************************
+ * Function for retrieving the list of switches from Switch Manager.
+ ********************************************************************************/
+
 bool send_list_switches_request( void *user_data );
+
+
+/********************************************************************************
+ * Function for deleting OpenFlow messages in a send queue
+ ********************************************************************************/
+
+bool delete_openflow_messages( uint64_t datapath_id );
 
 
 #endif // OPENFLOW_APPLICATION_INTERFACE_H

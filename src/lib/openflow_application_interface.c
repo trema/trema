@@ -89,6 +89,12 @@ bool mock_delete_message_received_callback( char *service_name,
 bool mock_delete_message_replied_callback( char *service_name,
                                            void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
 
+#ifdef clear_send_queue
+#undef clear_send_queue
+#endif
+#define clear_send_queue mock_clear_send_queue
+bool mock_clear_send_queue( const char *service_name );
+
 #ifdef getpid
 #undef getpid
 #endif
@@ -1295,6 +1301,7 @@ handle_messenger_openflow_disconnected( uint64_t datapath_id ) {
   else {
     debug( "Callback function for switch disconnected events is not set." );
   }
+  delete_openflow_messages( datapath_id );
 }
 
 
@@ -1664,6 +1671,18 @@ send_list_switches_request( void *user_data ) {
 
   return send_request_message( "switch_manager", service_name, message_type,
                                data, data_length, user_data );
+}
+
+
+bool
+delete_openflow_messages( uint64_t datapath_id ) {
+  debug( "Deleting OpenFlow messages in a send queue ( datapath_id = %#" PRIx64 " ).", datapath_id );
+
+  char remote_service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
+  memset( remote_service_name, '\0', sizeof( remote_service_name ) );
+  snprintf( remote_service_name, sizeof( remote_service_name ),
+            "switch.%#" PRIx64, datapath_id );
+  return clear_send_queue( remote_service_name );
 }
 
 

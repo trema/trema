@@ -1052,7 +1052,7 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   }
 
   set_writable( sq->server_socket, true );
-  if ( sq->buffer->data_length  > messenger_send_length_for_flush ) {
+  if ( sq->buffer->data_length > messenger_send_length_for_flush ) {
     on_send_write( sq->server_socket, sq );
   }
   return true;
@@ -1150,6 +1150,41 @@ _send_reply_message( const messenger_context_handle *handle, const uint16_t tag,
   return return_value;
 }
 bool ( *send_reply_message )( const messenger_context_handle *handle, const uint16_t tag, const void *data, size_t len ) = _send_reply_message;
+
+
+static bool
+_clear_send_queue( const char *service_name ) {
+  assert( service_name != NULL );
+
+  debug( "Deleting all messages from send queue ( service_name = %s ).", service_name );
+
+  if ( send_queues == NULL ) {
+    error( "All send queues are already deleted or not created yet." );
+    return false;
+  }
+
+  send_queue *sq = lookup_hash_entry( send_queues, service_name );
+
+  if ( NULL == sq ) {
+    error( "Send queue is already deleted or not created yet ( service_name = %s ).", service_name );
+    return false;
+  }
+  if ( NULL == sq->buffer ) {
+    error( "Message buffer is already deleted or not created yet ( send_queue = %p, service_name = %s ).",
+           sq, service_name );
+    return false;
+  }
+
+  if ( sq->buffer->data_length > 0 ) {
+    set_writable( sq->server_socket, false );
+  }
+
+  sq->buffer->head_offset = 0;
+  sq->buffer->data_length = 0;
+
+  return true;
+}
+bool ( *clear_send_queue )( const char *service_name ) = _clear_send_queue;
 
 
 static void
