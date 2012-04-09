@@ -47,6 +47,23 @@ ofpmsg_send_hello( struct switch_info *sw_info ) {
 
 
 int
+ofpmsg_send_echorequest( struct switch_info *sw_info, uint32_t xid, buffer *body ) {
+  int ret;
+  buffer *buf;
+
+  buf = create_echo_request( xid, body );
+  free_buffer( body );
+
+  ret = send_to_secure_channel( sw_info, buf );
+  if ( ret == 0 ) {
+    debug( "Send 'echo request' to a switch %#" PRIx64 ".", sw_info->datapath_id );
+  }
+
+  return ret;
+}
+
+
+int
 ofpmsg_send_echoreply( struct switch_info *sw_info, uint32_t xid, buffer *body ) {
   int ret;
   buffer *buf;

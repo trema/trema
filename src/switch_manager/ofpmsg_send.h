@@ -30,6 +30,7 @@
 
 
 int ofpmsg_send_hello( struct switch_info *sw_info );
+int ofpmsg_send_echorequest( struct switch_info *sw_info, uint32_t xid, buffer *body );
 int ofpmsg_send_echoreply( struct switch_info *sw_info, uint32_t xid, buffer *body );
 int ofpmsg_send_featuresrequest( struct switch_info *sw_info );
 int ofpmsg_send_setconfig( struct switch_info *sw_info );

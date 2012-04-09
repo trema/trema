@@ -42,6 +42,18 @@
 #include "xid_table.h"
 
 
+#define SUB_TIMESPEC( _a, _b, _return )                       \
+  do {                                                        \
+    ( _return )->tv_sec = ( _a )->tv_sec - ( _b )->tv_sec;    \
+    ( _return )->tv_nsec = ( _a )->tv_nsec - ( _b )->tv_nsec; \
+    if ( ( _return )->tv_nsec < 0 ) {                         \
+      ( _return )->tv_sec--;                                  \
+      ( _return )->tv_nsec += 1000000000;                     \
+    }                                                         \
+  }                                                           \
+  while ( 0 )
+
+
 enum long_options_val {
   NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
   NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE = 2,
@@ -62,9 +74,16 @@ static char short_options[] = "s:";
 struct switch_info switch_info;
 
 static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600;
+static const time_t ECHO_REQUEST_INTERVAL = 60;
+static const time_t ECHO_REPLY_TIMEOUT = 2;
 
 static bool age_cookie_table_enabled = false;
 
+typedef struct {
+  uint64_t datapath_id;
+  uint32_t sec;
+  uint32_t nsec;
+} echo_body;
 
 void
 usage() {
@@ -296,6 +315,66 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
 }
 
 
+static void
+echo_reply_timeout( void *user_data ) {
+  UNUSED( user_data );
+
+  error( "Echo request timeout ( datapath id %#" PRIx64 ").", switch_info.datapath_id );
+  switch_event_disconnected( &switch_info );
+}
+
+
+int
+switch_event_recv_echoreply( struct switch_info *sw_info, buffer *buf ) {
+  if ( buf->length != sizeof( struct ofp_header ) + sizeof( echo_body ) ) {
+    return 0;
+  }
+  struct ofp_header *header = buf->data;
+  if ( ntohl( header->xid ) != sw_info->echo_request_xid ) {
+    return 0;
+  }
+
+  echo_body *body = ( echo_body * ) ( header + 1 );
+  if ( ntohll( body->datapath_id ) != sw_info->datapath_id ) {
+    return 0;
+  }
+  switch_unset_timeout( echo_reply_timeout, NULL );
+  struct timespec now, tim;
+  clock_gettime( CLOCK_MONOTONIC, &now );
+  tim.tv_sec = ( time_t ) ntohl( body->sec );
+  tim.tv_nsec = ( long ) ntohl( body->nsec );
+
+  SUB_TIMESPEC( &now, &tim, &tim );
+
+  info( "echo round-trip time %u.%09u.", ( uint32_t ) tim.tv_sec, ( uint32_t ) tim.tv_nsec );
+
+  return 0;
+}
+
+
+static void
+echo_request_interval( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  buffer *buf = alloc_buffer();
+  echo_body *body = append_back_buffer( buf, sizeof( echo_body ) );
+  body->datapath_id = htonll( switch_info.datapath_id );
+  struct timespec now;
+  clock_gettime( CLOCK_MONOTONIC, &now );
+  body->sec = htonl( ( uint32_t ) now.tv_sec );
+  body->nsec = htonl( ( uint32_t ) now.tv_nsec );
+  sw_info->echo_request_xid = generate_xid();
+
+  int err = ofpmsg_send_echorequest( sw_info, sw_info->echo_request_xid, buf );
+  if ( err < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
+  }
+
+  switch_set_timeout( ECHO_REPLY_TIMEOUT, echo_reply_timeout, NULL );
+}
+
+
 int
 switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
   int ret;
@@ -346,6 +425,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
         return ret;
       }
     }
+    add_periodic_event_callback( ECHO_REQUEST_INTERVAL, echo_request_interval, sw_info );
     break;
 
   case SWITCH_STATE_COMPLETED:
@@ -365,6 +445,10 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
 int
 switch_event_disconnected( struct switch_info *sw_info ) {
+
+  if ( sw_info->state == SWITCH_STATE_COMPLETED ) {
+    delete_timer_event( echo_request_interval, sw_info );
+  }
   sw_info->state = SWITCH_STATE_DISCONNECTED;
 
   if ( sw_info->fragment_buf != NULL ) {
@@ -528,6 +612,7 @@ main( int argc, char *argv[] ) {
   switch_info.send_queue = create_message_queue();
   switch_info.recv_queue = create_message_queue();
   switch_info.running_timer = false;
+  switch_info.echo_request_xid = 0;
 
   init_xid_table();
   if ( switch_info.cookie_translation ) {

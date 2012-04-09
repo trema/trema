@@ -192,9 +192,13 @@ int
 ofpmsg_recv_echoreply( struct switch_info *sw_info,  buffer *buf ) {
   ofpmsg_debug( "Receive 'echo reply' from a switch." );
 
-  // TODO: implement keepalive mechanism
+  int ret = switch_event_recv_echoreply( sw_info, buf );
+  if ( ret < 0 ) {
+    free_buffer( buf );
+    return ret;
+  }
 
-  free_buffer( buf );
+  send_transaction_reply( sw_info, buf );
 
   return 0;
 }

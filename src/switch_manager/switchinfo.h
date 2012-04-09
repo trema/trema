@@ -61,6 +61,8 @@ struct switch_info {
   message_queue *recv_queue;
 
   bool running_timer;
+
+  uint32_t echo_request_xid;
 };
 
 
