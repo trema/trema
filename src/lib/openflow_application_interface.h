@@ -72,6 +72,14 @@ typedef void ( *error_handler )(
 );
 
 
+typedef void ( *echo_reply_handler )(
+  uint64_t datapath_id,
+  uint32_t transaction_id,
+  const buffer *data,
+  void *user_data
+);
+
+
 typedef void ( *vendor_handler )(
   uint64_t datapath_id,
   uint32_t transaction_id,
@@ -210,6 +218,9 @@ typedef struct openflow_event_handlers {
   error_handler error_callback;
   void *error_user_data;
 
+  echo_reply_handler echo_reply_callback;
+  void *echo_reply_user_data;
+
   vendor_handler vendor_callback;
   void *vendor_user_data;
 
@@ -266,6 +277,7 @@ bool _set_switch_ready_handler( bool simple_callback, void *callback, void *user
 
 bool set_switch_disconnected_handler( switch_disconnected_handler callback, void *user_data );
 bool set_error_handler( error_handler callback, void *user_data );
+bool set_echo_reply_handler( echo_reply_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );

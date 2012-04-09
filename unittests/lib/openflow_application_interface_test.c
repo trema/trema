@@ -54,6 +54,7 @@ extern hash_table *stats;
 
 extern void assert_if_not_initialized();
 extern void handle_error( const uint64_t datapath_id, buffer *data );
+extern void handle_echo_reply( const uint64_t datapath_id, buffer *data );
 extern void handle_vendor( const uint64_t datapath_id, buffer *data );
 extern void handle_features_reply( const uint64_t datapath_id, buffer *data );
 extern void handle_get_config_reply( const uint64_t datapath_id, buffer *data );
@@ -77,26 +78,28 @@ extern void handle_list_switches_reply( uint16_t message_type, void *data, size_
 #define SWITCH_DISCONNECTED_USER_DATA ( ( void * ) 0x00020021 )
 #define ERROR_HANDLER ( ( void * ) 0x00010001 )
 #define ERROR_USER_DATA ( ( void * ) 0x00010011 )
-#define VENDOR_HANDLER ( ( void * ) 0x00010002 )
-#define VENDOR_USER_DATA ( ( void * ) 0x00010021 )
-#define FEATURES_REPLY_HANDLER ( ( void * ) 0x00010003 )
-#define FEATURES_REPLY_USER_DATA ( ( void * ) 0x00010031 )
-#define GET_CONFIG_REPLY_HANDLER ( ( void * ) 0x00010004 )
-#define GET_CONFIG_REPLY_USER_DATA ( ( void * ) 0x00010041 )
-#define PACKET_IN_HANDLER ( ( void * ) 0x00010005 )
-#define PACKET_IN_USER_DATA ( ( void * ) 0x00010051 )
-#define FLOW_REMOVED_HANDLER ( ( void * ) 0x00010006 )
-#define FLOW_REMOVED_USER_DATA ( ( void * ) 0x00010061 )
-#define PORT_STATUS_HANDLER ( ( void * ) 0x00010007 )
-#define PORT_STATUS_USER_DATA ( ( void * ) 0x00010071 )
-#define STATS_REPLY_HANDLER ( ( void * ) 0x00010008 )
-#define STATS_REPLY_USER_DATA ( ( void * ) 0x00010081 )
-#define BARRIER_REPLY_HANDLER ( ( void * ) 0x00010009 )
-#define BARRIER_REPLY_USER_DATA ( ( void * ) 0x00010091 )
-#define QUEUE_GET_CONFIG_REPLY_HANDLER ( ( void * ) 0x0001000a )
-#define QUEUE_GET_CONFIG_REPLY_USER_DATA ( ( void * ) 0x000100a1 )
-#define LIST_SWITCHES_REPLY_HANDLER ( ( void * ) 0x0001000b )
-#define LIST_SWITCHES_REPLY_USER_DATA ( ( void * ) 0x000100b1 )
+#define ECHO_REPLY_HANDLER ( ( void * ) 0x00010002 )
+#define ECHO_REPLY_USER_DATA ( ( void * ) 0x00010021 )
+#define VENDOR_HANDLER ( ( void * ) 0x00010003 )
+#define VENDOR_USER_DATA ( ( void * ) 0x00010031 )
+#define FEATURES_REPLY_HANDLER ( ( void * ) 0x00010004 )
+#define FEATURES_REPLY_USER_DATA ( ( void * ) 0x00010041 )
+#define GET_CONFIG_REPLY_HANDLER ( ( void * ) 0x00010005 )
+#define GET_CONFIG_REPLY_USER_DATA ( ( void * ) 0x00010051 )
+#define PACKET_IN_HANDLER ( ( void * ) 0x00010006 )
+#define PACKET_IN_USER_DATA ( ( void * ) 0x00010061 )
+#define FLOW_REMOVED_HANDLER ( ( void * ) 0x00010007 )
+#define FLOW_REMOVED_USER_DATA ( ( void * ) 0x00010071 )
+#define PORT_STATUS_HANDLER ( ( void * ) 0x00010008 )
+#define PORT_STATUS_USER_DATA ( ( void * ) 0x00010081 )
+#define STATS_REPLY_HANDLER ( ( void * ) 0x00010009 )
+#define STATS_REPLY_USER_DATA ( ( void * ) 0x00010091 )
+#define BARRIER_REPLY_HANDLER ( ( void * ) 0x0001000a )
+#define BARRIER_REPLY_USER_DATA ( ( void * ) 0x000100a1 )
+#define QUEUE_GET_CONFIG_REPLY_HANDLER ( ( void * ) 0x0001000b )
+#define QUEUE_GET_CONFIG_REPLY_USER_DATA ( ( void * ) 0x000100b1 )
+#define LIST_SWITCHES_REPLY_HANDLER ( ( void * ) 0x0001000c )
+#define LIST_SWITCHES_REPLY_USER_DATA ( ( void * ) 0x000100c1 )
 
 static const pid_t PID = 12345;
 static char SERVICE_NAME[] = "learning switch application 0";
@@ -112,11 +115,13 @@ static openflow_event_handlers_t NULL_EVENT_HANDLERS = { false, ( void * ) 0, ( 
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0, ( void * ) 0,
+                                                         ( void * ) 0, ( void * ) 0,
                                                          ( void * ) 0 };
 static openflow_event_handlers_t EVENT_HANDLERS = {
   false, SWITCH_READY_HANDLER, SWITCH_READY_USER_DATA,
   SWITCH_DISCONNECTED_HANDLER, SWITCH_DISCONNECTED_USER_DATA,
   ERROR_HANDLER, ERROR_USER_DATA,
+  ECHO_REPLY_HANDLER, ECHO_REPLY_USER_DATA,
   VENDOR_HANDLER, VENDOR_USER_DATA,
   FEATURES_REPLY_HANDLER, FEATURES_REPLY_USER_DATA,
   GET_CONFIG_REPLY_HANDLER, GET_CONFIG_REPLY_USER_DATA,
@@ -275,6 +280,25 @@ mock_error_handler( uint64_t datapath_id, uint32_t transaction_id, uint16_t type
   check_expected( code32 );
   check_expected( data->length );
   check_expected( data->data );
+  check_expected( user_data );
+}
+
+
+static void
+mock_echo_reply_handler( uint64_t datapath_id, uint32_t transaction_id, const buffer *data,
+                         void *user_data ){
+  void *data_uc;
+
+  check_expected( &datapath_id );
+  check_expected( transaction_id );
+  if( data != NULL ) {
+    check_expected( data->length );
+    check_expected( data->data );
+  }
+  else {
+    data_uc = ( void * ) ( unsigned long ) data;
+    check_expected( data_uc );
+  }
   check_expected( user_data );
 }
 
@@ -778,6 +802,26 @@ static void
 test_set_error_handler_if_handler_is_NULL() {
   expect_string( mock_die, format, "Callback function ( error_handler ) must not be NULL." );
   expect_assert_failure( set_error_handler( NULL, NULL ) );
+  assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
+}
+
+
+/********************************************************************************
+ * set_echo_reply_handler() tests.
+ ********************************************************************************/
+
+static void
+test_set_echo_reply_handler() {
+  assert_true( set_echo_reply_handler( ECHO_REPLY_HANDLER, ECHO_REPLY_USER_DATA ) );
+  assert_int_equal( event_handlers.echo_reply_callback, ECHO_REPLY_HANDLER );
+  assert_int_equal( event_handlers.echo_reply_user_data, ECHO_REPLY_USER_DATA );
+}
+
+
+static void
+test_set_echo_reply_handler_if_handler_is_NULL() {
+  expect_string( mock_die, format, "Callback function ( echo_reply_handler ) must not be NULL." );
+  expect_assert_failure( set_echo_reply_handler( NULL, NULL ) );
   assert_memory_equal( &event_handlers, &NULL_EVENT_HANDLERS, sizeof( event_handlers ) );
 }
 
@@ -1370,6 +1414,91 @@ test_handle_error_if_message_length_is_zero() {
 
   set_error_handler( mock_error_handler, USER_DATA );
   expect_assert_failure( handle_error( DATAPATH_ID, buffer ) );
+
+  free_buffer( buffer );
+}
+
+
+/********************************************************************************
+ * handle_echo_request() tests.
+ ********************************************************************************/
+
+static void
+test_handle_echo_reply() {
+  buffer *buffer, *data;
+
+  data = alloc_buffer_with_length( 16 );
+  append_back_buffer( data, 16 );
+  memset( data->data, 'a', 16 );
+
+  buffer = create_echo_reply( TRANSACTION_ID, data );
+
+  expect_memory( mock_echo_reply_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
+  expect_value( mock_echo_reply_handler, transaction_id, TRANSACTION_ID );
+  expect_value( mock_echo_reply_handler, data->length, data->length );
+  expect_memory( mock_echo_reply_handler, data->data, data->data, data->length );
+  expect_memory( mock_echo_reply_handler, user_data, USER_DATA, USER_DATA_LEN );
+
+  set_echo_reply_handler( mock_echo_reply_handler, USER_DATA );
+  handle_echo_reply( DATAPATH_ID, buffer );
+
+  free_buffer( data );
+  free_buffer( buffer );
+}
+
+
+static void
+test_handle_echo_reply_without_data() {
+  buffer *buffer;
+
+  buffer = create_echo_reply( TRANSACTION_ID, NULL );
+
+  expect_memory( mock_echo_reply_handler, &datapath_id, &DATAPATH_ID, sizeof( uint64_t ) );
+  expect_value( mock_echo_reply_handler, transaction_id, TRANSACTION_ID );
+  expect_value( mock_echo_reply_handler, data_uc, NULL );
+  expect_memory( mock_echo_reply_handler, user_data, USER_DATA, USER_DATA_LEN );
+
+  set_echo_reply_handler( mock_echo_reply_handler, USER_DATA );
+  handle_echo_reply( DATAPATH_ID, buffer );
+
+  free_buffer( buffer );
+}
+
+
+static void
+test_handle_echo_reply_if_handler_is_not_registered() {
+  buffer *buffer, *data;
+
+  data = alloc_buffer_with_length( 16 );
+  append_back_buffer( data, 16 );
+  memset( data->data, 'a', 16 );
+
+  buffer = create_echo_reply( TRANSACTION_ID, data );
+
+  // FIXME
+
+  handle_echo_reply( DATAPATH_ID, buffer );
+
+  free_buffer( data );
+  free_buffer( buffer );
+}
+
+
+static void
+test_handle_echo_reply_if_message_is_NULL() {
+  set_echo_reply_handler( mock_echo_reply_handler, USER_DATA );
+  expect_assert_failure( handle_echo_reply( DATAPATH_ID, NULL ) );
+}
+
+
+static void
+test_handle_echo_reply_if_message_length_is_zero() {
+  buffer *buffer;
+
+  buffer = alloc_buffer_with_length( 32 );
+
+  set_echo_reply_handler( mock_echo_reply_handler, USER_DATA );
+  expect_assert_failure( handle_echo_reply( DATAPATH_ID, buffer ) );
 
   free_buffer( buffer );
 }
@@ -3391,9 +3520,19 @@ main() {
     unit_test_setup_teardown( test_handle_error_if_message_is_NULL, init, cleanup ),
     unit_test_setup_teardown( test_handle_error_if_message_length_is_zero, init, cleanup ),
 
+    // echo_reply handler tests.
+    unit_test_setup_teardown( test_set_echo_reply_handler, init, cleanup ),
+    unit_test_setup_teardown( test_set_echo_reply_handler_if_handler_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_echo_reply, init, cleanup ),
+    unit_test_setup_teardown( test_handle_echo_reply_without_data, init, cleanup ),
+    unit_test_setup_teardown( test_handle_echo_reply_if_handler_is_not_registered, init, cleanup ),
+    unit_test_setup_teardown( test_handle_echo_reply_if_message_is_NULL, init, cleanup ),
+    unit_test_setup_teardown( test_handle_echo_reply_if_message_length_is_zero, init, cleanup ),
+
     // vendor handler tests.
     unit_test_setup_teardown( test_set_vendor_handler, init, cleanup ),
     unit_test_setup_teardown( test_set_vendor_handler_if_handler_is_NULL, init, cleanup ),
+
     unit_test_setup_teardown( test_handle_vendor, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_without_data, init, cleanup ),
     unit_test_setup_teardown( test_handle_vendor_if_handler_is_not_registered, init, cleanup ),

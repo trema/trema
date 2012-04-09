@@ -255,7 +255,7 @@ set_echo_request_handler( echo_request_handler callback, void *user_data ) {
 
 
 bool
-set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
+switch_set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
