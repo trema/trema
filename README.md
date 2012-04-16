@@ -22,11 +22,11 @@ Getting Started
 
 1.Install the prerequisites at the command prompt:
 
-    $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb file libpcap-dev libsqlite3-dev
 
 2.Install Trema at the command prompt:
 
-    $ gem install trema
+    $ sudo gem install trema
 
 3.Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
 
@@ -78,4 +78,4 @@ License
 
 Trema is released under the GNU General Public License version 2.0:
 
-* http://www.opensource.org/licenses/GPL-2.0
+* http://www.gnu.org/licenses/gpl-2.0.html
