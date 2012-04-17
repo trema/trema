@@ -22,7 +22,7 @@ require "mkmf"
 
 
 $CFLAGS = "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
-$LDFLAGS = "-Wl,-Bsymbolic -lpthread"
+$LDFLAGS = "-Wl,-Bsymbolic"
 
 
 dir_config "trema"
