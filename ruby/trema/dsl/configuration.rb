@@ -43,16 +43,6 @@ module Trema
       attr_accessor :port
 
       #
-      # use tremashark?
-      #
-      # @example
-      #   config.tremashark = true
-      #
-      # @return [Boolean]
-      #
-      attr_accessor :tremashark
-
-      #
       # the hash of {App}
       #
       # @example
@@ -107,7 +97,6 @@ module Trema
       #
       def initialize
         @port = 6633
-        @tremashark = false
         @apps = Trema::App.clear
         @hosts = Trema::Host.clear
         @links = Trema::Link.clear

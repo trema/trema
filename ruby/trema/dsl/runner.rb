@@ -20,6 +20,9 @@
 #
 
 
+require "trema/tremashark"
+
+
 module Trema
   module DSL
     class Runner
@@ -89,7 +92,7 @@ module Trema
 
 
       def maybe_run_tremashark
-        @context.tremashark.run if @context.tremashark
+        Trema::Tremashark.new.run if $use_tremashark
       end
 
 

@@ -35,26 +35,6 @@ module Trema
 
 
       context "when running" do
-        it "should run tremashark" do
-          tremashark = mock
-          tremashark.should_receive( :run ).once
-
-          context = mock(
-            "context",
-            :tremashark => tremashark,
-            :switch_manager => nil,
-            :packetin_filter => nil,
-            :links => {},
-            :hosts => {},
-            :switches => {},
-            :apps => {},
-            :port => 6633
-          )
-
-          Runner.new( context ).run
-        end
-
-
         it "should run switch_manager" do
           @switch_manager.should_receive( :run! ).once
 

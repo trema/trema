@@ -40,6 +40,7 @@ Feature: run trema application with `trema run' command
       Usage: ./trema run [OPTIONS ...]
           -c, --conf FILE
           -d, --daemonize
+          -s, --tremashark
 
           -h, --help
           -v, --verbose

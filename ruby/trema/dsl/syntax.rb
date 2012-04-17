@@ -35,7 +35,6 @@ require "trema/open-vswitch"
 require "trema/packetin-filter"
 require "trema/ruby-switch"
 require "trema/switch-manager"
-require "trema/tremashark"
 
 
 module Trema
@@ -43,11 +42,6 @@ module Trema
     class Syntax
       def initialize config
         @config = config
-      end
-
-
-      def use_tremashark
-        @config.tremashark = Trema::Tremashark.new
       end
 
 
