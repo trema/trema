@@ -45,6 +45,10 @@ EOF
 end
 
 
+unless find_library( "pthread", "pthread_create" )
+  error_exit error_lib_missing( "libpthread", "libc6-dev" )
+end
+
 unless find_library( "rt", "clock_gettime" )
   error_exit error_lib_missing( "librt", "libc6-dev" )
 end
@@ -68,4 +72,3 @@ end
 
 
 create_makefile "trema", "trema"
-
