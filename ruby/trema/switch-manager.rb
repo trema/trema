@@ -67,9 +67,10 @@ module Trema
     #
     # @return [SwitchManager]
     #
-    def initialize rule, port = nil
+    def initialize rule, port = nil, unix_path = nil
       @rule = rule
       @port = port
+      @unix_path = unix_path
       @no_flow_cleanup = false
       SwitchManager.add self
     end
@@ -100,7 +101,13 @@ module Trema
 
     def options
       opts = [ "--daemonize" ]
-      opts << "--port=#{ @port }" if @port
+
+      if @unix_path
+        opts << "--unix=#{ @unix_path }"
+      elsif @port
+        opts << "--port=#{ @port }"
+      end
+
       opts
     end
 

@@ -43,6 +43,16 @@ module Trema
       attr_accessor :port
 
       #
+      # set/get the unix socket for switch manager to listen on
+      #
+      # @example
+      #   config.unix_path = '/foo/bar.socket'
+      #
+      # @return [String]
+      #
+      attr_accessor :unix_path
+
+      #
       # use tremashark?
       #
       # @example
