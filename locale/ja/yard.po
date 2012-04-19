@@ -107,11 +107,11 @@ msgstr ""
 msgid ""
 "Supported Platforms\n"
 "-------------------"
-msgstr ""
+msgstr "サポートプラットフォーム"
 
 #: ../README.md:52
 msgid "Trema has been tested ONLY on the following environments:"
-msgstr ""
+msgstr "Trema は以下の環境でのみテストが行われています。"
 
 #: ../README.md:54
 msgid ""
@@ -3733,7 +3733,7 @@ msgstr ""
 msgid ""
 "Creates a VendorReqeust OpenFlow message. This message can be used\n"
 "to facilitate sending of vendor experimental messages."
-msgstr ""
+msgstr "VendorRequest メッセージを生成します。"
 
 # @raise [ArgumentError]
 #: ../ruby/trema/vendor.c:67
