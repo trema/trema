@@ -290,6 +290,38 @@ packet_in_is_arp( VALUE self ) {
 
 
 /*
+ * Is an ARP request packet?
+ *
+ * @return [bool] arp_request? Is an ARP request packet?
+ */
+static VALUE
+packet_in_is_arp_request( VALUE self ) {
+  if ( packet_type_arp_request( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an ARP reply packet?
+ *
+ * @return [bool] arp_reply? Is an ARP reply packet?
+ */
+static VALUE
+packet_in_is_arp_reply( VALUE self ) {
+  if ( packet_type_arp_reply( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
  * The ARP operation code.
  *
  * @return [integer] arp_oper Operation code.
@@ -959,6 +991,8 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
   rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
   rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
+  rb_define_method( cPacketIn, "arp_request?", packet_in_is_arp_request, 0 );
+  rb_define_method( cPacketIn, "arp_reply?", packet_in_is_arp_reply, 0 );
 
   rb_define_method( cPacketIn, "ipv4_version", packet_in_ipv4_version, 0 );
   rb_define_method( cPacketIn, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
@@ -977,7 +1011,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
   rb_define_method( cPacketIn, "icmpv4_id", packet_in_icmpv4_id, 0 );
   rb_define_method( cPacketIn, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );
 
   rb_define_method( cPacketIn, "igmp_type", packet_in_igmp_type, 0 );
   rb_define_method( cPacketIn, "igmp_group", packet_in_igmp_group, 0 );
