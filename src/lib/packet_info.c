@@ -176,6 +176,30 @@ packet_type_ipv4_etherip( const buffer *frame ) {
 
 
 static bool
+if_arp_opcode( const buffer *frame, const uint32_t opcode ) {
+  die_if_NULL( frame );
+  packet_info packet_info = get_packet_info( frame );
+  return ( packet_info.arp_ar_op == opcode );
+}
+
+
+bool 
+packet_type_arp_request( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_ARP ) &
+           if_arp_opcode( frame, ARP_OP_REQUEST ) );
+}
+
+
+bool 
+packet_type_arp_reply( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_ARP ) &
+           if_arp_opcode( frame, ARP_OP_REPLY ) );
+}
+
+
+static bool
 if_igmp_type( const buffer *frame, const uint32_t type ) {
   die_if_NULL( frame );
   packet_info packet_info = get_packet_info( frame );

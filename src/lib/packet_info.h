@@ -191,6 +191,9 @@ bool packet_type_ipv4_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
 bool packet_type_ipv4_etherip( const buffer *frame );
 
+bool packet_type_arp_request( const buffer *frame );
+bool packet_type_arp_reply( const buffer *frame );
+
 bool packet_type_igmp_membership_query( const buffer *frame );
 bool packet_type_igmp_v1_membership_report( const buffer *frame );
 bool packet_type_igmp_v2_membership_report( const buffer *frame );

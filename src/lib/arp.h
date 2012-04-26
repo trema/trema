@@ -50,6 +50,10 @@ typedef struct arp_header {
 } __attribute__((packed)) arp_header_t;
 
 
+#define ARP_OP_REQUEST 1
+#define ARP_OP_REPLY   2
+
+
 #endif // ARP_H
 
 

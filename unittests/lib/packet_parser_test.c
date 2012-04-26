@@ -143,6 +143,8 @@ test_parse_packet_arp_request_succeeds() {
   u_char maczero[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   assert_memory_equal( packet_info->arp_tha, maczero, ETH_ADDRLEN );  
 
+  assert_true( packet_type_arp_request( buffer ) );
+
   free_buffer( buffer );
 }
 

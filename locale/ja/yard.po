@@ -59,8 +59,8 @@ msgstr ""
 
 #: ../README.md:25
 msgid ""
-"    $ sudo apt-get install gcc make ruby ruby-dev irb file libpcap-dev "
-"libsqlite3-dev"
+"    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb file libpcap-"
+"dev libsqlite3-dev"
 msgstr ""
 
 #: ../README.md:27
@@ -68,7 +68,7 @@ msgid "2.Install Trema at the command prompt:"
 msgstr ""
 
 #: ../README.md:29
-msgid "    $ gem install trema"
+msgid "    $ sudo gem install trema"
 msgstr ""
 
 #: ../README.md:31
@@ -166,7 +166,7 @@ msgid "Trema is released under the GNU General Public License version 2.0:"
 msgstr ""
 
 #: ../README.md:81
-msgid "* http://www.opensource.org/licenses/GPL-2.0"
+msgid "* http://www.gnu.org/licenses/gpl-2.0.html"
 msgstr ""
 
 # Trema::ActionEnqueue#initialize
@@ -178,31 +178,29 @@ msgid ""
 msgstr ""
 
 # @overload
-#: ../ruby/trema/match.c:447 ../ruby/trema/flow-stats-reply.rb:98
-#: ../ruby/trema/port-stats-reply.rb:100 ../ruby/trema/port-mod.c:80
-#: ../ruby/trema/action-set-vlan-vid.c:51 ../ruby/trema/hello.c:63
-#: ../ruby/trema/action-set-nw-src.c:51 ../ruby/trema/features-reply.c:74
-#: ../ruby/trema/table-stats-reply.rb:76 ../ruby/trema/action-set-tp-src.c:50
-#: ../ruby/trema/features-request.c:63 ../ruby/trema/vendor.c:67
-#: ../ruby/trema/action-enqueue.c:56 ../ruby/trema/action-set-nw-tos.c:50
-#: ../ruby/trema/queue-stats-reply.rb:67 ../ruby/trema/echo-reply.c:76
-#: ../ruby/trema/action-set-dl-dst.c:52 ../ruby/trema/get-config-request.c:57
-#: ../ruby/trema/action-set-dl-src.c:52 ../ruby/trema/action-set-tp-dst.c:49
-#: ../ruby/trema/stats-reply.c:69 ../ruby/trema/port-status.c:59
-#: ../ruby/trema/action-output.c:60 ../ruby/trema/echo-request.c:73
-#: ../ruby/trema/openflow-error.c:67 ../ruby/trema/barrier-reply.c:43
-#: ../ruby/trema/action-vendor.c:49 ../ruby/trema/set-config.c:72
-#: ../ruby/trema/flow-removed.c:94 ../ruby/trema/action-set-nw-dst.c:50
-#: ../ruby/trema/ip.rb:52 ../ruby/trema/mac.rb:56 ../ruby/trema/port.c:80
-#: ../ruby/trema/error.c:72 ../ruby/trema/stats-helper.rb:38
-#: ../ruby/trema/barrier-request.c:58 ../ruby/trema/get-config-reply.c:64
-#: ../ruby/trema/action-strip-vlan.c:36 ../ruby/trema/desc-stats-reply.rb:63
-#: ../ruby/trema/vendor-stats-reply.rb:51
-#: ../ruby/trema/action-set-vlan-pcp.c:53
-#: ../ruby/trema/aggregate-stats-reply.rb:59
-#: ../ruby/trema/queue-get-config-reply.c:61
+#: ../ruby/trema/action-enqueue.c:56 ../ruby/trema/action-output.c:60
+#: ../ruby/trema/action-set-dl-dst.c:52 ../ruby/trema/action-set-dl-src.c:52
+#: ../ruby/trema/action-set-nw-dst.c:50 ../ruby/trema/action-set-nw-src.c:51
+#: ../ruby/trema/action-set-nw-tos.c:50 ../ruby/trema/action-set-tp-dst.c:49
+#: ../ruby/trema/action-set-tp-src.c:50 ../ruby/trema/action-set-vlan-pcp.c:53
+#: ../ruby/trema/action-set-vlan-vid.c:51 ../ruby/trema/action-strip-vlan.c:36
+#: ../ruby/trema/action-vendor.c:49 ../ruby/trema/aggregate-stats-reply.rb:59
+#: ../ruby/trema/barrier-reply.c:43 ../ruby/trema/barrier-request.c:58
+#: ../ruby/trema/desc-stats-reply.rb:63 ../ruby/trema/echo-reply.c:76
+#: ../ruby/trema/echo-request.c:73 ../ruby/trema/error.c:72
+#: ../ruby/trema/features-reply.c:74 ../ruby/trema/features-request.c:63
+#: ../ruby/trema/flow-removed.c:94 ../ruby/trema/flow-stats-reply.rb:98
+#: ../ruby/trema/get-config-reply.c:64 ../ruby/trema/get-config-request.c:57
+#: ../ruby/trema/hello.c:63 ../ruby/trema/ip.rb:52 ../ruby/trema/mac.rb:56
+#: ../ruby/trema/match.c:447 ../ruby/trema/openflow-error.c:67
+#: ../ruby/trema/packet-queue.rb:82 ../ruby/trema/port-mod.c:80
+#: ../ruby/trema/port-stats-reply.rb:100 ../ruby/trema/port-status.c:59
+#: ../ruby/trema/port.c:80 ../ruby/trema/queue-get-config-reply.c:61
 #: ../ruby/trema/queue-get-config-request.c:66
-#: ../ruby/trema/packet-queue.rb:82
+#: ../ruby/trema/queue-stats-reply.rb:67 ../ruby/trema/set-config.c:72
+#: ../ruby/trema/stats-helper.rb:38 ../ruby/trema/stats-reply.c:69
+#: ../ruby/trema/table-stats-reply.rb:76
+#: ../ruby/trema/vendor-stats-reply.rb:51 ../ruby/trema/vendor.c:67
 msgid "tag|overload|initialize"
 msgstr ""
 
@@ -249,13 +247,13 @@ msgstr ""
 # @return [ActionSetNwDst]
 # @return [ActionStripVlan]
 # @return [ActionSetVlanPcp]
-#: ../ruby/trema/action-set-vlan-vid.c:89 ../ruby/trema/action-set-nw-src.c:88
-#: ../ruby/trema/action-set-tp-src.c:87 ../ruby/trema/action-enqueue.c:116
-#: ../ruby/trema/action-set-nw-tos.c:87 ../ruby/trema/action-set-dl-dst.c:89
-#: ../ruby/trema/action-set-dl-src.c:89 ../ruby/trema/action-set-tp-dst.c:86
-#: ../ruby/trema/action-output.c:126 ../ruby/trema/action-vendor.c:83
-#: ../ruby/trema/action-set-nw-dst.c:87 ../ruby/trema/action-strip-vlan.c:47
-#: ../ruby/trema/action-set-vlan-pcp.c:91
+#: ../ruby/trema/action-enqueue.c:116 ../ruby/trema/action-output.c:126
+#: ../ruby/trema/action-set-dl-dst.c:89 ../ruby/trema/action-set-dl-src.c:89
+#: ../ruby/trema/action-set-nw-dst.c:87 ../ruby/trema/action-set-nw-src.c:88
+#: ../ruby/trema/action-set-nw-tos.c:87 ../ruby/trema/action-set-tp-dst.c:86
+#: ../ruby/trema/action-set-tp-src.c:87 ../ruby/trema/action-set-vlan-pcp.c:91
+#: ../ruby/trema/action-set-vlan-vid.c:89 ../ruby/trema/action-strip-vlan.c:47
+#: ../ruby/trema/action-vendor.c:83
 msgid "self"
 msgstr ""
 
@@ -272,14 +270,14 @@ msgstr ""
 # Trema::ActionSetNwDst#inspect
 # Trema::ActionStripVlan#inspect
 # Trema::ActionSetVlanPcp#inspect
-#: ../ruby/trema/action-set-vlan-vid.c:99
-#: ../ruby/trema/action-set-nw-src.c:101 ../ruby/trema/action-set-tp-src.c:98
-#: ../ruby/trema/action-enqueue.c:129 ../ruby/trema/action-set-nw-tos.c:98
+#: ../ruby/trema/action-enqueue.c:129 ../ruby/trema/action-output.c:143
 #: ../ruby/trema/action-set-dl-dst.c:103 ../ruby/trema/action-set-dl-src.c:103
-#: ../ruby/trema/action-set-tp-dst.c:96 ../ruby/trema/action-output.c:143
-#: ../ruby/trema/action-vendor.c:98 ../ruby/trema/action-set-nw-dst.c:97
-#: ../ruby/trema/action-strip-vlan.c:57
+#: ../ruby/trema/action-set-nw-dst.c:97 ../ruby/trema/action-set-nw-src.c:101
+#: ../ruby/trema/action-set-nw-tos.c:98 ../ruby/trema/action-set-tp-dst.c:96
+#: ../ruby/trema/action-set-tp-src.c:98
 #: ../ruby/trema/action-set-vlan-pcp.c:102
+#: ../ruby/trema/action-set-vlan-vid.c:99 ../ruby/trema/action-strip-vlan.c:57
+#: ../ruby/trema/action-vendor.c:98
 msgid "A text representation of its attributes."
 msgstr ""
 
@@ -321,7 +319,7 @@ msgid "A destination Ethernet address encapsulated as a {Mac} object."
 msgstr ""
 
 # @return [Mac]
-#: ../ruby/trema/match.c:256 ../ruby/trema/action-set-dl-dst.c:78
+#: ../ruby/trema/action-set-dl-dst.c:78 ../ruby/trema/match.c:256
 msgid "the value of dl_dst."
 msgstr ""
 
@@ -341,7 +339,7 @@ msgid "A source Ethernet address encapsulated as a {Mac} object."
 msgstr ""
 
 # @return [Mac]
-#: ../ruby/trema/match.c:247 ../ruby/trema/action-set-dl-src.c:78
+#: ../ruby/trema/action-set-dl-src.c:78 ../ruby/trema/match.c:247
 msgid "the value of dl_src."
 msgstr ""
 
@@ -361,7 +359,7 @@ msgid "The destination IPv4 address as an {IP} object."
 msgstr ""
 
 # @return [IP]
-#: ../ruby/trema/match.c:342 ../ruby/trema/action-set-nw-dst.c:76
+#: ../ruby/trema/action-set-nw-dst.c:76 ../ruby/trema/match.c:342
 msgid "the value of nw_dst."
 msgstr ""
 
@@ -391,7 +389,7 @@ msgid "The source IPv4 address as an {IP} object."
 msgstr ""
 
 # @return [IP]
-#: ../ruby/trema/match.c:331 ../ruby/trema/action-set-nw-src.c:77
+#: ../ruby/trema/action-set-nw-src.c:77 ../ruby/trema/match.c:331
 msgid "the value of nw_src."
 msgstr ""
 
@@ -421,7 +419,7 @@ msgid "The ToS/DSCP value to set to."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/match.c:292 ../ruby/trema/action-set-nw-tos.c:76
+#: ../ruby/trema/action-set-nw-tos.c:76 ../ruby/trema/match.c:292
 msgid "the value of nw_tos."
 msgstr ""
 
@@ -441,7 +439,7 @@ msgid "The destination TCP or UDP port number."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/match.c:360 ../ruby/trema/action-set-tp-dst.c:75
+#: ../ruby/trema/action-set-tp-dst.c:75 ../ruby/trema/match.c:360
 msgid "the value of tp_dst."
 msgstr ""
 
@@ -461,7 +459,7 @@ msgid "The source TCP or UDP port number."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/match.c:351 ../ruby/trema/action-set-tp-src.c:76
+#: ../ruby/trema/action-set-tp-src.c:76 ../ruby/trema/match.c:351
 msgid "the value of tp_src."
 msgstr ""
 
@@ -582,28 +580,27 @@ msgstr ""
 msgid "Creates a new Trema application from {Trema::DSL::App}"
 msgstr ""
 
-# @api
-#: ../ruby/trema/network-component.rb:42 ../ruby/trema/network-component.rb:62
-#: ../ruby/trema/network-component.rb:85
-#: ../ruby/trema/network-component.rb:107
-#: ../ruby/trema/network-component.rb:122
-#: ../ruby/trema/network-component.rb:142 ../ruby/trema/dsl/vhost.rb:41
-#: ../ruby/trema/dsl/vhost.rb:63 ../ruby/trema/dsl/vhost.rb:81
-#: ../ruby/trema/dsl/vhost.rb:96 ../ruby/trema/host.rb:41
-#: ../ruby/trema/host.rb:54 ../ruby/trema/host.rb:73 ../ruby/trema/host.rb:88
-#: ../ruby/trema/host.rb:109 ../ruby/trema/host.rb:129
-#: ../ruby/trema/host.rb:149 ../ruby/trema/host.rb:167
-#: ../ruby/trema/host.rb:182 ../ruby/trema/host.rb:199
-#: ../ruby/trema/host.rb:231 ../ruby/trema/host.rb:246 ../ruby/trema/app.rb:49
-#: ../ruby/trema/app.rb:73 ../ruby/trema/app.rb:88
-#: ../ruby/trema/packetin-filter.rb:40 ../ruby/trema/packetin-filter.rb:57
-#: ../ruby/trema/packetin-filter.rb:72
-msgid "public"
-msgstr ""
-
 # @example 
 #: ../ruby/trema/app.rb:49
 msgid "app = Trema::App.new( stanza )"
+msgstr ""
+
+# @api
+#: ../ruby/trema/app.rb:49 ../ruby/trema/app.rb:73 ../ruby/trema/app.rb:88
+#: ../ruby/trema/dsl/vhost.rb:41 ../ruby/trema/dsl/vhost.rb:63
+#: ../ruby/trema/dsl/vhost.rb:81 ../ruby/trema/dsl/vhost.rb:96
+#: ../ruby/trema/host.rb:41 ../ruby/trema/host.rb:54 ../ruby/trema/host.rb:73
+#: ../ruby/trema/host.rb:88 ../ruby/trema/host.rb:109
+#: ../ruby/trema/host.rb:129 ../ruby/trema/host.rb:149
+#: ../ruby/trema/host.rb:167 ../ruby/trema/host.rb:182
+#: ../ruby/trema/host.rb:199 ../ruby/trema/host.rb:231
+#: ../ruby/trema/host.rb:246 ../ruby/trema/network-component.rb:42
+#: ../ruby/trema/network-component.rb:62 ../ruby/trema/network-component.rb:85
+#: ../ruby/trema/network-component.rb:107
+#: ../ruby/trema/network-component.rb:122
+#: ../ruby/trema/network-component.rb:142 ../ruby/trema/packetin-filter.rb:40
+#: ../ruby/trema/packetin-filter.rb:57 ../ruby/trema/packetin-filter.rb:72
+msgid "public"
 msgstr ""
 
 # Trema::App#name
@@ -644,16 +641,6 @@ msgid ""
 "message received."
 msgstr ""
 
-# @param [Number]
-#: ../ruby/trema/barrier-reply.c:43
-msgid "tag|param|transaction_id"
-msgstr ""
-
-# @param [Number] transaction_id
-#: ../ruby/trema/barrier-reply.c:43
-msgid "value copied from the +OFPT_BARRIER_REQUEST+ message."
-msgstr ""
-
 # @param [Number] datapath_id
 #: ../ruby/trema/barrier-reply.c:43
 msgid "a unique name that identifies an OpenVSwitch, the message originator."
@@ -669,6 +656,16 @@ msgstr ""
 msgid "tag|param|datapath_id"
 msgstr ""
 
+# @param [Number]
+#: ../ruby/trema/barrier-reply.c:43
+msgid "tag|param|transaction_id"
+msgstr ""
+
+# @param [Number] transaction_id
+#: ../ruby/trema/barrier-reply.c:43
+msgid "value copied from the +OFPT_BARRIER_REQUEST+ message."
+msgstr ""
+
 # Trema::FeaturesReply#datapath_id
 # Trema::StatsReply#datapath_id
 # Trema::PortStatus#datapath_id
@@ -678,20 +675,19 @@ msgstr ""
 # Trema::FlowRemoved#datapath_id
 # Trema::GetConfigReply#datapath_id
 # Trema::QueueGetConfigReply#datapath_id
-#: ../ruby/trema/features-reply.c:129 ../ruby/trema/stats-reply.c:77
-#: ../ruby/trema/port-status.c:80 ../ruby/trema/openflow-error.c:75
-#: ../ruby/trema/packet-in.c:75 ../ruby/trema/barrier-reply.c:52
+#: ../ruby/trema/barrier-reply.c:52 ../ruby/trema/features-reply.c:129
 #: ../ruby/trema/flow-removed.c:102 ../ruby/trema/get-config-reply.c:72
-#: ../ruby/trema/queue-get-config-reply.c:69
+#: ../ruby/trema/openflow-error.c:75 ../ruby/trema/packet-in.c:75
+#: ../ruby/trema/port-status.c:80 ../ruby/trema/queue-get-config-reply.c:69
+#: ../ruby/trema/stats-reply.c:77
 msgid "Message originator identifier."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/stats-reply.c:81 ../ruby/trema/port-status.c:84
-#: ../ruby/trema/openflow-error.c:79 ../ruby/trema/packet-in.c:79
 #: ../ruby/trema/barrier-reply.c:56 ../ruby/trema/flow-removed.c:106
-#: ../ruby/trema/get-config-reply.c:76
-#: ../ruby/trema/queue-get-config-reply.c:73
+#: ../ruby/trema/get-config-reply.c:76 ../ruby/trema/openflow-error.c:79
+#: ../ruby/trema/packet-in.c:79 ../ruby/trema/port-status.c:84
+#: ../ruby/trema/queue-get-config-reply.c:73 ../ruby/trema/stats-reply.c:81
 msgid "the value of datapath_id."
 msgstr ""
 
@@ -707,19 +703,21 @@ msgstr ""
 # Trema::GetConfigReply#transaction_id
 # Trema::QueueGetConfigReply#transaction_id
 # Trema::QueueGetConfigRequest#transaction_id
-#: ../ruby/trema/port-mod.c:141 ../ruby/trema/features-reply.c:140
-#: ../ruby/trema/vendor.c:129 ../ruby/trema/get-config-request.c:80
-#: ../ruby/trema/stats-reply.c:88 ../ruby/trema/barrier-reply.c:63
-#: ../ruby/trema/set-config.c:108 ../ruby/trema/error.c:141
-#: ../ruby/trema/barrier-request.c:81 ../ruby/trema/get-config-reply.c:83
+#: ../ruby/trema/barrier-reply.c:63 ../ruby/trema/barrier-request.c:81
+#: ../ruby/trema/error.c:141 ../ruby/trema/features-reply.c:140
+#: ../ruby/trema/get-config-reply.c:83 ../ruby/trema/get-config-request.c:80
+#: ../ruby/trema/hello.c:109 ../ruby/trema/port-mod.c:141
 #: ../ruby/trema/queue-get-config-reply.c:80
-#: ../ruby/trema/queue-get-config-request.c:99
+#: ../ruby/trema/queue-get-config-request.c:99 ../ruby/trema/set-config.c:108
+#: ../ruby/trema/stats-reply.c:88 ../ruby/trema/vendor.c:129
 msgid "Transaction ids, message sequence numbers matching requests to replies."
-msgstr "トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番号。"
+msgstr ""
+"トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番"
+"号。"
 
 # @return [Number]
-#: ../ruby/trema/hello.c:114 ../ruby/trema/features-request.c:114
-#: ../ruby/trema/barrier-reply.c:67
+#: ../ruby/trema/barrier-reply.c:67 ../ruby/trema/features-request.c:114
+#: ../ruby/trema/hello.c:113
 msgid "the value of transaction ID."
 msgstr "トランザクション ID の値。"
 
@@ -732,13 +730,13 @@ msgid ""
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/features-reply.c:144 ../ruby/trema/vendor.c:133
-#: ../ruby/trema/echo-reply.c:88 ../ruby/trema/get-config-request.c:84
-#: ../ruby/trema/echo-request.c:85 ../ruby/trema/set-config.c:112
-#: ../ruby/trema/error.c:145 ../ruby/trema/barrier-request.c:85
-#: ../ruby/trema/get-config-reply.c:87
+#: ../ruby/trema/barrier-request.c:85 ../ruby/trema/echo-reply.c:88
+#: ../ruby/trema/echo-request.c:85 ../ruby/trema/error.c:145
+#: ../ruby/trema/features-reply.c:144 ../ruby/trema/get-config-reply.c:87
+#: ../ruby/trema/get-config-request.c:84
 #: ../ruby/trema/queue-get-config-reply.c:84
-#: ../ruby/trema/queue-get-config-request.c:103
+#: ../ruby/trema/queue-get-config-request.c:103 ../ruby/trema/set-config.c:112
+#: ../ruby/trema/vendor.c:133
 msgid "the value of transaction id."
 msgstr ""
 
@@ -783,7 +781,7 @@ msgid "a new instance of Cli"
 msgstr ""
 
 # Trema::Controller
-#: ../ruby/trema/controller.rb:28 ../ruby/trema/controller.c:28
+#: ../ruby/trema/controller.c:28 ../ruby/trema/controller.rb:28
 msgid "The base class of Trema controller."
 msgstr ""
 
@@ -909,92 +907,81 @@ msgstr ""
 msgid "config.port = 5432"
 msgstr ""
 
-# Trema::DSL::Configuration#tremashark=
-# Trema::DSL::Configuration#tremashark
-#: ../ruby/trema/dsl/configuration.rb:46
-msgid "use tremashark?"
-msgstr ""
-
-# @example 
-#: ../ruby/trema/dsl/configuration.rb:53
-msgid "config.tremashark = true"
-msgstr ""
-
 # Trema::DSL::Configuration#apps
-#: ../ruby/trema/dsl/configuration.rb:56
+#: ../ruby/trema/dsl/configuration.rb:46
 msgid "the hash of {App}"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:64
+#: ../ruby/trema/dsl/configuration.rb:54
 msgid ""
 "p config.apps\n"
 "#=> {\"trema tetris\"=>#<Trema::App:0xb73c9328>, ...}"
 msgstr ""
 
 # Trema::DSL::Configuration#hosts
-#: ../ruby/trema/dsl/configuration.rb:67
+#: ../ruby/trema/dsl/configuration.rb:57
 msgid "the hash of {Host}"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:75
+#: ../ruby/trema/dsl/configuration.rb:65
 msgid ""
 "p config.hosts\n"
 "#=> {\"host #0\"=>#<Trema::Host:0xb73c9328>, ...}"
 msgstr ""
 
 # Trema::DSL::Configuration#links
-#: ../ruby/trema/dsl/configuration.rb:78
+#: ../ruby/trema/dsl/configuration.rb:68
 msgid "the hash of {Link}"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:86
+#: ../ruby/trema/dsl/configuration.rb:76
 msgid ""
 "p config.links\n"
 "#=> {\"link #0\"=>#<Trema::Link:0xb73c9328>, ...}"
 msgstr ""
 
 # Trema::DSL::Configuration#switches
-#: ../ruby/trema/dsl/configuration.rb:89
+#: ../ruby/trema/dsl/configuration.rb:79
 msgid "the hash of {Switch}"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:97
+#: ../ruby/trema/dsl/configuration.rb:87
 msgid ""
 "p config.switches\n"
 "#=> {\"switch #0\"=>#<Trema::OpenflowSwitch:0xb73c9328>, ...}"
 msgstr ""
 
 # Trema::DSL::Configuration#initialize
-#: ../ruby/trema/dsl/configuration.rb:101
+#: ../ruby/trema/dsl/configuration.rb:91
 msgid "Creates a new Trema configuration"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:108
+#: ../ruby/trema/dsl/configuration.rb:98
 msgid "config = Trema::DSL::Configuration.new"
 msgstr ""
 
 # Trema::DSL::Configuration#packetin_filter
-#: ../ruby/trema/dsl/configuration.rb:121
+#: ../ruby/trema/dsl/configuration.rb:110
 msgid "Returns {PacketinFilter} configuration"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:128
+#: ../ruby/trema/dsl/configuration.rb:117
 msgid "config.packetin_filter => #<Trema::PacketinFilter:0xb73c9328>"
 msgstr ""
 
 # Trema::DSL::Configuration#switch_manager
-#: ../ruby/trema/dsl/configuration.rb:134
+#: ../ruby/trema/dsl/configuration.rb:123
 msgid "Returns {SwitchManager} configuration"
 msgstr ""
 
 # @example 
-#: ../ruby/trema/dsl/configuration.rb:141
+#: ../ruby/trema/dsl/configuration.rb:130
 msgid "config.switch_manager => #<Trema::SwitchManager:0xb73c9328>"
 msgstr ""
 
@@ -1034,7 +1021,7 @@ msgid "a new instance of Rswitch"
 msgstr ""
 
 # @return [Runner]
-#: ../ruby/trema/dsl/runner.rb:26
+#: ../ruby/trema/dsl/runner.rb:29
 msgid "a new instance of Runner"
 msgstr ""
 
@@ -1049,7 +1036,7 @@ msgid "a new instance of Stanza"
 msgstr ""
 
 # @return [Syntax]
-#: ../ruby/trema/dsl/syntax.rb:44
+#: ../ruby/trema/dsl/syntax.rb:43
 msgid "a new instance of Syntax"
 msgstr ""
 
@@ -1111,17 +1098,17 @@ msgid ""
 "to verify its liveness."
 msgstr ""
 
-# @raise [ArgumentError]
-#: ../ruby/trema/hello.c:63 ../ruby/trema/features-request.c:63
-#: ../ruby/trema/vendor.c:67 ../ruby/trema/echo-reply.c:76
-#: ../ruby/trema/echo-request.c:73
-msgid "if transaction ID is not an unsigned 32-bit integer."
-msgstr "トランザクション ID が符号無し 32 ビット整数でなかった場合。"
-
 # @raise [TypeError]
 #: ../ruby/trema/echo-reply.c:76 ../ruby/trema/echo-request.c:73
 msgid "if argument is not a hash."
 msgstr ""
+
+# @raise [ArgumentError]
+#: ../ruby/trema/echo-reply.c:76 ../ruby/trema/echo-request.c:73
+#: ../ruby/trema/features-request.c:63 ../ruby/trema/hello.c:63
+#: ../ruby/trema/vendor.c:67
+msgid "if transaction ID is not an unsigned 32-bit integer."
+msgstr "トランザクション ID が符号無し 32 ビット整数でなかった場合。"
 
 # @raise [ArgumentError]
 #: ../ruby/trema/echo-reply.c:76 ../ruby/trema/echo-request.c:73
@@ -1132,12 +1119,14 @@ msgstr ""
 # Trema::FeaturesRequest#transaction_id
 # Trema::EchoReply#transaction_id
 # Trema::EchoRequest#transaction_id
-#: ../ruby/trema/hello.c:109 ../ruby/trema/features-request.c:109
 #: ../ruby/trema/echo-reply.c:83 ../ruby/trema/echo-request.c:80
+#: ../ruby/trema/features-request.c:109
 msgid ""
 "Transaction ids, message sequence numbers matching requests to\n"
 "replies."
-msgstr "トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番号。"
+msgstr ""
+"トランザクション ID。リクエストとリプライを関連付けるためのメッセージの通し番"
+"号。"
 
 # Trema::EchoReply#user_data
 # Trema::EchoRequest#user_data
@@ -1145,14 +1134,14 @@ msgstr "トランザクション ID。リクエストとリプライを関連付
 msgid "An arbitrary length user data payload."
 msgstr ""
 
-# @return [String]
-#: ../ruby/trema/echo-reply.c:100 ../ruby/trema/echo-request.c:97
-msgid "a user data payload is set."
-msgstr ""
-
 # @return [nil]
 #: ../ruby/trema/echo-reply.c:100 ../ruby/trema/echo-request.c:97
 msgid "a user data payload is not set."
+msgstr ""
+
+# @return [String]
+#: ../ruby/trema/echo-reply.c:100 ../ruby/trema/echo-request.c:97
+msgid "a user data payload is set."
 msgstr ""
 
 # Trema::EchoRequest#initialize
@@ -1275,7 +1264,7 @@ msgid "Creates a FeaturesRequest OpenFlow message."
 msgstr ""
 
 # @raise [TypeError]
-#: ../ruby/trema/hello.c:63 ../ruby/trema/features-request.c:63
+#: ../ruby/trema/features-request.c:63 ../ruby/trema/hello.c:63
 msgid "if argument is not a Integer or a Hash."
 msgstr "引数が Integer または Hash でなかった場合。"
 
@@ -1294,15 +1283,15 @@ msgstr ""
 # Trema::PortStatus#transaction_id
 # Trema::PacketIn#transaction_id
 # Trema::FlowRemoved#transaction_id
-#: ../ruby/trema/port-status.c:91 ../ruby/trema/packet-in.c:86
-#: ../ruby/trema/flow-removed.c:113
+#: ../ruby/trema/flow-removed.c:113 ../ruby/trema/packet-in.c:86
+#: ../ruby/trema/port-status.c:91
 msgid "For this asynchronous message the transaction_id is set to zero."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/port-mod.c:145 ../ruby/trema/stats-reply.c:92
-#: ../ruby/trema/port-status.c:95 ../ruby/trema/openflow-error.c:90
-#: ../ruby/trema/packet-in.c:90 ../ruby/trema/flow-removed.c:117
+#: ../ruby/trema/flow-removed.c:117 ../ruby/trema/openflow-error.c:90
+#: ../ruby/trema/packet-in.c:90 ../ruby/trema/port-mod.c:145
+#: ../ruby/trema/port-status.c:95 ../ruby/trema/stats-reply.c:92
 msgid "the value of transaction_id."
 msgstr ""
 
@@ -1344,8 +1333,8 @@ msgid "The reason why the flow is removed."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/port-status.c:106 ../ruby/trema/packet-in.c:166
-#: ../ruby/trema/flow-removed.c:162
+#: ../ruby/trema/flow-removed.c:162 ../ruby/trema/packet-in.c:166
+#: ../ruby/trema/port-status.c:106
 msgid "the value of reason."
 msgstr ""
 
@@ -1436,21 +1425,21 @@ msgid ""
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/stats-reply.c:114 ../ruby/trema/set-config.c:127
-#: ../ruby/trema/get-config-reply.c:99
+#: ../ruby/trema/get-config-reply.c:99 ../ruby/trema/set-config.c:127
+#: ../ruby/trema/stats-reply.c:114
 msgid "the value of flags."
 msgstr ""
 
 # Trema::SetConfig#miss_send_len
 # Trema::GetConfigReply#miss_send_len
-#: ../ruby/trema/set-config.c:137 ../ruby/trema/get-config-reply.c:106
+#: ../ruby/trema/get-config-reply.c:106 ../ruby/trema/set-config.c:137
 msgid ""
 "The maximum number of bytes to send on flow table miss or flow destined to "
 "controller."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/set-config.c:141 ../ruby/trema/get-config-reply.c:110
+#: ../ruby/trema/get-config-reply.c:110 ../ruby/trema/set-config.c:141
 msgid "the value of miss_send_len."
 msgstr ""
 
@@ -1657,24 +1646,9 @@ msgstr ""
 msgid "Creates a {IP} instance object as a proxy to IPAddr class."
 msgstr ""
 
-# @param [Number]
-#: ../ruby/trema/ip.rb:52
-msgid "tag|param|prefixlen"
-msgstr ""
-
-# @param [String, Number]
-#: ../ruby/trema/ip.rb:52
-msgid "tag|param|addr"
-msgstr ""
-
 # @param [String, Number] addr
 #: ../ruby/trema/ip.rb:52
 msgid "an IPv4 address specified either as a String or Number."
-msgstr ""
-
-# @param [Number] prefixlen
-#: ../ruby/trema/ip.rb:52
-msgid "masking IPv4 address with given prefixlen."
 msgstr ""
 
 # @raise [ArgumentError]
@@ -1684,11 +1658,26 @@ msgid ""
 "IPv4 address."
 msgstr ""
 
+# @param [Number] prefixlen
+#: ../ruby/trema/ip.rb:52
+msgid "masking IPv4 address with given prefixlen."
+msgstr ""
+
 # @return [IP]
 #: ../ruby/trema/ip.rb:52
 msgid ""
 "self\n"
 "a proxy to IPAddr."
+msgstr ""
+
+# @param [String, Number]
+#: ../ruby/trema/ip.rb:52
+msgid "tag|param|addr"
+msgstr ""
+
+# @param [Number]
+#: ../ruby/trema/ip.rb:52
+msgid "tag|param|prefixlen"
 msgstr ""
 
 # @return [Number]
@@ -1836,9 +1825,24 @@ msgstr ""
 msgid "Creates a {Mac} instance that encapsulates Ethernet MAC addresses."
 msgstr ""
 
-# @param [String, Integer]
+# @example address as a hexadecimal string
 #: ../ruby/trema/mac.rb:56
-msgid "tag|param|value"
+msgid "Mac.new(\"11:22:33:44:55:66\")"
+msgstr ""
+
+# @example address as a hexadecimal number
+#: ../ruby/trema/mac.rb:56
+msgid "Mac.new(0xffffffffffff)"
+msgstr ""
+
+# @return [Mac]
+#: ../ruby/trema/mac.rb:56
+msgid "a new instance of Mac"
+msgstr ""
+
+# @raise [ArgumentError]
+#: ../ruby/trema/mac.rb:56
+msgid "if invalid format is detected."
 msgstr ""
 
 # @raise [ArgumentError]
@@ -1848,32 +1852,17 @@ msgstr ""
 
 # @example
 #: ../ruby/trema/mac.rb:56
-msgid "tag|example|address as a hexadecimal string"
-msgstr ""
-
-# @example address as a hexadecimal string
-#: ../ruby/trema/mac.rb:56
-msgid "Mac.new(\"11:22:33:44:55:66\")"
-msgstr ""
-
-# @return [Mac]
-#: ../ruby/trema/mac.rb:56
-msgid "a new instance of Mac"
-msgstr ""
-
-# @example address as a hexadecimal number
-#: ../ruby/trema/mac.rb:56
-msgid "Mac.new(0xffffffffffff)"
-msgstr ""
-
-# @raise [ArgumentError]
-#: ../ruby/trema/mac.rb:56
-msgid "if invalid format is detected."
+msgid "tag|example|address as a hexadecimal number"
 msgstr ""
 
 # @example
 #: ../ruby/trema/mac.rb:56
-msgid "tag|example|address as a hexadecimal number"
+msgid "tag|example|address as a hexadecimal string"
+msgstr ""
+
+# @param [String, Integer]
+#: ../ruby/trema/mac.rb:56
+msgid "tag|param|value"
 msgstr ""
 
 # @param [String, Integer] value
@@ -1914,11 +1903,6 @@ msgid ""
 "to don't care and ignore while matching flow entries."
 msgstr ""
 
-# @overload
-#: ../ruby/trema/match.c:108
-msgid "tag|overload|match_from"
-msgstr ""
-
 # @return [Match]
 #: ../ruby/trema/match.c:108
 msgid ""
@@ -1927,14 +1911,14 @@ msgid ""
 "argument supplied or not."
 msgstr ""
 
+# @overload
+#: ../ruby/trema/match.c:108
+msgid "tag|overload|match_from"
+msgstr ""
+
 # Trema::Match#compare
 #: ../ruby/trema/match.c:166
 msgid "Compare context of {Match} self with {Match} other."
-msgstr ""
-
-# @return [Boolean]
-#: ../ruby/trema/match.c:178
-msgid "true if the {Match} match"
 msgstr ""
 
 # @example 
@@ -1946,6 +1930,11 @@ msgid ""
 "    info \"Received packet from 192.168.0.1\"\n"
 "  end\n"
 "end"
+msgstr ""
+
+# @return [Boolean]
+#: ../ruby/trema/match.c:178
+msgid "true if the {Match} match"
 msgstr ""
 
 # Trema::Match#replace
@@ -2027,16 +2016,16 @@ msgstr ""
 msgid "Returns the `name' => object hash DB of instances"
 msgstr ""
 
-# @return [Array]
-#: ../ruby/trema/network-component.rb:42
-msgid "the {OrderedHash} of instances"
-msgstr ""
-
 # @example 
 #: ../ruby/trema/network-component.rb:42
 msgid ""
 "p App.instances\n"
 "#=> {\"trema tetris\"=>#<App:0xb73c9328>, ...}"
+msgstr ""
+
+# @return [Array]
+#: ../ruby/trema/network-component.rb:42
+msgid "the {OrderedHash} of instances"
 msgstr ""
 
 # Trema::NetworkComponent.inherited
@@ -2115,6 +2104,16 @@ msgstr ""
 msgid "Inserts a object to instance DB"
 msgstr ""
 
+# @param [Object, #name] an
+#: ../ruby/trema/network-component.rb:142
+msgid "object that responds to #name"
+msgstr ""
+
+# @param [Object, #name]
+#: ../ruby/trema/network-component.rb:142
+msgid "tag|param|an"
+msgstr ""
+
 # @return [Object]
 #: ../ruby/trema/network-component.rb:142
 msgid "the added object"
@@ -2127,16 +2126,6 @@ msgid ""
 "ttetris.name = \"trema tetris\"\n"
 "\n"
 "App.add ttetris"
-msgstr ""
-
-# @param [Object, #name] an
-#: ../ruby/trema/network-component.rb:142
-msgid "object that responds to #name"
-msgstr ""
-
-# @param [Object, #name]
-#: ../ruby/trema/network-component.rb:142
-msgid "tag|param|an"
 msgstr ""
 
 # Trema::OpenVswitch
@@ -2206,7 +2195,7 @@ msgid "The command or action that failed."
 msgstr ""
 
 # @return [Number]
-#: ../ruby/trema/stats-reply.c:103 ../ruby/trema/openflow-error.c:101
+#: ../ruby/trema/openflow-error.c:101 ../ruby/trema/stats-reply.c:103
 msgid "the value of type."
 msgstr ""
 
@@ -2893,6 +2882,11 @@ msgstr ""
 msgid "udp_checksum a UDP checksum."
 msgstr ""
 
+# @return [Array]
+#: ../ruby/trema/packet-queue.rb:25 ../ruby/trema/packet-queue.rb:39
+msgid "an array of {PacketQueue} objects."
+msgstr ""
+
 # @param [PacketQueue]
 # @param [MinRateQueue]
 #: ../ruby/trema/packet-queue.rb:25 ../ruby/trema/packet-queue.rb:31
@@ -2903,11 +2897,6 @@ msgstr ""
 # @param [PacketQueue] queue
 #: ../ruby/trema/packet-queue.rb:25
 msgid "the {PacketQueue} to append to the list."
-msgstr ""
-
-# @return [Array]
-#: ../ruby/trema/packet-queue.rb:25 ../ruby/trema/packet-queue.rb:39
-msgid "an array of {PacketQueue} objects."
 msgstr ""
 
 # Queue.append
@@ -2979,22 +2968,23 @@ msgid ""
 "the value of attribute properties."
 msgstr ""
 
+# @return [PacketQueue]
+#: ../ruby/trema/packet-queue.rb:82
+msgid "a new instance of PacketQueue"
+msgstr ""
+
 # @option
-#: ../ruby/trema/port-status-add.rb:49 ../ruby/trema/port-status-delete.rb:49
-#: ../ruby/trema/port-status-modify.rb:49 ../ruby/trema/packet-queue.rb:82
+#: ../ruby/trema/packet-queue.rb:82 ../ruby/trema/port-status-add.rb:49
+#: ../ruby/trema/port-status-delete.rb:49
+#: ../ruby/trema/port-status-modify.rb:49
 msgid "tag|option|options"
 msgstr ""
 
 # @param [Hash]
-#: ../ruby/trema/port-status-add.rb:49 ../ruby/trema/stats-helper.rb:38
+#: ../ruby/trema/packet-queue.rb:82 ../ruby/trema/port-status-add.rb:49
 #: ../ruby/trema/port-status-delete.rb:49
-#: ../ruby/trema/port-status-modify.rb:49 ../ruby/trema/packet-queue.rb:82
+#: ../ruby/trema/port-status-modify.rb:49 ../ruby/trema/stats-helper.rb:38
 msgid "tag|param|options"
-msgstr ""
-
-# @return [PacketQueue]
-#: ../ruby/trema/packet-queue.rb:82
-msgid "a new instance of PacketQueue"
 msgstr ""
 
 # @param [Hash] options
@@ -3048,29 +3038,29 @@ msgid ""
 "configuration."
 msgstr ""
 
-# @param [Number] len
-#: ../ruby/trema/packet-queue.rb:158 ../ruby/trema/packet-queue.rb:128
-msgid "length in bytes of the property queue."
-msgstr ""
-
-# @param [Number]
-#: ../ruby/trema/packet-queue.rb:158 ../ruby/trema/packet-queue.rb:128
-msgid "tag|param|len"
-msgstr ""
-
 # @return [QueueProperty]
 #: ../ruby/trema/packet-queue.rb:128
 msgid "a new instance of QueueProperty"
 msgstr ""
 
-# @param [Number]
-#: ../ruby/trema/packet-queue.rb:158 ../ruby/trema/packet-queue.rb:128
-msgid "tag|param|property"
+# @param [Number] len
+#: ../ruby/trema/packet-queue.rb:128 ../ruby/trema/packet-queue.rb:158
+msgid "length in bytes of the property queue."
 msgstr ""
 
 # @param [Number] property
-#: ../ruby/trema/packet-queue.rb:158 ../ruby/trema/packet-queue.rb:128
+#: ../ruby/trema/packet-queue.rb:128 ../ruby/trema/packet-queue.rb:158
 msgid "property queue id."
+msgstr ""
+
+# @param [Number]
+#: ../ruby/trema/packet-queue.rb:128 ../ruby/trema/packet-queue.rb:158
+msgid "tag|param|len"
+msgstr ""
+
+# @param [Number]
+#: ../ruby/trema/packet-queue.rb:128 ../ruby/trema/packet-queue.rb:158
+msgid "tag|param|property"
 msgstr ""
 
 # @return [String]
@@ -3095,9 +3085,14 @@ msgid ""
 "An object that encapsulates the minimum rate queue property description."
 msgstr ""
 
-# @param [Number] rate
+# @param [PacketQueue] packet_queue
 #: ../ruby/trema/packet-queue.rb:158
-msgid "the rate value of the mimimum rate queue."
+msgid "A {PacketQueue} instance to use to save the minimum rate queue."
+msgstr ""
+
+# @return [MinRateQueue]
+#: ../ruby/trema/packet-queue.rb:158
+msgid "a new instance of MinRateQueue"
 msgstr ""
 
 # @param [PacketQueue]
@@ -3110,14 +3105,9 @@ msgstr ""
 msgid "tag|param|rate"
 msgstr ""
 
-# @param [PacketQueue] packet_queue
+# @param [Number] rate
 #: ../ruby/trema/packet-queue.rb:158
-msgid "A {PacketQueue} instance to use to save the minimum rate queue."
-msgstr ""
-
-# @return [MinRateQueue]
-#: ../ruby/trema/packet-queue.rb:158
-msgid "a new instance of MinRateQueue"
+msgid "the rate value of the mimimum rate queue."
 msgstr ""
 
 # @return [String]
@@ -3266,12 +3256,6 @@ msgstr ""
 msgid "Creates a port-added message."
 msgstr ""
 
-# @param [Hash] options
-#: ../ruby/trema/port-status-add.rb:49 ../ruby/trema/port-status-delete.rb:49
-#: ../ruby/trema/port-status-modify.rb:49
-msgid "the options to create a message with."
-msgstr ""
-
 # @example 
 #: ../ruby/trema/port-status-add.rb:49
 msgid ""
@@ -3280,6 +3264,12 @@ msgid ""
 "  :transaction_id => 123,\n"
 "  :phy_port => port\n"
 ")"
+msgstr ""
+
+# @param [Hash] options
+#: ../ruby/trema/port-status-add.rb:49 ../ruby/trema/port-status-delete.rb:49
+#: ../ruby/trema/port-status-modify.rb:49
+msgid "the options to create a message with."
 msgstr ""
 
 # Trema::PortStatusDelete
@@ -3592,19 +3582,9 @@ msgstr ""
 msgid "A list of reply type objects for this message."
 msgstr ""
 
-# @return [Array<PortStatsReply>]
-#: ../ruby/trema/stats-reply.c:136
-msgid "an array of {PortStatsReply} objects if type is +OFPST_PORT+."
-msgstr ""
-
 # @return [AggregateStatsReply]
 #: ../ruby/trema/stats-reply.c:136
 msgid "a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+."
-msgstr ""
-
-# @return [Array<TableStatsReply>]
-#: ../ruby/trema/stats-reply.c:136
-msgid "an array of {TableStatsReply} objects if type is +OFPST_TABLE+."
 msgstr ""
 
 # @return [VendorStatsReply]
@@ -3612,14 +3592,24 @@ msgstr ""
 msgid "a {VendorStatsReply} object if type is +OFPST_VENDOR+."
 msgstr ""
 
+# @return [Array<FlowStatsReply>]
+#: ../ruby/trema/stats-reply.c:136
+msgid "an array of {FlowStatsReply} objects if type is +OFPST_FLOW+."
+msgstr ""
+
+# @return [Array<PortStatsReply>]
+#: ../ruby/trema/stats-reply.c:136
+msgid "an array of {PortStatsReply} objects if type is +OFPST_PORT+."
+msgstr ""
+
 # @return [Array<QueueStatsReply>]
 #: ../ruby/trema/stats-reply.c:136
 msgid "an array of {QueueStatsReply} objects if type is +OFPST_QUEUE+."
 msgstr ""
 
-# @return [Array<FlowStatsReply>]
+# @return [Array<TableStatsReply>]
 #: ../ruby/trema/stats-reply.c:136
-msgid "an array of {FlowStatsReply} objects if type is +OFPST_FLOW+."
+msgid "an array of {TableStatsReply} objects if type is +OFPST_TABLE+."
 msgstr ""
 
 # @return [SwitchDaemon]
@@ -3730,19 +3720,20 @@ msgstr ""
 
 # Trema::Vendor#initialize
 #: ../ruby/trema/vendor.c:36
+#, fuzzy
 msgid ""
-"Creates a VendorReqeust OpenFlow message. This message can be used\n"
-"to facilitate sending of vendor experimental messages."
+"Creates a Vendor Reqeust message. This message can be used\n"
+"to facilitate sending of vendor-defined arbitrary data."
 msgstr "VendorRequest メッセージを生成します。"
-
-# @raise [ArgumentError]
-#: ../ruby/trema/vendor.c:67
-msgid "if user data is not an array of bytes."
-msgstr ""
 
 # @raise [TypeError]
 #: ../ruby/trema/vendor.c:67
 msgid "if options is not a hash."
+msgstr ""
+
+# @raise [ArgumentError]
+#: ../ruby/trema/vendor.c:67
+msgid "if user data is not an array of bytes."
 msgstr ""
 
 # Trema::Vendor#vendor
@@ -3760,12 +3751,12 @@ msgstr ""
 msgid "Vendor specific data payload."
 msgstr ""
 
-# @return [nil]
-#: ../ruby/trema/vendor.c:159
-msgid "vendor specific data not found."
-msgstr ""
-
 # @return [Array]
 #: ../ruby/trema/vendor.c:159
 msgid "an array of data payload bytes."
+msgstr ""
+
+# @return [nil]
+#: ../ruby/trema/vendor.c:159
+msgid "vendor specific data not found."
 msgstr ""
