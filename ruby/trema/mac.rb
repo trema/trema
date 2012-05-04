@@ -112,6 +112,9 @@ module Trema
       return to_short[0] & 1 == 1
     end
 
+    def broadcast?
+      return to_short.all?{|m| m == 0xff}
+    end
 
     ################################################################################
     private
