@@ -46,20 +46,20 @@ store_packet_to_buffer( const char *filename ) {
     // "Can't open a file of test data."
     return NULL;
   }
-  
-  // Skip 
+
+  // Skip
   if ( fseek( fp, sizeof( struct pcap_file_header ) + sizeof( uint32_t ) * 2,
               SEEK_CUR ) != 0 ) {
     fclose( fp );
     return NULL;
-  }  
-  
+  }
+
   uint32_t length[ 2 ];
   size_t size = fread( &length, 1, sizeof( length ), fp );
   if ( size < sizeof( length ) ) {
     fclose( fp );
     return NULL;
-  }  
+  }
 
   buffer *buffer = alloc_buffer();
   if ( buffer == NULL ) {
@@ -71,7 +71,7 @@ store_packet_to_buffer( const char *filename ) {
     free_buffer( buffer );
     fclose( fp );
     return NULL;
-  }  
+  }
 
   fclose( fp );
   return buffer;
@@ -92,7 +92,7 @@ test_parse_packet_snap_succeeds() {
   packet_info *packet_info = buffer->user_data;
 
   assert_int_equal( packet_info->format, ETH_8023_SNAP );
-  
+
   u_char macda[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
   u_char macsa[] = { 0x00, 0x19, 0xdb, 0x17, 0xb9, 0x6f };
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
@@ -141,7 +141,7 @@ test_parse_packet_arp_request_succeeds() {
   assert_memory_equal( packet_info->arp_sha, macsa, ETH_ADDRLEN );
   assert_int_equal( packet_info->arp_tpa, 0xc0a8642b );
   u_char maczero[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-  assert_memory_equal( packet_info->arp_tha, maczero, ETH_ADDRLEN );  
+  assert_memory_equal( packet_info->arp_tha, maczero, ETH_ADDRLEN );
 
   assert_true( packet_type_arp_request( buffer ) );
 
@@ -165,7 +165,7 @@ test_parse_packet_udp_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
   assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_IPV4 );
-  
+
   assert_int_equal( packet_info->l2_payload_length, 76 );
 
   assert_int_equal( packet_info->ipv4_version, 4 );
@@ -214,7 +214,7 @@ test_parse_packet_udp_fragmented_head_succeeds() {
   assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_IPV4 );
 
   assert_int_equal( packet_info->l2_payload_length, 1500 );
-  
+
   assert_int_equal( packet_info->ipv4_version, 4 );
   assert_int_equal( packet_info->ipv4_ihl, 5 );
   assert_int_equal( packet_info->ipv4_tos, 0 );
@@ -259,7 +259,7 @@ test_parse_packet_udp_fragmented_next_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
   assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_IPV4 );
-  
+
   assert_int_equal( packet_info->l2_payload_length, 1500 );
 
   assert_int_equal( packet_info->ipv4_version, 4 );
@@ -308,7 +308,7 @@ test_parse_packet_tcp_syn_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
   assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_IPV4 );
-  
+
   assert_int_equal( packet_info->l2_payload_length, 60 );
 
   assert_int_equal( packet_info->ipv4_version, 4 );
@@ -358,7 +358,7 @@ test_parse_packet_tcp_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
   assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_IPV4 );
-  
+
   assert_int_equal( packet_info->l2_payload_length, 82 );
 
   assert_int_equal( packet_info->ipv4_version, 4 );
@@ -437,6 +437,11 @@ test_parse_packet_icmpv4_echo_request_succeeds() {
 
   assert_int_equal( packet_info->l4_payload_length, 56 );
 
+  assert_true( packet_type_icmpv4_echo_request( buffer ) );
+  assert_false( packet_type_icmpv4_dst_unreach( buffer ) );
+  assert_false( packet_type_icmpv4_redirect( buffer ) );
+  assert_false( packet_type_icmpv4_echo_reply( buffer ) );
+
   free_buffer( buffer );
 }
 
@@ -490,6 +495,11 @@ test_parse_packet_vtag_icmpv4_echo_request_succeeds() {
   assert_int_equal( sample, 0x6162 );
   assert_int_equal( packet_info->l4_payload_length, 32 );
 
+  assert_true( packet_type_icmpv4_echo_request( buffer ) );
+  assert_false( packet_type_icmpv4_dst_unreach( buffer ) );
+  assert_false( packet_type_icmpv4_redirect( buffer ) );
+  assert_false( packet_type_icmpv4_echo_reply( buffer ) );
+
   free_buffer( buffer );
 }
 
@@ -542,6 +552,11 @@ test_parse_packet_vtag_icmpv4_echo_reply_succeeds() {
   uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x6162 );
   assert_int_equal( packet_info->l4_payload_length, 32 );
+
+  assert_false( packet_type_icmpv4_echo_request( buffer ) );
+  assert_false( packet_type_icmpv4_dst_unreach( buffer ) );
+  assert_false( packet_type_icmpv4_redirect( buffer ) );
+  assert_true( packet_type_icmpv4_echo_reply( buffer ) );
 
   free_buffer( buffer );
 }

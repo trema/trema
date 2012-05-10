@@ -91,7 +91,7 @@ enum {
 
 typedef struct {
   uint32_t format;
-  
+
   uint8_t eth_macda[ ETH_ADDRLEN ];
   uint8_t eth_macsa[ ETH_ADDRLEN ];
   uint16_t eth_type;
@@ -193,6 +193,11 @@ bool packet_type_ipv4_etherip( const buffer *frame );
 
 bool packet_type_arp_request( const buffer *frame );
 bool packet_type_arp_reply( const buffer *frame );
+
+bool packet_type_icmpv4_echo_reply( const buffer *frame );
+bool packet_type_icmpv4_dst_unreach( const buffer *frame );
+bool packet_type_icmpv4_redirect( const buffer *frame );
+bool packet_type_icmpv4_echo_request( const buffer *frame );
 
 bool packet_type_igmp_membership_query( const buffer *frame );
 bool packet_type_igmp_v1_membership_report( const buffer *frame );
