@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <arpa/inet.h>
 #include "chibach_private.h"
 #include "hash_table.h"
 #include "log.h"

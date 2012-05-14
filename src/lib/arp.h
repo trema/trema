@@ -24,7 +24,6 @@
 #define ARP_H
 
 
-#include <net/if_arp.h>
 #include <stdint.h>
 #include "buffer.h"
 #include "ether.h"

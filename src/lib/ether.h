@@ -24,7 +24,6 @@
 #define ETHER_H
 
 
-#include <endian.h>
 #include <stdint.h>
 #include "bool.h"
 #include "buffer.h"

@@ -27,6 +27,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <netinet/ip.h>
+#include <net/if_arp.h>
 #include "byteorder.h"
 #include "checks.h"
 #include "cmockery_trema.h"
