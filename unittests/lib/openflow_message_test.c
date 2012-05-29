@@ -101,7 +101,7 @@ mock_debug( char *format, ... ) {
 }
 
 
-static logging_level
+static int
 mock_get_logging_level() {
   return LOG_DEBUG;
 }

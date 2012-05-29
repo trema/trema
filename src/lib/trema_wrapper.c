@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <syslog.h>
 #include <unistd.h>
 
 
@@ -39,6 +40,10 @@ void ( *trema_abort )( void ) = abort;
 int ( *trema_unlink )( const char *pathname ) = unlink;
 
 pid_t ( *trema_getpid )( void ) = getpid;
+
+void ( *trema_openlog ) ( const char *ident, int option, int facility ) = openlog;
+void ( *trema_closelog ) ( void ) = closelog;
+void ( *trema_vsyslog ) ( int priority, const char *format, va_list ap ) = vsyslog;
 
 int ( *trema_sqlite3_open )( const char *filename, sqlite3 **ppDb ) = sqlite3_open;
 int ( *trema_sqlite3_close )( sqlite3 * ) = sqlite3_close;

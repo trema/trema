@@ -50,7 +50,7 @@
 #undef init_log
 #endif
 #define init_log mock_init_log
-bool mock_init_log( const char *ident, const char *log_directory, bool run_as_daemon );
+bool mock_init_log( const char *ident, const char *log_directory, logging_type type );
 
 #ifdef error
 #undef error
@@ -275,6 +275,7 @@ static char *executable_name = NULL;
 static char *trema_log = NULL;
 static char *trema_pid = NULL;
 static char *trema_sock = NULL;
+static logging_type log_output_type = LOGGING_TYPE_FILE;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
@@ -282,10 +283,11 @@ static struct option long_options[] = {
   { "name", 1, NULL, 'n' },
   { "daemonize", 0, NULL, 'd' },
   { "logging_level", 1, NULL, 'l' },
+  { "syslog", 0, NULL, 'g' },
   { "help", 0, NULL, 'h' },
   { NULL, 0, NULL, 0 },
 };
-static char short_options[] = "n:dl:h";
+static char short_options[] = "n:dl:gh";
 
 
 /**
@@ -302,6 +304,7 @@ usage() {
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -d, --daemonize             run in the background\n"
     "  -l, --logging_level=LEVEL   set logging level\n"
+    "  -g, --syslog                output log messages to syslog\n"
     "  -h, --help                  display this help and exit\n",
     executable_name
   );
@@ -437,6 +440,9 @@ parse_argv( int *argc, char ***argv ) {
       case 'l':
         set_logging_level( optarg );
         break;
+      case 'g':
+        log_output_type = LOGGING_TYPE_SYSLOG;
+        break;
       case 'h':
         usage();
         xfree( trema_name );
@@ -561,12 +567,16 @@ init_trema( int *argc, char ***argv ) {
   initialized = false;
   trema_started = false;
   run_as_daemon = false;
+  log_output_type = LOGGING_TYPE_FILE;
 
   parse_argv( argc, argv );
   set_trema_home();
   set_trema_tmp();
   check_trema_tmp();
-  init_log( get_trema_name(), get_trema_log(), run_as_daemon );
+  if ( !run_as_daemon ) {
+    log_output_type |= LOGGING_TYPE_STDOUT;
+  }
+  init_log( get_trema_name(), get_trema_log(), log_output_type );
   ignore_sigpipe();
   set_exit_handler();
   set_usr1_handler();
