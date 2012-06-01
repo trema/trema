@@ -247,6 +247,23 @@ test_set_logging_level_fail_with_invalid_value() {
 }
 
 
+void
+test_set_logging_level_is_called_before_init_log() {
+  set_logging_level( "critical" );
+  init_log( "tetris", get_trema_tmp(), LOGGING_TYPE_FILE );
+  assert_int_equal( LOG_CRIT, get_logging_level() );
+}
+
+
+void
+test_LOGGING_LEVEL_overrides_logging_level() {
+  setenv( "LOGGING_LEVEL", "DEBUG", 1 );
+  set_logging_level( "critical" );
+  init_log( "tetris", get_trema_tmp(), LOGGING_TYPE_FILE );
+  assert_int_equal( LOG_DEBUG, get_logging_level() );
+}
+
+
 /********************************************************************************
  * critical() tests.
  ********************************************************************************/
@@ -492,6 +509,10 @@ main() {
                               setup_logger_file, teardown ),
     unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
                               setup_logger_file, teardown ),
+    unit_test_setup_teardown( test_set_logging_level_is_called_before_init_log,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_LOGGING_LEVEL_overrides_logging_level,
+                              setup, teardown ),
 
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_CRITICAL,
                               setup_logger_file, teardown ),

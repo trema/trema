@@ -193,7 +193,11 @@ bool
 init_log( const char *ident, const char *log_directory, logging_type type ) {
   pthread_mutex_lock( &mutex );
 
-  level = LOG_INFO;
+  // set_logging_level() may be called before init_log().
+  // level = -1 indicates that logging level is not set yet.
+  if ( level < 0 || level > LOG_DEBUG ) {
+    level = LOG_INFO;
+  }
   char *level_string = getenv( "LOGGING_LEVEL" );
   if ( level_string != NULL ) {
     set_logging_level( level_string );
