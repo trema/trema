@@ -87,7 +87,7 @@ static priority priorities[][ 3 ] = {
 
 static const char *
 priority_name_from( int level ) {
-  const char *name = priorities[ level ][ 0 ].name;
+  const char *name = priorities[ level - LOG_CRIT ][ 0 ].name;
   assert( name != NULL );
   return name;
 }
