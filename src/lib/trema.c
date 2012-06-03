@@ -501,6 +501,28 @@ set_exit_handler() {
 
 
 static void
+do_restart_log() {
+  restart_log( NULL );
+}
+
+
+static void
+set_do_restart_log_as_external_callback() {
+  set_external_callback( do_restart_log );
+}
+
+
+static void
+set_hup_handler() {
+  struct sigaction signal_hup;
+
+  memset( &signal_hup, 0, sizeof( struct sigaction ) );
+  signal_hup.sa_handler = ( void * ) set_do_restart_log_as_external_callback;
+  sigaction( SIGHUP, &signal_hup, NULL );
+}
+
+
+static void
 set_dump_stats_as_external_callback() {
   set_external_callback( dump_stats );
 }
@@ -579,6 +601,7 @@ init_trema( int *argc, char ***argv ) {
   init_log( get_trema_name(), get_trema_log(), log_output_type );
   ignore_sigpipe();
   set_exit_handler();
+  set_hup_handler();
   set_usr1_handler();
   set_usr2_handler();
   init_messenger( get_trema_sock() );
@@ -648,14 +671,14 @@ set_trema_name( const char *name ) {
   if ( trema_name != NULL ) {
     if ( trema_started ) {
       rename_pid( get_trema_pid(), trema_name, name );
-      rename_log( trema_name, name, get_trema_log() );
+      rename_log( name );
     }
     xfree( trema_name );
   }
   trema_name = xstrdup( name );
 
   if ( initialized ) {
-    restart_log( trema_name, get_trema_log() );
+    restart_log( trema_name );
   }
 }
 

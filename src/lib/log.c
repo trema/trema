@@ -43,6 +43,7 @@ static bool initialized = false;
 static FILE *fd = NULL;
 static int level = -1;
 static char ident_string[ PATH_MAX ];
+static char log_directory[ PATH_MAX ];
 static logging_type output = LOGGING_TYPE_FILE;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -152,14 +153,34 @@ get_ident_string() {
 }
 
 
+static void
+unset_log_directory() {
+  memset( log_directory, '\0', sizeof( log_directory ) );
+}
+
+
+static void
+set_log_directory( const char *directory ) {
+  assert( directory != NULL );
+
+  unset_log_directory();
+  strncpy( log_directory, directory, sizeof( log_directory ) - 1 );
+}
+
+
+static const char *
+get_log_directory() {
+  return log_directory;
+}
+
+
 static FILE*
-open_log_file( const char *ident, const char *log_directory, bool append ) {
-  assert( ident != NULL );
-  assert( log_directory != NULL );
+open_log_file( bool append ) {
+  assert( strlen( get_log_directory() ) > 0 );
+  assert( strlen( get_ident_string() ) > 0 );
 
   char pathname[ PATH_MAX ];
-  set_ident_string( ident );
-  sprintf( pathname, "%s/%s.log", log_directory, get_ident_string() );
+  sprintf( pathname, "%s/%s.log", get_log_directory(), get_ident_string() );
   FILE *log = fopen( pathname, append ? "a" : "w" );
 
   if ( log == NULL ) {
@@ -174,8 +195,9 @@ open_log_file( const char *ident, const char *log_directory, bool append ) {
 
 
 static void
-open_log_syslog( const char *ident ) {
-  set_ident_string( ident );
+open_log_syslog() {
+  assert( strlen( get_ident_string() ) > 0 );
+
   trema_openlog( get_ident_string(), LOG_NDELAY, LOG_USER );
 }
 
@@ -190,7 +212,10 @@ open_log_syslog( const char *ident ) {
  * @return true on success; false otherwise.
  */
 bool
-init_log( const char *ident, const char *log_directory, logging_type type ) {
+init_log( const char *ident, const char *directory, logging_type type ) {
+  assert( ident != NULL );
+  assert( directory != NULL );
+
   pthread_mutex_lock( &mutex );
 
   // set_logging_level() may be called before init_log().
@@ -203,12 +228,14 @@ init_log( const char *ident, const char *log_directory, logging_type type ) {
     set_logging_level( level_string );
   }
 
+  set_ident_string( ident );
+  set_log_directory( directory );
   output = type;
   if ( output & LOGGING_TYPE_FILE ) {
-    fd = open_log_file( ident, log_directory, false );
+    fd = open_log_file( false );
   }
   if ( output & LOGGING_TYPE_SYSLOG ) {
-    open_log_syslog( ident );
+    open_log_syslog();
   }
 
   initialized = true;
@@ -220,18 +247,22 @@ init_log( const char *ident, const char *log_directory, logging_type type ) {
 
 
 void
-restart_log( const char *ident, const char *log_directory ) {
+restart_log( const char *new_ident ) {
   pthread_mutex_lock( &mutex );
+
+  if ( new_ident != NULL ) {
+    set_ident_string( new_ident );
+  }
 
   if ( output & LOGGING_TYPE_FILE ) {
     if ( fd != NULL ) {
       fclose( fd );
     }
-    fd = open_log_file( ident, log_directory, true );
+    fd = open_log_file( true );
   }
   if ( output & LOGGING_TYPE_SYSLOG ) {
     trema_closelog();
-    open_log_syslog( ident );
+    open_log_syslog();
   }
 
   pthread_mutex_unlock( &mutex );
@@ -239,19 +270,16 @@ restart_log( const char *ident, const char *log_directory ) {
 
 
 void
-rename_log( const char *old_ident, const char *new_ident, const char *directory ) {
-  assert( directory != NULL );
-  assert( old_ident != NULL );
+rename_log( const char *new_ident ) {
   assert( new_ident != NULL );
-
-  set_ident_string( new_ident );
 
   if ( output & LOGGING_TYPE_FILE ) {
     char old_path[ PATH_MAX ];
-    snprintf( old_path, PATH_MAX, "%s/%s.log", directory, old_ident );
+    snprintf( old_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
     old_path[ PATH_MAX - 1 ] = '\0';
     char new_path[ PATH_MAX ];
-    snprintf( new_path, PATH_MAX, "%s/%s.log", directory, get_ident_string() );
+    set_ident_string( new_ident );
+    snprintf( new_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
     new_path[ PATH_MAX - 1 ] = '\0';
 
     unlink( new_path );
@@ -262,7 +290,8 @@ rename_log( const char *old_ident, const char *new_ident, const char *directory 
   }
   if ( output & LOGGING_TYPE_SYSLOG ) {
     trema_closelog();
-    open_log_syslog( new_ident );
+    set_ident_string( new_ident );
+    open_log_syslog();
   }
 }
 
@@ -289,6 +318,7 @@ finalize_log() {
   }
 
   unset_ident_string();
+  unset_log_directory();
 
   initialized = false;
 

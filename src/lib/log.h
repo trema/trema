@@ -47,8 +47,8 @@ typedef enum {
 
 
 bool init_log( const char *ident, const char *log_directory, logging_type type );
-void restart_log( const char *ident, const char *log_directory );
-void rename_log( const char *old_ident, const char *new_ident, const char *directory );
+void restart_log( const char *new_ident );
+void rename_log( const char *new_ident );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );
