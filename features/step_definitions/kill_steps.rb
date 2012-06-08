@@ -18,8 +18,8 @@
 #
 
 
-Given /^I terminated all trema services$/ do
-  run "./trema killall"
+When /^I try trema kill "([^"]*)"$/ do | component |
+  run "./trema kill #{ component }"
 end
 
 
