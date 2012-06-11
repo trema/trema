@@ -21,7 +21,7 @@ Feature: Hello trema sample application
       Switch 0x3 is DOWN
       """
     When I try trema up "0x3"
-      And *** sleep 6 ***
+      And *** sleep 10 ***
     Then the log file "SwitchMonitor.log" should match:
       """
       All switches = 0x1, 0x2, 0x3
@@ -44,7 +44,7 @@ Feature: Hello trema sample application
       Switch 0x3 is DOWN
       """
     When I try trema up "0x3"
-      And *** sleep 6 ***
+      And *** sleep 10 ***
     Then the log file "switch_monitor.log" should match:
       """
       All switches  = 0x1, 0x2, 0x3
