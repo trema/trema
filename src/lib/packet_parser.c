@@ -1,6 +1,4 @@
 /*
- * Author: Kazuya Suzuki
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,6 +18,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include "packet_info.h"
@@ -197,6 +196,38 @@ parse_ipv4( buffer *buf ) {
   }
 
   packet_info->format |= NW_IPV4;
+
+  return;
+}
+
+
+static void
+parse_ipv6( buffer *buf ) {
+  assert( buf != NULL );
+
+  packet_info *packet_info = buf->user_data;
+  void *ptr = packet_info->l3_header;
+  assert( ptr != NULL );
+
+  // Check the length of remained buffer for an ipv6 header without nexthdr.
+  size_t length = REMAINED_BUFFER_LENGTH( buf, ptr );
+  if ( length < sizeof( ipv6_header_t ) ) {
+    return;
+  }
+
+  // Parses IPv6 header
+  ipv6_header_t *ipv6_header = ptr;
+  uint32_t hdrctl = ntohl( ipv6_header->hdrctl );
+  packet_info->ipv6_version = ( uint8_t )( hdrctl >> 28 );
+  packet_info->ipv6_tc = ( uint8_t )( hdrctl >> 20 & 0xFF );
+  packet_info->ipv6_flowlabel = hdrctl & 0xFFFFF;
+  packet_info->ipv6_plen = ntohs( ipv6_header->plen );
+  packet_info->ipv6_nexthdr = ipv6_header->nexthdr;
+  packet_info->ipv6_hoplimit = ipv6_header->hoplimit;
+  memcpy( packet_info->ipv6_saddr, ipv6_header->saddr, IPV6_ADDRLEN );
+  memcpy( packet_info->ipv6_daddr, ipv6_header->daddr, IPV6_ADDRLEN );
+
+  packet_info->format |= NW_IPV6;
 
   return;
 }
@@ -437,6 +468,11 @@ parse_packet( buffer *buf ) {
   case ETH_ETHTYPE_IPV4:
     packet_info->l3_header = packet_info->l2_payload;
     parse_ipv4( buf );
+    break;
+
+  case ETH_ETHTYPE_IPV6:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_ipv6( buf );
     break;
 
   case ETH_ETHTYPE_LLDP:

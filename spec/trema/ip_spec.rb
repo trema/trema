@@ -22,7 +22,7 @@ require "trema/ip"
 
 module Trema
   describe IP do
-    context "when cleating" do
+    context "when creating" do
       subject { IP.new( ip_address, prefixlen ) }
 
       context %{when "192.168.1.1/32"} do

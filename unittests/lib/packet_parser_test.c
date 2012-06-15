@@ -1,8 +1,6 @@
 /*
  * Unit tests for packet_parser functions and macros.
  *
- * Author: Kazuya Suzuki
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -145,6 +143,33 @@ test_parse_packet_arp_request_succeeds() {
 
   assert_true( packet_type_arp_request( buffer ) );
 
+  free_buffer( buffer );
+}
+
+
+static void
+test_parse_packet_ipv6_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/icmp6_echo_req.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+
+  packet_info *packet_info = buffer->user_data;
+
+  assert_int_equal( packet_info->ipv6_version, 6 );
+  assert_int_equal( packet_info->ipv6_tc, 0 );
+  assert_int_equal( packet_info->ipv6_flowlabel, 0 );
+  assert_int_equal( packet_info->ipv6_plen, 0x40 );
+  assert_int_equal( packet_info->ipv6_nexthdr, 0x3a );
+  assert_int_equal( packet_info->ipv6_hoplimit, 0x40 );
+
+  u_char saddr[] = { 0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     0x8e, 0x89, 0xa5, 0xff, 0xfe, 0x16, 0x22, 0x09 };
+  u_char daddr[] = { 0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     0x8e, 0x89, 0xa5, 0xff, 0xfe, 0x15, 0x84, 0xcb };
+  assert_memory_equal( packet_info->ipv6_saddr, saddr, IPV6_ADDRLEN );
+  assert_memory_equal( packet_info->ipv6_daddr, daddr, IPV6_ADDRLEN );
+  
   free_buffer( buffer );
 }
 
@@ -688,6 +713,8 @@ main() {
     unit_test( test_parse_packet_snap_succeeds ),
 
     unit_test( test_parse_packet_arp_request_succeeds ),
+
+    unit_test( test_parse_packet_ipv6_succeeds ),
 
     unit_test( test_parse_packet_udp_succeeds ),
     unit_test( test_parse_packet_udp_fragmented_head_succeeds ),

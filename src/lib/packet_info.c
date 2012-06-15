@@ -1,6 +1,4 @@
 /*
- * Author: Kazuya Suzuki
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -134,6 +132,13 @@ packet_type_ipv4( const buffer *frame ) {
 
 
 bool
+packet_type_ipv6( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_IPV6 );
+}
+
+
+bool
 packet_type_lldp( const buffer *frame ) {
   die_if_NULL( frame );
   return if_packet_type( frame, NW_LLDP );
@@ -162,9 +167,23 @@ packet_type_ipv4_tcp( const buffer *frame ) {
 
 
 bool
+packet_type_ipv6_tcp( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_IPV6 | TP_TCP );
+}
+
+
+bool
 packet_type_ipv4_udp( const buffer *frame ) {
   die_if_NULL( frame );
   return if_packet_type( frame, NW_IPV4 | TP_UDP );
+}
+
+
+bool
+packet_type_ipv6_udp( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_IPV6 | TP_UDP );
 }
 
 
