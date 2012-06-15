@@ -144,6 +144,8 @@ describe Trema::PacketIn do
           message.arp_spa.to_s.should == "192.168.0.1"
           message.arp_tha.to_s.should == "00:00:00:00:00:02"
           message.arp_tpa.to_s.should == "192.168.0.2"
+          message.arp_request?.should be_false
+          message.arp_reply?.should be_true
 
           message.vlan_tpid.should be_nil
           message.vlan_tci.should be_nil
@@ -431,6 +433,11 @@ describe Trema::PacketIn do
           message.icmpv4_checksum.should == 0xe95b
           message.icmpv4_id.should == 0x0400
           message.icmpv4_seq.should == 0x6000
+
+          message.icmpv4_echo_reply?.should be_false
+          message.icmpv4_dst_unreach?.should be_false
+          message.icmpv4_redirect?.should be_false
+          message.icmpv4_echo_request?.should be_true
         end
 
         controller( "PacketInSendController" ).send_packet_out(

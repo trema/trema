@@ -24,27 +24,26 @@
 #define IPV4_H
 
 
-#include <netinet/ip.h>
 #include "buffer.h"
 
 
 typedef struct  {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-  unsigned int ihl:4;
-  unsigned int version:4;
+  uint8_t ihl:4;
+  uint8_t version:4;
 #elif __BYTE_ORDER == __BIG_ENDIAN
-  unsigned int version:4;
-  unsigned int ihl:4;
+  uint8_t version:4;
+  uint8_t ihl:4;
 #endif
-  u_int8_t tos;
-  u_int16_t tot_len;
-  u_int16_t id;
-  u_int16_t frag_off;
-  u_int8_t ttl;
-  u_int8_t protocol;
-  u_int16_t csum;
-  u_int32_t saddr;
-  u_int32_t daddr;
+  uint8_t tos;
+  uint16_t tot_len;
+  uint16_t id;
+  uint16_t frag_off;
+  uint8_t ttl;
+  uint8_t protocol;
+  uint16_t csum;
+  uint32_t saddr;
+  uint32_t daddr;
 } ipv4_header_t;
 
 

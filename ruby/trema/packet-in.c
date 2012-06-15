@@ -290,6 +290,38 @@ packet_in_is_arp( VALUE self ) {
 
 
 /*
+ * Is an ARP request packet?
+ *
+ * @return [bool] arp_request? Is an ARP request packet?
+ */
+static VALUE
+packet_in_is_arp_request( VALUE self ) {
+  if ( packet_type_arp_request( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an ARP reply packet?
+ *
+ * @return [bool] arp_reply? Is an ARP reply packet?
+ */
+static VALUE
+packet_in_is_arp_reply( VALUE self ) {
+  if ( packet_type_arp_reply( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
  * The ARP operation code.
  *
  * @return [integer] arp_oper Operation code.
@@ -594,6 +626,70 @@ packet_in_icmpv4_gateway( VALUE self ) {
   }
   else {
     return Qnil;
+  }
+}
+
+
+/*
+ * Is an ICMPv4 echo reply packet?
+ *
+ * @return [bool] icmpv4_echo_reply? Is an ICMP echo reply packet?
+ */
+static VALUE
+packet_in_is_icmpv4_echo_reply( VALUE self ) {
+  if ( packet_type_icmpv4_echo_reply( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an ICMPv4 destination unreachable packet?
+ *
+ * @return [bool] icmpv4_dst_unreach? Is an ICMP destination unreachable packet?
+ */
+static VALUE
+packet_in_is_icmpv4_dst_unreach( VALUE self ) {
+  if ( packet_type_icmpv4_dst_unreach( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an ICMPv4 redirect packet?
+ *
+ * @return [bool] icmpv4_redirect? Is an ICMP redirect packet?
+ */
+static VALUE
+packet_in_is_icmpv4_redirect( VALUE self ) {
+  if ( packet_type_icmpv4_redirect( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is an ICMPv4 echo request packet?
+ *
+ * @return [bool] icmpv4_echo_request? Is an ICMP echo request packet?
+ */
+static VALUE
+packet_in_is_icmpv4_echo_request( VALUE self ) {
+  if ( packet_type_icmpv4_echo_request( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
   }
 }
 
@@ -959,6 +1055,8 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "arp_spa", packet_in_arp_spa, 0 );
   rb_define_method( cPacketIn, "arp_tha", packet_in_arp_tha, 0 );
   rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
+  rb_define_method( cPacketIn, "arp_request?", packet_in_is_arp_request, 0 );
+  rb_define_method( cPacketIn, "arp_reply?", packet_in_is_arp_reply, 0 );
 
   rb_define_method( cPacketIn, "ipv4_version", packet_in_ipv4_version, 0 );
   rb_define_method( cPacketIn, "ipv4_ihl", packet_in_ipv4_ihl, 0 );
@@ -977,7 +1075,11 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "icmpv4_checksum", packet_in_icmpv4_checksum, 0 );
   rb_define_method( cPacketIn, "icmpv4_id", packet_in_icmpv4_id, 0 );
   rb_define_method( cPacketIn, "icmpv4_seq", packet_in_icmpv4_seq, 0 );
-  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );  
+  rb_define_method( cPacketIn, "icmpv4_gateway", packet_in_icmpv4_gateway, 0 );
+  rb_define_method( cPacketIn, "icmpv4_echo_reply?", packet_in_is_icmpv4_echo_reply, 0 );
+  rb_define_method( cPacketIn, "icmpv4_dst_unreach?", packet_in_is_icmpv4_dst_unreach, 0 );
+  rb_define_method( cPacketIn, "icmpv4_redirect?", packet_in_is_icmpv4_redirect, 0 );
+  rb_define_method( cPacketIn, "icmpv4_echo_request?", packet_in_is_icmpv4_echo_request, 0 );
 
   rb_define_method( cPacketIn, "igmp_type", packet_in_igmp_type, 0 );
   rb_define_method( cPacketIn, "igmp_group", packet_in_igmp_group, 0 );

@@ -24,7 +24,6 @@
 #define ARP_H
 
 
-#include <net/if_arp.h>
 #include <stdint.h>
 #include "buffer.h"
 #include "ether.h"
@@ -48,6 +47,10 @@ typedef struct arp_header {
   uint8_t tha[ ETH_ADDRLEN ];
   uint32_t tip;
 } __attribute__((packed)) arp_header_t;
+
+
+#define ARP_OP_REQUEST 1
+#define ARP_OP_REPLY   2
 
 
 #endif // ARP_H

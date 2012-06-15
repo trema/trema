@@ -45,6 +45,10 @@ extern int ( *trema_unlink ) ( const char *pathname );
 
 extern pid_t ( *trema_getpid )( void );
 
+extern void ( *trema_openlog ) ( const char *ident, int option, int facility );
+extern void ( *trema_closelog ) ( void );
+extern void ( *trema_vsyslog ) ( int priority, const char *format, va_list ap );
+
 extern int ( *trema_sqlite3_open) ( const char *filename, sqlite3 **ppDb );
 extern int ( *trema_sqlite3_close ) ( sqlite3 * );
 extern int ( *trema_sqlite3_exec ) ( sqlite3 *, const char *sql, int ( *callback ) ( void *, int, char **, char ** ), void *, char **errmsg );

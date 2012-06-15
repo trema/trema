@@ -26,7 +26,7 @@
 void
 timeout( void *user_data ) {
   handler_data *data = user_data;
-  char match_string[ 256 ];
+  char match_string[ 512 ];
   match_to_string( &data->match, match_string, sizeof( match_string ) );
 
   error( "Timeout ( match = [%s], service_name = %s, strict = %s ).",
@@ -39,7 +39,7 @@ timeout( void *user_data ) {
 void
 add_filter_completed( int status, void *user_data ) {
   handler_data *data = user_data;
-  char match_string[ 256 ];
+  char match_string[ 512 ];
   match_to_string( &data->match, match_string, sizeof( match_string ) );
 
   if ( status != PACKETIN_FILTER_OPERATION_SUCCEEDED ) {
@@ -56,7 +56,7 @@ add_filter_completed( int status, void *user_data ) {
 void
 delete_filter_completed( int status, int n_deleted, void *user_data ) {
   handler_data *data = user_data;
-  char match_string[ 256 ];
+  char match_string[ 512 ];
   match_to_string( &data->match, match_string, sizeof( match_string ) );
 
   if ( status != PACKETIN_FILTER_OPERATION_SUCCEEDED ) {
@@ -74,7 +74,7 @@ delete_filter_completed( int status, int n_deleted, void *user_data ) {
 void
 dump_filters( int status, int n_entries, packetin_filter_entry *entries, void *user_data ) {
   handler_data *data = user_data;
-  char match_string[ 256 ];
+  char match_string[ 512 ];
   match_to_string( &data->match, match_string, sizeof( match_string ) );
 
   if ( status != PACKETIN_FILTER_OPERATION_SUCCEEDED ) {

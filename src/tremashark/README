@@ -68,8 +68,8 @@ How to run?
 
 2. Send SIGUSR2 to processes to be monitored by tremashark. e.g.,
 
-  $ sudo kill -USR2 `cat tmp/learning_switch.pid`
-  $ sudo kill -USR2 `cat tmp/switch.1.pid`
+  $ sudo kill -USR2 `cat tmp/pid/learning_switch.pid`
+  $ sudo kill -USR2 `cat tmp/pid/switch.0x1.pid`
 
 Known issue
 ===========

@@ -24,6 +24,7 @@
 #define OPENFLOW_APPLICATION_INTERFACE_H
 
 
+#include <arpa/inet.h>
 #include "buffer.h"
 #include "linked_list.h"
 #include "openflow.h"
@@ -67,6 +68,14 @@ typedef void ( *error_handler )(
   uint32_t transaction_id,
   uint16_t type,
   uint16_t code,
+  const buffer *data,
+  void *user_data
+);
+
+
+typedef void ( *echo_reply_handler )(
+  uint64_t datapath_id,
+  uint32_t transaction_id,
   const buffer *data,
   void *user_data
 );
@@ -210,6 +219,9 @@ typedef struct openflow_event_handlers {
   error_handler error_callback;
   void *error_user_data;
 
+  echo_reply_handler echo_reply_callback;
+  void *echo_reply_user_data;
+
   vendor_handler vendor_callback;
   void *vendor_user_data;
 
@@ -266,6 +278,7 @@ bool _set_switch_ready_handler( bool simple_callback, void *callback, void *user
 
 bool set_switch_disconnected_handler( switch_disconnected_handler callback, void *user_data );
 bool set_error_handler( error_handler callback, void *user_data );
+bool set_echo_reply_handler( echo_reply_handler callback, void *user_data );
 bool set_vendor_handler( vendor_handler callback, void *user_data );
 bool set_features_reply_handler( features_reply_handler callback, void *user_data );
 bool set_get_config_reply_handler( get_config_reply_handler callback, void *user_data );
@@ -315,7 +328,19 @@ bool set_list_switches_reply_handler( list_switches_reply_handler callback );
 
 bool send_openflow_message( const uint64_t datapath_id, buffer *message );
 
+
+/********************************************************************************
+ * Function for retrieving the list of switches from Switch Manager.
+ ********************************************************************************/
+
 bool send_list_switches_request( void *user_data );
+
+
+/********************************************************************************
+ * Function for deleting OpenFlow messages in a send queue
+ ********************************************************************************/
+
+bool delete_openflow_messages( uint64_t datapath_id );
 
 
 #endif // OPENFLOW_APPLICATION_INTERFACE_H

@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -77,7 +75,7 @@ module Trema
 
 
     #
-    # @return [Array] 
+    # @return [Array]
     #   an array of decimal numbers converted from Ethernet's address string
     #   format.
     #
@@ -85,6 +83,16 @@ module Trema
       @string.split( ":" ).collect do | each |
         each.hex
       end
+    end
+
+
+    #
+    # @return [Array]
+    #   an array of decimal numbers converted from Ethernet's address string
+    #   format.
+    #
+    def to_array
+      self.to_short
     end
 
 

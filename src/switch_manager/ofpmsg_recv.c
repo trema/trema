@@ -130,36 +130,38 @@ ofpmsg_recv_error( struct switch_info *sw_info, buffer *buf ) {
         free_buffer( buf );
         return 0;
       }
-      cookie_entry_t *entry = lookup_cookie_entry_by_cookie( &cookie );
-      if ( entry != NULL ) {
-        flow_mod->cookie = htonll( entry->application.cookie );
-        if ( length >= offsetof( struct ofp_flow_mod, actions ) ) {
-          flow_mod->flags = htons( entry->application.flags );
-        }
-      }
-
-      if ( length >= offsetof( struct ofp_flow_mod, idle_timeout ) ) {
-        uint16_t command = ntohs( flow_mod->command );
-        switch ( command ) {
-        case OFPFC_ADD:
-        {
-          if ( entry != NULL ) {
-            delete_cookie_entry( entry );
-          }
-          else {
-            error( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
+      if ( sw_info->cookie_translation ) {
+        cookie_entry_t *entry = lookup_cookie_entry_by_cookie( &cookie );
+        if ( entry != NULL ) {
+          flow_mod->cookie = htonll( entry->application.cookie );
+          if ( length >= offsetof( struct ofp_flow_mod, actions ) ) {
+            flow_mod->flags = htons( entry->application.flags );
           }
         }
-        break;
 
-        case OFPFC_MODIFY:
-        case OFPFC_MODIFY_STRICT:
-        case OFPFC_DELETE:
-        case OFPFC_DELETE_STRICT:
+        if ( length >= offsetof( struct ofp_flow_mod, idle_timeout ) ) {
+          uint16_t command = ntohs( flow_mod->command );
+          switch ( command ) {
+          case OFPFC_ADD:
+          {
+            if ( entry != NULL ) {
+              delete_cookie_entry( entry );
+            }
+            else {
+              error( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
+            }
+          }
           break;
 
-        default:
-          error( "Undefined flow_mod command ( command = %#x ).", command );
+          case OFPFC_MODIFY:
+          case OFPFC_MODIFY_STRICT:
+          case OFPFC_DELETE:
+          case OFPFC_DELETE_STRICT:
+            break;
+
+          default:
+            error( "Undefined flow_mod command ( command = %#x ).", command );
+          }
         }
       }
     }
@@ -190,9 +192,13 @@ int
 ofpmsg_recv_echoreply( struct switch_info *sw_info,  buffer *buf ) {
   ofpmsg_debug( "Receive 'echo reply' from a switch." );
 
-  // TODO: implement keepalive mechanism
+  int ret = switch_event_recv_echoreply( sw_info, buf );
+  if ( ret < 0 ) {
+    free_buffer( buf );
+    return ret;
+  }
 
-  free_buffer( buf );
+  send_transaction_reply( sw_info, buf );
 
   return 0;
 }
@@ -274,14 +280,22 @@ ofpmsg_recv_flowremoved( struct switch_info *sw_info, buffer *buf ) {
     return 0;
   }
 
+  if ( !sw_info->cookie_translation ) {
+    service_send_to_application( sw_info->state_service_name_list, MESSENGER_OPENFLOW_MESSAGE,
+                                 &sw_info->datapath_id, buf );
+    free_buffer( buf );
+    return 0;
+  }
+
   entry = lookup_cookie_entry_by_cookie( &cookie );
   if ( entry == NULL ) {
     error( "No cookie entry found ( cookie = %#" PRIx64 " ).", cookie );
     free_buffer( buf );
     return 0;
   }
-  debug( "Cookie found ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service name = %s, flags = %#x ], "
-         "reference_count = %d, expire_at = %u ).",
+
+  debug( "Cookie found ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64
+         ", service name = %s, flags = %#x ], reference_count = %d, expire_at = %u ).",
          cookie, entry->application.cookie, entry->application.service_name, entry->application.flags,
          entry->reference_count, entry->expire_at );
 
@@ -319,7 +333,7 @@ ofpmsg_recv_statsreply( struct switch_info *sw_info, buffer *buf ) {
 
   ofpmsg_debug( "Receive 'statistics reply' from a switch." );
 
-  if ( type == OFPST_FLOW ) {
+  if ( type == OFPST_FLOW && sw_info->cookie_translation ) {
     size_t body_offset = offsetof( struct ofp_stats_reply, body );
     int body_length = ntohs( stats_reply->header.length ) - ( int ) body_offset;
     struct ofp_flow_stats *flow_stats = ( void * ) ( ( char * ) stats_reply + body_offset );

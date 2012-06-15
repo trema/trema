@@ -324,7 +324,12 @@ init_chibach( int *argc, char ***argv ) {
   set_chibach_home();
   set_chibach_tmp();
   check_chibach_tmp();
-  init_log( get_chibach_name(), get_chibach_log(), run_as_daemon );
+  if ( run_as_daemon ) {
+    init_log( get_chibach_name(), get_chibach_log(), LOGGING_TYPE_FILE );
+  }
+  else {
+    init_log( get_chibach_name(), get_chibach_log(), LOGGING_TYPE_FILE | LOGGING_TYPE_STDOUT );
+  }
   ignore_sigpipe();
   set_exit_handler();
   set_usr1_handler();

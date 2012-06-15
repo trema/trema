@@ -105,8 +105,7 @@ hello_init( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * Transaction ids, message sequence numbers matching requests to
- * replies.
+ * Transaction ids, message sequence numbers matching requests to replies.
  *
  * @return [Number] the value of transaction ID.
  */

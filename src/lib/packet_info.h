@@ -1,8 +1,6 @@
 /*
  * Functions for accessing commonly-used header fields values.
  *
- * Author: Kazuya Suzuki
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,6 +29,7 @@
 #include "icmp.h"
 #include "igmp.h"
 #include "ipv4.h"
+#include "ipv6.h"
 #include "tcp.h"
 #include "udp.h"
 #include "etherip.h"
@@ -91,7 +90,7 @@ enum {
 
 typedef struct {
   uint32_t format;
-  
+
   uint8_t eth_macda[ ETH_ADDRLEN ];
   uint8_t eth_macsa[ ETH_ADDRLEN ];
   uint16_t eth_type;
@@ -127,6 +126,15 @@ typedef struct {
   uint16_t ipv4_checksum;
   uint32_t ipv4_saddr;
   uint32_t ipv4_daddr;
+
+  uint8_t ipv6_version;
+  uint8_t ipv6_tc;
+  uint32_t ipv6_flowlabel;
+  uint16_t ipv6_plen;
+  uint16_t ipv6_nexthdr;
+  uint16_t ipv6_hoplimit;
+  uint8_t ipv6_saddr[ IPV6_ADDRLEN ];
+  uint8_t ipv6_daddr[ IPV6_ADDRLEN ];
 
   uint8_t icmpv4_type;
   uint8_t icmpv4_code;
@@ -184,12 +192,23 @@ bool packet_type_eth_snap( const buffer *frame );
 bool packet_type_ether( const buffer *frame );
 bool packet_type_arp( const buffer *frame );
 bool packet_type_ipv4( const buffer *frame );
+bool packet_type_ipv6( const buffer *frame );
 bool packet_type_lldp( const buffer *frame );
 bool packet_type_icmpv4( const buffer *frame );
 bool packet_type_igmp( const buffer *frame );
 bool packet_type_ipv4_tcp( const buffer *frame );
+bool packet_type_ipv6_tcp( const buffer *frame );
 bool packet_type_ipv4_udp( const buffer *frame );
+bool packet_type_ipv6_udp( const buffer *frame );
 bool packet_type_ipv4_etherip( const buffer *frame );
+
+bool packet_type_arp_request( const buffer *frame );
+bool packet_type_arp_reply( const buffer *frame );
+
+bool packet_type_icmpv4_echo_reply( const buffer *frame );
+bool packet_type_icmpv4_dst_unreach( const buffer *frame );
+bool packet_type_icmpv4_redirect( const buffer *frame );
+bool packet_type_icmpv4_echo_request( const buffer *frame );
 
 bool packet_type_igmp_membership_query( const buffer *frame );
 bool packet_type_igmp_v1_membership_report( const buffer *frame );

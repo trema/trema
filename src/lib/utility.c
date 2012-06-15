@@ -143,11 +143,99 @@ string_to_datapath_id( const char *str, uint64_t *datapath_id ) {
 }
 
 
+static bool
+append_string( char *buf, size_t length, const char *string ) {
+  assert( buf != NULL );
+  assert( length > 0 );
+  assert( string != NULL );
+
+  size_t current_length = strlen( buf );
+  size_t length_to_append = strlen( string );
+  if ( ( current_length + length_to_append + 1 ) > length ) {
+    return false;
+  }
+  strncpy( buf + current_length, string, length_to_append + 1 );
+
+  return true;
+}
+
+
+bool
+wildcards_to_string( uint32_t wildcards, char *str, size_t size ) {
+  assert( str != NULL );
+  assert( size > 0 );
+
+  memset( str, '\0', size );
+
+  bool ret = true;
+  if ( ( wildcards & OFPFW_ALL ) == 0 ) {
+    ret &= append_string( str, size, "none" );
+    return ret;
+  }
+
+  uint32_t nw_src_mask = ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+  uint32_t nw_dst_mask = ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+  uint32_t mask = OFPFW_ALL & ~OFPFW_NW_SRC_MASK & ~OFPFW_NW_DST_MASK;
+  if ( ( wildcards & mask ) == mask && nw_src_mask >=32 && nw_dst_mask >= 32 ) {
+    ret &= append_string( str, size, "all" );
+    return ret;
+  }
+
+  if ( wildcards & OFPFW_IN_PORT ) {
+    ret &= append_string( str, size, "in_port|" );
+  }
+  if ( wildcards & OFPFW_DL_SRC ) {
+    ret &= append_string( str, size, "dl_src|" );
+  }
+  if ( wildcards & OFPFW_DL_DST ) {
+    ret &= append_string( str, size, "dl_dst|" );
+  }
+  if ( wildcards & OFPFW_DL_TYPE ) {
+    ret &= append_string( str, size, "dl_type|" );
+  }
+  if ( wildcards & OFPFW_DL_VLAN ) {
+    ret &= append_string( str, size, "dl_vlan|" );
+  } 
+  if ( wildcards & OFPFW_DL_VLAN_PCP ) {
+    ret &= append_string( str, size, "dl_vlan_pcp|" );
+  }
+  if ( wildcards & OFPFW_NW_PROTO ) {
+    ret &= append_string( str, size, "nw_proto|" );
+  }
+  if ( wildcards & OFPFW_NW_TOS ) {
+    ret &= append_string( str, size, "nw_tos|" );
+  }
+
+  char mask_str[ 16 ];
+  if ( nw_src_mask > 0 ) {
+    snprintf( mask_str, sizeof( mask_str ), "nw_src(%u)|", nw_src_mask );
+    ret &= append_string( str, size, mask_str );
+  }
+  if ( nw_dst_mask > 0 ) {
+    snprintf( mask_str, sizeof( mask_str ), "nw_dst(%u)|", nw_dst_mask );
+    ret &= append_string( str, size, mask_str );
+  }
+  if ( wildcards & OFPFW_TP_SRC ) {
+    ret &= append_string( str, size, "tp_src|" );
+  }
+  if ( wildcards & OFPFW_TP_DST ) {
+    ret &= append_string( str, size, "tp_dst|" );
+  }
+
+  if ( strlen( str ) > 0 ) {
+    str[ strlen( str ) - 1 ] = '\0';
+  }
+
+  return ret;
+}
+
+
 bool
 match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   assert( match != NULL );
   assert( str != NULL );
 
+  char wildcards_str[ 256 ];
   char nw_src[ 16 ];
   char nw_dst[ 16 ];
   struct in_addr addr;
@@ -155,6 +243,7 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   unsigned int nw_src_prefixlen;
   unsigned int nw_dst_prefixlen;
 
+  wildcards_to_string( match->wildcards, wildcards_str, sizeof( wildcards_str ) );
   addr.s_addr = htonl( match->nw_src );
   memset( nw_src, '\0', sizeof( nw_src ) );
   inet_ntop( AF_INET, &addr, nw_src, sizeof( nw_src ) );
@@ -171,20 +260,20 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
   int ret = snprintf(
               str,
               size,
-              "wildcards = %#x, in_port = %u, "
+              "wildcards = %#x(%s), in_port = %u, "
               "dl_src = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_dst = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_vlan = %u, dl_vlan_pcp = %u, dl_type = %#x, "
               "nw_tos = %u, nw_proto = %u, nw_src = %s/%u, nw_dst = %s/%u, "
               "tp_src = %u, tp_dst = %u",
-              match->wildcards, match->in_port,
+              match->wildcards, wildcards_str, match->in_port,
               match->dl_src[ 0 ], match->dl_src[ 1 ], match->dl_src[ 2 ],
               match->dl_src[ 3 ], match->dl_src[ 4 ], match->dl_src[ 5 ],
               match->dl_dst[ 0 ], match->dl_dst[ 1 ], match->dl_dst[ 2 ],
               match->dl_dst[ 3 ], match->dl_dst[ 4 ], match->dl_dst[ 5 ],
               match->dl_vlan, match->dl_vlan_pcp, match->dl_type,
               match->nw_tos, match->nw_proto, nw_src, nw_src_prefixlen,
-	      nw_dst, nw_dst_prefixlen, match->tp_src, match->tp_dst
+              nw_dst, nw_dst_prefixlen, match->tp_src, match->tp_dst
             );
 
   if ( ( ret >= ( int ) size ) || ( ret < 0 ) ) {

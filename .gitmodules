@@ -1,0 +1,3 @@
+[submodule "vendor/yard.i18n"]
+	path = vendor/yard.i18n
+	url = https://github.com/kou/yard

@@ -22,7 +22,10 @@ require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
 
 
 describe Trema::Shell, ".vhost" do
-  before { $context = mock( "context", :dump => true ) }
+  before {
+    Trema::Host.clear
+    $context = mock( "context", :dump => true )
+  }
 
 
   it "should create a new vhost if name given" do

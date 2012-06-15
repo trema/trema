@@ -36,28 +36,23 @@
 
 
 #include "bool.h"
+#include <syslog.h>
 
 
-/**
- * Constants specifying the level of log messages.
- */
 typedef enum {
-  LOG_CRITICAL,
-  LOG_ERROR,
-  LOG_WARN,
-  LOG_NOTICE,
-  LOG_INFO,
-  LOG_DEBUG,
-} logging_level;
+  LOGGING_TYPE_FILE = 0x1,
+  LOGGING_TYPE_SYSLOG = 0x2,
+  LOGGING_TYPE_STDOUT = 0x4,
+} logging_type;
 
 
-bool init_log( const char *ident, const char *log_directory, bool run_as_daemon );
-void restart_log( const char *ident, const char *log_directory );
-void rename_log( const char *old_ident, const char *new_ident, const char *directory );
+bool init_log( const char *ident, const char *log_directory, logging_type type );
+void restart_log( const char *new_ident );
+void rename_log( const char *new_ident );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );
-extern logging_level ( *get_logging_level )( void );
+extern int ( *get_logging_level )( void );
 
 extern void ( *critical )( const char *format, ... );
 extern void ( *error )( const char *format, ... );

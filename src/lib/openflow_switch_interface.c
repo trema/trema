@@ -20,6 +20,8 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <arpa/inet.h>
+#include <syslog.h>
 #include "chibach_private.h"
 #include "hash_table.h"
 #include "log.h"
@@ -255,7 +257,7 @@ set_echo_request_handler( echo_request_handler callback, void *user_data ) {
 
 
 bool
-set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
+switch_set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 

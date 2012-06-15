@@ -47,6 +47,23 @@ ofpmsg_send_hello( struct switch_info *sw_info ) {
 
 
 int
+ofpmsg_send_echorequest( struct switch_info *sw_info, uint32_t xid, buffer *body ) {
+  int ret;
+  buffer *buf;
+
+  buf = create_echo_request( xid, body );
+  free_buffer( body );
+
+  ret = send_to_secure_channel( sw_info, buf );
+  if ( ret == 0 ) {
+    debug( "Send 'echo request' to a switch %#" PRIx64 ".", sw_info->datapath_id );
+  }
+
+  return ret;
+}
+
+
+int
 ofpmsg_send_echoreply( struct switch_info *sw_info, uint32_t xid, buffer *body ) {
   int ret;
   buffer *buf;
@@ -187,7 +204,7 @@ ofpmsg_send( struct switch_info *sw_info, buffer *buf, char *service_name ) {
   new_xid = insert_xid_entry( ntohl( ofp_header->xid ), service_name );
   ofp_header->xid = htonl( new_xid );
 
-  if ( ofp_header->type == OFPT_FLOW_MOD ) {
+  if ( ofp_header->type == OFPT_FLOW_MOD && sw_info->cookie_translation ) {
     ret = update_flowmod_cookie( buf, service_name );
     if ( ret < 0 ) {
       error( "Failed to update cookie value ( ret = %d ).", ret );
@@ -221,6 +238,28 @@ ofpmsg_send_delete_all_flows( struct switch_info *sw_info ) {
   ret = send_to_secure_channel( sw_info, buf );
   if ( ret == 0 ) {
     debug( "Send 'flow mod (delete all)' to a switch %#" PRIx64 ".", sw_info->datapath_id );
+  }
+
+  return ret;
+}
+
+
+int
+ofpmsg_send_deny_all( struct switch_info *sw_info ) {
+  int ret;
+  struct ofp_match match;
+  buffer *buf;
+
+  memset( &match, 0, sizeof( match ) );
+  match.wildcards = OFPFW_ALL;
+  const uint16_t timeout = 10;
+
+  buf = create_flow_mod( generate_xid(), match, RESERVED_COOKIE,
+                         OFPFC_ADD, 0, timeout, UINT16_MAX, UINT32_MAX, OFPP_NONE, 0, NULL );
+
+  ret = send_to_secure_channel( sw_info, buf );
+  if ( ret == 0 ) {
+    debug( "Send 'flow mod (deny all)' to a switch %#" PRIx64 ".", sw_info->datapath_id );
   }
 
   return ret;

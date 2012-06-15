@@ -42,6 +42,9 @@ module Trema
       options.on( "-d", "--daemonize" ) do
         $run_as_daemon = true
       end
+      options.on( "-s", "--tremashark" ) do
+        $use_tremashark = true
+      end
 
       options.separator ""
 

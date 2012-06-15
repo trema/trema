@@ -32,8 +32,8 @@ vendor_alloc( VALUE klass ) {
 
 
 /*
- * Creates a VendorReqeust OpenFlow message. This message can be used
- * to facilitate sending of vendor experimental messages.
+ * Creates a Vendor Reqeust message. This message can be used
+ * to facilitate sending of vendor-defined arbitrary data.
  *
  * @overload initialize
  *   @example

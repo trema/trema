@@ -22,7 +22,7 @@ require "mkmf"
 
 
 $CFLAGS = "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
-$LDFLAGS = "-Wl,-Bsymbolic -lpthread"
+$LDFLAGS = "-Wl,-Bsymbolic"
 
 
 dir_config "trema"
@@ -44,6 +44,10 @@ Please install #{ package } with following command:
 EOF
 end
 
+
+unless find_library( "pthread", "pthread_create" )
+  error_exit error_lib_missing( "libpthread", "libc6-dev" )
+end
 
 unless find_library( "rt", "clock_gettime" )
   error_exit error_lib_missing( "librt", "libc6-dev" )
@@ -68,4 +72,3 @@ end
 
 
 create_makefile "trema", "trema"
-

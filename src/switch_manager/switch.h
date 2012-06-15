@@ -42,6 +42,7 @@
 int switch_event_connected( struct switch_info *switch_info );
 int switch_event_disconnected( struct switch_info *switch_info );
 int switch_event_recv_hello( struct switch_info *switch_info );
+int switch_event_recv_echoreply( struct switch_info *switch_info, buffer *buf );
 int switch_event_recv_featuresreply( struct switch_info *switch_info, uint64_t *datapath_id );
 int switch_event_recv_from_application( uint64_t *datapath_id, char *application_service_name, buffer *buf );
 int switch_event_disconnect_request( uint64_t *datapath_id );

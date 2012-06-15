@@ -14,11 +14,17 @@ Feature: Hello trema sample application
       """
       And *** sleep 2 ***
       And wait until "SwitchMonitor" is up
-    When I try trema off "0x3"
+    When I try trema kill "0x3"
       And *** sleep 2 ***
     Then the log file "SwitchMonitor.log" should match:
       """
       Switch 0x3 is DOWN
+      """
+    When I try trema up "0x3"
+      And *** sleep 10 ***
+    Then the log file "SwitchMonitor.log" should match:
+      """
+      All switches = 0x1, 0x2, 0x3
       """
 
 
@@ -31,9 +37,15 @@ Feature: Hello trema sample application
       """
       And *** sleep 2 ***
       And wait until "switch_monitor" is up
-    When I try trema off "0x3"
+    When I try trema kill "0x3"
       And *** sleep 2 ***
     Then the log file "switch_monitor.log" should match:
       """
       Switch 0x3 is DOWN
+      """
+    When I try trema up "0x3"
+      And *** sleep 10 ***
+    Then the log file "switch_monitor.log" should match:
+      """
+      All switches  = 0x1, 0x2, 0x3
       """

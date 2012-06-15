@@ -719,6 +719,7 @@ test_parse_help_option() {
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -d, --daemonize             run in the background\n"
     "  -l, --logging_level=LEVEL   set logging level\n"
+    "  -g, --syslog                output log messages to syslog\n"
     "  -h, --help                  display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );
@@ -742,6 +743,7 @@ test_parse_h_option() {
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -d, --daemonize             run in the background\n"
     "  -l, --logging_level=LEVEL   set logging level\n"
+    "  -g, --syslog                output log messages to syslog\n"
     "  -h, --help                  display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );

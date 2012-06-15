@@ -42,13 +42,29 @@
 #include "xid_table.h"
 
 
+#define SUB_TIMESPEC( _a, _b, _return )                       \
+  do {                                                        \
+    ( _return )->tv_sec = ( _a )->tv_sec - ( _b )->tv_sec;    \
+    ( _return )->tv_nsec = ( _a )->tv_nsec - ( _b )->tv_nsec; \
+    if ( ( _return )->tv_nsec < 0 ) {                         \
+      ( _return )->tv_sec--;                                  \
+      ( _return )->tv_nsec += 1000000000;                     \
+    }                                                         \
+  }                                                           \
+  while ( 0 )
+
+
 enum long_options_val {
   NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
+  NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE = 2,
+  NO_PACKET_IN_LONG_OPTION_VALUE = 3,
 };
 
 static struct option long_options[] = {
   { "socket", 1, NULL, 's' },
   { "no-flow-cleanup", 0, NULL, NO_FLOW_CLEANUP_LONG_OPTION_VALUE },
+  { "no-cookie-translation", 0, NULL, NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE },
+  { "no-packet_in", 0, NULL, NO_PACKET_IN_LONG_OPTION_VALUE },
   { NULL, 0, NULL, 0  },
 };
 
@@ -58,9 +74,16 @@ static char short_options[] = "s:";
 struct switch_info switch_info;
 
 static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600;
+static const time_t ECHO_REQUEST_INTERVAL = 60;
+static const time_t ECHO_REPLY_TIMEOUT = 2;
 
 static bool age_cookie_table_enabled = false;
 
+typedef struct {
+  uint64_t datapath_id;
+  uint32_t sec;
+  uint32_t nsec;
+} echo_body;
 
 void
 usage() {
@@ -71,7 +94,9 @@ usage() {
     "  -s, --socket=fd             secure channnel socket\n"
     "  -n, --name=SERVICE_NAME     service name\n"
     "  -l, --logging_level=LEVEL   set logging level\n"
-    "      --no-flow-cleanup       do not cleanup flows on start\n"
+    "      --no-flow-cleanup       do not cleanup flows on startup\n"
+    "      --no-cookie-translation do not translate cookie values\n"
+    "      --no-packet_in          do not allow packet-ins on startup\n"
     "  -h, --help                  display this help and exit\n"
     "\n"
     "DESTINATION-RULE:\n"
@@ -109,6 +134,8 @@ option_parser( int argc, char *argv[] ) {
 
   switch_info.secure_channel_fd = 0; // stdin
   switch_info.flow_cleanup = true;
+  switch_info.cookie_translation = true;
+  switch_info.deny_packet_in_on_startup = false;
   while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
     switch ( c ) {
       case 's':
@@ -117,6 +144,14 @@ option_parser( int argc, char *argv[] ) {
 
       case NO_FLOW_CLEANUP_LONG_OPTION_VALUE:
         switch_info.flow_cleanup = false;
+        break;
+
+      case NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE:
+        switch_info.cookie_translation = false;
+        break;
+
+      case NO_PACKET_IN_LONG_OPTION_VALUE:
+        switch_info.deny_packet_in_on_startup = true;
         break;
 
       default:
@@ -259,6 +294,13 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
     // cancel to hello_wait-timeout timer
     switch_unset_timeout( switch_event_timeout_hello, NULL );
 
+    if ( sw_info->deny_packet_in_on_startup ) {
+      ret = ofpmsg_send_deny_all( sw_info );
+      if ( ret < 0 ) {
+        return ret;
+      }
+    }
+
     ret = ofpmsg_send_featuresrequest( sw_info );
     if ( ret < 0 ) {
       return ret;
@@ -270,6 +312,66 @@ switch_event_recv_hello( struct switch_info *sw_info ) {
   }
 
   return 0;
+}
+
+
+static void
+echo_reply_timeout( void *user_data ) {
+  UNUSED( user_data );
+
+  error( "Echo request timeout ( datapath id %#" PRIx64 ").", switch_info.datapath_id );
+  switch_event_disconnected( &switch_info );
+}
+
+
+int
+switch_event_recv_echoreply( struct switch_info *sw_info, buffer *buf ) {
+  if ( buf->length != sizeof( struct ofp_header ) + sizeof( echo_body ) ) {
+    return 0;
+  }
+  struct ofp_header *header = buf->data;
+  if ( ntohl( header->xid ) != sw_info->echo_request_xid ) {
+    return 0;
+  }
+
+  echo_body *body = ( echo_body * ) ( header + 1 );
+  if ( ntohll( body->datapath_id ) != sw_info->datapath_id ) {
+    return 0;
+  }
+  switch_unset_timeout( echo_reply_timeout, NULL );
+  struct timespec now, tim;
+  clock_gettime( CLOCK_MONOTONIC, &now );
+  tim.tv_sec = ( time_t ) ntohl( body->sec );
+  tim.tv_nsec = ( long ) ntohl( body->nsec );
+
+  SUB_TIMESPEC( &now, &tim, &tim );
+
+  info( "echo round-trip time %u.%09u.", ( uint32_t ) tim.tv_sec, ( uint32_t ) tim.tv_nsec );
+
+  return 0;
+}
+
+
+static void
+echo_request_interval( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  buffer *buf = alloc_buffer();
+  echo_body *body = append_back_buffer( buf, sizeof( echo_body ) );
+  body->datapath_id = htonll( switch_info.datapath_id );
+  struct timespec now;
+  clock_gettime( CLOCK_MONOTONIC, &now );
+  body->sec = htonl( ( uint32_t ) now.tv_sec );
+  body->nsec = htonl( ( uint32_t ) now.tv_nsec );
+  sw_info->echo_request_xid = generate_xid();
+
+  int err = ofpmsg_send_echorequest( sw_info, sw_info->echo_request_xid, buf );
+  if ( err < 0 ) {
+    switch_event_disconnected( &switch_info );
+    return;
+  }
+
+  switch_set_timeout( ECHO_REPLY_TIMEOUT, echo_reply_timeout, NULL );
 }
 
 
@@ -323,6 +425,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
         return ret;
       }
     }
+    add_periodic_event_callback( ECHO_REQUEST_INTERVAL, echo_request_interval, sw_info );
     break;
 
   case SWITCH_STATE_COMPLETED:
@@ -342,6 +445,10 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
 int
 switch_event_disconnected( struct switch_info *sw_info ) {
+
+  if ( sw_info->state == SWITCH_STATE_COMPLETED ) {
+    delete_timer_event( echo_request_interval, sw_info );
+  }
   sw_info->state = SWITCH_STATE_DISCONNECTED;
 
   if ( sw_info->fragment_buf != NULL ) {
@@ -426,10 +533,16 @@ management_recv( uint16_t tag, void *data, size_t data_len ) {
     break;
 
   case DUMP_COOKIE_TABLE:
+    if ( !switch_info.cookie_translation ) {
+      break;
+    }
     dump_cookie_table();
     break;
 
   case TOGGLE_COOKIE_AGING:
+    if ( !switch_info.cookie_translation ) {
+      break;
+    }
     if ( age_cookie_table_enabled ) {
       delete_timer_event( age_cookie_table, NULL );
       age_cookie_table_enabled = false;
@@ -499,9 +612,12 @@ main( int argc, char *argv[] ) {
   switch_info.send_queue = create_message_queue();
   switch_info.recv_queue = create_message_queue();
   switch_info.running_timer = false;
+  switch_info.echo_request_xid = 0;
 
   init_xid_table();
-  init_cookie_table();
+  if ( switch_info.cookie_translation ) {
+    init_cookie_table();
+  }
 
   add_message_received_callback( get_trema_name(), service_recv );
 
@@ -520,7 +636,9 @@ main( int argc, char *argv[] ) {
   start_trema();
 
   finalize_xid_table();
-  finalize_cookie_table();
+  if ( switch_info.cookie_translation ) {
+    finalize_cookie_table();
+  }
 
   if ( switch_info.secure_channel_fd >= 0 ) {
     delete_fd_handler( switch_info.secure_channel_fd );

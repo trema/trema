@@ -153,6 +153,53 @@ begin
     t.options = []
     t.options << "--debug" << "--verbose" if $trace
   end
+
+  yardoc_i18n = "./vendor/yard.i18n/bin/yardoc"
+
+  namespace :yard do
+    desc "Generate YARD Documentation in Japanese"
+    task :ja => "yard:po" do
+      sh "#{ yardoc_i18n } --language ja ruby/trema"
+    end
+  end
+
+  locale_base_dir = "locale"
+  locale_dir = "#{ locale_base_dir }/ja"
+  pot = "#{ locale_base_dir }/yard.pot"
+  po = "#{ locale_dir }/yard.po"
+
+  namespace :yard do
+    desc "generate .pot file"
+    task :pot => pot
+
+    desc "Generate .po file"
+    task :po => po
+
+    file pot => FileList[ "ruby/trema/**/*.rb", "ruby/trema/**/*.c" ] do
+      Rake::Task[ "yard:pot:generate" ].invoke
+    end
+
+    namespace :pot do
+      task :generate do
+        sh( yardoc_i18n, "--no-yardopts", "--output", locale_base_dir, "--format", "pot", "ruby/trema" )
+      end
+    end
+
+    directory locale_dir
+    file po => [ locale_dir, pot ] do
+      Rake::Task[ "yard:po:generate" ].invoke
+    end
+
+    namespace :po do
+      task :generate do
+        if File.exist?( po )
+          sh( "msgmerge", "--update", "--sort-by-file", po, pot )
+        else
+          sh( "msginit", "--input", pot, "--output", po, "--locale", "ja.UTF-8" )
+        end
+      end
+    end
+  end
 rescue LoadError
   $stderr.puts $!.to_s
 end

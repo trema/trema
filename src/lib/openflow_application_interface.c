@@ -89,6 +89,12 @@ bool mock_delete_message_received_callback( char *service_name,
 bool mock_delete_message_replied_callback( char *service_name,
                                            void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
 
+#ifdef clear_send_queue
+#undef clear_send_queue
+#endif
+#define clear_send_queue mock_clear_send_queue
+bool mock_clear_send_queue( const char *service_name );
+
 #ifdef getpid
 #undef getpid
 #endif
@@ -288,6 +294,26 @@ set_error_handler( error_handler callback, void *user_data ) {
 
   event_handlers.error_callback = callback;
   event_handlers.error_user_data = user_data;
+
+  return true;
+}
+
+
+bool
+set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
+  if ( callback == NULL ) {
+    die( "Callback function ( echo_reply_handler ) must not be NULL." );
+  }
+  assert( callback != NULL );
+
+  maybe_init_openflow_application_interface();
+  assert( openflow_application_interface_initialized );
+
+  debug( "Setting a echo reply handler ( callback = %p, user_data = %p ).",
+         callback, user_data );
+
+  event_handlers.echo_reply_callback = callback;
+  event_handlers.echo_reply_user_data = user_data;
 
   return true;
 }
@@ -534,6 +560,57 @@ handle_error( const uint64_t datapath_id, buffer *data ) {
 
   free_buffer( body );
 }
+
+
+static void
+handle_echo_reply( const uint64_t datapath_id, buffer *data ) {
+  uint16_t body_length;
+  uint32_t transaction_id;
+  buffer *body;
+  struct ofp_header *header;
+
+  if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
+    critical( "An OpenFlow message must be filled before calling handle_echo_reply()." );
+    assert( 0 );
+  }
+
+  header = ( struct ofp_header * ) data->data;
+
+  transaction_id = ntohl( header->xid );
+
+  body_length = ( uint16_t ) ( ntohs( header->length )
+                               - sizeof( struct ofp_header ) );
+
+  debug( "A echo reply message is received from %#" PRIx64
+         " ( transaction_id = %#x, body length = %u ).",
+         datapath_id, transaction_id, body_length );
+
+  if ( event_handlers.echo_reply_callback == NULL ) {
+    debug( "Callback function for echo reply events is not set." );
+    return;
+  }
+
+  if ( body_length > 0 ) {
+    body = duplicate_buffer( data );
+    remove_front_buffer( body, sizeof( struct ofp_header ) );
+  }
+  else {
+    body = NULL;
+  }
+
+  debug( "Calling echo reply handler ( callback = %p, user_data = %p ).",
+         event_handlers.echo_reply_callback, event_handlers.echo_reply_user_data );
+
+  event_handlers.echo_reply_callback( datapath_id,
+                                      transaction_id,
+                                      body,
+                                      event_handlers.echo_reply_user_data );
+
+  if ( body != NULL ) {
+    free_buffer( body );
+  }
+}
+
 
 
 static void
@@ -1114,7 +1191,7 @@ static void
 handle_barrier_reply( const uint64_t datapath_id, buffer *data ) {
   uint32_t transaction_id;
   struct ofp_header *header;
-  
+
   if ( ( data == NULL ) || ( ( data != NULL ) && ( data->length == 0 ) ) ) {
     critical( "An OpenFlow message must be filled before calling handle_barrier_reply()." );
     assert( 0 );
@@ -1295,6 +1372,7 @@ handle_messenger_openflow_disconnected( uint64_t datapath_id ) {
   else {
     debug( "Callback function for switch disconnected events is not set." );
   }
+  delete_openflow_messages( datapath_id );
 }
 
 
@@ -1472,6 +1550,9 @@ handle_openflow_message( void *data, size_t length ) {
   switch ( header->type ) {
   case OFPT_ERROR:
     handle_error( datapath_id, buffer );
+    break;
+  case OFPT_ECHO_REPLY:
+    handle_echo_reply( datapath_id, buffer );
     break;
   case OFPT_VENDOR:
     handle_vendor( datapath_id, buffer );
@@ -1664,6 +1745,18 @@ send_list_switches_request( void *user_data ) {
 
   return send_request_message( "switch_manager", service_name, message_type,
                                data, data_length, user_data );
+}
+
+
+bool
+delete_openflow_messages( uint64_t datapath_id ) {
+  debug( "Deleting OpenFlow messages in a send queue ( datapath_id = %#" PRIx64 " ).", datapath_id );
+
+  char remote_service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
+  memset( remote_service_name, '\0', sizeof( remote_service_name ) );
+  snprintf( remote_service_name, sizeof( remote_service_name ),
+            "switch.%#" PRIx64, datapath_id );
+  return clear_send_queue( remote_service_name );
 }
 
 
