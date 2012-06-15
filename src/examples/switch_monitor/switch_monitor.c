@@ -77,7 +77,7 @@ insert_datapath_id( list_element **switches, uint64_t datapath_id ) {
     insert_in_front( switches, new );
   }
   else {
-    insert_before( switches, element, new );
+    insert_before( switches, element->data, new );
   }
 }
 
