@@ -445,11 +445,13 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
 int
 switch_event_disconnected( struct switch_info *sw_info ) {
+  int old_state = sw_info->state;
 
-  if ( sw_info->state == SWITCH_STATE_COMPLETED ) {
+  sw_info->state = SWITCH_STATE_DISCONNECTED;
+
+  if ( old_state == SWITCH_STATE_COMPLETED ) {
     delete_timer_event( echo_request_interval, sw_info );
   }
-  sw_info->state = SWITCH_STATE_DISCONNECTED;
 
   if ( sw_info->fragment_buf != NULL ) {
     free_buffer( sw_info->fragment_buf );
@@ -475,10 +477,14 @@ switch_event_disconnected( struct switch_info *sw_info ) {
     sw_info->secure_channel_fd = -1;
   }
 
-  // send secure channle disconnect state to application
-  service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_DISCONNECTED );
+  if ( old_state != SWITCH_STATE_COMPLETED ) {
+    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_FAILD_TO_CONNECT );
+  }
+  else {
+    // send secure channle disconnect state to application
+    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_DISCONNECTED );
+  }
   flush_messenger();
-  debug( "send disconnected state" );
 
   stop_event_handler();
   stop_messenger();

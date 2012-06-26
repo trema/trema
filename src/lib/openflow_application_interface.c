@@ -1329,6 +1329,9 @@ update_switch_event_stats( uint16_t type, int send_receive, bool result ) {
   case MESSENGER_OPENFLOW_DISCONNECTED:
     snprintf( key, STAT_KEY_LENGTH, "%s%s%s%s", prefix, "switch_disconnected", direction, suffix );
     break;
+  case MESSENGER_OPENFLOW_FAILD_TO_CONNECT:
+    snprintf( key, STAT_KEY_LENGTH, "%s%s%s%s", prefix, "switch_failed_to_connect", direction, suffix );
+    break;
   default:
     snprintf( key, STAT_KEY_LENGTH, "%s%s%s%s", prefix, "undefined_switch_event", direction, suffix );
     break;
@@ -1388,6 +1391,7 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
 
   switch ( type ) {
     case MESSENGER_OPENFLOW_CONNECTED:
+    case MESSENGER_OPENFLOW_FAILD_TO_CONNECT:
       // Do nothing.
       break;
     case MESSENGER_OPENFLOW_READY:
@@ -1603,6 +1607,7 @@ handle_message( uint16_t type, void *data, size_t length ) {
   case MESSENGER_OPENFLOW_MESSAGE:
     return handle_openflow_message( data, length );
   case MESSENGER_OPENFLOW_CONNECTED:
+  case MESSENGER_OPENFLOW_FAILD_TO_CONNECT:
   case MESSENGER_OPENFLOW_READY:
   case MESSENGER_OPENFLOW_DISCONNECTED:
     return handle_switch_events( type, data, length );
