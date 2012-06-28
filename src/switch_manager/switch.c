@@ -486,8 +486,7 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
   flush_messenger();
 
-  stop_event_handler();
-  stop_messenger();
+  stop_trema();
 
   return 0;
 }
@@ -565,6 +564,22 @@ management_recv( uint16_t tag, void *data, size_t data_len ) {
 }
 
 
+static void
+stop_switch_daemon( void ) {
+  switch_event_disconnected( &switch_info );
+}
+
+
+static void
+handle_sigterm( int signum ) {
+  UNUSED( signum );
+
+  if ( !set_external_callback( stop_switch_daemon ) ) {
+    stop_trema();
+  }
+}
+
+
 int
 main( int argc, char *argv[] ) {
   int ret;
@@ -603,6 +618,12 @@ main( int argc, char *argv[] ) {
       insert_in_front( &switch_info.state_service_name_list, service_name );
     }
   }
+
+  struct sigaction signal_exit;
+  memset( &signal_exit, 0, sizeof( struct sigaction ) );
+  signal_exit.sa_handler = handle_sigterm;
+  sigaction( SIGINT, &signal_exit, NULL );
+  sigaction( SIGTERM, &signal_exit, NULL );
 
   fcntl( switch_info.secure_channel_fd, F_SETFL, O_NONBLOCK );
 
