@@ -113,7 +113,7 @@ module Trema
     end
 
     def broadcast?
-      return to_short.all?{|m| m == 0xff}
+      to_short.all?{|m| m == 0xff}
     end
 
     ################################################################################
