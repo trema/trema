@@ -104,17 +104,17 @@ class MyController < Controller
     OpenFlowSwitch.transaction do
       sw = OpenFlowSwitch.create(:dpid => message.datapath_id)
       
-      message.ports.each do |trema_port|
-        sw.open_flow_ports << OpenFlowPort.create(:no => trema_port.number)
+      message.ports.each do | each |
+        sw.open_flow_ports << OpenFlowPort.create(:no => each.number)
       end
     end
   end
 
   def list_switches
-    OpenFlowSwitch.all.each do |sw|
-      puts "list switch #{sw.dpid}"
-      sw.open_flow_ports.each do |port|
-        puts "  port[#{port.no}]"
+    OpenFlowSwitch.all.each do | each |
+      puts "list switch #{each.dpid}"
+      each.open_flow_ports.each do | each |
+        puts "  port[#{each.no}]"
       end
     end
   end
