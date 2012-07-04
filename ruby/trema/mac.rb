@@ -114,7 +114,7 @@ module Trema
 
 
     def broadcast?
-      to_short.all?{|each| each == 0xff}
+      to_short.all? { | each | each == 0xff }
     end
 
 
