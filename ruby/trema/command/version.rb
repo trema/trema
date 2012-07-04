@@ -25,7 +25,7 @@ require "trema/version"
 
 module Trema
   module Command
-    def version
+    def show_version
       puts "trema version #{ Trema::VERSION }"
     end
   end
