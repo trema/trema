@@ -99,9 +99,10 @@ module Trema
         else
           # Ruby controller
           require "trema"
+          include Trema
           ARGV.replace ARGV[ 0 ].split
           $LOAD_PATH << File.dirname( controller_file )
-          Trema.module_eval IO.read( controller_file )
+          load controller_file
         end
       end
 
