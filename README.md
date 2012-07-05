@@ -22,7 +22,7 @@ Getting Started
 
 1.Install the prerequisites at the command prompt:
 
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb file libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb libpcap-dev libsqlite3-dev
 
 2.Install Trema at the command prompt:
 
