@@ -49,16 +49,16 @@ module Trema
     #   Mac.new(0xffffffffffff)
     #
     # @raise [ArgumentError] if invalid format is detected.
-    # @raise [ArgumentError] if supplied argument is not a string or integer.
+    # @raise [TypeError] if supplied argument is not a string or integer.
     #
     def initialize value
       case value
-      when String
-        @value = from_string( value )
-      when Integer
-        @value = from_integer( value )
-      else
-        raise %{Invalid MAC address: #{ value.inspect }}
+        when String
+          @value = from_string( value )
+        when Integer
+          @value = from_integer( value )
+        else
+          raise TypeError, "Invalid MAC address: #{ value.inspect }"
       end
       @string = string_format
     end
@@ -126,7 +126,7 @@ module Trema
       if /^(#{ octet_regex }:){5}(#{ octet_regex })$/=~ string
         eval( "0x" + string.gsub( ":", "" ) )
       else
-        raise %{Invalid MAC address: "#{ string }"}
+        raise ArgumentError, %{Invalid MAC address: "#{ string }"}
       end
     end
 
@@ -135,7 +135,7 @@ module Trema
       if integer >= 0 and integer <= 0xffffffffffff
         integer
       else
-        raise %{Invalid MAC address: #{ integer }}
+        raise ArgumentError, "Invalid MAC address: #{ integer }"
       end
     end
 
