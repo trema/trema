@@ -45,7 +45,7 @@ end
 def method_for command
   case command
     when "version", "-V", "--version"
-      return :version
+      return :show_version
     when "ruby"
       return :ruby
     when "help", "-h", "--help", "/?", "-?"

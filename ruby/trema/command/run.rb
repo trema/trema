@@ -91,17 +91,18 @@ module Trema
 
       if ARGV[ 0 ]
         controller_file = ARGV[ 0 ].split.first
-        if c_controller?
+        if ruby_controller?
+          require "trema"
+          include Trema
+          ARGV.replace ARGV[ 0 ].split
+          $LOAD_PATH << File.dirname( controller_file )
+          load controller_file
+        else
+          # Assume that the controller is written in C
           stanza = Trema::DSL::Run.new
           stanza.path controller_file
           stanza.options ARGV[ 0 ].split[ 1..-1 ]
           Trema::App.new( stanza )
-        else
-          # Ruby controller
-          require "trema"
-          ARGV.replace ARGV[ 0 ].split
-          $LOAD_PATH << File.dirname( controller_file )
-          Trema.module_eval IO.read( controller_file )
         end
       end
 
@@ -109,8 +110,8 @@ module Trema
     end
 
 
-    def c_controller?
-      /ELF/=~ `file #{ ARGV[ 0 ].split.first }`
+    def ruby_controller?
+      /\.rb\Z/=~ ARGV[ 0 ].split.first
     end
   end
 end
