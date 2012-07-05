@@ -18,6 +18,6 @@ group :development do
   gem "redcarpet", "~> 2.1.0"
   gem "reek", "~> 1.2.8"
   gem "roodi", "~> 2.1.0"
-  gem "rspec", "~> 2.10.0"
+  gem "rspec", "~> 2.11.0"
   gem "yard", "~> 0.7"
 end
