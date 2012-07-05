@@ -708,7 +708,7 @@ handle_features_reply( const uint64_t datapath_id, buffer *data ) {
       ntoh_phy_port( p, phy_port );
       append_to_tail( &phy_ports_head, ( void * ) p );
       phy_port_to_string( p, description, sizeof( description ) );
-      debug( "[%u] %s", phy_port, description );
+      debug( "[%p] %s", phy_port, description );
       phy_port++;
     }
   }
