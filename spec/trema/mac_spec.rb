@@ -97,6 +97,27 @@ module Trema
       end
     end
 
+    context "when querying broadcast or not" do
+      subject { Mac.new( mac_address ) }
+
+      context "should true" do
+        let( :mac_address ) { 0xffffffffffff }
+        it { should == Mac.new( 0xffffffffffff ) }
+        its( :broadcast? ){ should == true}
+      end
+
+      context "should false" do
+        let( :mac_address ) { 0x112233445566 }
+        it { should == Mac.new(  0x112233445566 ) }
+        its( :broadcast? ){ should == false}
+      end
+
+      context "should false" do
+        let( :mac_address ) { 0xFF2233445566 }
+        it { should == Mac.new( 0xFF2233445566 ) }
+        its( :broadcast? ){ should == false}
+      end
+    end
 
     context "when querying FDB" do
       it "should be used for FDB keys" do
