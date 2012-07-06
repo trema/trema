@@ -282,7 +282,7 @@ test_match_to_string_fails_with_insufficient_buffer() {
 static void
 test_phy_port_to_string() {
   char phy_port_str[ 256 ];
-  char expected_phy_port_str[] = "port_no = 1, hw_addr =  01:02:03:04:05:06, name = GbE 0/1, config = 0x1, state = 0x1, curr = 0x4a0, advertised = 0x6bf, supported = 0x6bf, peer = 0x6bf";
+  char expected_phy_port_str[] = "port_no = 1, hw_addr = 01:02:03:04:05:06, name = GbE 0/1, config = 0x1, state = 0x1, curr = 0x4a0, advertised = 0x6bf, supported = 0x6bf, peer = 0x6bf";
   uint8_t hw_addr[ OFP_ETH_ALEN ] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
   uint32_t port_features = ( OFPPF_10MB_HD | OFPPF_10MB_FD | OFPPF_100MB_HD |
                              OFPPF_100MB_FD | OFPPF_1GB_HD | OFPPF_1GB_FD |
