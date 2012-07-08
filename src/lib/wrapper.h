@@ -62,6 +62,7 @@ void *xcalloc( size_t nmemb, size_t size );
 void xfree( void *ptr );
 
 char *xstrdup( const char *s );
+char *xvasprintf( const char *format, va_list args );
 char *xasprintf( const char *format, ... );
 
 
