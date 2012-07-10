@@ -154,6 +154,32 @@ test_xstrdup_fail() {
 }
 
 
+static char *
+test_xvasprintf_helper( const char *fmt, ... ) {
+  va_list ap;
+  va_start(ap, fmt);
+  char *str = xvasprintf( fmt, ap );
+  va_end(ap);
+  return str;
+}
+
+
+static void
+test_xvasprintf() {
+  char hello[] = "Hello";
+  char *printed_hello = test_xvasprintf_helper( "%s", hello );
+  assert_string_equal( hello, printed_hello );
+  xfree( printed_hello );
+}
+
+
+static void
+test_xvasprintf_fail() {
+  expect_string( mock_die, output, "Out of memory, xvasprintf failed" );
+  expect_assert_failure( test_xvasprintf_helper( "FAIL" ) );
+}
+
+
 static void
 test_xasprintf() {
   char hello[] = "Hello";
@@ -185,6 +211,9 @@ main() {
 
     unit_test_setup_teardown( test_xstrdup, setup, teardown ),
     unit_test_setup_teardown( test_xstrdup_fail, setup_fail_allocators, teardown ),
+
+    unit_test_setup_teardown( test_xvasprintf, setup, teardown ),
+    unit_test_setup_teardown( test_xvasprintf_fail, setup_fail_allocators, teardown ),
 
     unit_test_setup_teardown( test_xasprintf, setup, teardown ),
     unit_test_setup_teardown( test_xasprintf_fail, setup_fail_allocators, teardown ),
