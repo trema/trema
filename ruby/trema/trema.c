@@ -135,6 +135,7 @@ Init_trema() {
   Init_stats_request();
   Init_switch();
   Init_vendor();
+  Init_lldp();
 
   rb_require( "trema/exact-match" );
 }
