@@ -371,7 +371,7 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *     The entire Ethernet frame. Should be of length 0 if buffer_id
  *     is 0xffffffff, and should be of length >0 otherwise.
  *
- *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
+ *   @option options [Action, Array<Action>, nil] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the frame.
  */

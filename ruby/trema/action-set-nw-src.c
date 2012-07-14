@@ -25,6 +25,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetNwSrc;
+static const char *attr = "@nw_src";
 
 
 /*
@@ -54,12 +55,15 @@ action_set_nw_src_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
     VALUE nw_src;
-    if ( ( nw_src = rb_hash_aref( options, ID2SYM( rb_intern( "nw_src" ) ) ) ) != Qnil ) {
+    if ( ( nw_src = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       if ( rb_obj_is_instance_of( nw_src, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
         rb_raise( rb_eTypeError, "nw src address should be an IP object" );
       }
-      rb_iv_set( self, "@nw_src", nw_src );
+      rb_iv_set( self, attr, nw_src );
     }
     else {
       rb_raise( rb_eArgError, "nw src address is a mandatory option" );
@@ -76,7 +80,7 @@ action_set_nw_src_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_nw_src( VALUE self ) {
-  return rb_iv_get( self, "@nw_src" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -104,7 +108,7 @@ static VALUE
 action_set_nw_src_inspect( VALUE self ) {
   char str[ 64 ];
 
-  sprintf( str, "#<%s nw_src=%s>", rb_obj_classname( self ), RSTRING_PTR( nw_addr_to_s( action_get_nw_src( self ) ) ) );
+  sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( nw_addr_to_s( action_get_nw_src( self ) ) ) );
   return rb_str_new2( str );
 }
 
@@ -123,9 +127,9 @@ action_set_nw_src_to_i( VALUE self ) {
 void
 Init_action_set_nw_src() {
   rb_require( "ipaddr" );
-  cActionSetNwSrc = rb_define_class_under( mTrema, "ActionSetNwSrc", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetNwSrc = rb_define_class_under( mTrema, "ActionSetNwSrc", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetNwSrc, "initialize", action_set_nw_src_init, -1 );
-  rb_define_method( cActionSetNwSrc, "nw_src", action_get_nw_src, 0 );
   rb_define_method( cActionSetNwSrc, "append", action_set_nw_src_append, 1 );
   rb_define_method( cActionSetNwSrc, "inspect", action_set_nw_src_inspect, 0 );
   rb_define_method( cActionSetNwSrc, "to_i", action_set_nw_src_to_i, 0 );

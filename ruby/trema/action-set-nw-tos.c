@@ -24,6 +24,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetNwTos;
+static const char *attr = "@nw_tos";
 
 
 /*
@@ -53,12 +54,15 @@ action_set_nw_tos_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
     VALUE nw_tos;
-    if ( ( nw_tos = rb_hash_aref( options, ID2SYM( rb_intern( "nw_tos" ) ) ) ) != Qnil ) {
+    if ( ( nw_tos = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       if ( rb_funcall( nw_tos, rb_intern( "unsigned_8bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Nw tos must be an unsigned 8-bit integer" );
       }
-      rb_iv_set( self, "@nw_tos", nw_tos );
+      rb_iv_set( self, attr, nw_tos );
     }
     else {
       rb_raise( rb_eArgError, "Nw tos is a mandatory option" );
@@ -75,7 +79,7 @@ action_set_nw_tos_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_nw_tos( VALUE self ) {
-  return rb_iv_get( self, "@nw_tos" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -101,16 +105,16 @@ static VALUE
 action_set_nw_tos_inspect( VALUE self ) {
   char str[ 64 ];
   uint8_t nw_tos = ( uint8_t ) NUM2UINT( action_get_nw_tos( self ) );
-  sprintf( str, "#<%s nw_tos=%u>", rb_obj_classname( self ), nw_tos );
+  sprintf( str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, nw_tos );
   return rb_str_new2( str );
 }
 
 
 void
 Init_action_set_nw_tos() {
-  cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, -1 );
-  rb_define_method( cActionSetNwTos, "nw_tos", action_get_nw_tos, 0 );
   rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
   rb_define_method( cActionSetNwTos, "inspect", action_set_nw_tos_inspect, 0 );
 }

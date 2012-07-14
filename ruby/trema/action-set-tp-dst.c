@@ -24,6 +24,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetTpDst;
+static const char *attr = "@tp_dst";
 
 
 /*
@@ -52,12 +53,15 @@ action_set_tp_dst_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
     VALUE tp_dst;
-    if ( ( tp_dst = rb_hash_aref( options, ID2SYM( rb_intern( "tp_dst" ) ) ) ) != Qnil ) {
+    if ( ( tp_dst = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       if ( rb_funcall( tp_dst, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Destination TCP or UDP port must be an unsigned 16-bit integer" );
       }
-      rb_iv_set( self, "@tp_dst", tp_dst );
+      rb_iv_set( self, attr, tp_dst );
     }
     else {
       rb_raise( rb_eArgError, "Destination TCP or UDP port must be a mandatory option" );
@@ -74,7 +78,7 @@ action_set_tp_dst_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_tp_dst( VALUE self ) {
-  return rb_iv_get( self, "@tp_dst" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -106,9 +110,9 @@ action_set_tp_dst_inspect( VALUE self ) {
 
 void
 Init_action_set_tp_dst() {
-  cActionSetTpDst = rb_define_class_under( mTrema, "ActionSetTpDst", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetTpDst = rb_define_class_under( mTrema, "ActionSetTpDst", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, -1 );
-  rb_define_method( cActionSetTpDst, "tp_dst", action_get_tp_dst, 0 );
   rb_define_method( cActionSetTpDst, "append", action_set_tp_dst_append, 1 );
   rb_define_method( cActionSetTpDst, "inspect", action_set_tp_dst_inspect, 0 );
 }
