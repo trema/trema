@@ -273,7 +273,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     added and the modification fails.
  *
  *   @option options [Boolean] :emerg (false)
- *     if true, the switch must consider this flow entry as an
+ *     If true, the switch must consider this flow entry as an
  *     emergency entry, and only use it for forwarding when
  *     disconnected from the controller.
  *
@@ -374,6 +374,9 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *   @option options [Action, Array<Action>, nil] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the frame.
+ *
+ *   @option options [Boolean] :zero_padding (false)
+ *     If true, fill up to minimum ethernet frame size.
  */
 static VALUE
 controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
@@ -387,6 +390,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
   openflow_actions *actions = create_actions();
   const buffer *data = NULL;
   buffer *allocated_data = NULL;
+  VALUE opt_zero_padding = Qnil;
 
   if ( options != Qnil ) {
     VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
@@ -424,6 +428,22 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
       memcpy( append_back_buffer( allocated_data, length ), RSTRING_PTR( opt_data ), length );
       data = allocated_data;
     }
+
+    opt_zero_padding = rb_hash_aref( options, ID2SYM( rb_intern( "zero_padding" ) ) );
+    if ( opt_zero_padding != Qnil ) {
+      if ( TYPE( opt_zero_padding ) != T_TRUE && TYPE( opt_zero_padding ) != T_FALSE) {
+        rb_raise(rb_eTypeError, ":zero_padding must be true or false");
+      }
+    }
+  }
+
+  if ( data != NULL && data->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH &&
+       opt_zero_padding != Qnil && TYPE( opt_zero_padding ) == T_TRUE ) {
+    if ( allocated_data == NULL ) {
+      allocated_data = duplicate_buffer( data );
+      data = allocated_data;
+    }
+    fill_ether_padding( allocated_data );
   }
 
   buffer *packet_out = create_packet_out(
