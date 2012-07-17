@@ -21,7 +21,7 @@
 module Trema
   class Action
     def initialize attrs
-      attrs.each do | each | 
+      attrs.each do | each |
         self.class.__send__ :attr_accessor, each
       end
     end
