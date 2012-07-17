@@ -29,7 +29,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :mfr_desc => "NEC Corporation",
         :hw_desc => "no hardware description",
         :sw_desc => "version xx.xx",
-        :serial_num => "1234"
+        :serial_num => "1234",
+        :dp_desc => "nec01"                         
       )
     end
 
@@ -38,6 +39,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its ( :hw_desc ) { should eq( "no hardware description" ) }
     its ( :sw_desc ) { should eq( "version xx.xx" ) }
     its ( :serial_num ) { should eq( "1234" ) }
+    its ( :dp_desc ) { should eq( "nec01" ) }
   end
 
 
