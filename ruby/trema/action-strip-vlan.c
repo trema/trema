@@ -66,7 +66,8 @@ action_strip_vlan_inspect( VALUE self ) {
 
 void
 Init_action_strip_vlan() {
-  cActionStripVlan = rb_define_class_under( mTrema, "ActionStripVlan", rb_cObject );
+  rb_require( "trema/action" );
+  cActionStripVlan = rb_define_class_under( mTrema, "ActionStripVlan", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionStripVlan, "initialize", action_strip_vlan_init, 0 );
   rb_define_method( cActionStripVlan, "append", action_strip_vlan_append, 1 );
   rb_define_method( cActionStripVlan, "inspect", action_strip_vlan_inspect, 0 );
