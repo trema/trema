@@ -24,6 +24,10 @@
 
 extern VALUE mTrema;
 VALUE cActionEnqueue;
+static const char *attrs[] = {
+  "@port",
+  "@queue_id"
+};
 
 
 /*
@@ -58,23 +62,32 @@ action_enqueue_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
 
   if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
+    /*
+     * since there is no way that I know of to retrieve the keys from the hash we
+     * explicitly set them.
+     */
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attrs[ 0 ] + 1 ) );
+    rb_ary_push( fields, rb_str_new2( attrs[ 1 ] + 1 ) );
+    rb_call_super( 1, &fields );
     Check_Type( options, T_HASH );
     VALUE port;
-    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
+    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 0 ] + 1 ) ) ) ) != Qnil ) {
       if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
       }
-      rb_iv_set( self, "@port", port );
+      rb_iv_set( self, attrs[ 0 ], port );
     }
     else {
       rb_raise( rb_eArgError, "Port is a mandatory option" );
     }
     VALUE queue_id;
-    if ( ( queue_id = rb_hash_aref( options, ID2SYM( rb_intern( "queue_id" ) ) ) ) != Qnil ) {
+    if ( ( queue_id = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 1 ] + 1 ) ) ) ) != Qnil ) {
       if ( rb_funcall( queue_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Queue id must be an unsigned 32-bit integer" );
       }
-      rb_iv_set( self, "@queue_id", queue_id );
+      rb_iv_set( self, attrs[ 1 ], queue_id );
+
     }
     else {
       rb_raise( rb_eArgError, "Queue id is a mandatory option" );
@@ -94,7 +107,7 @@ action_enqueue_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_enqueue_get_port( VALUE self ) {
-  return rb_iv_get( self, "@port" );
+  return rb_iv_get( self, attrs[ 0 ] );
 }
 
 
@@ -105,8 +118,9 @@ action_enqueue_get_port( VALUE self ) {
  */
 static VALUE
 action_enqueue_get_queue_id( VALUE self ) {
-  return rb_iv_get( self, "@queue_id" );
+  return rb_iv_get( self, attrs[ 1 ] );
 }
+
 
 /*
  * Appends its action(enqueue) to the list of actions.
@@ -144,10 +158,9 @@ action_enqueue_inspect( VALUE self ) {
 
 void
 Init_action_enqueue() {
-  cActionEnqueue = rb_define_class_under( mTrema, "ActionEnqueue", rb_cObject );
+  rb_require( "trema/action" );
+  cActionEnqueue = rb_define_class_under( mTrema, "ActionEnqueue", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionEnqueue, "initialize", action_enqueue_init, -1 );
-  rb_define_method( cActionEnqueue, "port", action_enqueue_get_port, 0 );
-  rb_define_method( cActionEnqueue, "queue_id", action_enqueue_get_queue_id, 0 );
   rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );
   rb_define_method( cActionEnqueue, "inspect", action_enqueue_inspect, 0 );
 }

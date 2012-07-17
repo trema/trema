@@ -24,6 +24,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetVlanVid;
+static const char *attr = "@vlan_vid";
 
 
 /*
@@ -55,12 +56,15 @@ action_set_vlan_vid_init( int argc, VALUE *argv, VALUE self ) {
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
     VALUE vlan_vid;
-    if ( ( vlan_vid = rb_hash_aref( options, ID2SYM( rb_intern( "vlan_vid" ) ) ) ) != Qnil ) {
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
+    if ( ( vlan_vid = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       uint16_t vvid = ( uint16_t ) NUM2UINT( vlan_vid );
       if ( !vvid || vvid & ~4095 ) {
         rb_raise( rb_eRangeError, "Valid VLAN id values between 1 to 4096 inclusive" );
       }
-      rb_iv_set( self, "@vlan_vid", vlan_vid );
+      rb_iv_set( self, attr, vlan_vid );
     }
     else {
       rb_raise( rb_eArgError, "VLAN id is a mandatory option" );
@@ -77,7 +81,7 @@ action_set_vlan_vid_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_vlan_vid( VALUE self ) {
-  return rb_iv_get( self, "@vlan_vid" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -102,16 +106,16 @@ static VALUE
 action_set_vlan_vid_inspect( VALUE self ) {
   char str[ 64 ];
   uint16_t vlan_vid = ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) );
-  sprintf( str, "#<%s vlan_vid=%u>", rb_obj_classname( self ), vlan_vid );
+  sprintf( str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, vlan_vid );
   return rb_str_new2( str );
 }
 
 
 void
 Init_action_set_vlan_vid() {
-  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, -1 );
-  rb_define_method( cActionSetVlanVid, "vlan_vid", action_get_vlan_vid, 0 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
   rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
 }
