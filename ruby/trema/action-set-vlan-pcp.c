@@ -24,7 +24,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetVlanPcp;
-
+static const char *attr = "@vlan_pcp";
 
 
 /*
@@ -56,13 +56,16 @@ action_set_vlan_pcp_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
     VALUE vlan_pcp;
-    if ( ( vlan_pcp = rb_hash_aref( options, ID2SYM( rb_intern( "vlan_pcp" ) ) ) ) != Qnil ) {
+    if ( ( vlan_pcp = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       uint8_t vpcp = ( uint8_t ) NUM2UINT( vlan_pcp );
       if ( vpcp & ~7 ) {
         rb_raise( rb_eRangeError, "Valid VLAN priority values are 0 to 7 inclusive" );
       }
-      rb_iv_set( self, "@vlan_pcp", vlan_pcp );
+      rb_iv_set( self, attr, vlan_pcp );
     }
     else {
       rb_raise( rb_eArgError, "VLAN priority is a mandatory option" );
@@ -79,7 +82,7 @@ action_set_vlan_pcp_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_vlan_pcp( VALUE self ) {
-  return rb_iv_get( self, "@vlan_pcp" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -105,16 +108,16 @@ static VALUE
 action_set_vlan_pcp_inspect( VALUE self ) {
   char str[ 64 ];
   uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( action_get_vlan_pcp( self ) );
-  sprintf(str, "#<%s vlan_pcp=%u>", rb_obj_classname( self ), vlan_pcp );
+  sprintf(str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, vlan_pcp );
   return rb_str_new2( str );
 }
 
 
 void
 Init_action_set_vlan_pcp() {
-  cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, -1 );
-  rb_define_method( cActionSetVlanPcp, "vlan_pcp", action_get_vlan_pcp, 0 );
   rb_define_method( cActionSetVlanPcp, "append", action_set_vlan_pcp_append, 1 );
   rb_define_method( cActionSetVlanPcp, "inspect", action_set_vlan_pcp_inspect, 0 );
 }

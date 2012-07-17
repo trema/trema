@@ -25,6 +25,7 @@
 
 extern VALUE mTrema;
 VALUE cActionSetDlSrc;
+static const char *attr = "@dl_src";
 
 
 /*
@@ -55,12 +56,15 @@ action_set_dl_src_init( int argc, VALUE *argv, VALUE self ) {
 
   if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
     Check_Type( options, T_HASH );
+    VALUE fields = rb_ary_new();
+    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
+    rb_call_super( 1, &fields );
     VALUE dl_src;
-    if ( ( dl_src = rb_hash_aref( options, ID2SYM( rb_intern( "dl_src" ) ) ) ) != Qnil ) {
+    if ( ( dl_src = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
       if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
         rb_raise( rb_eTypeError, "dl src address should be a Mac object" );
       }
-      rb_iv_set( self, "@dl_src", dl_src );
+      rb_iv_set( self, attr, dl_src );
     }
     else {
       rb_raise( rb_eArgError, "dl src address is a mandatory option" );
@@ -77,7 +81,7 @@ action_set_dl_src_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 action_get_dl_src( VALUE self ) {
-  return rb_iv_get( self, "@dl_src" );
+  return rb_iv_get( self, attr );
 }
 
 
@@ -108,16 +112,16 @@ action_set_dl_src_inspect( VALUE self ) {
   
   VALUE dl_src_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
   char str[ 64 ];
-  sprintf( str, "#<%s dl_src=%s>", rb_obj_classname( self ), RSTRING_PTR( dl_src_str ) );
+  sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( dl_src_str ) );
   return rb_str_new2( str );
 }
 
 
 void
 Init_action_set_dl_src() {
-  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_cObject );
+  rb_require( "trema/action" );
+  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_path2class( "Trema::Action" ) );
   rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, -1 );
-  rb_define_method( cActionSetDlSrc, "dl_src", action_get_dl_src, 0 );
   rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
   rb_define_method( cActionSetDlSrc, "inspect", action_set_dl_src_inspect, 0 );
 }
