@@ -1,8 +1,6 @@
 #
 # A base action class that defines attributes for all action subclasses.
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,9 @@
 module Trema
   class Action
     def initialize attrs
-      attrs.each { | attr | self.class.send( :attr_accessor, attr ) }
+      attrs.each do | each | 
+        self.class.__send__ :attr_accessor, each
+      end
     end
   end
 end
