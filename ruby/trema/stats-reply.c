@@ -496,7 +496,7 @@ handle_stats_reply(
   }
 
   VALUE r_stats_reply = rb_funcall( cStatsReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "stats_reply" ), 1, r_stats_reply );
+  rb_funcall( controller, rb_intern( "stats_reply" ), 2, ULL2NUM( datapath_id ), r_stats_reply );
 }
 
 

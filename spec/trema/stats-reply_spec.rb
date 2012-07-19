@@ -189,7 +189,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
       network {
         vswitch( "desc-stats" ) { datapath_id 0xabc }
       }.run( DescStatsController ) {
-        controller( "DescStatsController" ).should_receive( :stats_reply ) do | message |
+        controller( "DescStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc          
           message.type.should == 0
           message.stats[ 0 ].mfr_desc.should eq( "Nicira Networks, Inc." )
           message.stats[ 0 ].hw_desc.should eq( "Open vSwitch" )
@@ -226,7 +227,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         send_packets "host1", "host2", :n_pkts => 2
         sleep 2 # FIXME: wait to send_packets
 
-        controller( "FlowStatsController" ).should_receive( :stats_reply ) do | message |
+        controller( "FlowStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.type.should == 1
           message.stats[ 0 ].packet_count.should == 2
           message.stats[ 0 ].should respond_to :to_s
@@ -262,7 +264,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         send_packets "host1", "host2", :n_pkts => 10
         sleep 2 # FIXME: wait to send_packets
 
-        controller( "AggregateStatsController" ).should_receive( :stats_reply ) do | message |
+        controller( "AggregateStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.type.should == 2
           message.stats[ 0 ].packet_count.should == 10
           message.stats[ 0 ].flow_count.should == 1
@@ -295,7 +298,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
         
-        controller( "PortStatsController" ).should_receive( :stats_reply ) do | message |
+        controller( "PortStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.type.should == 4
           message.stats[ 0 ].should be_an_instance_of(Trema::PortStatsReply)
           message.stats[ 0 ].should respond_to :to_s
@@ -325,7 +329,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
         
-        controller( "TableStatsController" ).should_receive( :stats_reply ) do | message |
+        controller( "TableStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.type.should == 3
           message.transaction_id.should == 123
           message.stats[ 0 ].should be_an_instance_of(Trema::TableStatsReply)
