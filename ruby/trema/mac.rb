@@ -84,6 +84,7 @@ module Trema
         each.hex
       end
     end
+    alias :to_array :to_short
 
 
     #
