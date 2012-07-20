@@ -95,7 +95,7 @@ module Trema
     #    an array of decimal numbers converted from IP address.
     #
     def to_array
-      self.to_s.split( "." ).collect do | each |
+      to_s.split( "." ).collect do | each |
         each.to_i
       end
     end
