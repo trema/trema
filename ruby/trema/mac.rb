@@ -84,7 +84,7 @@ module Trema
         each.hex
       end
     end
-    alias :to_array :to_short
+    alias :to_a :to_short
 
 
     #
@@ -92,7 +92,7 @@ module Trema
     #   an array of decimal numbers converted from Ethernet's address string
     #   format.
     #
-    def to_array
+    def to_a
       self.to_short
     end
 
