@@ -150,7 +150,7 @@ begin
 
   YARD::Rake::YardocTask.new do | t |
     t.files = [ "ruby/trema/**/*.c", "ruby/trema/**/*.rb" ]
-    t.options = []
+    t.options = [ "--no-private" ]
     t.options << "--debug" << "--verbose" if $trace
   end
 

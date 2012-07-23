@@ -87,19 +87,12 @@ module Trema
 
 
     #
-    # @return [Boolean] if other matches or not the attribute type value.
+    # @private
     #
     def == other
       @value == other.value
     end
-
-
-    #
-    # @return [Boolean] if other matches or not the attribute type value.
-    #
-    def eql? other
-      @value == other.value
-    end
+    alias :eql? :==
 
 
     #

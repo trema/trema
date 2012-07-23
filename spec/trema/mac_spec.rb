@@ -83,7 +83,7 @@ module Trema
 
   describe Mac do
     context "when querying FDB" do
-      it "should be used for FDB keys" do
+      it "can be used for Hash keys" do
         fdb = {}
         fdb[ Mac.new( "00:00:00:00:00:01" ) ] = "Port #1"
         fdb[ Mac.new( "00:00:00:00:00:01" ) ].should == "Port #1"
