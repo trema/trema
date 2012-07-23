@@ -59,9 +59,10 @@ module Trema
     def initialize value
       case value
         when String
-          @value = from_string( value )
+          @value = create_from( value )
         when Integer
-          @value = from_integer( value )
+          @value = value
+          validate_value_range
         else
           raise TypeError, "Invalid MAC address: #{ value.inspect }"
       end
@@ -140,21 +141,19 @@ module Trema
     ################################################################################
 
 
-    def from_string string
+    def create_from string
       octet_regex = "[0-9a-fA-F][0-9a-fA-F]"
       if /^(#{ octet_regex }:){5}(#{ octet_regex })$/=~ string
-        eval( "0x" + string.gsub( ":", "" ) )
+        string.gsub( ":", "" ).hex
       else
         raise ArgumentError, %{Invalid MAC address: "#{ string }"}
       end
     end
 
 
-    def from_integer integer
-      if integer >= 0 and integer <= 0xffffffffffff
-        integer
-      else
-        raise ArgumentError, "Invalid MAC address: #{ integer }"
+    def validate_value_range
+      if not ( @value >= 0 and @value <= 0xffffffffffff )
+        raise ArgumentError, "Invalid MAC address: #{ @value }"
       end
     end
 
