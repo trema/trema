@@ -75,7 +75,7 @@ module Trema
     # delimited by colons.
     #
     # @example
-    #   Mac.new("11:22:33:44:55:66").to_s #=> "11:22:33:44:55:66"
+    #   Mac.new(18838586676582).to_s #=> "11:22:33:44:55:66"
     #
     # @return [String] the Ethernet address in String format
     #
