@@ -103,6 +103,9 @@ module Trema
     end
 
 
+    #
+    # @return [Boolean] if MAC address is broadcast or not.
+    #
     def broadcast?
       to_a.all? { | each | each == 0xff }
     end
