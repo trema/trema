@@ -79,21 +79,10 @@ module Trema
     #   an array of decimal numbers converted from Ethernet's address string
     #   format.
     #
-    def to_short
+    def to_a
       @string.split( ":" ).collect do | each |
         each.hex
       end
-    end
-    alias :to_a :to_short
-
-
-    #
-    # @return [Array]
-    #   an array of decimal numbers converted from Ethernet's address string
-    #   format.
-    #
-    def to_a
-      self.to_short
     end
 
 
@@ -118,12 +107,12 @@ module Trema
     #
     def is_multicast?
       # check I/G bit
-      return to_short[0] & 1 == 1
+      to_a[ 0 ] & 1 == 1
     end
 
 
     def broadcast?
-      to_short.all? { | each | each == 0xff }
+      to_a.all? { | each | each == 0xff }
     end
 
 

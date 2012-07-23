@@ -55,7 +55,6 @@ module Trema
       its( :value ) { should == 0x112233445566 }
       its( :to_s ) { should == "11:22:33:44:55:66" }
       its( :to_a ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
-      its( :to_short ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
       its( :broadcast? ){ should be_false }
     end
 
@@ -65,7 +64,6 @@ module Trema
       its( :value ) { should == 0 }
       its( :to_s ) { should == "00:00:00:00:00:00" }
       its( :to_a ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
-      its( :to_short ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
       its( :broadcast? ){ should be_false }
     end
 
@@ -75,7 +73,6 @@ module Trema
       its( :value ) { should == 0xffffffffffff }
       its( :to_s ) { should == "ff:ff:ff:ff:ff:ff" }
       its( :to_a ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
-      its( :to_short ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
       its( :broadcast? ){ should be_true }
     end
   end

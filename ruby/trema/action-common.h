@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,12 +21,8 @@
 
 
 uint32_t nw_addr_to_i( VALUE nw_addr );
-
-
 VALUE nw_addr_to_s( VALUE nw_addr );
-
-
-uint8_t *dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr );
+uint8_t *dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr );
 
 
 #endif // ACTION_COMMON_H

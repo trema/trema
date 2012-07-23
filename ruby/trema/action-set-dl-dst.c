@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,10 +92,10 @@ static VALUE
 action_set_dl_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  
+
   uint8_t dl_dst[ OFP_ETH_ALEN ];
   uint8_t *ptr;
-  ptr = ( uint8_t* ) dl_addr_short( action_get_dl_dst( self ), dl_dst );
+  ptr = ( uint8_t* ) dl_addr_to_a( action_get_dl_dst( self ), dl_dst );
   append_action_set_dl_dst( actions, ptr );
   return self;
 }
@@ -110,7 +108,7 @@ static VALUE
 action_set_dl_dst_inspect( VALUE self ) {
   VALUE mac_obj = action_get_dl_dst( self );
   VALUE dl_dst_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
-  
+
   char str[ 64 ];
   sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( dl_dst_str ) );
   return rb_str_new2( str );

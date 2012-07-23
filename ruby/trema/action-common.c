@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,8 +39,8 @@ nw_addr_to_s( VALUE nw_addr ) {
 
 
 uint8_t *
-dl_addr_short( VALUE dl_addr, uint8_t *ret_dl_addr ) {
-  VALUE mac_arr = rb_funcall( dl_addr, rb_intern( "to_short" ), 0 );
+dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr ) {
+  VALUE mac_arr = rb_funcall( dl_addr, rb_intern( "to_a" ), 0 );
   int i;
 
   for ( i = 0; i < RARRAY_LEN( mac_arr); i++ ) {

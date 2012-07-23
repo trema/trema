@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -97,7 +95,7 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 
   uint8_t dl_src[ OFP_ETH_ALEN ];
   uint8_t *ptr;
-  ptr = ( uint8_t* ) dl_addr_short( action_get_dl_src( self ), dl_src );
+  ptr = ( uint8_t* ) dl_addr_to_a( action_get_dl_src( self ), dl_src );
   append_action_set_dl_src( actions, ptr );
   return self;
 }
@@ -109,7 +107,7 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 static VALUE
 action_set_dl_src_inspect( VALUE self ) {
   VALUE mac_obj = action_get_dl_src( self );
-  
+
   VALUE dl_src_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
   char str[ 64 ];
   sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( dl_src_str ) );
