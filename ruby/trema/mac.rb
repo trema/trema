@@ -34,7 +34,7 @@ module Trema
     # @example
     #   Mac.new("11:22:33:44:55:66") #=> 18838586676582
     #
-    # @return [Number] the Ethernet address in numeric number
+    # @return [Number] the Ethernet address in numeric format
     #
     attr_reader :value
 
