@@ -45,10 +45,10 @@ module Trema
     end
   end
 
-  
+
   describe Mac, ".new(value)" do
     subject { Mac.new( value ) }
-    
+
     context %{when "11:22:33:44:55:66"} do
       let( :value ) { "11:22:33:44:55:66" }
       it { should == Mac.new( "11:22:33:44:55:66" ) }
