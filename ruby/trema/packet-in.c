@@ -1016,6 +1016,22 @@ packet_in_udp_checksum( VALUE self ) {
 }
 
 
+/*
+ * Is an LLDP packet?
+ *
+ * @return [bool] lldp? Is an LLDP packet?
+ */
+static VALUE
+packet_in_is_lldp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_LLDP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
 void
 Init_packet_in() {
   rb_require( "trema/ip" );
@@ -1043,6 +1059,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
   rb_define_method( cPacketIn, "udp?", packet_in_is_udp, 0 );
+  rb_define_method( cPacketIn, "lldp?", packet_in_is_lldp, 0 );
 
   rb_define_method( cPacketIn, "vlan_tpid", packet_in_vlan_tpid, 0 );
   rb_define_method( cPacketIn, "vlan_tci", packet_in_vlan_tci, 0 );
