@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,36 +20,37 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetDlSrc, ".new( VALID OPTION )" do
-  subject { ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) ) }
-  its ( :dl_src ) { should be_an_instance_of( Trema::Mac ) }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionSetDlSrc dl_src=52:54:00:a8:ad:8c>"
+describe ActionSetDlSrc, ".new(value)" do
+  subject { ActionSetDlSrc.new( value ) }
+
+  context %{when "52:54:00:a8:ad:8c"} do
+    let( :value ) { "52:54:00:a8:ad:8c" }
+    its ( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
   end
 end
 
 
-describe ActionSetDlSrc, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
-  end
-end
+describe ActionSetDlSrc, ".new(invalid_value)" do
+  subject { ActionSetDlSrc.new( invalid_value ) }
 
-
-describe ActionSetDlSrc, ".new( INVALID OPTION )" do
-  context "when argument type Array instead of Hash" do
-    subject { ActionSetDlSrc.new( [ Mac.new( '52:54:00:a8:ad:8c' ) ] ) }
-    it "should raise TypeError" do
-      expect { subject }.to raise_error( TypeError )
-    end
+  context %{when "INVALID MAC ADDRESS"} do
+    let( :invalid_value ) { "INVALID MAC ADDRESS" }
+    it { expect { subject }.to raise_error( ArgumentError ) }
   end
 
+  context "when -1" do
+    let( :invalid_value ) { -1 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
 
-  context "when dl_src not a Trema::Mac object" do
-    subject { ActionSetDlSrc.new :dl_src => 1234 }
-    it "should raise TypeError" do
-      expect { subject }.to raise_error( TypeError, /dl src address should be a Mac object/ )
-    end
+  context "when 0x1000000000000" do
+    let( :invalid_value ) { 0x1000000000000 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context "when [ 1, 2, 3 ]" do
+    let( :invalid_value ) { [ 1, 2, 3 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 end
 
@@ -63,7 +62,7 @@ describe ActionSetDlSrc, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) )
+        action = ActionSetDlSrc.new( "52:54:00:a8:ad:8c" )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
@@ -75,7 +74,7 @@ describe ActionSetDlSrc, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions =>  ActionSetDlSrc.new( :dl_src => Mac.new( "52:54:00:a8:ad:8c" ) ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetDlSrc.new( "52:54:00:a8:ad:8c" ) )
         sleep 2 # FIXME: wait to send_flow_mod
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_dl_src:52:54:00:a8:ad:8c/ )

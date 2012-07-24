@@ -23,70 +23,36 @@
 
 extern VALUE mTrema;
 VALUE cActionSetDlSrc;
-static const char *attr = "@dl_src";
 
 
 /*
  * An action to modify the source Ethernet address of a packet.
  *
- * @overload initialize(options={})
+ * @overload initialize(mac_address)
  *
  *   @example
- *     ActionSetDlSrc.new( :dl_src => Mac.new( "11:22:33:44:55:66" )
- *     ActionSetDlSrc.new( :dl_src => Mac.new( 0x112233445566 )
+ *     ActionSetDlSrc.new("11:22:33:44:55:66")
+ *     ActionSetDlSrc.new(0x112233445566)
  *
- *   @param [Hash] options
- *     the options hash to create this action class instance with.
+ *   @param [String,Integer] mac_address
+ *     the Ethernet address to create this action with.
  *
- *   @option options [Mac] :dl_src
- *     a source Ethernet address encapsulated as a {Mac} object.
+ *   @raise [ArgumentError] if invalid format is detected.
+ *   @raise [TypeError] if supplied argument is not a String or Integer.
  *
- *   @raise [ArgumentError] if dl_src argument is not supplied.
- *   @raise [TypeError] if dl_src argument is not a {Mac} object instance.
- *   @raise [TypeError] if options is not a Hash.
- *
- *   @return [ActionSetDlSrc] self
+ *   @return [ActionSetDlSrc]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_dl_src_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE dl_src;
-    if ( ( dl_src = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_instance_of( dl_src, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
-        rb_raise( rb_eTypeError, "dl src address should be a Mac object" );
-      }
-      rb_iv_set( self, attr, dl_src );
-    }
-    else {
-      rb_raise( rb_eArgError, "dl src address is a mandatory option" );
-    }
-  }
+action_set_dl_src_init( VALUE self, VALUE mac_address ) {
+  VALUE mac = rb_funcall( rb_path2class( "Trema::Mac" ), rb_intern( "new" ), 1, mac_address );
+  rb_iv_set( self, "@value", mac );
   return self;
 }
 
 
 /*
- * A source Ethernet address encapsulated as a {Mac} object.
- *
- * @return [Mac] the value of dl_src.
- */
-static VALUE
-action_get_dl_src( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its action(set_dl_src) to the list of actions.
- *
- * @return [ActionSetDlSrc] self
+ * @private
  */
 static VALUE
 action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
@@ -95,33 +61,20 @@ action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
 
   uint8_t dl_src[ OFP_ETH_ALEN ];
   uint8_t *ptr;
-  ptr = ( uint8_t* ) dl_addr_to_a( action_get_dl_src( self ), dl_src );
+  ptr = ( uint8_t* ) dl_addr_to_a( rb_iv_get( self, "@value" ), dl_src );
   append_action_set_dl_src( actions, ptr );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_dl_src_inspect( VALUE self ) {
-  VALUE mac_obj = action_get_dl_src( self );
-
-  VALUE dl_src_str = rb_funcall( mac_obj, rb_intern( "to_s" ), 0 );
-  char str[ 64 ];
-  sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( dl_src_str ) );
-  return rb_str_new2( str );
 }
 
 
 void
 Init_action_set_dl_src() {
   rb_require( "trema/action" );
-  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_path2class( "Trema::Action" ) );
-  rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, -1 );
+  rb_require( "trema/mac" );
+  VALUE action_base_class = rb_path2class( "Trema::Action" );
+  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", action_base_class );
+  rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
   rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
-  rb_define_method( cActionSetDlSrc, "inspect", action_set_dl_src_inspect, 0 );
 }
 
 

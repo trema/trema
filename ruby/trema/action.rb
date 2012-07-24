@@ -20,9 +20,13 @@
 
 module Trema
   class Action
+    attr_reader :value
+
+
+    # [FIXME] Delete Me
     def initialize attrs
       attrs.each do | each |
-        self.class.__send__ :attr_accessor, each
+        self.class.__send__ :attr_reader, each
       end
     end
   end
