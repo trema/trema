@@ -23,6 +23,7 @@
 uint32_t nw_addr_to_i( VALUE nw_addr );
 VALUE nw_addr_to_s( VALUE nw_addr );
 uint8_t *dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr );
+VALUE action_base_class( void );
 
 
 #endif // ACTION_COMMON_H

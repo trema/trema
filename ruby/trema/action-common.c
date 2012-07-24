@@ -50,6 +50,12 @@ dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr ) {
 }
 
 
+VALUE
+action_base_class( void ) {
+  return rb_path2class( "Trema::Action" );
+}
+
+
 /*
  * Local variables:
  * c-basic-offset: 2

@@ -20,6 +20,7 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
@@ -110,7 +111,8 @@ action_vendor_inspect( VALUE self ) {
 void
 Init_action_vendor() {
   rb_require( "trema/action" );
-  cActionVendor = rb_define_class_under( mTrema, "ActionVendor", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionVendor = rb_define_class_under( mTrema, "ActionVendor", rb_cAction );
   rb_define_method( cActionVendor, "initialize", action_vendor_init, -1 );
   rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
   rb_define_method( cActionVendor, "inspect", action_vendor_inspect, 0 );
