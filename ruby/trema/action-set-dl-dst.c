@@ -118,7 +118,8 @@ action_set_dl_dst_inspect( VALUE self ) {
 void
 Init_action_set_dl_dst() {
   rb_require( "trema/action" );
-  cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", rb_cAction );
   rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, -1 );
   rb_define_method( cActionSetDlDst, "append", action_set_dl_dst_append, 1 );
   rb_define_method( cActionSetDlDst, "inspect", action_set_dl_dst_inspect, 0 );

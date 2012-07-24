@@ -20,6 +20,7 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
@@ -114,7 +115,8 @@ action_set_vlan_vid_inspect( VALUE self ) {
 void
 Init_action_set_vlan_vid() {
   rb_require( "trema/action" );
-  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_cAction );
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, -1 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
   rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
