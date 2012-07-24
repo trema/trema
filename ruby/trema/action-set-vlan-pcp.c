@@ -117,8 +117,8 @@ action_set_vlan_pcp_inspect( VALUE self ) {
 void
 Init_action_set_vlan_pcp() {
   rb_require( "trema/action" );
-  VALUE rb_cAction = action_base_class();
-  cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", cAction );
   rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, -1 );
   rb_define_method( cActionSetVlanPcp, "append", action_set_vlan_pcp_append, 1 );
   rb_define_method( cActionSetVlanPcp, "inspect", action_set_vlan_pcp_inspect, 0 );
