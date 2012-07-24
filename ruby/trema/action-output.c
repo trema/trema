@@ -20,6 +20,7 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
@@ -161,7 +162,8 @@ action_output_inspect( VALUE self ) {
 void
 Init_action_output() {
   rb_require( "trema/action" );
-  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cAction );
   rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );
   rb_define_method( cActionOutput, "inspect", action_output_inspect, 0 );

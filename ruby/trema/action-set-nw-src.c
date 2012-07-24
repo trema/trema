@@ -128,7 +128,8 @@ void
 Init_action_set_nw_src() {
   rb_require( "ipaddr" );
   rb_require( "trema/action" );
-  cActionSetNwSrc = rb_define_class_under( mTrema, "ActionSetNwSrc", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionSetNwSrc = rb_define_class_under( mTrema, "ActionSetNwSrc", rb_cAction );
   rb_define_method( cActionSetNwSrc, "initialize", action_set_nw_src_init, -1 );
   rb_define_method( cActionSetNwSrc, "append", action_set_nw_src_append, 1 );
   rb_define_method( cActionSetNwSrc, "inspect", action_set_nw_src_inspect, 0 );

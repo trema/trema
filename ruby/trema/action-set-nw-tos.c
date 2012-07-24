@@ -20,6 +20,7 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
@@ -113,7 +114,8 @@ action_set_nw_tos_inspect( VALUE self ) {
 void
 Init_action_set_nw_tos() {
   rb_require( "trema/action" );
-  cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", rb_path2class( "Trema::Action" ) );
+  VALUE rb_cAction = action_base_class();
+  cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", rb_cAction );
   rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, -1 );
   rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
   rb_define_method( cActionSetNwTos, "inspect", action_set_nw_tos_inspect, 0 );
