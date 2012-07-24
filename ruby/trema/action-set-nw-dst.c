@@ -123,8 +123,8 @@ void
 Init_action_set_nw_dst() {
   rb_require( "trema/ip" );
   rb_require( "trema/action" );
-  VALUE rb_cAction = action_base_class();
-  cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", cAction );
   rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, -1 );
   rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
   rb_define_method( cActionSetNwDst, "inspect", action_set_nw_dst_inspect, 0 );

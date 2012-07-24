@@ -71,8 +71,8 @@ void
 Init_action_set_dl_dst() {
   rb_require( "trema/action" );
   rb_require( "trema/mac" );
-  VALUE rb_cAction = action_base_class();
-  cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionSetDlDst = rb_define_class_under( mTrema, "ActionSetDlDst", cAction );
   rb_define_method( cActionSetDlDst, "initialize", action_set_dl_dst_init, 1 );
   rb_define_method( cActionSetDlDst, "append", action_set_dl_dst_append, 1 );
 }

@@ -162,8 +162,8 @@ action_output_inspect( VALUE self ) {
 void
 Init_action_output() {
   rb_require( "trema/action" );
-  VALUE rb_cAction = action_base_class();
-  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionOutput = rb_define_class_under( mTrema, "ActionOutput", cAction );
   rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );
   rb_define_method( cActionOutput, "inspect", action_output_inspect, 0 );
