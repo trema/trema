@@ -71,8 +71,8 @@ void
 Init_action_set_dl_src() {
   rb_require( "trema/action" );
   rb_require( "trema/mac" );
-  VALUE rb_cAction = action_base_class();
-  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", cAction );
   rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
   rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
 }

@@ -115,8 +115,8 @@ action_set_vlan_vid_inspect( VALUE self ) {
 void
 Init_action_set_vlan_vid() {
   rb_require( "trema/action" );
-  VALUE rb_cAction = action_base_class();
-  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", rb_cAction );
+  VALUE cAction = action_base_class();
+  cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", cAction );
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, -1 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
   rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
