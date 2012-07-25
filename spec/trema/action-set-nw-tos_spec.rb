@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,33 +20,27 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "any OpenFlow message with nw_tos option" do
-  it_should_behave_like "any OpenFlow message", :option => :nw_tos, :name => "Nw tos", :size => 8
-end
-
-
-describe ActionSetNwTos, ".new( VALID OPTION )" do
-  subject { ActionSetNwTos.new( :nw_tos => nw_tos ) }
-  let( :nw_tos ) { 4 }
-  its( :nw_tos ) { should == 4 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionSetNwTos nw_tos=4>"
-  end
-  it_should_behave_like "any OpenFlow message with nw_tos option"
-end
-
-
-describe ActionSetNwTos, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
+describe ActionSetNwTos, ".new( value )" do
+  subject { ActionSetNwTos.new( value ) }
+  
+  context "when 32" do
+    let( :value ) { 32 }
+    its( :value ) { should == ActionSetNwTos.new( 32 ).value }
   end
 end
 
 
-describe ActionSetNwTos, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
-  subject { ActionSetNwTos.new( [ 4 ] ) }
-  it "should raise TypeError" do
-    expect { subject }.to raise_error( TypeError )
+describe ActionSetNwTos, ".new( invalid_value )" do
+  subject { ActionSetNwTos.new( invalid_value ) }
+
+  context "when -1" do
+    let( :invalid_value ) { -1 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context %{when "32"} do
+    let( :invalid_value ) { "32" }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 end
 
@@ -60,7 +52,7 @@ describe ActionSetNwTos, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionSetNwTos.new( :nw_tos => 4 )
+        action = ActionSetNwTos.new( 4 )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
@@ -72,7 +64,7 @@ describe ActionSetNwTos, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetNwTos.new( :nw_tos => 4 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetNwTos.new( 4 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_tos:4/ )
       }
