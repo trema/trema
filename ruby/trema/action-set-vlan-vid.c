@@ -62,9 +62,7 @@ action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
 
 
 /*
- * Appends its action(vlan_vid) to the list of actions.
- *
- * @return [ActionSetVlanVid] self
+ * @private
  */
 static VALUE
 action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
