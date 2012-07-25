@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,110 +23,49 @@
 
 extern VALUE mTrema;
 VALUE cActionSetNwDst;
-static const char *attr = "@nw_dst";
 
 
 /*
  * An action to modify the IPv4 destination address of a packet.
  *
- * @overload initialize(options={})
+ * @overload initialize(ip_address)
  *
  *   @example
- *     ActionSetNwDst.new( :nw_dst => IP.new( "192.168.1.1" )
+ *     ActionSetNwDst.new("192.168.1.1")
  *
- *   @param [Hash] options
- *     the options hash to create this action class instance with.
- *   @option options [IP] :nw_dst
- *     a destination IPv4 address encapsulated as an {IP} object.
- *
- *   @raise [ArgumentError] if nw_dst argument is not supplied.
- *   @raise [TypeError] if nw_dst argument is not an {IP} object instance.
- *   @raise [TypeError] if options is not a Hash.
+ *   @param [String] ip_address
+ *     the IPv4 address to create this action with.
  *
  *   @return [ActionSetNwDst]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_nw_dst_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE nw_dst;
-    if ( ( nw_dst = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      if ( rb_obj_is_instance_of( nw_dst, rb_eval_string( "Trema::IP" ) ) == Qfalse ) {
-        rb_raise( rb_eTypeError, "nw dst address should be an IP object" );
-      }
-      rb_iv_set( self, attr, nw_dst );
-    }
-    else {
-      rb_raise( rb_eArgError, "nw dst address is a mandatory option" );
-    }
-  }
+action_set_nw_dst_init( VALUE self, VALUE ip_address ) {
+  VALUE ip = rb_funcall( rb_path2class( "IPAddr" ), rb_intern( "new" ), 1, ip_address );
+  rb_iv_set( self, "@value", ip );
   return self;
 }
 
 
 /*
- * The destination IPv4 address as an {IP} object.
- *
- * @return [IP] the value of nw_dst.
- */
-static VALUE
-action_get_nw_dst( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its action(nw_dst) to the list of actions.
- *
- * @return [ActionSetNwDst] self
+ * @private
  */
 static VALUE
 action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_nw_dst( actions, nw_addr_to_i( action_get_nw_dst( self ) ) );
+  append_action_set_nw_dst( actions, nw_addr_to_i( rb_iv_get( self, "@value" ) ) );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_nw_dst_inspect( VALUE self ) {
-  char str[ 64 ];
-  sprintf( str, "#<%s %s=%s>", rb_obj_classname( self ), attr + 1, RSTRING_PTR( nw_addr_to_s( action_get_nw_dst( self ) ) ) );
-  return rb_str_new2( str );
-}
-
-
-/*
- * The numeric representation of IPv4 destination address.
- *
- * @return [Number] the value of IPv4 destination address converted to an integer.
- */
-static VALUE
-action_set_nw_dst_to_i( VALUE self ) {
-  return rb_funcall( action_get_nw_dst( self ), rb_intern( "to_i" ), 0 );
 }
 
 
 void
 Init_action_set_nw_dst() {
-  rb_require( "trema/ip" );
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", cAction );
-  rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, -1 );
+  rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
   rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
-  rb_define_method( cActionSetNwDst, "inspect", action_set_nw_dst_inspect, 0 );
-  rb_define_method( cActionSetNwDst, "to_i", action_set_nw_dst_to_i, 0 );
 }
 
 
