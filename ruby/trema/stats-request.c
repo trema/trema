@@ -282,14 +282,6 @@ get_stats_request_table_id( VALUE self ) {
 }
 
 
-struct ofp_match
-get_stats_request_match( VALUE self ) {
-  const struct ofp_match *match;
-  Data_Get_Struct( rb_iv_get( self, "@match" ), struct ofp_match, match );
-  return *match;
-}
-
-
 static VALUE
 parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
@@ -305,7 +297,6 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
   stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
   return self;
 }
-
 
 
 /*
@@ -380,8 +371,9 @@ flow_stats_request_init( VALUE self, VALUE options ) {
 
   stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
 
-  struct ofp_match m = get_stats_request_match( self );
-  hton_match( &flow_stats_request->match, &m  ) ;
+  const struct ofp_match *match;
+  Data_Get_Struct( rb_iv_get( self, "@match" ), struct ofp_match, match );
+  hton_match( &flow_stats_request->match, match );
   flow_stats_request->table_id = get_stats_request_table_id( self );
   flow_stats_request->out_port = htons( get_stats_request_num2uint16( self, "@out_port" ) );
   return self;
@@ -432,8 +424,9 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
 
   stats_request->flags = htons ( get_stats_request_num2uint16( self, "@flags" ) );
 
-  struct ofp_match m = get_stats_request_match( self );
-  hton_match( &aggregate_stats_request->match, &m  ) ;
+  const struct ofp_match *match;
+  Data_Get_Struct( rb_iv_get( self, "@match" ), struct ofp_match, match );
+  hton_match( &aggregate_stats_request->match, match );
   aggregate_stats_request->table_id = get_stats_request_table_id( self );
   aggregate_stats_request->out_port = htons( get_stats_request_num2uint16( self, "@out_port" ) );
   return self;
