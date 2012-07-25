@@ -57,9 +57,7 @@ action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
 
 
 /*
- * Appends its action(nw_tos) to the list of actions.
- *
- * @return [ActionSetNwTos] self
+ * @private
  */
 static VALUE
 action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {

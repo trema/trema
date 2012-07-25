@@ -20,7 +20,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwTos, ".new(value)" do
+describe ActionSetNwTos, ".new( value )" do
   subject { ActionSetNwTos.new( value ) }
   
   context "when 32" do
@@ -30,7 +30,7 @@ describe ActionSetNwTos, ".new(value)" do
 end
 
 
-describe ActionSetNwTos, ".new(invalid_value)" do
+describe ActionSetNwTos, ".new( invalid_value )" do
   subject { ActionSetNwTos.new( invalid_value ) }
 
   context "when -1" do
