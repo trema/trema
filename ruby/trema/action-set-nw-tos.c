@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,62 +23,36 @@
 
 extern VALUE mTrema;
 VALUE cActionSetNwTos;
-static const char *attr = "@nw_tos";
 
 
 /*
  * An action to modify the IP ToS/DSCP field of a packet.
  *
- * @overload initialize(options={})
+ * @overload initialize(nw_tos)
  *
  *   @example
- *     ActionSetNwTos.new( :nw_tos => 1 )
+ *     ActionSetNwTos.new(32)
  *
- *   @param [Hash] options
- *     the options hash to create this action with.
- *
- *   @option options [Number] :nw_tos
+ *   @param [Integer] :nw_tos
  *     the ToS/DSCP field to set to.
  *
- *   @raise [ArgumentError] if nw_tos argument is not supplied.
- *   @raise [ArgumentError] if nw_tos is not an unsigned 8-bit integer.
- *   @raise [TypeError] if options is not a Hash.
+ *   @raise [ArgumentError] 
+ *     if nw_tos argument is not supplied or is not an unsigned 8-bit Integer.
+ *   @raise [TypeError] if supplied argument is not an Integer.
  *
  *   @return [ActionSetNwTos]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_nw_tos_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE nw_tos;
-    if ( ( nw_tos = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      if ( rb_funcall( nw_tos, rb_intern( "unsigned_8bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Nw tos must be an unsigned 8-bit integer" );
-      }
-      rb_iv_set( self, attr, nw_tos );
-    }
-    else {
-      rb_raise( rb_eArgError, "Nw tos is a mandatory option" );
-    }
+action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
+  if ( !rb_obj_is_kind_of( nw_tos, rb_cInteger ) ) {
+    rb_raise( rb_eTypeError, "Nw tos must be an unsigned 8-bit integer" );
   }
+  if ( rb_funcall( nw_tos, rb_intern( "unsigned_8bit?" ), 0 ) == Qfalse ) {
+    rb_raise( rb_eArgError, "Nw tos must be an unsigned 8-bit integer" );
+  }
+  rb_iv_set( self, "@value", nw_tos );
   return self;
-}
-
-
-/*
- * The ToS/DSCP value to set to.
- *
- * @return [Number] the value of nw_tos.
- */
-static VALUE
-action_get_nw_tos( VALUE self ) {
-  return rb_iv_get( self, attr );
 }
 
 
@@ -93,21 +65,9 @@ static VALUE
 action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  uint8_t nw_tos = ( uint8_t ) NUM2UINT( action_get_nw_tos( self ) );
+  uint8_t nw_tos = ( uint8_t ) NUM2UINT( rb_iv_get( self, "@value" ) );
   append_action_set_nw_tos( actions, nw_tos );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_nw_tos_inspect( VALUE self ) {
-  char str[ 64 ];
-  uint8_t nw_tos = ( uint8_t ) NUM2UINT( action_get_nw_tos( self ) );
-  sprintf( str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, nw_tos );
-  return rb_str_new2( str );
 }
 
 
@@ -116,9 +76,8 @@ Init_action_set_nw_tos() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", cAction );
-  rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, -1 );
+  rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, 1 );
   rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
-  rb_define_method( cActionSetNwTos, "inspect", action_set_nw_tos_inspect, 0 );
 }
 
 
