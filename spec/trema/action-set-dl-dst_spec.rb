@@ -25,7 +25,7 @@ describe ActionSetDlDst, ".new(value)" do
 
   context %{when "52:54:00:a8:ad:8c"} do
     let( :value ) { "52:54:00:a8:ad:8c" }
-    its ( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+    its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
   end
 end
 
