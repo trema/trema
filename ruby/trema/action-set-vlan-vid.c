@@ -25,90 +25,51 @@
 
 extern VALUE mTrema;
 VALUE cActionSetVlanVid;
-static const char *attr = "@vlan_vid";
 
 
 /*
  * An action to modify the VLAN id of a packet. The VLAN id is 16-bits long but 
  * the actual VID(VLAN Identifier) of the IEEE 802.1Q frame is 12-bits.
  *
- * @overload initialize(options={})
+ * @overload initialize(vlan_vid)
  *
  *   @example
- *     ActionSetVlanVid.new( :vlan_vid => 4096 )
+ *     ActionSetVlanVid.new( vlan_vid )
  *
- *   @param [Hash] options
- *     the options to create this action class instance with.
- *
- *   @option options [Number] :vlan_vid
+ *   @param [Integer] vlan_vid
  *     the VLAN id to set to. Only the lower 12-bits are used.
  *
  *   @raise [ArgumentError] if vlan_vid argument is not supplied.
+ *   @raise [TypeError] if vlan_vid is not an Integer.
  *   @raise [RangeError] if vlan_vid not within 1 and 4096 inclusive.
- *   @raise [TypeError] if options is not a Hash.
  *
  *   @return [ActionSetVlanVid]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_vlan_vid_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE vlan_vid;
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    if ( ( vlan_vid = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      uint16_t vvid = ( uint16_t ) NUM2UINT( vlan_vid );
-      if ( !vvid || vvid & ~4095 ) {
-        rb_raise( rb_eRangeError, "Valid VLAN id values between 1 to 4096 inclusive" );
-      }
-      rb_iv_set( self, attr, vlan_vid );
-    }
-    else {
-      rb_raise( rb_eArgError, "VLAN id is a mandatory option" );
-    }
+action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
+  if ( !rb_obj_is_kind_of( vlan_vid, rb_cInteger ) ) {
+    rb_raise( rb_eTypeError, "VLAN id argument must be an Integer" );
   }
+  uint16_t vvid = ( uint16_t ) NUM2UINT( vlan_vid );
+  if ( !vvid || vvid > 4096 ||
+    ( rb_funcall( vlan_vid, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) ) {
+    rb_raise( rb_eRangeError, "Valid VLAN id values between 1 to 4096 inclusive" );
+  }
+  rb_iv_set( self, "@value", vlan_vid );
   return self;
 }
 
 
 /*
- * The VLAN id value.
- *
- * @return [Number] the value of vlan_vid.
- */
-static VALUE
-action_get_vlan_vid( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its action(vlan_vid) to the list of actions.
- *
- * @return [ActionSetVlanVid] self
+ * @private
  */
 static VALUE
 action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) ) );
+  append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( rb_iv_get( self, "@value" ) ) );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_vlan_vid_inspect( VALUE self ) {
-  char str[ 64 ];
-  uint16_t vlan_vid = ( uint16_t ) NUM2UINT( action_get_vlan_vid( self ) );
-  sprintf( str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, vlan_vid );
-  return rb_str_new2( str );
 }
 
 
@@ -117,9 +78,8 @@ Init_action_set_vlan_vid() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", cAction );
-  rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, -1 );
+  rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, 1 );
   rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
-  rb_define_method( cActionSetVlanVid, "inspect", action_set_vlan_vid_inspect, 0 );
 }
 
 
