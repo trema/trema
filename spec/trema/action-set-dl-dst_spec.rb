@@ -20,38 +20,35 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetDlDst, ".new(value)" do
-  subject { ActionSetDlDst.new( value ) }
+describe ActionSetDlDst, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
+end
 
-  context %{when "52:54:00:a8:ad:8c"} do
-    let( :value ) { "52:54:00:a8:ad:8c" }
+
+describe ActionSetDlDst, %{.new( "52:54:00:a8:ad:8c" )} do
+  subject { ActionSetDlDst.new( "52:54:00:a8:ad:8c" ) }
+  its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+end
+
+
+describe ActionSetDlDst, %{.new( "INVALID MAC STRING" )} do
+  it { expect { ActionSetDlDst.new( "INVALID MAC STRING" ) }.to raise_error( ArgumentError ) }
+end
+
+
+describe ActionSetDlDst, ".new( number )" do
+  subject { ActionSetDlDst.new( mac_address ) }
+  it_validates "option range", :mac_address, 0..0xffffffffffff
+
+  context "when mac_address == 0x525400a8ad8c" do
+    let( :mac_address ) { 0x525400a8ad8c }
     its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
   end
 end
 
 
-describe ActionSetDlDst, ".new(invalid_value)" do
-  subject { ActionSetDlDst.new( invalid_value ) }
-
-  context %{when "INVALID MAC ADDRESS"} do
-    let( :invalid_value ) { "INVALID MAC ADDRESS" }
-    it { expect { subject }.to raise_error( ArgumentError ) }
-  end
-
-  context "when -1" do
-    let( :invalid_value ) { -1 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
-  end
-
-  context "when 0x1000000000000" do
-    let( :invalid_value ) { 0x1000000000000 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
-  end
-
-  context "when [ 1, 2, 3 ]" do
-    let( :invalid_value ) { [ 1, 2, 3 ] }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+describe ActionSetDlDst, ".new( [ 1, 2, 3 ] )" do
+  it { expect { ActionSetDlDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
