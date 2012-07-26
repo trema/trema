@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,45 +20,37 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "any OpenFlow message with max_len option" do
-  it_should_behave_like "any OpenFlow message", :option => :max_len, :name => "Maximum length", :size => 16
+describe ActionOutput, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionOutput, ".new( VALID OPTIONS )" do
-  subject { ActionOutput.new :port => port, :max_len => max_len }
-  let( :port ) { 1 }
-  let( :max_len ) { 256 }
+describe ActionOutput, ".new( 1 )" do
+  subject { ActionOutput.new( 1 ) }
   its( :port ) { should == 1 }
-  its( :max_len ) { should == 256 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionOutput port=1,max_len=256>"
-  end
-  it_should_behave_like "any OpenFlow message with port option"
-  it_should_behave_like "any OpenFlow message with max_len option"
+  its( :max_len ) { should == 2 ** 16 - 1 }
 end
 
 
-describe ActionOutput, ".new( OPTIONAL OPTION MISSING ) - max_len" do
-  subject { ActionOutput.new :port => 1 }
-  its( :port ) { should  == 1 }
-  its( :max_len ) { should == 2**16 -1 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionOutput port=1,max_len=65535>"
+describe ActionOutput, ".new( :port => number )" do
+  subject { ActionOutput.new :port => port }
+  it_validates "option range", :port, 0..( 2 ** 16 - 1 )
+
+  context "when :port == 1" do
+    let( :port ) { 1 }
+    its( :port ) { should == 1 }
   end
 end
 
 
-describe ActionOutput, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
+describe ActionOutput, ".new( :port => 1, :max_len => number )" do
+  subject { ActionOutput.new :port => 1, :max_len => max_len }
+  it_validates "option range", :max_len, 0..( 2 ** 16 - 1 )
+
+  context "when :max_len == 256" do
+    let( :max_len ) { 256 }
+    its( :max_len ) { should == 256 }
   end
-end
-
-
-describe ActionOutput, ".new( INVALID OPTION ) - port" do
-  subject { ActionOutput.new  :port => port }
-  it_should_behave_like "any OpenFlow message with port option"
 end
 
 

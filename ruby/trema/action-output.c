@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -46,9 +44,9 @@ static const char *attrs[] = {
  *     the options hash to create this action class instance with.
  *
  *   @option options [Number] :port
- *     port number an index into switch's physical port list. There are also 
- *     fake output ports. For example a port number set to +OFPP_FLOOD+ would 
- *     output packets to all physical ports except input port and ports 
+ *     port number an index into switch's physical port list. There are also
+ *     fake output ports. For example a port number set to +OFPP_FLOOD+ would
+ *     output packets to all physical ports except input port and ports
  *     disabled by STP.
  *
  *   @option options [Number] :max_len
@@ -145,20 +143,6 @@ action_output_append( VALUE self, VALUE action_ptr ) {
 }
 
 
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_output_inspect( VALUE self ) {
-  uint16_t port = ( uint16_t ) NUM2UINT( action_output_port( self ) );
-  uint16_t max_len = ( uint16_t ) NUM2UINT( action_output_max_len( self ) );
-
-  char str[ 64 ];
-  sprintf( str, "#<%s %s=%u,%s=%u>", rb_obj_classname( self ), attrs[ 0 ] + 1, port, attrs[ 1 ] + 1, max_len );
-  return rb_str_new2( str );
-}
-
-
 void
 Init_action_output() {
   rb_require( "trema/action" );
@@ -166,7 +150,6 @@ Init_action_output() {
   cActionOutput = rb_define_class_under( mTrema, "ActionOutput", cAction );
   rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );
-  rb_define_method( cActionOutput, "inspect", action_output_inspect, 0 );
 }
 
 
