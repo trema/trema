@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +23,6 @@
 
 extern VALUE mTrema;
 VALUE cActionSetVlanPcp;
-static const char *attr = "@vlan_pcp";
 
 
 /*
@@ -33,84 +30,45 @@ static const char *attr = "@vlan_pcp";
  * (0) lowest and (7) highest. Priority bits can be used to prioritize different
  * classes of traffic.
  *
- * @overload initialize(options={})
+ * @overload initialize(vlan_pcp)
  *
  *   @example
- *     ActionSetVlanPcp.new( :vlan_pcp => 7 )
+ *     ActionSetVlanPcp.new( vlan_pcp )
  *
- *   @param [Hash] options
- *     the options to create this action class instance with.
- *
- *   @option options [Number] :vlan_pcp
+ *   @param [Integer] :vlan_pcp
  *     the VLAN priority to set to.
  *
  *   @raise [ArgumentError] if vlan_pcp argument is not supplied.
  *   @raise [RangeError] if vlan_pcp is not within 0 and 7 inclusive.
- *   @raise [TypeError] if options is not a Hash.
+ *   @raise [TypeError] if vlan_pcp is not an Integer.
  *
  *   @return [ActionSetVlanPcp]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_vlan_pcp_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE vlan_pcp;
-    if ( ( vlan_pcp = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      uint8_t vpcp = ( uint8_t ) NUM2UINT( vlan_pcp );
-      if ( vpcp & ~7 ) {
-        rb_raise( rb_eRangeError, "Valid VLAN priority values are 0 to 7 inclusive" );
-      }
-      rb_iv_set( self, attr, vlan_pcp );
-    }
-    else {
-      rb_raise( rb_eArgError, "VLAN priority is a mandatory option" );
-    }
+action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
+  if ( !rb_obj_is_kind_of( vlan_pcp, rb_cInteger ) ) {
+    rb_raise( rb_eTypeError, "VLAN priority must be an unsigned 8-bit Integer" );
   }
+  uint8_t vpcp = ( uint8_t ) NUM2UINT( vlan_pcp );
+  if ( vpcp & ~7 ) {
+    rb_raise( rb_eRangeError, "Valid VLAN priority values are 0 to 7 inclusive" );
+  }
+  rb_iv_set( self, "@value", vlan_pcp );
   return self;
 }
 
 
 /*
- * The VLAN priority value.
- *
- * @return [Number] the value of vlan_pcp.
- */
-static VALUE
-action_get_vlan_pcp( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its action(vlan_pcp) to the list of actions.
- *
- * @return [ActionSetVlanPcp] self
+ * @private
  */
 static VALUE
 action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( action_get_vlan_pcp( self ) );
+  uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( rb_iv_get( self, "@value" ) );
   append_action_set_vlan_pcp( actions, vlan_pcp );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_vlan_pcp_inspect( VALUE self ) {
-  char str[ 64 ];
-  uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( action_get_vlan_pcp( self ) );
-  sprintf(str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, vlan_pcp );
-  return rb_str_new2( str );
 }
 
 
@@ -119,9 +77,8 @@ Init_action_set_vlan_pcp() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", cAction );
-  rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, -1 );
+  rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, 1 );
   rb_define_method( cActionSetVlanPcp, "append", action_set_vlan_pcp_append, 1 );
-  rb_define_method( cActionSetVlanPcp, "inspect", action_set_vlan_pcp_inspect, 0 );
 }
 
 
