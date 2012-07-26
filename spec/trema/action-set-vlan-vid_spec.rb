@@ -22,36 +22,32 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanVid, ".new( VALID OPTION )" do
-  subject { ActionSetVlanVid.new( :vlan_vid => 1024 ) }
-  its( :vlan_vid ) { should == 1024 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionSetVlanVid vlan_vid=1024>"
+describe ActionSetVlanVid, ".new( value )" do
+  subject { ActionSetVlanVid.new( value ) }
+
+  context "when 1024" do
+    let( :value ) { 1024 }
+    its( :value ) { should == ActionSetVlanVid.new( 1024 ).value }
   end
 end
 
 
-describe ActionSetVlanVid, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
-  end
-end
+describe ActionSetVlanVid, ".new( invalid_value )" do
+  subject { ActionSetVlanVid.new( invalid_value ) }
 
-
-describe ActionSetVlanVid, ".new( INVALID OPTION )" do
-  context "when value outside allowed range" do
-    subject { ActionSetVlanVid.new( :vlan_vid => 0 ) }
-    it "should raise RangeError" do
-      expect { subject }.to raise_error( RangeError )
-    end
+  context "when -1" do
+    let( :invalid_value ) { -1 }
+    it { expect { subject }.to raise_error( RangeError ) }
   end
 
+  context "when 5120" do
+    let( :invalid_value ) { 5120 }
+    it { expect { subject }.to raise_error( RangeError ) }
+  end
 
-  context "when argument type Array instead of Hash" do
-    subject { ActionSetVlanVid.new( [ 1024 ] ) }
-    it "should raise TypeError" do
-      expect { subject }.to raise_error( TypeError )
-    end
+  context %{ when "1024" } do
+    let( :invalid_value ) { "1024" }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 end
 
@@ -63,7 +59,7 @@ describe ActionSetVlanVid, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionSetVlanVid.new( :vlan_vid => 1024 )
+        action = ActionSetVlanVid.new( 1024 )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
@@ -75,7 +71,7 @@ describe ActionSetVlanVid, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetVlanVid.new( :vlan_vid => 1024 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetVlanVid.new( 1024 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ )
       }
