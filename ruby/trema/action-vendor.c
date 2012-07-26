@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,86 +23,48 @@
 
 extern VALUE mTrema;
 VALUE cActionVendor;
-static const char *attr = "@vendor";
 
 
 /*
  * An action to set vendor specific extensions. 
  *
- * @overload initialize(options={})
+ * @overload initialize(vendor)
  *
  *   @example
- *     ActionVendor.new( :vendor => VENDOR_ID )
- *   @param [Hash] options
- *     the options hash to create this action class instance with.
+ *     ActionVendor.new( 0x00004cff )
  *
- *   @option options [Number] vendor
+ *   @param [Integer] vendor
  *     the vendor id this action refers to.
  *
  *   @raise [ArgumentError] if vendor argument is not supplied.
- *   @raise [ArgumentError] if vendor is not an unsigned 32-bit integer.
- *   @raise [TypeError] if options is not a Hash.
+ *   @raise [ArgumentError] if vendor is not an unsigned 32-bit Integer.
+ *   @raise [TypeError] if vendor id is not an Integer.
  *
  *   @return [ActionVendor] 
  *     an object that encapsulates this action.
  */
 static VALUE
-action_vendor_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE vendor;
-    if ( ( vendor = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      if ( rb_funcall( vendor, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Vendor id must be an unsigned 32-bit integer" );
-      }
-      rb_iv_set( self, attr, vendor );
-    }
+action_vendor_init( VALUE self, VALUE vendor ) {
+  if ( !rb_obj_is_kind_of( vendor, rb_cInteger ) ) {
+    rb_raise( rb_eTypeError, "Vendor id must be an unsigned 32-bit integer" );
   }
+  if ( rb_funcall( vendor, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
+    rb_raise( rb_eArgError, "Vendor id must be an unsigned 32-bit integer" );
+  }
+  rb_iv_set( self, "@value", vendor );
   return self;
 }
 
 
 /*
- * The vendor id of this action.
- *
- * @return [Number] the value of vendor.
- */
-static VALUE
-action_get_vendor( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its action(vendor) to the list of actions.
- *
- * @return [ActionVendor] self
+ * @private
  */
 static VALUE
 action_vendor_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
-  uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
-
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_vendor( actions, vendor, NULL );
+  append_action_vendor( actions, ( uint32_t ) NUM2UINT( rb_iv_get( self, "@value" ) ), NULL );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_vendor_inspect( VALUE self ) {
-  uint32_t vendor = ( uint32_t ) NUM2UINT( action_get_vendor( self ) );
-  char str[ 64 ];
-  sprintf( str, "#<%s %s=%u>", rb_obj_classname( self ), attr + 1, vendor );
-  return rb_str_new2( str );
 }
 
 
@@ -113,9 +73,8 @@ Init_action_vendor() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionVendor = rb_define_class_under( mTrema, "ActionVendor", cAction );
-  rb_define_method( cActionVendor, "initialize", action_vendor_init, -1 );
+  rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
   rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
-  rb_define_method( cActionVendor, "inspect", action_vendor_inspect, 0 );
 }
 
 
