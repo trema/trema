@@ -22,33 +22,42 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "any OpenFlow message with tp_src option" do
-  it_should_behave_like "any OpenFlow message", :option => :tp_src, :name => "Source TCP or UDP port", :size => 16
-end
+describe ActionSetTpSrc, ".new( value )" do
+  subject { ActionSetTpSrc.new( value ) }
 
-
-describe ActionSetTpSrc, ".new( VALID OPTION )" do
-  subject { ActionSetTpSrc.new( :tp_src => tp_src ) }
-  let( :tp_src ) { 5555 }
-  its( :tp_src ) { should == 5555 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionSetTpSrc tp_port=5555>"
-  end
-  it_should_behave_like "any OpenFlow message with tp_src option"
-end
-
-
-describe ActionSetTpSrc, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
+  context "when 5555" do
+    let( :value ) { 5555 }
+    its( :value ) { should == ActionSetTpSrc.new( 5555 ).value }
   end
 end
 
 
-describe ActionSetTpSrc, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
-  subject { ActionSetTpSrc.new( [ 5555 ] ) }
-  it "should raise TypeError" do
-    expect { subject }.to raise_error( TypeError )
+describe ActionSetTpSrc, ".new( invalid_value )" do
+  subject { ActionSetTpSrc.new( invalid_value ) }
+
+  context "when 1048576" do
+    let( :invalid_value ) { 1048576 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context "when -256" do
+    let( :invalid_value ) { -256 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context "when 256.0" do
+    let( :invalid_value ) { 256.0 }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
+
+  context %{ when "5555" } do
+    let( :invalid_value ) { "5555" }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
+
+  context "when [ 5555 ]" do
+    let( :invalid_value ) { [ 5555 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 end
 
@@ -60,7 +69,7 @@ describe ActionSetTpSrc, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionSetTpSrc.new( :tp_src => 5555 )
+        action = ActionSetTpSrc.new( 5555 )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
@@ -72,7 +81,7 @@ describe ActionSetTpSrc, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetTpSrc.new( :tp_src => 5555 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetTpSrc.new( 5555 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ )
       }
