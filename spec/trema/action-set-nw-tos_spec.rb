@@ -20,28 +20,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwTos, ".new( value )" do
-  subject { ActionSetNwTos.new( value ) }
-  
-  context "when 32" do
-    let( :value ) { 32 }
-    its( :value ) { should == ActionSetNwTos.new( 32 ).value }
-  end
+describe ActionSetNwTos, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionSetNwTos, ".new( invalid_value )" do
-  subject { ActionSetNwTos.new( invalid_value ) }
+describe ActionSetNwTos, ".new( number )" do
+  subject { ActionSetNwTos.new( tos ) }
 
-  context "when -1" do
-    let( :invalid_value ) { -1 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+  context "when tos == 32" do
+    let( :tos ) { 32 }
+    its( :value ) { should == 32 }
   end
 
-  context %{when "32"} do
-    let( :invalid_value ) { "32" }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+  it_validates "option range", :tos, 0..( 2 ** 8 - 1 )
+end
+
+
+describe ActionSetNwTos, %{.new( "32" )} do
+  it { expect { ActionSetNwTos.new( "32" ) }.to raise_error( TypeError ) }
+end
+
+
+describe ActionSetNwTos, ".new( [ 32 ] )" do
+  it { expect { ActionSetNwTos.new( [ 32 ] ) }.to raise_error( TypeError ) }
 end
 
 

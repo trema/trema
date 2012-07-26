@@ -36,7 +36,7 @@ VALUE cActionSetNwTos;
  *   @param [Integer] :nw_tos
  *     the ToS/DSCP field to set to.
  *
- *   @raise [ArgumentError] 
+ *   @raise [ArgumentError]
  *     if nw_tos argument is not supplied or is not an unsigned 8-bit Integer.
  *   @raise [TypeError] if supplied argument is not an Integer.
  *

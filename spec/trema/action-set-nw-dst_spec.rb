@@ -25,7 +25,7 @@ describe ActionSetNwDst, ".new(value)" do
 
   context %{when "192.168.1.1"} do
     let( :value ) { "192.168.1.1" }
-    its ( :value ) { should == IPAddr.new( "192.168.1.1" ) }
+    its( :value ) { should == IPAddr.new( "192.168.1.1" ) }
   end
 end
 
