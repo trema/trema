@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,43 +20,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetTpDst, ".new( value )" do
-  subject { ActionSetTpDst.new( value ) }
-
-  context "when 5555" do
-    let( :value ) { 5555 }
-    its( :value ) { should == ActionSetTpDst.new( 5555 ).value }
-  end
+describe ActionSetTpDst, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionSetTpDst, ".new( invalid_value )" do
-  subject { ActionSetTpDst.new( invalid_value ) }
+describe ActionSetTpDst, "new( number )" do
+  subject { ActionSetTpDst.new number }
 
-  context "when 1048576" do
-    let( :invalid_value ) { 1048576 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+  context "when number == 5555" do
+    let( :number ) { 5555 }
+    its( :value ) { should == 5555 }
   end
 
-  context "when -256" do
-    let( :invalid_value ) { -256 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
-  end
+  it_validates "option range", :number, 0..( 2 ** 16 - 1 )
+end
 
-  context "when 256.0" do
-    let( :invalid_value ) { 256.0 }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
 
-  context %{ when "5555" } do
-    let( :invalid_value ) { "5555" }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+describe ActionSetTpDst, ".new( string )" do
+  it { expect { ActionSetTpDst.new( "5555" ) }.to raise_error( TypeError ) }
+end
 
-  context "when [ 5555 ]" do
-    let( :invalid_value ) { [ 5555 ] }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+
+describe ActionSetTpDst, ".new( array )" do
+  it { expect { ActionSetTpDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
