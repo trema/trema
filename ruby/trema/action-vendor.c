@@ -26,7 +26,7 @@ VALUE cActionVendor;
 
 
 /*
- * An action to set vendor specific extensions. 
+ * An action to set vendor specific extensions.
  *
  * @overload initialize(vendor)
  *
@@ -40,7 +40,7 @@ VALUE cActionVendor;
  *   @raise [ArgumentError] if vendor is not an unsigned 32-bit Integer.
  *   @raise [TypeError] if vendor id is not an Integer.
  *
- *   @return [ActionVendor] 
+ *   @return [ActionVendor]
  *     an object that encapsulates this action.
  */
 static VALUE

@@ -23,10 +23,6 @@
 
 extern VALUE mTrema;
 VALUE cActionOutput;
-static const char *attrs[] = {
-  "@port",
-  "@max_len"
-};
 
 
 /*
@@ -62,23 +58,19 @@ static const char *attrs[] = {
  */
 static VALUE
 action_output_init( VALUE self, VALUE options ) {
-  VALUE fields = rb_ary_new();
-  rb_ary_push( fields, rb_str_new2( attrs[ 0 ] + 1 ) );
-  rb_ary_push( fields, rb_str_new2( attrs[ 1 ] + 1 ) );
-  rb_call_super( 1, &fields );
   if ( rb_obj_is_kind_of( options, rb_cHash ) ) {
     VALUE port;
-    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 0 ] + 1 ) ) ) ) != Qnil ) {
+    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
       if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
       }
-      rb_iv_set( self, attrs[ 0 ], port );
+      rb_iv_set( self, "@port", port );
     }
     else {
       rb_raise( rb_eArgError, "Port is a mandatory option" );
     }
     VALUE max_len;
-    if ( ( max_len = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 1 ] + 1 ) ) ) ) != Qnil ) {
+    if ( ( max_len = rb_hash_aref( options, ID2SYM( rb_intern( "max_len" ) ) ) ) != Qnil ) {
       if ( rb_funcall( max_len, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Maximum length must be an unsigned 16-bit integer" );
       }
@@ -86,14 +78,14 @@ action_output_init( VALUE self, VALUE options ) {
     else {
       max_len = UINT2NUM( UINT16_MAX );
     }
-    rb_iv_set( self, attrs[ 1 ], max_len );
+    rb_iv_set( self, "@max_len", max_len );
   }
   else if ( rb_obj_is_kind_of( options, rb_cInteger ) ) {
     if ( rb_funcall( options, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
       rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
     }
-    rb_iv_set( self, attrs[ 0 ], options );
-    rb_iv_set( self, attrs[ 1 ], UINT2NUM( UINT16_MAX ) );
+    rb_iv_set( self, "@port", options );
+    rb_iv_set( self, "@max_len", UINT2NUM( UINT16_MAX ) );
   }
   else {
     rb_raise( rb_eArgError, "Invalid option" );
@@ -109,7 +101,7 @@ action_output_init( VALUE self, VALUE options ) {
  */
 static VALUE
 action_output_port( VALUE self ) {
-  return rb_iv_get( self, attrs[ 0 ] );
+  return rb_iv_get( self, "@port" );
 }
 
 
@@ -121,7 +113,7 @@ action_output_port( VALUE self ) {
  */
 static VALUE
 action_output_max_len( VALUE self ) {
-  return rb_iv_get( self, attrs[ 1 ] );
+  return rb_iv_get( self, "@max_len" );
 }
 
 
@@ -149,6 +141,8 @@ Init_action_output() {
   VALUE cAction = action_base_class();
   cActionOutput = rb_define_class_under( mTrema, "ActionOutput", cAction );
   rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
+  rb_define_method( cActionOutput, "port", action_output_port, 0 );
+  rb_define_method( cActionOutput, "max_len", action_output_max_len, 0 );
   rb_define_method( cActionOutput, "append", action_output_append, 1 );
 }
 

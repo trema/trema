@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,10 +23,6 @@
 
 extern VALUE mTrema;
 VALUE cActionEnqueue;
-static const char *attrs[] = {
-  "@port",
-  "@queue_id"
-};
 
 
 /*
@@ -67,27 +61,23 @@ action_enqueue_init( int argc, VALUE *argv, VALUE self ) {
      * since there is no way that I know of to retrieve the keys from the hash we
      * explicitly set them.
      */
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attrs[ 0 ] + 1 ) );
-    rb_ary_push( fields, rb_str_new2( attrs[ 1 ] + 1 ) );
-    rb_call_super( 1, &fields );
     Check_Type( options, T_HASH );
     VALUE port;
-    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 0 ] + 1 ) ) ) ) != Qnil ) {
+    if ( ( port = rb_hash_aref( options, ID2SYM( rb_intern( "port" ) ) ) ) != Qnil ) {
       if ( rb_funcall( port, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Port must be an unsigned 16-bit integer" );
       }
-      rb_iv_set( self, attrs[ 0 ], port );
+      rb_iv_set( self, "@port", port );
     }
     else {
       rb_raise( rb_eArgError, "Port is a mandatory option" );
     }
     VALUE queue_id;
-    if ( ( queue_id = rb_hash_aref( options, ID2SYM( rb_intern( attrs[ 1 ] + 1 ) ) ) ) != Qnil ) {
+    if ( ( queue_id = rb_hash_aref( options, ID2SYM( rb_intern( "queue_id" ) ) ) ) != Qnil ) {
       if ( rb_funcall( queue_id, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
         rb_raise( rb_eArgError, "Queue id must be an unsigned 32-bit integer" );
       }
-      rb_iv_set( self, attrs[ 1 ], queue_id );
+      rb_iv_set( self, "@queue_id", queue_id );
 
     }
     else {
@@ -107,8 +97,8 @@ action_enqueue_init( int argc, VALUE *argv, VALUE self ) {
  * @return [Number] the value of port.
  */
 static VALUE
-action_enqueue_get_port( VALUE self ) {
-  return rb_iv_get( self, attrs[ 0 ] );
+action_enqueue_port( VALUE self ) {
+  return rb_iv_get( self, "@port" );
 }
 
 
@@ -118,8 +108,8 @@ action_enqueue_get_port( VALUE self ) {
  * @return [Number] the value of queue_id.
  */
 static VALUE
-action_enqueue_get_queue_id( VALUE self ) {
-  return rb_iv_get( self, attrs[ 1 ] );
+action_enqueue_queue_id( VALUE self ) {
+  return rb_iv_get( self, "@queue_id" );
 }
 
 
@@ -130,9 +120,9 @@ action_enqueue_get_queue_id( VALUE self ) {
  */
 static VALUE
 action_enqueue_append( VALUE self, VALUE action_ptr ) {
-  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_get_queue_id( self ) );
-  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_get_port( self ) );
-  
+  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_queue_id( self ) );
+  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_port( self ) );
+
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
   append_action_enqueue( actions, port, queue_id );
@@ -143,13 +133,13 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
 /*
  * A text representation of its attributes.
  *
- * @return [String] 
+ * @return [String]
  */
 static VALUE
 action_enqueue_inspect( VALUE self ) {
-  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_get_queue_id( self ) );
-  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_get_port( self ) );
-  
+  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_queue_id( self ) );
+  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_port( self ) );
+
   char str[ 64 ];
   sprintf( str, "#<%s port=%u,queue_id=%u>", rb_obj_classname( self ), port,
           queue_id );
@@ -164,6 +154,8 @@ Init_action_enqueue() {
   cActionEnqueue = rb_define_class_under( mTrema, "ActionEnqueue", cAction );
   rb_define_method( cActionEnqueue, "initialize", action_enqueue_init, -1 );
   rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );
+  rb_define_method( cActionEnqueue, "port", action_enqueue_port, 0 );
+  rb_define_method( cActionEnqueue, "queue_id", action_enqueue_queue_id, 0 );
   rb_define_method( cActionEnqueue, "inspect", action_enqueue_inspect, 0 );
 }
 
