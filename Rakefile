@@ -130,9 +130,9 @@ begin
   require "flay_task"
 
   FlayTask.new do | t |
-    # add directories such as app, bin, spec and test if need be.
     t.dirs = %w( ruby )
     t.threshold = 0
+    t.verbose = true
   end
 rescue LoadError
   $stderr.puts $!.to_s
