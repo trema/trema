@@ -33,7 +33,7 @@ VALUE cActionSetVlanPcp;
  * @overload initialize(vlan_pcp)
  *
  *   @example
- *     ActionSetVlanPcp.new( vlan_pcp )
+ *     ActionSetVlanPcp.new( 7 )
  *
  *   @param [Integer] :vlan_pcp
  *     the VLAN priority to set to.

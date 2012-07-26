@@ -39,9 +39,7 @@ action_strip_vlan_init( VALUE self ) {
 
 
 /*
- * Appends its action(strip VLAN tag) to the list of actions.
- *
- * @return [ActionStripVlan] self
+ * @private
  */
 static VALUE
 action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
