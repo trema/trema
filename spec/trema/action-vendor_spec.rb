@@ -22,33 +22,32 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "any OpenFlow message with vendor option" do
-  it_should_behave_like "any OpenFlow message", :option => :vendor, :name => "Vendor id", :size => 32
-end
+describe ActionVendor, ".new( value )" do
+  subject  { ActionVendor.new( value ) }
 
-
-describe ActionVendor, ".new( VALID OPTION )" do
-  subject  { ActionVendor.new( :vendor => vendor ) }
-  let( :vendor ) { 1 }
-  its( :vendor ) { should == 1 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionVendor vendor=1>"
+  context "when 19711" do
+    let( :value ) { 19711 }
+    its( :value ) { should == ActionVendor.new( 19711 ).value }
   end
-  it_should_behave_like "any OpenFlow message with vendor option"
-end
 
-
-describe ActionVendor, ".new( MANDATORY OPTION MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError )
+  context "when 1" do
+    let( :value ) { 1 }
+    its( :value ) { should == ActionVendor.new( 1 ).value }
   end
 end
 
 
-describe ActionVendor, ".new( INVALID OPTION ) - argument type Array instead of Hash" do
-  subject { ActionVendor.new( [ 1 ] ) }
-  it "should raise TypeError" do
-    expect { subject }.to raise_error( TypeError )
+describe ActionVendor, ".new( invalid_value )" do
+  subject  { ActionVendor.new( invalid_value ) }
+
+  context "when -1" do
+    let( :invalid_value ) { -1 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context %{ when "0x00004cff" } do
+    let( :invalid_value ) { "0x00004cff" }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 end
 
@@ -60,7 +59,7 @@ describe ActionVendor, ".new( VALID OPTION )" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        action = ActionVendor.new( :vendor => 1 )
+        action = ActionVendor.new( 1 )
         action.should_receive( :append )
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
      }
