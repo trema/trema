@@ -20,33 +20,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanPcp, ".new( value )" do
-  subject { ActionSetVlanPcp.new( value ) }
-
-  context "when 7" do
-    let( :value ) { 7 }
-    its( :value ) { should  == ActionSetVlanPcp.new( 7 ).value }
-  end
+describe ActionSetVlanPcp, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionSetVlanPcp, ".new( invalid_value )" do
-  subject { ActionSetVlanPcp.new( invalid_value ) }
+describe ActionSetVlanPcp, ".new( number )" do
+  subject { ActionSetVlanPcp.new( pcp ) }
 
-  context "when -1" do
-    let( :invalid_value ) { -1 }
-    it { expect { subject }.to raise_error( RangeError ) }
+  context "when pcp == 4" do
+    let( :pcp ) { 4 }
+    its( :value ) { should == 4 }
   end
 
-  context "when 16" do
-    let( :invalid_value ) { 16 }
-    it { expect { subject }.to raise_error( RangeError ) }
-  end
+  it_validates "option range", :pcp, 0..7
+end
 
-  context %{ when "2" } do
-    let( :invalid_value ) { "2" }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+
+describe ActionSetVlanPcp, %{.new( "4" )} do
+  it { expect { ActionSetVlanPcp.new( "4" ) }.to raise_error( TypeError ) }
+end
+
+
+describe ActionSetVlanPcp, ".new( [ 4 ] )" do
+  it { expect { ActionSetVlanPcp.new( [ 4 ] ) }.to raise_error( TypeError ) }
 end
 
 

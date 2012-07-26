@@ -39,7 +39,7 @@ VALUE cActionSetVlanPcp;
  *     the VLAN priority to set to.
  *
  *   @raise [ArgumentError] if vlan_pcp argument is not supplied.
- *   @raise [RangeError] if vlan_pcp is not within 0 and 7 inclusive.
+ *   @raise [ArgumentError] if vlan_pcp is not within 0 and 7 inclusive.
  *   @raise [TypeError] if vlan_pcp is not an Integer.
  *
  *   @return [ActionSetVlanPcp]
@@ -52,7 +52,7 @@ action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
   }
   uint8_t vpcp = ( uint8_t ) NUM2UINT( vlan_pcp );
   if ( vpcp & ~7 ) {
-    rb_raise( rb_eRangeError, "Valid VLAN priority values are 0 to 7 inclusive" );
+    rb_raise( rb_eArgError, "Valid VLAN priority values are 0 to 7 inclusive" );
   }
   rb_iv_set( self, "@value", vlan_pcp );
   return self;

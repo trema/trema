@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,33 +20,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanVid, ".new( value )" do
-  subject { ActionSetVlanVid.new( value ) }
-
-  context "when 1024" do
-    let( :value ) { 1024 }
-    its( :value ) { should == ActionSetVlanVid.new( 1024 ).value }
-  end
+describe ActionSetVlanVid, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionSetVlanVid, ".new( invalid_value )" do
-  subject { ActionSetVlanVid.new( invalid_value ) }
+describe ActionSetVlanVid, ".new( number )" do
+  subject { ActionSetVlanVid.new( vid ) }
 
-  context "when -1" do
-    let( :invalid_value ) { -1 }
-    it { expect { subject }.to raise_error( RangeError ) }
+  context "when vid == 1024" do
+    let( :vid ) { 1024 }
+    its( :value ) { should == 1024 }
   end
 
-  context "when 5120" do
-    let( :invalid_value ) { 5120 }
-    it { expect { subject }.to raise_error( RangeError ) }
-  end
+  it_validates "option range", :vid, 1..4096
+end
 
-  context %{ when "1024" } do
-    let( :invalid_value ) { "1024" }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+
+describe ActionSetVlanVid, %{.new( "1024" )} do
+  it { expect { ActionSetVlanVid.new( "1024" ) }.to raise_error( TypeError ) }
+end
+
+
+describe ActionSetVlanVid, ".new( [ 1024 ] )" do
+  it { expect { ActionSetVlanVid.new( [ 1024 ] ) }.to raise_error( TypeError ) }
 end
 
 
