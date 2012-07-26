@@ -38,12 +38,13 @@ end
 
 describe ActionSetDlDst, ".new( number )" do
   subject { ActionSetDlDst.new( mac_address ) }
-  it_validates "option range", :mac_address, 0..0xffffffffffff
 
   context "when mac_address == 0x525400a8ad8c" do
     let( :mac_address ) { 0x525400a8ad8c }
     its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
   end
+
+  it_validates "option range", :mac_address, 0..0xffffffffffff
 end
 
 
