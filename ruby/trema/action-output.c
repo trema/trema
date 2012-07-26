@@ -118,9 +118,7 @@ action_output_max_len( VALUE self ) {
 
 
 /*
- * Appends its action(output to port) to the list of actions.
- *
- * @return [ActionOutput] self
+ * @private
  */
 static VALUE
 action_output_append( VALUE self, VALUE action_ptr ) {
