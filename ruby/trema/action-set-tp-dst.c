@@ -25,87 +25,48 @@
 
 extern VALUE mTrema;
 VALUE cActionSetTpDst;
-static const char *attr = "@tp_dst";
 
 
 /*
  * An action to modify the destination TCP or UDP port of a packet.
  *
- * @overload initialize(options={})
+ * @overload initialize(tp_dst)
  *
  *   @example
- *     ActionSetTpDst.new( :tp_dst => 5555 )
+ *     ActionSetTpDst.new( 5555 )
  *
- *   @param [Hash] options
- *     the options to create this action class instance with.
- *   @option options [Number] :tp_dst
+ *   @param [Number] :tp_dst
  *     the destination TCP or UDP port number. Any numeric 16-bit value.
  *
  *   @raise [ArgumentError] if tp_dst argument is not supplied.
- *   @raise [ArgumentError] if tp_dst is not an unsigned 16-bit integer.
- *   @raise [TypeError] if options is not a Hash.
+ *   @raise [ArgumentError] if tp_dst is not an unsigned 16-bit Integer.
+ *   @raise [TypeError] if tp_dst is not an Integer.
  *
  *   @return [ActionSetTpDst]
  *     an object that encapsulates this action.
  */
 static VALUE
-action_set_tp_dst_init( int argc, VALUE *argv, VALUE self ) {
-  VALUE options;
-
-  if ( rb_scan_args( argc, argv, "10", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE fields = rb_ary_new();
-    rb_ary_push( fields, rb_str_new2( attr + 1 ) );
-    rb_call_super( 1, &fields );
-    VALUE tp_dst;
-    if ( ( tp_dst = rb_hash_aref( options, ID2SYM( rb_intern( attr + 1 ) ) ) ) != Qnil ) {
-      if ( rb_funcall( tp_dst, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Destination TCP or UDP port must be an unsigned 16-bit integer" );
-      }
-      rb_iv_set( self, attr, tp_dst );
-    }
-    else {
-      rb_raise( rb_eArgError, "Destination TCP or UDP port must be a mandatory option" );
-    }
+action_set_tp_dst_init( VALUE self, VALUE tp_dst ) {
+  if ( !rb_obj_is_kind_of( tp_dst, rb_cInteger ) ) {
+    rb_raise( rb_eTypeError, "Destination TCP or UDP port must be an unsigned 16-bit integer" );
   }
+  if ( rb_funcall( tp_dst, rb_intern( "unsigned_16bit?" ), 0 ) == Qfalse ) {
+    rb_raise( rb_eArgError, "Destination TCP or UDP port must be an unsigned 16-bit integer" );
+  }
+  rb_iv_set( self, "@value", tp_dst );
   return self;
 }
 
 
 /*
- * The destination TCP or UDP port number.
- *
- * @return [Number] the value of tp_dst.
- */
-static VALUE
-action_get_tp_dst( VALUE self ) {
-  return rb_iv_get( self, attr );
-}
-
-
-/*
- * Appends its actions(tp_dst) to the list of actions.
- *
- * @return [ActionSetTpDst] self
+ * @private
  */
 static VALUE
 action_set_tp_dst_append( VALUE self, VALUE action_ptr ) {
   openflow_actions *actions;
   Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
+  append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_iv_get( self, "@value" ) ) );
   return self;
-}
-
-
-/*
- * (see ActionEnqueue#inspect)
- */
-static VALUE
-action_set_tp_dst_inspect( VALUE self ) {
-  char str[ 64 ];
-  sprintf( str, "#<%s tp_port=%u>", rb_obj_classname( self ),
-    ( uint16_t ) NUM2UINT( action_get_tp_dst( self ) ) );
-  return rb_str_new2( str );
 }
 
 
@@ -114,9 +75,8 @@ Init_action_set_tp_dst() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetTpDst = rb_define_class_under( mTrema, "ActionSetTpDst", cAction );
-  rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, -1 );
+  rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, 1 );
   rb_define_method( cActionSetTpDst, "append", action_set_tp_dst_append, 1 );
-  rb_define_method( cActionSetTpDst, "inspect", action_set_tp_dst_inspect, 0 );
 }
 
 
