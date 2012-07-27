@@ -25,7 +25,6 @@
 #include "action-set-nw-dst.h"
 #include "action-set-nw-src.h"
 #include "action-set-nw-tos.h"
-#include "action-set-tp-dst.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
@@ -97,7 +96,6 @@ Init_trema() {
   Init_action_set_nw_dst();
   Init_action_set_nw_src();
   Init_action_set_nw_tos();
-  Init_action_set_tp_dst();
   Init_barrier_reply();
   Init_barrier_request();
   Init_controller();
