@@ -29,7 +29,6 @@
 #include "action-set-tp-src.h"
 #include "action-set-vlan-pcp.h"
 #include "action-set-vlan-vid.h"
-#include "action-vendor.h"
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
@@ -138,7 +137,7 @@ append_action( openflow_actions *actions, VALUE action ) {
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionStripVlan" ) ) == Qtrue ) {
     append_action_strip_vlan( actions );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionVendor ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionVendor" ) ) == Qtrue ) {
     append_action_vendor( actions, ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ), NULL );
   }
   else {
@@ -624,6 +623,7 @@ controller_start_trema( VALUE self ) {
 void
 Init_controller() {
   rb_require( "trema/action-strip-vlan" );
+  rb_require( "trema/action-vendor" );
   rb_require( "trema/app" );
 
   VALUE cApp = rb_eval_string( "Trema::App" );

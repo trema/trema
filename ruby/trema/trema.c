@@ -29,7 +29,6 @@
 #include "action-set-tp-src.h"
 #include "action-set-vlan-pcp.h"
 #include "action-set-vlan-vid.h"
-#include "action-vendor.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
@@ -105,8 +104,6 @@ Init_trema() {
   Init_action_set_tp_src();
   Init_action_set_vlan_pcp();
   Init_action_set_vlan_vid();
-  Init_action_strip_vlan();
-  Init_action_vendor();
   Init_barrier_reply();
   Init_barrier_request();
   Init_controller();

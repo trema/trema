@@ -17,18 +17,35 @@
 
 
 require "trema/action"
+require "trema/monkey-patch/integer"
 
 
 module Trema
   #
-  # Strips the VLAN tag of a packet.
+  # An action to set vendor specific extensions.
   #
-  class ActionStripVlan < Action
+  class ActionVendor < Action
     #
-    # Creates an action that strips the VLAN tag of a packet.
+    # Creates an action to set vendor specific extensions.
     #
-    def initialize
-      # Do nothing.
+    # @example
+    #   ActionVendor.new( 0x00004cff )
+    #
+    # @param [Integer] vendor
+    #   the vendor id this action refers to.
+    #
+    # @raise [ArgumentError] if vendor argument is not supplied.
+    # @raise [ArgumentError] if vendor is not an unsigned 32-bit Integer.
+    # @raise [TypeError] if vendor id is not an Integer.
+    #
+    def initialize vendor
+      if not vendor.is_a?( Integer )
+        raise TypeError, "Vendor id must be an unsigned 32-bit integer"
+      end
+      if not vendor.unsigned_32bit?
+        raise ArgumentError, "Vendor id must be an unsigned 32-bit integer"
+      end
+      @value = vendor
     end
   end
 end
