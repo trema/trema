@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,6 +16,21 @@
  */
 
 
+#include "ruby.h"
+#include "action-common.h"
+#include "action-enqueue.h"
+#include "action-output.h"
+#include "action-set-dl-dst.h"
+#include "action-set-dl-src.h"
+#include "action-set-nw-dst.h"
+#include "action-set-nw-src.h"
+#include "action-set-nw-tos.h"
+#include "action-set-tp-dst.h"
+#include "action-set-tp-src.h"
+#include "action-set-vlan-pcp.h"
+#include "action-set-vlan-vid.h"
+#include "action-strip-vlan.h"
+#include "action-vendor.h"
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
@@ -31,7 +44,6 @@
 #include "packet-in.h"
 #include "port-status.h"
 #include "queue-get-config-reply.h"
-#include "ruby.h"
 #include "rubysig.h"
 #include "stats-reply.h"
 #include "switch-disconnected.h"
@@ -82,22 +94,75 @@ controller_send_list_switches_request( VALUE self ) {
 
 
 static void
-form_actions( VALUE raction, openflow_actions *actions ) {
-  VALUE *data_ptr;
-  int i;
+append_action( openflow_actions *actions, VALUE action ) {
+  if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionEnqueue ) == Qtrue ) {
+    uint32_t queue_id = ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "queue_id" ), 0 ) );
+    uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
+    append_action_enqueue( actions, port, queue_id );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionOutput ) == Qtrue ) {
+    uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
+    uint16_t max_len = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "max_len" ), 0 ) );
+    append_action_output( actions, port, max_len );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetDlDst ) == Qtrue ) {
+    uint8_t dl_dst[ OFP_ETH_ALEN ];
+    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "value" ), 0 ), dl_dst );
+    append_action_set_dl_dst( actions, ptr );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetDlSrc ) == Qtrue ) {
+    uint8_t dl_src[ OFP_ETH_ALEN ];
+    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "value" ), 0 ), dl_src );
+    append_action_set_dl_src( actions, ptr );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetNwDst ) == Qtrue ) {
+    append_action_set_nw_dst( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetNwSrc ) == Qtrue ) {
+    append_action_set_nw_src( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetNwTos ) == Qtrue ) {
+    append_action_set_nw_tos( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetTpDst ) == Qtrue ) {
+    append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetTpSrc ) == Qtrue ) {
+    append_action_set_tp_src( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetVlanPcp ) == Qtrue ) {
+    append_action_set_vlan_pcp( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetVlanVid ) == Qtrue ) {
+    append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionStripVlan ) == Qtrue ) {
+    append_action_strip_vlan( actions );
+  }
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionVendor ) == Qtrue ) {
+    append_action_vendor( actions, ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ), NULL );
+  }
+  else {
+    rb_raise( rb_eTypeError, "actions argument must be an Array of Action objects" );
+  }
+}
 
+
+static void
+form_actions( VALUE raction, openflow_actions *actions ) {
   if ( raction != Qnil ) {
     switch ( TYPE( raction ) ) {
       case T_ARRAY:
-        data_ptr = RARRAY_PTR( raction );
-
-        for ( i = 0; i < RARRAY_LEN( raction ); i++ ) {
-          VALUE value = data_ptr[i];
-          rb_funcall( value, rb_intern( "append" ), 1, Data_Wrap_Struct( cController, NULL, NULL, actions ) );
+        {
+          VALUE *each = RARRAY_PTR( raction );
+          int i;
+          for ( i = 0; i < RARRAY_LEN( raction ); i++ ) {
+            append_action( actions, each[ i ] );
+          }
         }
         break;
       case T_OBJECT:
-        rb_funcall( raction, rb_intern( "append" ), 1, Data_Wrap_Struct( cController, NULL, NULL, actions ) );
+        append_action( actions, raction );
         break;
       default:
         rb_raise( rb_eTypeError, "actions argument must be an Array or an Action object" );

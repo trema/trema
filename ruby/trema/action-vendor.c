@@ -56,25 +56,12 @@ action_vendor_init( VALUE self, VALUE vendor ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_vendor_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_vendor( actions, ( uint32_t ) NUM2UINT( rb_iv_get( self, "@value" ) ), NULL );
-  return self;
-}
-
-
 void
 Init_action_vendor() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionVendor = rb_define_class_under( mTrema, "ActionVendor", cAction );
   rb_define_method( cActionVendor, "initialize", action_vendor_init, 1 );
-  rb_define_method( cActionVendor, "append", action_vendor_append, 1 );
 }
 
 

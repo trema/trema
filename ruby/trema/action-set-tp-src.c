@@ -56,25 +56,12 @@ action_set_tp_src_init( VALUE self, VALUE tp_src ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_tp_src_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_tp_src( actions, ( uint16_t ) NUM2UINT( rb_iv_get( self, "@value" ) ) );
-  return self;
-}
-
-
 void
 Init_action_set_tp_src() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetTpSrc = rb_define_class_under( mTrema, "ActionSetTpSrc", cAction );
   rb_define_method( cActionSetTpSrc, "initialize", action_set_tp_src_init, 1 );
-  rb_define_method( cActionSetTpSrc, "append", action_set_tp_src_append, 1 );
 }
 
 

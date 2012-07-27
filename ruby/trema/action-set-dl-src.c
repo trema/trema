@@ -51,22 +51,6 @@ action_set_dl_src_init( VALUE self, VALUE mac_address ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_dl_src_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-
-  uint8_t dl_src[ OFP_ETH_ALEN ];
-  uint8_t *ptr;
-  ptr = ( uint8_t* ) dl_addr_to_a( rb_iv_get( self, "@value" ), dl_src );
-  append_action_set_dl_src( actions, ptr );
-  return self;
-}
-
-
 void
 Init_action_set_dl_src() {
   rb_require( "trema/action" );
@@ -74,7 +58,6 @@ Init_action_set_dl_src() {
   VALUE cAction = action_base_class();
   cActionSetDlSrc = rb_define_class_under( mTrema, "ActionSetDlSrc", cAction );
   rb_define_method( cActionSetDlSrc, "initialize", action_set_dl_src_init, 1 );
-  rb_define_method( cActionSetDlSrc, "append", action_set_dl_src_append, 1 );
 }
 
 

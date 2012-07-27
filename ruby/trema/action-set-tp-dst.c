@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,25 +56,12 @@ action_set_tp_dst_init( VALUE self, VALUE tp_dst ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_tp_dst_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_iv_get( self, "@value" ) ) );
-  return self;
-}
-
-
 void
 Init_action_set_tp_dst() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetTpDst = rb_define_class_under( mTrema, "ActionSetTpDst", cAction );
   rb_define_method( cActionSetTpDst, "initialize", action_set_tp_dst_init, 1 );
-  rb_define_method( cActionSetTpDst, "append", action_set_tp_dst_append, 1 );
 }
 
 

@@ -38,25 +38,12 @@ action_strip_vlan_init( VALUE self ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_strip_vlan_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_strip_vlan( actions );
-  return self;
-}
-
-
 void
 Init_action_strip_vlan() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionStripVlan = rb_define_class_under( mTrema, "ActionStripVlan", cAction );
   rb_define_method( cActionStripVlan, "initialize", action_strip_vlan_init, 0 );
-  rb_define_method( cActionStripVlan, "append", action_strip_vlan_append, 1 );
 }
 
 

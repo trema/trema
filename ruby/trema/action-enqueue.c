@@ -113,28 +113,12 @@ action_enqueue_queue_id( VALUE self ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_enqueue_append( VALUE self, VALUE action_ptr ) {
-  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_queue_id( self ) );
-  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_port( self ) );
-
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_enqueue( actions, port, queue_id );
-  return self;
-}
-
-
 void
 Init_action_enqueue() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionEnqueue = rb_define_class_under( mTrema, "ActionEnqueue", cAction );
   rb_define_method( cActionEnqueue, "initialize", action_enqueue_init, -1 );
-  rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );
   rb_define_method( cActionEnqueue, "port", action_enqueue_port, 0 );
   rb_define_method( cActionEnqueue, "queue_id", action_enqueue_queue_id, 0 );
 }

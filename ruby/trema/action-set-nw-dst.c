@@ -47,25 +47,12 @@ action_set_nw_dst_init( VALUE self, VALUE ip_address ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_nw_dst_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_nw_dst( actions, nw_addr_to_i( rb_iv_get( self, "@value" ) ) );
-  return self;
-}
-
-
 void
 Init_action_set_nw_dst() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetNwDst = rb_define_class_under( mTrema, "ActionSetNwDst", cAction );
   rb_define_method( cActionSetNwDst, "initialize", action_set_nw_dst_init, 1 );
-  rb_define_method( cActionSetNwDst, "append", action_set_nw_dst_append, 1 );
 }
 
 

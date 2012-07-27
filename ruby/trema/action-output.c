@@ -117,22 +117,6 @@ action_output_max_len( VALUE self ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_output_append( VALUE self, VALUE action_ptr ) {
-  uint16_t port = ( uint16_t ) NUM2UINT( action_output_port( self ) );
-  uint16_t max_len = ( uint16_t ) NUM2UINT( action_output_max_len( self ) );
-
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-
-  append_action_output( actions, port, max_len );
-  return self;
-}
-
-
 void
 Init_action_output() {
   rb_require( "trema/action" );
@@ -141,7 +125,6 @@ Init_action_output() {
   rb_define_method( cActionOutput, "initialize", action_output_init, 1 );
   rb_define_method( cActionOutput, "port", action_output_port, 0 );
   rb_define_method( cActionOutput, "max_len", action_output_max_len, 0 );
-  rb_define_method( cActionOutput, "append", action_output_append, 1 );
 }
 
 

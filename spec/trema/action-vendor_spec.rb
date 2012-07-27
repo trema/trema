@@ -49,18 +49,6 @@ end
 
 describe ActionVendor, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_vendor" do
-    it "should respond to #append" do
-      class FlowModAddController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        action = ActionVendor.new( 1 )
-        action.should_receive( :append )
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
-     }
-    end
-
-
     it "should have a flow with action set to mod_vendor" do
       class FlowModAddController < Controller; end
       pending "ActionVendor not yet implemented"

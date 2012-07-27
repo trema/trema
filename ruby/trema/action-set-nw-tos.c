@@ -56,26 +56,12 @@ action_set_nw_tos_init( VALUE self, VALUE nw_tos ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_nw_tos_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  uint8_t nw_tos = ( uint8_t ) NUM2UINT( rb_iv_get( self, "@value" ) );
-  append_action_set_nw_tos( actions, nw_tos );
-  return self;
-}
-
-
 void
 Init_action_set_nw_tos() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetNwTos = rb_define_class_under( mTrema, "ActionSetNwTos", cAction );
   rb_define_method( cActionSetNwTos, "initialize", action_set_nw_tos_init, 1 );
-  rb_define_method( cActionSetNwTos, "append", action_set_nw_tos_append, 1 );
 }
 
 

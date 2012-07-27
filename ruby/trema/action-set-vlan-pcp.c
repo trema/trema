@@ -59,26 +59,12 @@ action_set_vlan_pcp_init( VALUE self, VALUE vlan_pcp ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_vlan_pcp_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  uint8_t vlan_pcp = ( uint8_t ) NUM2UINT( rb_iv_get( self, "@value" ) );
-  append_action_set_vlan_pcp( actions, vlan_pcp );
-  return self;
-}
-
-
 void
 Init_action_set_vlan_pcp() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetVlanPcp = rb_define_class_under( mTrema, "ActionSetVlanPcp", cAction );
   rb_define_method( cActionSetVlanPcp, "initialize", action_set_vlan_pcp_init, 1 );
-  rb_define_method( cActionSetVlanPcp, "append", action_set_vlan_pcp_append, 1 );
 }
 
 

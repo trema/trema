@@ -55,18 +55,6 @@ end
 
 describe ActionSetDlDst, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_dl_dst" do
-    it "should respond to #append" do
-      class FlowModAddController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        action = ActionSetDlDst.new( "52:54:00:a8:ad:8c" )
-        action.should_receive( :append )
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
-     }
-    end
-
-
     it "should have a flow with action set to mod_dl_dst" do
       class FlowModAddController < Controller; end
       network {

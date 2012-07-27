@@ -58,25 +58,12 @@ action_set_vlan_vid_init( VALUE self, VALUE vlan_vid ) {
 }
 
 
-/*
- * @private
- */
-static VALUE
-action_set_vlan_vid_append( VALUE self, VALUE action_ptr ) {
-  openflow_actions *actions;
-  Data_Get_Struct( action_ptr, openflow_actions, actions );
-  append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( rb_iv_get( self, "@value" ) ) );
-  return self;
-}
-
-
 void
 Init_action_set_vlan_vid() {
   rb_require( "trema/action" );
   VALUE cAction = action_base_class();
   cActionSetVlanVid = rb_define_class_under( mTrema, "ActionSetVlanVid", cAction );
   rb_define_method( cActionSetVlanVid, "initialize", action_set_vlan_vid_init, 1 );
-  rb_define_method( cActionSetVlanVid, "append", action_set_vlan_vid_append, 1 );
 }
 
 

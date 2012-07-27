@@ -56,18 +56,6 @@ end
 
 describe ActionOutput, ".new( VALID OPTIONS )" do
   context "when an action output is set to #flow_mod(add) " do
-    it "should respond to #append" do
-      class FlowModAddController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        action = ActionOutput.new(:port => 1 )
-        action.should_receive( :append )
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => action )
-     }
-    end
-
-
     it "should have its action set to output:1" do
       class FlowModAddController < Controller; end
       network {
