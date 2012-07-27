@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,44 +20,39 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-shared_examples_for "any OpenFlow message with queue id option" do
-  it_should_behave_like "any OpenFlow message", :option => :queue_id, :name => "Queue id", :size => 32
+describe ActionEnqueue, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionEnqueue, "new( VALID OPTIONS )" do
-  subject { ActionEnqueue.new :port => port, :queue_id => queue_id  }
-  let( :port ) { 1 }
-  let( :queue_id ) { 123 }
-  its ( :port ) { should == 1 }
-  its ( :queue_id ) { should == 123 }
-  it "should inspect its attributes" do
-    subject.inspect.should == "#<Trema::ActionEnqueue port=1,queue_id=123>"
-  end
-  it_should_behave_like "any OpenFlow message with port option"
-  it_should_behave_like "any OpenFlow message with queue id option"
+describe ActionEnqueue, ".new( :port => 1 )" do
+  it { expect { ActionEnqueue.new( :port => 1 ) }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionEnqueue, ".new( MANDADORY OPTION MISSING ) - queue id" do
-  subject { ActionEnqueue.new :port => 1 }
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError, /Queue id is a mandatory option/ )
-  end
+describe ActionEnqueue, ".new( :queue_id => 1 )" do
+  it { expect { ActionEnqueue.new( :queue_id => 1 ) }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionEnqueue, ".new( MANDATORY OPTION MISSING ) - port" do
-  subject { ActionEnqueue.new :queue_id => 123 }
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError, /Port is a mandatory option/ )
+describe ActionEnqueue, ".new( :port => number, :queue_id => 1 )" do
+  subject { ActionEnqueue.new :port => port, :queue_id => 1 }
+  it_validates "option range", :port, 0..( 2 ** 16 - 1 )
+
+  context "when :port == 1" do
+    let( :port ) { 1 }
+    its( :port ) { should == 1 }
   end
 end
 
 
-describe ActionEnqueue, ".new( MANDATORY OPTIONS MISSING ) - port, queue id" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError, /Port, queue id are mandatory options/ )
+describe ActionEnqueue, ".new( :port => 1, :queue_id => number )" do
+  subject { ActionEnqueue.new :port => 1, :queue_id => queue_id }
+  it_validates "option range", :queue_id, 0..( 2 ** 32 - 1 )
+
+  context "when :queue_id == 256" do
+    let( :queue_id ) { 256 }
+    its( :queue_id ) { should == 256 }
   end
 end
 

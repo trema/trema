@@ -114,9 +114,7 @@ action_enqueue_queue_id( VALUE self ) {
 
 
 /*
- * Appends its action(enqueue) to the list of actions.
- *
- * @return [ActionEnqueue] self
+ * @private
  */
 static VALUE
 action_enqueue_append( VALUE self, VALUE action_ptr ) {
@@ -130,23 +128,6 @@ action_enqueue_append( VALUE self, VALUE action_ptr ) {
 }
 
 
-/*
- * A text representation of its attributes.
- *
- * @return [String]
- */
-static VALUE
-action_enqueue_inspect( VALUE self ) {
-  uint32_t queue_id = ( uint32_t ) NUM2UINT( action_enqueue_queue_id( self ) );
-  uint16_t port = ( uint16_t ) NUM2UINT( action_enqueue_port( self ) );
-
-  char str[ 64 ];
-  sprintf( str, "#<%s port=%u,queue_id=%u>", rb_obj_classname( self ), port,
-          queue_id );
-  return rb_str_new2( str );
-}
-
-
 void
 Init_action_enqueue() {
   rb_require( "trema/action" );
@@ -156,7 +137,6 @@ Init_action_enqueue() {
   rb_define_method( cActionEnqueue, "append", action_enqueue_append, 1 );
   rb_define_method( cActionEnqueue, "port", action_enqueue_port, 0 );
   rb_define_method( cActionEnqueue, "queue_id", action_enqueue_queue_id, 0 );
-  rb_define_method( cActionEnqueue, "inspect", action_enqueue_inspect, 0 );
 }
 
 
