@@ -27,7 +27,6 @@
 #include "action-set-nw-tos.h"
 #include "action-set-tp-dst.h"
 #include "action-set-tp-src.h"
-#include "action-set-vlan-pcp.h"
 #include "action-set-vlan-vid.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
@@ -102,7 +101,6 @@ Init_trema() {
   Init_action_set_nw_tos();
   Init_action_set_tp_dst();
   Init_action_set_tp_src();
-  Init_action_set_vlan_pcp();
   Init_action_set_vlan_vid();
   Init_barrier_reply();
   Init_barrier_request();

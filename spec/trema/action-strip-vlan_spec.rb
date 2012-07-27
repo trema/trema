@@ -27,7 +27,7 @@ describe ActionStripVlan, ".new" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, ActionStripVlan.new )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionStripVlan.new )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[ 0 ].actions.should match( /strip_vlan/ )
       }

@@ -27,7 +27,6 @@
 #include "action-set-nw-tos.h"
 #include "action-set-tp-dst.h"
 #include "action-set-tp-src.h"
-#include "action-set-vlan-pcp.h"
 #include "action-set-vlan-vid.h"
 #include "barrier-reply.h"
 #include "buffer.h"
@@ -128,7 +127,7 @@ append_action( openflow_actions *actions, VALUE action ) {
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetTpSrc ) == Qtrue ) {
     append_action_set_tp_src( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetVlanPcp ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetVlanPcp" ) ) == Qtrue ) {
     append_action_set_vlan_pcp( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetVlanVid ) == Qtrue ) {
@@ -622,6 +621,7 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
+  rb_require( "trema/action-set-vlan-pcp" );
   rb_require( "trema/action-strip-vlan" );
   rb_require( "trema/action-vendor" );
   rb_require( "trema/app" );
