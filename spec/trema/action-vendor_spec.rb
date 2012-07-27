@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,33 +20,30 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionVendor, ".new( value )" do
-  subject  { ActionVendor.new( value ) }
-
-  context "when 19711" do
-    let( :value ) { 19711 }
-    its( :value ) { should == ActionVendor.new( 19711 ).value }
-  end
-
-  context "when 1" do
-    let( :value ) { 1 }
-    its( :value ) { should == ActionVendor.new( 1 ).value }
-  end
+describe ActionVendor, ".new" do
+  it { expect { subject }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionVendor, ".new( invalid_value )" do
-  subject  { ActionVendor.new( invalid_value ) }
+describe ActionVendor, "new( number )" do
+  subject { ActionVendor.new number }
 
-  context "when -1" do
-    let( :invalid_value ) { -1 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+  context "when number == 0x00004cff" do
+    let( :number ) { 0x00004cff }
+    its( :value ) { should == 0x00004cff }
   end
 
-  context %{ when "0x00004cff" } do
-    let( :invalid_value ) { "0x00004cff" }
-    it { expect { subject }.to raise_error( TypeError ) }
-  end
+  it_validates "option range", :number, 0..( 2 ** 32 - 1 )
+end
+
+
+describe ActionVendor, ".new( string )" do
+  it { expect { ActionVendor.new( "0x00004cff" ) }.to raise_error( TypeError ) }
+end
+
+
+describe ActionVendor, ".new( array )" do
+  it { expect { ActionVendor.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
