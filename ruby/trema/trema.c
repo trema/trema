@@ -29,7 +29,6 @@
 #include "action-set-tp-src.h"
 #include "action-set-vlan-pcp.h"
 #include "action-set-vlan-vid.h"
-#include "action-strip-vlan.h"
 #include "action-vendor.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
