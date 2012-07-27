@@ -17,36 +17,35 @@
 
 
 require "trema/action"
+require "trema/monkey-patch/integer"
 
 
 module Trema
   #
-  # An action to modify the VLAN priority of a packet.
+  # An action to modify the source TCP or UDP port of a packet.
   #
-  class ActionSetVlanPcp < Action
+  class ActionSetTpSrc < Action
     #
-    # Creates an action to modify the VLAN priority of a packet. Valid
-    # values are between (0) lowest and (7) highest. Priority bits can
-    # be used to prioritize different classes of traffic.
+    # Creates an action to modify the source TCP or UDP port of a packet.
     #
     # @example
-    #   ActionSetVlanPcp.new( 7 )
+    #   ActionSetTpSrc.new( 5555 )
     #
-    # @param [Integer] vlan_pcp
-    #   the VLAN priority to set to.
+    # @param [Integer] tp_src
+    #   the source TCP or UDP port number. Any numeric 16-bit value.
     #
-    # @raise [ArgumentError] if vlan_pcp argument is not supplied.
-    # @raise [ArgumentError] if vlan_pcp is not within 0 and 7 inclusive.
-    # @raise [TypeError] if vlan_pcp is not an Integer.
+    # @raise [ArgumentError] if tp_src argument is not supplied.
+    # @raise [ArgumentError] if tp_src is not an unsigned 16-bit Integer.
+    # @raise [TypeError] if tp_src is not an Integer.
     #
-    def initialize vlan_pcp
-      if not vlan_pcp.is_a?( Integer )
-        raise TypeError, "VLAN priority must be an unsigned 8-bit Integer"
+    def initialize tp_src
+      if not tp_src.is_a?( Integer )
+        raise TypeError, "Source TCP or UDP port must be an unsigned 16-bit integer"
       end
-      if not ( vlan_pcp >= 0 and vlan_pcp <= 7 )
-        raise ArgumentError, "Valid VLAN priority values are 0 to 7 inclusive"
+      if not tp_src.unsigned_16bit?
+        raise ArgumentError, "Source TCP or UDP port must be an unsigned 16-bit integer"
       end
-      @value = vlan_pcp
+      @value = tp_src
     end
   end
 end
