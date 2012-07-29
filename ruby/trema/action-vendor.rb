@@ -25,29 +25,41 @@ module Trema
   # An action to set vendor specific extensions.
   #
   class ActionVendor < Action
+    attr_reader :vendor_id
+    attr_reader :body
+
+
     #
     # Creates an action to set vendor specific extensions.
     #
     # @example
     #   ActionVendor.new( 0x00004cff )
     #
-    # @param [Integer] vendor
-    #   the vendor id this action refers to.
+    # @param [Integer] vendor_id
+    #   the vendor identifier. If MSB is zero low order bytes are IEEE
+    #   OUI. Otherwise defined by openflow.
+    # @param [Array] body
+    #   vendor-defined arbitrary additional data.
     #
-    # @raise [ArgumentError] if vendor argument is not supplied.
-    # @raise [ArgumentError] if vendor is not an unsigned 32-bit Integer.
-    # @raise [TypeError] if vendor id is not an Integer.
+    # @raise [TypeError] if vendor ID is not an Integer.
+    # @raise [ArgumentError] if vendor ID is not an unsigned 32-bit Integer.
     #
-    def initialize vendor
-      if not vendor.is_a?( Integer )
-        raise TypeError, "Vendor id must be an unsigned 32-bit integer"
+    def initialize vendor_id, body = nil
+      if not vendor_id.is_a?( Integer )
+        raise TypeError, "Vendor ID must be an unsigned 32-bit integer"
       end
-      if not vendor.unsigned_32bit?
-        raise ArgumentError, "Vendor id must be an unsigned 32-bit integer"
+      if not vendor_id.unsigned_32bit?
+        raise ArgumentError, "Vendor ID must be an unsigned 32-bit integer"
       end
-      @value = vendor
+      if ( not body.nil? )  and ( not body.is_a?( Array ) )
+        raise TypeError, "Body must be an Array"
+      end
+        
+      @vendor_id = vendor_id
+      @body = body
     end
   end
+  VendorAction = ActionVendor
 end
 
 

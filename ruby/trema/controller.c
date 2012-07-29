@@ -134,7 +134,22 @@ append_action( openflow_actions *actions, VALUE action ) {
     append_action_strip_vlan( actions );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionVendor" ) ) == Qtrue ) {
-    append_action_vendor( actions, ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ), NULL );
+    VALUE vendor_id = rb_funcall( action, rb_intern( "vendor_id" ), 0 );
+    VALUE rbody = rb_funcall( action, rb_intern( "body" ), 0 );
+    if ( rbody != Qnil ) {
+      Check_Type( rbody, T_ARRAY );
+      uint16_t length = ( uint16_t ) RARRAY_LEN( rbody );
+      buffer *body = alloc_buffer_with_length( length );
+      int i;
+      for ( i = 0; i < length; i++ ) {
+        ( ( uint8_t * ) body->data )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
+      }
+      append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), body );
+      free_buffer( body );
+    }
+    else {
+      append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), NULL );
+    }
   }
   else {
     rb_raise( rb_eTypeError, "actions argument must be an Array of Action objects" );
