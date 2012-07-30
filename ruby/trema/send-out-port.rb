@@ -25,6 +25,9 @@ module Trema
   # An action to output a packet to a port.
   #
   class SendOutPort < Action
+    DEFAULT_MAX_LEN = 2 ** 16 - 1
+
+    
     attr_reader :max_len
     attr_reader :port_number
 
@@ -59,33 +62,41 @@ module Trema
       case options
         when Hash
           @port_number = options[ :port_number ] || options[ :port ]
-          @max_len = options[ :max_len ]
-          if @port_number.nil?
-            raise ArgumentError, ":port_number is a mandatory option"
-          end
-          if not @port_number.unsigned_16bit?
-            raise ArgumentError, "Port number must be an unsigned 16-bit integer"
-          end
-          if @max_len
-            if not @max_len.unsigned_16bit?
-              raise ArgumentError, ":max_len must be an unsigned 16-bit integer"
-            end
-          else
-            @max_len = 2 ** 16 - 1
-          end
+          @max_len = options[ :max_len ] || DEFAULT_MAX_LEN
         when Integer
-          if not options.unsigned_16bit?
-            raise ArgumentError, "Port number must be an unsigned 16-bit integer"
-          end
           @port_number = options
-          @max_len = 2 ** 16 - 1
+          @max_len = DEFAULT_MAX_LEN
         else
           raise "Invalid option"
       end
+      check_port_number
+      check_max_len
     end
   end
 
 
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def check_port_number
+    if @port_number.nil?
+      raise ArgumentError, "Port number is a mandatory option"
+    end
+    if not @port_number.unsigned_16bit?
+      raise ArgumentError, "Port number must be an unsigned 16-bit integer"
+    end
+  end
+  
+
+  def check_max_len
+    if not @max_len.unsigned_16bit?
+      raise ArgumentError, "Max length must be an unsigned 16-bit integer"
+    end
+  end
+
+  
   ActionOutput = SendOutPort
 end
 
