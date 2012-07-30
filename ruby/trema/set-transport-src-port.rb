@@ -16,20 +16,17 @@
 #
 
 
-require "trema/action"
 require "trema/monkey-patch/integer"
+require "trema/set-transport-port"
 
 
 module Trema
   #
-  # An action to modify the source TCP or UDP port of a packet.
+  # An action to modify the source TCP/UDP port of a packet.
   #
-  class SetTransportSrcPort < Action
-    attr_reader :port_number
-
-
+  class SetTransportSrcPort < SetTransportPort
     #
-    # Creates an action to modify the source TCP or UDP port of a packet.
+    # Creates an action to modify the source TCP/UDP port of a packet.
     #
     # @example
     #   SetTransportSrcPort.new( 5555 )
@@ -37,18 +34,11 @@ module Trema
     # @param [Integer] port_number
     #   the source TCP or UDP port number. Any numeric 16-bit value.
     #
-    # @raise [ArgumentError] if port_number argument is not supplied.
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit Integer.
     # @raise [TypeError] if port_number is not an Integer.
     #
     def initialize port_number
-      if not port_number.is_a?( Integer )
-        raise TypeError, "Source TCP or UDP port must be an unsigned 16-bit integer"
-      end
-      if not port_number.unsigned_16bit?
-        raise ArgumentError, "Source TCP or UDP port must be an unsigned 16-bit integer"
-      end
-      @port_number = port_number
+      super port_number
     end
   end
 
