@@ -23,22 +23,22 @@ module Trema
   #
   # An action to modify the VLAN priority of a packet.
   #
-  class ActionSetVlanPcp < Action
+  class SetVlanPriority < Action
     attr_reader :vlan_priority
 
 
     #
-    # Creates an action to modify the VLAN priority of a packet. Valid
-    # values are between (0) lowest and (7) highest. Priority bits can
-    # be used to prioritize different classes of traffic.
+    # Creates an action to modify the VLAN priority of a
+    # packet. Priority bits can be used to prioritize different
+    # classes of traffic. Valid values are between 0 (lowest) and 7
+    # (highest).
     #
     # @example
-    #   ActionSetVlanPcp.new( 7 )
+    #   SetVlanPriority.new( 7 )
     #
     # @param [Integer] vlan_priority
     #   the VLAN priority to set to.
     #
-    # @raise [ArgumentError] if vlan_priority argument is not supplied.
     # @raise [ArgumentError] if vlan_priority is not within 0 and 7 inclusive.
     # @raise [TypeError] if vlan_priority is not an Integer.
     #
@@ -52,6 +52,9 @@ module Trema
       @vlan_priority = vlan_priority
     end
   end
+
+
+  ActionSetVlanPcp = SetVlanPriority
 end
 
 

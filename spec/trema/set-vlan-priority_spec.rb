@@ -20,13 +20,8 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanPcp, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
-describe ActionSetVlanPcp, ".new( number )" do
-  subject { ActionSetVlanPcp.new( vlan_priority ) }
+describe SetVlanPriority, ".new( number )" do
+  subject { SetVlanPriority.new( vlan_priority ) }
 
   context "when vlan_priority == 4" do
     let( :vlan_priority ) { 4 }
@@ -37,24 +32,24 @@ describe ActionSetVlanPcp, ".new( number )" do
 end
 
 
-describe ActionSetVlanPcp, %{.new( "4" )} do
-  it { expect { ActionSetVlanPcp.new( "4" ) }.to raise_error( TypeError ) }
+describe SetVlanPriority, %{.new( "4" )} do
+  it { expect { SetVlanPriority.new( "4" ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetVlanPcp, ".new( [ 4 ] )" do
-  it { expect { ActionSetVlanPcp.new( [ 4 ] ) }.to raise_error( TypeError ) }
+describe SetVlanPriority, ".new( [ 4 ] )" do
+  it { expect { SetVlanPriority.new( [ 4 ] ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetVlanPcp, ".new( VALID OPTION )" do
+describe SetVlanPriority, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_vlan_pcp" do
     it "should have a flow with action set to mod_vlan_pcp" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetVlanPcp.new( 7 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetVlanPriority.new( 7 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_pcp:7/ )
       }
