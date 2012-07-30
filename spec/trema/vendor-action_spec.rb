@@ -20,8 +20,8 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionVendor, "new( vendor_id )" do
-  subject { ActionVendor.new vendor_id }
+describe VendorAction, "new( vendor_id )" do
+  subject { VendorAction.new vendor_id }
 
   it_validates "option range", :vendor_id, 0..( 2 ** 32 - 1 )
 
@@ -32,18 +32,18 @@ describe ActionVendor, "new( vendor_id )" do
 end
 
 
-describe ActionVendor, ".new( string )" do
-  it { expect { ActionVendor.new "0x00004cff" }.to raise_error( TypeError ) }
+describe VendorAction, ".new( string )" do
+  it { expect { VendorAction.new "0x00004cff" }.to raise_error( TypeError ) }
 end
 
 
-describe ActionVendor, ".new( array )" do
-  it { expect { ActionVendor.new [ 1, 2, 3 ] }.to raise_error( TypeError ) }
+describe VendorAction, ".new( array )" do
+  it { expect { VendorAction.new [ 1, 2, 3 ] }.to raise_error( TypeError ) }
 end
 
 
-describe ActionVendor, ".new( vendor_id, body )" do
-  subject { ActionVendor.new vendor_id, body }
+describe VendorAction, ".new( vendor_id, body )" do
+  subject { VendorAction.new vendor_id, body }
   let( :vendor_id ) { 0x00004cff }
 
   context %{when body == "deadbeef".unpack( "C*" )} do
@@ -52,14 +52,14 @@ describe ActionVendor, ".new( vendor_id, body )" do
     its( :vendor_id ) { should == 0x00004cff }
     its( :body ) { should == [ 100, 101, 97, 100, 98, 101, 101, 102 ] }
 
-    context "when sending Flow Mod Add with action set to ActionVendor" do
-      it "should have a flow with action set to ActionVendor" do
+    context "when sending Flow Mod Add with action set to VendorAction" do
+      it "should have a flow with action set to VendorAction" do
         class FlowModAddController < Controller; end
         pending "Use Nicira's vendor ID and body"
         network {
           vswitch { datapath_id 0xabc }
         }.run( FlowModAddController ) {
-          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionVendor.new( 0x00004cff, "deadbeef".unpack( "C*" ) ) )
+          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => VendorAction.new( 0x00004cff, "deadbeef".unpack( "C*" ) ) )
           vswitch( "0xabc" ).should have( 1 ).flows
           vswitch( "0xabc" ).flows[ 0 ].actions.should match( /mod_vendor/ )
         }
@@ -69,8 +69,8 @@ describe ActionVendor, ".new( vendor_id, body )" do
 end
 
 
-describe ActionVendor, "new( vendor_id, string )" do
-  it { expect { ActionVendor.new 0x00004cff, "deadbeef" }.to raise_error( TypeError ) }
+describe VendorAction, "new( vendor_id, string )" do
+  it { expect { VendorAction.new 0x00004cff, "deadbeef" }.to raise_error( TypeError ) }
 end
 
 

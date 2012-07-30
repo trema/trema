@@ -126,7 +126,7 @@ append_action( openflow_actions *actions, VALUE action ) {
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::StripVlanHeader" ) ) == Qtrue ) {
     append_action_strip_vlan( actions );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionVendor" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::VendorAction" ) ) == Qtrue ) {
     VALUE vendor_id = rb_funcall( action, rb_intern( "vendor_id" ), 0 );
     VALUE rbody = rb_funcall( action, rb_intern( "body" ), 0 );
     if ( rbody != Qnil ) {
@@ -633,12 +633,13 @@ Init_controller() {
   rb_require( "trema/action-set-nw-dst" );
   rb_require( "trema/action-set-nw-src" );
   rb_require( "trema/action-set-nw-tos" );
-  rb_require( "trema/action-vendor" );
   rb_require( "trema/set-transport-dst-port" );
   rb_require( "trema/set-transport-src-port" );
   rb_require( "trema/set-vlan-priority" );
   rb_require( "trema/set-vlan-vid" );
   rb_require( "trema/strip-vlan-header" );
+  rb_require( "trema/vendor-action" );
+
   rb_require( "trema/app" );
 
   VALUE cApp = rb_eval_string( "Trema::App" );

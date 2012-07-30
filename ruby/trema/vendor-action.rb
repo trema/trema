@@ -24,7 +24,7 @@ module Trema
   #
   # An action to set vendor specific extensions.
   #
-  class ActionVendor < Action
+  class VendorAction < Action
     attr_reader :body
     attr_reader :vendor_id
 
@@ -33,7 +33,7 @@ module Trema
     # Creates an action to set vendor specific extensions.
     #
     # @example
-    #   ActionVendor.new( 0x00004cff, "deadbeef".unpack( "C*" ) )
+    #   VendorAction.new( 0x00004cff, "deadbeef".unpack( "C*" ) )
     #
     # @param [Integer] vendor_id
     #   the vendor identifier. If MSB is zero low order bytes are IEEE
@@ -60,7 +60,9 @@ module Trema
       @body = body
     end
   end
-  VendorAction = ActionVendor
+
+
+  ActionVendor = VendorAction
 end
 
 
