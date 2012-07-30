@@ -16,19 +16,21 @@
 #
 
 
-require "trema/action"
+require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
+require "trema"
 
 
-module Trema
-  #
-  # Strips the VLAN tag of a packet.
-  #
-  class ActionStripVlan < Action
-    #
-    # Creates an action that strips the VLAN tag of a packet.
-    #
-    def initialize
-      # Do nothing.
+describe StripVlanHeader, ".new" do
+  context "when sending #flow_mod(add) with action set to strip_vlan" do
+    it "should have a flow with action set to strip_vlan" do
+      class FlowModAddController < Controller; end
+      network {
+        vswitch { datapath_id 0xabc }
+      }.run( FlowModAddController ) {
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => StripVlanHeader.new )
+        vswitch( "0xabc" ).should have( 1 ).flows
+        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /strip_vlan/ )
+      }
     end
   end
 end
