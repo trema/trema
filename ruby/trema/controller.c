@@ -20,7 +20,6 @@
 #include "action-common.h"
 #include "action-enqueue.h"
 #include "action-output.h"
-#include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
 #include "barrier-reply.h"
 #include "buffer.h"
@@ -96,9 +95,9 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint16_t max_len = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "max_len" ), 0 ) );
     append_action_output( actions, port, max_len );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetDlDst ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "ActionSetDlDst" ) ) == Qtrue ) {
     uint8_t dl_dst[ OFP_ETH_ALEN ];
-    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "value" ), 0 ), dl_dst );
+    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
     append_action_set_dl_dst( actions, ptr );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetDlSrc ) == Qtrue ) {
@@ -630,6 +629,7 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
+  rb_require( "trema/action-set-dl-dst" );
   rb_require( "trema/action-set-nw-dst" );
   rb_require( "trema/action-set-nw-src" );
   rb_require( "trema/action-set-nw-tos" );

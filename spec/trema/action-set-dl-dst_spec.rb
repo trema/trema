@@ -20,14 +20,9 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetDlDst, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
 describe ActionSetDlDst, %{.new( "52:54:00:a8:ad:8c" )} do
   subject { ActionSetDlDst.new( "52:54:00:a8:ad:8c" ) }
-  its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+  its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
 end
 
 
@@ -41,7 +36,7 @@ describe ActionSetDlDst, ".new( number )" do
 
   context "when mac_address == 0x525400a8ad8c" do
     let( :mac_address ) { 0x525400a8ad8c }
-    its( :value ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+    its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
   end
 
   it_validates "option range", :mac_address, 0..0xffffffffffff
