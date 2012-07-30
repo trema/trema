@@ -20,41 +20,36 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetVlanVid, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
+describe SetVlanVid, ".new( number )" do
+  subject { SetVlanVid.new( vlan_id ) }
 
-
-describe ActionSetVlanVid, ".new( number )" do
-  subject { ActionSetVlanVid.new( vlan_vid ) }
-
-  context "when vlan_vid == 1024" do
-    let( :vlan_vid ) { 1024 }
-    its( :vlan_vid ) { should == 1024 }
+  context "when vlan_id == 1024" do
+    let( :vlan_id ) { 1024 }
+    its( :vlan_id ) { should == 1024 }
   end
 
-  it_validates "option range", :vlan_vid, 1..4096
+  it_validates "option range", :vlan_id, 1..4096
 end
 
 
-describe ActionSetVlanVid, %{.new( "1024" )} do
-  it { expect { ActionSetVlanVid.new( "1024" ) }.to raise_error( TypeError ) }
+describe SetVlanVid, %{.new( "1024" )} do
+  it { expect { SetVlanVid.new( "1024" ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetVlanVid, ".new( [ 1024 ] )" do
-  it { expect { ActionSetVlanVid.new( [ 1024 ] ) }.to raise_error( TypeError ) }
+describe SetVlanVid, ".new( [ 1024 ] )" do
+  it { expect { SetVlanVid.new( [ 1024 ] ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetVlanVid, ".new( VALID OPTION )" do
+describe SetVlanVid, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_vlan_vid" do
     it "should have a flow with action set to mod_vlan_vid" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetVlanVid.new( 1024 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetVlanVid.new( 1024 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ )
       }

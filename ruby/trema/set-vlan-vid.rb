@@ -21,37 +21,39 @@ require "trema/action"
 
 module Trema
   #
-  # An action to modify the VLAN id of a packet.
+  # An action to modify the VLAN ID of a packet.
   #
-  class ActionSetVlanVid < Action
-    attr_reader :vlan_vid
+  class SetVlanVid < Action
+    attr_reader :vlan_id
 
 
     #
-    # An action to modify the VLAN id of a packet. The VLAN id is
-    # 16-bits long but the actual VID (VLAN Identifier) of the IEEE
+    # Creates an action to modify the VLAN ID of a packet. The VLAN ID
+    # is 16-bits long but the actual VID (VLAN Identifier) of the IEEE
     # 802.1Q frame is 12-bits.
     #
     # @example
-    #   ActionSetVlanVid.new( vlan_vid )
+    #   ActionSetVlanVid.new( vlan_id )
     #
-    # @param [Integer] vlan_vid
-    #   the VLAN id to set to. Only the lower 12-bits are used.
+    # @param [Integer] vlan_id
+    #   the VLAN ID to set to. Only the lower 12-bits are used.
     #
-    # @raise [ArgumentError] if vlan_vid argument is not supplied.
-    # @raise [ArgumentError] if vlan_vid not within 1 and 4096 inclusive.
-    # @raise [TypeError] if vlan_vid is not an Integer.
+    # @raise [ArgumentError] if vlan_id not within 1 and 4096 inclusive.
+    # @raise [TypeError] if vlan_id is not an Integer.
     #
-    def initialize vlan_vid
-      if not vlan_vid.is_a?( Integer )
-        raise TypeError, "VLAN id argument must be an Integer"
+    def initialize vlan_id
+      if not vlan_id.is_a?( Integer )
+        raise TypeError, "VLAN ID argument must be an Integer"
       end
-      if not ( vlan_vid >= 1 and vlan_vid <= 4096 )
-        raise ArgumentError, "Valid VLAN id values between 1 to 4096 inclusive"
+      if not ( vlan_id >= 1 and vlan_id <= 4096 )
+        raise ArgumentError, "Valid VLAN ID values between 1 to 4096 inclusive"
       end
-      @vlan_vid = vlan_vid
+      @vlan_id = vlan_id
     end
   end
+
+
+  ActionSetVlanVid = SetVlanVid
 end
 
 
