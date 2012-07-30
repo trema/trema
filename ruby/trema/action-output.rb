@@ -60,11 +60,11 @@ module Trema
         when Hash
           @port = options[ :port ]
           @max_len = options[ :max_len ]
-          if not @port.unsigned_16bit?
-            raise ArgumentError, "Port must be an unsigned 16-bit integer"
-          end
           if @port.nil?
             raise ArgumentError, ":port is a mandatory option"
+          end
+          if not @port.unsigned_16bit?
+            raise ArgumentError, "Port must be an unsigned 16-bit integer"
           end
           if @max_len
             if not @max_len.unsigned_16bit?

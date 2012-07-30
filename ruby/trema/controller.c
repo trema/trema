@@ -18,7 +18,6 @@
 
 #include "ruby.h"
 #include "action-common.h"
-#include "action-enqueue.h"
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
@@ -83,7 +82,7 @@ controller_send_list_switches_request( VALUE self ) {
 
 static void
 append_action( openflow_actions *actions, VALUE action ) {
-  if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionEnqueue ) == Qtrue ) {
+  if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionEnqueue" ) ) == Qtrue ) {
     uint32_t queue_id = ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "queue_id" ), 0 ) );
     uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
     append_action_enqueue( actions, port, queue_id );
@@ -627,6 +626,7 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
+  rb_require( "trema/action-enqueue" );
   rb_require( "trema/action-output" );
   rb_require( "trema/action-set-dl-dst" );
   rb_require( "trema/action-set-dl-src" );

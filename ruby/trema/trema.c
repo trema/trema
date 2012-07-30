@@ -18,7 +18,6 @@
  */
 
 
-#include "action-enqueue.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
@@ -83,7 +82,6 @@ Init_trema() {
   rb_require( "trema/openflow-switch" );
   rb_require( "trema/path" );
 
-  Init_action_enqueue();
   Init_barrier_reply();
   Init_barrier_request();
   Init_controller();
