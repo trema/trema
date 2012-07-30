@@ -40,6 +40,9 @@ module Trema
       super ip_address
     end
   end
+
+
+  ActionSetNwDst = SetIpDstAddr
 end
 
 

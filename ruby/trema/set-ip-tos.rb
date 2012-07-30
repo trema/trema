@@ -50,6 +50,9 @@ module Trema
       @type_of_service = type_of_service
     end
   end
+
+
+  ActionSetNwTos = SetIpTos
 end
 
 

@@ -39,6 +39,9 @@ module Trema
       super ip_address
     end
   end
+
+
+  ActionSetNwSrc = SetIpSrcAddr
 end
 
 
