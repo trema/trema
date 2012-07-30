@@ -27,7 +27,7 @@ module Trema
   class SendOutPort < Action
     DEFAULT_MAX_LEN = 2 ** 16 - 1
 
-    
+
     attr_reader :max_len
     attr_reader :port_number
 
@@ -88,7 +88,7 @@ module Trema
       raise ArgumentError, "Port number must be an unsigned 16-bit integer"
     end
   end
-  
+
 
   def check_max_len
     if not @max_len.unsigned_16bit?
@@ -96,7 +96,7 @@ module Trema
     end
   end
 
-  
+
   ActionOutput = SendOutPort
 end
 
