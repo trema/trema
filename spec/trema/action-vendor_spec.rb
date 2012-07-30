@@ -28,11 +28,23 @@ describe ActionVendor, "new( vendor_id )" do
   context "when vendor_id == 0x00004cff" do
     let( :vendor_id ) { 0x00004cff }
     its( :vendor_id ) { should == 0x00004cff }
+  end
+end
+
+
+describe ActionVendor, ".new( vendor_id, body )" do
+  subject { ActionVendor.new( vendor_id, body ) }
+  context %{when vendor_id == 0x00004cff, body="deadbeef"} do
+    let( :vendor_id ) { 0x00004cff }
+    let( :body ) { "deadbeef".unpack( "C*" ) }
+
+    its( :vendor_id ) { should == 0x00004cff }
+    its( :body ) { should == [ 100, 101, 97, 100, 98, 101, 101, 102 ] }
 
     context "when sending Flow Mod Add with action set to ActionVendor" do
       it "should have a flow with action set to ActionVendor" do
         class FlowModAddController < Controller; end
-        pending "ActionVendor not yet implemented"
+        pending "Use Nicira's vendor ID and body"
         network {
           vswitch { datapath_id 0xabc }
         }.run( FlowModAddController ) {
