@@ -100,9 +100,9 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
     append_action_set_dl_dst( actions, ptr );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetDlSrc ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "ActionSetDlSrc" ) ) == Qtrue ) {
     uint8_t dl_src[ OFP_ETH_ALEN ];
-    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "value" ), 0 ), dl_src );
+    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
     append_action_set_dl_src( actions, ptr );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwDst" ) ) == Qtrue ) {
@@ -630,6 +630,7 @@ controller_start_trema( VALUE self ) {
 void
 Init_controller() {
   rb_require( "trema/action-set-dl-dst" );
+  rb_require( "trema/action-set-dl-src" );
   rb_require( "trema/action-set-nw-dst" );
   rb_require( "trema/action-set-nw-src" );
   rb_require( "trema/action-set-nw-tos" );

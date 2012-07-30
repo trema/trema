@@ -20,7 +20,6 @@
 
 #include "action-enqueue.h"
 #include "action-output.h"
-#include "action-set-dl-src.h"
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
@@ -87,7 +86,6 @@ Init_trema() {
 
   Init_action_enqueue();
   Init_action_output();
-  Init_action_set_dl_src();
   Init_barrier_reply();
   Init_barrier_request();
   Init_controller();
