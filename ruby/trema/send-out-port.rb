@@ -24,24 +24,24 @@ module Trema
   #
   # An action to output a packet to a port.
   #
-  class ActionOutput < Action
+  class SendOutPort < Action
     attr_reader :max_len
-    attr_reader :port
+    attr_reader :port_number
 
 
     #
     # Creates an action to output a packet to a port.
     #
     # @example
-    #   ActionOutput.new( 1 )
-    #   ActionOutput.new( :port => 1, :max_len => 256 )
-    #   ActionOutput.new( :port => 1 )
-    #   ActionOutput.new( :port => 1, :max_len => 256 )
+    #   SendOutPort.new( 1 )
+    #   SendOutPort.new( :port_number => 1, :max_len => 256 )
+    #   SendOutPort.new( :port_number => 1 )
+    #   SendOutPort.new( :port_number => 1, :max_len => 256 )
     #
     # @param [Hash] options
     #   the options hash to create this action class instance with.
     #
-    # @option options [Number] :port
+    # @option options [Number] :port_number
     #   port number an index into switch's physical port list. There are also
     #   fake output ports. For example a port number set to +OFPP_FLOOD+ would
     #   output packets to all physical ports except input port and ports
@@ -52,19 +52,19 @@ module Trema
     #   is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet
     #   should be sent. It defaults to 64K.
     #
-    # @raise [ArgumentError] if port is not an unsigned 16-bit integer.
+    # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
     # @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
     #
     def initialize options
       case options
         when Hash
-          @port = options[ :port ]
+          @port_number = options[ :port_number ] || options[ :port ]
           @max_len = options[ :max_len ]
-          if @port.nil?
-            raise ArgumentError, ":port is a mandatory option"
+          if @port_number.nil?
+            raise ArgumentError, ":port_number is a mandatory option"
           end
-          if not @port.unsigned_16bit?
-            raise ArgumentError, "Port must be an unsigned 16-bit integer"
+          if not @port_number.unsigned_16bit?
+            raise ArgumentError, "Port number must be an unsigned 16-bit integer"
           end
           if @max_len
             if not @max_len.unsigned_16bit?
@@ -75,15 +75,18 @@ module Trema
           end
         when Integer
           if not options.unsigned_16bit?
-            raise ArgumentError, "Port must be an unsigned 16-bit integer"
+            raise ArgumentError, "Port number must be an unsigned 16-bit integer"
           end
-          @port = options
+          @port_number = options
           @max_len = 2 ** 16 - 1
         else
           raise "Invalid option"
       end
     end
   end
+
+
+  ActionOutput = SendOutPort
 end
 
 

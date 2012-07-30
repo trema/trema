@@ -87,10 +87,10 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint16_t port_number = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) );
     append_action_enqueue( actions, port_number, queue_id );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionOutput" ) ) == Qtrue ) {
-    uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SendOutPort" ) ) == Qtrue ) {
+    uint16_t port_number = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) );
     uint16_t max_len = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "max_len" ), 0 ) );
-    append_action_output( actions, port, max_len );
+    append_action_output( actions, port_number, max_len );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetEthDstAddr" ) ) == Qtrue ) {
     uint8_t dl_dst[ OFP_ETH_ALEN ];
@@ -293,7 +293,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *
  *   @example
  *     def packet_in datapath_id, message
- *       send_flow_mod_add datapath_id, :match => Match.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
+ *       send_flow_mod_add datapath_id, :match => Match.from(message), :actions => SendOutPort.new(OFPP_FLOOD)
  *     end
  *
  *
@@ -344,7 +344,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     emergency entry, and only use it for forwarding when
  *     disconnected from the controller.
  *
- *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
+ *   @option options [SendOutPort, Array<SendOutPort>, nil] :actions (nil)
  *     The sequence of actions specifying the actions to perform on
  *     the flow's packets.
  */
@@ -408,7 +408,7 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *     send_packet_out(
  *       datapath_id,
  *       :packet_in => message,
- *       :actions => Trema::ActionOutput.new(port_no)
+ *       :actions => Trema::SendOutPort.new(port_no)
  *     )
  *
  *
@@ -626,8 +626,8 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
-  rb_require( "trema/action-output" );
   rb_require( "trema/enqueue" );
+  rb_require( "trema/send-out-port" );
   rb_require( "trema/set-eth-dst-addr" );
   rb_require( "trema/set-eth-src-addr" );
   rb_require( "trema/set-ip-dst-addr" );
