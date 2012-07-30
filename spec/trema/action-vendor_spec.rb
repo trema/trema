@@ -32,10 +32,21 @@ describe ActionVendor, "new( vendor_id )" do
 end
 
 
+describe ActionVendor, ".new( string )" do
+  it { expect { ActionVendor.new "0x00004cff" }.to raise_error( TypeError ) }
+end
+
+
+describe ActionVendor, ".new( array )" do
+  it { expect { ActionVendor.new [ 1, 2, 3 ] }.to raise_error( TypeError ) }
+end
+
+
 describe ActionVendor, ".new( vendor_id, body )" do
-  subject { ActionVendor.new( vendor_id, body ) }
-  context %{when vendor_id == 0x00004cff, body="deadbeef"} do
-    let( :vendor_id ) { 0x00004cff }
+  subject { ActionVendor.new vendor_id, body }
+  let( :vendor_id ) { 0x00004cff }
+
+  context %{when body == "deadbeef".unpack( "C*" )} do
     let( :body ) { "deadbeef".unpack( "C*" ) }
 
     its( :vendor_id ) { should == 0x00004cff }
@@ -58,13 +69,8 @@ describe ActionVendor, ".new( vendor_id, body )" do
 end
 
 
-describe ActionVendor, ".new( string )" do
-  it { expect { ActionVendor.new( "0x00004cff" ) }.to raise_error( TypeError ) }
-end
-
-
-describe ActionVendor, ".new( array )" do
-  it { expect { ActionVendor.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
+describe ActionVendor, "new( vendor_id, string )" do
+  it { expect { ActionVendor.new 0x00004cff, "deadbeef" }.to raise_error( TypeError ) }
 end
 
 
