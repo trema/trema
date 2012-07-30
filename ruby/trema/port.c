@@ -87,7 +87,7 @@ port_init( VALUE self, VALUE options ) {
 
   VALUE name = rb_hash_aref( options, ID2SYM( rb_intern( "name" ) ) );
   rb_iv_set( self, "@name", name );
-  
+
   VALUE config = rb_hash_aref( options, ID2SYM( rb_intern( "config" ) ) );
   rb_iv_set( self, "@config", config );
 
@@ -191,7 +191,7 @@ port_advertised( VALUE self ) {
  *
  * @return [Number] the value of supported.
  */
-static VALUE 
+static VALUE
 port_supported( VALUE self ) {
   return rb_iv_get( self, "@supported" );
 }
@@ -219,10 +219,6 @@ port_up( VALUE self ) {
   if ( ( config & OFPPC_PORT_DOWN ) == OFPPC_PORT_DOWN ) {
     return Qfalse;
   }
-  uint32_t state = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@state" ) );
-  if ( ( state & OFPPS_LINK_DOWN ) == OFPPS_LINK_DOWN ) {
-    return Qfalse;
-  }
   return Qtrue;
 }
 
@@ -235,6 +231,57 @@ port_up( VALUE self ) {
 static VALUE
 port_down( VALUE self ) {
   return port_up( self ) == Qfalse ? Qtrue : Qfalse;
+}
+
+
+/*
+ * Tests if the link is up.
+ *
+ * @return [Boolean] true if link is up otherwise false.
+ */
+static VALUE
+link_up( VALUE self ) {
+  uint32_t state = ( uint16_t ) NUM2UINT( rb_iv_get( self, "@state" ) );
+  if ( ( state & OFPPS_LINK_DOWN ) == OFPPS_LINK_DOWN ) {
+    return Qfalse;
+  }
+  return Qtrue;
+}
+
+
+/*
+ * Tests if the link is down.
+ *
+ * @return [Boolean] true if link is down otherwise false.
+ */
+static VALUE
+link_down( VALUE self ) {
+  return link_up( self ) == Qfalse ? Qtrue : Qfalse;
+}
+
+
+/*
+ * Tests if the link and port are both up.
+ *
+ * @return [Boolean] true if link is up otherwise false.
+ */
+static VALUE
+port_and_link_up( VALUE self ) {
+  if ( port_up( self ) == Qtrue && link_up( self ) == Qtrue ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+/*
+ * Tests if the link or port is down.
+ *
+ * @return [Boolean] true if link is up otherwise false.
+ */
+static VALUE
+port_or_link_down( VALUE self ) {
+  return port_and_link_up( self ) == Qfalse ? Qtrue : Qfalse;
 }
 
 
@@ -256,6 +303,7 @@ Init_port() {
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
 
   rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
+  rb_define_const( cPort, "OFPPS_LINK_DOWN", INT2NUM( OFPPS_LINK_DOWN ) );
 
   rb_define_method( cPort, "initialize", port_init, 1 );
   rb_define_method( cPort, "number", port_number, 0 );
@@ -267,8 +315,12 @@ Init_port() {
   rb_define_method( cPort, "advertised", port_advertised, 0 );
   rb_define_method( cPort, "supported", port_supported, 0 );
   rb_define_method( cPort, "peer", port_peer, 0 );
-  rb_define_method( cPort, "up?", port_up, 0 );
-  rb_define_method( cPort, "down?", port_down, 0 );
+  rb_define_method( cPort, "port_up?", port_up, 0 );
+  rb_define_method( cPort, "port_down?", port_down, 0 );
+  rb_define_method( cPort, "link_up?", link_up, 0 );
+  rb_define_method( cPort, "link_down?", link_down, 0 );
+  rb_define_method( cPort, "up?", port_and_link_up, 0 );
+  rb_define_method( cPort, "down?", port_or_link_down, 0 );
   rb_define_method( cPort, "<=>", port_compare, 1 );
 }
 

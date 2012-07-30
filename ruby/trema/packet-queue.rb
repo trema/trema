@@ -20,8 +20,9 @@
 
 class Queue
   class << self
-    # @param [PacketQueue] queue
-    #  the {PacketQueue} to append to the list.
+    #
+    # The {PacketQueue} to append to the list.
+    #
     attr_accessor :queues
   end
 

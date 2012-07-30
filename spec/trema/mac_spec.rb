@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,82 +21,69 @@ require "trema/mac"
 
 
 module Trema
+  describe Mac, ".new(invalid_value)" do
+    subject { Mac.new( value ) }
+
+    context %{when "INVALID MAC ADDRESS"} do
+      let( :value ) { "INVALID MAC ADDRESS" }
+      it { expect { subject }.to raise_error( ArgumentError ) }
+    end
+
+    context "when -1" do
+      let( :value ) { -1 }
+      it { expect { subject }.to raise_error( ArgumentError ) }
+    end
+
+    context "when 0x1000000000000" do
+      let( :value ) { 0x1000000000000 }
+      it { expect { subject }.to raise_error( ArgumentError ) }
+    end
+
+    context "when [ 1, 2, 3 ]" do
+      let( :value ) { [ 1, 2, 3 ] }
+      it { expect { subject }.to raise_error( TypeError ) }
+    end
+  end
+
+
+  describe Mac, ".new(value)" do
+    subject { Mac.new( value ) }
+
+    context %{when "11:22:33:44:55:66"} do
+      let( :value ) { "11:22:33:44:55:66" }
+      it { should == Mac.new( "11:22:33:44:55:66" ) }
+      its( :value ) { should == 0x112233445566 }
+      its( :to_s ) { should == "11:22:33:44:55:66" }
+      its( :to_a ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
+      its( :multicast? ){ should be_true }
+      its( :broadcast? ){ should be_false }
+    end
+
+    context "when 0" do
+      let( :value ) { 0 }
+      it { should == Mac.new( 0 ) }
+      its( :value ) { should == 0 }
+      its( :to_s ) { should == "00:00:00:00:00:00" }
+      its( :to_a ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
+      its( :multicast? ){ should be_false }
+      its( :broadcast? ){ should be_false }
+    end
+
+    context "when 0xffffffffffff" do
+      let( :value ) { 0xffffffffffff }
+      it { should == Mac.new( 0xffffffffffff ) }
+      its( :value ) { should == 0xffffffffffff }
+      its( :to_s ) { should == "ff:ff:ff:ff:ff:ff" }
+      its( :to_a ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
+      its( :multicast? ){ should be_true }
+      its( :broadcast? ){ should be_true }
+    end
+  end
+
+
   describe Mac do
-    context "when creating from an invalid value" do
-      context %{when "INVALID MAC ADDRESS" } do
-        it "should raise an error" do
-          lambda do
-            Mac.new( "INVALID MAC ADDRESS" )
-          end.should raise_error( %{Invalid MAC address: "INVALID MAC ADDRESS"} )
-        end
-      end
-
-
-      context "when -1" do
-        it "should raise an error" do
-          lambda do
-            Mac.new( -1 )
-          end.should raise_error( "Invalid MAC address: -1" )
-        end
-      end
-
-
-      context "when 0x1000000000000" do
-        it "should raise an error" do
-          lambda do
-            Mac.new( 0x1000000000000 )
-          end.should raise_error( "Invalid MAC address: #{ 0x1000000000000 }" )
-        end
-      end
-
-
-      context %{when "[ 1, 2, 3 ]" } do
-        it "should raise an error" do
-          lambda do
-            Mac.new( [ 1, 2, 3 ] )
-          end.should raise_error( "Invalid MAC address: [1, 2, 3]" )
-        end
-      end
-    end
-
-
-    context "when creating" do
-      subject { Mac.new( mac_address ) }
-
-
-      context %{when "11:22:33:44:55:66"} do
-        let( :mac_address ) { "11:22:33:44:55:66" }
-
-        it { should == Mac.new( "11:22:33:44:55:66" ) }
-        its( :value ) { should == 0x112233445566 }
-        its( :to_s ) { should == "11:22:33:44:55:66" }
-        its( :to_short ) { should == [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ] }
-      end
-
-
-      context "when 0" do
-        let( :mac_address ) { 0 }
-
-        it { should == Mac.new( 0 ) }
-        its( :value ) { should == 0 }
-        its( :to_s ) { should == "00:00:00:00:00:00" }
-        its( :to_short ) { should == [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] }
-      end
-
-
-      context "when 0xffffffffffff" do
-        let( :mac_address ) { 0xffffffffffff }
-
-        it { should == Mac.new( 0xffffffffffff ) }
-        its( :value ) { should == 0xffffffffffff }
-        its( :to_s ) { should == "ff:ff:ff:ff:ff:ff" }
-        its( :to_short ) { should == [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ] }
-      end
-    end
-
-
     context "when querying FDB" do
-      it "should be used for FDB keys" do
+      it "can be used for Hash keys" do
         fdb = {}
         fdb[ Mac.new( "00:00:00:00:00:01" ) ] = "Port #1"
         fdb[ Mac.new( "00:00:00:00:00:01" ) ].should == "Port #1"

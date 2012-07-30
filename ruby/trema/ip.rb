@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -90,6 +88,18 @@ module Trema
     def to_i
       @value.to_i
     end
+
+
+    #
+    # @return [Array]
+    #    an array of decimal numbers converted from IP address.
+    #
+    def to_a
+      to_s.split( "." ).collect do | each |
+        each.to_i
+      end
+    end
+    alias :to_array :to_a
   end
 end
 

@@ -25,6 +25,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <syslog.h>
 #include <unistd.h>
 #include "openflow_message.h"
 #include "packet_info.h"

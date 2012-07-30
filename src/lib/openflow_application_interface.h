@@ -24,6 +24,7 @@
 #define OPENFLOW_APPLICATION_INTERFACE_H
 
 
+#include <arpa/inet.h>
 #include "buffer.h"
 #include "linked_list.h"
 #include "openflow.h"

@@ -24,9 +24,6 @@
 #define TCP_H
 
 
-#include <endian.h>
-
-
 typedef struct tcp_header {
   uint16_t src_port;
   uint16_t dst_port;

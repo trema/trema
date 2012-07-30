@@ -433,6 +433,11 @@ describe Trema::PacketIn do
           message.icmpv4_checksum.should == 0xe95b
           message.icmpv4_id.should == 0x0400
           message.icmpv4_seq.should == 0x6000
+
+          message.icmpv4_echo_reply?.should be_false
+          message.icmpv4_dst_unreach?.should be_false
+          message.icmpv4_redirect?.should be_false
+          message.icmpv4_echo_request?.should be_true
         end
 
         controller( "PacketInSendController" ).send_packet_out(

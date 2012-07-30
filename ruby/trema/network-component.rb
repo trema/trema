@@ -133,7 +133,7 @@ module Trema
     #
     #   App.add ttetris
     #
-    # @param [Object, #name] an object that responds to #name
+    # @param [Object, #name] object
     #
     # @return [Object] the added object
     #

@@ -25,6 +25,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
 #include <time.h>
 #include "bool.h"
 #include "log.h"
@@ -34,32 +35,35 @@
 
 typedef struct {
   const char *name;
-  const logging_level value;
+  const int value;
 } priority;
 
 
+static bool initialized = false;
 static FILE *fd = NULL;
-static logging_level level = -1;
-static bool daemonized = false;
+static int level = -1;
+static char ident_string[ PATH_MAX ];
+static char log_directory[ PATH_MAX ];
+static logging_type output = LOGGING_TYPE_FILE;
 static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
 static priority priorities[][ 3 ] = {
   {
-    { .name = "critical", .value = LOG_CRITICAL },
-    { .name = "crit", .value = LOG_CRITICAL },
+    { .name = "critical", .value = LOG_CRIT },
+    { .name = "crit", .value = LOG_CRIT },
     { .name = NULL },
   },
 
   {
-    { .name = "error", .value = LOG_ERROR },
-    { .name = "err", .value = LOG_ERROR },
+    { .name = "error", .value = LOG_ERR },
+    { .name = "err", .value = LOG_ERR },
     { .name = NULL },
   },
 
   {
-    { .name = "warn", .value = LOG_WARN },
-    { .name = "warning", .value = LOG_WARN },
+    { .name = "warn", .value = LOG_WARNING },
+    { .name = "warning", .value = LOG_WARNING },
     { .name = NULL },
   },
 
@@ -83,8 +87,8 @@ static priority priorities[][ 3 ] = {
 
 
 static const char *
-priority_name_from( logging_level level ) {
-  const char *name = priorities[ level ][ 0 ].name;
+priority_name_from( int level ) {
+  const char *name = priorities[ level - LOG_CRIT ][ 0 ].name;
   assert( name != NULL );
   return name;
 }
@@ -93,7 +97,7 @@ priority_name_from( logging_level level ) {
 static const size_t max_message_length = 1024;
 
 static void
-log_file( logging_level priority, const char *format, va_list ap ) {
+log_file( int priority, const char *format, va_list ap ) {
   time_t tm = time( NULL );
   char now[ 26 ];
   asctime_r( localtime( &tm ), now );
@@ -122,13 +126,61 @@ log_stdout( const char *format, va_list ap ) {
 }
 
 
-static FILE*
-open_log( const char *ident, const char *log_directory, bool append ) {
+static void
+log_syslog( int priority, const char *format, va_list ap ) {
+  trema_vsyslog( priority, format, ap );
+}
+
+
+static void
+unset_ident_string() {
+  memset( ident_string, '\0', sizeof( ident_string ) );
+}
+
+
+static void
+set_ident_string( const char *ident ) {
   assert( ident != NULL );
-  assert( log_directory != NULL );
+
+  unset_ident_string();
+  strncpy( ident_string, ident, sizeof( ident_string ) - 1 );
+}
+
+
+static const char *
+get_ident_string() {
+  return ident_string;
+}
+
+
+static void
+unset_log_directory() {
+  memset( log_directory, '\0', sizeof( log_directory ) );
+}
+
+
+static void
+set_log_directory( const char *directory ) {
+  assert( directory != NULL );
+
+  unset_log_directory();
+  strncpy( log_directory, directory, sizeof( log_directory ) - 1 );
+}
+
+
+static const char *
+get_log_directory() {
+  return log_directory;
+}
+
+
+static FILE*
+open_log_file( bool append ) {
+  assert( strlen( get_log_directory() ) > 0 );
+  assert( strlen( get_ident_string() ) > 0 );
 
   char pathname[ PATH_MAX ];
-  sprintf( pathname, "%s/%s.log", log_directory, ident );
+  sprintf( pathname, "%s/%s.log", get_log_directory(), get_ident_string() );
   FILE *log = fopen( pathname, append ? "a" : "w" );
 
   if ( log == NULL ) {
@@ -142,27 +194,51 @@ open_log( const char *ident, const char *log_directory, bool append ) {
 }
 
 
+static void
+open_log_syslog() {
+  assert( strlen( get_ident_string() ) > 0 );
+
+  trema_openlog( get_ident_string(), LOG_NDELAY, LOG_USER );
+}
+
+
 /**
  * Initializes the Logger. This creates a log file to which messages
  * are written.
  *
  * @param ident name of the log file, used as an identifier.
  * @param log_directory the directory in which log file is created.
- * @param run_as_daemon determines if messages should be reported to terminal as well.
+ * @param type log output type.
  * @return true on success; false otherwise.
  */
 bool
-init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
+init_log( const char *ident, const char *directory, logging_type type ) {
+  assert( ident != NULL );
+  assert( directory != NULL );
+
   pthread_mutex_lock( &mutex );
 
-  level = LOG_INFO;
+  // set_logging_level() may be called before init_log().
+  // level = -1 indicates that logging level is not set yet.
+  if ( level < 0 || level > LOG_DEBUG ) {
+    level = LOG_INFO;
+  }
   char *level_string = getenv( "LOGGING_LEVEL" );
   if ( level_string != NULL ) {
     set_logging_level( level_string );
   }
 
-  daemonized = run_as_daemon;
-  fd = open_log( ident, log_directory, false );
+  set_ident_string( ident );
+  set_log_directory( directory );
+  output = type;
+  if ( output & LOGGING_TYPE_FILE ) {
+    fd = open_log_file( false );
+  }
+  if ( output & LOGGING_TYPE_SYSLOG ) {
+    open_log_syslog();
+  }
+
+  initialized = true;
 
   pthread_mutex_unlock( &mutex );
 
@@ -171,35 +247,51 @@ init_log( const char *ident, const char *log_directory, bool run_as_daemon ) {
 
 
 void
-restart_log( const char *ident, const char *log_directory ) {
+restart_log( const char *new_ident ) {
   pthread_mutex_lock( &mutex );
 
-  if ( fd != NULL ) {
-    fclose( fd );
+  if ( new_ident != NULL ) {
+    set_ident_string( new_ident );
   }
-  fd = open_log( ident, log_directory, true );
+
+  if ( output & LOGGING_TYPE_FILE ) {
+    if ( fd != NULL ) {
+      fclose( fd );
+    }
+    fd = open_log_file( true );
+  }
+  if ( output & LOGGING_TYPE_SYSLOG ) {
+    trema_closelog();
+    open_log_syslog();
+  }
 
   pthread_mutex_unlock( &mutex );
 }
 
 
 void
-rename_log( const char *old_ident, const char *new_ident, const char *directory ) {
-  assert( directory != NULL );
-  assert( old_ident != NULL );
+rename_log( const char *new_ident ) {
   assert( new_ident != NULL );
 
-  char old_path[ PATH_MAX ];
-  snprintf( old_path, PATH_MAX, "%s/%s.log", directory, old_ident );
-  old_path[ PATH_MAX - 1 ] = '\0';
-  char new_path[ PATH_MAX ];
-  snprintf( new_path, PATH_MAX, "%s/%s.log", directory, new_ident );
-  new_path[ PATH_MAX - 1 ] = '\0';
+  if ( output & LOGGING_TYPE_FILE ) {
+    char old_path[ PATH_MAX ];
+    snprintf( old_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
+    old_path[ PATH_MAX - 1 ] = '\0';
+    char new_path[ PATH_MAX ];
+    set_ident_string( new_ident );
+    snprintf( new_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
+    new_path[ PATH_MAX - 1 ] = '\0';
 
-  unlink( new_path );
-  int ret = rename( old_path, new_path );
-  if ( ret < 0 ) {
-    die( "Could not rename a log file from %s to %s.", old_path, new_path );
+    unlink( new_path );
+    int ret = rename( old_path, new_path );
+    if ( ret < 0 ) {
+      die( "Could not rename a log file from %s to %s.", old_path, new_path );
+    }
+  }
+  if ( output & LOGGING_TYPE_SYSLOG ) {
+    trema_closelog();
+    set_ident_string( new_ident );
+    open_log_syslog();
   }
 }
 
@@ -214,10 +306,21 @@ finalize_log() {
   pthread_mutex_lock( &mutex );
 
   level = -1;
-  if ( fd != NULL ) {
-    fclose( fd );
-    fd = NULL;
+
+  if ( output & LOGGING_TYPE_FILE ) {
+    if ( fd != NULL ) {
+      fclose( fd );
+      fd = NULL;
+    }
   }
+  if ( output & LOGGING_TYPE_SYSLOG ) {
+    trema_closelog();
+  }
+
+  unset_ident_string();
+  unset_log_directory();
+
+  initialized = false;
 
   pthread_mutex_unlock( &mutex );
 
@@ -242,7 +345,7 @@ priority_value_from( const char *name ) {
   int level_value = -1;
   char *name_lower = lower( name );
 
-  for ( int i = 0; i <= LOG_DEBUG; i++ ) {
+  for ( int i = 0; i <= ( LOG_DEBUG - LOG_CRIT ); i++ ) {
     for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
       if ( strncmp( p->name, name_lower, 20 ) == 0 ) {
         level_value = p->value;
@@ -257,12 +360,7 @@ priority_value_from( const char *name ) {
 
 static bool
 started() {
-  if ( fd == NULL ) {
-    return false;
-  }
-  else {
-    return true;
-  }
+  return initialized;
 }
 
 
@@ -288,19 +386,24 @@ set_logging_level( const char *name ) {
 }
 
 
-static logging_level
+static int
 _get_logging_level() {
   return level;
 }
-logging_level ( *get_logging_level )( void ) = _get_logging_level;
+int ( *get_logging_level )( void ) = _get_logging_level;
 
 
 static void
-do_log( logging_level priority, const char *format, va_list ap ) {
+do_log( int priority, const char *format, va_list ap ) {
   assert( started() );
 
-  log_file( priority, format, ap );
-  if ( !daemonized ) {
+  if ( output & LOGGING_TYPE_FILE ) {
+    log_file( priority, format, ap );
+  }
+  if ( output & LOGGING_TYPE_SYSLOG ) {
+    log_syslog( priority, format, ap );
+  }
+  if ( output & LOGGING_TYPE_STDOUT ) {
     log_stdout( format, ap );
   }
 }
@@ -311,7 +414,7 @@ do_log( logging_level priority, const char *format, va_list ap ) {
     if ( _format == NULL ) {                            \
       trema_abort();                                    \
     }                                                   \
-    if ( ( int ) get_logging_level() >= _priority ) {   \
+    if ( get_logging_level() >= _priority ) {           \
       pthread_mutex_lock( &mutex );                     \
       va_list _args;                                    \
       va_start( _args, _format );                       \
@@ -324,7 +427,7 @@ do_log( logging_level priority, const char *format, va_list ap ) {
 
 static void
 _critical( const char *format, ... ) {
-  DO_LOG( LOG_CRITICAL, format );
+  DO_LOG( LOG_CRIT, format );
 }
 /**
  * Logs an critical message.
@@ -336,7 +439,7 @@ void ( *critical )( const char *format, ... ) = _critical;
 
 static void
 _error( const char *format, ... ) {
-  DO_LOG( LOG_ERROR, format );
+  DO_LOG( LOG_ERR, format );
 }
 /**
  * Logs an error message.
@@ -348,7 +451,7 @@ void ( *error )( const char *format, ... ) = _error;
 
 static void
 _warn( const char *format, ... ) {
-  DO_LOG( LOG_WARN, format );
+  DO_LOG( LOG_WARNING, format );
 }
 /**
  * Logs a warning message.
