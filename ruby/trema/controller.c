@@ -102,14 +102,14 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
     append_action_set_dl_src( actions, ptr );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwDst" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetIpDstAddr" ) ) == Qtrue ) {
     append_action_set_nw_dst( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "ip_address" ), 0 ) ) );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwSrc" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetIpSrcAddr" ) ) == Qtrue ) {
     append_action_set_nw_src( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "ip_address" ), 0 ) ) );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwTos" ) ) == Qtrue ) {
-    append_action_set_nw_tos( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "tos" ), 0 ) ) );
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetIpTos" ) ) == Qtrue ) {
+    append_action_set_nw_tos( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "type_of_service" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetTransportDstPort" ) ) == Qtrue ) {
     append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) ) );
@@ -630,9 +630,9 @@ Init_controller() {
   rb_require( "trema/action-output" );
   rb_require( "trema/action-set-dl-dst" );
   rb_require( "trema/action-set-dl-src" );
-  rb_require( "trema/action-set-nw-dst" );
-  rb_require( "trema/action-set-nw-src" );
-  rb_require( "trema/action-set-nw-tos" );
+  rb_require( "trema/set-ip-dst-addr" );
+  rb_require( "trema/set-ip-src-addr" );
+  rb_require( "trema/set-ip-tos" );
   rb_require( "trema/set-transport-dst-port" );
   rb_require( "trema/set-transport-src-port" );
   rb_require( "trema/set-vlan-priority" );

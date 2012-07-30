@@ -24,30 +24,30 @@ module Trema
   #
   # An action to modify the IP ToS/DSCP field of a packet.
   #
-  class ActionSetNwTos < Action
-    attr_reader :tos
+  class SetIpTos < Action
+    attr_reader :type_of_service
 
 
     #
     # Creates an action to modify the IP ToS/DSCP field of a packet.
     #
     # @example
-    #   ActionSetNwTos.new(32)
+    #   SetIpTos.new(32)
     #
-    # @param [Integer] :tos
+    # @param [Integer] :type_of_service
     #   the ToS/DSCP field to set to.
     #
-    # @raise [ArgumentError] if nw_tos argument is not an unsigned 8-bit Integer.
-    # @raise [TypeError] if supplied argument is not an Integer.
+    # @raise [ArgumentError] if type_of_service argument is not an unsigned 8-bit Integer.
+    # @raise [TypeError] if type_of_service argument is not an Integer.
     #
-    def initialize tos
-      if not tos.is_a?( Integer )
+    def initialize type_of_service
+      if not type_of_service.is_a?( Integer )
         raise TypeError, "ToS must be an unsigned 8-bit integer"
       end
-      if not tos.unsigned_8bit?
+      if not type_of_service.unsigned_8bit?
         raise ArgumentError, "ToS must be an unsigned 8-bit integer"
       end
-      @tos = tos
+      @type_of_service = type_of_service
     end
   end
 end

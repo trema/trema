@@ -16,23 +16,19 @@
 #
 
 
-require "trema/action"
+require "trema/set-ip-addr"
 
 
 module Trema
   #
-  # An action to modify the IPv4 destination address of a packet.
+  # An action to modify the IPv4 source address of a packet.
   #
-  class ActionSetNwDst < Action
-    attr_reader :ip_address
-
-
+  class SetIpSrcAddr < SetIpAddr
     #
-    # Creates an action to modify the IPv4 destination address of a
-    # packet.
+    # Creates an action to modify the IPv4 source address of a packet.
     #
     # @example
-    #   ActionSetNwDst.new("192.168.1.1")
+    #   SetIpSrcAddr.new("192.168.1.1")
     #
     # @param [String] ip_address
     #   the IPv4 address to create this action with.
@@ -40,10 +36,7 @@ module Trema
     # @raise [TypeError] if ip_address is not an String.
     #
     def initialize ip_address
-      if not ip_address.is_a?( String )
-        raise TypeError, "Destination IP address must be an String"
-      end
-      @ip_address = IPAddr.new( ip_address )
+      super ip_address
     end
   end
 end

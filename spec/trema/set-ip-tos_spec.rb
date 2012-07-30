@@ -20,31 +20,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwDst, ".new(ip_address)" do
-  subject { ActionSetNwDst.new( ip_address ) }
+describe SetIpTos, ".new( number )" do
+  subject { SetIpTos.new( type_of_service ) }
 
-  context %{when "192.168.1.1"} do
-    let( :ip_address ) { "192.168.1.1" }
-    its( :ip_address ) { should == IPAddr.new( "192.168.1.1" ) }
+  context "when type_of_service == 32" do
+    let( :type_of_service ) { 32 }
+    its( :type_of_service ) { should == 32 }
   end
+
+  it_validates "option range", :type_of_service, 0..( 2 ** 8 - 1 )
 end
 
 
-describe ActionSetTpDst, ".new( array )" do
-  it { expect { ActionSetTpDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
+describe SetIpTos, %{.new( "32" )} do
+  it { expect { SetIpTos.new( "32" ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetNwDst, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_nw_dst" do
-    it "should have a flow with action set to mod_nw_dst" do
+describe SetIpTos, ".new( [ 32 ] )" do
+  it { expect { SetIpTos.new( [ 32 ] ) }.to raise_error( TypeError ) }
+end
+
+
+describe SetIpTos, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_nw_tos" do
+    it "should have a flow with action set to mod_nw_tos" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetNwDst.new( "192.168.1.1" ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetIpTos.new( 4 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_dst:192.168.1.1/ )
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_tos:4/ )
       }
     end
   end
