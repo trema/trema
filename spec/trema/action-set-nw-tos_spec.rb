@@ -20,17 +20,12 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwTos, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
 describe ActionSetNwTos, ".new( number )" do
   subject { ActionSetNwTos.new( tos ) }
 
   context "when tos == 32" do
     let( :tos ) { 32 }
-    its( :value ) { should == 32 }
+    its( :tos ) { should == 32 }
   end
 
   it_validates "option range", :tos, 0..( 2 ** 8 - 1 )
