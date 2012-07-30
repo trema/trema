@@ -22,7 +22,6 @@
 #include "action-output.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
-#include "action-set-nw-src.h"
 #include "action-set-nw-tos.h"
 #include "barrier-reply.h"
 #include "buffer.h"
@@ -111,8 +110,8 @@ append_action( openflow_actions *actions, VALUE action ) {
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwDst" ) ) == Qtrue ) {
     append_action_set_nw_dst( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "ip_address" ), 0 ) ) );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetNwSrc ) == Qtrue ) {
-    append_action_set_nw_src( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetNwSrc" ) ) == Qtrue ) {
+    append_action_set_nw_src( actions, nw_addr_to_i( rb_funcall( action, rb_intern( "ip_address" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionSetNwTos ) == Qtrue ) {
     append_action_set_nw_tos( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
@@ -333,7 +332,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
  *     applied to flow actions.
  *
  *   @option options [Number] :out_port (0xffff)
- *     If the option contains a value other than OFPP_NONE(0xffff), 
+ *     If the option contains a value other than OFPP_NONE(0xffff),
  *     it introduces a constraint when deleting flow entries.
  *
  *   @option options [Boolean] :send_flow_rem (true)
@@ -633,6 +632,7 @@ controller_start_trema( VALUE self ) {
 void
 Init_controller() {
   rb_require( "trema/action-set-nw-dst" );
+  rb_require( "trema/action-set-nw-src" );
   rb_require( "trema/action-set-tp-dst" );
   rb_require( "trema/action-set-tp-src" );
   rb_require( "trema/action-set-vlan-pcp" );

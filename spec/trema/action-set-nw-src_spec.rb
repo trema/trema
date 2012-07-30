@@ -20,13 +20,18 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwSrc, ".new(value)" do
-  subject { ActionSetNwSrc.new( value ) }
+describe ActionSetNwSrc, ".new(ip_address)" do
+  subject { ActionSetNwSrc.new( ip_address ) }
 
   context %{when "192.168.1.1"} do
-    let( :value ) { "192.168.1.1" }
-    its( :value ) { should == IPAddr.new( "192.168.1.1" ) }
+    let( :ip_address ) { "192.168.1.1" }
+    its( :ip_address ) { should == IPAddr.new( "192.168.1.1" ) }
   end
+end
+
+
+describe ActionSetTpSrc, ".new( array )" do
+  it { expect { ActionSetTpSrc.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
@@ -39,7 +44,7 @@ describe ActionSetNwSrc, ".new( VALID OPTION )" do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetNwSrc.new( "192.168.1.1" ) )
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /mod_nw_src:192.168.1.1/ )
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ )
       }
     end
   end
