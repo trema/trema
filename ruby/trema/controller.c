@@ -92,12 +92,12 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint16_t max_len = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "max_len" ), 0 ) );
     append_action_output( actions, port, max_len );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetDlDst" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetEthDstAddr" ) ) == Qtrue ) {
     uint8_t dl_dst[ OFP_ETH_ALEN ];
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
     append_action_set_dl_dst( actions, ptr );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetDlSrc" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetEthSrcAddr" ) ) == Qtrue ) {
     uint8_t dl_src[ OFP_ETH_ALEN ];
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
     append_action_set_dl_src( actions, ptr );
@@ -628,8 +628,8 @@ void
 Init_controller() {
   rb_require( "trema/action-enqueue" );
   rb_require( "trema/action-output" );
-  rb_require( "trema/action-set-dl-dst" );
-  rb_require( "trema/action-set-dl-src" );
+  rb_require( "trema/set-eth-dst-addr" );
+  rb_require( "trema/set-eth-src-addr" );
   rb_require( "trema/set-ip-dst-addr" );
   rb_require( "trema/set-ip-src-addr" );
   rb_require( "trema/set-ip-tos" );

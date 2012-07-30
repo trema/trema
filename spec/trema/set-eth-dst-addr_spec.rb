@@ -20,19 +20,19 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetDlDst, %{.new( "52:54:00:a8:ad:8c" )} do
-  subject { ActionSetDlDst.new( "52:54:00:a8:ad:8c" ) }
+describe SetEthDstAddr, %{.new( "52:54:00:a8:ad:8c" )} do
+  subject { SetEthDstAddr.new( "52:54:00:a8:ad:8c" ) }
   its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
 end
 
 
-describe ActionSetDlDst, %{.new( "INVALID MAC STRING" )} do
-  it { expect { ActionSetDlDst.new( "INVALID MAC STRING" ) }.to raise_error( ArgumentError ) }
+describe SetEthDstAddr, %{.new( "INVALID MAC STRING" )} do
+  it { expect { SetEthDstAddr.new( "INVALID MAC STRING" ) }.to raise_error( ArgumentError ) }
 end
 
 
-describe ActionSetDlDst, ".new( number )" do
-  subject { ActionSetDlDst.new( mac_address ) }
+describe SetEthDstAddr, ".new( number )" do
+  subject { SetEthDstAddr.new( mac_address ) }
 
   context "when mac_address == 0x525400a8ad8c" do
     let( :mac_address ) { 0x525400a8ad8c }
@@ -43,12 +43,12 @@ describe ActionSetDlDst, ".new( number )" do
 end
 
 
-describe ActionSetDlDst, ".new( [ 1, 2, 3 ] )" do
-  it { expect { ActionSetDlDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
+describe SetEthDstAddr, ".new( [ 1, 2, 3 ] )" do
+  it { expect { SetEthDstAddr.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetDlDst, ".new( VALID OPTION )" do
+describe SetEthDstAddr, ".new( VALID OPTION )" do
   context "when sending #flow_mod(add) with action set to mod_dl_dst" do
     it "should have a flow with action set to mod_dl_dst" do
       class FlowModAddController < Controller; end
@@ -57,7 +57,7 @@ describe ActionSetDlDst, ".new( VALID OPTION )" do
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add(
           0xabc,
-          :actions => ActionSetDlDst.new( "52:54:00:a8:ad:8c" )
+          :actions => SetEthDstAddr.new( "52:54:00:a8:ad:8c" )
         )
         sleep 2 # FIXME: wait to send_flow_mod
         vswitch( "0xabc" ).should have( 1 ).flows

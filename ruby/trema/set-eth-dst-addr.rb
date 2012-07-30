@@ -16,24 +16,20 @@
 #
 
 
-require "trema/action"
-require "trema/mac"
+require "trema/set-eth-addr"
 
 
 module Trema
   #
-  # An action to modify the source Ethernet address of a packet.
+  # An action to modify the destination Ethernet address of a packet.
   #
-  class ActionSetDlSrc < Action
-    attr_reader :mac_address
-
-
+  class SetEthDstAddr < SetEthAddr
     #
-    # Creates an action to modify the source Ethernet address of a packet.
+    # Creates an action to modify the destination Ethernet address of a packet.
     #
     # @example
-    #   ActionSetDlSrc.new("11:22:33:44:55:66")
-    #   ActionSetDlSrc.new(0x112233445566)
+    #   SetEthDstAddr.new("11:22:33:44:55:66")
+    #   SetEthDstAddr.new(0x112233445566)
     #
     # @param [String,Integer] mac_address
     #   the Ethernet address to create this action with.
@@ -42,9 +38,12 @@ module Trema
     # @raise [TypeError] if supplied argument is not a String or Integer.
     #
     def initialize mac_address
-      @mac_address = Mac.new( mac_address )
+      super mac_address
     end
   end
+
+
+  ActionSetDlDst = SetEthDstAddr
 end
 
 
