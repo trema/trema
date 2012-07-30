@@ -22,7 +22,6 @@
 #include "action-output.h"
 #include "action-set-dl-dst.h"
 #include "action-set-dl-src.h"
-#include "action-set-nw-dst.h"
 #include "action-set-nw-src.h"
 #include "action-set-nw-tos.h"
 #include "barrier-reply.h"
@@ -93,7 +92,6 @@ Init_trema() {
   Init_action_output();
   Init_action_set_dl_dst();
   Init_action_set_dl_src();
-  Init_action_set_nw_dst();
   Init_action_set_nw_src();
   Init_action_set_nw_tos();
   Init_barrier_reply();

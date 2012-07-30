@@ -20,13 +20,18 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetNwDst, ".new(value)" do
-  subject { ActionSetNwDst.new( value ) }
+describe ActionSetNwDst, ".new(ip_address)" do
+  subject { ActionSetNwDst.new( ip_address ) }
 
   context %{when "192.168.1.1"} do
-    let( :value ) { "192.168.1.1" }
-    its( :value ) { should == IPAddr.new( "192.168.1.1" ) }
+    let( :ip_address ) { "192.168.1.1" }
+    its( :ip_address ) { should == IPAddr.new( "192.168.1.1" ) }
   end
+end
+
+
+describe ActionSetTpDst, ".new( array )" do
+  it { expect { ActionSetTpDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 

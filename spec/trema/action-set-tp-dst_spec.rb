@@ -20,11 +20,6 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetTpDst, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
 describe ActionSetTpDst, "new( number )" do
   subject { ActionSetTpDst.new number }
 
