@@ -20,11 +20,6 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionOutput, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
 describe ActionOutput, ".new( 1 )" do
   subject { ActionOutput.new( 1 ) }
   its( :port ) { should == 1 }

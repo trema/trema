@@ -19,8 +19,6 @@
 #include "ruby.h"
 #include "action-common.h"
 #include "action-enqueue.h"
-#include "action-output.h"
-#include "action-set-dl-src.h"
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
@@ -90,17 +88,17 @@ append_action( openflow_actions *actions, VALUE action ) {
     uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
     append_action_enqueue( actions, port, queue_id );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, cActionOutput ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionOutput" ) ) == Qtrue ) {
     uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
     uint16_t max_len = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "max_len" ), 0 ) );
     append_action_output( actions, port, max_len );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "ActionSetDlDst" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetDlDst" ) ) == Qtrue ) {
     uint8_t dl_dst[ OFP_ETH_ALEN ];
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
     append_action_set_dl_dst( actions, ptr );
   }
-  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "ActionSetDlSrc" ) ) == Qtrue ) {
+  else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetDlSrc" ) ) == Qtrue ) {
     uint8_t dl_src[ OFP_ETH_ALEN ];
     uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
     append_action_set_dl_src( actions, ptr );
@@ -629,6 +627,7 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
+  rb_require( "trema/action-output" );
   rb_require( "trema/action-set-dl-dst" );
   rb_require( "trema/action-set-dl-src" );
   rb_require( "trema/action-set-nw-dst" );
