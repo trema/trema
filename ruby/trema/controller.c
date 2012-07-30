@@ -82,10 +82,10 @@ controller_send_list_switches_request( VALUE self ) {
 
 static void
 append_action( openflow_actions *actions, VALUE action ) {
-  if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionEnqueue" ) ) == Qtrue ) {
+  if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::Enqueue" ) ) == Qtrue ) {
     uint32_t queue_id = ( uint32_t ) NUM2UINT( rb_funcall( action, rb_intern( "queue_id" ), 0 ) );
-    uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
-    append_action_enqueue( actions, port, queue_id );
+    uint16_t port_number = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) );
+    append_action_enqueue( actions, port_number, queue_id );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionOutput" ) ) == Qtrue ) {
     uint16_t port = ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port" ), 0 ) );
@@ -626,8 +626,8 @@ controller_start_trema( VALUE self ) {
 
 void
 Init_controller() {
-  rb_require( "trema/action-enqueue" );
   rb_require( "trema/action-output" );
+  rb_require( "trema/enqueue" );
   rb_require( "trema/set-eth-dst-addr" );
   rb_require( "trema/set-eth-src-addr" );
   rb_require( "trema/set-ip-dst-addr" );

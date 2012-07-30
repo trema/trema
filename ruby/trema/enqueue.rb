@@ -25,8 +25,8 @@ module Trema
   # An action to enqueue the packet on the specified queue attached to
   # a port.
   #
-  class ActionEnqueue < Action
-    attr_reader :port
+  class Enqueue < Action
+    attr_reader :port_number
     attr_reader :queue_id
 
 
@@ -37,43 +37,46 @@ module Trema
     # the specific queue in that port.
     #
     # @example
-    #   ActionEnqueue.new( :port => 1, :queue_id => 2 )
+    #   Enqueue.new( :port_number => 1, :queue_id => 2 )
     #
     # @param [Hash] options
     #   the options hash to create this action class instance with.
     #
-    # @option options [Number] :port
+    # @option options [Number] :port_number
     #   the port the queue is attached to.
     #
     # @option options [Number] :queue_id
     #   the configured queue. Currently only minimum rate queues provided.
     #
-    # @raise [ArgumentError] if both port and queue_id arguments not supplied.
-    # @raise [ArgumentError] if port is not an unsigned 16-bit integer.
-    # @raise [ArgumentError] if queue id is not an unsigned 32-bit integer.
     # @raise [TypeError] if options is not a Hash.
+    # @raise [ArgumentError] if both port_number and queue_id arguments not supplied.
+    # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
+    # @raise [ArgumentError] if queue id is not an unsigned 32-bit integer.
     #
     def initialize options
       if options.is_a?( Hash )
-        @port = options[ :port ]
+        @port_number = options[ :port_number ]
         @queue_id = options[ :queue_id ]
-        if @port.nil?
-          raise ArgumentError, ":port is a mandatory option"
+        if @port_number.nil?
+          raise ArgumentError, "Port number is a mandatory option"
         end
-        if not @port.unsigned_16bit?
-          raise ArgumentError, "Port must be an unsigned 16-bit integer"
+        if not @port_number.unsigned_16bit?
+          raise ArgumentError, "Port number must be an unsigned 16-bit integer"
         end
         if @queue_id.nil?
-          raise ArgumentError, ":queue_id is a mandatory option"
+          raise ArgumentError, "Queue ID is a mandatory option"
         end
         if not @queue_id.unsigned_32bit?
-          raise ArgumentError, ":queue_id must be an unsigned 32-bit integer"
+          raise ArgumentError, "Queue ID must be an unsigned 32-bit integer"
         end
       else
         raise "Invalid option"
       end
     end
   end
+
+
+  ActionEnqueue = Enqueue
 end
 
 
