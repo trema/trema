@@ -20,8 +20,8 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetTpDst, "new( number )" do
-  subject { ActionSetTpDst.new number }
+describe SetTransportSrcPort, "new( number )" do
+  subject { SetTransportSrcPort.new number }
 
   context "when number == 5555" do
     let( :number ) { 5555 }
@@ -32,26 +32,26 @@ describe ActionSetTpDst, "new( number )" do
 end
 
 
-describe ActionSetTpDst, ".new( string )" do
-  it { expect { ActionSetTpDst.new( "5555" ) }.to raise_error( TypeError ) }
+describe SetTransportSrcPort, ".new( string )" do
+  it { expect { SetTransportSrcPort.new( "5555" ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetTpDst, ".new( array )" do
-  it { expect { ActionSetTpDst.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
+describe SetTransportSrcPort, ".new( array )" do
+  it { expect { SetTransportSrcPort.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetTpDst, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_tp_dst" do
-    it "should have a flow with action set to mod_tp_dst" do
+describe SetTransportSrcPort, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_tp_src" do
+    it "should have a flow with action set to mod_tp_src" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetTpDst.new( 5555 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetTransportSrcPort.new( 5555 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ )
       }
     end
   end

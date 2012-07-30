@@ -20,13 +20,8 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe ActionSetTpSrc, ".new" do
-  it { expect { subject }.to raise_error( ArgumentError ) }
-end
-
-
-describe ActionSetTpSrc, "new( number )" do
-  subject { ActionSetTpSrc.new number }
+describe SetTransportDstPort, "new( number )" do
+  subject { SetTransportDstPort.new number }
 
   context "when number == 5555" do
     let( :number ) { 5555 }
@@ -37,26 +32,26 @@ describe ActionSetTpSrc, "new( number )" do
 end
 
 
-describe ActionSetTpSrc, ".new( string )" do
-  it { expect { ActionSetTpSrc.new( "5555" ) }.to raise_error( TypeError ) }
+describe SetTransportDstPort, ".new( string )" do
+  it { expect { SetTransportDstPort.new( "5555" ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetTpSrc, ".new( array )" do
-  it { expect { ActionSetTpSrc.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
+describe SetTransportDstPort, ".new( array )" do
+  it { expect { SetTransportDstPort.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
 end
 
 
-describe ActionSetTpSrc, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_tp_src" do
-    it "should have a flow with action set to mod_tp_src" do
+describe SetTransportDstPort, ".new( VALID OPTION )" do
+  context "when sending #flow_mod(add) with action set to mod_tp_dst" do
+    it "should have a flow with action set to mod_tp_dst" do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => ActionSetTpSrc.new( 5555 ) )
+        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetTransportDstPort.new( 5555 ) )
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_src:5555/ )
+        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
       }
     end
   end

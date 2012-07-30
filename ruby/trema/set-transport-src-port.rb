@@ -24,7 +24,7 @@ module Trema
   #
   # An action to modify the source TCP or UDP port of a packet.
   #
-  class ActionSetTpSrc < Action
+  class SetTransportSrcPort < Action
     attr_reader :port_number
 
 
@@ -32,7 +32,7 @@ module Trema
     # Creates an action to modify the source TCP or UDP port of a packet.
     #
     # @example
-    #   ActionSetTpSrc.new( 5555 )
+    #   SetTransportSrcPort.new( 5555 )
     #
     # @param [Integer] port_number
     #   the source TCP or UDP port number. Any numeric 16-bit value.
@@ -51,6 +51,9 @@ module Trema
       @port_number = port_number
     end
   end
+
+
+  ActionSetTpSrc = SetTransportSrcPort
 end
 
 

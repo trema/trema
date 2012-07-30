@@ -24,7 +24,7 @@ module Trema
   #
   # An action to modify the destination TCP or UDP port of a packet.
   #
-  class ActionSetTpDst < Action
+  class SetTransportDstPort < Action
     attr_reader :port_number
 
 
@@ -32,7 +32,7 @@ module Trema
     # Creates an action to modify the destination TCP or UDP port of a packet.
     #
     # @example
-    #   ActionSetTpDst.new( 5555 )
+    #   SetTransportDstPort.new( 5555 )
     #
     # @param [Integer] port_number
     #   the destination TCP or UDP port number. Any numeric 16-bit value.
@@ -50,6 +50,9 @@ module Trema
       @port_number = port_number
     end
   end
+
+
+  ActionSetTpDst = SetTransportDstPort
 end
 
 
