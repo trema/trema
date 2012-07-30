@@ -24,6 +24,9 @@ module Trema
   # An action to modify the VLAN id of a packet.
   #
   class ActionSetVlanVid < Action
+    attr_reader :vlan_vid
+
+
     #
     # An action to modify the VLAN id of a packet. The VLAN id is
     # 16-bits long but the actual VID (VLAN Identifier) of the IEEE
@@ -46,7 +49,7 @@ module Trema
       if not ( vlan_vid >= 1 and vlan_vid <= 4096 )
         raise ArgumentError, "Valid VLAN id values between 1 to 4096 inclusive"
       end
-      @value = vlan_vid
+      @vlan_vid = vlan_vid
     end
   end
 end

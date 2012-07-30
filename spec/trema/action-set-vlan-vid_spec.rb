@@ -26,14 +26,14 @@ end
 
 
 describe ActionSetVlanVid, ".new( number )" do
-  subject { ActionSetVlanVid.new( vid ) }
+  subject { ActionSetVlanVid.new( vlan_vid ) }
 
-  context "when vid == 1024" do
-    let( :vid ) { 1024 }
-    its( :value ) { should == 1024 }
+  context "when vlan_vid == 1024" do
+    let( :vlan_vid ) { 1024 }
+    its( :vlan_vid ) { should == 1024 }
   end
 
-  it_validates "option range", :vid, 1..4096
+  it_validates "option range", :vlan_vid, 1..4096
 end
 
 

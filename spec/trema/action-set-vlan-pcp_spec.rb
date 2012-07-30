@@ -26,14 +26,14 @@ end
 
 
 describe ActionSetVlanPcp, ".new( number )" do
-  subject { ActionSetVlanPcp.new( pcp ) }
+  subject { ActionSetVlanPcp.new( vlan_priority ) }
 
-  context "when pcp == 4" do
-    let( :pcp ) { 4 }
-    its( :value ) { should == 4 }
+  context "when vlan_priority == 4" do
+    let( :vlan_priority ) { 4 }
+    its( :vlan_priority ) { should == 4 }
   end
 
-  it_validates "option range", :pcp, 0..7
+  it_validates "option range", :vlan_priority, 0..7
 end
 
 

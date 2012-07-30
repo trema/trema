@@ -25,27 +25,30 @@ module Trema
   # An action to modify the source TCP or UDP port of a packet.
   #
   class ActionSetTpSrc < Action
+    attr_reader :port_number
+
+
     #
     # Creates an action to modify the source TCP or UDP port of a packet.
     #
     # @example
     #   ActionSetTpSrc.new( 5555 )
     #
-    # @param [Integer] tp_src
+    # @param [Integer] port_number
     #   the source TCP or UDP port number. Any numeric 16-bit value.
     #
-    # @raise [ArgumentError] if tp_src argument is not supplied.
-    # @raise [ArgumentError] if tp_src is not an unsigned 16-bit Integer.
-    # @raise [TypeError] if tp_src is not an Integer.
+    # @raise [ArgumentError] if port_number argument is not supplied.
+    # @raise [ArgumentError] if port_number is not an unsigned 16-bit Integer.
+    # @raise [TypeError] if port_number is not an Integer.
     #
-    def initialize tp_src
-      if not tp_src.is_a?( Integer )
+    def initialize port_number
+      if not port_number.is_a?( Integer )
         raise TypeError, "Source TCP or UDP port must be an unsigned 16-bit integer"
       end
-      if not tp_src.unsigned_16bit?
+      if not port_number.unsigned_16bit?
         raise ArgumentError, "Source TCP or UDP port must be an unsigned 16-bit integer"
       end
-      @value = tp_src
+      @port_number = port_number
     end
   end
 end

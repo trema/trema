@@ -25,7 +25,7 @@ describe ActionSetTpDst, "new( number )" do
 
   context "when number == 5555" do
     let( :number ) { 5555 }
-    its( :value ) { should == 5555 }
+    its( :port_number ) { should == 5555 }
   end
 
   it_validates "option range", :number, 0..( 2 ** 16 - 1 )

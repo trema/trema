@@ -25,27 +25,29 @@ module Trema
   # An action to modify the destination TCP or UDP port of a packet.
   #
   class ActionSetTpDst < Action
+    attr_reader :port_number
+
+
     #
     # Creates an action to modify the destination TCP or UDP port of a packet.
     #
     # @example
     #   ActionSetTpDst.new( 5555 )
     #
-    # @param [Integer] tp_dst
+    # @param [Integer] port_number
     #   the destination TCP or UDP port number. Any numeric 16-bit value.
     #
-    # @raise [ArgumentError] if tp_dst argument is not supplied.
-    # @raise [ArgumentError] if tp_dst is not an unsigned 16-bit Integer.
-    # @raise [TypeError] if tp_dst is not an Integer.
+    # @raise [ArgumentError] if port_number is not an unsigned 16-bit Integer.
+    # @raise [TypeError] if port_number is not an Integer.
     #
-    def initialize tp_dst
-      if not tp_dst.is_a?( Integer )
+    def initialize port_number
+      if not port_number.is_a?( Integer )
         raise TypeError, "Destination TCP or UDP port must be an unsigned 16-bit integer"
       end
-      if not tp_dst.unsigned_16bit?
+      if not port_number.unsigned_16bit?
         raise ArgumentError, "Destination TCP or UDP port must be an unsigned 16-bit integer"
       end
-      @value = tp_dst
+      @port_number = port_number
     end
   end
 end

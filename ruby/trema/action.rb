@@ -18,10 +18,10 @@
 
 module Trema
   #
-  # A base action class.
+  # A base action class just for defining a meta-type for all action
+  # classes.
   #
   class Action
-    attr_reader :value
   end
 end
 

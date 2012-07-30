@@ -112,16 +112,16 @@ append_action( openflow_actions *actions, VALUE action ) {
     append_action_set_nw_tos( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "tos" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetTpDst" ) ) == Qtrue ) {
-    append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+    append_action_set_tp_dst( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetTpSrc" ) ) == Qtrue ) {
-    append_action_set_tp_src( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+    append_action_set_tp_src( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "port_number" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetVlanPcp" ) ) == Qtrue ) {
-    append_action_set_vlan_pcp( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+    append_action_set_vlan_pcp( actions, ( uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "vlan_priority" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionSetVlanVid" ) ) == Qtrue ) {
-    append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "value" ), 0 ) ) );
+    append_action_set_vlan_vid( actions, ( uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "vlan_vid" ), 0 ) ) );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::ActionStripVlan" ) ) == Qtrue ) {
     append_action_strip_vlan( actions );

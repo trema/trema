@@ -24,6 +24,9 @@ module Trema
   # An action to modify the VLAN priority of a packet.
   #
   class ActionSetVlanPcp < Action
+    attr_reader :vlan_priority
+
+
     #
     # Creates an action to modify the VLAN priority of a packet. Valid
     # values are between (0) lowest and (7) highest. Priority bits can
@@ -32,21 +35,21 @@ module Trema
     # @example
     #   ActionSetVlanPcp.new( 7 )
     #
-    # @param [Integer] vlan_pcp
+    # @param [Integer] vlan_priority
     #   the VLAN priority to set to.
     #
-    # @raise [ArgumentError] if vlan_pcp argument is not supplied.
-    # @raise [ArgumentError] if vlan_pcp is not within 0 and 7 inclusive.
-    # @raise [TypeError] if vlan_pcp is not an Integer.
+    # @raise [ArgumentError] if vlan_priority argument is not supplied.
+    # @raise [ArgumentError] if vlan_priority is not within 0 and 7 inclusive.
+    # @raise [TypeError] if vlan_priority is not an Integer.
     #
-    def initialize vlan_pcp
-      if not vlan_pcp.is_a?( Integer )
+    def initialize vlan_priority
+      if not vlan_priority.is_a?( Integer )
         raise TypeError, "VLAN priority must be an unsigned 8-bit Integer"
       end
-      if not ( vlan_pcp >= 0 and vlan_pcp <= 7 )
+      if not ( vlan_priority >= 0 and vlan_priority <= 7 )
         raise ArgumentError, "Valid VLAN priority values are 0 to 7 inclusive"
       end
-      @value = vlan_pcp
+      @vlan_priority = vlan_priority
     end
   end
 end
