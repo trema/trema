@@ -33,14 +33,13 @@ Getting Started
 * The [Getting Started with Trema](https://github.com/trema/trema/wiki/Quick-start).
 * The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
 * The [Trema Tutorial](http://trema-tutorial.heroku.com/).
-* The [Trema Ruby API documents](http://rubydoc.info/github/trema/trema/master/frames).
 * The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
 
 
 Supported Platforms
 -------------------
 
-Trema has been tested ONLY on the following environments:
+Trema supports Linux only. And it has been tested on the following environments:
 
 * Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
@@ -49,23 +48,28 @@ It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
 
 
-API
----
+Ruby API
+--------
 
-### Handlers
+The following is an exerpt from the Trema Ruby API.
+The full documents are found here http://rubydoc.info/github/trema/trema/master/frames
 
-* [Trema::Controller#switch_ready](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
-* [Trema::Controller#switch_disconnected](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
-* [Trema::Controller#packet_in](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
-* [Trema::Controller#flow_removed](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
-* [Trema::Controller#port_status](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
-* [Trema::Controller#openflow_error](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
-* [Trema::Controller#features_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:features_reply)
-* [Trema::Controller#stats_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:stats_reply)
-* [Trema::Controller#barrier_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:barrier_reply)
-* [Trema::Controller#get_config_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:get_config_reply)
-* [Trema::Controller#queue_get_config_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
-* [Trema::Controller#vendor](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
+### Event and Message handlers
+
+See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller) for more details.
+
+* [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
+* [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
+* [packet_in(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
+* [flow_removed(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
+* [port_status(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
+* [openflow_error(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
+* [features_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:features_reply)
+* [stats_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:stats_reply)
+* [barrier_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:barrier_reply)
+* [get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:get_config_reply)
+* [queue_get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
+* [vendor(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
 
 ### Actions
 
