@@ -87,6 +87,23 @@ class.
 * [send_packet_out(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_packet_out)
 * [send_message(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
+### OpenFlow Messages
+
+* [Trema::FeaturesRequest](http://rubydoc.info/github/trema/trema/master/Trema/FeaturesRequest)
+* [Trema::SetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/SetConfigRequest)
+* [Trema::GetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/GetConfigRequest)
+* [Trema::QueueGetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/QueueGetConfigRequest)
+* [Trema::DescStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/DescStatsRequest)
+* [Trema::FlowStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/FlowStatsRequest)
+* [Trema::AggregateStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/AggregateStatsRequest)
+* [Trema::TableStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/TableStatsRequest)
+* [Trema::PortStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/PortStatsRequest)
+* [Trema::QueueStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/QueueStatsRequest)
+* [Trema::VendorStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/VendorStatsRequest)
+* [Trema::BarrierRequest](http://rubydoc.info/github/trema/trema/master/Trema/BarrierRequest)
+* [Trema::PortMod](http://rubydoc.info/github/trema/trema/master/Trema/PortMod)
+* [Trema::Vendor](http://rubydoc.info/github/trema/trema/master/Trema/Vendor)
+
 ### Actions
 
 * [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
