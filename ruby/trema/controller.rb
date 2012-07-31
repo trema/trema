@@ -41,6 +41,28 @@ module Trema
 
 
     #
+    # @!method switch_ready( datapath_id )
+    #
+    # @abstract Switch Ready event handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath ID of connected OpenFlow switch.
+    #
+    handler :switch_ready
+
+
+    #
+    # @!method switch_disconnected( datapath_id )
+    #
+    # @abstract Switch Disconnected event handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath ID of disconnected OpenFlow switch.
+    #
+    handler :switch_disconnected
+
+
+    #
     # @!method packet_in( datapath_id, message )
     #
     # @abstract Packet In message handler. Override this to implement a custom handler.
@@ -93,28 +115,6 @@ module Trema
 
 
     #
-    # @!method switch_ready( datapath_id )
-    #
-    # @abstract Switch Ready event handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath ID of connected OpenFlow switch.
-    #
-    handler :switch_ready
-
-
-    #
-    # @!method switch_disconnected( datapath_id )
-    #
-    # @abstract Switch Disconnected event handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath ID of disconnected OpenFlow switch.
-    #
-    handler :switch_disconnected
-
-
-    #
     # @!method features_reply( datapath_id, message )
     #
     # @abstract Features Reply message handler. Override this to implement a custom handler.
@@ -128,21 +128,6 @@ module Trema
 
 
     #
-    # @!method get_config_reply( datapath_id, message )
-    #
-    # @abstract Get Config Reply message handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath from which a message is sent.
-    # @param [GetConfigReply] message
-    #   the Get Config Reply message.
-    #
-    # @todo get_config_reply( message ) -> configuration_reply( datapath_id, message )
-    #
-    handler :get_config_reply
-
-
-    #
     # @!method stats_reply( datapath_id, message )
     #
     # @abstract Stats Reply message handler. Override this to implement a custom handler.
@@ -151,8 +136,6 @@ module Trema
     #   the datapath from which a message is sent.
     # @param [StatsReply] message
     #   the Stats Reply message.
-    #
-    # @todo stats_reply( message ) -> stats_reply( datapath_id, message )
     #
     handler :stats_reply
 
@@ -167,24 +150,20 @@ module Trema
     # @param [BarrierReply] message
     #   the Barrier Reply message.
     #
-    # @todo barrier_reply( message ) -> barrier_reply( datapath_id, message )
-    #
     handler :barrier_reply
 
 
     #
-    # @!method vendor( datapath_id, message )
+    # @!method get_config_reply( datapath_id, message )
     #
-    # @abstract Vendor message handler. Override this to implement a custom handler.
+    # @abstract Get Config Reply message handler. Override this to implement a custom handler.
     #
     # @param [Integer] datapath_id
     #   the datapath from which a message is sent.
-    # @param [Vendor] message
-    #   the Vendor message.
+    # @param [GetConfigReply] message
+    #   the Get Config Reply message.
     #
-    # @todo vendor( message ) -> vendor( datapath_id, message )
-    #
-    handler :vendor
+    handler :get_config_reply
 
 
     #
@@ -197,9 +176,20 @@ module Trema
     # @param [QueueGetConfigReply] message
     #   the Queue Get Config Reply message.
     #
-    # @todo queue_get_config_reply( message ) -> queue_get_config_reply( datapath_id, message )
-    #
     handler :queue_get_config_reply
+
+
+    #
+    # @!method vendor( datapath_id, message )
+    #
+    # @abstract Vendor message handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [Vendor] message
+    #   the Vendor message.
+    #
+    handler :vendor
 
 
     #

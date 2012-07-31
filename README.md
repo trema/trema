@@ -54,12 +54,18 @@ API
 
 ### Handlers
 
-* [Controller#packet_in](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
-* [Controller#flow_removed](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
-* [Controller#port_status](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
-* [Controller#openflow_error](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
-
-### OpenFlow Messages
+* [Trema::Controller#switch_ready](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
+* [Trema::Controller#switch_disconnected](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
+* [Trema::Controller#packet_in](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
+* [Trema::Controller#flow_removed](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
+* [Trema::Controller#port_status](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
+* [Trema::Controller#openflow_error](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
+* [Trema::Controller#features_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:features_reply)
+* [Trema::Controller#stats_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:stats_reply)
+* [Trema::Controller#barrier_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:barrier_reply)
+* [Trema::Controller#get_config_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:get_config_reply)
+* [Trema::Controller#queue_get_config_reply](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
+* [Trema::Controller#vendor](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
 
 ### Actions
 
