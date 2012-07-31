@@ -25,7 +25,7 @@ require "trema/timers"
 
 module Trema
   #
-  # The base class of Trema controller.
+  # @abstract The base class of Trema controller. Subclass and override handlers to implement a custom OpenFlow controller.
   #
   class Controller < App
     include Logger
@@ -33,14 +33,16 @@ module Trema
 
 
     #
-    # Callback invoked whenever a subclass of this class is created.
-    # This adds the created object to the DB of controllers.
+    # @private
     #
     def self.inherited subclass
       subclass.new
     end
 
 
+    #
+    # @private
+    #
     def initialize
       App.add self
     end
