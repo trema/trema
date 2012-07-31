@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -48,7 +46,7 @@ VALUE cQueueGetConfigReply;
  *
  *   @option options [Number] :transaction_id
  *     value copied from +OPFT_QUEUE_SET_CONFIG_REQUEST+ message.
- *  
+ *
  *   @option options [Number] :port
  *     the port the queue is attached to.
  *
@@ -100,7 +98,7 @@ queue_get_config_reply_port( VALUE self ) {
 
 /*
  * An array of {PacketQueue} objects. A packet queue is further classified
- * depending on its properties. Currently only a minimum-rate type queue 
+ * depending on its properties. Currently only a minimum-rate type queue
  * supported.
  *
  * @return [Array<PacketQueue>] the value of queues.
@@ -188,7 +186,7 @@ handle_queue_get_config_reply(
     rb_hash_aset( attributes, ID2SYM( rb_intern( "queues" ) ), rb_eval_string( "PacketQueue.queues" ) );
   }
   VALUE queue_get_config_reply = rb_funcall( cQueueGetConfigReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "queue_get_config_reply" ), 1, queue_get_config_reply );
+  rb_funcall( controller, rb_intern( "queue_get_config_reply" ), 2, ULL2NUM( datapath_id ), queue_get_config_reply );
 }
 
 

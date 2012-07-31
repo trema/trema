@@ -1,8 +1,4 @@
 #
-# Openflow message event dumper.
-#
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,6 +16,9 @@
 #
 
 
+#
+# Openflow message event dumper.
+#
 class Dumper < Controller
   def switch_ready datapath_id
     info "[switch_ready]"
@@ -33,9 +32,9 @@ class Dumper < Controller
   end
 
 
-  def openflow_error message
+  def openflow_error datapath_id, message
     info "[error]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
     info "code: #{ message.code.to_hex }"
@@ -43,9 +42,9 @@ class Dumper < Controller
   end
 
 
-  def vendor message
+  def vendor datapath_id, message
     info "[vendor]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "data:"
     info "#{ message.buffer.unpack "H*" }"
@@ -66,9 +65,9 @@ class Dumper < Controller
   end
 
 
-  def get_config_reply message
+  def get_config_reply datapath_id, message
     info "[get_config_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "flags: #{ message.flags.to_hex }"
     info "miss_send_len: #{ message.miss_send_len }"
@@ -127,9 +126,9 @@ class Dumper < Controller
   end
 
 
-  def stats_reply message
+  def stats_reply datapath_id, message
     info "[stats_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
     info "flags: #{ message.flags.to_hex }"
@@ -137,16 +136,16 @@ class Dumper < Controller
   end
 
 
-  def barrier_reply message
+  def barrier_reply datapath_id, message
     info "[barrier_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
   end
 
 
-  def queue_get_config_reply message
+  def queue_get_config_reply datapath_id, message
     info "[queue_get_config_reply]"
-    info "datapath_id: #{ message.datapath_id.to_hex }"
+    info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "port: #{ message.port }"
     info( "queues:" );

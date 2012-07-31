@@ -5881,8 +5881,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
-  uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_src, 0 );
   assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
@@ -5912,8 +5911,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_udp_and_wildcards_is_OFP
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
-  uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( match.nw_dst, ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.tp_src, ntohs( udp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( udp->dst_port ) );
 
@@ -6301,8 +6299,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
-  uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_src, 0 );
   assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
@@ -6332,8 +6329,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_and_wildcards_is_OFP
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
-  uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( match.nw_dst, ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.tp_src, ntohs( tcp->src_port ) );
   assert_int_equal( match.tp_dst, ntohs( tcp->dst_port ) );
 
@@ -6720,8 +6716,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.dl_type, packet_info0->eth_type );
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
-  uint32_t ip_source_address_flag = ntohl( ipv4->saddr ) & ( OFPFW_NW_SRC_ALL >> OFPFW_NW_SRC_SHIFT );
-  assert_int_equal( match.nw_src, ip_source_address_flag );
+  assert_int_equal( match.nw_src, 0 );
   assert_int_equal( match.nw_dst, ntohl( ipv4->daddr ) );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
@@ -6751,8 +6746,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_and_wildcards_is_OF
   assert_int_equal( match.nw_tos, ipv4->tos );
   assert_int_equal( match.nw_proto, packet_info0->ipv4_protocol );
   assert_int_equal( match.nw_src, ntohl( ipv4->saddr ) );
-  uint32_t ip_destination_address_flag = ntohl( ipv4->daddr ) & ( OFPFW_NW_DST_ALL >> OFPFW_NW_DST_SHIFT );
-  assert_int_equal( match.nw_dst, ip_destination_address_flag );
+  assert_int_equal( match.nw_dst, 0 );
   assert_int_equal( match.icmp_type, icmp->type );
   assert_int_equal( match.icmp_code, icmp->code );
 

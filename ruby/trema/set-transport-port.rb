@@ -22,7 +22,7 @@ require "trema/monkey-patch/integer"
 
 module Trema
   #
-  # A super-class of {SetTransportSrcPort} and {SetTransportDstPort} action.
+  # @abstract The base class of {SetTransportSrcPort} and {SetTransportDstPort} action.
   #
   class SetTransportPort < Action
     attr_reader :port_number

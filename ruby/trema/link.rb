@@ -98,8 +98,8 @@ module Trema
     def add!
       return if real_eth?
       sh "sudo ip link add name #{ @name } type veth peer name #{ @name_peer }"
-      sh "sudo sysctl -w net.ipv6.conf.#{ @name }.disable_ipv6=1 >/dev/null 2>&1"
-      sh "sudo sysctl -w net.ipv6.conf.#{ @name_peer }.disable_ipv6=1 >/dev/null 2>&1"
+      sh "sudo /sbin/sysctl -w net.ipv6.conf.#{ @name }.disable_ipv6=1 >/dev/null 2>&1"
+      sh "sudo /sbin/sysctl -w net.ipv6.conf.#{ @name_peer }.disable_ipv6=1 >/dev/null 2>&1"
     end
 
 

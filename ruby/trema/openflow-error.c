@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,7 +26,7 @@ VALUE cOpenflowError;
 
 /*
  * The occurence of reported errors/exceptions manifested as an instance - a
- * {OpenflowError} object. The user would not explicitly instantiate 
+ * {OpenflowError} object. The user would not explicitly instantiate
  * a {OpenflowError} but would be created while parsing the +OFPT_ERROR+ message.
  *
  * @overload initialize(options={})
@@ -179,7 +177,7 @@ handle_openflow_error(
       break;
   }
   VALUE openflow_error = rb_funcall( cOpenflowError, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "openflow_error" ), 1, openflow_error );
+  rb_funcall( controller, rb_intern( "openflow_error" ), 2, ULL2NUM( datapath_id ), openflow_error );
 }
 
 

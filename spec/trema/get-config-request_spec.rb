@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -61,8 +59,8 @@ describe GetConfigRequest, ".new( VALID OPTION )" do
         vswitch { datapath_id 0xabc }
       }.run( GetConfigController ) {
         get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
-        controller( "GetConfigController" ).should_receive( :get_config_reply ) do | message |
-          message.datapath_id.should == 0xabc
+        controller( "GetConfigController" ).should_receive( :get_config_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.transaction_id.should == 1234
           message.flags.should >= 0 and message.flags.should <= 3
           message.miss_send_len.should == 65535
