@@ -41,28 +41,6 @@ module Trema
 
 
     #
-    # @!method switch_ready( datapath_id )
-    #
-    # @abstract Switch Ready event handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath ID of connected OpenFlow switch.
-    #
-    handler :switch_ready
-
-
-    #
-    # @!method switch_disconnected( datapath_id )
-    #
-    # @abstract Switch Disconnected event handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath ID of disconnected OpenFlow switch.
-    #
-    handler :switch_disconnected
-
-
-    #
     # @!method packet_in( datapath_id, message )
     #
     # @abstract Packet In message handler. Override this to implement a custom handler.
@@ -86,6 +64,54 @@ module Trema
     #   the Flow Removed message.
     #
     handler :flow_removed
+
+
+    #
+    # @!method port_status( datapath_id, message )
+    #
+    # @abstract Port Status message handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [PortStatus] message
+    #   the Port Status message.
+    #
+    handler :port_status
+
+
+    #
+    # @!method openflow_error( datapath_id, message )
+    #
+    # @abstract OpenFlow Error message handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [OpenflowError] message
+    #   the OpenFlow Error message.
+    #
+    handler :openflow_error
+
+
+    #
+    # @!method switch_ready( datapath_id )
+    #
+    # @abstract Switch Ready event handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath ID of connected OpenFlow switch.
+    #
+    handler :switch_ready
+
+
+    #
+    # @!method switch_disconnected( datapath_id )
+    #
+    # @abstract Switch Disconnected event handler. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath ID of disconnected OpenFlow switch.
+    #
+    handler :switch_disconnected
 
 
     #
@@ -117,19 +143,6 @@ module Trema
 
 
     #
-    # @!method port_status( datapath_id, message )
-    #
-    # @abstract Port Status message handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath from which a message is sent.
-    # @param [PortStatus] message
-    #   the Port Status message.
-    #
-    handler :port_status
-
-
-    #
     # @!method stats_reply( datapath_id, message )
     #
     # @abstract Stats Reply message handler. Override this to implement a custom handler.
@@ -157,21 +170,6 @@ module Trema
     # @todo barrier_reply( message ) -> barrier_reply( datapath_id, message )
     #
     handler :barrier_reply
-
-
-    #
-    # @!method openflow_error( datapath_id, message )
-    #
-    # @abstract OpenFlow Error message handler. Override this to implement a custom handler.
-    #
-    # @param [Integer] datapath_id
-    #   the datapath from which a message is sent.
-    # @param [OpenflowError] message
-    #   the OpenFlow Error message.
-    #
-    # @todo openflow_error( message ) -> openflow_error( datapath_id, message )
-    #
-    handler :openflow_error
 
 
     #

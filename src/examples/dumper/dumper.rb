@@ -33,7 +33,7 @@ class Dumper < Controller
   end
 
 
-  def openflow_error message
+  def openflow_error datapath_id, message
     info "[error]"
     info "datapath_id: #{ message.datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"

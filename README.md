@@ -54,6 +54,11 @@ API
 
 ### Handlers
 
+* [Controller#packet_in](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
+* [Controller#flow_removed](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
+* [Controller#port_status](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
+* [Controller#openflow_error](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
+
 ### OpenFlow Messages
 
 ### Actions
