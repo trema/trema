@@ -67,18 +67,18 @@ API
 
 ### Actions
 
-* {Trema::SendOutPort}
-* {Trema::SetEthSrcAddr}
-* {Trema::SetEthDstAddr}
-* {Trema::SetIpSrcAddr}
-* {Trema::SetIpDstAddr}
-* {Trema::SetIpTos}
-* {Trema::SetTransportSrcPort}
-* {Trema::SetTransportDstPort}
-* {Trema::SetVlanVid}
-* {Trema::SetVlanPriority}
-* {Trema::StripVlanHeader}
-* {Trema::VendorAction}
+* [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
+* [Trema::SetEthSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthSrcAddr)
+* [Trema::SetEthDstAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthDstAddr)
+* [Trema::SetIpSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetIpSrcAddr)
+* [Trema::SetIpDstAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetIpDstAddr)
+* [Trema::SetIpTos](http://rubydoc.info/github/trema/trema/master/Trema/SetIpTos)
+* [Trema::SetTransportSrcPort](http://rubydoc.info/github/trema/trema/master/Trema/SetTransportSrcPort)
+* [Trema::SetTransportDstPort](http://rubydoc.info/github/trema/trema/master/Trema/SetTransportDstPort)
+* [Trema::SetVlanVid](http://rubydoc.info/github/trema/trema/master/Trema/SetVlanVid)
+* [Trema::SetVlanPriority](http://rubydoc.info/github/trema/trema/master/Trema/SetVlanPriority)
+* [Trema::StripVlanHeader](http://rubydoc.info/github/trema/trema/master/Trema/StripVlanHeader)
+* [Trema::VendorAction](http://rubydoc.info/github/trema/trema/master/Trema/VendorAction)
 
 
 Contributors
