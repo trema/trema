@@ -17,6 +17,18 @@ testing your own controllers. For debugging, a wireshark plug-in to
 diagnose internal data-flows among functional modules is provided.
 
 
+Supported Platforms
+-------------------
+
+Trema supports GNU/Linux only. And it has been tested on the following environments:
+
+* Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
+* Debian GNU/Linux 6.0 (i386/amd64)
+
+It may also run on other GNU/Linux distributions but is not tested and
+NOT SUPPORTED at this moment.
+
+
 Getting Started
 ---------------
 
@@ -34,18 +46,6 @@ Getting Started
 * The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
 * The [Trema Tutorial](http://trema-tutorial.heroku.com/).
 * The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
-
-
-Supported Platforms
--------------------
-
-Trema supports Linux only. And it has been tested on the following environments:
-
-* Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
-* Debian GNU/Linux 6.0 (i386/amd64)
-
-It may also run on other GNU/Linux distributions but is not tested and
-NOT SUPPORTED at this moment.
 
 
 Ruby API
