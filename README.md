@@ -37,15 +37,6 @@ Getting Started
 * The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
 
 
-Meta
-----
-
-* Web Page: http://trema.github.com/trema/
-* Bugs: https://github.com/trema/trema/issues
-* Mailing List: https://groups.google.com/group/trema-dev
-* Twitter: http://twitter.com/trema_news
-
-
 Supported Platforms
 -------------------
 
@@ -56,6 +47,38 @@ Trema has been tested ONLY on the following environments:
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
+
+
+Meta
+----
+
+* Web Page: http://trema.github.com/trema/
+* Bugs: https://github.com/trema/trema/issues
+* Mailing List: https://groups.google.com/group/trema-dev
+* Twitter: http://twitter.com/trema_news
+
+
+API
+---
+
+### Handlers
+
+### OpenFlow Messages
+
+### Actions
+
+* {Trema::SendOutPort}
+* {Trema::SetEthSrcAddr}
+* {Trema::SetEthDstAddr}
+* {Trema::SetIpSrcAddr}
+* {Trema::SetIpDstAddr}
+* {Trema::SetIpTos}
+* {Trema::SetTransportSrcPort}
+* {Trema::SetTransportDstPort}
+* {Trema::SetVlanVid}
+* {Trema::SetVlanPriority}
+* {Trema::StripVlanHeader}
+* {Trema::VendorAction}
 
 
 Contributors

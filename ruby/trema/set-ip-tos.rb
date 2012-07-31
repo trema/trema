@@ -34,7 +34,7 @@ module Trema
     # @example
     #   SetIpTos.new(32)
     #
-    # @param [Integer] :type_of_service
+    # @param [Integer] type_of_service
     #   the ToS/DSCP field to set to.
     #
     # @raise [ArgumentError] if type_of_service argument is not an unsigned 8-bit Integer.
