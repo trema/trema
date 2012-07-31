@@ -56,8 +56,10 @@ The full documents are found here http://rubydoc.info/github/trema/trema/master/
 
 ### Event and Message Handlers
 
-Subclass Trema::Controller and override some of the following methods to implement your own controller.
-See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller) for more details.
+Subclass
+[Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
+and override some of the following methods to implement your own
+controller.
 
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
 * [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
@@ -74,8 +76,10 @@ See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Cont
 
 ### Sending Messages
 
-For sending Flow Mod, Packet Out, and other OpenFlow messages, there are some methods defined in Trema::Controller class.
-See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller) for more details.
+For sending Flow Mod, Packet Out, and other OpenFlow messages, there
+are some methods defined in
+[Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
+class.
 
 * [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
 * [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
