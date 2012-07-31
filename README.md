@@ -107,6 +107,8 @@ The following OpenFlow messages can be sent with
 
 ### Actions
 
+Each flow table entry contains a list of actions that will be executed when a packet matches the entry.
+
 * [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
 * [Trema::SetEthSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthSrcAddr)
 * [Trema::SetEthDstAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthDstAddr)
