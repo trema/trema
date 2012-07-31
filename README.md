@@ -54,8 +54,9 @@ Ruby API
 The following is an exerpt from the Trema Ruby API.
 The full documents are found here http://rubydoc.info/github/trema/trema/master/frames
 
-### Event and Message handlers
+### Event and Message Handlers
 
+Subclass Trema::Controller and override some of the following methods to implement your own controller.
 See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller) for more details.
 
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
@@ -70,6 +71,17 @@ See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Cont
 * [get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:get_config_reply)
 * [queue_get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
 * [vendor(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
+
+### Sending Messages
+
+For sending Flow Mod, Packet Out, and other OpenFlow messages, there are some methods defined in Trema::Controller class.
+See [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller) for more details.
+
+* [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
+* [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
+* [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
+* [send_packet_out(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_packet_out)
+* [send_message(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
 ### Actions
 
