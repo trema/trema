@@ -74,10 +74,9 @@ controller.
 * [queue_get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
 * [vendor(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
 
-### Sending Messages
+### Flow-Mod and Packet-Out
 
-For sending Flow Mod, Packet Out, and other OpenFlow messages, there
-are some methods defined in
+For sending Flow-Mod and Packet-Out, there are some methods defined in
 [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
 class.
 
@@ -85,9 +84,11 @@ class.
 * [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
 * [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
 * [send_packet_out(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_packet_out)
-* [send_message(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
-### OpenFlow Messages
+### Other OpenFlow Messages
+
+The following OpenFlow messages can be sent with
+[Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
 * [Trema::FeaturesRequest](http://rubydoc.info/github/trema/trema/master/Trema/FeaturesRequest)
 * [Trema::SetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/SetConfigRequest)
