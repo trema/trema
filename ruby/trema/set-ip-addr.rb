@@ -21,7 +21,7 @@ require "trema/action"
 
 module Trema
   #
-  # A super-class of {SetIpSrcAddr} and {SetIpDstAddr} action.
+  # @abstract The base class of {SetIpSrcAddr} and {SetIpDstAddr} action.
   #
   class SetIpAddr < Action
     attr_reader :ip_address

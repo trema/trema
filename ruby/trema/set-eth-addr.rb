@@ -22,7 +22,7 @@ require "trema/mac"
 
 module Trema
   #
-  # A super-class of {SetEthSrcAddr} and {SetEthDstAddr} action.
+  # @abstract The base class of {SetEthSrcAddr} and {SetEthDstAddr} action.
   #
   class SetEthAddr < Action
     attr_reader :mac_address
