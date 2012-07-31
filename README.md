@@ -49,15 +49,6 @@ It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
 
 
-Meta
-----
-
-* Web Page: http://trema.github.com/trema/
-* Bugs: https://github.com/trema/trema/issues
-* Mailing List: https://groups.google.com/group/trema-dev
-* Twitter: http://twitter.com/trema_news
-
-
 API
 ---
 
@@ -79,6 +70,15 @@ API
 * [Trema::SetVlanPriority](http://rubydoc.info/github/trema/trema/master/Trema/SetVlanPriority)
 * [Trema::StripVlanHeader](http://rubydoc.info/github/trema/trema/master/Trema/StripVlanHeader)
 * [Trema::VendorAction](http://rubydoc.info/github/trema/trema/master/Trema/VendorAction)
+
+
+Meta
+----
+
+* Web Page: http://trema.github.com/trema/
+* Bugs: https://github.com/trema/trema/issues
+* Mailing List: https://groups.google.com/group/trema-dev
+* Twitter: http://twitter.com/trema_news
 
 
 Contributors
