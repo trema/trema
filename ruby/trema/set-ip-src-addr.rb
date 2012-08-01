@@ -33,7 +33,8 @@ module Trema
     # @param [String] ip_address
     #   the IPv4 address to create this action with.
     #
-    # @raise [TypeError] if ip_address is not an String.
+    # @raise [ArgumentError] if ip_address is an invalid IPv4 address.
+    # @raise [TypeError] if ip_address is not a String.
     #
     def initialize ip_address
       super ip_address
