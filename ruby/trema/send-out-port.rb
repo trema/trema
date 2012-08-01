@@ -37,19 +37,17 @@ module Trema
     #
     # @example
     #   SendOutPort.new( 1 )
-    #   SendOutPort.new( :port_number => 1, :max_len => 256 )
     #   SendOutPort.new( :port_number => 1 )
     #   SendOutPort.new( :port_number => 1, :max_len => 256 )
     #
-    # @param [Hash] options
-    #   the options hash to create this action class instance with.
+    # @param [Integer|Hash] options
+    #   the port number or the options hash to create this action class instance with.
     #
     # @option options [Number] :port_number
     #   port number an index into switch's physical port list. There are also
     #   fake output ports. For example a port number set to +OFPP_FLOOD+ would
     #   output packets to all physical ports except input port and ports
     #   disabled by STP.
-    #
     # @option options [Number] :max_len
     #   the maximum number of bytes from a packet to send to controller when port
     #   is set to +OFPP_CONTROLLER+. A zero length means no bytes of the packet
@@ -72,27 +70,27 @@ module Trema
       check_port_number
       check_max_len
     end
-  end
 
 
-  ##############################################################################
-  private
-  ##############################################################################
+    ##############################################################################
+    private
+    ##############################################################################
 
 
-  def check_port_number
-    if @port_number.nil?
-      raise ArgumentError, "Port number is a mandatory option"
+    def check_port_number
+      if @port_number.nil?
+        raise ArgumentError, "Port number is a mandatory option"
+      end
+      if not @port_number.unsigned_16bit?
+        raise ArgumentError, "Port number must be an unsigned 16-bit integer"
+      end
     end
-    if not @port_number.unsigned_16bit?
-      raise ArgumentError, "Port number must be an unsigned 16-bit integer"
-    end
-  end
 
 
-  def check_max_len
-    if not @max_len.unsigned_16bit?
-      raise ArgumentError, "Max length must be an unsigned 16-bit integer"
+    def check_max_len
+      if not @max_len.unsigned_16bit?
+        raise ArgumentError, "Max length must be an unsigned 16-bit integer"
+      end
     end
   end
 
