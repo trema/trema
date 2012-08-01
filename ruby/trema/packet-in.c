@@ -182,7 +182,8 @@ packet_in_macsa( VALUE self ) {
 /*
  * The destination MAC address.
  *
- * @return [Trema::Mac] the value of destination MAC as a Trema::MAC object.
+ * @return [Trema::Mac] the value of destination MAC address as a
+ *   Trema::MAC object.
  */
 static VALUE
 packet_in_macda( VALUE self ) {
@@ -371,7 +372,7 @@ packet_in_arp_spa( VALUE self ) {
  * The ARP target hardware address of a packet.
  *
  * @return [Trema::Mac]
- *   the value of ARP target hardware address as a Trema::Mac object or nil if.
+ *   the value of ARP target hardware address as a Trema::Mac object or nil if
  *   packet is not an ARP.
  */
 static VALUE
