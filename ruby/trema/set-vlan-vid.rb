@@ -24,6 +24,7 @@ module Trema
   # An action to modify the VLAN ID of a packet.
   #
   class SetVlanVid < Action
+    # @return [Fixnum] the value of attribute {#vlan_id}
     attr_reader :vlan_id
 
 

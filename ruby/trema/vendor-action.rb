@@ -25,7 +25,12 @@ module Trema
   # An action to set vendor specific extensions.
   #
   class VendorAction < Action
+    #
+    # @return [Array<Fixnum>] the value of attribute {#body} that represents
+    #   binary data as an array of bytes.
+    #
     attr_reader :body
+    # @return [Integer] the value of attribute {#vendor_id}
     attr_reader :vendor_id
 
 

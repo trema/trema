@@ -24,6 +24,7 @@ module Trema
   # An action to modify the VLAN priority of a packet.
   #
   class SetVlanPriority < Action
+    # @return [Fixnum] the value of attribute {#vlan_priority}
     attr_reader :vlan_priority
 
 

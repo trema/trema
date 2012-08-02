@@ -25,6 +25,10 @@ module Trema
   # @abstract The base class of {SetEthSrcAddr} and {SetEthDstAddr} action.
   #
   class SetEthAddr < Action
+    #
+    # @return [Trema::Mac] the object that holds {#mac_address}'s
+    #   internal representation.
+    #
     attr_reader :mac_address
 
 

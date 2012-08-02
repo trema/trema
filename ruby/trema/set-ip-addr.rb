@@ -24,6 +24,8 @@ module Trema
   # @abstract The base class of {SetIpSrcAddr} and {SetIpDstAddr} action.
   #
   class SetIpAddr < Action
+    # @return [IPAddr] the object that holds {#ip_address}'s
+    #   internal representation.
     attr_reader :ip_address
 
 

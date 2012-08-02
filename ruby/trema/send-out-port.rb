@@ -28,7 +28,9 @@ module Trema
     DEFAULT_MAX_LEN = 2 ** 16 - 1
 
 
+    # @return [Fixnum] the value of attribute {#max_len}
     attr_reader :max_len
+    # @return [Fixnum] the value of attribute {#port_number}
     attr_reader :port_number
 
 
