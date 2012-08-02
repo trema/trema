@@ -32,7 +32,7 @@ module Trema
     #
     def initialize ip_address
       if not ip_address.is_a?( String )
-        raise TypeError, "Source IP address must be an String"
+        raise TypeError, "Source IP address must be a String"
       end
       @ip_address = IPAddr.new( ip_address )
     end
