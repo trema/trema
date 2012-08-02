@@ -25,6 +25,7 @@ module Trema
   # An action to modify the IP ToS/DSCP field of a packet.
   #
   class SetIpTos < Action
+    # @return [Fixnum] the value of attribute {#type_of_service}
     attr_reader :type_of_service
 
 

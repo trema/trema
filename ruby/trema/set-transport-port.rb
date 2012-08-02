@@ -25,6 +25,7 @@ module Trema
   # @abstract The base class of {SetTransportSrcPort} and {SetTransportDstPort} action.
   #
   class SetTransportPort < Action
+    # @return [Fixnum] the value of attribute {#port_number}
     attr_reader :port_number
 
 
