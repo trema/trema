@@ -308,9 +308,7 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *
  *   @example 
  *     DescStatsRequest.new
- *     DescStatsRequest.new(
- *       :transaction_id => 1234
- *     )
+ *     DescStatsRequest.new( :transaction_id => 1234 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -333,19 +331,9 @@ desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  * @overload initialize(options={})
  *   @example
- *     FlowStatsRequest.new(
- *       :match => Match
- *     )
- *     FlowStatsRequest.new(
- *       :match => Match,
- *       :table_id => 1
- *     )
- *     FlowStatsRequest.new(
- *       :match => Match,
- *       :table_id => 1,
- *       :out_port => 2
- *     )
- *       
+ *     FlowStatsRequest.new( :match => Match )
+ *     FlowStatsRequest.new( :match => Match, :table_id => 1 )
+ *     FlowStatsRequest.new( :match => Match, :table_id => 1, :out_port => 2 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -397,14 +385,8 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  * A {AggregateStatsRequest} object instance to request aggregate statistics.
  * @overload initialize(options={})
  *   @example
- *     AggregateStatsRequest.new(
- *       :match => Match
- *     )
- *     AggregateStatsRequest.new(
- *       :match => Match,
- *       :table_id => 1,
- *       :out_port => 2
- *     )
+ *     AggregateStatsRequest.new( :match => Match )
+ *     AggregateStatsRequest.new( :match => Match, :table_id => 1, :out_port => 2 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -461,9 +443,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *
  *   @example 
  *     TableStatsRequest.new
- *     TableStatsRequest.new(
- *       :transaction_id => 1234
- *     )
+ *     TableStatsRequest.new( :transaction_id => 1234 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -489,9 +469,7 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  *   @example
  *     PortStatsRequest.new
- *     PortStatsRequest.new(
- *       :port_no => 1
- *     )
+ *     PortStatsRequest.new( :port_no => 1 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -537,16 +515,9 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  *   @example
  *     QueueStatsRequest.new
- *     QueueStatsRequest.new(
- *       :port_no => 1,
- *       :queue_id => 123
- *     )
- *     QueueStatsRequest.new(
- *       :port_no => 1
- *     )
- *     QueueStatsRequest.new(
- *       :queue_id => 123
- *     )
+ *     QueueStatsRequest.new( :port_no => 1, :queue_id => 123 )
+ *     QueueStatsRequest.new( :port_no => 1 )
+ *     QueueStatsRequest.new( :queue_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -606,9 +577,7 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  *   @example
  *     VendorStatsRequest.new
- *     VendorStatsRequest.new(
- *       :vendor_id => 123
- *     )
+ *     VendorStatsRequest.new( :vendor_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
