@@ -234,7 +234,7 @@ stats_out_port( VALUE self ) {
 /*
  * Restrict port statistics to a specific port_no or to all ports.
  *
-  @return [Number] the value of port_no.
+ * @return [Number] the value of port_no.
  */
 static VALUE
 stats_port_no( VALUE self ) {
@@ -300,12 +300,14 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * A {DescStatsRequest} object instance to request descriptive information of vswitch.
- * Such information includes switch manufacturer, hardware revision and serial number
+ * A {DescStatsRequest} object instance to request descriptive information of
+ * OpenFlow switch. Such information includes switch manufacturer, hardware
+ * revision and serial number
  *
  * @overload initialize(options={})
  *
  *   @example 
+ *     DescStatsRequest.new
  *     DescStatsRequest.new(
  *       :transaction_id => 1234
  *     )
@@ -316,8 +318,8 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *   @option options [Number] :transaction_id
  *     set the transaction_id as specified or auto-generate it.
  *
- *   @return [TableStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DSST)+ openflow
+ *   @return [DescStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ openflow
  *     message.
  */
 static VALUE
@@ -334,6 +336,16 @@ desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     FlowStatsRequest.new(
  *       :match => Match
  *     )
+ *     FlowStatsRequest.new(
+ *       :match => Match,
+ *       :table_id => 1
+ *     )
+ *     FlowStatsRequest.new(
+ *       :match => Match,
+ *       :table_id => 1,
+ *       :out_port => 2
+ *     )
+ *       
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -350,7 +362,8 @@ desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- *   @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option match is not specified.
+ *   @raise [TypeError] if option match is not a Trema::Match object.
  *
  *   @return [FlowStatsRequest]
  *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ OpenFlow message.
@@ -387,6 +400,11 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  *     AggregateStatsRequest.new(
  *       :match => Match
  *     )
+ *     AggregateStatsRequest.new(
+ *       :match => Match,
+ *       :table_id => 1,
+ *       :out_port => 2
+ *     )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -403,7 +421,8 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- *   @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option match is not specified.
+ *   @raise [TypeError] if option match is not a Trema::Match object.
  *
  *   @return [AggregateStatsRequest]
  *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ OpenFlow message.
@@ -441,6 +460,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  * @overload initialize(options={})
  *
  *   @example 
+ *     TableStatsRequest.new
  *     TableStatsRequest.new(
  *       :transaction_id => 1234
  *     )
@@ -468,8 +488,9 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
+ *     PortStatsRequest.new
  *     PortStatsRequest.new(
- *       :port_no => port_no
+ *       :port_no => 1
  *     )
  *
  *   @param [Hash] options
@@ -515,9 +536,16 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
+ *     QueueStatsRequest.new
  *     QueueStatsRequest.new(
- *       :port_no => port_no,
- *       :queue_id => queue_id
+ *       :port_no => 1,
+ *       :queue_id => 123
+ *     )
+ *     QueueStatsRequest.new(
+ *       :port_no => 1
+ *     )
+ *     QueueStatsRequest.new(
+ *       :queue_id => 123
  *     )
  *
  *   @param [Hash] options
@@ -577,8 +605,9 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
- *     VendorStatsRequeset.new(
- *       :vendor_id => vendor_id
+ *     VendorStatsRequest.new
+ *     VendorStatsRequest.new(
+ *       :vendor_id => 123
  *     )
  *
  *   @param [Hash] options
