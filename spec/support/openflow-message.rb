@@ -117,12 +117,12 @@ shared_examples_for "any OpenFlow message" do | options |
   name = options[ :name ]
   size = options[ :size ]
   case size
-  when 8
-    let( :uint_max ) { 2 ** 8 - 1 }
-  when 16
-    let( :uint_max ) { 2 ** 16 - 1 }
-  when 32
-    let( :uint_max ) { 2 ** 32 - 1 }
+    when 8
+      let( :uint_max ) { 2 ** 8 - 1 }
+    when 16
+      let( :uint_max ) { 2 ** 16 - 1 }
+    when 32
+      let( :uint_max ) { 2 ** 32 - 1 }
   end
 
 

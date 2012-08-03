@@ -32,7 +32,7 @@ vendor_alloc( VALUE klass ) {
 
 
 /*
- * Creates a Vendor Reqeust message. This message can be used
+ * Creates a Vendor Request message. This message can be used
  * to facilitate sending of vendor-defined arbitrary data.
  *
  * @overload initialize
@@ -208,7 +208,7 @@ handle_vendor(
     rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), rb_str_new( data->data, ( long ) data->length ) );
   }
   VALUE vendor_r = rb_funcall( cVendor, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "vendor" ), 1, vendor_r );
+  rb_funcall( controller, rb_intern( "vendor" ), 2, ULL2NUM( datapath_id ), vendor_r );
 }
 
 

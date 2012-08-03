@@ -21,7 +21,7 @@ require "forwardable"
 
 module Trema
   #
-  # MAC address class
+  # Ethernet address class
   #
   class Mac
     extend Forwardable
@@ -29,18 +29,23 @@ module Trema
 
 
     #
-    # @return [Number] Ethernet address in its numeric presentation.
+    # Returns an Ethernet address in its numeric presentation.
+    #
+    # @example
+    #   Mac.new("11:22:33:44:55:66") #=> 18838586676582
+    #
+    # @return [Number] the Ethernet address in numeric format
     #
     attr_reader :value
 
 
     #
-    # Creates a {Mac} instance that encapsulates Ethernet MAC addresses.
+    # Creates a {Mac} instance that encapsulates Ethernet addresses.
     #
     # @overload initialize(value)
     #
     # @param [String,Integer] value
-    #   the MAC address to set to.
+    #   the Ethernet address to set to.
     #
     # @example address as a hexadecimal string
     #   Mac.new("11:22:33:44:55:66")
@@ -49,25 +54,30 @@ module Trema
     #   Mac.new(0xffffffffffff)
     #
     # @raise [ArgumentError] if invalid format is detected.
-    # @raise [ArgumentError] if supplied argument is not a string or integer.
+    # @raise [TypeError] if supplied argument is not a String or Integer.
     #
     def initialize value
       case value
-      when String
-        @value = from_string( value )
-      when Integer
-        @value = from_integer( value )
-      else
-        raise %{Invalid MAC address: #{ value.inspect }}
+        when String
+          @value = create_from( value )
+        when Integer
+          @value = value
+          validate_value_range
+        else
+          raise TypeError, "Invalid MAC address: #{ value.inspect }"
       end
       @string = string_format
     end
 
 
     #
-    # @return [String]
-    #  the Ethernet address as 6 pairs of hexadecimal digits delimited by colons.
-    #  eg. xx:xx:xx:xx:xx:xx
+    # Returns the Ethernet address as 6 pairs of hexadecimal digits
+    # delimited by colons.
+    #
+    # @example
+    #   Mac.new(18838586676582).to_s #=> "11:22:33:44:55:66"
+    #
+    # @return [String] the Ethernet address in String format
     #
     def to_s
       @string
@@ -75,11 +85,15 @@ module Trema
 
 
     #
-    # @return [Array]
-    #   an array of decimal numbers converted from Ethernet's address string
-    #   format.
+    # Returns an array of decimal numbers converted from Ethernet's
+    # address string format.
     #
-    def to_short
+    # @example
+    #   Mac.new("11:22:33:44:55:66").to_a #=> [ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 ]
+    #
+    # @return [Array] the Ethernet address in Array format
+    #
+    def to_a
       @string.split( ":" ).collect do | each |
         each.hex
       end
@@ -87,37 +101,38 @@ module Trema
 
 
     #
-    # @return [Array]
-    #   an array of decimal numbers converted from Ethernet's address string
-    #   format.
-    #
-    def to_array
-      self.to_short
-    end
-
-
-    #
-    # @return [Boolean] if other matches or not the attribute type value.
+    # @private
     #
     def == other
       @value == other.value
     end
+    alias :eql? :==
 
 
     #
-    # @return [Boolean] if other matches or not the attribute type value.
+    # Returns true if Ethernet address is a multicast address.
     #
-    def eql? other
-      @value == other.value
+    # @example
+    #   Mac.new("01:00:00:00:00:00").multicast? #=> true
+    #   Mac.new("00:00:00:00:00:00").multicast? #=> false
+    #
+    # @return [Boolean] whether the Ethernet address is multicast
+    #
+    def multicast?
+      to_a[ 0 ] & 1 == 1
     end
 
 
     #
-    # @return [Boolean] if MAC address is multicast or not.
+    # Returns true if Ethernet address is a broadcast address.
     #
-    def is_multicast?
-      # check I/G bit
-      return to_short[0] & 1 == 1
+    # @example
+    #   Mac.new("ff:ff:ff:ff:ff:ff").broadcast? #=> true
+    #
+    # @return [Boolean] whether the Ethernet address is broadcast
+    #
+    def broadcast?
+      to_a.all? { | each | each == 0xff }
     end
 
 
@@ -126,21 +141,19 @@ module Trema
     ################################################################################
 
 
-    def from_string string
+    def create_from string
       octet_regex = "[0-9a-fA-F][0-9a-fA-F]"
       if /^(#{ octet_regex }:){5}(#{ octet_regex })$/=~ string
-        eval( "0x" + string.gsub( ":", "" ) )
+        string.gsub( ":", "" ).hex
       else
-        raise %{Invalid MAC address: "#{ string }"}
+        raise ArgumentError, %{Invalid MAC address: "#{ string }"}
       end
     end
 
 
-    def from_integer integer
-      if integer >= 0 and integer <= 0xffffffffffff
-        integer
-      else
-        raise %{Invalid MAC address: #{ integer }}
+    def validate_value_range
+      if not ( @value >= 0 and @value <= 0xffffffffffff )
+        raise ArgumentError, "Invalid MAC address: #{ @value }"
       end
     end
 

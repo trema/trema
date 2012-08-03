@@ -142,6 +142,7 @@ test_parse_packet_arp_request_succeeds() {
   assert_memory_equal( packet_info->arp_tha, maczero, ETH_ADDRLEN );
 
   assert_true( packet_type_arp_request( buffer ) );
+  assert_false( packet_type_arp_reply( buffer ) );
 
   free_buffer( buffer );
 }
@@ -169,7 +170,7 @@ test_parse_packet_ipv6_succeeds() {
                      0x8e, 0x89, 0xa5, 0xff, 0xfe, 0x15, 0x84, 0xcb };
   assert_memory_equal( packet_info->ipv6_saddr, saddr, IPV6_ADDRLEN );
   assert_memory_equal( packet_info->ipv6_daddr, daddr, IPV6_ADDRLEN );
-  
+
   free_buffer( buffer );
 }
 

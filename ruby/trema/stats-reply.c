@@ -313,6 +313,8 @@ handle_stats_reply(
         rb_str_new( desc_stats->sw_desc, ( long ) strnlen( desc_stats->sw_desc, DESC_STR_LEN  - 1 ) ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "serial_num" ) ), 
         rb_str_new( desc_stats->serial_num, ( long ) strnlen( desc_stats->serial_num, SERIAL_NUM_LEN  - 1 ) ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "dp_desc" ) ), 
+        rb_str_new( desc_stats->dp_desc, ( long ) strnlen( desc_stats->dp_desc, DESC_STR_LEN  - 1 ) ) );
       desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( desc_stats_arr, desc_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), desc_stats_arr );
@@ -494,7 +496,7 @@ handle_stats_reply(
   }
 
   VALUE r_stats_reply = rb_funcall( cStatsReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "stats_reply" ), 1, r_stats_reply );
+  rb_funcall( controller, rb_intern( "stats_reply" ), 2, ULL2NUM( datapath_id ), r_stats_reply );
 }
 
 

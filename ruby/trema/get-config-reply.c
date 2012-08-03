@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,12 +27,12 @@ VALUE cGetConfigReply;
 /*
  * Handles the response to +OFPT_GET_CONFIG_REQUEST+ message. The user would not
  * explicitly instantiate a {GetConfigReply} object but would be created while
- * parsing the +OFPT_GET_CONFIG_REPLY+ message. The {GetConfigReply} object is 
+ * parsing the +OFPT_GET_CONFIG_REPLY+ message. The {GetConfigReply} object is
  * an object whose attributes represent the return values of the message.
  *
  * @overload initialize(options={})
  *
- *   @example 
+ *   @example
  *     GetConfigReply.new(
  *       :datapath_id => 2748
  *       :transaction_id => 1,
@@ -55,11 +53,11 @@ VALUE cGetConfigReply;
  *     indicates how IP fragments are treated.
  *
  *   @option options [Number] :miss_send_len
- *     the maximum number of bytes to send on a flow table miss or 
+ *     the maximum number of bytes to send on a flow table miss or
  *     flow destined to controller.
  *
- *   @return [GetConfigReply] 
- *     an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ OpenFlow message.   
+ *   @return [GetConfigReply]
+ *     an object that encapsulates the +OFPT_GET_CONFIG_REPLY+ OpenFlow message.
  */
 static VALUE
 get_config_reply_init( VALUE self, VALUE options ) {
@@ -147,7 +145,7 @@ handle_get_config_reply(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "miss_send_len" ) ), UINT2NUM( miss_send_len ) );
 
   VALUE get_config_reply = rb_funcall( cGetConfigReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "get_config_reply" ), 1, get_config_reply );
+  rb_funcall( controller, rb_intern( "get_config_reply" ), 2, ULL2NUM( datapath_id ), get_config_reply );
 }
 
 

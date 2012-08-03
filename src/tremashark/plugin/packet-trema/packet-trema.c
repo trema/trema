@@ -225,6 +225,7 @@ static const value_string names_service_tag[] = {
   { MESSENGER_OPENFLOW_CONNECTED, "Switch Connected" },
   { MESSENGER_OPENFLOW_READY, "Switch Ready" },
   { MESSENGER_OPENFLOW_DISCONNECTED, "Switch Disconnected" },
+  { MESSENGER_OPENFLOW_FAILD_TO_CONNECT, "Switch Failed to connect" },
   { 0, NULL },
 };
 

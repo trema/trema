@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -46,7 +44,7 @@ port_mod_alloc( VALUE kclass ) {
  * @overload initialize(options={})
  *   @example
  *     PortMod.new(
- *       :port_no => 1, 
+ *       :port_no => 1,
  *       :hw_addr => "11:22:33:44:55:66",
  *       :config => 1,
  *       :mask => 1,
@@ -56,7 +54,7 @@ port_mod_alloc( VALUE kclass ) {
  *   @param [Hash] options
  *     the options to create a message with.
  *
- *   @param [Number] :port_no 
+ *   @param [Number] :port_no
  *     an index into datapath's ports list.
  *
  *   @param [String,Number,Trema::Mac] :hw_addr
@@ -64,10 +62,10 @@ port_mod_alloc( VALUE kclass ) {
  *     Unique for each port. Obtained from +OFPT_FEATURES_REPLY+ message.
  *     Can be supplied as a string, number or as a Mac object.
  *
- *   @param [Number] :config 
+ *   @param [Number] :config
  *     a bitmap that can be set to configure a port.
  *
- *   @param [Number] :mask 
+ *   @param [Number] :mask
  *     set the bits of the +config+ flag to change.
  *
  *   @param [Number] :advertise
@@ -98,7 +96,7 @@ port_mod_init( int argc, VALUE *argv, VALUE self ) {
       } else if ( !RB_OBJ_IS_INSTANCE_OF( hw_addr, rb_eval_string( "Trema::Mac" ) ) ) {
         rb_raise( rb_eArgError, "hw_addr must be a string or an integer or Mac object" );
       }
-      ptr = ( uint8_t* ) dl_addr_short( mac, haddr );
+      ptr = ( uint8_t* ) dl_addr_to_a( mac, haddr );
       rb_iv_set( self, "@hw_addr", mac );
     }
     VALUE port_no;
@@ -171,7 +169,7 @@ port_mod_hw_addr( VALUE self ) {
 
 
 /*
- * A port can be administratively brought down, disable flooding or packet 
+ * A port can be administratively brought down, disable flooding or packet
  * forwarding or any other options as per +ofp_port_config+. flags.
  *
  * @return [Number] the value of config.
@@ -196,7 +194,7 @@ port_mod_mask( VALUE self ) {
 /*
  * Set to zero to prevent any changes.
  *
- * @return [Number] the value of advertise. 
+ * @return [Number] the value of advertise.
  */
 static VALUE
 port_mod_advertise( VALUE self ) {

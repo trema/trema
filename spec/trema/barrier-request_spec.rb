@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -54,8 +52,8 @@ describe BarrierRequest, ".new( OPTIONAL OPTION ) - transaction_id" do
       network {
         vswitch { datapath_id 0xabc }
       }.run( BarrierController ) {
-        controller( "BarrierController" ).should_receive( :barrier_reply ) do | message |
-          message.datapath_id.should == 0xabc
+        controller( "BarrierController" ).should_receive( :barrier_reply ) do | datapath_id, message |
+          datapath_id.should == 0xabc
           message.transaction_id.should == 1234
         end
         barrier_request = BarrierRequest.new( :transaction_id => 1234 )

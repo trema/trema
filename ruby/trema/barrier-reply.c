@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -87,7 +85,7 @@ handle_barrier_reply( uint64_t datapath_id, uint32_t transaction_id, void *user_
   }
 
   VALUE barrier_reply = rb_funcall( cBarrierReply, rb_intern( "new" ), 2, ULL2NUM( datapath_id ), UINT2NUM( transaction_id ) );
-  rb_funcall( controller, rb_intern( "barrier_reply" ), 1, barrier_reply );
+  rb_funcall( controller, rb_intern( "barrier_reply" ), 2, ULL2NUM( datapath_id ), barrier_reply );
 }
 
 

@@ -24,6 +24,7 @@
 #define WRAPPER_H
 
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
 #include "utility.h"
@@ -62,6 +63,7 @@ void *xcalloc( size_t nmemb, size_t size );
 void xfree( void *ptr );
 
 char *xstrdup( const char *s );
+char *xvasprintf( const char *format, va_list args );
 char *xasprintf( const char *format, ... );
 
 

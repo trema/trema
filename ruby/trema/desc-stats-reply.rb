@@ -23,7 +23,7 @@ require "trema/stats-helper"
 
 module Trema
   class DescStatsReply < StatsHelper
-    FIELDS = %w(mfr_desc hw_desc sw_desc serial_num ) 
+    FIELDS = %w(mfr_desc hw_desc sw_desc serial_num dp_desc ) 
     FIELDS.each { |field| attr_reader field.intern }
 
     
@@ -56,6 +56,9 @@ module Trema
     #
     #   @option options [String] :serial_num
     #     the serial number.
+    #
+    #   @option options [String] :dp_desc
+    #     the human readable description of datapath.
     #
     #   @return [DescStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_DESC) OpenFlow message.

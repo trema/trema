@@ -84,6 +84,13 @@ handle_flow_mod(
   const openflow_actions *actions,
   void *rbswitch
 ){
+  UNUSED( match );
+  UNUSED( cookie );
+  UNUSED( priority );
+  UNUSED( buffer_id );
+  UNUSED( out_port );
+  UNUSED( flags );
+  UNUSED( actions );
   if ( RB_RESPOND_TO( ( VALUE ) rbswitch, rb_intern( "flow_mod" ) ) ) {
     VALUE options = rb_hash_new();
     rb_hash_aset( options, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
