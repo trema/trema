@@ -118,6 +118,21 @@ end
 The following OpenFlow messages can be sent with
 [Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
+```ruby
+class MyController < Controller
+  def switch_ready datapath_id
+    # send a FeaturesRequest message
+    send_message datapath_id, FeaturesRequest.new
+  end
+  
+  def features_reply datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
 * [Trema::Hello](http://rubydoc.info/github/trema/trema/master/Trema/Hello)
 * [Trema::EchoRequest](http://rubydoc.info/github/trema/trema/master/Trema/EchoRequest)
 * [Trema::EchoReply](http://rubydoc.info/github/trema/trema/master/Trema/EchoReply)
