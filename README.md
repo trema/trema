@@ -69,7 +69,7 @@ class MyController < Controller
   end
   
   # handle Flow-Removed messages here.
-  def flow_moreved datapath_id, message
+  def flow_removed datapath_id, message
     # ...
   end
   
