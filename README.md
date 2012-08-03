@@ -151,9 +151,48 @@ end
 * [Trema::PortMod](http://rubydoc.info/github/trema/trema/master/Trema/PortMod)
 * [Trema::Vendor](http://rubydoc.info/github/trema/trema/master/Trema/Vendor)
 
+### Matching Rules
+
+The matching rule of each flow table entry can be created with
+[Match.new(options)](http://rubydoc.info/github/trema/trema/master/Trema/Match)
+and passed as ":match =>" option when sending Flow-Mod or Packet-Out.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => Match.new( :in_port => message.in_port, ...)
+    # ...
+  )
+  
+  # ...
+end
+```
+
+Also there is a utility method called
+[ExactMatch.from(packetin)](http://rubydoc.info/github/trema/trema/master/Trema/ExactMatch)
+for getting an exact match corresponding to a packet.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => ExactMatch.from( message )
+    # ...
+  )
+  
+  # ...
+end
+```
+
 ### Actions
 
-The actions list of each flow table entry can be set with ":actions =>" when sending Flow-Mod or Packet-Out.
+The actions list of each flow table entry can be set with ":actions
+=>" when sending Flow-Mod or Packet-Out.
 
 ```ruby
 # Strip the VLAN tag of a packet then send it out to switch port #1
@@ -190,7 +229,8 @@ Meta
 Contributors
 ------------
 
-Special thanks to all contributors for submitting patches. A full list of contributors including their patches can be found at:
+Special thanks to all contributors for submitting patches. A full list
+of contributors including their patches can be found at:
 
 https://github.com/trema/trema/contributors
 
