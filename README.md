@@ -96,6 +96,18 @@ For sending Flow-Mod and Packet-Out, there are some methods defined in
 [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
 class.
 
+```ruby
+class MyController < Controller
+  def packet_in datapath_id, message
+    # ...
+    send_flow_mod_add( datapath_id, ... )
+    send_packet_out( datapath_id, ... )
+  end
+  
+  # ...
+end
+```
+
 * [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
 * [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
 * [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
