@@ -61,6 +61,22 @@ Subclass
 and override some of the following methods to implement your own
 controller.
 
+```ruby
+class MyController < Controller
+  # handle Packet-In messages here.
+  def packet_in datapath_id, message
+    # ...
+  end
+  
+  # handle Flow-Removed messages here.
+  def flow_moreved datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
 * [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
 * [packet_in(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
