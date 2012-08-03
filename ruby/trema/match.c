@@ -63,7 +63,7 @@ ofp_match *get_match( VALUE self ) {
  *   @param [optional, Array] options
  *     If supplied an array of symbol ids indicating fields to be wildcarded.
  *
- *     [:inport]
+ *     [:in_port]
  *       the physical port number to wildcard.
  *
  *     [:dl_src]
@@ -117,7 +117,7 @@ match_from( int argc, VALUE *argv, VALUE self ) {
     int i;
     for ( i = 0; i < RARRAY_LEN( options ); i++ ) {
       wildcard_id = SYM2ID( RARRAY_PTR( options )[ i ] );
-      if ( rb_intern( "inport" ) == wildcard_id ) {
+      if ( rb_intern( "in_port" ) == wildcard_id ) {
         wildcards |= OFPFW_IN_PORT;
       }
       if ( rb_intern( "dl_src" ) == wildcard_id ) {
@@ -387,7 +387,7 @@ match_tp_dst( VALUE self ) {
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Number] :inport
+ *   @option options [Number] :in_port
  *     the physical port number to match.
  *
  *   @option options [String,Number,Trema::Mac] :dl_src
