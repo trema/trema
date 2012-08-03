@@ -61,6 +61,22 @@ Subclass
 and override some of the following methods to implement your own
 controller.
 
+```ruby
+class MyController < Controller
+  # handle Packet-In messages here.
+  def packet_in datapath_id, message
+    # ...
+  end
+  
+  # handle Flow-Removed messages here.
+  def flow_moreved datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
 * [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
 * [packet_in(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
@@ -80,6 +96,18 @@ For sending Flow-Mod and Packet-Out, there are some methods defined in
 [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
 class.
 
+```ruby
+class MyController < Controller
+  def packet_in datapath_id, message
+    # ...
+    send_flow_mod_add( datapath_id, ... )
+    send_packet_out( datapath_id, ... )
+  end
+  
+  # ...
+end
+```
+
 * [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
 * [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
 * [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
@@ -89,6 +117,21 @@ class.
 
 The following OpenFlow messages can be sent with
 [Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
+
+```ruby
+class MyController < Controller
+  def switch_ready datapath_id
+    # send a FeaturesRequest message
+    send_message datapath_id, FeaturesRequest.new
+  end
+  
+  def features_reply datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
 
 * [Trema::Hello](http://rubydoc.info/github/trema/trema/master/Trema/Hello)
 * [Trema::EchoRequest](http://rubydoc.info/github/trema/trema/master/Trema/EchoRequest)
@@ -110,7 +153,16 @@ The following OpenFlow messages can be sent with
 
 ### Actions
 
-Each flow table entry contains a list of actions that will be executed when a packet matches the entry.
+The actions list of each flow table entry can be set with ":actions =>" when sending Flow-Mod or Packet-Out.
+
+```ruby
+# Strip the VLAN tag of a packet then send it out to switch port #1
+send_flow_mod_add(
+  datapath_id,
+  # ...
+  :actions => [ StripVlanHeader.new, SendOutPort.new( 1 ) ]
+)
+```
 
 * [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
 * [Trema::SetEthSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthSrcAddr)
