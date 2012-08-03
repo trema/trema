@@ -3979,19 +3979,13 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
       match->nw_proto = ( ( packet_info * ) packet->user_data )->ipv4_protocol;
     }
-    if ( ( wildcards & OFPFW_NW_SRC_MASK ) == 0 ) {
-      match->nw_src = ( ( packet_info * ) packet->user_data )->ipv4_saddr;
+    unsigned int nw_src_mask_len = ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+    if ( nw_src_mask_len < 32 ) {
+      match->nw_src = ( ( packet_info * ) packet->user_data )->ipv4_saddr & ( 0xffffffff << nw_src_mask_len );
     }
-    else {
-      match->nw_src = ( ( packet_info * ) packet->user_data )->ipv4_saddr &
-        ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
-    }
-    if ( ( wildcards & OFPFW_NW_DST_MASK ) == 0 ) {
-      match->nw_dst = ( ( packet_info * ) packet->user_data )->ipv4_daddr;
-    }
-    else {
-      match->nw_dst = ( ( packet_info * ) packet->user_data )->ipv4_daddr &
-        ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
+    unsigned int nw_dst_mask_len = ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+    if ( nw_dst_mask_len < 32 ) {
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->ipv4_daddr & ( 0xffffffff << nw_dst_mask_len );
     }
 
     switch ( match->nw_proto ) {
@@ -4028,17 +4022,13 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( !( wildcards & OFPFW_NW_PROTO ) ) {
       match->nw_proto = ( uint8_t ) ( ( ( packet_info * ) packet->user_data )->arp_ar_op & ARP_OP_MASK );
     }
-    if ( ( wildcards & OFPFW_NW_SRC_MASK ) == 0 ) {
-      match->nw_src = ( ( packet_info * ) packet->user_data )->arp_spa;
+    unsigned int nw_src_mask_len = ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+    if ( nw_src_mask_len < 32 ) {
+      match->nw_src = ( ( packet_info * ) packet->user_data )->arp_spa & ( 0xffffffff << nw_src_mask_len );
     }
-    else {
-      match->nw_src = ( ( packet_info * ) packet->user_data )->arp_spa & ( ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT );
-    }
-    if ( ( wildcards & OFPFW_NW_DST_MASK ) == 0 ) {
-      match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa;
-    }
-    else {
-      match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa & ( ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT );
+    unsigned int nw_dst_mask_len = ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+    if ( nw_dst_mask_len < 32 ) {
+      match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa & ( 0xffffffff << nw_dst_mask_len );
     }
   }
 }

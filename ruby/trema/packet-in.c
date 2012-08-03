@@ -109,8 +109,7 @@ packet_in_buffer_id( VALUE self ) {
 /*
  * A buffer_id value either than +UINT32_MAX+ marks the packet_in as buffered.
  *
- * @return [true] if packet_in is buffered.
- * @return [false] if packet_in is not buffered.
+ * @return [Boolean] whether the packet_in is buffered or not.
  */
 static VALUE
 packet_in_is_buffered( VALUE self ) {
@@ -170,9 +169,9 @@ packet_in_reason( VALUE self ) {
 
 
 /*
- * The MAC source address.
+ * The source MAC address.
  *
- * @return [Trema::Mac] macsa MAC source address.
+ * @return [Trema::Mac] the value of source MAC address as a Trema::MAC object.
  */
 static VALUE
 packet_in_macsa( VALUE self ) {
@@ -181,9 +180,10 @@ packet_in_macsa( VALUE self ) {
 
 
 /*
- * The MAC destination address.
+ * The destination MAC address.
  *
- * @return [Trema::Mac] macda MAC destination address.
+ * @return [Trema::Mac] the value of destination MAC address as a
+ *   Trema::MAC object.
  */
 static VALUE
 packet_in_macda( VALUE self ) {
@@ -194,7 +194,7 @@ packet_in_macda( VALUE self ) {
 /*
  * The ethernet type.
  *
- * @return [integer] eth_type The ehternet type.
+ * @return [Integer] the value of ethernet type.
  */
 static VALUE
 packet_in_eth_type( VALUE self ) {
@@ -203,9 +203,9 @@ packet_in_eth_type( VALUE self ) {
 
 
 /*
- * Is a packet with VLAN tag?
+ * Is it an IEEE 802.1q packet?
  *
- * @return [bool] vtag? Is a packet with VLAN tag?
+ * @return [Boolean] whether the packet is an IEEE 802.1q or not.
  */
 static VALUE
 packet_in_is_vtag( VALUE self ) {
@@ -219,9 +219,9 @@ packet_in_is_vtag( VALUE self ) {
 
 
 /*
- * The vlan tpid.
+ * The vlan tag protocol identifier (tpid).
  *
- * @return [integer] vlan_tpid The vlan tpid
+ * @return [Integer] the value of the vlan tag protocol identifier.
  */
 static VALUE
 packet_in_vlan_tpid( VALUE self ) {
@@ -230,9 +230,9 @@ packet_in_vlan_tpid( VALUE self ) {
 
 
 /*
- * The vlan tci.
+ * The vlan tag control identifier (tci).
  *
- * @return [integer] vlan_tci The vlan tci
+ * @return [Integer] the value of the vlan tag control identifier.
  */
 static VALUE
 packet_in_vlan_tci( VALUE self ) {
@@ -241,9 +241,9 @@ packet_in_vlan_tci( VALUE self ) {
 
 
 /*
- * The vlan prio.
+ * The vlan priority.
  *
- * @return [integer] vlan_prio The vlan prio
+ * @return [Integer] the value of the vlan priority.
  */
 static VALUE
 packet_in_vlan_prio( VALUE self ) {
@@ -252,9 +252,9 @@ packet_in_vlan_prio( VALUE self ) {
 
 
 /*
- * The vlan cfi.
+ * The vlan canonical format indicator (cfi).
  *
- * @return [integer] vlan_cfi The vlan cfi
+ * @return [Integer] the value of the vlan canonical format indicator.
  */
 static VALUE
 packet_in_vlan_cfi( VALUE self ) {
@@ -263,9 +263,9 @@ packet_in_vlan_cfi( VALUE self ) {
 
 
 /*
- * The vlan vid.
+ * The vlan identifier.
  *
- * @return [integer] vlan_vid The vlan vid
+ * @return [Integer] the value of the vlan identifier.
  */
 static VALUE
 packet_in_vlan_vid( VALUE self ) {
@@ -274,9 +274,9 @@ packet_in_vlan_vid( VALUE self ) {
 
 
 /*
- * Is an ARP packet?
+ * Is it an ARP packet?
  *
- * @return [bool] arp? Is an ARP packet?
+ * @return [Boolean] whether the packet is an ARP packet or not.
  */
 static VALUE
 packet_in_is_arp( VALUE self ) {
@@ -290,9 +290,9 @@ packet_in_is_arp( VALUE self ) {
 
 
 /*
- * Is an ARP request packet?
+ * Is it an ARP request packet?
  *
- * @return [bool] arp_request? Is an ARP request packet?
+ * @return [Boolean] whether the packet is an ARP request packet or not.
  */
 static VALUE
 packet_in_is_arp_request( VALUE self ) {
@@ -306,9 +306,9 @@ packet_in_is_arp_request( VALUE self ) {
 
 
 /*
- * Is an ARP reply packet?
+ * Is it an ARP reply packet?
  *
- * @return [bool] arp_reply? Is an ARP reply packet?
+ * @return [Boolean] whether the packet is an ARP reply packet or not.
  */
 static VALUE
 packet_in_is_arp_reply( VALUE self ) {
@@ -324,7 +324,7 @@ packet_in_is_arp_reply( VALUE self ) {
 /*
  * The ARP operation code.
  *
- * @return [integer] arp_oper Operation code.
+ * @return [Integer] the value of the ARP opcode field.
  */
 static VALUE
 packet_in_arp_oper( VALUE self ) {
@@ -333,9 +333,11 @@ packet_in_arp_oper( VALUE self ) {
 
 
 /*
- * The ARP source hardware address.
+ * The ARP source hardware address of a packet.
  *
- * @return [Trema::Mac] arp_sha MAC hardware address.
+ * @return [Trema::Mac, nil]
+ *   the value of the ARP source hardware address as a Trema::Mac object or nil
+ *   if packet not an ARP.
  */
 static VALUE
 packet_in_arp_sha( VALUE self ) {
@@ -349,9 +351,11 @@ packet_in_arp_sha( VALUE self ) {
 
 
 /*
- * The ARP source protocol address.
+ * The ARP source protocol address of a packet.
  *
- * @return [Trema::IP] arp_spa IP protocol address.
+ * @return [Trema::IP, nil]
+ *   the value of ARP source protocol address as a Trema::IP object or nil if
+ *   packet is not an ARP.
  */
 static VALUE
 packet_in_arp_spa( VALUE self ) {
@@ -365,9 +369,11 @@ packet_in_arp_spa( VALUE self ) {
 
 
 /*
- * The ARP target hardware address.
+ * The ARP target hardware address of a packet.
  *
- * @return [Trema::Mac] arp_tha MAC hardware address.
+ * @return [Trema::Mac]
+ *   the value of ARP target hardware address as a Trema::Mac object or nil if
+ *   packet is not an ARP.
  */
 static VALUE
 packet_in_arp_tha( VALUE self ) {
@@ -381,9 +387,11 @@ packet_in_arp_tha( VALUE self ) {
 
 
 /*
- * The ARP target protocol address.
+ * The ARP target protocol address of a packet.
  *
- * @return [Trema::IP] arp_tpa IP protocol address.
+ * @return [Trema::IP]
+ *   the value of ARP target protocol address as a Trema::IP object or nil if
+ *   packet is not an ARP.
  */
 static VALUE
 packet_in_arp_tpa( VALUE self ) {
@@ -397,9 +405,9 @@ packet_in_arp_tpa( VALUE self ) {
 
 
 /*
- * Is an IPV4 packet?
+ * Is it an IPv4 packet?
  *
- * @return [bool] ipv4? Is an IPV4 packet?
+ * @return [Boolean] whether the packet is an IPv4 packet or not.
  */
 static VALUE
 packet_in_is_ipv4( VALUE self ) {
@@ -413,9 +421,9 @@ packet_in_is_ipv4( VALUE self ) {
 
 
 /*
- * The IPv4 version number.
+ * The IPv4 version number (version).
  *
- * @return [Integer] ipv4_version The IPv4 version number.
+ * @return [Integer] the value of IPv4 version number.
  */
 static VALUE
 packet_in_ipv4_version( VALUE self ) {
@@ -424,9 +432,9 @@ packet_in_ipv4_version( VALUE self ) {
 
 
 /*
- * The IPv4 internet header length.
+ * The IPv4 internet header length (ihl).
  *
- * @return [Integer] ipv4_ihl The IPv4 internet header length.
+ * @return [Integer] the value of IPv4 internet header length.
  */
 static VALUE
 packet_in_ipv4_ihl( VALUE self ) {
@@ -435,9 +443,9 @@ packet_in_ipv4_ihl( VALUE self ) {
 
 
 /*
- * The IPv4 tos value.
+ * The IPv4 type of service (tos).
  *
- * @return [Integer] ipv4_tos The IPv4 tos value.
+ * @return [Integer] the value of IPv4 type of service.
  */
 static VALUE
 packet_in_ipv4_tos( VALUE self ) {
@@ -446,9 +454,9 @@ packet_in_ipv4_tos( VALUE self ) {
 
 
 /*
- * The IPv4 total length.
+ * The IPv4 total length, the length of the datagram.
  *
- * @return [Integer] ipv4_tot_len The IPv4 total length.
+ * @return [Integer] the value of IPv4 total length.
  */
 static VALUE
 packet_in_ipv4_tot_len( VALUE self ) {
@@ -457,9 +465,9 @@ packet_in_ipv4_tot_len( VALUE self ) {
 
 
 /*
- * The IPv4 identifier.
+ * The IPv4 identification.
  *
- * @return [Integer] ipv4_id The IPv4 identifier.
+ * @return [Integer] the value of IPv4 identification.
  */
 static VALUE
 packet_in_ipv4_id( VALUE self ) {
@@ -470,7 +478,7 @@ packet_in_ipv4_id( VALUE self ) {
 /*
  * The IPv4 fragment offset.
  *
- * @return [Integer] ipv4_frag_off The IPv4 fragment offset.
+ * @return [Integer] the value of IPv4 fragment offset.
  */
 static VALUE
 packet_in_ipv4_frag_off( VALUE self ) {
@@ -479,9 +487,9 @@ packet_in_ipv4_frag_off( VALUE self ) {
 
 
 /*
- * The IPv4 ttl value.
+ * The IPv4 time to live (ttl).
  *
- * @return [Integer] ipv4_ttl The IPv4 ttl value.
+ * @return [Integer] the value of IPv4 time to live.
  */
 static VALUE
 packet_in_ipv4_ttl( VALUE self ) {
@@ -492,7 +500,7 @@ packet_in_ipv4_ttl( VALUE self ) {
 /*
  * The IPv4 protocol number.
  *
- * @return [Integer] ipv4_protocol The IPv4 protocol number.
+ * @return [Integer] the value of IPv4 protocol number.
  */
 static VALUE
 packet_in_ipv4_protocol( VALUE self ) {
@@ -503,7 +511,7 @@ packet_in_ipv4_protocol( VALUE self ) {
 /*
  * The IPv4 checksum.
  *
- * @return [Integer] ipv4_checksum The IPv4 checksum.
+ * @return [Integer] the value of IPv4 checksum.
  */
 static VALUE
 packet_in_ipv4_checksum( VALUE self ) {
@@ -512,9 +520,11 @@ packet_in_ipv4_checksum( VALUE self ) {
 
 
 /*
- * The IPV4 source protocol address.
+ * The IPv4 source IP address of a packet.
  *
- * @return [Trema::IP] ipv4_saddr IP protocol address.
+ * @return [Trema::IP,nil]
+ *   the value of IPv4 source IP address as a Trema::IP object or nil if
+ *   packet is not an IPv4.
  */
 static VALUE
 packet_in_ipv4_saddr( VALUE self ) {
@@ -528,9 +538,11 @@ packet_in_ipv4_saddr( VALUE self ) {
 
 
 /*
- * The IPV4 destination protocol address.
+ * The IPV4 destination IP address of a packet.
  *
- * @return [Trema::IP] ipv4_daddr IP protocol address.
+ * @return [Trema::IP, nil] 
+ *   the value of IPv4 destination IP address as a Trema::IP object or nil if
+ *   packet is not an IPv4.
  */
 static VALUE
 packet_in_ipv4_daddr( VALUE self ) {
@@ -544,9 +556,9 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
- * Is an ICMPv4 packet?
+ * Is it an ICMPv4 packet?
  *
- * @return [bool] icmpv4? Is an ICMPv4 packet?
+ * @return [Boolean] whether the packet is an ICMPv4 packet or not.
  */
 static VALUE
 packet_in_is_icmpv4( VALUE self ) {
@@ -560,9 +572,9 @@ packet_in_is_icmpv4( VALUE self ) {
 
 
 /*
- * The ICMPv4 message type.
+ * The ICMPv4 message type, ie echo_reply, echo_request.
  *
- * @return [Integer] icmpv4_type The ICMPv4 message type.
+ * @return [Integer] the value of ICMPv4 message type.
  */
 static VALUE
 packet_in_icmpv4_type( VALUE self ) {
@@ -571,9 +583,9 @@ packet_in_icmpv4_type( VALUE self ) {
 
 
 /*
- * The ICMPv4 message code.
+ * The ICMPv4 message code the further qualifies the message type.
  *
- * @return [Integer] icmpv4_code The ICMPv4 message code.
+ * @return [Integer] the value of ICMPv4 message code.
  */
 static VALUE
 packet_in_icmpv4_code( VALUE self ) {
@@ -584,7 +596,7 @@ packet_in_icmpv4_code( VALUE self ) {
 /*
  * The ICMPv4 message checksum.
  *
- * @return [Integer] icmpv4_checksum The ICMPv4 message checksum.
+ * @return [Integer] the value of ICMPv4 message checksum.
  */
 static VALUE
 packet_in_icmpv4_checksum( VALUE self ) {
@@ -593,9 +605,9 @@ packet_in_icmpv4_checksum( VALUE self ) {
 
 
 /*
- * The identifier of ICMPv4 echo.
+ * The ICMPv4 echo identifier to be used to match echo requests to echo replies.
  *
- * @return [Integer] icmpv4_id The identifier of ICMPv4 echo.
+ * @return [Integer] the value of ICMPv4 echo identifier.
  */
 static VALUE
 packet_in_icmpv4_id( VALUE self ) {
@@ -604,9 +616,9 @@ packet_in_icmpv4_id( VALUE self ) {
 
 
 /*
- * The sequence number of ICMPv4 echo.
+ * The ICMPv4 echo sequence number.
  *
- * @return [Integer] icmpv4_id The sequence number of ICMPv4 echo.
+ * @return [Integer] the value of ICMPv4 echo sequence number.
  */
 static VALUE
 packet_in_icmpv4_seq( VALUE self ) {
@@ -615,9 +627,11 @@ packet_in_icmpv4_seq( VALUE self ) {
 
 
 /*
- * The gateway address of ICMPv4 redicect.
+ * The ICMPv4 redirect message gateway IP address.
  *
- * @return [Trema::IP] icmp_gateway The gateway address of ICMPv4 redicect.
+ * @return [Trema::IP, nil] 
+ *   the value of ICMPv4 redirect message IP gateway address as a Trema::IP 
+ *   object or nil if packet is not ICMPv4.
  */
 static VALUE
 packet_in_icmpv4_gateway( VALUE self ) {
@@ -631,9 +645,9 @@ packet_in_icmpv4_gateway( VALUE self ) {
 
 
 /*
- * Is an ICMPv4 echo reply packet?
+ * Is it an ICMPv4 echo reply packet?
  *
- * @return [bool] icmpv4_echo_reply? Is an ICMP echo reply packet?
+ * @return [Boolean] whether the packet is an ICMPv4 echo reply packet or not.
  */
 static VALUE
 packet_in_is_icmpv4_echo_reply( VALUE self ) {
@@ -647,9 +661,10 @@ packet_in_is_icmpv4_echo_reply( VALUE self ) {
 
 
 /*
- * Is an ICMPv4 destination unreachable packet?
+ * Is it an ICMPv4 destination unreachable packet?
  *
- * @return [bool] icmpv4_dst_unreach? Is an ICMP destination unreachable packet?
+ * @return [Boolean] whether the packet is an ICMPv4 destination
+ *   unreachable packet or not.
  */
 static VALUE
 packet_in_is_icmpv4_dst_unreach( VALUE self ) {
@@ -663,9 +678,9 @@ packet_in_is_icmpv4_dst_unreach( VALUE self ) {
 
 
 /*
- * Is an ICMPv4 redirect packet?
+ * Is it an ICMPv4 redirect packet?
  *
- * @return [bool] icmpv4_redirect? Is an ICMP redirect packet?
+ * @return [Boolean] whether the packet is an ICMPv4 redirect packet or not.
  */
 static VALUE
 packet_in_is_icmpv4_redirect( VALUE self ) {
@@ -679,9 +694,9 @@ packet_in_is_icmpv4_redirect( VALUE self ) {
 
 
 /*
- * Is an ICMPv4 echo request packet?
+ * Is it an ICMPv4 echo request packet?
  *
- * @return [bool] icmpv4_echo_request? Is an ICMP echo request packet?
+ * @return [Boolean] whether the packet is an ICMPv4 echo request packet or not.
  */
 static VALUE
 packet_in_is_icmpv4_echo_request( VALUE self ) {
@@ -695,9 +710,9 @@ packet_in_is_icmpv4_echo_request( VALUE self ) {
 
 
 /*
- * Is an IGMP packet?
+ * Is it an IGMP packet?
  *
- * @return [bool] igmp? Is an IGMP packet?
+ * @return [Boolean] whether the packet is an IGMP packet or not.
  */
 static VALUE
 packet_in_is_igmp( VALUE self ) {
@@ -711,9 +726,10 @@ packet_in_is_igmp( VALUE self ) {
 
 
 /*
- * Is an IGMP membership query packet?
+ * Is it an IGMP membership query packet?
  *
- * @return [bool] igmp_membership_query? Is an IGMP membership query packet?
+ * @return [Boolean] whether the packet is an IGMP membership query
+ *   packet or not.
  */
 static VALUE
 packet_in_is_igmp_membership_query( VALUE self ) {
@@ -727,9 +743,10 @@ packet_in_is_igmp_membership_query( VALUE self ) {
 
 
 /*
- * Is an IGMP v1 membership report packet?
+ * Is it an IGMP v1 membership report packet?
  *
- * @return [bool] igmp_v1_membership_report? Is an IGMP v1 membership report packet?
+ * @return [Boolean] whether the packet is an IGMP v1 membership report packet
+ *   or not.
  */
 static VALUE
 packet_in_is_igmp_v1_membership_report( VALUE self ) {
@@ -743,9 +760,10 @@ packet_in_is_igmp_v1_membership_report( VALUE self ) {
 
 
 /*
- * Is an IGMP v2 membership report packet?
+ * Is it an IGMP v2 membership report packet?
  *
- * @return [bool] igmp_v2_membership_report? Is an IGMP v2 membership report packet?
+ * @return [Boolean] whether the packet is an IGMP v2 membership report packet
+ *   or not.
  */
 static VALUE
 packet_in_is_igmp_v2_membership_report( VALUE self ) {
@@ -759,9 +777,10 @@ packet_in_is_igmp_v2_membership_report( VALUE self ) {
 
 
 /*
- * Is an IGMP v2 leave group packet?
+ * Is it an IGMP v2 leave group packet?
  *
- * @return [bool] igmp_v2_leave_group? Is an IGMP v2 leave group packet?
+ * @return [Boolean] whether the packet is an IGMP v2 leave group packet
+ *   or not.
  */
 static VALUE
 packet_in_is_igmp_v2_leave_group( VALUE self ) {
@@ -775,9 +794,10 @@ packet_in_is_igmp_v2_leave_group( VALUE self ) {
 
 
 /*
- * Is an IGMP v3 membership report packet?
+ * Is it an IGMP v3 membership report packet?
  *
- * @return [bool] igmp_v3_membership_report? Is an IGMP v3 membership report packet?
+ * @return [Boolean] whether the packet is an IGMP v3 membership report packet
+ *   or not.
  */
 static VALUE
 packet_in_is_igmp_v3_membership_report( VALUE self ) {
@@ -793,7 +813,7 @@ packet_in_is_igmp_v3_membership_report( VALUE self ) {
 /*
  * The IGMP message type.
  *
- * @return [Integer] igmp_type IGMP type.
+ * @return [Integer] the value of IGMP message type.
  */
 static VALUE
 packet_in_igmp_type( VALUE self ) {
@@ -804,7 +824,9 @@ packet_in_igmp_type( VALUE self ) {
 /*
  * The IGMP group address.
  *
- * @return [Trema::IP] igmp_group an IGMP group address.
+ * @return [Trema::IP, nil] 
+ *   the value of IGMP IP group address as a Trema::IP object
+ *   or nil if packet is not IGMP.
  */
 static VALUE
 packet_in_igmp_group( VALUE self ) {
@@ -820,7 +842,7 @@ packet_in_igmp_group( VALUE self ) {
 /*
  * The IGMP checksum.
  *
- * @return [Integer] igmp_checksum a IGMP checksum.
+ * @return [Integer] the value of IGMP checksum.
  */
 static VALUE
 packet_in_igmp_checksum( VALUE self ) {
@@ -829,9 +851,9 @@ packet_in_igmp_checksum( VALUE self ) {
 
 
 /*
- * Is a TCP packet?
+ * Is it a TCP packet?
  *
- * @return [bool] tcp? Is a TCP packet?
+ * @return [Boolean] whether the packet is a TCP packet or not.
  */
 static VALUE
 packet_in_is_tcp( VALUE self ) {
@@ -847,7 +869,7 @@ packet_in_is_tcp( VALUE self ) {
 /*
  * The TCP source port.
  *
- * @return [Integer] tcp_src_port TCP port.
+ * @return [Integer] the value of TCP source port.
  */
 static VALUE
 packet_in_tcp_src_port( VALUE self ) {
@@ -858,7 +880,7 @@ packet_in_tcp_src_port( VALUE self ) {
 /*
  * The TCP destination port.
  *
- * @return [Integer] tcp_dst_port TCP port.
+ * @return [Integer] the value of TCP destination port.
  */
 static VALUE
 packet_in_tcp_dst_port( VALUE self ) {
@@ -869,7 +891,7 @@ packet_in_tcp_dst_port( VALUE self ) {
 /*
  * The TCP sequence number.
  *
- * @return [Integer] tcp_seq_no a TCP sequence number.
+ * @return [Integer] the value of TCP sequence number.
  */
 static VALUE
 packet_in_tcp_seq_no( VALUE self ) {
@@ -878,9 +900,9 @@ packet_in_tcp_seq_no( VALUE self ) {
 
 
 /*
- * The TCP acknowledge number.
+ * The TCP acknowledgment number.
  *
- * @return [Integer] tcp_ack_no a TCP acknowkedge number.
+ * @return [Integer] the value of TCP acknowledgment number.
  */
 static VALUE
 packet_in_tcp_ack_no( VALUE self ) {
@@ -889,9 +911,9 @@ packet_in_tcp_ack_no( VALUE self ) {
 
 
 /*
- * The TCP offset.
+ * The TCP data offset.
  *
- * @return [Integer] tcp_offset a TCP offset.
+ * @return [Integer] the value of TCP data offset.
  */
 static VALUE
 packet_in_tcp_offset( VALUE self ) {
@@ -902,7 +924,7 @@ packet_in_tcp_offset( VALUE self ) {
 /*
  * The TCP flags.
  *
- * @return [Integer] tcp_flags TCP flags.
+ * @return [Integer] the value of TCP flags.
  */
 static VALUE
 packet_in_tcp_flags( VALUE self ) {
@@ -913,7 +935,7 @@ packet_in_tcp_flags( VALUE self ) {
 /*
  * The TCP window.
  *
- * @return [Integer] tcp_window a TCP window.
+ * @return [Integer] the value of TCP window.
  */
 static VALUE
 packet_in_tcp_window( VALUE self ) {
@@ -924,7 +946,7 @@ packet_in_tcp_window( VALUE self ) {
 /*
  * The TCP checksum.
  *
- * @return [Integer] tcp_checksum a TCP checksum.
+ * @return [Integer] the value of TCP checksum.
  */
 static VALUE
 packet_in_tcp_checksum( VALUE self ) {
@@ -933,9 +955,9 @@ packet_in_tcp_checksum( VALUE self ) {
 
 
 /*
- * The TCP urgent.
+ * The TCP urgent pointer.
  *
- * @return [Integer] tcp_urgent a TCP urgent.
+ * @return [Integer] the value of TCP urgent pointer.
  */
 static VALUE
 packet_in_tcp_urgent( VALUE self ) {
@@ -944,9 +966,9 @@ packet_in_tcp_urgent( VALUE self ) {
 
 
 /*
- * Is an UDP packet?
+ * Is it a UDP packet?
  *
- * @return [bool] udp? Is an UDP packet?
+ * @return [Boolean] whether the packet is a UDP packet or not.
  */
 static VALUE
 packet_in_is_udp( VALUE self ) {
@@ -975,7 +997,7 @@ packet_in_udp_payload( VALUE self ) {
 /*
  * The UDP source port.
  *
- * @return [Integer] udp_src_port UDP port.
+ * @return [Integer] the value of UDP source port.
  */
 static VALUE
 packet_in_udp_src_port( VALUE self ) {
@@ -986,7 +1008,7 @@ packet_in_udp_src_port( VALUE self ) {
 /*
  * The UDP destination port.
  *
- * @return [Integer] udp_dst_port UDP port.
+ * @return [Integer] the value of UDP destination port.
  */
 static VALUE
 packet_in_udp_dst_port( VALUE self ) {
@@ -995,9 +1017,9 @@ packet_in_udp_dst_port( VALUE self ) {
 
 
 /*
- * The UDP length.
+ * The UDP length
  *
- * @return [Integer] udp_len a UDP length.
+ * @return [Integer] the value in bytes of UDP header and data.
  */
 static VALUE
 packet_in_udp_len( VALUE self ) {
@@ -1008,7 +1030,7 @@ packet_in_udp_len( VALUE self ) {
 /*
  * The UDP checksum.
  *
- * @return [Integer] udp_checksum a UDP checksum.
+ * @return [Integer] the value of UDP checksum.
  */
 static VALUE
 packet_in_udp_checksum( VALUE self ) {

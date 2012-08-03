@@ -20,9 +20,19 @@
 
 module Trema
   class Flow
-    attr_reader :dl_type
 
 
+    #
+    # Parses a text line of OpenFlow switch's dump-flows command into a Flow
+    # object's dynamic created attributes. A line consists of multiple
+    # comma separated key=value fields. A key field may have multiple values
+    # specified as key=value#1,value#2,..value#n.
+    #
+    # @param [String] line the text line to parse.
+    #
+    # @return [self] the object that holds the parsed key=value fields
+    #   as attributes.
+    #
     def self.parse line
       flow = self.new
       # to simplify parsing
@@ -41,6 +51,7 @@ module Trema
     end
 
 
+    # @return [Boolean] whether a flow is a user registered flow or not.
     def users_flow?
       not ( ( @actions == "drop" and @priority == 0 ) or
             @actions == "CONTROLLER:65535" )

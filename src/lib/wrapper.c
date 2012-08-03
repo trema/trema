@@ -76,19 +76,42 @@ xstrdup( const char *s ) {
 }
 
 
+static char *
+_xvasprintf( const char *format, va_list args, const char *error_message ) {
+  va_list args_copy;
+  va_copy( args_copy, args );
+  int n = vsnprintf( NULL, 0, format, args_copy );
+  va_end( args_copy );
+  if ( n <= 0 ) {
+    return NULL;
+  }
+  size_t size = ( size_t ) ( n + 1 );
+  char *str = _trema_malloc( size, error_message );
+  va_copy( args_copy, args );
+  n = vsnprintf( str, size, format, args_copy );
+  va_end( args_copy );
+  if ( n <= 0 || ( size_t ) n > size ) {
+    xfree( str );
+    return NULL;
+  }
+  return str;
+}
+
+
+char *
+xvasprintf( const char *format, va_list args ) {
+  return _xvasprintf( format, args, "Out of memory, xvasprintf failed" );
+}
+
+
 char *
 xasprintf( const char *format, ... ) {
   const char error[] = "Out of memory, xasprintf failed";
   va_list args;
   va_start( args, format );
-  char *str;
-  if ( trema_vasprintf( &str, format, args ) < 0 ) {
-    die( error );
-  }
-  char *result = _xstrdup( str, error );
-  free( str );
+  char *str = _xvasprintf( format, args, error );
   va_end( args );
-  return result;
+  return str;
 }
 
 

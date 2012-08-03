@@ -294,7 +294,7 @@ phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size 
   int ret = snprintf(
               str,
               size,
-              "port_no = %u, hw_addr =  %02x:%02x:%02x:%02x:%02x:%02x, "
+              "port_no = %u, hw_addr = %02x:%02x:%02x:%02x:%02x:%02x, "
               "name = %s, config = %#x, state = %#x, "
               "curr = %#x, advertised = %#x, supported = %#x, peer = %#x",
               phy_port->port_no,

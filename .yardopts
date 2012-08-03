@@ -1,0 +1,4 @@
+--no-private
+--readme README.md
+ruby/trema/**/*.rb
+ruby/trema/**/*.c

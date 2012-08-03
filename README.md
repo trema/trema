@@ -17,12 +17,24 @@ testing your own controllers. For debugging, a wireshark plug-in to
 diagnose internal data-flows among functional modules is provided.
 
 
+Supported Platforms
+-------------------
+
+Trema supports GNU/Linux only. And it has been tested on the following environments:
+
+* Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
+* Debian GNU/Linux 6.0 (i386/amd64)
+
+It may also run on other GNU/Linux distributions but is not tested and
+NOT SUPPORTED at this moment.
+
+
 Getting Started
 ---------------
 
 1.Install the prerequisites at the command prompt:
 
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb file libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb libpcap-dev libsqlite3-dev
 
 2.Install Trema at the command prompt:
 
@@ -33,8 +45,176 @@ Getting Started
 * The [Getting Started with Trema](https://github.com/trema/trema/wiki/Quick-start).
 * The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
 * The [Trema Tutorial](http://trema-tutorial.heroku.com/).
-* The [Trema Ruby API documents](http://rubydoc.info/github/trema/trema/master/frames).
 * The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
+
+
+Ruby API
+--------
+
+The following is an exerpt from the Trema Ruby API.
+The full documents are found here http://rubydoc.info/github/trema/trema/master/frames
+
+### Event and Message Handlers
+
+Subclass
+[Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
+and override some of the following methods to implement your own
+controller.
+
+```ruby
+class MyController < Controller
+  # handle Packet-In messages here.
+  def packet_in datapath_id, message
+    # ...
+  end
+  
+  # handle Flow-Removed messages here.
+  def flow_removed datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
+* [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
+* [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
+* [packet_in(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
+* [flow_removed(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
+* [port_status(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
+* [openflow_error(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:openflow_error)
+* [features_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:features_reply)
+* [stats_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:stats_reply)
+* [barrier_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:barrier_reply)
+* [get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:get_config_reply)
+* [queue_get_config_reply(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:queue_get_config_reply)
+* [vendor(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:vendor)
+
+### Flow-Mod and Packet-Out
+
+For sending Flow-Mod and Packet-Out, there are some methods defined in
+[Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
+class.
+
+```ruby
+class MyController < Controller
+  def packet_in datapath_id, message
+    # ...
+    send_flow_mod_add( datapath_id, ... )
+    send_packet_out( datapath_id, ... )
+  end
+  
+  # ...
+end
+```
+
+* [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
+* [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
+* [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
+* [send_packet_out(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_packet_out)
+
+### Other OpenFlow Messages
+
+The following OpenFlow messages can be sent with
+[Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
+
+```ruby
+class MyController < Controller
+  def switch_ready datapath_id
+    # send a FeaturesRequest message
+    send_message datapath_id, FeaturesRequest.new
+  end
+  
+  def features_reply datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
+* [Trema::Hello](http://rubydoc.info/github/trema/trema/master/Trema/Hello)
+* [Trema::EchoRequest](http://rubydoc.info/github/trema/trema/master/Trema/EchoRequest)
+* [Trema::EchoReply](http://rubydoc.info/github/trema/trema/master/Trema/EchoReply)
+* [Trema::FeaturesRequest](http://rubydoc.info/github/trema/trema/master/Trema/FeaturesRequest)
+* [Trema::SetConfig](http://rubydoc.info/github/trema/trema/master/Trema/SetConfig)
+* [Trema::GetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/GetConfigRequest)
+* [Trema::QueueGetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/QueueGetConfigRequest)
+* [Trema::DescStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/DescStatsRequest)
+* [Trema::FlowStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/FlowStatsRequest)
+* [Trema::AggregateStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/AggregateStatsRequest)
+* [Trema::TableStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/TableStatsRequest)
+* [Trema::PortStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/PortStatsRequest)
+* [Trema::QueueStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/QueueStatsRequest)
+* [Trema::VendorStatsRequest](http://rubydoc.info/github/trema/trema/master/Trema/VendorStatsRequest)
+* [Trema::BarrierRequest](http://rubydoc.info/github/trema/trema/master/Trema/BarrierRequest)
+* [Trema::PortMod](http://rubydoc.info/github/trema/trema/master/Trema/PortMod)
+* [Trema::Vendor](http://rubydoc.info/github/trema/trema/master/Trema/Vendor)
+
+### Matching Rules
+
+The matching rule of each flow table entry can be created with
+[Match.new(options)](http://rubydoc.info/github/trema/trema/master/Trema/Match)
+and passed as ":match =>" option when sending Flow-Mod or Packet-Out.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => Match.new( :in_port => message.in_port, ...)
+    # ...
+  )
+  
+  # ...
+end
+```
+
+Also there is a utility method called
+[ExactMatch.from(packetin)](http://rubydoc.info/github/trema/trema/master/Trema/ExactMatch)
+for getting an exact match corresponding to a packet.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => ExactMatch.from( message )
+    # ...
+  )
+  
+  # ...
+end
+```
+
+### Actions
+
+The actions list of each flow table entry can be set with ":actions
+=>" when sending Flow-Mod or Packet-Out.
+
+```ruby
+# Strip the VLAN tag of a packet then send it out to switch port #1
+send_flow_mod_add(
+  datapath_id,
+  # ...
+  :actions => [ StripVlanHeader.new, SendOutPort.new( 1 ) ]
+)
+```
+
+* [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
+* [Trema::SetEthSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthSrcAddr)
+* [Trema::SetEthDstAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthDstAddr)
+* [Trema::SetIpSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetIpSrcAddr)
+* [Trema::SetIpDstAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetIpDstAddr)
+* [Trema::SetIpTos](http://rubydoc.info/github/trema/trema/master/Trema/SetIpTos)
+* [Trema::SetTransportSrcPort](http://rubydoc.info/github/trema/trema/master/Trema/SetTransportSrcPort)
+* [Trema::SetTransportDstPort](http://rubydoc.info/github/trema/trema/master/Trema/SetTransportDstPort)
+* [Trema::SetVlanVid](http://rubydoc.info/github/trema/trema/master/Trema/SetVlanVid)
+* [Trema::SetVlanPriority](http://rubydoc.info/github/trema/trema/master/Trema/SetVlanPriority)
+* [Trema::StripVlanHeader](http://rubydoc.info/github/trema/trema/master/Trema/StripVlanHeader)
+* [Trema::VendorAction](http://rubydoc.info/github/trema/trema/master/Trema/VendorAction)
 
 
 Meta
@@ -46,22 +226,11 @@ Meta
 * Twitter: http://twitter.com/trema_news
 
 
-Supported Platforms
--------------------
-
-Trema has been tested ONLY on the following environments:
-
-* Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
-* Debian GNU/Linux 6.0 (i386/amd64)
-
-It may also run on other GNU/Linux distributions but is not tested and
-NOT SUPPORTED at this moment.
-
-
 Contributors
 ------------
 
-Special thanks to all contributors for submitting patches. A full list of contributors including their patches can be found at:
+Special thanks to all contributors for submitting patches. A full list
+of contributors including their patches can be found at:
 
 https://github.com/trema/trema/contributors
 

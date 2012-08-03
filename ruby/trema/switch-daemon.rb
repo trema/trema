@@ -1,8 +1,6 @@
 #
 # The controller class of switch daemon.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,7 +27,7 @@ module Trema
 
 
     def options
-      [ portstatus_queue, packetin_queue, statenotify_queue, vendor_queue ]
+      portstatus_queue + packetin_queue + statenotify_queue + vendor_queue
     end
 
 
@@ -46,22 +44,35 @@ module Trema
 
 
     def portstatus_queue
-      "port_status::#{ @queues[ :port_status ] }"
+      controllers = @queues[ :port_status ].split( "," )
+      controllers.collect do | each |
+        "port_status::#{ each }"
+      end
     end
 
 
     def packetin_queue
-      "packet_in::#{ @queues[ :packet_in ] }"
+      controllers = @queues[ :packet_in ].split( "," )
+      controllers.collect do | each |
+        "packet_in::#{ each }"
+      end
     end
 
 
     def statenotify_queue
-      "state_notify::#{ @queues[ :state_notify ] }"
+      controllers = @queues[ :state_notify ].split( "," )
+      controllers.collect do | each |
+        "state_notify::#{ each }"
+      end
     end
 
 
     def vendor_queue
-      "vendor::#{ @queues[ :vendor ] }"
+      return [] if not @queues[ :vendor ]
+      controllers = @queues[ :vendor ].split( "," )
+      controllers.collect do | each |
+        "vendor::#{ each }"
+      end
     end
   end
 end

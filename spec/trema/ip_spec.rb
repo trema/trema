@@ -31,7 +31,7 @@ module Trema
 
         its( :to_s ) { should == "192.168.1.1" }
         its( :to_i ) { should == 3232235777 }
-        its( :to_array ) { should == [ 0xc0, 0xa8, 0x01, 0x01 ] }
+        its( :to_a ) { should == [ 0xc0, 0xa8, 0x01, 0x01 ] }
       end
 
       context %{when "10.1.1.1/8"} do
@@ -40,7 +40,7 @@ module Trema
 
         its( :to_s ) { should == "10.0.0.0" }
         its( :to_i ) { should == 10 * 256 * 256 * 256 }
-        its( :to_array ) { should == [ 0x0a, 0x00, 0x00, 0x00 ] }
+        its( :to_a ) { should == [ 0x0a, 0x00, 0x00, 0x00 ] }
       end
     end
   end

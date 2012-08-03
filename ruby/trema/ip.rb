@@ -94,11 +94,12 @@ module Trema
     # @return [Array]
     #    an array of decimal numbers converted from IP address.
     #
-    def to_array
-      self.to_s.split( "." ).collect do | each |
+    def to_a
+      to_s.split( "." ).collect do | each |
         each.to_i
       end
     end
+    alias :to_array :to_a
   end
 end
 

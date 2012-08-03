@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,12 +39,12 @@ set_config_alloc( VALUE klass ) {
  * @overload initialize(options={})
  *
  *   @example
- *     SetConfigRequest.new
- *     SetConfigRequest.new( 
+ *     SetConfig.new
+ *     SetConfig.new(
  *       :flags => OFPC_FRAG_DROP,
  *       :miss_send_len => 256
  *     )
- *     SetConfigRequest.new(
+ *     SetConfig.new(
  *       :flags => OFPC_FRAG_DROP,
  *       :miss_send_len => 256,
  *       :transaction_id => 123
@@ -68,7 +66,7 @@ set_config_alloc( VALUE klass ) {
  *
  *   @return [SetConfig]
  *     an object that encapsulates the +OFPT_SET_CONFIG+ OpenFlow message.
-*/
+ */
 static VALUE
 set_config_init( int argc, VALUE *argv, VALUE self ) {
   buffer *set_config;
@@ -120,7 +118,7 @@ set_config_transaction_id( VALUE self ) {
 
 /*
  * A 2-bit value that can be set to indicate no special handling, drop or reassemble
- * IP fragments. 
+ * IP fragments.
  *
  * @return [Number] the value of flags.
  */

@@ -228,6 +228,7 @@ task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h => Trema.objects do
   sys.unpack_tgz "#{ Trema.vendor_openflow }.tar.gz", :in => Trema.vendor
   sys.cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
+  sys "chmod -R +r #{ File.join Trema.objects, "openflow" }"
 end
 
 task "vendor:openflow:distclean" do
