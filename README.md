@@ -153,7 +153,7 @@ end
 
 ### Actions
 
-Each flow table entry contains a list of actions that will be executed when a packet matches the entry.
+The actions list of each flow table entry can be set with ":actions =>" when sending Flow-Mod or Packet-Out.
 
 ```ruby
 # Strip the VLAN tag of a packet then send it out to switch port #1
