@@ -156,22 +156,12 @@ end
 Each flow table entry contains a list of actions that will be executed when a packet matches the entry.
 
 ```ruby
-class MyController < Controller
-  def packet_in datapath_id, message
-    # ...
-    
-    # Strip the VLAN tag of a packet and send it out to switch port #1
-    send_flow_mod_add(
-      datapath_id,
-      # ...
-      :actions => [ StripVlanHeader.new, SendOutPort.new( 1 ) ]
-    )
-    
-    # ...
-  end
-  
+# Strip the VLAN tag of a packet then send it out to switch port #1
+send_flow_mod_add(
+  datapath_id,
   # ...
-end
+  :actions => [ StripVlanHeader.new, SendOutPort.new( 1 ) ]
+)
 ```
 
 * [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
