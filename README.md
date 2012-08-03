@@ -90,6 +90,9 @@ class.
 The following OpenFlow messages can be sent with
 [Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
+* [Trema::Hello](http://rubydoc.info/github/trema/trema/master/Trema/Hello)
+* [Trema::EchoRequest](http://rubydoc.info/github/trema/trema/master/Trema/EchoRequest)
+* [Trema::EchoReply](http://rubydoc.info/github/trema/trema/master/Trema/EchoReply)
 * [Trema::FeaturesRequest](http://rubydoc.info/github/trema/trema/master/Trema/FeaturesRequest)
 * [Trema::SetConfig](http://rubydoc.info/github/trema/trema/master/Trema/SetConfig)
 * [Trema::GetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/GetConfigRequest)

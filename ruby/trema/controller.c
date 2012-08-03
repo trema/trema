@@ -57,11 +57,9 @@ handle_timer_event( void *self ) {
  *   @example
  *     send_message datapath_id, FeaturesRequest.new
  *
- *
- *   @param [Number] datapath_id
+ *   @param [Integer] datapath_id
  *     the datapath to which a message is sent.
- *
- *   @param [FeaturesRequest] message
+ *   @param [Hello, EchoRequest, EchoReply, FeaturesRequest, SetConfig, GetConfigRequest, QueueGetConfigRequest, StatsRequest, BarrierRequest, PortMod, Vendor] message
  *     the message to be sent.
  */
 static VALUE
