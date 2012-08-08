@@ -1,0 +1,18 @@
+This directory includes an OpenFlow controller that discovers all the path that are connected to a node, which means switch or host, through a physical port.
+
+# How to run
+
+Run this:
+  
+  % ./trema run ./objects/examples/discover_path/discover_path -c src/examples/discover_path/network.conf
+
+After a while, you can see a network topology dump message how the switches are connected.
+
+Then on another terminal, send a packet to inform location of host
+
+  % ./trema send_packets --source host1 --dest host2 --n_pkts 1
+
+This will cause a update of network topology infomation, and you can see a renewd one.
+In a similar way, you can update this by send_packets operation from another host, which is described at configuration file.
+
+  % ./trema send_packets --source host2 --dest host1 --n_pkts 1

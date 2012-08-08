@@ -64,6 +64,7 @@ task :examples => [
   "examples:switch_info",
   "examples:switch_monitor",
   "examples:traffic_monitor",
+  "examples:discover_path",
 ]
 
 
@@ -604,6 +605,7 @@ standalone_examples = [
   "switch_info",
   "switch_monitor",
   "traffic_monitor",
+  "discover_path",
 ]
 
 standalone_examples.each do | each |
