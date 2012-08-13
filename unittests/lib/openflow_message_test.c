@@ -6981,6 +6981,16 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcard
 
 
 static void
+test_set_match_from_packet_fails_if_match_is_NULL() {
+  buffer *buf = setup_arp_packet( ETH_ETHTYPE_TPID );
+
+  expect_assert_failure( set_match_from_packet( NULL, 1, 0, buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
 test_set_match_from_packet_fails_if_packet_data_is_NULL() {
   struct ofp_match match;
   expect_assert_failure( set_match_from_packet( &match, 1, 0, NULL ) );
@@ -7318,6 +7328,7 @@ main() {
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcards_is_zero, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_tag_and_wildcards_is_zero, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_set_match_from_packet_fails_if_match_is_NULL, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_fails_if_packet_data_is_NULL, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_fails_if_packet_is_not_parsed_yet, init, teardown ),
   };

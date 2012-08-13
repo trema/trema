@@ -3929,6 +3929,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
                        const uint32_t wildcards, const buffer *packet ) {
   // Note that wildcards must be filled before calling this function.
 
+  assert( match != NULL );
   assert( packet != NULL );
   assert( packet->user_data != NULL );
 
