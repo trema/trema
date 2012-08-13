@@ -28,6 +28,7 @@ shared_examples_for "echo reply message" do
       vswitch( "echo" ) { datapath_id 0xabc }
     }.run( EchoReplyController ) {
       controller( "EchoReplyController" ).send_message( 0xabc, subject )
+      sleep 2 # FIXME: wait to send_message
       IO.read( File.join( Trema.log, "openflowd.echo.log" ) ).should include( "OFPT_ECHO_REPLY" )
     }
   end
