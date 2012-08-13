@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -135,6 +133,56 @@ list_length_of( const list_element *head ) {
   unsigned int length = 1;
   for ( list_element *e = head->next; e; e = e->next, length++ );
   return length;
+}
+
+
+/**
+ * Calls a function for each element of a list.
+ *
+ * @param head the head of the list.
+ * @param function the function to call with each element's data.
+ * @param user_data user-data to pass to the function.
+ */
+void
+iterate_list( list_element *head, void function( void *data, void *user_data ), void *user_data ) {
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
+  if ( function != NULL ) {
+    for ( list_element *e = head; e != NULL; e = e->next ) {
+      function( e->data, user_data );
+    }
+  }
+}
+
+
+/**
+ * Finds an element in a list, using a supplied function to find the
+ * desired element. It iterates over the list, calling the given
+ * function which should return true when the desired element is found.
+ *
+ * @param head the head of the list.
+ * @param function the function to call for each element. It should return true when the desired element is found.
+ * @param user_data user-data passed to the function.
+ * @return the found list element, or NULL if it is not found.
+ */
+void *
+find_list_custom( list_element *head, bool function( void *data, void *user_data ), void *user_data ) {
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
+  if ( function == NULL ) {
+    die( "function must not be NULL" );
+  }
+
+  void *data_found = NULL;
+  for ( list_element *e = head; e != NULL; e = e->next ) {
+    if ( function( e->data, user_data ) ) {
+      data_found = e->data;
+      break;
+    }
+  }
+  return data_found;
 }
 
 
