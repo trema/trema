@@ -73,9 +73,11 @@ static char short_options[] = "s:";
 
 struct switch_info switch_info;
 
-static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600;
-static const time_t ECHO_REQUEST_INTERVAL = 60;
-static const time_t ECHO_REPLY_TIMEOUT = 2;
+static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600; // sec.
+static const time_t ECHO_REQUEST_INTERVAL = 60; // sec.
+static const time_t ECHO_REPLY_TIMEOUT = 2; // ses.
+static const time_t WARNING_ECHO_RTT = 500; // msec. The value must is less than 1000.
+
 
 static bool age_cookie_table_enabled = false;
 
@@ -346,7 +348,10 @@ switch_event_recv_echoreply( struct switch_info *sw_info, buffer *buf ) {
 
   SUB_TIMESPEC( &now, &tim, &tim );
 
-  info( "echo round-trip time %u.%09u.", ( uint32_t ) tim.tv_sec, ( uint32_t ) tim.tv_nsec );
+  if ( tim.tv_sec > 0 || tim.tv_nsec > ( ( long ) WARNING_ECHO_RTT * 1000000 ) ) {
+    warn( "echo round-trip time is greater then %d ms ( round-trip time = %" PRId64 ".%09d ).",
+          WARNING_ECHO_RTT, ( int64_t ) tim.tv_sec, ( int32_t ) tim.tv_nsec );
+  }
 
   return 0;
 }
