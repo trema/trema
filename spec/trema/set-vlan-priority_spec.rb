@@ -50,6 +50,7 @@ describe SetVlanPriority, ".new( VALID OPTION )" do
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetVlanPriority.new( 7 ) )
+	sleep 2 # FIXME: wait to send_flow_mod_add
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_pcp:7/ )
       }
