@@ -38,10 +38,13 @@ typedef struct {
   const int value;
 } priority;
 
+typedef priority facility;
+
 
 static bool initialized = false;
 static FILE *fd = NULL;
 static int level = -1;
+static int facility_value = LOG_USER;
 static char ident_string[ PATH_MAX ];
 static char log_directory[ PATH_MAX ];
 static logging_type output = LOGGING_TYPE_FILE;
@@ -83,6 +86,30 @@ static priority priorities[][ 3 ] = {
     { .name = "dbg", .value = LOG_DEBUG },
     { .name = NULL },
   },
+};
+
+static facility facilities[] = {
+  { .name = "kern", .value = LOG_KERN },
+  { .name = "user", .value = LOG_USER },
+  { .name = "mail", .value = LOG_MAIL },
+  { .name = "daemon", .value = LOG_DAEMON },
+  { .name = "auth", .value = LOG_AUTH },
+  { .name = "syslog", .value = LOG_SYSLOG },
+  { .name = "lpr", .value = LOG_LPR },
+  { .name = "news", .value = LOG_NEWS },
+  { .name = "uucp", .value = LOG_UUCP },
+  { .name = "cron", .value = LOG_CRON },
+  { .name = "authpriv", .value = LOG_AUTHPRIV },
+  { .name = "ftp", .value = LOG_FTP },
+  { .name = "local0", .value = LOG_LOCAL0 },
+  { .name = "local1", .value = LOG_LOCAL1 },
+  { .name = "local2", .value = LOG_LOCAL2 },
+  { .name = "local3", .value = LOG_LOCAL3 },
+  { .name = "local4", .value = LOG_LOCAL4 },
+  { .name = "local5", .value = LOG_LOCAL5 },
+  { .name = "local6", .value = LOG_LOCAL6 },
+  { .name = "local7", .value = LOG_LOCAL7 },
+  { .name = NULL },
 };
 
 
@@ -194,11 +221,63 @@ open_log_file( bool append ) {
 }
 
 
+static char *
+lower( const char *string ) {
+  char *new_string = xstrdup( string );
+  for ( int i = 0; new_string[ i ] != '\0'; ++i ) {
+    new_string[ i ] = ( char ) tolower( new_string[ i ] );
+  }
+  return new_string;
+}
+
+
+static int
+facility_value_from( const char *name ) {
+  assert( name != NULL );
+
+  int value = -1;
+  char *name_lower = lower( name );
+
+  for ( int i = 0; facilities[ i ].name != NULL; i++ ) {
+      if ( strncmp( facilities[ i ].name, name, 9 ) == 0 ) {
+        value = facilities[ i ].value;
+        break;
+      }
+  }
+
+  xfree( name_lower );
+  return value;
+}
+
+
+static bool
+set_facility_value( const char *name ) {
+  assert( name != NULL );
+
+  int new_facility_value = facility_value_from( name );
+  if ( new_facility_value < 0 ) {
+    return false;
+  }
+
+  pthread_mutex_lock( &mutex );
+  facility_value = new_facility_value;
+  pthread_mutex_unlock( &mutex );
+
+  return true;
+}
+
+
 static void
 open_log_syslog() {
   assert( strlen( get_ident_string() ) > 0 );
 
-  trema_openlog( get_ident_string(), LOG_NDELAY, LOG_USER );
+  char *facility_string = getenv( "LOGGING_FACILITY" );
+  if ( facility_string != NULL ) {
+    set_facility_value( facility_string );
+  }
+  assert( ( facility_value & LOG_FACMASK ) != 0 );
+
+  trema_openlog( get_ident_string(), LOG_NDELAY, facility_value );
 }
 
 
@@ -325,16 +404,6 @@ finalize_log() {
   pthread_mutex_unlock( &mutex );
 
   return true;
-}
-
-
-static char *
-lower( const char *string ) {
-  char *new_string = xstrdup( string );
-  for ( int i = 0; new_string[ i ] != '\0'; ++i ) {
-    new_string[ i ] = ( char ) tolower( new_string[ i ] );
-  }
-  return new_string;
 }
 
 
