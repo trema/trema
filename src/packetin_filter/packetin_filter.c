@@ -112,24 +112,26 @@ const char *mock_get_executable_name( void );
 void
 usage() {
   printf(
-	 "OpenFlow Packet in Filter.\n"
-	 "Usage: %s [OPTION]... [PACKETIN-FILTER-RULE]...\n"
-	 "\n"
-	 "  -n, --name=SERVICE_NAME     service name\n"
-	 "  -d, --daemonize             run in the background\n"
-	 "  -l, --logging_level=LEVEL   set logging level\n"
-	 "  -h, --help                  display this help and exit\n"
-	 "\n"
-	 "PACKETIN-FILTER-RULE:\n"
-	 "  match-type::destination-service-name\n"
-	 "\n"
-	 "match-type:\n"
-	 "  lldp                        LLDP ethernet frame type and priority is 0x8000\n"
-	 "  packet_in                   any packet and priority is zero\n"
-	 "\n"
-	 "destination-service-name      destination service name\n"
-	 , get_executable_name()
-	 );
+    "OpenFlow Packet in Filter.\n"
+    "Usage: %s [OPTION]... [PACKETIN-FILTER-RULE]...\n"
+    "\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
+    "\n"
+    "PACKETIN-FILTER-RULE:\n"
+    "  match-type::destination-service-name\n"
+    "\n"
+    "match-type:\n"
+    "  lldp                            LLDP ethernet frame type and priority is 0x8000\n"
+    "  packet_in                       any packet and priority is zero\n"
+    "\n"
+    "destination-service-name          destination service name\n"
+    , get_executable_name()
+  );
 }
 
 

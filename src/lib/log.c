@@ -44,7 +44,7 @@ typedef priority facility;
 static bool initialized = false;
 static FILE *fd = NULL;
 static int level = -1;
-static int facility_value = LOG_USER;
+static int facility_value = -1;
 static char ident_string[ PATH_MAX ];
 static char log_directory[ PATH_MAX ];
 static logging_type output = LOGGING_TYPE_FILE;
@@ -111,6 +111,12 @@ static facility facilities[] = {
   { .name = "local7", .value = LOG_LOCAL7 },
   { .name = NULL },
 };
+
+
+static bool
+started() {
+  return initialized;
+}
 
 
 static const char *
@@ -231,6 +237,14 @@ lower( const char *string ) {
 }
 
 
+static void
+open_log_syslog() {
+  assert( strlen( get_ident_string() ) > 0 );
+  assert( ( facility_value & ~LOG_FACMASK ) == 0 );
+  trema_openlog( get_ident_string(), LOG_NDELAY, facility_value );
+}
+
+
 static int
 facility_value_from( const char *name ) {
   assert( name != NULL );
@@ -239,10 +253,10 @@ facility_value_from( const char *name ) {
   char *name_lower = lower( name );
 
   for ( int i = 0; facilities[ i ].name != NULL; i++ ) {
-      if ( strncmp( facilities[ i ].name, name, 9 ) == 0 ) {
-        value = facilities[ i ].value;
-        break;
-      }
+    if ( strncmp( facilities[ i ].name, name_lower, 9 ) == 0 ) {
+      value = facilities[ i ].value;
+      break;
+    }
   }
 
   xfree( name_lower );
@@ -250,34 +264,31 @@ facility_value_from( const char *name ) {
 }
 
 
-static bool
-set_facility_value( const char *name ) {
+/**
+ * Sets syslog facility.
+ *
+ * @param name name of the syslog facility to be set.
+ * @return true on success; false otherwise.
+ */
+bool
+set_syslog_facility( const char *name ) {
   assert( name != NULL );
 
   int new_facility_value = facility_value_from( name );
-  if ( new_facility_value < 0 ) {
-    return false;
+  if ( new_facility_value == -1 ) {
+    fprintf( stderr, "Invalid syslog facility: %s\n", name );
+    trema_abort();
   }
 
   pthread_mutex_lock( &mutex );
   facility_value = new_facility_value;
+  if ( ( output & LOGGING_TYPE_SYSLOG ) != 0 && started() ) {
+    trema_closelog();
+    open_log_syslog();
+  }
   pthread_mutex_unlock( &mutex );
 
   return true;
-}
-
-
-static void
-open_log_syslog() {
-  assert( strlen( get_ident_string() ) > 0 );
-
-  char *facility_string = getenv( "LOGGING_FACILITY" );
-  if ( facility_string != NULL ) {
-    set_facility_value( facility_string );
-  }
-  assert( ( facility_value & LOG_FACMASK ) != 0 );
-
-  trema_openlog( get_ident_string(), LOG_NDELAY, facility_value );
 }
 
 
@@ -305,6 +316,16 @@ init_log( const char *ident, const char *directory, logging_type type ) {
   char *level_string = getenv( "LOGGING_LEVEL" );
   if ( level_string != NULL ) {
     set_logging_level( level_string );
+  }
+
+  // set_syslog_facility() may be called before init_log().
+  // facility_value = -1 indicates that facility value is not set yet.
+  if ( ( facility_value & ~LOG_FACMASK ) != 0 ) {
+    facility_value = LOG_USER;
+  }
+  char *facility_string = getenv( "LOGGING_FACILITY" );
+  if ( facility_string != NULL ) {
+    set_syslog_facility( facility_string );
   }
 
   set_ident_string( ident );
@@ -352,6 +373,8 @@ void
 rename_log( const char *new_ident ) {
   assert( new_ident != NULL );
 
+  pthread_mutex_lock( &mutex );
+
   if ( output & LOGGING_TYPE_FILE ) {
     char old_path[ PATH_MAX ];
     snprintf( old_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
@@ -372,6 +395,8 @@ rename_log( const char *new_ident ) {
     set_ident_string( new_ident );
     open_log_syslog();
   }
+
+  pthread_mutex_unlock( &mutex );
 }
 
 
@@ -385,6 +410,7 @@ finalize_log() {
   pthread_mutex_lock( &mutex );
 
   level = -1;
+  facility_value = -1;
 
   if ( output & LOGGING_TYPE_FILE ) {
     if ( fd != NULL ) {
@@ -424,12 +450,6 @@ priority_value_from( const char *name ) {
   }
   xfree( name_lower );
   return level_value;
-}
-
-
-static bool
-started() {
-  return initialized;
 }
 
 

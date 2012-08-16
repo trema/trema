@@ -66,10 +66,12 @@ Feature: Dump openflow events with dumper
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
 
-        -n, --name=SERVICE_NAME     service name
-        -d, --daemonize             run in the background
-        -l, --logging_level=LEVEL   set logging level
-        -h, --help                  display this help and exit
+        -n, --name=SERVICE_NAME         service name
+        -d, --daemonize                 run in the background
+        -l, --logging_level=LEVEL       set logging level
+        -g, --syslog                    output log messages to syslog
+        -f, --logging_facility=FACILITY set syslog facility
+        -h, --help                      display this help and exit
       """
 
 
@@ -80,8 +82,10 @@ Feature: Dump openflow events with dumper
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
 
-        -n, --name=SERVICE_NAME     service name
-        -d, --daemonize             run in the background
-        -l, --logging_level=LEVEL   set logging level
-        -h, --help                  display this help and exit
+        -n, --name=SERVICE_NAME         service name
+        -d, --daemonize                 run in the background
+        -l, --logging_level=LEVEL       set logging level
+        -g, --syslog                    output log messages to syslog
+        -f, --logging_facility=FACILITY set syslog facility
+        -h, --help                      display this help and exit
       """

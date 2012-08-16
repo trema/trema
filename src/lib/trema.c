@@ -284,10 +284,11 @@ static struct option long_options[] = {
   { "daemonize", 0, NULL, 'd' },
   { "logging_level", 1, NULL, 'l' },
   { "syslog", 0, NULL, 'g' },
+  { "logging_facility", 1, NULL, 'f' },
   { "help", 0, NULL, 'h' },
   { NULL, 0, NULL, 0 },
 };
-static char short_options[] = "n:dl:gh";
+static char short_options[] = "n:dl:gf:h";
 
 
 /**
@@ -301,11 +302,12 @@ usage() {
   printf(
     "Usage: %s [OPTION]...\n"
     "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -g, --syslog                output log messages to syslog\n"
-    "  -h, --help                  display this help and exit\n",
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n",
     executable_name
   );
 }
@@ -442,6 +444,9 @@ parse_argv( int *argc, char ***argv ) {
         break;
       case 'g':
         log_output_type = LOGGING_TYPE_SYSLOG;
+        break;
+      case 'f':
+        set_syslog_facility( optarg );
         break;
       case 'h':
         usage();

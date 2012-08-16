@@ -52,6 +52,8 @@ void rename_log( const char *new_ident );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );
+bool set_syslog_facility( const char *facility );
+
 extern int ( *get_logging_level )( void );
 
 extern void ( *critical )( const char *format, ... );
