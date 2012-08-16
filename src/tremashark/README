@@ -26,9 +26,10 @@ Pre-requirements
 ----------------
 
 You need to download the source code of wireshark before you start to build
-tremashark. We have tested with wireshark 1.4.4. Note that the package
-"wireshark-dev" included in Ubuntu or Debian will not work for building the
-wireshark plugin. You can get the source code from the following site:
+tremashark. We have tested with wireshark 1.6.10 and 1.8.2. Note that the
+package "wireshark-dev" included in Ubuntu or Debian will not work for
+building the wireshark plugin. You can get the source code from the following
+site:
 
   http://www.wireshark.org/download.html
 

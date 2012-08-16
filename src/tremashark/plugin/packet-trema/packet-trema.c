@@ -47,7 +47,6 @@
 
 #define UDP_PORT_SYSLOG 514
 
-
 // Macro for debug use
 //#define PRINTF( ... ) printf( __VA_ARGS__ )
 #define PRINTF( ... )
@@ -180,6 +179,9 @@ static int hf_trema_fragment_overlap_conflict = -1;
 static int hf_trema_fragment_multiple_tails = -1;
 static int hf_trema_fragment_too_long_fragment = -1;
 static int hf_trema_fragment_error = -1;
+#ifndef WIRESHARK_VERSION_OLDER_THAN_160
+static int hf_trema_fragment_count = -1;
+#endif
 
 // Reassembled in field
 static int hf_trema_reassembled_in = -1;
@@ -250,6 +252,9 @@ static const fragment_items trema_fragment_items = {
   &hf_trema_fragment_multiple_tails,
   &hf_trema_fragment_too_long_fragment,
   &hf_trema_fragment_error,
+#ifndef WIRESHARK_VERSION_OLDER_THAN_160
+  &hf_trema_fragment_count,
+#endif
   // Reassembled in field
   &hf_trema_reassembled_in,
   // Reassembled length field
@@ -470,11 +475,11 @@ add_fragmented_stream_info( tvbuff_t *tvb, gint offset, stream_id *stream_name )
   guint32 received_message_length = tvb_length_remaining( tvb, offset );
   fragment_info = g_malloc( sizeof( fragmented_stream_info ) );
   fragment_info->stream_name.app_name = g_malloc( stream_name->app_name_length );
-  memset( fragment_info->stream_name.app_name, ( int )NULL, stream_name->app_name_length );
+  memset( fragment_info->stream_name.app_name, 0, stream_name->app_name_length );
   strncpy( fragment_info->stream_name.app_name, stream_name->app_name, stream_name->app_name_length - 1 );
   fragment_info->stream_name.app_name_length = stream_name->app_name_length;
   fragment_info->stream_name.service_name = g_malloc( stream_name->service_name_length );
-  memset( fragment_info->stream_name.service_name, ( int )NULL, stream_name->service_name_length );
+  memset( fragment_info->stream_name.service_name, 0, stream_name->service_name_length );
   strncpy( fragment_info->stream_name.service_name, stream_name->service_name, stream_name->service_name_length - 1 );
   fragment_info->stream_name.service_name_length = stream_name->service_name_length;
   if ( received_message_length < sizeof( message_header ) ) {
@@ -825,7 +830,7 @@ dissect_message_pcap_dump_header( tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       case MESSENGER_DUMP_SEND_OVERFLOW:
       case MESSENGER_DUMP_SEND_CLOSED:
       {
-        if ( g_strcasecmp( src, dst ) == 0 ) {
+        if ( g_ascii_strcasecmp( src, dst ) == 0 ) {
           col_add_fstr( pinfo->cinfo, COL_INFO, "%s (%s)",
                         src, names_dump_type[ *dump_type ].strptr );
         }
@@ -1336,8 +1341,11 @@ dissect_syslog( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
 
     col_set_fence( pinfo->cinfo, COL_PROTOCOL );
     col_set_fence( pinfo->cinfo, COL_INFO );
-
+#ifndef WIRESHARK_VERSION_OLDER_THAN_160
+    dissector_try_uint( udp_dissector_table, UDP_PORT_SYSLOG, tvb, pinfo, trema_tree );
+#else
     dissector_try_port( udp_dissector_table, UDP_PORT_SYSLOG, tvb, pinfo, trema_tree );
+#endif
   }
   else {
     gint length = tvb_length_remaining( tvb, 0 );
@@ -1610,6 +1618,11 @@ proto_register_trema() {
     { &hf_trema_fragment_error,
       { "Trema defragmentation error", "trema.fragment.error",
         FT_FRAMENUM, BASE_NONE, NO_STRINGS, NO_MASK, NULL, HFILL }},
+#ifndef WIRESHARK_VERSION_OLDER_THAN_160
+    { &hf_trema_fragment_count,
+      { "Trema defragmentation count", "trema.fragment.count",
+        FT_UINT32, BASE_DEC, NO_STRINGS, NO_MASK, NULL, HFILL }},
+#endif
     { &hf_trema_reassembled_in,
       { "Reassembled in", "trema.reassembled.in",
         FT_FRAMENUM, BASE_NONE, NO_STRINGS, NO_MASK, NULL, HFILL }},
