@@ -442,7 +442,7 @@ priority_value_from( const char *name ) {
 
   for ( int i = 0; i <= ( LOG_DEBUG - LOG_CRIT ); i++ ) {
     for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
-      if ( strncmp( p->name, name_lower, 20 ) == 0 ) {
+      if ( strncmp( p->name, name_lower, LOGGING_LEVEL_STR_LENGTH ) == 0 ) {
         level_value = p->value;
         break;
       }
@@ -450,6 +450,25 @@ priority_value_from( const char *name ) {
   }
   xfree( name_lower );
   return level_value;
+}
+
+
+/**
+ * Check if a provided logging level is valid or not.
+ *
+ * @param name name of the logging level to be checked.
+ * @return true if valid; false otherwise.
+ */
+bool
+valid_logging_level( const char *name ) {
+  assert( name != NULL );
+
+  int level_value = priority_value_from( name );
+  if ( level_value < 0 ) {
+    return false;
+  }
+
+  return true;
 }
 
 

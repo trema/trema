@@ -285,6 +285,18 @@ test_LOGGING_LEVEL_overrides_logging_level() {
 }
 
 
+void
+test_valid_logging_level_returns_true_with_valid_logging_level() {
+  assert_true( valid_logging_level( "information" ) );
+}
+
+
+void
+test_valid_logging_level_returns_false_with_invalid_logging_level() {
+  assert_false( valid_logging_level( "INVALID_LOGGING_LEVEL" ) );
+}
+
+
 /********************************************************************************
  * Syslog facility tests.
  ********************************************************************************/
@@ -581,6 +593,8 @@ main() {
                               setup, teardown ),
     unit_test_setup_teardown( test_LOGGING_LEVEL_overrides_logging_level,
                               setup, teardown ),
+    unit_test( test_valid_logging_level_returns_true_with_valid_logging_level ),
+    unit_test( test_valid_logging_level_returns_false_with_invalid_logging_level ),
 
     unit_test_setup_teardown( test_default_faciliity_is_USER,
                               setup, teardown ),
