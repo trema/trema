@@ -69,7 +69,7 @@ mock_add_message_requested_callback( const char *service_name,
 
   check_expected( service_name );
 
-  return mock();
+  return ( bool ) mock();
 }
 
 
@@ -88,7 +88,7 @@ static const char *
 mock_get_management_service_name( const char *service_name ) {
   check_expected( service_name );
 
-  return ( const char * ) mock();
+  return ( const char * ) ( intptr_t ) mock();
 }
 
 
