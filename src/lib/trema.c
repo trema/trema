@@ -35,6 +35,7 @@
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
+#include "management_interface.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "packetin_filter_interface.h"
@@ -257,6 +258,18 @@ void mock_dump_stats();
 #define finalize_packetin_filter_interface mock_finalize_packetin_filter_interface
 bool mock_finalize_packetin_filter_interface();
 
+#ifdef init_management_interface
+#undef init_management_interface
+#endif
+#define init_management_interface mock_init_management_interface
+bool mock_init_management_interface();
+
+#ifdef finalize_management_interface
+#undef finalize_management_interface
+#endif
+#define finalize_management_interface mock_finalize_management_interface
+bool mock_finalize_management_interface();
+
 #define static
 
 #endif // UNIT_TESTING
@@ -369,6 +382,7 @@ finalize_trema() {
   debug( "Terminating %s...", get_trema_name() );
 
   maybe_finalize_openflow_application_interface();
+  finalize_management_interface();
   finalize_packetin_filter_interface();
   finalize_messenger();
   finalize_stat();
@@ -612,6 +626,7 @@ init_trema( int *argc, char ***argv ) {
   init_messenger( get_trema_sock() );
   init_stat();
   init_timer();
+  init_management_interface();
 
   initialized = true;
 
@@ -737,6 +752,15 @@ terminate_trema_process( pid_t pid ) {
     return false;
   }
   return true;
+}
+
+
+void
+_free_trema_name() {
+  if ( trema_name != NULL ) {
+    xfree( trema_name );
+    trema_name = NULL;
+  }
 }
 
 

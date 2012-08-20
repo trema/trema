@@ -39,6 +39,7 @@ void unset_trema_tmp( void );
 
 const char *_get_trema_home( void );
 const char *_get_trema_tmp( void );
+void _free_trema_name( void );
 
 const char *_get_db_file( void );
 const sqlite3 *_get_db_handle( void );
@@ -47,6 +48,8 @@ bool _get_backend_initialized( void );
 
 size_t _get_max_key_length( void );
 size_t _get_max_value_length( void );
+
+bool *_get_management_interface_initialized( void );
 
 
 #endif // TREMA_PRIVATE_H

@@ -656,7 +656,7 @@ main( int argc, char *argv[] ) {
   add_message_received_callback( get_trema_name(), service_recv );
 
   snprintf( management_service_name , MESSENGER_SERVICE_NAME_LENGTH,
-            "%s.m", get_trema_name() );
+            "%s.ctl", get_trema_name() );
   management_service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
   add_message_received_callback( management_service_name, management_recv );
 
