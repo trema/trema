@@ -506,7 +506,7 @@ handle_echo_request( buffer *data ) {
          body,
          event_handlers.echo_request_user_data );
 
-  event_handlers.echo_request_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_request_callback( transaction_id, body, event_handlers.echo_request_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -540,7 +540,7 @@ handle_echo_reply( buffer *data ) {
          body,
          event_handlers.echo_reply_user_data );
 
-  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.echo_reply_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -820,7 +820,7 @@ handle_port_mod( buffer *data ) {
          event_handlers.port_mod_user_data );
 
   event_handlers.port_mod_callback( transaction_id, port_no, hw_addr, config, mask, advertise,
-                                    event_handlers.barrier_request_user_data );
+                                    event_handlers.port_mod_user_data );
 
 }
 
