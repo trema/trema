@@ -1,6 +1,6 @@
 /*
  * Management command to change logging level in operation.
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2012 NEC Corporation
@@ -54,9 +54,9 @@ parse_arguments( int argc, char **argv ) {
 
   if ( argv[ 1 ] == NULL || ( argv[ 1 ] != NULL && strlen( argv[ 1 ] ) == 0 ) ) {
     print_usage_and_exit();
-  } 
+  }
 
-  if ( argv[ 2 ] == NULL || 
+  if ( argv[ 2 ] == NULL ||
        ( argv[ 2 ] != NULL && ( strlen( argv[ 2 ] ) == 0 || strlen( argv[ 2 ] ) >= LOGGING_LEVEL_STR_LENGTH ) ) ) {
     print_usage_and_exit();
   }

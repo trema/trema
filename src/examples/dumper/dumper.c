@@ -1,6 +1,6 @@
 /*
  * Sample OpenFlow event dumper.
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -327,7 +327,7 @@ handle_queue_get_config_reply( uint64_t datapath_id, uint32_t transaction_id,
   }
 
   xfree( queues_head );
-}                 
+}
 
 
 int

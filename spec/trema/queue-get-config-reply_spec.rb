@@ -23,7 +23,7 @@ require "trema"
 
 
 describe QueueGetConfigReply, ".new( VALID OPTIONS )" do
-  subject do 
+  subject do
     for i in 1..2 do
       pq = PacketQueue.new( :queue_id => i, :len => i * 64 )
       mr = MinRateQueue.new( i, i * 64, 1024 * i, pq)

@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-  
+
 require "trema/stats-helper"
 
 
@@ -34,14 +34,14 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     AggregateStatsReply.new(
     #       :packet_count => 10,
     #       :byte_count => 640,
     #       :flow_count => 2
     #     )
     #
-    #   @param [Hash] options 
+    #   @param [Hash] options
     #     the options to create this instance with.
     #
     #   @option options [Number] :packet_count

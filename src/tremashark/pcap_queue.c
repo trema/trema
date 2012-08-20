@@ -90,7 +90,7 @@ create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_
 bool
 delete_pcap_packet( buffer *packet ) {
   assert( packet != NULL );
-  
+
   free_buffer( packet );
 
   return true;

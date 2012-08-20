@@ -60,7 +60,7 @@ module Trema
       if ( not body.nil? )  and ( not body.is_a?( Array ) )
         raise TypeError, "Body must be an Array"
       end
-        
+
       @vendor_id = vendor_id
       @body = body
     end

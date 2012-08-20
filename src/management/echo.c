@@ -1,6 +1,6 @@
 /*
  * Management command to check if a specified application/service is alive or not.
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2012 NEC Corporation
@@ -66,7 +66,7 @@ parse_arguments( int argc, char **argv ) {
 
   if ( argv[ 1 ] == NULL || ( argv[ 1 ] != NULL && strlen( argv[ 1 ] ) == 0 ) ) {
     print_usage_and_exit();
-  } 
+  }
 
   memset( service_name, '\0', MESSENGER_SERVICE_NAME_LENGTH );
   snprintf( service_name, MESSENGER_SERVICE_NAME_LENGTH, "%s", get_management_service_name( argv[ 1 ] ) );

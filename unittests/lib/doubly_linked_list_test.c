@@ -1,6 +1,6 @@
 /*
  * Unit tests for doubly linked list library.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation

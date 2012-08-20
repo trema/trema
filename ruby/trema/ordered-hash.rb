@@ -40,7 +40,7 @@ module Trema
         @keys << key
       end
     end
-    
+
 
     def values
       @keys.map do | each |

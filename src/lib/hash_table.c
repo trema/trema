@@ -351,7 +351,7 @@ iterate_hash_next( hash_iterator *iterator ) {
     }
 
     dlist_element *e = iterator->element;
-    if ( e == NULL ) { 
+    if ( e == NULL ) {
       if ( iterator->next_bucket_index != NULL ) {
         iterator->bucket_index = iterator->next_bucket_index;
         iterator->next_bucket_index = iterator->next_bucket_index->next;

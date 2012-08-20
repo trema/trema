@@ -195,7 +195,7 @@ wildcards_to_string( uint32_t wildcards, char *str, size_t size ) {
   }
   if ( wildcards & OFPFW_DL_VLAN ) {
     ret &= append_string( str, size, "dl_vlan|" );
-  } 
+  }
   if ( wildcards & OFPFW_DL_VLAN_PCP ) {
     ret &= append_string( str, size, "dl_vlan_pcp|" );
   }
@@ -567,7 +567,7 @@ actions_to_string( const struct ofp_action_header *actions, uint16_t actions_len
 
     if ( ret == false ) {
       break;
-    } 
+    }
     offset += header->len;
   }
 

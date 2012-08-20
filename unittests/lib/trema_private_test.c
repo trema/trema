@@ -1,6 +1,6 @@
 /*
  * Unit tests for trema_private.[ch]
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -303,7 +303,7 @@ main() {
     unit_test_setup_teardown( test_set_trema_tmp_when_TREMA_TMP_is_NOT_set_and_TREMA_HOME_is_NOT_ROOT, reset, reset ),
     unit_test_setup_teardown( test_set_trema_tmp_falls_back_to_default_if_TREMA_TMP_is_invalid, reset, reset ),
     unit_test_setup_teardown( test_set_trema_tmp_when_TREMA_HOME_and_TREMA_TMP_are_set, reset, reset ),
- 
+
     // get_trema_tmp() tests.
     unit_test_setup_teardown( test_get_trema_tmp, reset, reset ),
     unit_test_setup_teardown( test_get_trema_tmp_if_not_initialized, reset, reset ),

@@ -5047,8 +5047,8 @@ setup_ether_packet( size_t length, uint16_t type ) {
   if ( type == ETH_ETHTYPE_TPID ) {
     packet_info0->l3_header = ( void * ) ( vtag + 1 );
     packet_info0->format |= ETH_8021Q;
-  } 
-  else { 
+  }
+  else {
     packet_info0->l3_header = ( void * ) ( ether + 1 );
   }
 
@@ -5082,7 +5082,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
 
   switch ( type ) {
   case IPPROTO_ICMP:
-    ipv4->protocol = ( uint8_t ) IPPROTO_ICMP;    
+    ipv4->protocol = ( uint8_t ) IPPROTO_ICMP;
     icmp_header_t *icmpv4 = packet_info0->l4_header;
     icmpv4->type = ICMP_TYPE_UNREACH;
     icmpv4->code = ICMP_CODE_PORTUNREACH;
@@ -5094,7 +5094,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
     udp->src_port = ntohs( src_port );
     udp->dst_port = ntohs( dst_port );
     break;
- 
+
   case IPPROTO_TCP:
     ipv4->protocol = ( uint8_t ) IPPROTO_TCP;
     tcp_header_t *tcp = packet_info0->l4_header;
@@ -5142,7 +5142,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
   default:
     break;
   }
-  
+
   return buf;
 }
 
@@ -5151,7 +5151,7 @@ static buffer *
 setup_arp_packet( uint16_t type ) {
   buffer *buf = setup_ether_packet( sizeof( ether_header_t ) + sizeof( arp_header_t ), type );
   packet_info *packet_info0 = buf->user_data;
-  
+
   /* Fill arp values into the test packet. */
   if ( type == ETH_ETHTYPE_TPID ) {
     ether_header_t *ether = packet_info0->l2_header;
@@ -5217,7 +5217,7 @@ setup_snap_packet( uint16_t type ) {
     length += sizeof( vlantag_header_t );
     vlantag_header_t *vtag = ( void * ) ( ether + 1 );
     vtag->type = htons( ( uint16_t ) length );
-  }  
+  }
   else {
     ether->type = htons( ( uint16_t ) length );
   }
@@ -6015,7 +6015,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_tag_and_wildcards_is
   packet_info0->tcp_src_port = src_port;
   packet_info0->tcp_dst_port = dst_port;
   packet_info0->format |= TP_TCP;
-  
+
   uint16_t expected_in_port = 1;
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
@@ -6424,7 +6424,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_tag_and_wildcards_i
   /* Add a icmp data into the test packet. */
   ipv4_header_t *ipv4 = packet_info0->l3_header;
   ipv4->protocol = IPPROTO_ICMP;
-  icmp_header_t *icmpv4 = packet_info0->l4_header;    
+  icmp_header_t *icmpv4 = packet_info0->l4_header;
   icmpv4->type = ICMP_TYPE_UNREACH;
   icmpv4->code = ICMP_CODE_PORTUNREACH;
   /* Add the icmp data into the packet_info data for verification. */

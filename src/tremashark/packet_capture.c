@@ -1,6 +1,6 @@
 /*
  * packet_capture: An application that captures packets from a network interface
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation

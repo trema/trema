@@ -1,6 +1,6 @@
 /*
  * Queue implementation for keeping pcap formatted packets.
- * 
+ *
  * Author: Yasunori Nakazawa, Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation

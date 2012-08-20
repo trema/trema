@@ -23,10 +23,10 @@ require "trema/stats-helper"
 
 module Trema
   class DescStatsReply < StatsHelper
-    FIELDS = %w(mfr_desc hw_desc sw_desc serial_num dp_desc ) 
+    FIELDS = %w(mfr_desc hw_desc sw_desc serial_num dp_desc )
     FIELDS.each { |field| attr_reader field.intern }
 
-    
+
     # Descriptive information about a vswitch.
     # A user would not explicitly instantiate a {DescStatsReply} object but
     # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_DESC)+
@@ -34,10 +34,10 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     DescStatsReply.new(
     #       :mfr_desc => "Nicira Networks, Inc.",
-    #       :hw_desc => "Open vSwitch", 
+    #       :hw_desc => "Open vSwitch",
     #       :sw_desc => "1.2.2"
     #       :serial_num => "None"
     #     )
@@ -63,7 +63,7 @@ module Trema
     #   @return [DescStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_DESC) OpenFlow message.
     #
-    def initialize options 
+    def initialize options
       super FIELDS, options
     end
   end

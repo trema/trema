@@ -1,6 +1,6 @@
 /*
  * syslog_relay: An application that relays syslog messages to tremashark
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -180,7 +180,7 @@ init_syslog_relay( int *argc, char **argv[] ) {
     close( syslog_fd );
     syslog_fd = -1;
   }
-  
+
   syslog_fd = socket( PF_INET, SOCK_DGRAM, 0 );
   if ( syslog_fd < 0 ) {
     error( "Failed to create socket ( errno = %s [%d] ).", strerror( errno ), errno );

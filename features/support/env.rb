@@ -54,7 +54,7 @@ end
 
 def new_tmp_log
   system "rm #{ Trema.log }/tmp.*" # cleanup
-  `mktemp --tmpdir=#{ Trema.log }`.chomp  
+  `mktemp --tmpdir=#{ Trema.log }`.chomp
 end
 
 

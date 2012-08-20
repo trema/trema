@@ -273,7 +273,7 @@ check_packet_status( guint32 packet_number ) {
   if ( packet_number == 0 || packet_number > packets_status_size ) {
     return FALSE;
   }
-  
+
   if ( packets_status[ packet_number - 1 ] ) {
     return TRUE;
   }
@@ -288,7 +288,7 @@ check_packet_status( guint32 packet_number ) {
 static void
 update_packet_status( guint32 packet_number, guint32 reassemble_id ) {
   const guint32 PACKET_STATUS_CHUNK_SIZE = 1000;
-  
+
   guint32 current_size = packets_status_size;
   packet_status_info *p = NULL;
 
@@ -322,7 +322,7 @@ update_packet_status( guint32 packet_number, guint32 reassemble_id ) {
 static packet_status_info *
 get_packet_status( guint32 packet_number ) {
   packet_status_info *p = NULL;
-  
+
   if ( check_packet_status( packet_number ) ) {
     p = packets_status[ packet_number - 1 ];
   }
@@ -337,7 +337,7 @@ static void
 clear_packet_status() {
   if ( packets_status != NULL ) {
     guint count;
-    
+
     for ( count = 0; count < packets_status_size; count++ ) {
       if ( packets_status[ count ] ) {
         g_free( packets_status[ count ] );
@@ -494,7 +494,7 @@ add_fragmented_stream_info( tvbuff_t *tvb, gint offset, stream_id *stream_name )
     fragment_info->message_length = tvb_get_ntohl( tvb, offset + offsetof( message_header, message_length ) );
     fragment_info->temporary_length = FALSE;
   }
-  
+
   fragment_info->unreceived_length = fragment_info->message_length - received_message_length;
   fragment_info->reassemble_id = generate_reassemble_id();
   fragment_info->number = 0;
@@ -582,7 +582,7 @@ delete_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
 static gboolean
 remove_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
   GList *element;
-  
+
   assert( fragment_info != NULL );
 
   PRINTF( "  ** remove_fragmented_stream_info  reassemble_id %d\n", fragment_info->reassemble_id );
@@ -595,7 +595,7 @@ remove_fragmented_stream_info( fragmented_stream_info *fragment_info ) {
     return FALSE;
   }
   delete_fragmented_stream_info( element->data );
- 
+
   return TRUE;
 }
 
@@ -650,7 +650,7 @@ reassemble_message( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 
   pinfo->fragmented = TRUE;
   fragment_message = fragment_add_seq_next( tvb, offset, pinfo, packet_status->reassemble_id,
-                                            trema_fragment_table, trema_reassembled_table, 
+                                            trema_fragment_table, trema_reassembled_table,
                                             tvb_length_remaining( tvb, offset ), more_fragment );
 
   new_tvb = process_reassembled_data( tvb, offset, pinfo, "Reassembled Trema",
@@ -691,7 +691,7 @@ get_reassembled_message( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
 
   packet_status = get_packet_status( pinfo->fd->num );
   assert( packet_status != NULL );
-  
+
   more_fragment = FALSE;
   fragment_info = get_fragmented_stream_info( stream_name );
   if ( fragment_info != NULL ) {
@@ -704,7 +704,7 @@ get_reassembled_message( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
   pinfo->fd->flags.visited = 1;
   save_fragmented = pinfo->fragmented;
   pinfo->fragmented = TRUE;
-  
+
   fragment_message = fragment_add_seq_next( tvb, offset, pinfo, packet_status->reassemble_id,
                                             trema_fragment_table, trema_reassembled_table,
                                             tvb_length_remaining( tvb, offset ), more_fragment );
@@ -923,7 +923,7 @@ dissect_openflow_service_header( tvbuff_t *tvb, gint offset, proto_tree *trema_t
     }
   }
 
-  return ( offset - head );  
+  return ( offset - head );
 }
 
 
@@ -974,7 +974,7 @@ dissect_context_handle( tvbuff_t *tvb, gint offset, proto_tree *trema_tree ) {
     }
   }
 
-  return ( offset - head );  
+  return ( offset - head );
 }
 
 
@@ -1088,12 +1088,12 @@ dissect_trema_ipc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
 
   if ( visited ) {
     packet_status_info *packet_status = NULL;
-    
+
     PRINTF( " Known packet\n" );
     // We have seen this packet
     packet_status = get_packet_status( pinfo->fd->num );
     assert( packet_status != NULL );
-    
+
     if ( packet_status->reassemble_id != 0 ) {
       // This is a part of fragment.
       messages_tvb = get_reassembled_message( tvb, offset, pinfo, tree, stream_name );
@@ -1171,7 +1171,7 @@ dissect_trema_ipc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
       }
       else {
         guint32 message_length = tvb_get_ntohl( messages_tvb, offset + offsetof( message_header, message_length ) );
-        
+
         if ( remaining_length < message_length ) {
           // new fragment
           dissect_message_dump( messages_tvb, offset, trema_tree );
@@ -1435,7 +1435,7 @@ dissect_trema( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   stream_id stream_name;
 
   PRINTF( "----- start %u\n", pinfo->fd->num );
-  
+
   if ( tree == NULL ) {   // FIXME: is it okay to return here?
     PRINTF( "----- end %u  (tree is NULL)\n", pinfo->fd->num );
     return;

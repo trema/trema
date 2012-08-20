@@ -31,7 +31,7 @@ get_config_request_alloc( VALUE klass ) {
 
 
 /*
- * Creates a {GetConfigRequest} instance to query configuration parameters 
+ * Creates a {GetConfigRequest} instance to query configuration parameters
  * from the switch.
  *
  * @overload initialize()

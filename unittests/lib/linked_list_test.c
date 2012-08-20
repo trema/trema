@@ -1,6 +1,6 @@
 /*
  * Unit tests for linked list library.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -72,7 +72,7 @@ static char delete_me[] = "delete me!";
 /********************************************************************************
  * Tests.
  ********************************************************************************/
-                 
+
 static void
 test_create_list() {
   assert_true( create_list( &new_list ) );
@@ -192,7 +192,7 @@ test_delete_first_element() {
   append_to_tail( &new_list, delete_me );
   append_to_tail( &new_list, bravo );
   append_to_tail( &new_list, charlie );
-  
+
   assert_true( delete_element( &new_list, delete_me ) );
   assert_string_equal( new_list->data, "bravo" );
   assert_string_equal( new_list->next->data, "charlie" );

@@ -1,6 +1,6 @@
 /*
  * tremashark: A bridge for printing various events on Wireshark
- * 
+ *
  * Author: Yasunobu Chiba, Yasunori Nakazawa
  *
  * Copyright (C) 2008-2012 NEC Corporation

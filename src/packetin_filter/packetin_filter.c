@@ -212,7 +212,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
       free_buffer( buf );
       return;
     }
-  
+
     debug( "Sending a message to %s ( match = %s ).", service_name, match_str );
   }
 
@@ -394,7 +394,7 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
 static void
 delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( data );
-  buffer *reply_buffer = user_data; 
+  buffer *reply_buffer = user_data;
   assert( reply_buffer != NULL );
 
   delete_packetin_filter_reply *reply = reply_buffer->data;

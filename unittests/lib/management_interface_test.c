@@ -1,6 +1,6 @@
 /*
  * Unit tests for management_interface.[ch]
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2012 NEC Corporation

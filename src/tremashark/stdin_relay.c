@@ -1,6 +1,6 @@
 /*
  * stdin_relay: An application that relays text string from stdin to tremashark
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
