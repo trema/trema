@@ -121,6 +121,7 @@ started() {
 
 static const char *
 priority_name_from( int level ) {
+  assert( level >= LOG_CRIT && level <= LOG_DEBUG );
   const char *name = priorities[ level - LOG_CRIT ][ 0 ].name;
   assert( name != NULL );
   return name;
@@ -227,16 +228,6 @@ open_log_file( bool append ) {
 }
 
 
-static char *
-lower( const char *string ) {
-  char *new_string = xstrdup( string );
-  for ( int i = 0; new_string[ i ] != '\0'; ++i ) {
-    new_string[ i ] = ( char ) tolower( new_string[ i ] );
-  }
-  return new_string;
-}
-
-
 static void
 open_log_syslog() {
   assert( strlen( get_ident_string() ) > 0 );
@@ -250,16 +241,14 @@ facility_value_from( const char *name ) {
   assert( name != NULL );
 
   int value = -1;
-  char *name_lower = lower( name );
 
   for ( int i = 0; facilities[ i ].name != NULL; i++ ) {
-    if ( strncmp( facilities[ i ].name, name_lower, 9 ) == 0 ) {
+    if ( strcasecmp( facilities[ i ].name, name ) == 0 ) {
       value = facilities[ i ].value;
       break;
     }
   }
 
-  xfree( name_lower );
   return value;
 }
 
@@ -438,17 +427,16 @@ priority_value_from( const char *name ) {
   assert( name != NULL );
 
   int level_value = -1;
-  char *name_lower = lower( name );
 
+  assert( ( LOG_DEBUG - LOG_CRIT + 1 ) == ( sizeof( priorities )/sizeof( priorities[ 0 ] ) ) );
   for ( int i = 0; i <= ( LOG_DEBUG - LOG_CRIT ); i++ ) {
     for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
-      if ( strncmp( p->name, name_lower, LOGGING_LEVEL_STR_LENGTH ) == 0 ) {
+      if ( strcasecmp( p->name, name ) == 0 ) {
         level_value = p->value;
         break;
       }
     }
   }
-  xfree( name_lower );
   return level_value;
 }
 
