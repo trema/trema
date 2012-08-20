@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 $:.push File.expand_path( "../ruby", __FILE__ )
 require "trema/version"
 
@@ -24,3 +23,10 @@ Gem::Specification.new do | s |
   # s.add_development_dependency "rspec"
   s.add_runtime_dependency "rake"
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
