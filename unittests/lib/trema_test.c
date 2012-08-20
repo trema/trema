@@ -1,6 +1,6 @@
 /*
  * Unit tests for trema.[ch]
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -66,6 +66,7 @@ static bool messenger_started;
 static bool messenger_flushed;
 static bool messenger_dump_started;
 static bool stat_initialized;
+static bool management_interface_initialized;
 
 
 bool
@@ -362,6 +363,27 @@ mock_finalize_packetin_filter_interface() {
 }
 
 
+bool
+mock_init_management_interface() {
+  assert_false( management_interface_initialized );
+
+  management_interface_initialized = true;
+
+  return true;
+}
+
+
+bool
+mock_finalize_management_interface() {
+  assert_true( management_interface_initialized );
+
+  management_interface_initialized = false;
+
+  return true;
+}
+
+
+
 /********************************************************************************
  * Setup and teardown.
  ********************************************************************************/
@@ -390,6 +412,8 @@ reset_trema() {
 
   stat_initialized = false;
 
+  management_interface_initialized = false;
+
   errno = 0;
 }
 
@@ -408,6 +432,7 @@ test_init_trema_initializes_submodules_in_right_order() {
   assert_true( messenger_initialized );
   assert_true( initialized );
   assert_true( stat_initialized );
+  assert_true( management_interface_initialized );
   assert_string_equal( _get_trema_home(), "/" );
   assert_string_equal( _get_trema_tmp(), "/tmp" );
 
@@ -531,6 +556,7 @@ test_finalize_trema_finalizes_submodules_in_right_order() {
   assert_false( messenger_initialized );
   assert_false( initialized );
   assert_false( stat_initialized );
+  assert_false( management_interface_initialized );
   assert_true( _get_trema_home() == NULL );
   assert_true( _get_trema_tmp() == NULL );
 }
@@ -716,11 +742,12 @@ test_parse_help_option() {
     format,
     "Usage: %s [OPTION]...\n"
     "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -g, --syslog                output log messages to syslog\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );
 
@@ -740,11 +767,12 @@ test_parse_h_option() {
     format,
     "Usage: %s [OPTION]...\n"
     "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -g, --syslog                output log messages to syslog\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
   expect_value( mock_exit, status, EXIT_SUCCESS );
 

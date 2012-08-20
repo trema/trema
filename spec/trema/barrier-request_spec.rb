@@ -20,56 +20,66 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe BarrierRequest, ".new( OPTIONAL OPTION MISSING )" do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+shared_examples_for "barrier request message" do
+  class BarrierRequestController < Controller; end
 
-
-describe BarrierRequest, ".new( VALID OPTION )" do
-  subject { BarrierRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
-
-
-  context "when #barrier_request" do
-    it "should #barrier_reply" do
-      class BarrierController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( BarrierController ) {
-        controller( "BarrierController" ).should_receive( :barrier_reply )
-        controller( "BarrierController" ).send_message( 0xabc, BarrierRequest.new )
-        sleep 2 # FIXME: wait to send_message
-      }
-    end
+  it "should be logged to the switch's log", :sudo => true do
+    network {
+      vswitch( "barrier-request" ) { datapath_id 0xabc }
+    }.run( BarrierRequestController ) {
+      controller( "BarrierRequestController" ).send_message( 0xabc, subject )
+      IO.read( File.join( Trema.log, "openflowd.barrier-request.log" ) ).should include( "OFPT_BARRIER_REQUEST" )
+    }
   end
 end
 
 
-describe BarrierRequest, ".new( OPTIONAL OPTION ) - transaction_id" do
-  context "when #barrier_request" do
-    it "should #barrier_reply with transaction_id == value" do
-      class BarrierController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( BarrierController ) {
-        controller( "BarrierController" ).should_receive( :barrier_reply ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.transaction_id.should == 1234
-        end
-        barrier_request = BarrierRequest.new( :transaction_id => 1234 )
-        controller( "BarrierController" ).send_message( 0xabc, barrier_request )
-        sleep 2 # FIXME: wait to send_message
-      }
+module Trema
+  describe BarrierRequest, ".new" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "barrier request message"
+  end
+
+
+  describe BarrierRequest, ".new(nil)" do
+    subject { BarrierRequest.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "barrier request message"
+  end
+
+
+  describe BarrierRequest, ".new(transaction_id)" do
+    subject { BarrierRequest.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "barrier request message"
     end
   end
-end
 
 
-describe BarrierRequest, ".new( INVALID_OPTION )" do
-  it "should raise TypeError" do
-    expect {
-      BarrierRequest.new "INVALID_OPTION"
-    }.to raise_error( TypeError )
+  describe BarrierRequest, ".new(:transaction_id => value)" do
+    subject { BarrierRequest.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "barrier request message"
+    end
+  end
+
+
+  describe BarrierRequest, ".new(:xid => value)" do
+    subject { BarrierRequest.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+    context "when sent to a switch" do
+      let( :xid ) { 123 }
+      it_should_behave_like "barrier request message"
+    end
+  end
+
+
+  describe BarrierRequest, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { BarrierRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 

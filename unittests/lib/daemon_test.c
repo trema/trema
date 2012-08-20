@@ -1,6 +1,6 @@
 /*
  * Unit tests for daemon functions.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -198,7 +198,7 @@ test_daemonize_fail_if_chdir_fail() {
 
   errno = EACCES;
   expect_string( mock_die, message, "Could not cd to /: Permission denied." );
-  
+
   expect_assert_failure( daemonize( "/" ) );
   errno = 0;
 }

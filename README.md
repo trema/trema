@@ -51,7 +51,7 @@ Getting Started
 Ruby API
 --------
 
-The following is an exerpt from the Trema Ruby API.
+The following is an excerpt from the Trema Ruby API.
 The full documents are found here http://rubydoc.info/github/trema/trema/master/frames
 
 ### Event and Message Handlers

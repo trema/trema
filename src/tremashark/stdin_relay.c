@@ -1,6 +1,6 @@
 /*
  * stdin_relay: An application that relays text string from stdin to tremashark
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -155,10 +155,12 @@ usage( void ) {
   printf(
     "Usage: stdin_relay [OPTION]...\n"
     "\n"
-    "  -s DUMP_SERVICE_NAME        dump service name\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -s DUMP_SERVICE_NAME            dump service name\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
 }
 

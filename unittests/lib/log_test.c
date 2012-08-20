@@ -1,6 +1,6 @@
 /*
  * Unit tests for logging functions and macros.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -123,9 +123,16 @@ reset_LOGGING_LEVEL() {
 
 
 static void
+reset_LOGGING_FACILITY() {
+  unsetenv( "LOGGING_FACILITY" );
+}
+
+
+static void
 setup() {
   finalize_log();
   reset_LOGGING_LEVEL();
+  reset_LOGGING_FACILITY();
 
   setup_leak_detector();
 
@@ -177,6 +184,7 @@ static void
 teardown() {
   finalize_log();
   reset_LOGGING_LEVEL();
+  reset_LOGGING_FACILITY();
 
   teardown_leak_detector();
 
@@ -213,6 +221,19 @@ test_init_log_opens_syslog() {
 }
 
 
+void
+test_init_log_reads_LOGGING_FACILITY_environment_variable() {
+  const char *ident = "tetris";
+  setenv( "LOGGING_FACILITY", "LOCAL7", 1 );
+
+  expect_string( mock_openlog, ident, ident );
+  expect_value( mock_openlog, option, LOG_NDELAY );
+  expect_value( mock_openlog, facility, LOG_LOCAL7 );
+  init_log( ident, get_trema_tmp(), LOGGING_TYPE_SYSLOG );
+  assert_true( syslog_initialized );
+}
+
+
 /********************************************************************************
  * Finalization test.
  ********************************************************************************/
@@ -235,14 +256,14 @@ test_default_logging_level_is_INFO() {
 
 
 void
-test_set_logging_level_succeed() {
+test_set_logging_level_succeeds() {
   set_logging_level( "critical" );
   assert_int_equal( LOG_CRIT, get_logging_level() );
 }
 
 
 void
-test_set_logging_level_fail_with_invalid_value() {
+test_set_logging_level_fails_with_invalid_value() {
   expect_assert_failure( set_logging_level( "INVALID_LEVEL" ) );
 }
 
@@ -261,6 +282,63 @@ test_LOGGING_LEVEL_overrides_logging_level() {
   set_logging_level( "critical" );
   init_log( "tetris", get_trema_tmp(), LOGGING_TYPE_FILE );
   assert_int_equal( LOG_DEBUG, get_logging_level() );
+}
+
+
+void
+test_valid_logging_level_returns_true_with_valid_logging_level() {
+  assert_true( valid_logging_level( "information" ) );
+}
+
+
+void
+test_valid_logging_level_returns_false_with_invalid_logging_level() {
+  assert_false( valid_logging_level( "INVALID_LOGGING_LEVEL" ) );
+}
+
+
+/********************************************************************************
+ * Syslog facility tests.
+ ********************************************************************************/
+
+void
+test_default_faciliity_is_USER() {
+  const char *ident = "tetris";
+  expect_string( mock_openlog, ident, ident );
+  expect_value( mock_openlog, option, LOG_NDELAY );
+  expect_value( mock_openlog, facility, LOG_USER );
+  init_log( ident, get_trema_tmp(), LOGGING_TYPE_SYSLOG );
+}
+
+
+void
+test_set_syslog_facility_succeeds() {
+  const char *ident = "tetris";
+  set_syslog_facility( "LOCAL0" );
+
+  expect_string( mock_openlog, ident, ident );
+  expect_value( mock_openlog, option, LOG_NDELAY );
+  expect_value( mock_openlog, facility, LOG_LOCAL0 );
+  init_log( ident, get_trema_tmp(), LOGGING_TYPE_SYSLOG );
+}
+
+
+void
+test_set_syslog_facility_fails_with_invalid_value() {
+  expect_assert_failure( set_syslog_facility( "INVALID_FACILITY" ) );
+}
+
+
+void
+test_LOGGING_FACILITY_overrides_logging_facility() {
+  const char *ident = "tetris";
+  setenv( "LOGGING_FACILITY", "LOCAL0", 1 );
+  set_syslog_facility( "LOCAL7" );
+
+  expect_string( mock_openlog, ident, ident );
+  expect_value( mock_openlog, option, LOG_NDELAY );
+  expect_value( mock_openlog, facility, LOG_LOCAL0 );
+  init_log( ident, get_trema_tmp(), LOGGING_TYPE_SYSLOG );
 }
 
 
@@ -499,19 +577,32 @@ main() {
                               reset_LOGGING_LEVEL, reset_LOGGING_LEVEL ),
     unit_test_setup_teardown( test_init_log_opens_syslog,
                               setup, teardown ),
+    unit_test_setup_teardown( test_init_log_reads_LOGGING_FACILITY_environment_variable,
+                              setup, teardown ),
 
     unit_test_setup_teardown( test_finalize_log_closes_syslog,
                               setup_logger_syslog, teardown ),
 
     unit_test_setup_teardown( test_default_logging_level_is_INFO,
                               setup_logger_file, teardown ),
-    unit_test_setup_teardown( test_set_logging_level_succeed,
+    unit_test_setup_teardown( test_set_logging_level_succeeds,
                               setup_logger_file, teardown ),
-    unit_test_setup_teardown( test_set_logging_level_fail_with_invalid_value,
+    unit_test_setup_teardown( test_set_logging_level_fails_with_invalid_value,
                               setup_logger_file, teardown ),
     unit_test_setup_teardown( test_set_logging_level_is_called_before_init_log,
                               setup, teardown ),
     unit_test_setup_teardown( test_LOGGING_LEVEL_overrides_logging_level,
+                              setup, teardown ),
+    unit_test( test_valid_logging_level_returns_true_with_valid_logging_level ),
+    unit_test( test_valid_logging_level_returns_false_with_invalid_logging_level ),
+
+    unit_test_setup_teardown( test_default_faciliity_is_USER,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_set_syslog_facility_succeeds,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_set_syslog_facility_fails_with_invalid_value,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_LOGGING_FACILITY_overrides_logging_facility,
                               setup, teardown ),
 
     unit_test_setup_teardown( test_critical_logs_if_logging_level_is_CRITICAL,

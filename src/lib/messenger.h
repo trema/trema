@@ -75,7 +75,7 @@ enum {
   MESSENGER_DUMP_SEND_REFUSED,
   MESSENGER_DUMP_SEND_OVERFLOW,
   MESSENGER_DUMP_SEND_CLOSED,
-  MESSENGER_DUMP_LOGGER, 
+  MESSENGER_DUMP_LOGGER,
   MESSENGER_DUMP_PCAP,
   MESSENGER_DUMP_SYSLOG,
   MESSENGER_DUMP_TEXT,
@@ -115,6 +115,7 @@ extern bool ( *add_message_received_callback )( const char *service_name, const 
 extern bool ( *rename_message_received_callback )( const char *old_service_name, const char *new_service_name );
 extern bool ( *delete_message_received_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len ) );
 extern bool ( *add_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
+extern bool ( *rename_message_requested_callback )( const char *old_service_name, const char *new_service_name );
 extern bool ( *delete_message_requested_callback )( const char *service_name, void ( *callback )( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) );
 extern bool ( *add_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
 extern bool ( *delete_message_replied_callback )( const char *service_name, void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );

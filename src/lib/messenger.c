@@ -748,13 +748,10 @@ bool ( *delete_message_replied_callback )( const char *service_name, void ( *cal
 
 
 static bool
-_rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
+rename_message_callback( const char *old_service_name, const char *new_service_name ) {
   assert( old_service_name != NULL );
   assert( new_service_name != NULL );
   assert( receive_queues != NULL );
-
-  debug( "Renaming a message received callback ( old_service_name = %s, new_service_name = %s ).",
-         old_service_name, new_service_name );
 
   receive_queue *old_rq = lookup_hash_entry( receive_queues, old_service_name );
   receive_queue *new_rq = lookup_hash_entry( receive_queues, new_service_name );
@@ -779,7 +776,33 @@ _rename_message_received_callback( const char *old_service_name, const char *new
 
   return true;
 }
+
+static bool
+_rename_message_received_callback( const char *old_service_name, const char *new_service_name ) {
+  assert( old_service_name != NULL );
+  assert( new_service_name != NULL );
+  assert( receive_queues != NULL );
+
+  debug( "Renaming a message received callback ( old_service_name = %s, new_service_name = %s ).",
+         old_service_name, new_service_name );
+
+  return rename_message_callback( old_service_name, new_service_name );
+}
 bool ( *rename_message_received_callback )( const char *old_service_name, const char *new_service_name ) = _rename_message_received_callback;
+
+
+static bool
+_rename_message_requested_callback( const char *old_service_name, const char *new_service_name ) {
+  assert( old_service_name != NULL );
+  assert( new_service_name != NULL );
+  assert( receive_queues != NULL );
+
+  debug( "Renaming a message requested callback ( old_service_name = %s, new_service_name = %s ).",
+         old_service_name, new_service_name );
+
+  return rename_message_callback( old_service_name, new_service_name );
+}
+bool ( *rename_message_requested_callback )( const char *old_service_name, const char *new_service_name ) = _rename_message_requested_callback;
 
 
 static size_t

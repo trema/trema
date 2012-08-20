@@ -302,12 +302,12 @@ ntoh_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
   dst->cookie = ntohll( fs->cookie );
   dst->packet_count = ntohll( fs->packet_count );
   dst->byte_count = ntohll( fs->byte_count );
-  
+
   uint16_t actions_length = ( uint16_t ) ( ntohs( fs->length ) - offsetof( struct ofp_flow_stats, actions ) );
 
   struct ofp_action_header *ah_src = fs->actions;
   struct ofp_action_header *ah_dst = dst->actions;
-  
+
   while ( actions_length >= sizeof( struct ofp_action_header ) ) {
     ntoh_action( ah_dst, ah_src );
     actions_length = ( uint16_t ) ( actions_length - ah_dst->len );
@@ -345,7 +345,7 @@ hton_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
 
   struct ofp_action_header *ah_src = fs->actions;
   struct ofp_action_header *ah_dst = dst->actions;
-  
+
   while ( actions_length >= sizeof( struct ofp_action_header ) ) {
     hton_action( ah_dst, ah_src );
     actions_length = ( uint16_t ) ( actions_length - ah_src->len );
@@ -433,7 +433,7 @@ ntoh_queue_property( struct ofp_queue_prop_header *dst, const struct ofp_queue_p
 
   dst->property = ntohs( ph->property );
   dst->len = ntohs( ph->len );
-  
+
   if ( dst->property == OFPQT_MIN_RATE ) {
     struct ofp_queue_prop_min_rate *mr_src = ( struct ofp_queue_prop_min_rate * ) ph;
     struct ofp_queue_prop_min_rate *mr_dst = ( struct ofp_queue_prop_min_rate * ) dst;
@@ -457,7 +457,7 @@ hton_queue_property( struct ofp_queue_prop_header *dst, const struct ofp_queue_p
 
   dst->property = htons( ph->property );
   dst->len = htons( ph->len );
-  
+
   if ( src->property == OFPQT_MIN_RATE ) {
     struct ofp_queue_prop_min_rate *mr_src = ( struct ofp_queue_prop_min_rate * ) ph;
     struct ofp_queue_prop_min_rate *mr_dst = ( struct ofp_queue_prop_min_rate * ) dst;

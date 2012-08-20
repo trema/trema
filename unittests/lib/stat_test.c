@@ -1,6 +1,6 @@
 /*
  * Unit tests for stat.[ch]
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -39,7 +39,7 @@ void delete_stats_table();
 
 typedef struct {
   char key[ STAT_KEY_LENGTH ];
-  uint64_t value;  
+  uint64_t value;
 } stat_entry;
 
 

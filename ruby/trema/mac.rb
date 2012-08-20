@@ -152,7 +152,7 @@ module Trema
 
 
     def validate_value_range
-      if not ( @value >= 0 and @value <= 0xffffffffffff )
+      unless ( @value >= 0 and @value <= 0xffffffffffff )
         raise ArgumentError, "Invalid MAC address: #{ @value }"
       end
     end

@@ -51,16 +51,16 @@ module Trema
     # @raise [TypeError] if body is not an Array.
     #
     def initialize vendor_id, body = nil
-      if not vendor_id.is_a?( Integer )
+      unless vendor_id.is_a?( Integer )
         raise TypeError, "Vendor ID must be an unsigned 32-bit integer"
       end
-      if not vendor_id.unsigned_32bit?
+      unless vendor_id.unsigned_32bit?
         raise ArgumentError, "Vendor ID must be an unsigned 32-bit integer"
       end
       if ( not body.nil? )  and ( not body.is_a?( Array ) )
         raise TypeError, "Body must be an Array"
       end
-        
+
       @vendor_id = vendor_id
       @body = body
     end

@@ -506,7 +506,7 @@ handle_echo_request( buffer *data ) {
          body,
          event_handlers.echo_request_user_data );
 
-  event_handlers.echo_request_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_request_callback( transaction_id, body, event_handlers.echo_request_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -540,7 +540,7 @@ handle_echo_reply( buffer *data ) {
          body,
          event_handlers.echo_reply_user_data );
 
-  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.echo_reply_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -820,7 +820,7 @@ handle_port_mod( buffer *data ) {
          event_handlers.port_mod_user_data );
 
   event_handlers.port_mod_callback( transaction_id, port_no, hw_addr, config, mask, advertise,
-                                    event_handlers.barrier_request_user_data );
+                                    event_handlers.port_mod_user_data );
 
 }
 
@@ -855,7 +855,7 @@ handle_stats_request( buffer *data ) {
     {
       struct ofp_aggregate_stats_request *aggregate = p;
       ntoh_match( &aggregate->match, &aggregate->match );
-      aggregate->out_port = ntohs( aggregate->out_port );      
+      aggregate->out_port = ntohs( aggregate->out_port );
     }
     break;
 
@@ -1261,7 +1261,7 @@ send_error_message( uint32_t transaction_id, uint16_t type, uint16_t code ) {
     case OFPBAC_BAD_ARGUMENT:
     case OFPBAC_EPERM:
     case OFPBAC_TOO_MANY:
-    case OFPBAC_BAD_QUEUE:   
+    case OFPBAC_BAD_QUEUE:
     {
       const buffer *original_message = get_openflow_message( transaction_id );
       if ( original_message != NULL ) {

@@ -5,7 +5,7 @@ Feature: Send a features request message
   So that I can get the list of switch features
 
 
-  Scenario: Send a features request 
+  Scenario: Send a features request
     When I try trema run "./objects/examples/openflow_message/features_request" with following configuration (backgrounded):
       """
       vswitch( "features_request" ) { datapath_id "0xabc" }
@@ -44,7 +44,7 @@ Feature: Send a features request message
       peer = 0
     """
 
-  Scenario: Send a features request in Ruby 
+  Scenario: Send a features request in Ruby
     When I try trema run "./src/examples/openflow_message/features-request.rb" with following configuration (backgrounded):
       """
       vswitch( "features-request" ) { datapath_id "0xabc" }

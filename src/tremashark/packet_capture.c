@@ -1,6 +1,6 @@
 /*
  * packet_capture: An application that captures packets from a network interface
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -214,12 +214,14 @@ usage( void ) {
   printf(
     "Usage: packet_capture -i NETWORK_INTERFACE [OPTION]...\n"
     "\n"
-    "  -i NETWORK_INTERFACE        network interface for packet capturing\n"
-    "  -s DUMP_SERVICE_NAME        dump service name\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -i NETWORK_INTERFACE            network interface for packet capturing\n"
+    "  -s DUMP_SERVICE_NAME            dump service name\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
 }
 

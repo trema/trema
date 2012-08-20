@@ -24,7 +24,7 @@
 
 void
 handle_list_switches_reply( const list_element *switches, void *controller ) {
-  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "list_switches_reply" ) ) == Qfalse ) { 
+  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "list_switches_reply" ) ) == Qfalse ) {
    return;
   }
   VALUE dpids = rb_ary_new();

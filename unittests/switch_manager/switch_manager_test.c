@@ -44,7 +44,7 @@ void wait_child( void );
 
 
 /*************************************************************************
- * Setup and teardown function.                                          
+ * Setup and teardown function.
  *************************************************************************/
 
 static void
@@ -59,7 +59,7 @@ teardown() {
 
 
 /******************************************************************************
- * Mock                                                                       
+ * Mock
  ******************************************************************************/
 
 void
@@ -375,7 +375,7 @@ test_wait_child_wait3_zero_return() {
 static void
 test_wait_child_wait3_exit() {
   setup();
-  
+
   expect_not_value( mock_wait3, status, NULL );
   expect_value( mock_wait3, options, WNOHANG );
   expect_value( mock_wait3, rusage, NULL );
@@ -1058,7 +1058,7 @@ test_secure_channel_accept_child_succeeded() {
 static void
 test_secure_channel_accept_child_and_args_succeeded() {
   setup();
-  
+
   int listen_fd = 0;
   int accept_fd = 3;
   int pid = 0;	/* child */

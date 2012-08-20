@@ -56,7 +56,7 @@ delete_switches( list_element *switches ) {
 }
 
 
-static void 
+static void
 insert_datapath_id( list_element **switches, uint64_t datapath_id ) {
   list_element *element = NULL;
   for ( element = *switches; element != NULL; element = element->next ) {

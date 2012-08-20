@@ -676,7 +676,7 @@ test_ntoh_action_with_undefined_action_type() {
   struct ofp_action_output *src = create_action_output();
 
   src->type = htons( OFPAT_ENQUEUE + 1 );
-  
+
   expect_assert_failure( ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
 
   xfree( src );
@@ -872,7 +872,7 @@ test_hton_action_with_undefined_action_type() {
   ntoh_action_output( src, src );
 
   src->type = OFPAT_ENQUEUE + 1;
-  
+
   expect_assert_failure( hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
 
   xfree( src );

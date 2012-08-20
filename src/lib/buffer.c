@@ -235,7 +235,7 @@ append_back_buffer( buffer *buf, size_t length ) {
     pthread_mutex_unlock( pbuf->mutex );
     return ( char * ) pbuf->public.data;
   }
- 
+
   if ( !already_allocated( pbuf, length ) ) {
     append_back( pbuf, length );
   }
