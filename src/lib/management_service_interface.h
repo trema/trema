@@ -51,6 +51,7 @@ enum {
 
 typedef struct {
   uint16_t type;
+  uint32_t length;
 } __attribute__( ( packed ) ) management_request_header;
 
 typedef struct {
@@ -69,8 +70,16 @@ typedef struct {
 } __attribute__( ( packed ) ) management_set_logging_level_request;
 
 typedef struct {
+  management_request_header header;
+  uint32_t application_id;
+  uint8_t data[ 0 ];
+} __attribute__( ( packed ) ) management_application_request;
+
+typedef struct {
   uint16_t type;
   uint8_t status;
+  uint8_t flags;
+  uint32_t length;
 } __attribute__( ( packed ) ) management_reply_header;
 
 typedef struct {
@@ -83,8 +92,25 @@ typedef struct {
   management_reply_header header;
 } __attribute__( ( packed ) ) management_set_logging_level_reply;
 
+typedef struct {
+  management_reply_header header;
+  uint32_t application_id;
+  uint8_t data[ 0 ];
+} __attribute__( ( packed ) ) management_application_reply;
+
+typedef void ( *management_application_request_handler )(
+  const messenger_context_handle *handle,
+  uint32_t application_id,
+  void *data,
+  size_t data_length,
+  void *user_data
+);
+
 
 extern const char *( *get_management_service_name )( const char *service_name );
+extern void ( *set_management_application_request_handler )( management_application_request_handler callback, void *user_data );
+extern management_application_reply *( *create_management_application_reply )( uint8_t status, uint32_t application_id, void *data, size_t data_length );
+extern bool ( *send_management_application_reply )( const messenger_context_handle *handle, const management_application_reply *reply );
 
 
 #endif // MANAGEMENT_SERVICE_INTERFACE_H

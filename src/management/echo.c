@@ -77,7 +77,7 @@ static void
 timeout( void *user_data ) {
   UNUSED( user_data );
 
-  error( "Timeout." );
+  printf( "Timeout.\n" );
 
   delete_timer_event( timeout, NULL );
 
@@ -95,9 +95,10 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   management_echo_reply *reply = data;
   assert( ntohs( reply->header.type ) == MANAGEMENT_ECHO_REPLY );
+  assert( ntohl( reply->header.length ) == sizeof( management_echo_reply ) );
 
   if ( reply->header.status != MANAGEMENT_REQUEST_SUCCEEDED ) {
-    error( "Failed to execute echo request/reply transaction." );
+    printf( "Failed to execute echo request/reply transaction.\n" );
     stop_trema();
     return;
   }
@@ -118,10 +119,10 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   long double roundtrip_msec = roundtrip.tv_sec * 1000 + ( long double ) roundtrip.tv_nsec / 1000000;
 
-  info( "Reqeust sent at: %d.%09d", sent_at.tv_sec, sent_at.tv_nsec );
-  info( "Reqeust received at: %d.%09d", received_at.tv_sec, received_at.tv_nsec );
-  info( "Reply received at: %d.%09d", now.tv_sec, now.tv_nsec );
-  info( "Roundtrip time: %Lf [msec]", roundtrip_msec );
+  printf( "Reqeust sent at: %d.%09d\n", ( int ) sent_at.tv_sec, ( int ) sent_at.tv_nsec );
+  printf( "Reqeust received at: %d.%09d\n", ( int ) received_at.tv_sec, ( int ) received_at.tv_nsec );
+  printf( "Reply received at: %d.%09d\n", ( int ) now.tv_sec, ( int ) now.tv_nsec );
+  printf( "Roundtrip time: %Lf [msec]\n", roundtrip_msec );
 
   stop_trema();
 }
@@ -132,11 +133,12 @@ send_echo_request() {
   management_echo_request request;
   memset( &request, 0, sizeof( management_echo_request ) );
   request.header.type = MANAGEMENT_ECHO_REQUEST;
+  request.header.length = htonl( sizeof( management_echo_request ) );
 
   struct timespec now = { 0, 0 };
   int retval = clock_gettime( CLOCK_REALTIME, &now );
   if ( retval < 0 ) {
-    error( "Failed to retrieve clock ( errno = %s [%d] ).", strerror( errno ), errno );
+    printf( "Failed to retrieve clock ( errno = %s [%d] ).\n", strerror( errno ), errno );
     exit( EXIT_FAILURE );
   }
   request.sent_at.tv_sec = htonl( ( uint32_t ) now.tv_sec );
@@ -145,7 +147,7 @@ send_echo_request() {
   bool ret = send_request_message( service_name, get_trema_name(), MESSENGER_MANAGEMENT_REQUEST,
                                    &request, sizeof( management_echo_request ), NULL );
   if ( !ret ) {
-    error( "Failed to send an echo request to %s.", service_name );
+    printf( "Failed to send an echo request to %s.\n", service_name );
     exit( EXIT_FAILURE );
   }
 }

@@ -73,7 +73,7 @@ static void
 timeout( void *user_data ) {
   UNUSED( user_data );
 
-  error( "Timeout." );
+  printf( "Timeout.\n" );
 
   delete_timer_event( timeout, NULL );
 
@@ -91,12 +91,13 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   management_set_logging_level_reply *reply = data;
   assert( ntohs( reply->header.type ) == MANAGEMENT_SET_LOGGING_LEVEL_REPLY );
+  assert( ntohl( reply->header.length ) == sizeof( management_set_logging_level_reply ) );
 
   if ( reply->header.status == MANAGEMENT_REQUEST_SUCCEEDED ) {
-    info( "Logging level is set to %s.", logging_level );
+    printf( "Logging level is set to %s.\n", logging_level );
   }
   else {
-    error( "Failed to set logging level." );
+    printf( "Failed to set logging level.\n" );
   }
 
   stop_trema();
@@ -108,12 +109,13 @@ send_set_logging_level_request() {
   management_set_logging_level_request request;
   memset( &request, 0, sizeof( management_set_logging_level_request ) );
   request.header.type = htons( MANAGEMENT_SET_LOGGING_LEVEL_REQUEST );
+  request.header.length = htonl( sizeof( management_set_logging_level_request ) );
   strncpy( request.level, logging_level, sizeof( request.level ) );
 
   bool ret = send_request_message( service_name, get_trema_name(), MESSENGER_MANAGEMENT_REQUEST,
                                    &request, sizeof( management_set_logging_level_request ), NULL );
   if ( !ret ) {
-    error( "Failed to send a set logging level request to %s.", service_name );
+    printf( "Failed to send a set logging level request to %s.\n", service_name );
     exit( EXIT_FAILURE );
   }
 }

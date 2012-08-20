@@ -32,6 +32,8 @@
 
 
 static bool initialized = false;
+static management_application_request_handler application_callback = NULL;
+static void *application_user_data = NULL;
 
 
 static void
@@ -39,6 +41,7 @@ handle_echo_request( const messenger_context_handle *handle, management_echo_req
   assert( handle != NULL );
   assert( request != NULL );
   assert( ntohs( request->header.type ) == MANAGEMENT_ECHO_REQUEST );
+  assert( ntohl( request->header.length ) == sizeof( management_echo_request ) );
 
   debug( "Handling an echo request from %s ( sent_at = %u.%09u ).",
          handle->service_name, ntohl( request->sent_at.tv_sec ), ntohl( request->sent_at.tv_nsec ) );
@@ -47,6 +50,7 @@ handle_echo_request( const messenger_context_handle *handle, management_echo_req
   management_echo_reply reply;
   memset( &reply, 0, sizeof( management_echo_reply ) );
   reply.header.type = htons( MANAGEMENT_ECHO_REPLY );
+  reply.header.length = htonl( sizeof( management_echo_reply ) );
   reply.sent_at = request->sent_at;
 
   struct timespec now = { 0, 0 };
@@ -71,6 +75,7 @@ handle_set_logging_level_request( const messenger_context_handle *handle, manage
   assert( handle != NULL );
   assert( request != NULL );
   assert( ntohs( request->header.type ) == MANAGEMENT_SET_LOGGING_LEVEL_REQUEST );
+  assert( ntohl( request->header.length ) == sizeof( management_set_logging_level_request ) );
 
   request->level[ LOGGING_LEVEL_STR_LENGTH - 1 ] = '\0';
 
@@ -79,6 +84,7 @@ handle_set_logging_level_request( const messenger_context_handle *handle, manage
   management_set_logging_level_reply reply;
   memset( &reply, 0, sizeof( management_set_logging_level_reply ) );
   reply.header.type = htons( MANAGEMENT_SET_LOGGING_LEVEL_REPLY );
+  reply.header.length = htonl( sizeof( management_set_logging_level_reply ) );
 
   bool ret = valid_logging_level( request->level );
   if ( ret ) {
@@ -99,6 +105,40 @@ handle_set_logging_level_request( const messenger_context_handle *handle, manage
 }
 
 
+void
+_set_management_application_request_handler( management_application_request_handler callback, void *user_data ) {
+  application_callback = callback;
+  application_user_data = user_data;
+}
+
+
+static void
+handle_application_request( const messenger_context_handle *handle, management_application_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL );
+  assert( ntohs( request->header.type ) == MANAGEMENT_APPLICATION_REQUEST );
+  assert( ntohl( request->header.length ) >= offsetof( management_application_request, data ) );
+
+  debug( "Handling an application specific management request from %s ( application_id = %#x ).",
+         handle->service_name, request->application_id );
+
+  if ( application_callback != NULL ) {
+    size_t length = ( size_t ) ntohl( request->header.length ) - offsetof( management_application_request, data );
+    void *data = NULL;
+    if ( length > 0 ) {
+      data = request->data;
+    }
+    application_callback( handle, ntohl( request->application_id ), data, length, application_user_data );
+  }
+  else {
+    management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED,
+                                                                               ntohl( request->application_id ), NULL, 0 );
+    send_management_application_reply( handle, reply );
+    xfree( reply );
+  }
+}
+
+
 static void
 handle_management_request( const messenger_context_handle *handle, void *data, size_t length ) {
   assert( handle != NULL );
@@ -106,6 +146,8 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
   assert( length >= sizeof( management_request_header ) );
 
   management_request_header *header = data;
+
+  assert( length == ( size_t ) ntohl( header->length ) );
 
   switch ( ntohs( header->type ) ) {
     case MANAGEMENT_ECHO_REQUEST:
@@ -132,7 +174,12 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
 
     case MANAGEMENT_APPLICATION_REQUEST:
     {
-      warn( "Application specific management request is not implemented yet." );
+      if ( length < offsetof( management_application_request, data ) ) {
+        error( "Invalid application specific management request ( length = %u ).", length );
+        return;
+      }
+
+      handle_application_request( handle, data );
     }
     break;
 

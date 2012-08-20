@@ -26,6 +26,7 @@
 
 #include <sqlite3.h>
 #include "bool.h"
+#include "management_service_interface.h"
 
 
 void set_trema_home( void );
@@ -50,6 +51,8 @@ size_t _get_max_key_length( void );
 size_t _get_max_value_length( void );
 
 bool *_get_management_interface_initialized( void );
+
+void _set_management_application_request_handler( management_application_request_handler callback, void *user_data );
 
 
 #endif // TREMA_PRIVATE_H
