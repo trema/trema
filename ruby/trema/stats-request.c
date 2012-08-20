@@ -317,7 +317,7 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *     set the transaction_id as specified or auto-generate it.
  *
  *   @return [DescStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -452,7 +452,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *     set the transaction_id as specified or auto-generate it.
  *
  *   @return [TableStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -587,7 +587,7 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     to a default value of 0x00004cff.
  *
  *   @return [VendorStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ OpenFlow
  *     message.
  */
 static VALUE
