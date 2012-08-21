@@ -28,12 +28,7 @@ module Trema
 
 
     def trema_up command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
-
         context = Trema::DSL::Context.load_current
 
         switch = context.switches[ args[ 0 ] ]

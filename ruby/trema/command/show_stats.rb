@@ -29,17 +29,12 @@ module Trema
 
 
     def trema_show_stats command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.desc "Show stats of packets sent"
       command.switch [ :t, :tx ]
       command.desc "Show stats of packets received"
       command.switch [ :r, :rx ]
 
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
-
         sanity_check
 
         host = Trema::DSL::Context.load_current.hosts[ args[ 0 ] ]

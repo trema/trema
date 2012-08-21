@@ -28,9 +28,6 @@ module Trema
 
 
     def trema_run command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.desc "Runs as a daemon"
       command.switch [ :d, :daemonize ]
 
@@ -42,8 +39,6 @@ module Trema
 
       command.action do | global_options, options, args |
         sanity_check
-
-        $verbose = options[ :verbose ]
 
         @config_file = options[ :conf ] || nil
 

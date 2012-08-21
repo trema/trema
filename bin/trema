@@ -39,6 +39,10 @@ program_desc "Trema command-line tool"
 version Trema::VERSION
 
 
+desc "Be verbose"
+switch [ :v, :verbose ]
+
+
 desc "Runs a trema application"
 arg_name "controller"
 command :run do | c |
@@ -106,6 +110,8 @@ end
 
 
 pre do | global, command, options, args |
+  $verbose = global[ :verbose ]
+
   if FileTest.exist?( Trema.tmp ) and not FileTest.writable?( Trema.tmp )
     # Trema is system widely installed with gem command
     sh "sudo chmod o+w -R #{ Trema.tmp }"
@@ -119,7 +125,7 @@ pre do | global, command, options, args |
 end
 
 
-on_error do |exception|
+on_error do | exception |
   # Error logic here
   # return false to skip default error handling
   true

@@ -29,9 +29,6 @@ module Trema
 
 
     def trema_send_packets command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.desc "host that sends packets"
       command.flag [ :s, :source ]
 
@@ -61,8 +58,6 @@ module Trema
       command.flag [ :inc_payload ]
 
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
-
         sanity_check
 
         raise "--source option is a mandatory" if options[ :source ].nil?

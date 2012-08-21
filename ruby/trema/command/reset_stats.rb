@@ -29,12 +29,7 @@ module Trema
 
 
     def trema_reset_stats command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
-
         sanity_check
 
         args.each do | each |

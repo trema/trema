@@ -28,12 +28,7 @@ module Trema
 
 
     def trema_kill command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
-
         context = Trema::DSL::Context.load_current
 
         # [FIXME] Trema apps does not appear in context.apps. why?

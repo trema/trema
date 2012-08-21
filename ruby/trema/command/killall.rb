@@ -27,11 +27,7 @@ module Trema
 
 
     def trema_killall command
-      command.desc "Be verbose"
-      command.switch [ :v, :verbose ]
-
       command.action do | global_options, options, args |
-        $verbose = options[ :verbose ]
         cleanup_current_session
       end
     end
