@@ -1,8 +1,6 @@
 #
 # trema show_stats command.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 #
 
 
-require "optparse"
 require "trema/cli"
 require "trema/dsl"
 require "trema/util"
@@ -31,46 +28,33 @@ module Trema
     include Trema::Util
 
 
-    def show_stats
-      sanity_check
+    def trema_show_stats command
+      command.desc "Be verbose"
+      command.switch [ :v, :verbose ]
 
-      stats = nil
+      command.desc "Show stats of packets sent"
+      command.switch [ :t, :tx ]
+      command.desc "Show stats of packets received"
+      command.switch [ :r, :rx ]
 
-      options = OptionParser.new
-      options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
+      command.action do | global_options, options, args |
+        $verbose = options[ :verbose ]
 
-      options.on( "-t", "--tx" ) do
-        stats = :tx
-      end
-      options.on( "-r", "--rx" ) do
-        stats = :rx
-      end
+        sanity_check
 
-      options.separator ""
+        host = Trema::DSL::Context.load_current.hosts[ args[ 0 ] ]
+        raise "Unknown host: #{ args[ 0 ] }" if host.nil?
 
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      host = Trema::DSL::Context.load_current.hosts[ ARGV[ 0 ] ]
-      raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
-
-      case stats
-      when :tx
-        Trema::Cli.new( host ).show_tx_stats
-      when :rx
-        Trema::Cli.new( host ).show_rx_stats
-      else
-        puts "Sent packets:"
-        Trema::Cli.new( host ).show_tx_stats
-        puts "Received packets:"
-        Trema::Cli.new( host ).show_rx_stats
+        if options[ :tx ]
+          Trema::Cli.new( host ).show_tx_stats
+        elsif options[ :rx ]
+          Trema::Cli.new( host ).show_rx_stats
+        else
+          puts "Sent packets:"
+          Trema::Cli.new( host ).show_tx_stats
+          puts "Received packets:"
+          Trema::Cli.new( host ).show_rx_stats
+        end
       end
     end
   end

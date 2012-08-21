@@ -1,8 +1,6 @@
 #
 # trema run command.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 #
 
 
-require "optparse"
 require "trema/dsl"
 require "trema/util"
 
@@ -30,43 +27,44 @@ module Trema
     include Trema::Util
 
 
-    def run
-      sanity_check
+    def trema_run command
+      command.desc "Be verbose"
+      command.switch [ :v, :verbose ]
 
-      options = OptionParser.new
-      options.banner = "Usage: #{ $0 } run [OPTIONS ...]"
+      command.desc "Runs as a daemon"
+      command.switch [ :d, :daemonize ]
 
-      options.on( "-c", "--conf FILE" ) do | v |
-        @config_file = v
-      end
-      options.on( "-d", "--daemonize" ) do
-        $run_as_daemon = true
-      end
-      options.on( "-s", "--tremashark" ) do
-        $use_tremashark = true
-      end
+      command.desc "Enables Trema wireshark plugin"
+      command.switch [ :s, :tremashark ]
 
-      options.separator ""
+      command.desc "Specifies emulated network configuration"
+      command.flag [ :c, :conf ]
 
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
+      command.action do | global_options, options, args |
+        sanity_check
 
-      options.parse! ARGV
+        $verbose = options[ :verbose ]
 
-      cleanup_current_session
+        @config_file = options[ :conf ] || nil
 
-      if $run_as_daemon
-        Trema::DSL::Runner.new( load_config ).daemonize
-      else
-        begin
-          Trema::DSL::Runner.new( load_config ).run
-        ensure
-          cleanup_current_session
+        if options[ :daemonize ]
+          $run_as_daemon = true
+        end
+
+        if options[ :tremashark ]
+          $use_tremashark = true
+        end
+
+        cleanup_current_session
+
+        if $run_as_daemon
+          Trema::DSL::Runner.new( load_config ).daemonize
+        else
+          begin
+            Trema::DSL::Runner.new( load_config ).run
+          ensure
+            cleanup_current_session
+          end
         end
       end
     end

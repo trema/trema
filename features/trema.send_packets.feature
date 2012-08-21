@@ -21,36 +21,12 @@ Feature: send packets with `trema send_packets' command
   Scenario: send_packets error (--source)
     Then "./trema send_packets --source NO_SUCH_HOST --dest host2" exits abnormally with an error message:
       """
-      Unknown host: NO_SUCH_HOST
+      error: Unknown host: NO_SUCH_HOST
       """
 
 
   Scenario: send_packets error (--dest)
-    Then "./trema send_packets --dest host1 --dest NO_SUCH_HOST" exits abnormally with an error message:
+    Then "./trema send_packets --source host1 --dest NO_SUCH_HOST" exits abnormally with an error message:
       """
-      Unknown host: NO_SUCH_HOST
-      """
-
-
-  Scenario: trema help send_packets
-    When I try to run "./trema help send_packets"
-    Then the output should be:
-      """
-      Usage: ./trema send_packets --source HOSTNAME --dest HOSTNAME [OPTIONS ...]
-          -s, --source HOSTNAME
-              --inc_ip_src [NUMBER]
-          -d, --dest HOSTNAME
-              --inc_ip_dst [NUMBER]
-              --tp_src NUMBER
-              --inc_tp_src [NUMBER]
-              --tp_dst NUMBER
-              --inc_tp_dst [NUMBER]
-              --pps NUMBER
-              --n_pkts NUMBER
-              --duration NUMBER
-              --length NUMBER
-              --inc_payload [NUMBER]
-
-          -h, --help
-          -v, --verbose
+      error: Unknown host: NO_SUCH_HOST
       """
