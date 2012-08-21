@@ -37,11 +37,6 @@ extern hash_table *stats;
 void create_stats_table();
 void delete_stats_table();
 
-typedef struct {
-  char key[ STAT_KEY_LENGTH ];
-  uint64_t value;
-} stat_entry;
-
 
 /********************************************************************************
  * Mock functions.
@@ -74,6 +69,14 @@ mock_warn( const char *format, ... ) {
 void
 mock_error( const char *format, ... ) {
   UNUSED( format );
+}
+
+
+void
+mock_callback( const char *key, const uint64_t value, void *user_data ) {
+  check_expected( key );
+  check_expected( value );
+  check_expected( user_data );
 }
 
 
@@ -213,6 +216,55 @@ test_increment_stat_fails_if_not_initialized() {
 
 
 /********************************************************************************
+ * foreach_stat() tests.
+ ********************************************************************************/
+
+static void
+test_foreach_stat_succeeds() {
+  assert_true( init_stat() );
+
+  const char *key = "key";
+  increment_stat( key );
+
+  void *user_data = ( void * ) ( intptr_t ) 0x1;
+
+  expect_string( mock_callback, key, key );
+  expect_value( mock_callback, value, 1 );
+  expect_value( mock_callback, user_data, user_data );
+
+  foreach_stat( mock_callback, user_data );
+
+  assert_true( finalize_stat() );
+}
+
+
+static void
+test_foreach_stat_succeeds_without_entries() {
+  assert_true( init_stat() );
+
+  foreach_stat( mock_callback, NULL );
+
+  assert_true( finalize_stat() );
+}
+
+
+static void
+test_foreach_stat_fails_if_callback_function_is_NULL() {
+  assert_true( init_stat() );
+
+  expect_assert_failure( foreach_stat( NULL, NULL ) );
+
+  assert_true( finalize_stat() );
+}
+
+
+static void
+test_foreach_stat_fails_if_not_initialized() {
+  expect_assert_failure( foreach_stat( mock_callback, NULL ) );
+}
+
+
+/********************************************************************************
  * dump_stats() tests.
  ********************************************************************************/
 
@@ -274,7 +326,13 @@ main() {
     unit_test_setup_teardown( test_increment_stat_fails_if_key_is_NULL, reset, reset ),
     unit_test_setup_teardown( test_increment_stat_fails_if_not_initialized, reset, reset ),
 
-    // dump_sats() tests.
+    // foreach_stat() tests.
+    unit_test_setup_teardown( test_foreach_stat_succeeds, reset, reset ),
+    unit_test_setup_teardown( test_foreach_stat_succeeds_without_entries, reset, reset ),
+    unit_test_setup_teardown( test_foreach_stat_fails_if_callback_function_is_NULL, reset, reset ),
+    unit_test_setup_teardown( test_foreach_stat_fails_if_not_initialized, reset, reset ),
+
+    // dump_stats() tests.
     unit_test_setup_teardown( test_dump_stats_succeeds, reset, reset ),
     unit_test_setup_teardown( test_dump_stats_succeeds_without_entries, reset, reset ),
     unit_test_setup_teardown( test_dump_stats_fails_if_not_initialized, reset, reset ),

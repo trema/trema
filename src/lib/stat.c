@@ -64,12 +64,6 @@ static hash_table *stats = NULL;
 static pthread_mutex_t stats_table_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
-typedef struct {
-  char key[ STAT_KEY_LENGTH ];
-  uint64_t value;
-} stat_entry;
-
-
 static void
 create_stats_table() {
   assert( stats == NULL );
@@ -178,29 +172,47 @@ increment_stat( const char *key ) {
 
 
 void
-dump_stats() {
+foreach_stat( void function( const char *key, const uint64_t value, void *user_data ), void *user_data ) {
   assert( stats != NULL );
-
-  int n_stats = 0;
-  hash_iterator iter;
-  hash_entry *e;
+  assert( function != NULL );
 
   pthread_mutex_lock( &stats_table_mutex );
 
-  info( "Statistics:" );
-
+  hash_entry *e = NULL;
+  hash_iterator iter;
   init_hash_iterator( stats, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
     stat_entry *st = e->value;
-    info( "%s: %" PRIu64, st->key, st->value );
-    n_stats++;
+    function( st->key, st->value, user_data );
   }
+
+  pthread_mutex_unlock( &stats_table_mutex );
+}
+
+
+static void
+print_stat( const char *key, const uint64_t value, void *user_data ) {
+  assert( key != NULL );
+  assert( user_data != NULL );
+
+  info( "%s: %" PRIu64, key, value );
+  ( *( int * ) user_data )++;
+}
+
+
+void
+dump_stats() {
+  assert( stats != NULL );
+
+
+  info( "Statistics:" );
+
+  int n_stats = 0;
+  foreach_stat( print_stat, &n_stats );
 
   if ( n_stats == 0 ) {
     info( "No statistics found." );
   }
-
-  pthread_mutex_unlock( &stats_table_mutex );
 }
 
 

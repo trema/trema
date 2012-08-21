@@ -72,6 +72,7 @@ task :management_commands => [
   "management_commands:application",
   "management_commands:echo",
   "management_commands:set_logging_level",
+  "management_commands:show_stats",
 ]
 
 
@@ -604,6 +605,7 @@ management_commands = [
   "application",
   "echo",
   "set_logging_level",
+  "show_stats",
 ]
 
 management_source_dir = "src/management"

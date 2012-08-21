@@ -41,12 +41,6 @@
  * Helpers.
  ********************************************************************************/
 
-typedef struct {
-  char key[ STAT_KEY_LENGTH ];
-  uint64_t value;
-} stat_entry;
-
-
 extern bool openflow_application_interface_initialized;
 extern openflow_event_handlers_t event_handlers;
 extern char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];

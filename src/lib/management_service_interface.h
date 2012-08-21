@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include "messenger.h"
+#include "stat.h"
 
 
 enum {
@@ -44,6 +45,8 @@ enum {
   MANAGEMENT_ECHO_REPLY,
   MANAGEMENT_SET_LOGGING_LEVEL_REQUEST,
   MANAGEMENT_SET_LOGGING_LEVEL_REPLY,
+  MANAGEMENT_SHOW_STATS_REQUEST,
+  MANAGEMENT_SHOW_STATS_REPLY,
   MANAGEMENT_APPLICATION_REQUEST,
   MANAGEMENT_APPLICATION_REPLY,
 };
@@ -71,6 +74,10 @@ typedef struct {
 
 typedef struct {
   management_request_header header;
+} __attribute__( ( packed ) ) management_show_stats_request;
+
+typedef struct {
+  management_request_header header;
   uint32_t application_id;
   uint8_t data[ 0 ];
 } __attribute__( ( packed ) ) management_application_request;
@@ -91,6 +98,11 @@ typedef struct {
 typedef struct {
   management_reply_header header;
 } __attribute__( ( packed ) ) management_set_logging_level_reply;
+
+typedef struct {
+  management_reply_header header;
+  stat_entry entries[ 0 ];
+} __attribute__( ( packed ) ) management_show_stats_reply;
 
 typedef struct {
   management_reply_header header;

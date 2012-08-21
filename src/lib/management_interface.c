@@ -105,6 +105,62 @@ handle_set_logging_level_request( const messenger_context_handle *handle, manage
 }
 
 
+static void
+append_stat( const char *key, const uint64_t value, void *user_data ) {
+  assert( key != NULL );
+  assert( user_data != NULL );
+
+  list_element **stats = user_data;
+
+  stat_entry *entry = xmalloc( sizeof( stat_entry ) );
+  memset( entry, 0, sizeof( stat_entry ) );
+  memcpy( entry->key, key, sizeof( entry->key ) );
+  entry->value = htonll( value );
+
+  append_to_tail( stats, entry );
+}
+
+
+static void
+handle_show_stats_request( const messenger_context_handle *handle, management_show_stats_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL );
+  assert( ntohs( request->header.type ) == MANAGEMENT_SHOW_STATS_REQUEST );
+  assert( ntohl( request->header.length ) == sizeof( management_show_stats_request ) );
+
+  debug( "Handling a show stats request from %s.", handle->service_name );
+
+  list_element *stats = NULL;
+  create_list( &stats );
+  foreach_stat( append_stat, &stats );
+  unsigned int n_stats = list_length_of( stats );
+
+  size_t length = offsetof( management_show_stats_reply, entries ) + sizeof( stat_entry ) * n_stats;
+  management_show_stats_reply *reply = xmalloc( length );
+  memset( reply, 0, length );
+  reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
+  reply->header.length = htonl( ( uint32_t ) length );
+  reply->header.status = MANAGEMENT_REQUEST_SUCCEEDED;
+
+  stat_entry *p = reply->entries;
+  for ( list_element *e = stats; e != NULL; e = e->next ) {
+    assert( e->data != NULL );
+    memcpy( p, e->data, sizeof( stat_entry ) );
+    xfree( e->data );
+    p++;
+  }
+  if ( stats != NULL ) {
+    delete_list( stats );
+  }
+
+  bool ret = send_reply_message( handle, MESSENGER_MANAGEMENT_REPLY, reply, length );
+  if ( ret == false ) {
+    error( "Failed to send a set logging level reply." );
+  }
+  xfree( reply );
+}
+
+
 void
 _set_management_application_request_handler( management_application_request_handler callback, void *user_data ) {
   application_callback = callback;
@@ -169,6 +225,17 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
       }
 
       handle_set_logging_level_request( handle, data );
+    }
+    break;
+
+    case MANAGEMENT_SHOW_STATS_REQUEST:
+    {
+      if ( length != sizeof( management_show_stats_request ) ) {
+        error( "Invalid show stats request ( length = %zu ).", length );
+        return;
+      }
+
+      handle_show_stats_request( handle, data );
     }
     break;
 
