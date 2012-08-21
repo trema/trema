@@ -204,7 +204,7 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
     case MESSENGER_ADD_PACKETIN_FILTER_REPLY:
     {
       if ( length != sizeof( add_packetin_filter_reply ) ) {
-        error( "Invalid add packetin filter reply ( length = %u ).", length );
+        error( "Invalid add packetin filter reply ( length = %zu ).", length );
         return;
       }
       add_packetin_filter_reply *reply = data;
@@ -214,7 +214,7 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
     case MESSENGER_DELETE_PACKETIN_FILTER_REPLY:
     {
       if ( length != sizeof( delete_packetin_filter_reply ) ) {
-        error( "Invalid delete packetin filter reply ( length = %u ).", length );
+        error( "Invalid delete packetin filter reply ( length = %zu ).", length );
         return;
       }
       delete_packetin_filter_reply *reply = data;
@@ -224,13 +224,13 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
     case MESSENGER_DUMP_PACKETIN_FILTER_REPLY:
     {
       if ( length < offsetof( dump_packetin_filter_reply, entries ) ) {
-        error( "Invalid dump packetin filter reply ( length = %u ).", length );
+        error( "Invalid dump packetin filter reply ( length = %zu ).", length );
         return;
       }
       dump_packetin_filter_reply *reply = data;
       size_t expected_length = offsetof( dump_packetin_filter_reply, entries ) + sizeof( packetin_filter_entry ) * ntohl( reply->n_entries );
       if ( length != expected_length ) {
-        error( "Invalid dump packetin filter reply ( length = %u ).", length );
+        error( "Invalid dump packetin filter reply ( length = %zu ).", length );
         return;
       }
       packetin_filter_entry *entries = NULL;
@@ -249,7 +249,7 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
     break;
     default:
     {
-      warn( "Undefined reply tag ( tag = %#x, length = %u ).", tag, length );
+      warn( "Undefined reply tag ( tag = %#x, length = %zu ).", tag, length );
     }
     return;
   }

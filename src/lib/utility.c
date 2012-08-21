@@ -263,7 +263,7 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
               "wildcards = %#x(%s), in_port = %u, "
               "dl_src = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_dst = %02x:%02x:%02x:%02x:%02x:%02x, "
-              "dl_vlan = %u, dl_vlan_pcp = %u, dl_type = %#x, "
+              "dl_vlan = %#x, dl_vlan_pcp = %#x, dl_type = %#x, "
               "nw_tos = %u, nw_proto = %u, nw_src = %s/%u, nw_dst = %s/%u, "
               "tp_src = %u, tp_dst = %u",
               match->wildcards, wildcards_str, match->in_port,
