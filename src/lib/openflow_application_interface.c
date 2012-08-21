@@ -539,7 +539,7 @@ handle_error( const uint64_t datapath_id, buffer *data ) {
   remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
 
   debug( "An error message is received from %#lx "
-         "( transaction_id = %#x, type = %u, code = %u, data length = %u ).",
+         "( transaction_id = %#x, type = %#x, code = %#x, data length = %zu ).",
          datapath_id, transaction_id, type, code, body->length );
 
   if ( event_handlers.error_callback == NULL ) {
@@ -811,7 +811,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
 
   debug(
     "A packet_in message is received from %#" PRIx64
-    " (transaction_id = %#x, buffer_id = %#x, total_len = %u, in_port = %u, reason = %#x, body length = %u).",
+    " ( transaction_id = %#x, buffer_id = %#x, total_len = %u, in_port = %u, reason = %#x, body length = %u ).",
     datapath_id,
     transaction_id,
     buffer_id,
@@ -843,7 +843,7 @@ handle_packet_in( const uint64_t datapath_id, buffer *data ) {
   }
 
   assert( event_handlers.packet_in_callback != NULL );
-  debug( "Calling packet_in handler (callback = %p, user_data = %p).",
+  debug( "Calling packet_in handler ( callback = %p, user_data = %p ).",
          event_handlers.packet_in_callback,
          event_handlers.packet_in_user_data
   );
@@ -926,7 +926,7 @@ handle_flow_removed( const uint64_t datapath_id, buffer *data ) {
   }
 
   debug(
-    "Calling flow removed handler (callback = %p, user_data = %p).",
+    "Calling flow removed handler ( callback = %p, user_data = %p ).",
     event_handlers.flow_removed_callback,
     event_handlers.flow_removed_user_data
   );
@@ -1162,7 +1162,7 @@ handle_stats_reply( const uint64_t datapath_id, buffer *data ) {
       if ( body != NULL ) {
         free_buffer( body );
       }
-      critical( "Unhandled stats type ( type = %u ).", type );
+      critical( "Unhandled stats type ( type = %#x ).", type );
       assert( 0 );
       break;
     }
@@ -1368,7 +1368,7 @@ handle_switch_ready( uint64_t datapath_id ) {
 static void
 handle_messenger_openflow_disconnected( uint64_t datapath_id ) {
   if ( event_handlers.switch_disconnected_callback != NULL ) {
-    debug( "Calling switch disconnected handler (callback = %p, user_data = %p).",
+    debug( "Calling switch disconnected handler ( callback = %p, user_data = %p ).",
            event_handlers.switch_disconnected_callback, event_handlers.switch_disconnected_user_data );
     event_handlers.switch_disconnected_callback( datapath_id, event_handlers.switch_disconnected_user_data );
   }
@@ -1384,7 +1384,7 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
   assert( data != NULL );
   assert( length == sizeof( openflow_service_header_t ) );
 
-  debug( "Received a switch event (type = %u) from remote.", type );
+  debug( "Received a switch event ( type = %#x ) from remote.", type );
 
   openflow_service_header_t *message = data;
   uint64_t datapath_id = ntohll( message->datapath_id );
@@ -1401,7 +1401,7 @@ handle_switch_events( uint16_t type, void *data, size_t length ) {
       handle_messenger_openflow_disconnected( datapath_id );
       break;
     default:
-      error( "Unhandled switch event (type = %u).", type );
+      error( "Unhandled switch event ( type = %#x ).", type );
       break;
   }
 
@@ -1543,7 +1543,7 @@ handle_openflow_message( void *data, size_t length ) {
   ret = validate_openflow_message( buffer );
 
   if ( ret < 0 ) {
-    error( "Failed to validate an OpenFlow message ( code = %d, length = %u ).", ret, length );
+    error( "Failed to validate an OpenFlow message ( code = %d, length = %zu ).", ret, length );
     free_buffer( buffer );
 
     return;
@@ -1586,7 +1586,7 @@ handle_openflow_message( void *data, size_t length ) {
     handle_queue_get_config_reply( datapath_id, buffer );
     break;
   default:
-    error( "Unhandled OpenFlow message ( type = %u ).", header->type );
+    error( "Unhandled OpenFlow message ( type = %#x ).", header->type );
     break;
   }
 
@@ -1601,7 +1601,7 @@ handle_message( uint16_t type, void *data, size_t length ) {
   assert( data != NULL );
   assert( length >= sizeof( openflow_service_header_t ) );
 
-  debug( "A message is received from remote ( type = %u ).", type );
+  debug( "A message is received from remote ( type = %#x ).", type );
 
   switch ( type ) {
   case MESSENGER_OPENFLOW_MESSAGE:
@@ -1612,7 +1612,7 @@ handle_message( uint16_t type, void *data, size_t length ) {
   case MESSENGER_OPENFLOW_DISCONNECTED:
     return handle_switch_events( type, data, length );
   default:
-    error( "Unhandled message ( type = %u ).", type );
+    error( "Unhandled message ( type = %#x ).", type );
     update_switch_event_stats( type, OPENFLOW_MESSAGE_RECEIVE, true );
     break;
   }
@@ -1650,7 +1650,7 @@ handle_list_switches_reply( uint16_t message_type, void *data, size_t length, vo
   uint64_t *dpid = ( uint64_t *) data;
   size_t num_switch = length / sizeof( uint64_t );
 
-  debug( "A list switches reply message is received ( number of switches = %u ).",
+  debug( "A list switches reply message is received ( number of switches = %zu ).",
          num_switch );
 
   if ( event_handlers.list_switches_reply_callback == NULL ) {

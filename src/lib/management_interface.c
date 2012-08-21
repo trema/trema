@@ -153,7 +153,7 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     case MANAGEMENT_ECHO_REQUEST:
     {
       if ( length != sizeof( management_echo_request ) ) {
-        error( "Invalid echo request ( length = %u ).", length );
+        error( "Invalid echo request ( length = %zu ).", length );
         return;
       }
 
@@ -164,7 +164,7 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     case MANAGEMENT_SET_LOGGING_LEVEL_REQUEST:
     {
       if ( length != sizeof( management_set_logging_level_request ) ) {
-        error( "Invalid set logging level request ( length = %u ).", length );
+        error( "Invalid set logging level request ( length = %zu ).", length );
         return;
       }
 
@@ -175,7 +175,7 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     case MANAGEMENT_APPLICATION_REQUEST:
     {
       if ( length < offsetof( management_application_request, data ) ) {
-        error( "Invalid application specific management request ( length = %u ).", length );
+        error( "Invalid application specific management request ( length = %zu ).", length );
         return;
       }
 
@@ -196,14 +196,14 @@ static void
 handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
   assert( handle != NULL );
 
-  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %zu ).",
          handle, tag, data, length );
 
   switch ( tag ) {
     case MESSENGER_MANAGEMENT_REQUEST:
     {
       if ( length < sizeof( management_request_header ) ) {
-        error( "Invalid management request. Too short message ( length = %u ).", length );
+        error( "Invalid management request. Too short message ( length = %zu ).", length );
         return;
       }
 
