@@ -37,6 +37,7 @@ bool init_stat( void );
 bool finalize_stat( void );
 bool add_stat_entry( const char *key );
 void increment_stat( const char *key );
+void reset_stats( void );
 void foreach_stat( void function( const char *key, const uint64_t value, void *user_data ), void *user_data );
 void dump_stats();
 

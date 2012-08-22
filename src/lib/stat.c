@@ -82,7 +82,9 @@ delete_stats_table() {
   init_hash_iterator( stats, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
     void *value = delete_hash_entry( stats, e->key );
-    xfree( value );
+    if ( value != NULL ) {
+      xfree( value );
+    }
   }
   delete_hash( stats );
   stats = NULL;
@@ -172,6 +174,29 @@ increment_stat( const char *key ) {
 
 
 void
+reset_stats() {
+  assert( stats != NULL );
+
+  pthread_mutex_lock( &stats_table_mutex );
+
+  hash_entry *e = NULL;
+  hash_iterator iter;
+  init_hash_iterator( stats, &iter );
+  while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
+    stat_entry *st = e->value;
+    if ( st != NULL ) {
+      void *deleted = delete_hash_entry( stats, st->key );
+      if ( deleted != NULL ) {
+        xfree( deleted );
+      }
+    }
+  }
+
+  pthread_mutex_unlock( &stats_table_mutex );
+}
+
+
+void
 foreach_stat( void function( const char *key, const uint64_t value, void *user_data ), void *user_data ) {
   assert( stats != NULL );
   assert( function != NULL );
@@ -183,7 +208,9 @@ foreach_stat( void function( const char *key, const uint64_t value, void *user_d
   init_hash_iterator( stats, &iter );
   while ( ( e = iterate_hash_next( &iter ) ) != NULL ) {
     stat_entry *st = e->value;
-    function( st->key, st->value, user_data );
+    if ( st != NULL ) {
+      function( st->key, st->value, user_data );
+    }
   }
 
   pthread_mutex_unlock( &stats_table_mutex );
@@ -203,7 +230,6 @@ print_stat( const char *key, const uint64_t value, void *user_data ) {
 void
 dump_stats() {
   assert( stats != NULL );
-
 
   info( "Statistics:" );
 
