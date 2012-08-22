@@ -651,7 +651,7 @@ start_trema_up() {
 
   die_unless_initialized();
 
-  debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
+  debug( "Starting %s ... ( TREMA_HOME = %s )", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
   write_pid( get_trema_pid(), get_trema_name() );

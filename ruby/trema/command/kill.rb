@@ -1,8 +1,6 @@
 #
 # trema kill command.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 #
 
 
-require "optparse"
 require "trema/dsl"
 require "trema/util"
 
@@ -30,44 +27,33 @@ module Trema
     include Trema::Util
 
 
-    def kill
-      options = OptionParser.new
-      options.banner = "Usage: trema kill NAME [OPTIONS ...]"
+    def trema_kill command
+      command.action do | global_options, options, args |
+        context = Trema::DSL::Context.load_current
 
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
+        # [FIXME] Trema apps does not appear in context.apps. why?
+        pid_file = File.join( Trema.pid, "#{ args[ 0 ] }.pid" )
+        if FileTest.exist?( pid_file )
+          Trema::Process.read( pid_file ).kill!
+          next
+        end
+
+        host = context.hosts[ args[ 0 ] ]
+        if host
+          host.shutdown
+          next
+        end
+
+        switch = context.switches[ args[ 0 ] ]
+        if switch
+          switch.shutdown
+          next
+        end
+
+        raise "Unknown name: #{ args[ 0 ] }"
+
+        # [TODO] kill a link by its name. Needs a good naming convension for link.
       end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      context = Trema::DSL::Context.load_current
-
-      # [FIXME] Trema apps does not appear in context.apps. why?
-      pid_file = File.join( Trema.pid, "#{ ARGV[ 0 ] }.pid" )
-      if FileTest.exist?( pid_file )
-        Trema::Process.read( pid_file ).kill!
-        return
-      end
-
-      host = context.hosts[ ARGV[ 0 ] ]
-      if host
-        host.shutdown
-        return
-      end
-
-      switch = context.switches[ ARGV[ 0 ] ]
-      if switch
-        switch.shutdown
-        return
-      end
-
-      raise "Unknown name: #{ ARGV[ 0 ] }"
-
-      # [TODO] kill a link by its name. Needs a good naming convension for link.
     end
   end
 end

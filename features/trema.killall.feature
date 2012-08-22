@@ -17,14 +17,3 @@ Feature: kill all trema processes with `trema killall' command
       And switch is terminated
       And ovs-openflowd is terminated
       And dumper is terminated
-
-
-  Scenario: trema help killall
-    When I try to run "./trema help killall"
-    Then the output should be:
-      """
-      Usage: trema killall [OPTIONS ...]
-          -h, --help
-          -v, --verbose
-
-      """

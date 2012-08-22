@@ -106,7 +106,7 @@ init_openflow_message( void ) {
 
 static buffer *
 create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t length ) {
-  debug( "Creating an OpenFlow header (version = %#x, type = %#x, length = %u, xid = %#x).",
+  debug( "Creating an OpenFlow header ( version = %#x, type = %#x, length = %u, xid = %#x ).",
          OFP_VERSION, type, length, transaction_id );
 
   assert( length >= sizeof( struct ofp_header ) );
@@ -482,10 +482,10 @@ get_actions_length( const openflow_actions *actions ) {
     action = action->next;
   }
 
-  debug( "Total length of actions = %u.", actions_length );
+  debug( "Total length of actions = %d.", actions_length );
 
   if ( actions_length > UINT16_MAX ) {
-    critical( "Too many actions ( # of actions = %d, actions length = %u ).",
+    critical( "Too many actions ( # of actions = %d, actions length = %d ).",
               actions->n_actions, actions_length );
     assert( 0 );
   }
@@ -924,7 +924,7 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     flow = flow->next;
   }
 
-  debug( "# of flows = %u.", n_flows );
+  debug( "# of flows = %d.", n_flows );
 
   length = ( uint16_t ) ( offsetof( struct ofp_stats_reply, body ) + length );
 
@@ -3951,7 +3951,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
       if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
-        warn( "Invalid vlan id ( change %u to %u )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
+        warn( "Invalid vlan id ( change %#x to %#x )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
 	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
       }
     }
@@ -3975,7 +3975,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( !( wildcards & OFPFW_NW_TOS ) ) {
       match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
       if ( ( match->nw_tos & ~NW_TOS_MASK ) != 0 ) {
-        warn( "Invalid ipv4 tos ( change %u to %u )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
+        warn( "Invalid ipv4 tos ( change %#x to %#x )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
         match->nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
       }
     }

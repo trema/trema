@@ -105,6 +105,87 @@ handle_set_logging_level_request( const messenger_context_handle *handle, manage
 }
 
 
+static void
+append_stat( const char *key, const uint64_t value, void *user_data ) {
+  assert( key != NULL );
+  assert( user_data != NULL );
+
+  list_element **stats = user_data;
+
+  stat_entry *entry = xmalloc( sizeof( stat_entry ) );
+  memset( entry, 0, sizeof( stat_entry ) );
+  memcpy( entry->key, key, sizeof( entry->key ) );
+  entry->value = htonll( value );
+
+  append_to_tail( stats, entry );
+}
+
+
+static void
+handle_show_stats_request( const messenger_context_handle *handle, management_show_stats_request *request ) {
+  assert( handle != NULL );
+  assert( request != NULL );
+  assert( ntohs( request->header.type ) == MANAGEMENT_SHOW_STATS_REQUEST );
+  assert( ntohl( request->header.length ) == sizeof( management_show_stats_request ) );
+
+  debug( "Handling a show stats request from %s.", handle->service_name );
+
+  list_element *stats = NULL;
+  create_list( &stats );
+  foreach_stat( append_stat, &stats );
+  unsigned int n_stats = list_length_of( stats );
+
+  const size_t send_queue_length = 400000; // MESSENGER_RECV_BUFFER * 4
+  const size_t send_queue_margin = 256; // headroom for various headers
+  unsigned int n_max_entries = ( unsigned int ) ( send_queue_length - send_queue_margin ) / sizeof( stat_entry );
+
+  management_show_stats_reply *reply = NULL;
+  size_t length = 0;
+
+  if ( n_stats <= n_max_entries ) {
+    length = offsetof( management_show_stats_reply, entries ) + sizeof( stat_entry ) * n_stats;
+    reply = xmalloc( length );
+    memset( reply, 0, length );
+    reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
+    reply->header.length = htonl( ( uint32_t ) length );
+    reply->header.status = MANAGEMENT_REQUEST_SUCCEEDED;
+
+    stat_entry *p = reply->entries;
+    for ( list_element *e = stats; e != NULL; e = e->next ) {
+      assert( e->data != NULL );
+      memcpy( p, e->data, sizeof( stat_entry ) );
+      p++;
+    }
+  }
+  else {
+    // TODO: Send statistics via out-of-band channel or by multiple replies.
+
+    error( "Too many statistic entries ( %u > %u ).", n_stats, n_max_entries );
+
+    length = offsetof( management_show_stats_reply, entries );
+    reply = xmalloc( length );
+    memset( reply, 0, length );
+    reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
+    reply->header.length = htonl( ( uint32_t ) length );
+    reply->header.status = MANAGEMENT_REQUEST_FAILED;
+  }
+
+  if ( stats != NULL ) {
+    for ( list_element *e = stats; e != NULL; e = e->next ) {
+      assert( e->data != NULL );
+      xfree( e->data );
+    }
+    delete_list( stats );
+  }
+
+  bool ret = send_reply_message( handle, MESSENGER_MANAGEMENT_REPLY, reply, length );
+  if ( ret == false ) {
+    error( "Failed to send a show stats reply." );
+  }
+  xfree( reply );
+}
+
+
 void
 _set_management_application_request_handler( management_application_request_handler callback, void *user_data ) {
   application_callback = callback;
@@ -153,7 +234,7 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     case MANAGEMENT_ECHO_REQUEST:
     {
       if ( length != sizeof( management_echo_request ) ) {
-        error( "Invalid echo request ( length = %u ).", length );
+        error( "Invalid echo request ( length = %zu ).", length );
         return;
       }
 
@@ -164,7 +245,7 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     case MANAGEMENT_SET_LOGGING_LEVEL_REQUEST:
     {
       if ( length != sizeof( management_set_logging_level_request ) ) {
-        error( "Invalid set logging level request ( length = %u ).", length );
+        error( "Invalid set logging level request ( length = %zu ).", length );
         return;
       }
 
@@ -172,10 +253,21 @@ handle_management_request( const messenger_context_handle *handle, void *data, s
     }
     break;
 
+    case MANAGEMENT_SHOW_STATS_REQUEST:
+    {
+      if ( length != sizeof( management_show_stats_request ) ) {
+        error( "Invalid show stats request ( length = %zu ).", length );
+        return;
+      }
+
+      handle_show_stats_request( handle, data );
+    }
+    break;
+
     case MANAGEMENT_APPLICATION_REQUEST:
     {
       if ( length < offsetof( management_application_request, data ) ) {
-        error( "Invalid application specific management request ( length = %u ).", length );
+        error( "Invalid application specific management request ( length = %zu ).", length );
         return;
       }
 
@@ -196,14 +288,14 @@ static void
 handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
   assert( handle != NULL );
 
-  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %zu ).",
          handle, tag, data, length );
 
   switch ( tag ) {
     case MESSENGER_MANAGEMENT_REQUEST:
     {
       if ( length < sizeof( management_request_header ) ) {
-        error( "Invalid management request. Too short message ( length = %u ).", length );
+        error( "Invalid management request. Too short message ( length = %zu ).", length );
         return;
       }
 

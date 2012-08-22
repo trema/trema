@@ -1,8 +1,6 @@
 #
 # trema reset_stats command.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 #
 
 
-require "optparse"
 require "trema/cli"
 require "trema/dsl"
 require "trema/util"
@@ -31,24 +28,18 @@ module Trema
     include Trema::Util
 
 
-    def reset_stats
-      sanity_check
+    def trema_reset_stats command
+      command.action do | global_options, options, args |
+        sanity_check
 
-      options = OptionParser.new
-      options.banner = "Usage: trema reset_stats [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
+        args.each do | each |
+          host = Trema::DSL::Context.load_current.hosts[ each ]
+          if host.nil?
+            raise "No host named `#{ each }' found!"
+          end
+          Trema::Cli.new( host ).reset_stats
+        end
       end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      host = Trema::DSL::Context.load_current.hosts[ ARGV[ 0 ] ]
-      Trema::Cli.new( host ).reset_stats
     end
   end
 end

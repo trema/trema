@@ -239,7 +239,7 @@ flush_send_queue( int fd, void *user_data ) {
   assert( send_queue != NULL );
   assert( connection.fd >= 0 );
 
-  debug( "Flushing send queue ( length = %d ).", send_queue->length );
+  debug( "Flushing send queue ( length = %u ).", send_queue->length );
 
   set_writable( connection.fd, false );
 
@@ -309,7 +309,7 @@ static void
 check_connected( void *user_data ) {
   UNUSED( user_data );
 
-  debug( "Checking a connection ( fd = %d ip = %#x, port = %u ).", connection.fd, connection.ip, connection.port );
+  debug( "Checking a connection ( fd = %d, ip = %#x, port = %u ).", connection.fd, connection.ip, connection.port );
 
   assert( secure_channel_initialized );
   assert( connection.fd >= 0 );
@@ -476,7 +476,7 @@ send_message_to_secure_channel( buffer *message ) {
   assert( connection.state == CONNECTED );
   assert( connection.fd >= 0 );
 
-  debug( "Enqueuing a message to send queue ( queue length = %d, message length = %d ).",
+  debug( "Enqueuing a message to send queue ( queue length = %u, message length = %zu ).",
         send_queue->length, message->length );
 
   if ( send_queue->length == 0 ) {

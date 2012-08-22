@@ -31,17 +31,3 @@ Feature: run trema application with `trema run' command
       vswitch { datapath_id "0xabc" }
       """
     Then switch_manager should be killed
-
-
-  Scenario: trema help run
-    When I try to run "./trema help run"
-    Then the output should be:
-      """
-      Usage: ./trema run [OPTIONS ...]
-          -c, --conf FILE
-          -d, --daemonize
-          -s, --tremashark
-
-          -h, --help
-          -v, --verbose
-      """

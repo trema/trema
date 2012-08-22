@@ -458,7 +458,7 @@ handle_error( buffer *data ) {
   buffer *body = duplicate_buffer( data );
   remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
 
-  debug( "An error message is received ( transaction_id = %#x, type = %u, code = %u, data length = %u ).",
+  debug( "An error message is received ( transaction_id = %#x, type = %#x, code = %#x, data length = %zu ).",
          transaction_id, type, code, body->length );
 
   if ( event_handlers.error_callback == NULL ) {
@@ -980,7 +980,7 @@ handle_openflow_message( buffer *message ) {
 
   int ret = validate_openflow_message( message );
   if ( ret < 0 ) {
-    error( "Failed to validate an OpenFlow message ( code = %d, length = %u ).", ret, message->length );
+    error( "Failed to validate an OpenFlow message ( code = %d, length = %zu ).", ret, message->length );
     return false;
   }
 
@@ -1031,7 +1031,7 @@ handle_openflow_message( buffer *message ) {
     handle_queue_get_config_request( message );
     break;
   default:
-    error( "Unhandled OpenFlow message ( type = %u ).", header->type );
+    error( "Unhandled OpenFlow message ( type = %#x ).", header->type );
     ret = false;
     break;
   }
@@ -1080,7 +1080,7 @@ switch_send_openflow_message( buffer *message ) {
 
 bool
 handle_secure_channel_message( buffer *message ) {
-  debug( "An OpenFlow message is received from remove." );
+  debug( "An OpenFlow message is received from remote." );
 
   assert( message != NULL );
   assert( message->length >= sizeof( struct ofp_header ) );
@@ -1098,7 +1098,7 @@ handle_local_message( uint16_t tag, void *data, size_t length ) {
   assert( data != NULL );
   assert( length >= sizeof( openflow_service_header_t ) );
 
-  debug( "A message is received from remote ( tag = %u, data = %p, length = %u ).", tag, data, length );
+  debug( "A message is received from remote ( tag = %#x, data = %p, length = %zu ).", tag, data, length );
 
   switch ( tag ) {
   case MESSENGER_OPENFLOW_MESSAGE:

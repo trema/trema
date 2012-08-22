@@ -1,8 +1,6 @@
 #
 # trema version command.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,8 +23,10 @@ require "trema/version"
 
 module Trema
   module Command
-    def show_version
-      puts "trema version #{ Trema::VERSION }"
+    def trema_version command
+      command.action do
+        puts "trema version #{ Trema::VERSION }"
+      end
     end
   end
 end
