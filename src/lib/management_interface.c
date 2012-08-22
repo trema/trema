@@ -135,21 +135,46 @@ handle_show_stats_request( const messenger_context_handle *handle, management_sh
   foreach_stat( append_stat, &stats );
   unsigned int n_stats = list_length_of( stats );
 
-  size_t length = offsetof( management_show_stats_reply, entries ) + sizeof( stat_entry ) * n_stats;
-  management_show_stats_reply *reply = xmalloc( length );
-  memset( reply, 0, length );
-  reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
-  reply->header.length = htonl( ( uint32_t ) length );
-  reply->header.status = MANAGEMENT_REQUEST_SUCCEEDED;
+  const size_t send_queue_length = 400000; // MESSENGER_RECV_BUFFER * 4
+  const size_t send_queue_margin = 256; // headroom for various headers
+  unsigned int n_max_entries = ( unsigned int ) ( send_queue_length - send_queue_margin ) / sizeof( stat_entry );
 
-  stat_entry *p = reply->entries;
-  for ( list_element *e = stats; e != NULL; e = e->next ) {
-    assert( e->data != NULL );
-    memcpy( p, e->data, sizeof( stat_entry ) );
-    xfree( e->data );
-    p++;
+  management_show_stats_reply *reply = NULL;
+  size_t length = 0;
+
+  if ( n_stats <= n_max_entries ) {
+    length = offsetof( management_show_stats_reply, entries ) + sizeof( stat_entry ) * n_stats;
+    reply = xmalloc( length );
+    memset( reply, 0, length );
+    reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
+    reply->header.length = htonl( ( uint32_t ) length );
+    reply->header.status = MANAGEMENT_REQUEST_SUCCEEDED;
+
+    stat_entry *p = reply->entries;
+    for ( list_element *e = stats; e != NULL; e = e->next ) {
+      assert( e->data != NULL );
+      memcpy( p, e->data, sizeof( stat_entry ) );
+      p++;
+    }
   }
+  else {
+    // TODO: Send statistics via out-of-band channel or by multiple replies.
+
+    error( "Too many statistic entries ( %u > %u ).", n_stats, n_max_entries );
+
+    length = offsetof( management_show_stats_reply, entries );
+    reply = xmalloc( length );
+    memset( reply, 0, length );
+    reply->header.type = htons( MANAGEMENT_SHOW_STATS_REPLY );
+    reply->header.length = htonl( ( uint32_t ) length );
+    reply->header.status = MANAGEMENT_REQUEST_FAILED;
+  }
+
   if ( stats != NULL ) {
+    for ( list_element *e = stats; e != NULL; e = e->next ) {
+      assert( e->data != NULL );
+      xfree( e->data );
+    }
     delete_list( stats );
   }
 
