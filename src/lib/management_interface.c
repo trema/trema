@@ -155,7 +155,7 @@ handle_show_stats_request( const messenger_context_handle *handle, management_sh
 
   bool ret = send_reply_message( handle, MESSENGER_MANAGEMENT_REPLY, reply, length );
   if ( ret == false ) {
-    error( "Failed to send a set logging level reply." );
+    error( "Failed to send a show stats reply." );
   }
   xfree( reply );
 }
