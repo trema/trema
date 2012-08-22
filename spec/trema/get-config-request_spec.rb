@@ -28,6 +28,7 @@ shared_examples_for "get config request message" do
       vswitch( "get-config-request" ) { datapath_id 0xabc }
     }.run( GetConfigRequestController ) {
       controller( "GetConfigRequestController" ).send_message( 0xabc, subject )
+      sleep 2 # FIXME: wait to send_message
       IO.read( File.join( Trema.log, "openflowd.get-config-request.log" ) ).should include( "OFPT_GET_CONFIG_REQUEST" )
     }
   end
