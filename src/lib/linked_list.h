@@ -69,7 +69,8 @@ bool insert_in_front( list_element **head, void *data );
 bool insert_before( list_element **head, const void *sibling, void *data );
 bool append_to_tail( list_element **head, void *data );
 unsigned int list_length_of( const list_element *head );
-void * iterate_list( list_element *head, bool cb( void *data, void *user_data ), void *user_data );
+void iterate_list( list_element *head, void cb( void *data, void *user_data ), void *user_data );
+void * get_element( list_element *head, bool cond( void *data, void *user_data ), void *user_data );
 bool delete_element( list_element **head, const void *data );
 bool delete_list( list_element *head );
 
