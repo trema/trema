@@ -129,7 +129,7 @@ main( int argc, char *argv[] ) {
   // Parse arguments
   parse_arguments( argc, argv );
 
-  // Set a handler to handle echo reply
+  // Set a handler to handle set logging level reply
   add_message_replied_callback( get_trema_name(), handle_reply );
 
   // Send a set logging level request
