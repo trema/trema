@@ -18,7 +18,6 @@
 #
 
 
-require "trema/dsl"
 require "trema/ofctl"
 require "trema/util"
 
@@ -31,14 +30,21 @@ module Trema
     def trema_dump_flows command
       command.action do | global_options, options, args |
         sanity_check
+        dump args
+      end
+    end
 
-        args.each do | each |
-          switch = Trema::DSL::Context.load_current.switches[ each ]
-          if switch.nil?
-            raise "No switch named `#{ each }' found!"
-          end
-          puts Trema::Ofctl.new.dump_flows( switch )
-        end
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def dump switches
+      switches.each do | each |
+        switch = find_switch_by_name( each )
+        raise "No switch named `#{ each }' found!" if switch.nil?
+        puts Trema::Ofctl.new.dump_flows( switch )
       end
     end
   end
