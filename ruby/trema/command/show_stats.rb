@@ -19,7 +19,6 @@
 
 
 require "trema/cli"
-require "trema/dsl"
 require "trema/util"
 
 
@@ -29,28 +28,40 @@ module Trema
 
 
     def trema_show_stats command
-      command.desc "Show stats of packets sent"
-      command.switch [ :t, :tx ]
-      command.desc "Show stats of packets received"
-      command.switch [ :r, :rx ]
-
       command.action do | global_options, options, args |
-        sanity_check
-
-        host = Trema::DSL::Context.load_current.hosts[ args[ 0 ] ]
-        raise "Unknown host: #{ args[ 0 ] }" if host.nil?
-
-        if options[ :tx ]
-          Trema::Cli.new( host ).show_tx_stats
-        elsif options[ :rx ]
-          Trema::Cli.new( host ).show_rx_stats
-        else
-          puts "Sent packets:"
-          Trema::Cli.new( host ).show_tx_stats
-          puts "Received packets:"
-          Trema::Cli.new( host ).show_rx_stats
-        end
+        show_stats args[ 0 ], options[ :tx ], options[ :rx ]
       end
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def show_stats hostname, tx, rx
+      cli = get_cli( hostname )
+
+      unless tx || rx
+        show_tx_and_rx cli
+      end
+      cli.show_tx_stats if tx
+      cli.show_rx_stats if rx
+    end
+
+
+    def show_tx_and_rx cli
+      puts "Sent packets:"
+      cli.show_tx_stats
+      puts "Received packets:"
+      cli.show_rx_stats
+    end
+
+
+    def get_cli name
+      host = find_host_by_name( name )
+      raise "Unknown host: #{ name }" if host.nil?
+      Trema::Cli.new host
     end
   end
 end

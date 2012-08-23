@@ -79,6 +79,13 @@ end
 desc "Shows stats of packets"
 arg_name "host"
 command :show_stats do | c |
+  sanity_check
+
+  c.desc "Show stats of packets sent"
+  c.switch [ :t, :tx ]
+  c.desc "Show stats of packets received"
+  c.switch [ :r, :rx ]
+
   trema_show_stats c
 end
 
