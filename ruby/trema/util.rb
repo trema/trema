@@ -82,6 +82,11 @@ EOF
   def find_switch_by_name name
     Trema::DSL::Context.load_current.switches[ name ]
   end    
+
+
+  def find_host_by_name name
+    Trema::DSL::Context.load_current.hosts[ name ]
+  end
 end
 
 

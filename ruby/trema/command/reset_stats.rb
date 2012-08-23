@@ -19,7 +19,6 @@
 
 
 require "trema/cli"
-require "trema/dsl"
 require "trema/util"
 
 
@@ -31,14 +30,21 @@ module Trema
     def trema_reset_stats command
       command.action do | global_options, options, args |
         sanity_check
+        reset_stats args
+      end
+    end
 
-        args.each do | each |
-          host = Trema::DSL::Context.load_current.hosts[ each ]
-          if host.nil?
-            raise "No host named `#{ each }' found!"
-          end
-          Trema::Cli.new( host ).reset_stats
-        end
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def reset_stats hosts
+      hosts.each do | each |
+        host = find_host_by_name( each )
+        raise "No host named `#{ each }' found!" if host.nil?
+        Trema::Cli.new( host ).reset_stats
       end
     end
   end
