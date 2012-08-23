@@ -79,6 +79,17 @@ EOF
   end
 
 
+  def find_app_by_name name
+    # [FIXME] Trema apps does not appear in context.apps. why?
+    pid_file = File.join( Trema.pid, "#{ name }.pid" )
+    if FileTest.exist?( pid_file )
+      Trema::Process.read( pid_file )
+    else
+      nil
+    end
+  end
+
+
   def find_switch_by_name name
     Trema::DSL::Context.load_current.switches[ name ]
   end    

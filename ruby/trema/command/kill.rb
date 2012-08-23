@@ -18,7 +18,6 @@
 #
 
 
-require "trema/dsl"
 require "trema/util"
 
 
@@ -29,31 +28,46 @@ module Trema
 
     def trema_kill command
       command.action do | global_options, options, args |
-        context = Trema::DSL::Context.load_current
-
-        # [FIXME] Trema apps does not appear in context.apps. why?
-        pid_file = File.join( Trema.pid, "#{ args[ 0 ] }.pid" )
-        if FileTest.exist?( pid_file )
-          Trema::Process.read( pid_file ).kill!
-          next
+        name = args[ 0 ]
+        unless maybe_kill( name )
+          raise "Unknown name: #{ name }"
         end
-
-        host = context.hosts[ args[ 0 ] ]
-        if host
-          host.shutdown
-          next
-        end
-
-        switch = context.switches[ args[ 0 ] ]
-        if switch
-          switch.shutdown
-          next
-        end
-
-        raise "Unknown name: #{ args[ 0 ] }"
-
-        # [TODO] kill a link by its name. Needs a good naming convension for link.
       end
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def maybe_kill name
+      killed = maybe_kill_app( name ) || nil
+      killed ||= maybe_shutdown_host( name )
+      killed ||= maybe_shutdown_switch( name )
+      # [TODO] kill a link by its name. Needs a good naming convension for link.
+      killed
+    end
+
+
+    def maybe_kill_app name
+      app = find_app_by_name( name )
+      app.kill! if app
+      app
+    end
+
+
+    def maybe_shutdown_host name
+      host = find_host_by_name( name )
+      host.shutdown if host
+      host
+    end
+
+
+    def maybe_shutdown_switch name
+      switch = find_switch_by_name( name )
+      switch.shutdown if switch
+      switch
     end
   end
 end
