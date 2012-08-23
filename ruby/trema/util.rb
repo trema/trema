@@ -77,6 +77,11 @@ EOF
   def cleanup_current_session
     cleanup Trema::DSL::Context.load_current
   end
+
+
+  def find_switch_by_name name
+    Trema::DSL::Context.load_current.switches[ name ]
+  end    
 end
 
 

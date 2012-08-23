@@ -18,7 +18,6 @@
 #
 
 
-require "trema/dsl"
 require "trema/util"
 
 
@@ -29,17 +28,14 @@ module Trema
 
     def trema_up command
       command.action do | global_options, options, args |
-        context = Trema::DSL::Context.load_current
-
-        switch = context.switches[ args[ 0 ] ]
+        name = args[ 0 ]
+        switch = find_switch_by_name( name )
         if switch
           switch.run
-          next
+        else
+          # TODO: support vlink
+          raise "Unknown name: #{ name }"
         end
-
-        # TODO: support vlink
-
-        raise "Unknown name: #{ args[ 0 ] }"
       end
     end
   end
