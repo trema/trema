@@ -28,15 +28,6 @@ module Trema
 
 
     def trema_run command
-      command.desc "Runs as a daemon"
-      command.switch [ :d, :daemonize ]
-
-      command.desc "Enables Trema wireshark plugin"
-      command.switch [ :s, :tremashark ]
-
-      command.desc "Specifies emulated network configuration"
-      command.flag [ :c, :conf ]
-
       command.action do | global_options, options, args |
         @config_file = options[ :conf ] || nil
 

@@ -29,34 +29,6 @@ module Trema
 
 
     def trema_send_packets command
-      command.desc "host that sends packets"
-      command.flag [ :s, :source ]
-
-      command.desc "host that receives packets"
-      command.flag [ :d, :dest ]
-
-      command.default_value nil
-      command.flag [ :inc_ip_src ]
-
-      command.default_value nil
-      command.flag [ :inc_ip_dst ]
-
-      command.flag [ :tp_src ]
-      command.default_value nil
-      command.flag [ :inc_tp_src ]
-
-      command.flag [ :tp_dst ]
-      command.default_value nil
-      command.flag [ :inc_tp_dst ]
-
-      command.flag [ :pps ]
-      command.flag [ :n_pkts ]
-      command.flag [ :duration ]
-      command.flag [ :length ]
-
-      command.default_value nil
-      command.flag [ :inc_payload ]
-
       command.action do | global_options, options, args |
         raise "--source option is a mandatory" if options[ :source ].nil?
         source = Trema::DSL::Context.load_current.hosts[ options[ :source ] ]

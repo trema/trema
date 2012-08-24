@@ -28,11 +28,11 @@ include Trema::Util
 
 
 describe Trema::Util do
-  it "should check the sanity of trema" do
+  it "should assert that trema is built" do
     Trema::Executables.stub!( :compiled? ).and_return( false )
     $stderr.should_receive( :puts ).with( /^ERROR/ )
     lambda do
-      sanity_check
+      assert_trema_is_built
     end.should raise_error( SystemExit )
   end
 

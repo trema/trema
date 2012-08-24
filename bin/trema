@@ -26,7 +26,6 @@ require "rubygems"
 
 require "gli"
 require "trema/command"
-require "trema/executables"
 require "trema/util"
 require "trema/version"
 
@@ -47,6 +46,15 @@ switch [ :v, :verbose ]
 desc "Runs a trema application"
 arg_name "controller"
 command :run do | c |
+  c.desc "Runs as a daemon"
+  c.switch [ :d, :daemonize ]
+
+  c.desc "Enables Trema wireshark plugin"
+  c.switch [ :s, :tremashark ]
+
+  c.desc "Specifies emulated network configuration"
+  c.flag [ :c, :conf ]
+
   trema_run c
 end
 
@@ -73,6 +81,34 @@ end
 
 desc "Sends UDP packets to destination host"
 command :send_packets do | c |
+  c.desc "host that sends packets"
+  c.flag [ :s, :source ]
+
+  c.desc "host that receives packets"
+  c.flag [ :d, :dest ]
+
+  c.default_value nil
+  c.flag [ :inc_ip_src ]
+
+  c.default_value nil
+  c.flag [ :inc_ip_dst ]
+
+  c.flag [ :tp_src ]
+  c.default_value nil
+  c.flag [ :inc_tp_src ]
+
+  c.flag [ :tp_dst ]
+  c.default_value nil
+  c.flag [ :inc_tp_dst ]
+
+  c.flag [ :pps ]
+  c.flag [ :n_pkts ]
+  c.flag [ :duration ]
+  c.flag [ :length ]
+
+  c.default_value nil
+  c.flag [ :inc_payload ]
+
   trema_send_packets c
 end
 
@@ -118,15 +154,7 @@ end
 pre do | global, command, options, args |
   $verbose = global[ :verbose ]
 
-  unless Trema::Executables.compiled?
-    $stderr.puts <<-EOF
-ERROR: Trema is not compiled yet!
-
-Please try the following command:
-% ./build.rb
-EOF
-    exit false
-  end
+  assert_trema_is_built
 
   if FileTest.exist?( Trema.tmp ) and not FileTest.writable?( Trema.tmp )
     # Trema is system widely installed with gem command

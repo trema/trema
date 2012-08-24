@@ -19,6 +19,7 @@
 
 
 require "trema/dsl"
+require "trema/executables"
 require "trema/path"
 require "trema/process"
 
@@ -29,6 +30,19 @@ module Trema::Util
     puts cmd if $verbose
     unless system( cmd )
       raise "Command '#{ cmd }' failed!"
+    end
+  end
+
+
+  def assert_trema_is_built
+    unless Trema::Executables.compiled?
+      $stderr.puts <<-EOF
+ERROR: Trema is not compiled yet!
+
+Please try the following command:
+% ./build.rb
+EOF
+      exit false
     end
   end
 
