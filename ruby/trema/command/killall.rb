@@ -1,6 +1,4 @@
 #
-# trema killall command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,10 +24,8 @@ module Trema
     include Trema::Util
 
 
-    def trema_killall command
-      command.action do | global_options, options, args |
-        cleanup_current_session
-      end
+    def trema_killall
+      cleanup_current_session
     end
   end
 end

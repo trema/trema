@@ -1,6 +1,4 @@
 #
-# trema version command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,10 +21,8 @@ require "trema/version"
 
 module Trema
   module Command
-    def trema_version command
-      command.action do
-        puts "trema version #{ Trema::VERSION }"
-      end
+    def trema_version
+      puts "trema version #{ Trema::VERSION }"
     end
   end
 end

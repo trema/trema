@@ -1,6 +1,4 @@
 #
-# trema ruby command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,15 +16,16 @@
 #
 
 
+require "trema/util"
+
+
 module Trema
   module Command
     include Trema::Util
 
 
-    def trema_ruby command
-      command.action do
-        sh "x-www-browser http://rubydoc.info/github/trema/trema/master/frames"
-      end
+    def trema_ruby
+      sh "x-www-browser http://rubydoc.info/github/trema/trema/master/frames"
     end
   end
 end

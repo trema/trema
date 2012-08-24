@@ -1,6 +1,4 @@
 #
-# trema show_stats command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,19 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_show_stats command
-      command.action do | global_options, options, args |
-        show_stats args[ 0 ], options[ :tx ], options[ :rx ]
-      end
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def show_stats hostname, tx, rx
+    def trema_show_stats hostname, tx, rx
       cli = get_cli( hostname )
 
       unless tx || rx
@@ -48,6 +34,11 @@ module Trema
       cli.show_tx_stats if tx
       cli.show_rx_stats if rx
     end
+
+
+    ############################################################################
+    private
+    ############################################################################
 
 
     def show_tx_and_rx cli

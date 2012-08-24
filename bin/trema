@@ -55,27 +55,35 @@ command :run do | c |
   c.desc "Specifies emulated network configuration"
   c.flag [ :c, :conf ]
 
-  trema_run c
+  c.action do | global_options, options, args |
+    trema_run options
+  end
 end
 
 
 desc "Terminates a trema process"
 arg_name "name"
 command :kill do | c |
-  trema_kill c
+  c.action do | global_options, options, args |
+    trema_kill args[ 0 ]
+  end
 end
 
 
 desc "Starts a killed trema process again"
 arg_name "name"
 command :up do | c |
-  trema_up c
+  c.action do | global_options, options, args |
+    trema_up args[ 0 ]
+  end
 end
 
 
 desc "Terminates all trema processes"
 command :killall do | c |
-  trema_killall c
+  c.action do
+    trema_killall
+  end
 end
 
 
@@ -109,7 +117,12 @@ command :send_packets do | c |
   c.default_value nil
   c.flag [ :inc_payload ]
 
-  trema_send_packets c
+  c.action do | global_options, options, args |
+    raise "--source option is a mandatory" if options[ :source ].nil?
+    raise "--dest option is a mandatory" if options[ :dest ].nil?
+
+    trema_send_packets options[ :source ], options[ :dest ], options
+  end
 end
 
 
@@ -121,33 +134,43 @@ command :show_stats do | c |
   c.desc "Show stats of packets received"
   c.switch [ :r, :rx ]
 
-  trema_show_stats c
+  c.action do | global_options, options, args |
+    trema_show_stats args[ 0 ], options[ :tx ], options[ :rx ]
+  end
 end
 
 
 desc "Resets stats of packets"
 arg_name "hosts..."
 command :reset_stats do | c |
-  trema_reset_stats c
+  c.action do | global_options, options, args |
+    trema_reset_stats args
+  end
 end
 
 
 desc "Print all flow entries"
 arg_name "switches..."
 command :dump_flows do | c |
-  trema_dump_flows c
+  c.action do | global_options, options, args |
+    trema_dump_flows args
+  end
 end
 
 
-desc "Opens in your browser Trema's Ruby API documentation."
+desc "Opens in your browser Trema's Ruby API documentation"
 command :ruby do | c |
-  trema_ruby c
+  c.action do
+    trema_ruby
+  end
 end
 
 
 desc "Displays the current runtime version"
 command :version do | c |
-  trema_version c
+  c.action do
+    trema_version
+  end
 end
 
 

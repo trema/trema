@@ -1,6 +1,4 @@
 #
-# trema kill command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,12 +24,9 @@ module Trema
     include Trema::Util
 
 
-    def trema_kill command
-      command.action do | global_options, options, args |
-        name = args[ 0 ]
-        unless maybe_kill( name )
-          raise "Unknown name: #{ name }"
-        end
+    def trema_kill name
+      unless maybe_kill( name )
+        raise "Unknown name: #{ name }"
       end
     end
 

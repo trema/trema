@@ -1,6 +1,4 @@
 #
-# trema up command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,16 +24,13 @@ module Trema
     include Trema::Util
 
 
-    def trema_up command
-      command.action do | global_options, options, args |
-        name = args[ 0 ]
-        switch = find_switch_by_name( name )
-        if switch
-          switch.run
-        else
-          # TODO: support vlink
-          raise "Unknown name: #{ name }"
-        end
+    def trema_up name
+      switch = find_switch_by_name( name )
+      if switch
+        switch.run
+      else
+        # TODO: support vlink
+        raise "Unknown name: #{ name }"
       end
     end
   end

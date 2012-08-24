@@ -1,6 +1,4 @@
 #
-# trema send_packets command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,18 +26,14 @@ module Trema
     include Trema::Util
 
 
-    def trema_send_packets command
-      command.action do | global_options, options, args |
-        raise "--source option is a mandatory" if options[ :source ].nil?
-        source = Trema::DSL::Context.load_current.hosts[ options[ :source ] ]
-        raise "Unknown host: #{ options[ :source ] }" if source.nil?
+    def trema_send_packets source_name, dest_name, options
+      source = find_host_by_name( source_name )
+      raise "Unknown host: #{ source_name }" if source.nil?
 
-        raise "--dest option is a mandatory" if options[ :dest ].nil?
-        dest = Trema::DSL::Context.load_current.hosts[ options[ :dest ] ]
-        raise "Unknown host: #{ options[ :dest ] }" if dest.nil?
+      dest = find_host_by_name( dest_name )
+      raise "Unknown host: #{ dest_name }" if dest.nil?
 
-        Trema::Cli.new( source ).send_packets( dest, options )
-      end
+      Trema::Cli.new( source ).send_packets( dest, options )
     end
   end
 end

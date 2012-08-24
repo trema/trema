@@ -1,6 +1,4 @@
 #
-# trema run command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,28 +25,25 @@ module Trema
     include Trema::Util
 
 
-    def trema_run command
-      command.action do | global_options, options, args |
-        @config_file = options[ :conf ] || nil
+    def trema_run options
+      @config_file = options[ :conf ] || nil
 
-        if options[ :daemonize ]
-          $run_as_daemon = true
-        end
+      if options[ :daemonize ]
+        $run_as_daemon = true
+      end
+      if options[ :tremashark ]
+        $use_tremashark = true
+      end
 
-        if options[ :tremashark ]
-          $use_tremashark = true
-        end
+      cleanup_current_session
 
-        cleanup_current_session
-
-        if $run_as_daemon
-          Trema::DSL::Runner.new( load_config ).daemonize
-        else
-          begin
-            Trema::DSL::Runner.new( load_config ).run
-          ensure
-            cleanup_current_session
-          end
+      if $run_as_daemon
+        Trema::DSL::Runner.new( load_config ).daemonize
+      else
+        begin
+          Trema::DSL::Runner.new( load_config ).run
+        ensure
+          cleanup_current_session
         end
       end
     end

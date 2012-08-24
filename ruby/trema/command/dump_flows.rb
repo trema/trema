@@ -1,6 +1,4 @@
 #
-# trema dump_flows command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,19 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_dump_flows command
-      command.action do | global_options, options, args |
-        dump args
-      end
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def dump switches
+    def trema_dump_flows switches
       switches.each do | each |
         switch = find_switch_by_name( each )
         raise "No switch named `#{ each }' found!" if switch.nil?

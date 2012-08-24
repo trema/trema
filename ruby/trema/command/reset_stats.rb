@@ -1,6 +1,4 @@
 #
-# trema reset_stats command.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,19 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_reset_stats command
-      command.action do | global_options, options, args |
-        reset_stats args
-      end
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def reset_stats hosts
+    def trema_reset_stats hosts
       hosts.each do | each |
         host = find_host_by_name( each )
         raise "No host named `#{ each }' found!" if host.nil?
