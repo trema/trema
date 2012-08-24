@@ -69,13 +69,15 @@ EOF
     Dir.glob( File.join Trema.pid, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
-
-    FileUtils.rm_f Trema::DSL::Context::PATH
   end
 
 
   def cleanup_current_session
-    cleanup Trema::DSL::Context.load_current
+    begin
+      cleanup Trema::DSL::Context.load_current
+    ensure
+      FileUtils.rm_f Trema::DSL::Context::PATH
+    end
   end
 
 
