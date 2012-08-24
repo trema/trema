@@ -139,6 +139,52 @@ list_length_of( const list_element *head ) {
 
 
 /**
+ * This routine supports transparent list manipulation.
+ *
+ * @param head the head of the list.
+ * @param cb the user-defined callback function.
+ * @param user_data the argument of cb.
+ */
+void
+iterate_list( list_element *head, void cb( void *data, void *user_data ), void *user_data ) {
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
+  if( cb != NULL ) {
+    for ( list_element *e = head; e != NULL; e = e->next ) {
+      cb( e->data, user_data );
+    }
+  }
+}
+
+
+/**
+ * Returns the data that is related to the list if user-defined conditional function returns true, or NULL.
+ *
+ * @param head the head of the list.
+ * @param cond the user-defined conditional callback function.
+ * @param user_data the argument of cond.
+ * @return the data which is dealt at that list iteration point, or NULL.
+ */
+void *
+get_element( list_element *head, bool cond( void *data, void *user_data ), void *user_data ) {
+  if ( head == NULL ) {
+    die( "head must not be NULL" );
+  }
+  void *retdata = NULL;
+  if( cond != NULL ) {
+    for ( list_element *e = head; e != NULL; e = e->next ) {
+      if( cond( e->data, user_data ) ) {
+        retdata = e->data;
+        break;
+      }
+    }
+  }
+  return retdata;
+}
+
+
+/**
  * Removes an element from a list. If two elements contain the same
  * data, only the first is removed. If none of the elements contain
  * the data, the list is unchanged.

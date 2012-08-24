@@ -281,6 +281,98 @@ test_list_length_of_empty_list() {
 }
 
 
+typedef struct {
+  const char *value;
+  int counter;
+} list_data;
+
+static void
+linear_processing( void *data, void *user_data ) {
+  assert_true( data != NULL );
+  assert_true( user_data != NULL );
+
+  list_data *d = ( list_data * )data;
+  int *counter = ( int * )user_data;
+  d->counter = ++( *counter );
+
+  if ( *counter == 1 ) {
+    assert_string_equal( d->value, "charlie" );
+  } else if ( *counter == 2 ) {
+    assert_string_equal( d->value, "bravo" );
+  } else if ( *counter == 3 ) {
+    assert_string_equal( d->value, "alpha" );
+  }
+}
+
+static void
+test_iterate_list() {
+  create_list( &new_list );
+  int counter = 0;
+
+  list_data data_alpha = { .value = alpha, .counter = 0 };
+  list_data data_bravo = { .value = bravo, .counter = 0 };
+  list_data data_charlie = { .value = charlie, .counter = 0 };
+
+  insert_in_front( &new_list, &data_alpha );
+  insert_in_front( &new_list, &data_bravo );
+  insert_in_front( &new_list, &data_charlie );
+
+  iterate_list( new_list, linear_processing, &counter );
+  assert_int_equal( 3, counter );
+
+  delete_list( new_list );
+}
+
+
+static bool
+extract_success( void *data, void *user_data ) {
+  assert_true( data != NULL );
+  assert_true( user_data == NULL );
+
+  bool ret = false;
+  list_data *d = ( list_data * )data;
+
+  if ( d->counter == 2 ) {
+    ret = true;
+  }
+
+  assert_true( d->counter < 3 );
+
+  return ret;
+}
+
+static bool
+extract_failure( void *data, void *user_data ) {
+  assert_true( data != NULL );
+  assert_true( user_data == NULL );
+
+  return false;
+}
+
+static void
+test_get_element() {
+  create_list( &new_list );
+  void *retdata;
+
+  list_data data_alpha = { .value = alpha, .counter = 3 };
+  list_data data_bravo = { .value = bravo, .counter = 2 };
+  list_data data_charlie = { .value = charlie, .counter = 1 };
+
+  insert_in_front( &new_list, &data_alpha );
+  insert_in_front( &new_list, &data_bravo );
+  insert_in_front( &new_list, &data_charlie );
+
+  retdata = get_element( new_list, extract_success, NULL );
+  assert_true( retdata != NULL );
+  assert_string_equal( ( ( list_data * )( retdata ) )->value, "bravo" );
+
+  retdata = get_element( new_list, extract_failure, NULL );
+  assert_true( retdata == NULL );
+
+  delete_list( new_list );
+}
+
+
 static void
 test_delete_list() {
   create_list( &new_list );
@@ -327,6 +419,9 @@ main() {
 
     unit_test( test_list_length ),
     unit_test( test_list_length_of_empty_list ),
+
+    unit_test( test_iterate_list ),
+    unit_test( test_get_element ),
 
     unit_test( test_delete_list ),
   };
