@@ -19,25 +19,11 @@
 
 
 require "trema/dsl"
-require "trema/executables"
 require "trema/path"
 require "trema/process"
 
 
 module Trema::Util
-  def sanity_check
-    unless Trema::Executables.compiled?
-      $stderr.puts <<-EOF
-ERROR: Trema is not compiled yet!
-
-Please try the following command:
-% ./build.rb
-EOF
-      exit false
-    end
-  end
-
-
   def sh cmd
     ENV[ "TREMA_HOME" ] = Trema.home
     puts cmd if $verbose

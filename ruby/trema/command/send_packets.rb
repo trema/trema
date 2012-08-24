@@ -58,8 +58,6 @@ module Trema
       command.flag [ :inc_payload ]
 
       command.action do | global_options, options, args |
-        sanity_check
-
         raise "--source option is a mandatory" if options[ :source ].nil?
         source = Trema::DSL::Context.load_current.hosts[ options[ :source ] ]
         raise "Unknown host: #{ options[ :source ] }" if source.nil?

@@ -38,8 +38,6 @@ module Trema
       command.flag [ :c, :conf ]
 
       command.action do | global_options, options, args |
-        sanity_check
-
         @config_file = options[ :conf ] || nil
 
         if options[ :daemonize ]

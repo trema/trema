@@ -29,7 +29,6 @@ module Trema
 
     def trema_dump_flows command
       command.action do | global_options, options, args |
-        sanity_check
         dump args
       end
     end

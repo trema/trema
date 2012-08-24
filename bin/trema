@@ -26,6 +26,7 @@ require "rubygems"
 
 require "gli"
 require "trema/command"
+require "trema/executables"
 require "trema/util"
 require "trema/version"
 
@@ -79,8 +80,6 @@ end
 desc "Shows stats of packets"
 arg_name "host"
 command :show_stats do | c |
-  sanity_check
-
   c.desc "Show stats of packets sent"
   c.switch [ :t, :tx ]
   c.desc "Show stats of packets received"
@@ -118,6 +117,16 @@ end
 
 pre do | global, command, options, args |
   $verbose = global[ :verbose ]
+
+  unless Trema::Executables.compiled?
+    $stderr.puts <<-EOF
+ERROR: Trema is not compiled yet!
+
+Please try the following command:
+% ./build.rb
+EOF
+    exit false
+  end
 
   if FileTest.exist?( Trema.tmp ) and not FileTest.writable?( Trema.tmp )
     # Trema is system widely installed with gem command

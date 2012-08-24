@@ -29,7 +29,6 @@ module Trema
 
     def trema_reset_stats command
       command.action do | global_options, options, args |
-        sanity_check
         reset_stats args
       end
     end
