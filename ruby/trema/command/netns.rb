@@ -1,6 +1,4 @@
 #
-# Trema sub-commands.
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,18 +16,19 @@
 #
 
 
-require "trema/command/dump_flows"
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/netns"
-require "trema/command/reset_stats"
-require "trema/command/ruby"
-require "trema/command/run"
-require "trema/command/send_packets"
-require "trema/command/shell"
-require "trema/command/show_stats"
-require "trema/command/up"
-require "trema/command/version"
+require "trema/util"
+
+
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def trema_netns netns
+      sh "sudo ip netns exec #{ netns } #{ ENV[ 'SHELL' ] }"
+    end
+  end
+end
 
 
 ### Local variables:

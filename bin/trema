@@ -158,6 +158,15 @@ command :dump_flows do | c |
 end
 
 
+desc "Opens a new shell in the specified network namespace"
+arg_name "name"
+command :netns do | c |
+  c.action do | global_options, options, args |
+    trema_netns args[ 0 ]
+  end
+end
+
+
 desc "Opens in your browser Trema's Ruby API documentation"
 command :ruby do | c |
   c.action do
