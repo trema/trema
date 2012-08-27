@@ -65,6 +65,9 @@ EOF
     session.links.each do | name, link |
       link.delete!
     end
+    session.netnss.each do | name, netns |
+      netns.shutdown!
+    end
 
     Dir.glob( File.join Trema.pid, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
