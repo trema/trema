@@ -36,6 +36,7 @@ include Trema::Command
 
 
 program_desc "Trema command-line tool"
+desc "Displays the current runtime version"
 version Trema::VERSION
 
 
