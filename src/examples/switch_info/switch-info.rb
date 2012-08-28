@@ -1,4 +1,8 @@
 #
+# Getting switch information
+#
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,16 +20,21 @@
 #
 
 
-class PacketInDumper < Controller
-  def packet_in datapath_id, message
-    info "received a packet_in"
-    info "datapath_id: #{ datapath_id.to_hex }"
-    info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "buffer_id: #{ message.buffer_id.to_hex }"
-    info "total_len: #{ message.total_len }"
-    info "in_port: #{ message.in_port }"
-    info "reason: #{ message.reason.to_hex }"
-    info "data: #{ message.data.unpack "H*" }"
+class SwitchInfo < Controller
+  def switch_ready datapath_id
+    send_message datapath_id, FeaturesRequest.new
+  end
+
+
+  def features_reply datapath_id, message
+    info "datapath_id: %#x" % datapath_id
+    info "transaction_id: %#x" % message.transaction_id
+    info "n_buffers: %u" % message.n_buffers
+    info "n_tables: %u" % message.n_tables
+    info "capabilities: %u" % message.capabilities
+    info "actions: %u" % message.actions
+    info "#ports: %d" % message.ports.size
+    shutdown!
   end
 end
 

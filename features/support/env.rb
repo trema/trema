@@ -31,6 +31,7 @@ end
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" ) )
 
 
+require "aruba/cucumber"
 require "rspec"
 require "tempfile"
 require "trema/executables"

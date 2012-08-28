@@ -32,9 +32,9 @@ module Trema
     include Trema::Daemon
 
 
-    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -D" }
+    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -n #{ phost.name } -D" }
     wait_until_up
-    daemon_id :interface
+    daemon_id :name
 
 
     #
@@ -62,11 +62,6 @@ module Trema
     def running?
       not @host.interface.nil? and super
     end
-
-
-    ################################################################################
-    private
-    ################################################################################
 
 
     def name

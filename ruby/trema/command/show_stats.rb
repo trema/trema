@@ -51,7 +51,7 @@ module Trema
 
     def get_cli name
       host = find_host_by_name( name )
-      raise "Unknown host: #{ name }" if host.nil?
+      exit_now! "unknown host: #{ name }" if host.nil?
       Trema::Cli.new host
     end
   end

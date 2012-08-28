@@ -20,7 +20,7 @@
 #
 
 
-$LOAD_PATH << "./src/examples/learning_switch/"
+$LOAD_PATH << File.join( File.dirname( __FILE__ ), "../learning_switch/" )
 
 
 require "fdb"

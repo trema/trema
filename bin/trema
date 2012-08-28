@@ -36,12 +36,14 @@ include Trema::Command
 
 
 program_desc "Trema command-line tool"
+
+
 desc "Displays the current runtime version"
 version Trema::VERSION
 
 
 desc "Be verbose"
-switch [ :v, :verbose ]
+switch [ :v, :verbose ], :negatable => false
 
 
 desc "Runs a trema application"
@@ -66,7 +68,10 @@ desc "Terminates a trema process"
 arg_name "name"
 command :kill do | c |
   c.action do | global_options, options, args |
-    trema_kill args[ 0 ]
+    help_now!( "name is required" ) if args.empty?
+    args.each do | each |
+      trema_kill each
+    end
   end
 end
 
@@ -152,6 +157,7 @@ command :show_stats do | c |
   c.switch [ :r, :rx ]
 
   c.action do | global_options, options, args |
+    help_now!( "host is required" ) if args.empty?
     trema_show_stats args[ 0 ], options[ :tx ], options[ :rx ]
   end
 end
@@ -170,6 +176,7 @@ desc "Print all flow entries"
 arg_name "switches..."
 command :dump_flows do | c |
   c.action do | global_options, options, args |
+    help_now!( "switches is required" ) if args.empty?
     trema_dump_flows args
   end
 end

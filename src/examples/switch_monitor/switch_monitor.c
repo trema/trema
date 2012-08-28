@@ -121,7 +121,7 @@ show_switches( void *user_data ) {
   char *list = xmalloc( 20 * num_switch + 1 ); // 20 = dpid string (18 chars) + ", "
   list[ 0 ] = '\0';
   join( list, *switches );
-  info( "All switches  = %s", list );
+  info( "All switches = %s", list );
   xfree( list );
 }
 

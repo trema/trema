@@ -1,8 +1,4 @@
 #
-# Getting switch information
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,20 +16,9 @@
 #
 
 
-class SwitchInfoController < Controller
+class HelloTrema < Controller
   def switch_ready datapath_id
-    send_message datapath_id, FeaturesRequest.new
-  end
-
-
-  def features_reply datapath_id, message
-    info "datapath_id: %#x" % datapath_id
-    info "transaction_id: %#x" % message.transaction_id
-    info "n_buffers: %u" % message.n_buffers
-    info "n_tables: %u" % message.n_tables
-    info "capabilities: %u" % message.capabilities
-    info "actions: %u" % message.actions
-    info "ports: %s" % message.ports.collect { | each | each.number }.sort.join( ", " )
+    info "Hello %#x!" % datapath_id
     shutdown!
   end
 end

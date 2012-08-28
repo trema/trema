@@ -4,7 +4,7 @@ Feature: Send echo request messages
   I want to send echo request messages to openflow switches
   So that I can receive echo reply messages from openflow switches
 
-
+  @wip
   Scenario: Send echo request x 10
     When I try trema run "./objects/examples/openflow_message/echo_request 10" with following configuration (backgrounded):
       """
@@ -14,7 +14,7 @@ Feature: Send echo request messages
       And *** sleep 2 ***
     Then the log file "openflowd.echo_request.log" should include "received: OFPT_ECHO_REQUEST" x 10
 
-
+  @wip
   Scenario: Send echo request x 10 in Ruby
     When I try trema run "./src/examples/openflow_message/echo-request.rb 0xabc, 10" with following configuration (backgrounded):
       """

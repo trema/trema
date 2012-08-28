@@ -4,6 +4,7 @@ Feature: packetin_filter help
   I want to see the help message of packetin_filter command
   So that I can learn how to use packetin_filter
 
+  @wip
   Scenario: packetin_filter --help
     When I try to run "./objects/packetin_filter/packetin_filter --help"
     Then the output should be:
@@ -28,6 +29,7 @@ Feature: packetin_filter help
       destination-service-name          destination service name
       """
 
+  @wip
   Scenario: packetin_filter -h
     When I try to run "./objects/packetin_filter/packetin_filter -h"
     Then the output should be:

@@ -1,68 +1,55 @@
-Feature: trema-config compile helper
+Feature: trema-config command
 
-  As a Trema user
-  I want to compile trema apps like: gcc -o hello_trema hello_trema.c `trema-config --cflags --libs`
-  So that I can compile trema apps without specifying Trema-specific flags and options.
-
+  In order to specify C compiler options easily
+  As a developer using Trema
+  I want to use trema-config command
 
   Scenario: trema-config --cflags
-    When I try to run "gcc -c src/examples/hello_trema/hello_trema.c `./trema-config --cflags` -o tmp/hello_trema.o"
-    Then I should not get errors
-
+    When I run `trema-config --cflags`
+    Then the output should match /^-I\S+lib -I\S+openflow$/
 
   Scenario: trema-config -c
-    When I try to run "gcc -c src/examples/hello_trema/hello_trema.c `./trema-config -c` -o tmp/hello_trema.o"
-    Then I should not get errors
-
+    When I run `trema-config -c`
+    Then the output should match /^-I\S+lib -I\S+openflow$/
 
   Scenario: trema-config --libs
-    When I try to run "gcc -c src/examples/hello_trema/hello_trema.c `./trema-config --cflags` -o tmp/hello_trema.o"
-     And I try to run "gcc tmp/hello_trema.o `./trema-config --libs` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config --libs`
+    Then the output should match /^-L\S+lib -l.*/
 
   Scenario: trema-config -l
-    When I try to run "gcc -c src/examples/hello_trema/hello_trema.c `./trema-config --cflags` -o tmp/hello_trema.o"
-     And I try to run "gcc tmp/hello_trema.o `./trema-config -l` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config -l`
+    Then the output should match /^-L\S+lib -l.*/
 
   Scenario: trema-config --cflags --libs
-    When I try to run "gcc -c src/examples/hello_trema/hello_trema.c `./trema-config -c` -o tmp/hello_trema.o"
-     And I try to run "gcc tmp/hello_trema.o `./trema-config --cflags --libs` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config --cflags --libs`
+    Then the output should match /^-I\S+lib -I\S+openflow -L\S+lib -l.*/
 
   Scenario: trema-config -c --libs
-    When I try to run "gcc src/examples/hello_trema/hello_trema.c `./trema-config -c --libs` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config -c --libs`
+    Then the output should match /^-I\S+lib -I\S+openflow -L\S+lib -l.*/
 
   Scenario: trema-config --cflags -l
-    When I try to run "gcc src/examples/hello_trema/hello_trema.c `./trema-config --cflags -l` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config --cflags -l`
+    Then the output should match /^-I\S+lib -I\S+openflow -L\S+lib -l.*/
 
   Scenario: trema-config -c -l
-    When I try to run "gcc src/examples/hello_trema/hello_trema.c `./trema-config -c -l` -o tmp/hello_trema"
-    Then I should not get errors
-
+    When I run `trema-config -c -l`
+    Then the output should match /^-I\S+lib -I\S+openflow -L\S+lib -l.*/
 
   Scenario: trema-config --help
-    When I try to run "./trema-config --help"
-    Then the output should be:
+    When I run `trema-config --help`
+    Then the output should contain:
       """
-      Usage: ./trema-config [OPTIONS ...]
+      Usage: trema-config [OPTIONS ...]
           -c, --cflags
           -l, --libs
       """
 
-
   Scenario: trema-config -h
-    When I try to run "./trema-config -h"
-    Then the output should be:
+    When I run `trema-config -h`
+    Then the output should contain:
       """
-      Usage: ./trema-config [OPTIONS ...]
+      Usage: trema-config [OPTIONS ...]
           -c, --cflags
           -l, --libs
       """

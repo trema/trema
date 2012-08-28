@@ -4,6 +4,7 @@ Feature: switch_manager help
   I want to see the help message of switch_manager command
   So that I can learn how to use switch_manager
 
+  @wip
   Scenario: switch_manager --help
     When I try to run "./objects/switch_manager/switch_manager --help"
     Then the output should be:
@@ -21,6 +22,7 @@ Feature: switch_manager help
         -h, --help                      display this help and exit
       """
 
+  @wip
   Scenario: switch_manager -h
     When I try to run "./objects/switch_manager/switch_manager -h"
     Then the output should be:

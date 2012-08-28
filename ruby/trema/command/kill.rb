@@ -26,7 +26,7 @@ module Trema
 
     def trema_kill name
       unless maybe_kill( name )
-        raise "Unknown name: #{ name }"
+        exit_now! "unknown name: #{ name }"
       end
     end
 
@@ -54,7 +54,7 @@ module Trema
 
     def maybe_shutdown_host name
       host = find_host_by_name( name )
-      host.shutdown if host
+      host.shutdown! if host
       host
     end
 
