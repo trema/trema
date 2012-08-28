@@ -206,6 +206,14 @@ module Trema
     end
 
 
+    #
+    # Check stats type and delegate processing.
+    #
+    # @raise [RuntimeError] if stats type is invalid.
+    #
+    # @return [Stat] 
+    #   the object that represents the results of a particular stats type.
+    #
     def stats type
       case type
       when :tx
