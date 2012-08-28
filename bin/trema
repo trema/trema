@@ -95,31 +95,47 @@ command :send_packets do | c |
   c.desc "host that receives packets"
   c.flag [ :d, :dest ]
 
+  c.desc "number of times to increment the IP source address"
   c.default_value nil
   c.flag [ :inc_ip_src ]
 
+  c.desc "number of times to increment the IP destination address"
   c.default_value nil
   c.flag [ :inc_ip_dst ]
 
+  c.desc "set the initial UDP source port"
   c.flag [ :tp_src ]
+
+  c.desc "number of times to increment the UDP source port"
   c.default_value nil
   c.flag [ :inc_tp_src ]
 
+  c.desc "set the initial UDP destination port"
   c.flag [ :tp_dst ]
+
+  c.desc "number of times to increment the UDP destination port"
   c.default_value nil
   c.flag [ :inc_tp_dst ]
 
+  c.desc "send packet rate - packets per second"
   c.flag [ :pps ]
+
+  c.desc "number of packets to send"
   c.flag [ :n_pkts ]
+
+  c.desc "time duration to send packets"
   c.flag [ :duration ]
+
+  c.desc "length of UDP payload"
   c.flag [ :length ]
 
+  c.desc "increment UDP payload"
   c.default_value nil
   c.flag [ :inc_payload ]
 
   c.action do | global_options, options, args |
-    raise "--source option is a mandatory" if options[ :source ].nil?
-    raise "--dest option is a mandatory" if options[ :dest ].nil?
+    raise "--source option is mandatory" if options[ :source ].nil?
+    raise "--dest option is mandatory" if options[ :dest ].nil?
 
     trema_send_packets options[ :source ], options[ :dest ], options
   end
