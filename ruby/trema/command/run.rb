@@ -42,6 +42,8 @@ module Trema
       else
         begin
           Trema::DSL::Runner.new( load_config ).run
+        rescue SystemExit
+          # This is OK
         ensure
           cleanup_current_session
         end
