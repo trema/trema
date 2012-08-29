@@ -25,6 +25,9 @@ require "trema/executables"
 
 
 module Trema
+  #
+  # An interface class to phost emulation utility program.
+  #
   class Phost
     include Trema::Daemon
 
@@ -34,17 +37,28 @@ module Trema
     daemon_id :interface
 
 
+    #
+    # Creates a new instance of Phost for each virtual host.
+    #
     def initialize host
       @host = host
     end
 
 
+    #
+    # @raise [RuntimeError] if no interface defined for virtual host.
+    #
+    # @return [String] the virtual host's interface name.
+    #
     def interface
       raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
       @host.interface
     end
 
 
+    #
+    # @return [Boolean] whether phost is running or not.
+    #
     def running?
       not @host.interface.nil? and super
     end

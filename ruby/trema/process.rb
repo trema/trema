@@ -21,7 +21,25 @@
 
 
 module Trema
+  #
+  # A class responsible for terminating processes.
+  #
   class Process
+    #
+    # @overload read(pid_file)
+    #   Reads a process identification file and saves the process name
+    #   process id and effective user id. The process name is inferred from the
+    #   +:pid_file+.
+    #   @param [String] pid_file the full path name of the pid file.
+    #
+    # @overload read(pid_file, name)
+    #   Reads a process identification file and saves the process name
+    #   process id and effective user id.
+    #   @param [String] pid_file the full path name of the pid file.
+    #   @param [String] name the process name.
+    #
+    # @return [Process] the object that encapsulates the process details.
+    #
     def self.read pid_file, name = nil
       name = File.basename( pid_file, ".pid" ) if name.nil?
       return new( pid_file, name )
@@ -40,6 +58,14 @@ module Trema
     end
 
 
+    #
+    # kills an active process.
+    #
+    # @raise [RuntimeError] if failed to kill the process after a
+    #   maximum number of attempts.
+    #
+    # @return [void]
+    #
     def kill!
       return if @pid_file.nil?
       return if dead?
@@ -62,6 +88,9 @@ module Trema
     ################################################################################
 
 
+    #
+    # @return [Boolean] whether a process is not alive or not.
+    #
     def dead?
       `ps ax | grep -E "^[[:blank:]]*#{ @pid }"`.empty?
     end
