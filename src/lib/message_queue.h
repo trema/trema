@@ -47,7 +47,7 @@ bool delete_message_queue( message_queue *queue );
 bool enqueue_message( message_queue *queue, buffer *message );
 buffer *dequeue_message( message_queue *queue );
 buffer *peek_message( message_queue *queue );
-void foreach_message_queue( message_queue *queue, void function( buffer *message, void *user_data ), void *user_data );
+void foreach_message_queue( message_queue *queue, bool function( buffer *message, void *user_data ), void *user_data );
 
 
 #endif // MESSAGE_QUEUE_H
