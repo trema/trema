@@ -1,8 +1,6 @@
 #
 # The controller class of tremashark.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,7 +22,16 @@ require "trema/executables"
 
 
 module Trema
+  #
+  # Represents an abstract instance to start the tremashark debugging program.
+  #
   class Tremashark
+    #
+    # Runs the tremashark program as a daemon for debugging.
+    #
+    # @return [Boolean, Nil] 
+    #   a true or false tremashark exit status code or nil if failed to run. 
+    #
     def run
       sh "#{ Executables.tremashark } --daemonize"
     end

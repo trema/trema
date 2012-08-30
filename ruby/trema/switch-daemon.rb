@@ -20,14 +20,37 @@
 
 module Trema
   class SwitchDaemon
+    MANDATORY_QUEUES = [ :port_status, :packet_in, :state_notify ]
+
+
+    #
+    # Creates a new abstract representation of SwitchDaemon instance
+    # by accepting and validating a hash of queue options.
+    #
+    # @param [Hash] queues a hash of queue arguments to assign.
+    # @option queues [Symbol] :port_status 
+    #   the controller(s) to receive port status messages.
+    # @option queues [Symbol] :packet_in
+    #   the controller(s) to receive packet_in messages.
+    # @option queues [Symbol] :state_notify
+    #   the controller(s) to receive state notification messages.
+    #
     def initialize queues
       check_mandatory_options queues
       @queues = queues
     end
 
 
+    #
+    # Constructs switch daemon's options associating one or more controller
+    # name to a queue name.
+    #
+    # @return [Array<String>] the switch daemon's options.
     def options
-      portstatus_queue + packetin_queue + statenotify_queue + vendor_queue
+      all_queues = MANDATORY_QUEUES + [ :vendor ]
+      all_queues.collect! do | each |
+        queue each
+      end.flatten!
     end
 
 
@@ -36,42 +59,24 @@ module Trema
     ################################################################################
 
 
+    #
+    # @raise [RuntimeError] if a mandatory option is not found.
+    #
     def check_mandatory_options queues
-      [ :port_status, :packet_in, :state_notify ].each do | each |
+      MANDATORY_QUEUES.each do | each |
         raise ":#{ each } is a mandatory option" if queues[ each ].nil?
       end
     end
 
 
-    def portstatus_queue
-      controllers = @queues[ :port_status ].split( "," )
-      controllers.collect do | each |
-        "port_status::#{ each }"
-      end
-    end
-
-
-    def packetin_queue
-      controllers = @queues[ :packet_in ].split( "," )
-      controllers.collect do | each |
-        "packet_in::#{ each }"
-      end
-    end
-
-
-    def statenotify_queue
-      controllers = @queues[ :state_notify ].split( "," )
-      controllers.collect do | each |
-        "state_notify::#{ each }"
-      end
-    end
-
-
-    def vendor_queue
-      return [] if not @queues[ :vendor ]
-      controllers = @queues[ :vendor ].split( "," )
-      controllers.collect do | each |
-        "vendor::#{ each }"
+    #
+    # @return [Array<String>] an array of controller name strings.
+    #
+    def queue queue_type
+      return [] unless @queues[ queue_type ]
+      controllers = @queues[ queue_type ].split( "," )
+      controllers.collect! do | each |
+        "#{ queue_type.to_s }::#{ each }"
       end
     end
   end
