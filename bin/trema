@@ -50,10 +50,10 @@ desc "Runs a trema application"
 arg_name "controller"
 command :run do | c |
   c.desc "Runs as a daemon"
-  c.switch [ :d, :daemonize ]
+  c.switch [ :d, :daemonize ], :negatable => false
 
   c.desc "Enables Trema wireshark plugin"
-  c.switch [ :s, :tremashark ]
+  c.switch [ :s, :tremashark ], :negatable => false
 
   c.desc "Specifies emulated network configuration"
   c.flag [ :c, :conf ]
@@ -152,9 +152,9 @@ desc "Shows stats of packets"
 arg_name "host"
 command :show_stats do | c |
   c.desc "Show stats of packets sent"
-  c.switch [ :t, :tx ]
+  c.switch [ :t, :tx ], :negatable => false
   c.desc "Show stats of packets received"
-  c.switch [ :r, :rx ]
+  c.switch [ :r, :rx ], :negatable => false
 
   c.action do | global_options, options, args |
     help_now!( "host is required" ) if args.empty?
