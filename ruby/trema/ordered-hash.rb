@@ -18,6 +18,9 @@
 
 module Trema
   class OrderedHash
+    attr_reader :keys
+
+
     def initialize
       @keys = Array.new
       @content = Hash.new

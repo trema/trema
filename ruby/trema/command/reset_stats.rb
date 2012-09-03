@@ -25,12 +25,10 @@ module Trema
     include Trema::Util
 
 
-    def trema_reset_stats hosts
-      hosts.each do | each |
-        host = find_host_by_name( each )
-        raise "No host named `#{ each }' found!" if host.nil?
-        Trema::Cli.new( host ).reset_stats
-      end
+    def trema_reset_stats name
+      host = find_host_by_name( name )
+      raise "unknown host: #{ name }" if host.nil?
+      Trema::Cli.new( host ).reset_stats
     end
   end
 end

@@ -167,7 +167,13 @@ desc "Resets stats of packets"
 arg_name "hosts..."
 command :reset_stats do | c |
   c.action do | global_options, options, args |
-    trema_reset_stats args
+    hosts = args
+    if hosts.empty?
+      hosts = Trema::DSL::Context.load_current.hosts.keys
+    end
+    hosts.each do | each |
+      trema_reset_stats each
+    end
   end
 end
 
