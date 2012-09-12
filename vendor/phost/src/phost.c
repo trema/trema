@@ -449,7 +449,6 @@ void phost_handle_signals(int signum)
 
 int phost_print_usage()
 {
-    printf("usage: %s [-i dev] [-d debug_level] [-p pid_dir] [-l log_dir] [-D] [-v]\n",
-           program_name);
+    printf("usage: %s [-i dev] [-d debug_level] [-p pid_dir] [-l log_dir] [-n host_name] [-D] [-v]\n", program_name);
     return 0;
 }
