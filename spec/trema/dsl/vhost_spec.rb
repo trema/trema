@@ -30,7 +30,7 @@ module Trema
           before { @vhost = Vhost.new }
 
           subject { @vhost[ :name ] }
-          
+
           context "and IP address empty" do
             it { should be_nil }
           end
@@ -65,7 +65,7 @@ module Trema
         before { @vhost = Vhost.new( "Yutaro's host" ) }
 
         subject { @vhost[ :promisc ] }
-        
+
         context "when promisc off" do
           before { @vhost.promisc "off" }
 
@@ -78,7 +78,7 @@ module Trema
 
           it { should be_false }
         end
-        
+
 
         context "when promisc on" do
           before { @vhost.promisc "on" }
@@ -102,13 +102,13 @@ module Trema
           end
         end
       end
-      
-      
+
+
       describe :netmask do
         before { @vhost = Vhost.new( "Yutaro's host" ) }
 
         subject { @vhost[ :netmask ] }
-        
+
         context "when netmask empty" do
           it { should be_nil }
         end
@@ -119,8 +119,8 @@ module Trema
           it { should == "255.255.255.0" }
         end
       end
-      
-      
+
+
       describe :mac do
         before { @vhost = Vhost.new( "Yutaro's host" ) }
 

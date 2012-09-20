@@ -1,0 +1,248 @@
+#! /usr/bin/env ruby
+#
+# Trema command-line tool.
+#
+# Copyright (C) 2008-2012 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "..", "ruby" )
+
+
+require "rubygems"
+
+require "gli"
+require "trema/command"
+require "trema/util"
+require "trema/version"
+
+
+include GLI::App
+include Trema::Util
+include Trema::Command
+
+
+program_desc "Trema command-line tool"
+
+
+desc "Displays the current runtime version"
+version Trema::VERSION
+
+
+desc "Be verbose"
+switch [ :v, :verbose ], :negatable => false
+
+
+desc "Runs a trema application"
+arg_name "controller"
+command :run do | c |
+  c.desc "Runs as a daemon"
+  c.switch [ :d, :daemonize ], :negatable => false
+
+  c.desc "Enables Trema wireshark plugin"
+  c.switch [ :s, :tremashark ], :negatable => false
+
+  c.desc "Specifies emulated network configuration"
+  c.flag [ :c, :conf ]
+
+  c.action do | global_options, options, args |
+    trema_run options
+  end
+end
+
+
+desc "Terminates a trema process"
+arg_name "name"
+command :kill do | c |
+  c.action do | global_options, options, args |
+    help_now!( "name is required" ) if args.empty?
+    args.each do | each |
+      trema_kill each
+    end
+  end
+end
+
+
+desc "Starts a killed trema process again"
+arg_name "name"
+command :up do | c |
+  c.action do | global_options, options, args |
+    trema_up args[ 0 ]
+  end
+end
+
+
+desc "Terminates all trema processes"
+command :killall do | c |
+  c.action do
+    trema_killall
+  end
+end
+
+
+desc "Sends UDP packets to destination host"
+command :send_packets do | c |
+  c.desc "host that sends packets"
+  c.flag [ :s, :source ]
+
+  c.desc "host that receives packets"
+  c.flag [ :d, :dest ]
+
+  c.desc "number of times to increment the IP source address"
+  c.default_value nil
+  c.flag [ :inc_ip_src ]
+
+  c.desc "number of times to increment the IP destination address"
+  c.default_value nil
+  c.flag [ :inc_ip_dst ]
+
+  c.desc "set the initial UDP source port"
+  c.flag [ :tp_src ]
+
+  c.desc "number of times to increment the UDP source port"
+  c.default_value nil
+  c.flag [ :inc_tp_src ]
+
+  c.desc "set the initial UDP destination port"
+  c.flag [ :tp_dst ]
+
+  c.desc "number of times to increment the UDP destination port"
+  c.default_value nil
+  c.flag [ :inc_tp_dst ]
+
+  c.desc "send packet rate - packets per second"
+  c.flag [ :pps ]
+
+  c.desc "number of packets to send"
+  c.flag [ :n_pkts ]
+
+  c.desc "time duration to send packets"
+  c.flag [ :duration ]
+
+  c.desc "length of UDP payload"
+  c.flag [ :length ]
+
+  c.desc "increment UDP payload"
+  c.default_value nil
+  c.flag [ :inc_payload ]
+
+  c.action do | global_options, options, args |
+    raise "--source option is mandatory" if options[ :source ].nil?
+    raise "--dest option is mandatory" if options[ :dest ].nil?
+
+    trema_send_packets options[ :source ], options[ :dest ], options
+  end
+end
+
+
+desc "Shows stats of packets"
+arg_name "host"
+command :show_stats do | c |
+  c.desc "Show stats of packets sent"
+  c.switch [ :t, :tx ], :negatable => false
+  c.desc "Show stats of packets received"
+  c.switch [ :r, :rx ], :negatable => false
+
+  c.action do | global_options, options, args |
+    help_now!( "host is required" ) if args.empty?
+    trema_show_stats args[ 0 ], options[ :tx ], options[ :rx ]
+  end
+end
+
+
+desc "Resets stats of packets"
+arg_name "hosts..."
+command :reset_stats do | c |
+  c.action do | global_options, options, args |
+    hosts = args
+    if hosts.empty?
+      hosts = Trema::DSL::Context.load_current.hosts.keys
+    end
+    hosts.each do | each |
+      trema_reset_stats each
+    end
+  end
+end
+
+
+desc "Print all flow entries"
+arg_name "switches..."
+command :dump_flows do | c |
+  c.action do | global_options, options, args |
+    help_now!( "switches is required" ) if args.empty?
+    trema_dump_flows args
+  end
+end
+
+
+desc "Opens a new shell in the specified network namespace"
+arg_name "name"
+command :netns do | c |
+  c.action do | global_options, options, args |
+    trema_netns args[ 0 ]
+  end
+end
+
+
+desc "Opens in your browser Trema's Ruby API documentation"
+command :ruby do | c |
+  c.action do
+    trema_ruby
+  end
+end
+
+
+desc "Displays the current runtime version"
+command :version do | c |
+  c.action do
+    trema_version
+  end
+end
+
+
+pre do | global, command, options, args |
+  $verbose = global[ :verbose ]
+
+  assert_trema_is_built
+
+  if FileTest.exist?( Trema.tmp ) and not FileTest.writable?( Trema.tmp )
+    # Trema is system widely installed with gem command
+    sh "sudo chmod o+w -R #{ Trema.tmp }"
+  end
+
+  FileUtils.mkdir_p Trema.log
+  FileUtils.mkdir_p Trema.pid
+  FileUtils.mkdir_p Trema.sock
+
+  true
+end
+
+
+on_error do | exception |
+  # Error logic here
+  # return false to skip default error handling
+  true
+end
+
+
+exit run( ARGV )
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

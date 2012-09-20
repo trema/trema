@@ -34,6 +34,7 @@
 #include "hash_table.h"
 #include "linked_list.h"
 #include "log.h"
+#include "management_service_interface.h"
 #include "match.h"
 #include "match_table.h"
 #include "message_queue.h"

@@ -160,7 +160,7 @@ class Dumper < Controller
 
   def dump_phy_port port
     # for testing port-status record the mac address if port.number == 2.
-    @hw_addr = port.hw_addr if port.number == 2 
+    @hw_addr = port.hw_addr if port.number == 2
     info "port_no: #{ port.number }"
     info "  hw_addr: #{ port.hw_addr }"
     info "  name: #{ port.name }"

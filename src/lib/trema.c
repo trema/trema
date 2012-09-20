@@ -35,6 +35,7 @@
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
+#include "management_interface.h"
 #include "messenger.h"
 #include "openflow_application_interface.h"
 #include "packetin_filter_interface.h"
@@ -257,6 +258,18 @@ void mock_dump_stats();
 #define finalize_packetin_filter_interface mock_finalize_packetin_filter_interface
 bool mock_finalize_packetin_filter_interface();
 
+#ifdef init_management_interface
+#undef init_management_interface
+#endif
+#define init_management_interface mock_init_management_interface
+bool mock_init_management_interface();
+
+#ifdef finalize_management_interface
+#undef finalize_management_interface
+#endif
+#define finalize_management_interface mock_finalize_management_interface
+bool mock_finalize_management_interface();
+
 #define static
 
 #endif // UNIT_TESTING
@@ -284,10 +297,11 @@ static struct option long_options[] = {
   { "daemonize", 0, NULL, 'd' },
   { "logging_level", 1, NULL, 'l' },
   { "syslog", 0, NULL, 'g' },
+  { "logging_facility", 1, NULL, 'f' },
   { "help", 0, NULL, 'h' },
   { NULL, 0, NULL, 0 },
 };
-static char short_options[] = "n:dl:gh";
+static char short_options[] = "n:dl:gf:h";
 
 
 /**
@@ -301,11 +315,12 @@ usage() {
   printf(
     "Usage: %s [OPTION]...\n"
     "\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -g, --syslog                output log messages to syslog\n"
-    "  -h, --help                  display this help and exit\n",
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n",
     executable_name
   );
 }
@@ -367,6 +382,7 @@ finalize_trema() {
   debug( "Terminating %s...", get_trema_name() );
 
   maybe_finalize_openflow_application_interface();
+  finalize_management_interface();
   finalize_packetin_filter_interface();
   finalize_messenger();
   finalize_stat();
@@ -442,6 +458,9 @@ parse_argv( int *argc, char ***argv ) {
         break;
       case 'g':
         log_output_type = LOGGING_TYPE_SYSLOG;
+        break;
+      case 'f':
+        set_syslog_facility( optarg );
         break;
       case 'h':
         usage();
@@ -607,6 +626,7 @@ init_trema( int *argc, char ***argv ) {
   init_messenger( get_trema_sock() );
   init_stat();
   init_timer();
+  init_management_interface();
 
   initialized = true;
 
@@ -631,7 +651,7 @@ start_trema_up() {
 
   die_unless_initialized();
 
-  debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
+  debug( "Starting %s ... ( TREMA_HOME = %s )", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
   write_pid( get_trema_pid(), get_trema_name() );
@@ -732,6 +752,15 @@ terminate_trema_process( pid_t pid ) {
     return false;
   }
   return true;
+}
+
+
+void
+_free_trema_name() {
+  if ( trema_name != NULL ) {
+    xfree( trema_name );
+    trema_name = NULL;
+  }
 }
 
 

@@ -1,8 +1,4 @@
 #
-# trema killall command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +16,6 @@
 #
 
 
-require "optparse"
 require "trema/util"
 
 
@@ -29,20 +24,7 @@ module Trema
     include Trema::Util
 
 
-    def killall
-      options = OptionParser.new
-      options.banner = "Usage: trema killall [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
+    def trema_killall
       cleanup_current_session
     end
   end

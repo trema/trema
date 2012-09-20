@@ -22,6 +22,7 @@
 
 require "trema/app"
 require "trema/dsl/link"
+require "trema/dsl/netns"
 require "trema/dsl/rswitch"
 require "trema/dsl/run"
 require "trema/dsl/switch"
@@ -31,6 +32,7 @@ require "trema/hardware-switch"
 require "trema/host"
 require "trema/link"
 require "trema/monkey-patch/module"
+require "trema/netns"
 require "trema/open-vswitch"
 require "trema/packetin-filter"
 require "trema/ruby-switch"
@@ -81,6 +83,13 @@ module Trema
         stanza = Trema::DSL::Vhost.new( name )
         stanza.instance_eval( &block ) if block
         Trema::Host.new( stanza )
+      end
+
+
+      def netns name, &block
+        stanza = Trema::DSL::Netns.new( name )
+        stanza.instance_eval( &block ) if block
+        Trema::Netns.new( stanza )
       end
 
 

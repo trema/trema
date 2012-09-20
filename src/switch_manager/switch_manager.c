@@ -156,17 +156,19 @@ static char short_options[] = "p:s:";
 void
 usage() {
   printf(
-	 "OpenFlow Switch Manager.\n"
-	 "Usage: %s [OPTION]... [-- SWITCH_MANAGER_OPTION]...\n"
-	 "\n"
-	 "  -s, --switch=PATH           the command path of switch\n"
-	 "  -n, --name=SERVICE_NAME     service name\n"
-         "  -p, --port=PORT             server listen port (default %u)\n"
-	 "  -d, --daemonize             run in the background\n"
-	 "  -l, --logging_level=LEVEL   set logging level\n"
-	 "  -h, --help                  display this help and exit\n"
-	 , get_executable_name(), OFP_TCP_PORT
-	 );
+    "OpenFlow Switch Manager.\n"
+    "Usage: %s [OPTION]... [-- SWITCH_MANAGER_OPTION]...\n"
+    "\n"
+    "  -s, --switch=PATH               the command path of switch\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -p, --port=PORT                 server listen port (default %u)\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
+    , get_executable_name(), OFP_TCP_PORT
+  );
 }
 
 

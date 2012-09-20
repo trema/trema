@@ -38,10 +38,13 @@ typedef struct {
   const int value;
 } priority;
 
+typedef priority facility;
+
 
 static bool initialized = false;
 static FILE *fd = NULL;
 static int level = -1;
+static int facility_value = -1;
 static char ident_string[ PATH_MAX ];
 static char log_directory[ PATH_MAX ];
 static logging_type output = LOGGING_TYPE_FILE;
@@ -85,9 +88,40 @@ static priority priorities[][ 3 ] = {
   },
 };
 
+static facility facilities[] = {
+  { .name = "kern", .value = LOG_KERN },
+  { .name = "user", .value = LOG_USER },
+  { .name = "mail", .value = LOG_MAIL },
+  { .name = "daemon", .value = LOG_DAEMON },
+  { .name = "auth", .value = LOG_AUTH },
+  { .name = "syslog", .value = LOG_SYSLOG },
+  { .name = "lpr", .value = LOG_LPR },
+  { .name = "news", .value = LOG_NEWS },
+  { .name = "uucp", .value = LOG_UUCP },
+  { .name = "cron", .value = LOG_CRON },
+  { .name = "authpriv", .value = LOG_AUTHPRIV },
+  { .name = "ftp", .value = LOG_FTP },
+  { .name = "local0", .value = LOG_LOCAL0 },
+  { .name = "local1", .value = LOG_LOCAL1 },
+  { .name = "local2", .value = LOG_LOCAL2 },
+  { .name = "local3", .value = LOG_LOCAL3 },
+  { .name = "local4", .value = LOG_LOCAL4 },
+  { .name = "local5", .value = LOG_LOCAL5 },
+  { .name = "local6", .value = LOG_LOCAL6 },
+  { .name = "local7", .value = LOG_LOCAL7 },
+  { .name = NULL },
+};
+
+
+static bool
+started() {
+  return initialized;
+}
+
 
 static const char *
 priority_name_from( int level ) {
+  assert( level >= LOG_CRIT && level <= LOG_DEBUG );
   const char *name = priorities[ level - LOG_CRIT ][ 0 ].name;
   assert( name != NULL );
   return name;
@@ -197,8 +231,53 @@ open_log_file( bool append ) {
 static void
 open_log_syslog() {
   assert( strlen( get_ident_string() ) > 0 );
+  assert( ( facility_value & ~LOG_FACMASK ) == 0 );
+  trema_openlog( get_ident_string(), LOG_NDELAY, facility_value );
+}
 
-  trema_openlog( get_ident_string(), LOG_NDELAY, LOG_USER );
+
+static int
+facility_value_from( const char *name ) {
+  assert( name != NULL );
+
+  int value = -1;
+
+  for ( int i = 0; facilities[ i ].name != NULL; i++ ) {
+    if ( strcasecmp( facilities[ i ].name, name ) == 0 ) {
+      value = facilities[ i ].value;
+      break;
+    }
+  }
+
+  return value;
+}
+
+
+/**
+ * Sets syslog facility.
+ *
+ * @param name name of the syslog facility to be set.
+ * @return true on success; false otherwise.
+ */
+bool
+set_syslog_facility( const char *name ) {
+  assert( name != NULL );
+
+  int new_facility_value = facility_value_from( name );
+  if ( new_facility_value == -1 ) {
+    fprintf( stderr, "Invalid syslog facility: %s\n", name );
+    trema_abort();
+  }
+
+  pthread_mutex_lock( &mutex );
+  facility_value = new_facility_value;
+  if ( ( output & LOGGING_TYPE_SYSLOG ) != 0 && started() ) {
+    trema_closelog();
+    open_log_syslog();
+  }
+  pthread_mutex_unlock( &mutex );
+
+  return true;
 }
 
 
@@ -226,6 +305,16 @@ init_log( const char *ident, const char *directory, logging_type type ) {
   char *level_string = getenv( "LOGGING_LEVEL" );
   if ( level_string != NULL ) {
     set_logging_level( level_string );
+  }
+
+  // set_syslog_facility() may be called before init_log().
+  // facility_value = -1 indicates that facility value is not set yet.
+  if ( ( facility_value & ~LOG_FACMASK ) != 0 ) {
+    facility_value = LOG_USER;
+  }
+  char *facility_string = getenv( "LOGGING_FACILITY" );
+  if ( facility_string != NULL ) {
+    set_syslog_facility( facility_string );
   }
 
   set_ident_string( ident );
@@ -273,6 +362,8 @@ void
 rename_log( const char *new_ident ) {
   assert( new_ident != NULL );
 
+  pthread_mutex_lock( &mutex );
+
   if ( output & LOGGING_TYPE_FILE ) {
     char old_path[ PATH_MAX ];
     snprintf( old_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
@@ -293,6 +384,8 @@ rename_log( const char *new_ident ) {
     set_ident_string( new_ident );
     open_log_syslog();
   }
+
+  pthread_mutex_unlock( &mutex );
 }
 
 
@@ -306,6 +399,7 @@ finalize_log() {
   pthread_mutex_lock( &mutex );
 
   level = -1;
+  facility_value = -1;
 
   if ( output & LOGGING_TYPE_FILE ) {
     if ( fd != NULL ) {
@@ -328,39 +422,41 @@ finalize_log() {
 }
 
 
-static char *
-lower( const char *string ) {
-  char *new_string = xstrdup( string );
-  for ( int i = 0; new_string[ i ] != '\0'; ++i ) {
-    new_string[ i ] = ( char ) tolower( new_string[ i ] );
-  }
-  return new_string;
-}
-
-
 static int
 priority_value_from( const char *name ) {
   assert( name != NULL );
 
   int level_value = -1;
-  char *name_lower = lower( name );
 
+  assert( ( LOG_DEBUG - LOG_CRIT + 1 ) == ( sizeof( priorities )/sizeof( priorities[ 0 ] ) ) );
   for ( int i = 0; i <= ( LOG_DEBUG - LOG_CRIT ); i++ ) {
     for ( priority *p = priorities[ i ]; p->name != NULL; p++ ) {
-      if ( strncmp( p->name, name_lower, 20 ) == 0 ) {
+      if ( strcasecmp( p->name, name ) == 0 ) {
         level_value = p->value;
         break;
       }
     }
   }
-  xfree( name_lower );
   return level_value;
 }
 
 
-static bool
-started() {
-  return initialized;
+/**
+ * Check if a provided logging level is valid or not.
+ *
+ * @param name name of the logging level to be checked.
+ * @return true if valid; false otherwise.
+ */
+bool
+valid_logging_level( const char *name ) {
+  assert( name != NULL );
+
+  int level_value = priority_value_from( name );
+  if ( level_value < 0 ) {
+    return false;
+  }
+
+  return true;
 }
 
 

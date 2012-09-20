@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,8 +17,8 @@
 
 
 When /^I send (\d+) packets from (.+) to (.+)$/ do | n_packets, host_a, host_b |
-  run "./trema send_packets --source #{ host_a } --dest #{ host_b } --n_pkts #{ n_packets }"
-  sleep 1  # ensure that all packets are sent
+  run "trema send_packets --source #{ host_a } --dest #{ host_b } --n_pkts #{ n_packets }"
+  sleep 2  # ensure that all packets are sent
 end
 
 

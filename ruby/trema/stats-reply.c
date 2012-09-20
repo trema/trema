@@ -120,17 +120,17 @@ stats_reply_flags( VALUE self ) {
 /*
  * A list of reply type objects for this message.
  *
- * @return [Array<FlowStatsReply>] 
+ * @return [Array<FlowStatsReply>]
  *   an array of {FlowStatsReply} objects if type is +OFPST_FLOW+.
- * @return [Array<TableStatsReply>] 
+ * @return [Array<TableStatsReply>]
  *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
- * @return [AggregateStatsReply] 
+ * @return [AggregateStatsReply]
  *   a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+.
- * @return [Array<PortStatsReply>] 
+ * @return [Array<PortStatsReply>]
  *   an array of {PortStatsReply} objects if type is +OFPST_PORT+.
- * @return [Array<QueueStatsReply>] 
+ * @return [Array<QueueStatsReply>]
  *   an array of {QueueStatsReply} objects if type is +OFPST_QUEUE+.
- * @return [VendorStatsReply] 
+ * @return [VendorStatsReply]
  *   a {VendorStatsReply} object if type is +OFPST_VENDOR+.
  */
 static VALUE
@@ -305,15 +305,15 @@ handle_stats_reply(
       VALUE desc_stats_arr = rb_ary_new();
       VALUE desc_stats_reply;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "mfr_desc" ) ), 
+      rb_hash_aset( options, ID2SYM( rb_intern( "mfr_desc" ) ),
         rb_str_new( desc_stats->mfr_desc, ( long ) strnlen( desc_stats->mfr_desc, DESC_STR_LEN - 1 ) ) );
-      rb_hash_aset( options, ID2SYM( rb_intern( "hw_desc" ) ), 
+      rb_hash_aset( options, ID2SYM( rb_intern( "hw_desc" ) ),
         rb_str_new( desc_stats->hw_desc, ( long ) strnlen( desc_stats->hw_desc, DESC_STR_LEN  - 1 ) ) );
-      rb_hash_aset( options, ID2SYM( rb_intern( "sw_desc" ) ), 
+      rb_hash_aset( options, ID2SYM( rb_intern( "sw_desc" ) ),
         rb_str_new( desc_stats->sw_desc, ( long ) strnlen( desc_stats->sw_desc, DESC_STR_LEN  - 1 ) ) );
-      rb_hash_aset( options, ID2SYM( rb_intern( "serial_num" ) ), 
+      rb_hash_aset( options, ID2SYM( rb_intern( "serial_num" ) ),
         rb_str_new( desc_stats->serial_num, ( long ) strnlen( desc_stats->serial_num, SERIAL_NUM_LEN  - 1 ) ) );
-      rb_hash_aset( options, ID2SYM( rb_intern( "dp_desc" ) ), 
+      rb_hash_aset( options, ID2SYM( rb_intern( "dp_desc" ) ),
         rb_str_new( desc_stats->dp_desc, ( long ) strnlen( desc_stats->dp_desc, DESC_STR_LEN  - 1 ) ) );
       desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( desc_stats_arr, desc_stats_reply );
@@ -363,7 +363,7 @@ handle_stats_reply(
         flow_stats_reply = rb_funcall( rb_eval_string( "Trema::FlowStatsReply" ), rb_intern( "new" ), 1, options );
         rb_ary_push( flow_stats_arr, flow_stats_reply );
 
-        // here create flow_stats object and insert into array 
+        // here create flow_stats object and insert into array
         body_length = ( uint16_t ) ( body_length - flow_stats->length );
 
         if ( body_length ) {

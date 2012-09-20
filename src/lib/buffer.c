@@ -235,7 +235,7 @@ append_back_buffer( buffer *buf, size_t length ) {
     pthread_mutex_unlock( pbuf->mutex );
     return ( char * ) pbuf->public.data;
   }
- 
+
   if ( !already_allocated( pbuf, length ) ) {
     append_back( pbuf, length );
   }
@@ -284,7 +284,7 @@ dump_buffer( const buffer *buf, void dump_function( const char *format, ... ) ) 
   pthread_mutex_lock( ( ( const private_buffer * ) buf )->mutex );
 
   char *hex = xmalloc( sizeof( char ) * ( buf->length * 2 + 1 ) );
-  char *datap = buf->data;
+  uint8_t *datap = buf->data;
   char *hexp = hex;
   for ( unsigned int i = 0; i < buf->length; i++, datap++, hexp += 2 ) {
     snprintf( hexp, 3, "%02x", *datap );

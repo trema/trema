@@ -17,7 +17,6 @@
 
 
 #include "trema-ruby-utils.h"
-#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -42,7 +41,7 @@ features_request_alloc( VALUE klass ) {
  *   @example
  *     FeaturesRequest.new( 123 )
  *   @param [Integer] transaction_id
- *     An unsigned 32bit integer number associated with this message.
+ *     An unsigned 32-bit integer number associated with this message.
  *
  * @overload initialize(options)
  *   @example
@@ -50,9 +49,9 @@ features_request_alloc( VALUE klass ) {
  *     FeaturesRequest.new( :transaction_id => 123 )
  *   @param [Hash] options
  *     the options to create a message with.
- *   @option options [Number] :xid
+ *   @option options [Number] :xid an alias to transaction_id.
  *   @option options [Number] :transaction_id
- *     An unsigned 32bit integer number associated with this message.
+ *     An unsigned 32-bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *
  * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.

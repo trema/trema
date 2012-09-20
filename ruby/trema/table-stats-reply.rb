@@ -35,7 +35,7 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     TableStatsReply.new(
     #       :table_id => 0,
     #       :name => "classifier",

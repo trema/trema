@@ -1,6 +1,4 @@
 /*
- * Hello trema world!
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,7 +22,9 @@
 
 static void
 handle_switch_ready( uint64_t datapath_id, void *user_data ) {
-  info( "Hello %#" PRIx64 " from %s!", datapath_id, user_data );
+  UNUSED( user_data );
+
+  info( "Hello %#" PRIx64 "!", datapath_id );
   stop_trema();
 }
 
@@ -33,7 +33,7 @@ int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
 
-  set_switch_ready_handler( handle_switch_ready, argv[ 0 ] );
+  set_switch_ready_handler( handle_switch_ready, NULL );
 
   start_trema();
 

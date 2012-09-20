@@ -4,7 +4,7 @@ Feature: Send hello messages
   I want to send hello messages to openflow switches
   So that I can start transactions with switches
 
-
+  @wip
   Scenario: Hello trema
     When I try trema run "./objects/examples/openflow_message/hello 10" with following configuration (backgrounded):
       """
@@ -14,7 +14,7 @@ Feature: Send hello messages
       And I terminated all trema services
     Then the log file "openflowd.hello.log" should include "received: OFPT_HELLO" x 11
 
-
+  @wip
   Scenario: Hello trema in Ruby
     When I try trema run "./src/examples/openflow_message/hello.rb 0xabc, 10" with following configuration (backgrounded):
       """

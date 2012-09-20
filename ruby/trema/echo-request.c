@@ -45,7 +45,7 @@ echo_request_alloc( VALUE klass ) {
  *   @example
  *     EchoRequest.new( 123 )
  *   @param [Integer] transaction_id
- *     An unsigned 32bit integer number associated with this message.
+ *     An unsigned 32-bit integer number associated with this message.
  *
  * @overload initialize(options)
  *   @example
@@ -55,9 +55,9 @@ echo_request_alloc( VALUE klass ) {
  *     )
  *   @param [Hash] options
  *     the options to create a message with.
- *   @option options [Number] :xid
+ *   @option options [Number] :xid an alias to transaction_id.
  *   @option options [Number] :transaction_id
- *     An unsigned 32bit integer number associated with this message.
+ *     An unsigned 32-bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *   @option options [String] :user_data
  *     the user data field specified as a String may be a message timestamp to check latency,

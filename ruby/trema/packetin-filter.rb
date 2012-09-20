@@ -57,7 +57,7 @@ module Trema
     def name
       "packet-in filter"
     end
-    
+
 
     #
     # Starts a packetin filter process

@@ -30,7 +30,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :hw_desc => "no hardware description",
         :sw_desc => "version xx.xx",
         :serial_num => "1234",
-        :dp_desc => "nec01"                         
+        :dp_desc => "nec01"
       )
     end
 
@@ -62,14 +62,14 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :actions => actions
       )
     end
-    
+
     it { should respond_to( :to_s ) }
     its ( :length ) { should == 96 }
     its ( :table_id ) { should == 0 }
     its ( :match ) { should be_an_instance_of Trema::Match }
     its ( :duration_sec ) { should == 3 }
     its ( :duration_nsec ) { should == 106000000 }
-    its ( :priority ) { should == 65535 } 
+    its ( :priority ) { should == 65535 }
     its ( :idle_timeout ) { should == 0 }
     its ( :hard_timeout ) { should == 0 }
     its ( :cookie ) { should == 866942928268820481 }
@@ -78,23 +78,23 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its ( :actions ) { should_not be_empty }
   end
 
-  
+
   context "when aggregate-stats-reply is created" do
     subject do
       AggregateStatsReply.new(
         :packet_count => 2,
         :byte_count => 128,
-        :flow_count =>  10 
+        :flow_count =>  10
       )
     end
-    
+
     it { should respond_to( :to_s ) }
     its( :packet_count ) { should == 2 }
     its( :byte_count ) { should == 128 }
     its ( :flow_count ) { should == 10 }
   end
-  
-  
+
+
   context "when table-stats-reply is created" do
     subject do
       TableStatsReply.new(
@@ -107,7 +107,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :matched_count => 1
       )
     end
-    
+
     it { should respond_to( :to_s ) }
     its( :table_id ) { should == 1 }
     its( :name ) { should eq( "classifier" ) }
@@ -117,8 +117,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its( :lookup_count ) { should == 4 }
     its( :matched_count ) { should == 1 }
   end
-  
-  
+
+
   context "when port-stats-reply is created" do
     subject do
       PortStatsReply.new(
@@ -137,7 +137,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :collisions => 1
       )
     end
-    
+
     it { should respond_to( :to_s ) }
     its( :port_no ) { should == 1 }
     its( :rx_packets ) { should == 7 }
@@ -154,7 +154,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its( :collisions ) { should == 1 }
   end
 
-  
+
   context "when queue-stats-reply is created" do
     subject do
       QueueStatsReply.new(
@@ -162,10 +162,10 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         :queue_id => 2,
         :tx_bytes => 1024,
         :tx_packets => 16,
-        :tx_errors => 5 
+        :tx_errors => 5
       )
     end
-    
+
     it { should respond_to( :to_s ) }
     its( :port_no ) { should == 1 }
     its( :queue_id ) { should == 2 }
@@ -173,16 +173,16 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its( :tx_packets ) { should == 16 }
     its( :tx_errors ) { should  == 5 }
   end
-  
-  
+
+
   context "when vendor-stats-reply is created" do
     subject { VendorStatsReply.new( :vendor_id => 123 ) }
 
     it { should respond_to( :to_s ) }
     its( :vendor_id ) { should == 123 }
   end
-  
-  
+
+
   context "when #stats_request(desc-stats) is sent" do
     it "should #stats_reply(desc-stats)" do
       class DescStatsController < Controller; end
@@ -190,13 +190,13 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         vswitch( "desc-stats" ) { datapath_id 0xabc }
       }.run( DescStatsController ) {
         controller( "DescStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
-          datapath_id.should == 0xabc          
+          datapath_id.should == 0xabc
           message.type.should == 0
           message.stats[ 0 ].mfr_desc.should eq( "Nicira Networks, Inc." )
           message.stats[ 0 ].hw_desc.should eq( "Open vSwitch" )
           message.stats[ 0 ].should respond_to :to_s
         end
-        
+
         controller( "DescStatsController" ).send_message( 0xabc,
           DescStatsRequest.new( :transaction_id => 1234 ) )
         sleep 2 # FIXME: wait to send_message
@@ -216,11 +216,11 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         link "host2", "flow-stats"
       }.run( FlowStatsController ) {
         controller( "FlowStatsController" ).send_flow_mod_add(
-          0xabc, 
+          0xabc,
           # match the UDP packet
           :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
-          :actions => ActionOutput.new( :port => FlowStatsController::OFPP_FLOOD ) 
+          :actions => ActionOutput.new( :port => FlowStatsController::OFPP_FLOOD )
         )
         sleep 1 # FIXME: wait to send_flow_mod_add
         # send two packets
@@ -240,8 +240,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
       }
     end
   end
-  
-  
+
+
   context "when #stats_request(aggregate_stats) is sent" do
     it "should #stats_reply(aggregate-stats) attributes" do
       class AggregateStatsController < Controller; end
@@ -257,7 +257,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           # match the UDP packet
           :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           # flood the packet
-          :actions => ActionOutput.new( :port => AggregateStatsController::OFPP_FLOOD ) 
+          :actions => ActionOutput.new( :port => AggregateStatsController::OFPP_FLOOD )
         )
         sleep 1 # FIXME: wait to send_flow_mod_add
         # send ten packets
@@ -278,8 +278,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
       }
     end
   end
-  
-  
+
+
   context "when #stats_request(port-stats) is sent" do
     it "should #stats_reply(port-stats)" do
       class PortStatsController < Controller; end
@@ -293,11 +293,11 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         controller( "PortStatsController" ).send_flow_mod_add(
           0xabc,
           :match => Trema::Match.new( :dl_type => 0x800, :nw_proto => 17 ),
-          :actions => ActionOutput.new( :port => PortStatsController::OFPP_FLOOD ) 
+          :actions => ActionOutput.new( :port => PortStatsController::OFPP_FLOOD )
         )
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
-        
+
         controller( "PortStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
           datapath_id.should == 0xabc
           message.type.should == 4
@@ -310,8 +310,8 @@ describe StatsReply, ".new( VALID OPTIONS )" do
       }
     end
   end
-  
-  
+
+
   context "when #stats_request(table-stats) is sent" do
     it "should #stats_reply(table-stats)" do
       class TableStatsController < Controller; end
@@ -322,13 +322,13 @@ describe StatsReply, ".new( VALID OPTIONS )" do
         link "host1", "table-stats"
         link "host2", "table-stats"
       }.run( TableStatsController) {
-        controller( "TableStatsController" ).send_flow_mod_add( 
+        controller( "TableStatsController" ).send_flow_mod_add(
           0xabc,
-          :actions => ActionOutput.new( :port => TableStatsController::OFPP_FLOOD ) 
+          :actions => ActionOutput.new( :port => TableStatsController::OFPP_FLOOD )
         )
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
-        
+
         controller( "TableStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
           datapath_id.should == 0xabc
           message.type.should == 3

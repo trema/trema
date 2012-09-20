@@ -1,6 +1,4 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +17,6 @@
 
 
 #include "trema-ruby-utils.h"
-#include "trema.h"
 
 
 extern VALUE mTrema;
@@ -37,42 +34,73 @@ barrier_request_alloc( VALUE klass ) {
  * A barrier request message could be sent to ensure that an operation
  * completed successfully signaled with the reception of a barrier reply message.
  *
- * @overload initialize(options={})
- *   @example 
+ * @overload initialize()
+ *   @example
  *     BarrierRequest.new
- *     BarrierRequest.new( :transaction_id => 123 )
  *
+ * @overload initialize(transaction_id)
+ *   @example
+ *     BarrierRequest.new( 123 )
+ *   @param [Integer] transaction_id
+ *     An unsigned 32-bit integer number associated with this message.
+ *
+ * @overload initialize(options)
+ *   @example
+ *     BarrierRequest.new( :xid => 123 )
+ *     BarrierRequest.new( :transaction_id => 123 )
  *   @param [Hash] options
  *     the options to create a message with.
- *
+ *   @option options [Number] :xid an alias to transaction_id.
  *   @option options [Number] :transaction_id
- *     an unsigned 32-bit integer number associated with this message.
+ *     An unsigned 32-bit integer number associated with this message.
  *     If not specified, an auto-generated value is set.
  *
- *   @raise [ArgumentError] if transaction_id is not an unsigned 32-bit integer.
- *   @raise [TypeError] if options is not a hash.
- *
- *   @return [BarrierRequest]
- *     an object that encapsulates the +OPFT_BARRIER_REQUEST+ OpenFlow message.
+ * @raise [ArgumentError] if transaction ID is not an unsigned 32-bit integer.
+ * @raise [TypeError] if argument is not a Integer or a Hash.
+ * @return [BarrierRequest]
+ *   an object that encapsulates the +OPFT_BARRIER_REQUEST+ OpenFlow message.
  */
 static VALUE
 barrier_request_init( int argc, VALUE *argv, VALUE self ) {
-  buffer *barrier_request;
+  buffer *barrier_request = NULL;
   Data_Get_Struct( self, buffer, barrier_request );
-  uint32_t xid = get_transaction_id();
-  VALUE options;
+  VALUE options = Qnil;
 
-  if ( rb_scan_args( argc, argv, "01", &options ) == 1 ) {
-    Check_Type( options, T_HASH );
-    VALUE xid_ruby;
-    if ( ( xid_ruby = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) ) ) != Qnil ) {
-      if ( rb_funcall( xid_ruby, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
-        rb_raise( rb_eArgError, "Transaction ID must be an unsigned 32-bit integer" );
+  if ( rb_scan_args( argc, argv, "01", &options ) == 0 ) {
+    set_xid( barrier_request, get_transaction_id() );
+  }
+  else {
+    if ( options == Qnil ) {
+      set_xid( barrier_request, get_transaction_id() );
+    }
+    else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
+      validate_xid( options );
+      set_xid( barrier_request, ( uint32_t ) NUM2UINT( options ) );
+    }
+    else {
+      Check_Type( options, T_HASH );
+      VALUE tmp = Qnil;
+      VALUE xid = Qnil;
+
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+      if ( tmp != Qnil ) {
+        xid = tmp;
       }
-      xid = ( uint32_t ) NUM2UINT( xid_ruby );
+      tmp = rb_hash_aref( options, ID2SYM( rb_intern( "xid" ) ) );
+      if ( tmp != Qnil ) {
+        xid = tmp;
+      }
+
+      if ( xid != Qnil ) {
+        validate_xid( xid );
+        set_xid( barrier_request, ( uint32_t ) NUM2UINT( xid ) );
+      }
+      else {
+        set_xid( barrier_request, get_transaction_id() );
+      }
     }
   }
-  ( ( struct ofp_header * ) ( barrier_request->data ) )->xid = htonl( xid );
+
   return self;
 }
 
@@ -84,10 +112,7 @@ barrier_request_init( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 barrier_request_transaction_id( VALUE self ) {
-  buffer *barrier_request;
-  Data_Get_Struct( self, buffer, barrier_request );
-  uint32_t xid = ntohl( ( ( struct ofp_header * ) ( barrier_request->data ) )->xid );
-  return UINT2NUM( xid );
+  return get_xid( self );
 }
 
 

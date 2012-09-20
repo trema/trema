@@ -1,8 +1,4 @@
 #
-# Hello trema world!
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,10 +16,17 @@
 #
 
 
-class HelloController < Controller
-  def switch_ready datapath_id
-    info "Hello %#x from #{ ARGV[ 0 ] }!" % datapath_id
-    shutdown!
+require "trema/util"
+
+
+module Trema
+  module Command
+    include Trema::Util
+
+
+    def trema_netns netns
+      sh "sudo ip netns exec #{ netns } #{ ENV[ 'SHELL' ] }"
+    end
   end
 end
 

@@ -37,6 +37,7 @@ import "directedrule"
 desc "Build trema."
 task :default => [
   :libtrema,
+  :management_commands,
   :rubylib,
   :switch_manager,
   :switch,
@@ -64,6 +65,14 @@ task :examples => [
   "examples:switch_info",
   "examples:switch_monitor",
   "examples:traffic_monitor",
+]
+
+
+task :management_commands => [
+  "management_commands:application",
+  "management_commands:echo",
+  "management_commands:set_logging_level",
+  "management_commands:show_stats",
 ]
 
 
@@ -589,6 +598,45 @@ end
 
 
 ################################################################################
+# Build management commands
+################################################################################
+
+management_commands = [
+  "application",
+  "echo",
+  "set_logging_level",
+  "show_stats",
+]
+
+management_source_dir = "src/management"
+management_objects_dir = objects( "management" )
+
+gen C::Dependencies, dependency( "management" ),
+  :search => [ Trema.include ], :sources => sys[ "#{ management_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "management" )
+end
+
+gen Directory, management_objects_dir
+
+
+gen DirectedRule, management_objects_dir => [ management_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+management_commands.each do | each |
+  target = File.join( management_objects_dir, each )
+  desc "Build #{ each } management command."
+  task "management_commands:#{ each }" => target
+  file target => [ File.join( management_objects_dir, "#{ each }.o" ), libtrema ] do | t |
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+  end
+end
+
+
+################################################################################
 # Build standalone examples
 ################################################################################
 
@@ -794,6 +842,8 @@ tests = [
   "objects/unittests/wrapper_test",
   "objects/unittests/match_table_test",
   "objects/unittests/message_queue_test",
+  "objects/unittests/management_interface_test",
+  "objects/unittests/management_service_interface_test",
 ]
 
 

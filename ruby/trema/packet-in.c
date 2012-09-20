@@ -540,7 +540,7 @@ packet_in_ipv4_saddr( VALUE self ) {
 /*
  * The IPV4 destination IP address of a packet.
  *
- * @return [Trema::IP, nil] 
+ * @return [Trema::IP, nil]
  *   the value of IPv4 destination IP address as a Trema::IP object or nil if
  *   packet is not an IPv4.
  */
@@ -629,8 +629,8 @@ packet_in_icmpv4_seq( VALUE self ) {
 /*
  * The ICMPv4 redirect message gateway IP address.
  *
- * @return [Trema::IP, nil] 
- *   the value of ICMPv4 redirect message IP gateway address as a Trema::IP 
+ * @return [Trema::IP, nil]
+ *   the value of ICMPv4 redirect message IP gateway address as a Trema::IP
  *   object or nil if packet is not ICMPv4.
  */
 static VALUE
@@ -824,7 +824,7 @@ packet_in_igmp_type( VALUE self ) {
 /*
  * The IGMP group address.
  *
- * @return [Trema::IP, nil] 
+ * @return [Trema::IP, nil]
  *   the value of IGMP IP group address as a Trema::IP object
  *   or nil if packet is not IGMP.
  */

@@ -1,7 +1,5 @@
 /*
  * Unit tests for linked list library.
- * 
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
  *
@@ -22,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "checks.h"
 #include "cmockery_trema.h"
 #include "linked_list.h"
 #include "utility.h"
@@ -72,7 +71,7 @@ static char delete_me[] = "delete me!";
 /********************************************************************************
  * Tests.
  ********************************************************************************/
-                 
+
 static void
 test_create_list() {
   assert_true( create_list( &new_list ) );
@@ -192,7 +191,7 @@ test_delete_first_element() {
   append_to_tail( &new_list, delete_me );
   append_to_tail( &new_list, bravo );
   append_to_tail( &new_list, charlie );
-  
+
   assert_true( delete_element( &new_list, delete_me ) );
   assert_string_equal( new_list->data, "bravo" );
   assert_string_equal( new_list->next->data, "charlie" );
@@ -282,6 +281,81 @@ test_list_length_of_empty_list() {
 
 
 static void
+get_sum_length( void *data, void *user_data ) {
+  size_t *sum_length = user_data;
+  *sum_length += strlen( data );
+}
+
+
+static void
+test_iterate_list() {
+  create_list( &new_list );
+
+  append_to_tail( &new_list, &alpha );
+  append_to_tail( &new_list, &bravo );
+  append_to_tail( &new_list, &charlie );
+
+  size_t sum_length = 0;
+  iterate_list( new_list, get_sum_length, &sum_length );
+  assert_int_equal( 17, sum_length );
+
+  delete_list( new_list );
+}
+
+
+static bool
+find_bravo( void *data, void *user_data ) {
+  UNUSED( user_data );
+
+  if ( strcmp( data, "bravo" ) == 0 ) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+
+static bool
+find_nothing( void *data, void *user_data ) {
+  UNUSED( data );
+  UNUSED( user_data );
+
+  return false;
+}
+
+
+static void
+test_find_list_custom() {
+  create_list( &new_list );
+
+  append_to_tail( &new_list, &alpha );
+  append_to_tail( &new_list, &bravo );
+  append_to_tail( &new_list, &charlie );
+
+  void *found = find_list_custom( new_list, find_bravo, NULL );
+  assert_string_equal( found, "bravo" );
+
+  delete_list( new_list );
+}
+
+
+static void
+test_find_list_custom_fail() {
+  create_list( &new_list );
+
+  append_to_tail( &new_list, &alpha );
+  append_to_tail( &new_list, &bravo );
+  append_to_tail( &new_list, &charlie );
+
+  void *found = find_list_custom( new_list, find_nothing, NULL );
+  assert_true( found == NULL );
+
+  delete_list( new_list );
+}
+
+
+static void
 test_delete_list() {
   create_list( &new_list );
 
@@ -327,6 +401,10 @@ main() {
 
     unit_test( test_list_length ),
     unit_test( test_list_length_of_empty_list ),
+
+    unit_test( test_iterate_list ),
+    unit_test( test_find_list_custom ),
+    unit_test( test_find_list_custom_fail ),
 
     unit_test( test_delete_list ),
   };

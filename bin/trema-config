@@ -1,7 +1,6 @@
+#! /usr/bin/env ruby
 #
-# Getting switch information
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Trema compile helper.
 #
 # Copyright (C) 2008-2012 NEC Corporation
 #
@@ -20,22 +19,36 @@
 #
 
 
-class SwitchInfoController < Controller
-  def switch_ready datapath_id
-    send_message datapath_id, FeaturesRequest.new
-  end
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../ruby" ) )
 
 
-  def features_reply datapath_id, message
-    info "datapath_id: %#x" % datapath_id
-    info "transaction_id: %#x" % message.transaction_id
-    info "n_buffers: %u" % message.n_buffers
-    info "n_tables: %u" % message.n_tables
-    info "capabilities: %u" % message.capabilities
-    info "actions: %u" % message.actions
-    info "ports: %s" % message.ports.collect { | each | each.number }.sort.join( ", " )
-    shutdown!
+require "fileutils"
+require "optparse"
+require "trema/path"
+
+
+$opts = OptionParser.new
+
+FileUtils.cd Trema.home do
+  $opts.banner = "Usage: #{ File.basename $0 } [OPTIONS ...]"
+
+  $opts.on( "-c", "--cflags" ) do
+    $cflags = true
   end
+  $opts.on( "-l", "--libs" ) do
+    $libs = true
+  end
+
+  $opts.parse! ARGV
+
+  output = []
+  if $cflags
+    output << "-I#{ Trema.home }/src/lib -I#{ Trema.openflow }"
+  end
+  if $libs
+    output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread -lsqlite3 -ldl"
+  end
+  print output.join( " " )
 end
 
 

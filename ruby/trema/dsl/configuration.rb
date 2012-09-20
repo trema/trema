@@ -87,6 +87,9 @@ module Trema
       attr_reader :switches
 
 
+      attr_reader :netnss
+
+
       #
       # Creates a new Trema configuration
       #
@@ -103,6 +106,7 @@ module Trema
         @packetin_filter = Trema::PacketinFilter.clear
         @switch_manager = Trema::SwitchManager.clear
         @switches = Trema::OpenflowSwitch.clear
+        @netnss = Trema::Netns.clear
       end
 
 

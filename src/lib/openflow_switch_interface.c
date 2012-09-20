@@ -458,7 +458,7 @@ handle_error( buffer *data ) {
   buffer *body = duplicate_buffer( data );
   remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
 
-  debug( "An error message is received ( transaction_id = %#x, type = %u, code = %u, data length = %u ).",
+  debug( "An error message is received ( transaction_id = %#x, type = %#x, code = %#x, data length = %zu ).",
          transaction_id, type, code, body->length );
 
   if ( event_handlers.error_callback == NULL ) {
@@ -506,7 +506,7 @@ handle_echo_request( buffer *data ) {
          body,
          event_handlers.echo_request_user_data );
 
-  event_handlers.echo_request_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_request_callback( transaction_id, body, event_handlers.echo_request_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -540,7 +540,7 @@ handle_echo_reply( buffer *data ) {
          body,
          event_handlers.echo_reply_user_data );
 
-  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.set_config_user_data );
+  event_handlers.echo_reply_callback( transaction_id, body, event_handlers.echo_reply_user_data );
 
   if ( body != NULL ) {
     free_buffer( body );
@@ -820,7 +820,7 @@ handle_port_mod( buffer *data ) {
          event_handlers.port_mod_user_data );
 
   event_handlers.port_mod_callback( transaction_id, port_no, hw_addr, config, mask, advertise,
-                                    event_handlers.barrier_request_user_data );
+                                    event_handlers.port_mod_user_data );
 
 }
 
@@ -855,7 +855,7 @@ handle_stats_request( buffer *data ) {
     {
       struct ofp_aggregate_stats_request *aggregate = p;
       ntoh_match( &aggregate->match, &aggregate->match );
-      aggregate->out_port = ntohs( aggregate->out_port );      
+      aggregate->out_port = ntohs( aggregate->out_port );
     }
     break;
 
@@ -980,7 +980,7 @@ handle_openflow_message( buffer *message ) {
 
   int ret = validate_openflow_message( message );
   if ( ret < 0 ) {
-    error( "Failed to validate an OpenFlow message ( code = %d, length = %u ).", ret, message->length );
+    error( "Failed to validate an OpenFlow message ( code = %d, length = %zu ).", ret, message->length );
     return false;
   }
 
@@ -1031,7 +1031,7 @@ handle_openflow_message( buffer *message ) {
     handle_queue_get_config_request( message );
     break;
   default:
-    error( "Unhandled OpenFlow message ( type = %u ).", header->type );
+    error( "Unhandled OpenFlow message ( type = %#x ).", header->type );
     ret = false;
     break;
   }
@@ -1080,7 +1080,7 @@ switch_send_openflow_message( buffer *message ) {
 
 bool
 handle_secure_channel_message( buffer *message ) {
-  debug( "An OpenFlow message is received from remove." );
+  debug( "An OpenFlow message is received from remote." );
 
   assert( message != NULL );
   assert( message->length >= sizeof( struct ofp_header ) );
@@ -1098,7 +1098,7 @@ handle_local_message( uint16_t tag, void *data, size_t length ) {
   assert( data != NULL );
   assert( length >= sizeof( openflow_service_header_t ) );
 
-  debug( "A message is received from remote ( tag = %u, data = %p, length = %u ).", tag, data, length );
+  debug( "A message is received from remote ( tag = %#x, data = %p, length = %zu ).", tag, data, length );
 
   switch ( tag ) {
   case MESSENGER_OPENFLOW_MESSAGE:
@@ -1261,7 +1261,7 @@ send_error_message( uint32_t transaction_id, uint16_t type, uint16_t code ) {
     case OFPBAC_BAD_ARGUMENT:
     case OFPBAC_EPERM:
     case OFPBAC_TOO_MANY:
-    case OFPBAC_BAD_QUEUE:   
+    case OFPBAC_BAD_QUEUE:
     {
       const buffer *original_message = get_openflow_message( transaction_id );
       if ( original_message != NULL ) {

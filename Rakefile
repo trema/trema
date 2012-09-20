@@ -61,7 +61,9 @@ end
 
 begin
   require "cucumber/rake/task"
-  Cucumber::Rake::Task.new( :features )
+  Cucumber::Rake::Task.new( :features ) do | t |
+    t.cucumber_opts = "features --tags ~@wip"
+  end
 rescue LoadError
   $stderr.puts $!.to_s
 end
