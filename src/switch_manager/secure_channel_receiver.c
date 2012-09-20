@@ -80,7 +80,7 @@ recv_from_secure_channel( struct switch_info *sw_info ) {
     buffer *message = alloc_buffer_with_length( message_length );
     char *p = append_back_buffer( message, message_length );
     memcpy( p, sw_info->fragment_buf->data, message_length );
-    remove_front_buffer( sw_info->fragment_buf, message_length ); 
+    remove_front_buffer( sw_info->fragment_buf, message_length );
     enqueue_message( sw_info->recv_queue, message );
     read_total += message_length;
   }

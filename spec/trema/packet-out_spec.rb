@@ -22,7 +22,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-class PacketOutController < Controller 
+class PacketOutController < Controller
   def packet_in datapath_id, message
     send_flow_mod_add(
       datapath_id,
@@ -44,8 +44,8 @@ describe "packet-out" do
       PacketOutController.new.should respond_to(:send_packet_out)
     end
   end
-    
-  
+
+
   context "when invoked with no datapath_id" do
     it "should raise an error" do
       lambda do
@@ -53,8 +53,8 @@ describe "packet-out" do
       end.should raise_error("wrong number of arguments (0 for 1)")
     end
   end
-  
-  
+
+
   context "when #packet_in" do
     it "should #packet_out" do
       network {

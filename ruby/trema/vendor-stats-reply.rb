@@ -26,7 +26,7 @@ module Trema
     FIELDS = %w(vendor_id)
     FIELDS.each { |field| attr_reader field.intern }
 
-    
+
     # Vendor statistics reply.
     # A user would not explicitly instantiate a {VendorStatsReply} object but would
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_VENDOR)+
@@ -34,7 +34,7 @@ module Trema
     #
     # @overload initialize(otions={})
     #
-    #   @example 
+    #   @example
     #     VendorStatsReply.new(
     #       :vendor_id => 123
     #     )
@@ -45,7 +45,7 @@ module Trema
     #   @option options [Number] :vendor_id
     #     the specific vendor identifier.
     #
-    #   @return [VendorStatsReply] 
+    #   @return [VendorStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_VENDOR) OpenFlow message.
     #
     def initialize options

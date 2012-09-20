@@ -1,6 +1,6 @@
 /*
  * syslog_relay: An application that relays syslog messages to tremashark
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -112,12 +112,14 @@ usage( void ) {
   printf(
     "Usage: syslog_relay [OPTION]...\n"
     "\n"
-    "  -p LISTEN_PORT              listen port for receiving syslog messages\n"
-    "  -s DUMP_SERVICE_NAME        dump service name\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -p LISTEN_PORT                  listen port for receiving syslog messages\n"
+    "  -s DUMP_SERVICE_NAME            dump service name\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
 }
 
@@ -178,7 +180,7 @@ init_syslog_relay( int *argc, char **argv[] ) {
     close( syslog_fd );
     syslog_fd = -1;
   }
-  
+
   syslog_fd = socket( PF_INET, SOCK_DGRAM, 0 );
   if ( syslog_fd < 0 ) {
     error( "Failed to create socket ( errno = %s [%d] ).", strerror( errno ), errno );

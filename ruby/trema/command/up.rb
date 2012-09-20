@@ -1,8 +1,4 @@
 #
-# trema up command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,8 +16,6 @@
 #
 
 
-require "optparse"
-require "trema/dsl"
 require "trema/util"
 
 
@@ -30,29 +24,14 @@ module Trema
     include Trema::Util
 
 
-    def up
-      options = OptionParser.new
-      options.banner = "Usage: trema up NAME [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      context = Trema::DSL::Context.load_current
-
-      switch = context.switches[ ARGV[ 0 ] ]
+    def trema_up name
+      switch = find_switch_by_name( name )
       if switch
         switch.run
-        return
+      else
+        # TODO: support vlink
+        raise "Unknown name: #{ name }"
       end
-
-      raise "Unknown name: #{ ARGV[ 0 ] }"
     end
   end
 end

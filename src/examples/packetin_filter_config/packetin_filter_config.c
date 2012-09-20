@@ -62,7 +62,7 @@ dump_and_delete_filters( int status, int n_entries, packetin_filter_entry *entri
   dump_filters( status, n_entries, entries, user_data );
 
   struct ofp_match *match = user_data;
-  char *service_name = xstrdup( get_trema_name() );  
+  char *service_name = xstrdup( get_trema_name() );
   bool ret = delete_packetin_filter( *match, UINT16_MAX, service_name, true, delete_filter_completed, user_data );
   xfree( service_name );
   if ( ret == false ) {
@@ -83,7 +83,7 @@ add_filter_completed( int status, void *user_data ) {
   info( "A packetin filter was added successfully." );
 
   struct ofp_match *match = user_data;
-  char *service_name = xstrdup( get_trema_name() );  
+  char *service_name = xstrdup( get_trema_name() );
   bool ret = dump_packetin_filter( *match, UINT16_MAX, service_name, true, dump_filters, user_data );
   xfree( service_name );
   if ( ret == false ) {

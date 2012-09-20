@@ -1,8 +1,6 @@
 #
 # Common utility functions.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,7 +25,16 @@ require "trema/process"
 
 
 module Trema::Util
-  def sanity_check
+  def sh cmd
+    ENV[ "TREMA_HOME" ] = Trema.home
+    puts cmd if $verbose
+    unless system( cmd )
+      raise "Command '#{ cmd }' failed!"
+    end
+  end
+
+
+  def assert_trema_is_built
     unless Trema::Executables.compiled?
       $stderr.puts <<-EOF
 ERROR: Trema is not compiled yet!
@@ -36,15 +43,6 @@ Please try the following command:
 % ./build.rb
 EOF
       exit false
-    end
-  end
-
-
-  def sh cmd
-    ENV[ "TREMA_HOME" ] = Trema.home
-    puts cmd if $verbose
-    unless system( cmd )
-      raise "Command '#{ cmd }' failed!"
     end
   end
 
@@ -67,17 +65,43 @@ EOF
     session.links.each do | name, link |
       link.delete!
     end
+    session.netnss.each do | name, netns |
+      netns.shutdown!
+    end
 
     Dir.glob( File.join Trema.pid, "*.pid" ).each do | each |
       Trema::Process.read( each ).kill!
     end
-
-    FileUtils.rm_f Trema::DSL::Context::PATH
   end
 
 
   def cleanup_current_session
-    cleanup Trema::DSL::Context.load_current
+    begin
+      cleanup Trema::DSL::Context.load_current
+    ensure
+      FileUtils.rm_f Trema::DSL::Context::PATH
+    end
+  end
+
+
+  def find_app_by_name name
+    # [FIXME] Trema apps does not appear in context.apps. why?
+    pid_file = File.join( Trema.pid, "#{ name }.pid" )
+    if FileTest.exist?( pid_file )
+      Trema::Process.read( pid_file )
+    else
+      nil
+    end
+  end
+
+
+  def find_switch_by_name name
+    Trema::DSL::Context.load_current.switches[ name ]
+  end    
+
+
+  def find_host_by_name name
+    Trema::DSL::Context.load_current.hosts[ name ]
   end
 end
 

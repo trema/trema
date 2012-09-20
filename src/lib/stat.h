@@ -21,15 +21,24 @@
 
 
 #ifndef STAT_H
+#define STAT_H
 
 
 #define STAT_KEY_LENGTH 256
+
+
+typedef struct {
+  char key[ STAT_KEY_LENGTH ];
+  uint64_t value;
+} stat_entry;
 
 
 bool init_stat( void );
 bool finalize_stat( void );
 bool add_stat_entry( const char *key );
 void increment_stat( const char *key );
+void reset_stats( void );
+void foreach_stat( void function( const char *key, const uint64_t value, void *user_data ), void *user_data );
 void dump_stats();
 
 

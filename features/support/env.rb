@@ -31,6 +31,7 @@ end
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" ) )
 
 
+require "aruba/cucumber"
 require "rspec"
 require "tempfile"
 require "trema/executables"
@@ -54,7 +55,7 @@ end
 
 def new_tmp_log
   system "rm #{ Trema.log }/tmp.*" # cleanup
-  `mktemp --tmpdir=#{ Trema.log }`.chomp  
+  `mktemp --tmpdir=#{ Trema.log }`.chomp
 end
 
 

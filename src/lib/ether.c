@@ -32,7 +32,7 @@ fill_ether_padding( buffer *buf ) {
 
   if ( buf->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH ) {
     padding_length = ETH_MINIMUM_LENGTH - buf->length - ETH_FCS_LENGTH;
-    debug( "Adding %u octets padding ( original frame length = %u ).", 
+    debug( "Adding %zu octets padding ( original frame length = %zu ).",
            buf->length, padding_length );
     void *padding = append_back_buffer( buf, padding_length );
     memset( padding, 0, padding_length );

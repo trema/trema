@@ -1,6 +1,6 @@
 /*
  * Unit tests for packetin_filter_interface.[ch]
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation

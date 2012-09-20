@@ -1,6 +1,6 @@
 /*
  * Unit tests for persistent_storage.[ch]
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -334,7 +334,7 @@ test_set_value_fails_with_too_long_key() {
   char *expected_error = xasprintf( "Too long key ( length = %u ) specified. Maximum length is %u.",
                                     key_length, _get_max_key_length() );
 
-  expect_string( mock_error, message, expected_error );  
+  expect_string( mock_error, message, expected_error );
   assert_false( set_value( key, "VALUE" ) );
 
   xfree( key );
@@ -351,7 +351,7 @@ test_set_value_fails_with_too_long_value() {
   char *expected_error = xasprintf( "Too long value ( length = %u ) specified. Maximum length is %u.",
                                     value_length, _get_max_value_length() );
 
-  expect_string( mock_error, message, expected_error );  
+  expect_string( mock_error, message, expected_error );
   assert_false( set_value( "KEY", value ) );
 
   xfree( value );
@@ -361,14 +361,14 @@ test_set_value_fails_with_too_long_value() {
 
 static void
 test_set_value_fails_with_NULL_key() {
-  expect_string( mock_error, message, "'key' must be specified." );  
+  expect_string( mock_error, message, "'key' must be specified." );
   assert_false( set_value( NULL, "VALUE" ) );
 }
 
 
 static void
 test_set_value_fails_with_NULL_value() {
-  expect_string( mock_error, message, "'value' must be specified." );  
+  expect_string( mock_error, message, "'value' must be specified." );
   assert_false( set_value( "KEY", NULL ) );
 }
 
@@ -515,7 +515,7 @@ test_get_value_fails_with_too_long_key() {
   char *expected_error = xasprintf( "Too long key ( length = %u ) specified. Maximum length is %u.",
                                     key_length, _get_max_key_length() );
 
-  expect_string( mock_error, message, expected_error );  
+  expect_string( mock_error, message, expected_error );
   char buf[ 256 ];
   assert_false( get_value( key, buf, sizeof( buf ) ) );
 
@@ -539,14 +539,14 @@ test_get_value_fails_with_insufficient_buffer() {
 static void
 test_get_value_fails_with_NULL_key() {
   char buf[ 256 ];
-  expect_string( mock_error, message, "'key' must be specified." );  
+  expect_string( mock_error, message, "'key' must be specified." );
   assert_false( get_value( NULL, buf, sizeof( buf ) ) );
 }
 
 
 static void
 test_get_value_fails_with_NULL_value() {
-  expect_string( mock_error, message, "'value' must be specified." );  
+  expect_string( mock_error, message, "'value' must be specified." );
   assert_false( get_value( "KEY", NULL, 128 ) );
 }
 
@@ -643,7 +643,7 @@ test_delete_key_value_fails_with_too_long_key() {
   char *expected_error = xasprintf( "Too long key ( length = %u ) specified. Maximum length is %u.",
                                     key_length, _get_max_key_length() );
 
-  expect_string( mock_error, message, expected_error );  
+  expect_string( mock_error, message, expected_error );
   assert_false( delete_key_value( key ) );
 
   xfree( key );
@@ -678,7 +678,7 @@ test_delete_key_value_escapes_string() {
   set_value( "THIS \"IS\", A, 'KEY'", "VALUE" );
 
   assert_true( delete_key_value( "THIS \"IS\", A, 'KEY'" ) );
-  expect_string( mock_error, message, "Failed to retrieve a value for 'THIS \"IS\", A, 'KEY''." );  
+  expect_string( mock_error, message, "Failed to retrieve a value for 'THIS \"IS\", A, 'KEY''." );
   char buf[ 256 ];
   assert_false( get_value( "THIS \"IS\", A, 'KEY'", buf, sizeof( buf ) ) );
 }

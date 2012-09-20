@@ -20,55 +20,67 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe GetConfigRequest, ".new( OPTIONAL OPTION MISSING )" do
-  it_should_behave_like "any Openflow message with default transaction ID"
-end
+shared_examples_for "get config request message" do
+  class GetConfigRequestController < Controller; end
 
-
-describe GetConfigRequest, ".new( INVALID OPTION )" do
-  subject { GetConfigRequest.new "INVALID OPTION" }
-  it "should raise TypeError" do
-    expect { subject }.to raise_error( TypeError )
+  it "should be logged to the switch's log", :sudo => true do
+    network {
+      vswitch( "get-config-request" ) { datapath_id 0xabc }
+    }.run( GetConfigRequestController ) {
+      controller( "GetConfigRequestController" ).send_message( 0xabc, subject )
+      sleep 2 # FIXME: wait to send_message
+      IO.read( File.join( Trema.log, "openflowd.get-config-request.log" ) ).should include( "OFPT_GET_CONFIG_REQUEST" )
+    }
   end
 end
 
 
-describe GetConfigRequest, ".new( VALID OPTION )" do
-  subject { GetConfigRequest.new :transaction_id => transaction_id }
-  it_should_behave_like "any OpenFlow message with transaction_id option"
+module Trema
+  describe GetConfigRequest, ".new" do
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "get config request message"
+  end
 
 
-  context "when #get_config_request is sent" do
-    it "should #get_config_reply" do
-      class GetConfigController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
-        controller( "GetConfigController" ).should_receive( :get_config_reply )
-        sleep 1 # FIXME
-        controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
-        sleep 2 # FIXME: wait to send_message
-      }
+  describe GetConfigRequest, ".new(nil)" do
+    subject { GetConfigRequest.new( nil ) }
+    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like "get config request message"
+  end
+
+
+  describe GetConfigRequest, ".new(transaction_id)" do
+    subject { GetConfigRequest.new( transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "get config request message"
     end
-    
-    
-    it "should #get_config_reply with valid attributes" do
-      class GetConfigController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( GetConfigController ) {
-        get_config_request = GetConfigRequest.new( :transaction_id => 1234 )
-        controller( "GetConfigController" ).should_receive( :get_config_reply ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.transaction_id.should == 1234
-          message.flags.should >= 0 and message.flags.should <= 3
-          message.miss_send_len.should == 65535
-        end
-        controller( "GetConfigController" ).send_message( 0xabc, get_config_request )
-        sleep 2 # FIXME: wait to send_message
-      }
+  end
+
+
+  describe GetConfigRequest, ".new(:transaction_id => value)" do
+    subject { GetConfigRequest.new( :transaction_id => transaction_id ) }
+    it_should_behave_like "any Openflow message with transaction ID"
+    context "when sent to a switch" do
+      let( :transaction_id ) { 123 }
+      it_should_behave_like "get config request message"
     end
+  end
+
+
+  describe GetConfigRequest, ".new(:xid => value)" do
+    subject { GetConfigRequest.new( :xid => xid ) }
+    it_should_behave_like "any Openflow message with xid"
+    context "when sent to a switch" do
+      let( :xid ) { 123 }
+      it_should_behave_like "get config request message"
+    end
+  end
+
+
+  describe GetConfigRequest, '.new("INVALID OPTION")', :nosudo => true do
+    it { expect { GetConfigRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end
 

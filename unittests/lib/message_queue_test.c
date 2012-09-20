@@ -265,7 +265,7 @@ test_peek_message_if_queue_is_not_created() {
 
 static int count = 0;
 
-static void
+static bool
 test_foreach_message_queue_helper( buffer *message, void *user_data ) {
   const char *str = message->data;
   assert_string_equal( ( char * ) user_data, "user_data" );
@@ -280,6 +280,8 @@ test_foreach_message_queue_helper( buffer *message, void *user_data ) {
       assert_true( false );
       break;
   }
+
+  return true;
 }
 
 
@@ -323,11 +325,13 @@ test_foreach_message_queue() {
 }
 
 
-static void
+static bool
 test_foreach_message_queue_if_queue_is_empty_helper( buffer *message, void *user_data ) {
   UNUSED( message );
   UNUSED( user_data );
   assert_true( false );
+
+  return true;
 }
 
 

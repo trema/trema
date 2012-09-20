@@ -41,12 +41,6 @@
  * Helpers.
  ********************************************************************************/
 
-typedef struct {
-  char key[ STAT_KEY_LENGTH ];
-  uint64_t value;
-} stat_entry;
-
-
 extern bool openflow_application_interface_initialized;
 extern openflow_event_handlers_t event_handlers;
 extern char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
@@ -1319,7 +1313,7 @@ test_send_openflow_message() {
   will_return( mock_send_message, true );
 
   ret = send_openflow_message( DATAPATH_ID, buffer );
-  
+
   assert_true( ret );
   stat_entry *stat = lookup_hash_entry( stats, "openflow_application_interface.hello_send_succeeded" );
   assert_int_equal( ( int ) stat->value, 1 );
@@ -2884,7 +2878,7 @@ test_handle_openflow_message() {
     data = alloc_buffer_with_length( 16 );
     append_back_buffer( data, 16 );
     memset( data->data, 'a', 16 );
-    
+
     buffer = create_error( TRANSACTION_ID, OFPET_HELLO_FAILED, OFPHFC_INCOMPATIBLE, data );
     append_front_buffer( buffer, sizeof( openflow_service_header_t ) );
     memcpy( buffer->data, &messenger_header, sizeof( openflow_service_header_t ) );
@@ -2895,7 +2889,7 @@ test_handle_openflow_message() {
     expect_value( mock_error_handler, data->length, data->length );
     expect_memory( mock_error_handler, data->data, data->data, data->length );
     expect_memory( mock_error_handler, user_data, USER_DATA, USER_DATA_LEN );
-    
+
     set_error_handler( mock_error_handler, USER_DATA );
     handle_openflow_message( buffer->data, buffer->length );
 
@@ -2925,7 +2919,7 @@ test_handle_openflow_message() {
     expect_value( mock_vendor_handler, data->length, data->length );
     expect_memory( mock_vendor_handler, data->data, data->data, data->length );
     expect_memory( mock_vendor_handler, user_data, USER_DATA, USER_DATA_LEN );
-    
+
     set_vendor_handler( mock_vendor_handler, USER_DATA );
     handle_openflow_message( buffer->data, buffer->length );
 
@@ -3312,7 +3306,7 @@ test_handle_openflow_message_with_malformed_message() {
   memcpy( buffer->data, &messenger_header, sizeof( openflow_service_header_t ) );
 
   handle_openflow_message( buffer->data, buffer->length );
-    
+
   free_buffer( buffer );
 }
 

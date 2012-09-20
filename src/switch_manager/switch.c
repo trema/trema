@@ -73,9 +73,11 @@ static char short_options[] = "s:";
 
 struct switch_info switch_info;
 
-static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600;
-static const time_t ECHO_REQUEST_INTERVAL = 60;
-static const time_t ECHO_REPLY_TIMEOUT = 2;
+static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600; // sec.
+static const time_t ECHO_REQUEST_INTERVAL = 60; // sec.
+static const time_t ECHO_REPLY_TIMEOUT = 2; // ses.
+static const time_t WARNING_ECHO_RTT = 500; // msec. The value must is less than 1000.
+
 
 static bool age_cookie_table_enabled = false;
 
@@ -91,24 +93,26 @@ usage() {
     "OpenFlow Switch Manager.\n"
     "Usage: %s [OPTION]... [DESTINATION-RULE]...\n"
     "\n"
-    "  -s, --socket=fd             secure channnel socket\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "      --no-flow-cleanup       do not cleanup flows on startup\n"
-    "      --no-cookie-translation do not translate cookie values\n"
-    "      --no-packet_in          do not allow packet-ins on startup\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -s, --socket=fd                 secure channnel socket\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "      --no-flow-cleanup           do not cleanup flows on startup\n"
+    "      --no-cookie-translation     do not translate cookie values\n"
+    "      --no-packet_in              do not allow packet-ins on startup\n"
+    "  -h, --help                      display this help and exit\n"
     "\n"
     "DESTINATION-RULE:\n"
     "  openflow-message-type::destination-service-name\n"
     "\n"
     "openflow-message-type:\n"
-    "  packet_in                   packet-in openflow message type\n"
-    "  port_status                 port-status openflow message type\n"
-    "  vendor                      vendor openflow message type\n"
-    "  state_notify                connection status\n"
+    "  packet_in                       packet-in openflow message type\n"
+    "  port_status                     port-status openflow message type\n"
+    "  vendor                          vendor openflow message type\n"
+    "  state_notify                    connection status\n"
     "\n"
-    "destination-service-name      destination service name\n"
+    "destination-service-name          destination service name\n"
     , get_executable_name()
   );
 }
@@ -346,7 +350,10 @@ switch_event_recv_echoreply( struct switch_info *sw_info, buffer *buf ) {
 
   SUB_TIMESPEC( &now, &tim, &tim );
 
-  info( "echo round-trip time %u.%09u.", ( uint32_t ) tim.tv_sec, ( uint32_t ) tim.tv_nsec );
+  if ( tim.tv_sec > 0 || tim.tv_nsec > ( ( long ) WARNING_ECHO_RTT * 1000000 ) ) {
+    warn( "echo round-trip time is greater then %d ms ( round-trip time = %" PRId64 ".%09d ).",
+          WARNING_ECHO_RTT, ( int64_t ) tim.tv_sec, ( int32_t ) tim.tv_nsec );
+  }
 
   return 0;
 }
@@ -403,6 +410,13 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     }
     // rename service_name of messenger
     rename_message_received_callback( get_trema_name(), new_service_name );
+
+    // rename management service name
+    char *management_service_name = xstrdup( get_management_service_name( get_trema_name() ) );
+    char *new_management_service_name = xstrdup( get_management_service_name( new_service_name ) );
+    rename_message_requested_callback( management_service_name, new_management_service_name );
+    xfree( management_service_name );
+    xfree( new_management_service_name );
 
     debug( "Rename service name from %s to %s.", get_trema_name(), new_service_name );
     if ( messenger_dump_enabled() ) {
@@ -528,39 +542,56 @@ switch_event_recv_error( struct switch_info *sw_info ) {
 
 
 static void
-management_recv( uint16_t tag, void *data, size_t data_len ) {
+management_recv( const messenger_context_handle *handle, uint32_t command, void *data, size_t data_len, void *user_data ) {
   UNUSED( data );
   UNUSED( data_len );
+  UNUSED( user_data );
 
-  switch ( tag ) {
-  case DUMP_XID_TABLE:
-    dump_xid_table();
-    break;
-
-  case DUMP_COOKIE_TABLE:
-    if ( !switch_info.cookie_translation ) {
-      break;
-    }
-    dump_cookie_table();
-    break;
-
-  case TOGGLE_COOKIE_AGING:
-    if ( !switch_info.cookie_translation ) {
-      break;
-    }
-    if ( age_cookie_table_enabled ) {
-      delete_timer_event( age_cookie_table, NULL );
-      age_cookie_table_enabled = false;
-    }
-    else {
-      add_periodic_event_callback( COOKIE_TABLE_AGING_INTERVAL, age_cookie_table, NULL );
-      age_cookie_table_enabled = true;
+  switch ( command ) {
+    case DUMP_XID_TABLE:
+    {
+      dump_xid_table();
     }
     break;
 
-  default:
-    error( "Undefined management message tag ( tag = %#x )", tag );
+    case DUMP_COOKIE_TABLE:
+    {
+      if ( !switch_info.cookie_translation ) {
+        break;
+      }
+      dump_cookie_table();
+    }
+    break;
+
+    case TOGGLE_COOKIE_AGING:
+    {
+      if ( !switch_info.cookie_translation ) {
+        break;
+      }
+      if ( age_cookie_table_enabled ) {
+        delete_timer_event( age_cookie_table, NULL );
+        age_cookie_table_enabled = false;
+      }
+      else {
+        add_periodic_event_callback( COOKIE_TABLE_AGING_INTERVAL, age_cookie_table, NULL );
+        age_cookie_table_enabled = true;
+      }
+    }
+    break;
+
+    default:
+    {
+      error( "Undefined management command ( %#x )", command );
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, NULL, 0 );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+      return;
+    }
   }
+
+  management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_SUCCEEDED, command, NULL, 0 );
+  send_management_application_reply( handle, reply );
+  xfree( reply );
 }
 
 
@@ -585,7 +616,6 @@ main( int argc, char *argv[] ) {
   int ret;
   int i;
   char *service_name;
-  char management_service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
 
   init_trema( &argc, &argv );
   option_parser( argc, argv );
@@ -647,11 +677,7 @@ main( int argc, char *argv[] ) {
   }
 
   add_message_received_callback( get_trema_name(), service_recv );
-
-  snprintf( management_service_name , MESSENGER_SERVICE_NAME_LENGTH,
-            "%s.m", get_trema_name() );
-  management_service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
-  add_message_received_callback( management_service_name, management_recv );
+  set_management_application_request_handler( management_recv, NULL );
 
   ret = switch_event_connected( &switch_info );
   if ( ret < 0 ) {

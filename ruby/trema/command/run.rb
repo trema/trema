@@ -1,8 +1,4 @@
 #
-# trema run command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +16,6 @@
 #
 
 
-require "optparse"
 require "trema/dsl"
 require "trema/util"
 
@@ -30,33 +25,15 @@ module Trema
     include Trema::Util
 
 
-    def run
-      sanity_check
+    def trema_run options
+      @config_file = options[ :conf ] || nil
 
-      options = OptionParser.new
-      options.banner = "Usage: #{ $0 } run [OPTIONS ...]"
-
-      options.on( "-c", "--conf FILE" ) do | v |
-        @config_file = v
-      end
-      options.on( "-d", "--daemonize" ) do
+      if options[ :daemonize ]
         $run_as_daemon = true
       end
-      options.on( "-s", "--tremashark" ) do
+      if options[ :tremashark ]
         $use_tremashark = true
       end
-
-      options.separator ""
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
 
       cleanup_current_session
 
@@ -65,6 +42,8 @@ module Trema
       else
         begin
           Trema::DSL::Runner.new( load_config ).run
+        rescue SystemExit
+          # This is OK
         ensure
           cleanup_current_session
         end

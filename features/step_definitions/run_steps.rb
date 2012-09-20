@@ -41,7 +41,7 @@ When /^I try trema run "([^"]*)" with following configuration \((.*)\):$/ do | a
     Tempfile.open( "trema.conf" ) do | f |
       f.puts config
       f.flush
-      run "./trema run \"#{ args }\" -c #{ f.path } #{ verbose } >> #{ @log } 2>&1"
+      run "./trema #{ verbose } run \"#{ args }\" -c #{ f.path } >> #{ @log } 2>&1"
     end
   end
 

@@ -1,8 +1,4 @@
 #
-# trema kill command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,8 +16,6 @@
 #
 
 
-require "optparse"
-require "trema/dsl"
 require "trema/util"
 
 
@@ -30,44 +24,45 @@ module Trema
     include Trema::Util
 
 
-    def kill
-      options = OptionParser.new
-      options.banner = "Usage: trema kill NAME [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
+    def trema_kill name
+      unless maybe_kill( name )
+        exit_now! "unknown name: #{ name }"
       end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
+    end
 
-      options.parse! ARGV
 
-      context = Trema::DSL::Context.load_current
+    ############################################################################
+    private
+    ############################################################################
 
-      # [FIXME] Trema apps does not appear in context.apps. why?
-      pid_file = File.join( Trema.pid, "#{ ARGV[ 0 ] }.pid" )
-      if FileTest.exist?( pid_file )
-        Trema::Process.read( pid_file ).kill!
-        return
-      end
 
-      host = context.hosts[ ARGV[ 0 ] ]
-      if host
-        host.shutdown
-        return
-      end
-
-      switch = context.switches[ ARGV[ 0 ] ]
-      if switch
-        switch.shutdown
-        return
-      end
-
-      raise "Unknown name: #{ ARGV[ 0 ] }"
-
+    def maybe_kill name
+      killed = maybe_kill_app( name ) || nil
+      killed ||= maybe_shutdown_host( name )
+      killed ||= maybe_shutdown_switch( name )
       # [TODO] kill a link by its name. Needs a good naming convension for link.
+      killed
+    end
+
+
+    def maybe_kill_app name
+      app = find_app_by_name( name )
+      app.kill! if app
+      app
+    end
+
+
+    def maybe_shutdown_host name
+      host = find_host_by_name( name )
+      host.shutdown! if host
+      host
+    end
+
+
+    def maybe_shutdown_switch name
+      switch = find_switch_by_name( name )
+      switch.shutdown if switch
+      switch
     end
   end
 end

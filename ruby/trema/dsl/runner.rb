@@ -88,6 +88,7 @@ module Trema
         maybe_create_links
         maybe_run_hosts
         maybe_run_switches
+        maybe_run_netnss
       end
 
 
@@ -130,6 +131,13 @@ module Trema
 
         @context.hosts.each do | name, host |
           host.add_arp_entry @context.hosts.values - [ host ]
+        end
+      end
+
+
+      def maybe_run_netnss
+        @context.netnss.each do | name, netns |
+          netns.run!
         end
       end
 

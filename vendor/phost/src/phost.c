@@ -52,6 +52,7 @@ static char *pkt_dump;
 static char program_name[PATH_MAX];
 static char pid_dir[PATH_MAX];
 static char log_dir[PATH_MAX];
+static char host_name[PATH_MAX];
 
 int main(int argc, char **argv)
 {
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
 
     /* parse options */
     while(1){
-        opt = getopt(argc, argv, "Dd:i:p:l:v");
+        opt = getopt(argc, argv, "Dd:i:p:l:n:v");
         if(opt < 0){
             break;
         }
@@ -114,6 +115,15 @@ int main(int argc, char **argv)
             if(optarg){
                 memset(log_dir, '\0', sizeof(log_dir));
                 strncpy(log_dir, optarg, sizeof(log_dir) - 1);
+            }
+            else{
+                err |= 1;
+            }
+            break;
+        case 'n':
+            if(optarg){
+                memset(host_name, '\0', sizeof(host_name));
+                strncpy(host_name, optarg, sizeof(host_name) - 1);
             }
             else{
                 err |= 1;
@@ -178,7 +188,7 @@ int main(int argc, char **argv)
     }
 
     phost_set_global_params();
-    phost_create_pid_file(dev_if);
+    phost_create_pid_file(host_name);
 
     cmdif_init(dev_if, stats_udp_send_update);
     arp_init(host_mac_addr, host_ip_addr);
@@ -197,7 +207,7 @@ int main(int argc, char **argv)
 
     cmdif_close();
     tap_close();
-    phost_delete_pid_file(dev_if);
+    phost_delete_pid_file(host_name);
     phost_unset_global_params();
     log_close();
 
@@ -439,7 +449,6 @@ void phost_handle_signals(int signum)
 
 int phost_print_usage()
 {
-    printf("usage: %s [-i dev] [-d debug_level] [-p pid_dir] [-l log_dir] [-D] [-v]\n",
-           program_name);
+    printf("usage: %s [-i dev] [-d debug_level] [-p pid_dir] [-l log_dir] [-n host_name] [-D] [-v]\n", program_name);
     return 0;
 }

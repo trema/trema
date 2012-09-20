@@ -336,7 +336,7 @@ valid_key( const char *key ) {
 
   size_t length = strlen( key );
   if ( length > MAX_KEY_LENGTH ) {
-    error( "Too long key ( length = %u ) specified. Maximum length is %u.", length, MAX_KEY_LENGTH );
+    error( "Too long key ( length = %zu ) specified. Maximum length is %zu.", length, MAX_KEY_LENGTH );
     return false;
   }
 
@@ -358,7 +358,7 @@ valid_value( const char *value ) {
 
   size_t length = strlen( value );
   if ( length > MAX_KEY_LENGTH ) {
-    error( "Too long value ( length = %u ) specified. Maximum length is %u.", length, MAX_VALUE_LENGTH );
+    error( "Too long value ( length = %zu ) specified. Maximum length is %zu.", length, MAX_VALUE_LENGTH );
     return false;
   }
 
@@ -412,7 +412,7 @@ get_value( const char *key, char *value, const size_t length ) {
 
   size_t required_length = strlen( retrieved ) + 1;
   if ( required_length > length ) {
-    error( "Insufficient buffer space ( %u [bytes] > %u [bytes] ).",
+    error( "Insufficient buffer space ( %zu [bytes] > %zu [bytes] ).",
            required_length, length );
     return false;
   }

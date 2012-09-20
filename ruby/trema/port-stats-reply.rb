@@ -35,7 +35,7 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     PortStatsReply.new(
     #       :port_no => 1,
     #       :rx_packets => 7,
@@ -97,7 +97,7 @@ module Trema
     #   @return [PortStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_PORT) OpenFlow message.
     #
-    def initialize options 
+    def initialize options
       super FIELDS, options
     end
   end

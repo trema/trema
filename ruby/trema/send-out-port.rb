@@ -83,14 +83,14 @@ module Trema
       if @port_number.nil?
         raise ArgumentError, "Port number is a mandatory option"
       end
-      if not @port_number.unsigned_16bit?
+      unless @port_number.unsigned_16bit?
         raise ArgumentError, "Port number must be an unsigned 16-bit integer"
       end
     end
 
 
     def check_max_len
-      if not @max_len.unsigned_16bit?
+      unless @max_len.unsigned_16bit?
         raise ArgumentError, "Max length must be an unsigned 16-bit integer"
       end
     end

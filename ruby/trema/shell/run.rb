@@ -26,7 +26,7 @@ require "trema/dsl"
 module Trema
   module Shell
     def run controller
-      sanity_check
+      assert_trema_is_built
 
       if controller
         if /\.rb\Z/=~ controller.split.first

@@ -34,10 +34,10 @@ module Trema
     #
     def initialize port_number
       error_message = "TCP/UDP port must be an unsigned 16-bit integer"
-      if not port_number.is_a?( Integer )
+      unless port_number.is_a?( Integer )
         raise TypeError, error_message
       end
-      if not port_number.unsigned_16bit?
+      unless port_number.unsigned_16bit?
         raise ArgumentError, error_message
       end
       @port_number = port_number

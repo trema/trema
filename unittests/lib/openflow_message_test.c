@@ -5047,8 +5047,8 @@ setup_ether_packet( size_t length, uint16_t type ) {
   if ( type == ETH_ETHTYPE_TPID ) {
     packet_info0->l3_header = ( void * ) ( vtag + 1 );
     packet_info0->format |= ETH_8021Q;
-  } 
-  else { 
+  }
+  else {
     packet_info0->l3_header = ( void * ) ( ether + 1 );
   }
 
@@ -5082,7 +5082,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
 
   switch ( type ) {
   case IPPROTO_ICMP:
-    ipv4->protocol = ( uint8_t ) IPPROTO_ICMP;    
+    ipv4->protocol = ( uint8_t ) IPPROTO_ICMP;
     icmp_header_t *icmpv4 = packet_info0->l4_header;
     icmpv4->type = ICMP_TYPE_UNREACH;
     icmpv4->code = ICMP_CODE_PORTUNREACH;
@@ -5094,7 +5094,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
     udp->src_port = ntohs( src_port );
     udp->dst_port = ntohs( dst_port );
     break;
- 
+
   case IPPROTO_TCP:
     ipv4->protocol = ( uint8_t ) IPPROTO_TCP;
     tcp_header_t *tcp = packet_info0->l4_header;
@@ -5142,7 +5142,7 @@ setup_ipv4_packet( size_t length, uint16_t type ) {
   default:
     break;
   }
-  
+
   return buf;
 }
 
@@ -5151,7 +5151,7 @@ static buffer *
 setup_arp_packet( uint16_t type ) {
   buffer *buf = setup_ether_packet( sizeof( ether_header_t ) + sizeof( arp_header_t ), type );
   packet_info *packet_info0 = buf->user_data;
-  
+
   /* Fill arp values into the test packet. */
   if ( type == ETH_ETHTYPE_TPID ) {
     ether_header_t *ether = packet_info0->l2_header;
@@ -5217,7 +5217,7 @@ setup_snap_packet( uint16_t type ) {
     length += sizeof( vlantag_header_t );
     vlantag_header_t *vtag = ( void * ) ( ether + 1 );
     vtag->type = htons( ( uint16_t ) length );
-  }  
+  }
   else {
     ether->type = htons( ( uint16_t ) length );
   }
@@ -6015,7 +6015,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_tcp_tag_and_wildcards_is
   packet_info0->tcp_src_port = src_port;
   packet_info0->tcp_dst_port = dst_port;
   packet_info0->format |= TP_TCP;
-  
+
   uint16_t expected_in_port = 1;
   struct ofp_match match;
   set_match_from_packet( &match, expected_in_port, 0, buf );
@@ -6424,7 +6424,7 @@ test_set_match_from_packet_succeeds_if_datatype_is_ipv4_icmp_tag_and_wildcards_i
   /* Add a icmp data into the test packet. */
   ipv4_header_t *ipv4 = packet_info0->l3_header;
   ipv4->protocol = IPPROTO_ICMP;
-  icmp_header_t *icmpv4 = packet_info0->l4_header;    
+  icmp_header_t *icmpv4 = packet_info0->l4_header;
   icmpv4->type = ICMP_TYPE_UNREACH;
   icmpv4->code = ICMP_CODE_PORTUNREACH;
   /* Add the icmp data into the packet_info data for verification. */
@@ -6981,6 +6981,16 @@ test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcard
 
 
 static void
+test_set_match_from_packet_fails_if_match_is_NULL() {
+  buffer *buf = setup_arp_packet( ETH_ETHTYPE_TPID );
+
+  expect_assert_failure( set_match_from_packet( NULL, 1, 0, buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
 test_set_match_from_packet_fails_if_packet_data_is_NULL() {
   struct ofp_match match;
   expect_assert_failure( set_match_from_packet( &match, 1, 0, NULL ) );
@@ -6995,6 +7005,666 @@ test_set_match_from_packet_fails_if_packet_is_not_parsed_yet() {
   expect_assert_failure( set_match_from_packet( &match, 1, 0, buf ) );
 
   free_buffer( buf );
+}
+
+
+/********************************************************************************
+ * normalize_match() tests.
+ ********************************************************************************/
+
+#define NORMALIZED_OFPFW_ALL \
+  ( OFPFW_IN_PORT | OFPFW_DL_VLAN | OFPFW_DL_SRC | OFPFW_DL_DST | OFPFW_DL_TYPE | \
+    OFPFW_NW_PROTO | OFPFW_TP_SRC | OFPFW_TP_DST | OFPFW_NW_SRC_ALL | OFPFW_NW_DST_ALL | \
+    OFPFW_DL_VLAN_PCP | OFPFW_NW_TOS )
+
+
+const char all_zero_mac_addr[] = { 0, 0, 0, 0, 0, 0 };
+const char all_one_mac_addr[] = { ( char ) 0xff, ( char ) 0xff, ( char ) 0xff,
+                                  ( char ) 0xff, ( char ) 0xff, ( char ) 0xff };
+const char all_zero_pad1[] = { 0 };
+const char all_zero_pad2[] = { 0, 0 };
+
+
+static void
+setup_arp_match( struct ofp_match *match ) {
+  memset( match, 0xa8, sizeof( match ) );
+  match->wildcards = 0;
+  match->in_port = 1;
+  memcpy( match->dl_src, macsa, ETH_ADDRLEN );
+  memcpy( match->dl_dst, macda, ETH_ADDRLEN );
+  match->dl_vlan = UINT16_MAX;
+  match->dl_type = ETH_ETHTYPE_ARP;
+  match->nw_proto = ARP_OP_REQUEST;
+  match->nw_src = 0x01020304;
+  match->nw_dst = 0x05060708;
+}
+
+
+static void
+setup_icmp_match( struct ofp_match *match ) {
+  memset( match, 0xa8, sizeof( match ) );
+  match->wildcards = 0;
+  match->in_port = 1;
+  memcpy( match->dl_src, macsa, ETH_ADDRLEN );
+  memcpy( match->dl_dst, macda, ETH_ADDRLEN );
+  match->dl_vlan = UINT16_MAX;
+  match->dl_type = ETH_ETHTYPE_IPV4;
+  match->nw_tos = 0;
+  match->nw_proto = IPPROTO_ICMP;
+  match->nw_src = 0x01020304;
+  match->nw_dst = 0x05060708;
+  match->tp_src = ICMP_TYPE_UNREACH;
+  match->tp_dst = ICMP_CODE_PORTUNREACH;
+}
+
+
+static void
+setup_tcp_match( struct ofp_match *match ) {
+  memset( match, 0xa8, sizeof( match ) );
+  match->wildcards = 0;
+  match->in_port = 1;
+  memcpy( match->dl_src, macsa, ETH_ADDRLEN );
+  memcpy( match->dl_dst, macda, ETH_ADDRLEN );
+  match->dl_vlan = 1;
+  match->dl_vlan_pcp = 0xff;
+  match->dl_type = ETH_ETHTYPE_IPV4;
+  match->nw_tos = 0xff;
+  match->nw_proto = IPPROTO_TCP;
+  match->nw_src = 0x01020304;
+  match->nw_dst = 0x05060708;
+  match->tp_src = 0xa;
+  match->tp_dst = 0xb;
+}
+
+
+static void
+setup_udp_match( struct ofp_match *match ) {
+  memset( match, 0xa8, sizeof( match ) );
+  match->wildcards = 0;
+  match->in_port = 1;
+  memcpy( match->dl_src, macsa, ETH_ADDRLEN );
+  memcpy( match->dl_dst, macda, ETH_ADDRLEN );
+  match->dl_vlan = UINT16_MAX;
+  match->dl_vlan_pcp = 0xff;
+  match->dl_type = ETH_ETHTYPE_IPV4;
+  match->nw_tos = 0xff;
+  match->nw_proto = IPPROTO_UDP;
+  match->nw_src = 0x01020304;
+  match->nw_dst = 0x05060708;
+  match->tp_src = 0xa;
+  match->tp_dst = 0xb;
+}
+
+
+static void
+setup_invalid_match( struct ofp_match *match ) {
+  memset( match, 0xa8, sizeof( match ) );
+  match->wildcards = 0;
+  match->in_port = 1;
+  memcpy( match->dl_src, macsa, ETH_ADDRLEN );
+  memcpy( match->dl_dst, macda, ETH_ADDRLEN );
+  match->dl_vlan = UINT16_MAX;
+  match->dl_vlan_pcp = 0xff;
+  match->dl_type = UINT16_MAX;
+}
+
+
+static void
+test_normalize_match_succeeds_if_datatype_is_arp_and_wildcards_is_zero() {
+  struct ofp_match match;
+  setup_arp_match( &match );
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN_PCP | OFPFW_NW_TOS | OFPFW_TP_SRC | OFPFW_TP_DST;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, UINT16_MAX );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_ARP );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, ARP_OP_REQUEST );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0 );
+  assert_int_equal( ( int ) match.tp_dst, 0 );
+}
+
+
+static void
+test_normalize_match_succeeds_if_protocol_is_icmp_and_wildcards_is_zero() {
+  struct ofp_match match;
+  setup_icmp_match( &match );
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN_PCP;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, UINT16_MAX );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, IPPROTO_ICMP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, ICMP_TYPE_UNREACH );
+  assert_int_equal( ( int ) match.tp_dst, ICMP_CODE_PORTUNREACH );
+}
+
+
+static void
+test_normalize_match_succeeds_if_protocol_is_tcp_and_wildcards_is_zero() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+
+  normalize_match( &match );
+
+  uint32_t wildcards = 0;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_protocol_is_udp_and_wildcards_is_zero() {
+  struct ofp_match match;
+  setup_udp_match( &match );
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN_PCP;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, UINT16_MAX );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_UDP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_packet_is_invalid_and_wildcards_is_zero() {
+  struct ofp_match match;
+  setup_invalid_match( &match );
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN_PCP | OFPFW_NW_PROTO | OFPFW_NW_TOS | OFPFW_NW_SRC_ALL | OFPFW_NW_DST_ALL | OFPFW_TP_SRC | OFPFW_TP_DST;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, UINT16_MAX );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, UINT16_MAX );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, 0 );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0 );
+  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( ( int ) match.tp_src, 0 );
+  assert_int_equal( ( int ) match.tp_dst, 0 );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_ALL() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_ALL;
+
+  normalize_match( &match );
+
+  assert_int_equal( ( int ) match.wildcards, NORMALIZED_OFPFW_ALL );
+  assert_int_equal( match.in_port, 0 );
+  assert_memory_equal( match.dl_src, all_zero_mac_addr, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, all_zero_mac_addr, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 0 );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, 0 );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, 0 );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0 );
+  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( ( int ) match.tp_src, 0 );
+  assert_int_equal( ( int ) match.tp_dst, 0 );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_IN_PORT() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_IN_PORT;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_IN_PORT;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 0 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_VLAN() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_DL_VLAN;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 0 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_SRC() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_DL_SRC;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_SRC;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, all_zero_mac_addr, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_DST() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_DL_DST;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_DST;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, all_zero_mac_addr, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_TYPE() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_DL_TYPE;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_TYPE | OFPFW_NW_PROTO | OFPFW_NW_TOS | OFPFW_NW_SRC_ALL | OFPFW_NW_DST_ALL | OFPFW_TP_SRC | OFPFW_TP_DST;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, 0 );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, 0 );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0 );
+  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( ( int ) match.tp_src, 0 );
+  assert_int_equal( ( int ) match.tp_dst, 0 );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_PROTO() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_NW_PROTO;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_NW_PROTO;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, 0 );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_TP_SRC() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_TP_SRC;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_TP_SRC;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0 );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_TP_DST() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_TP_DST;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_TP_DST;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0 );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_SRC_ALL() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_NW_SRC_ALL;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_NW_SRC_ALL;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_DST_ALL() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_NW_DST_ALL;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_NW_DST_ALL;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_src_mask_len_is_24() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = 24 << OFPFW_NW_SRC_SHIFT;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = 24 << OFPFW_NW_SRC_SHIFT;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01000000 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_dst_mask_len_is_24() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = 24 << OFPFW_NW_DST_SHIFT;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = 24 << OFPFW_NW_DST_SHIFT;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05000000 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_VLAN_PCP() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_DL_VLAN_PCP;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_DL_VLAN_PCP;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0xfc );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_TOS() {
+  struct ofp_match match;
+  setup_tcp_match( &match );
+  match.wildcards = OFPFW_NW_TOS;
+
+  normalize_match( &match );
+
+  uint32_t wildcards = OFPFW_NW_TOS;
+
+  assert_int_equal( ( int ) match.wildcards, wildcards );
+  assert_int_equal( match.in_port, 1 );
+  assert_memory_equal( match.dl_src, macsa, ETH_ADDRLEN );
+  assert_memory_equal( match.dl_dst, macda, ETH_ADDRLEN );
+  assert_int_equal( match.dl_vlan, 1 );
+  assert_int_equal( match.dl_vlan_pcp, 0x7 );
+  assert_memory_equal( match.pad1, all_zero_pad1, sizeof( match.pad1 ) );
+  assert_int_equal( match.dl_type, ETH_ETHTYPE_IPV4 );
+  assert_int_equal( match.nw_tos, 0 );
+  assert_int_equal( match.nw_proto, IPPROTO_TCP );
+  assert_memory_equal( match.pad2, all_zero_pad2, sizeof( match.pad2 ) );
+  assert_int_equal( ( int ) match.nw_src, 0x01020304 );
+  assert_int_equal( ( int ) match.nw_dst, 0x05060708 );
+  assert_int_equal( ( int ) match.tp_src, 0xa );
+  assert_int_equal( ( int ) match.tp_dst, 0xb );
+}
+
+
+static void
+test_normalize_match_fails_if_match_is_NULL() {
+  expect_assert_failure( normalize_match( NULL ) );
 }
 
 
@@ -7318,8 +7988,31 @@ main() {
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_netbios_and_wildcards_is_zero, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_tag_and_wildcards_is_zero, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_succeeds_if_datatype_is_ieee8023_not_llc_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_set_match_from_packet_fails_if_match_is_NULL, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_fails_if_packet_data_is_NULL, init, teardown ),
     unit_test_setup_teardown( test_set_match_from_packet_fails_if_packet_is_not_parsed_yet, init, teardown ),
+
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_datatype_is_arp_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_protocol_is_icmp_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_protocol_is_tcp_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_protocol_is_udp_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_packet_is_invalid_and_wildcards_is_zero, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_ALL, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_IN_PORT, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_VLAN, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_SRC, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_DST, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_TYPE, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_PROTO, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_TP_SRC, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_TP_DST, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_SRC_ALL, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_DST_ALL, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_src_mask_len_is_24, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_dst_mask_len_is_24, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_DL_VLAN_PCP, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_succeeds_if_wildcards_is_OFPFW_NW_TOS, init, teardown ),
+    unit_test_setup_teardown( test_normalize_match_fails_if_match_is_NULL, init, teardown ),
   };
   return run_tests( tests );
 }

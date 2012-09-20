@@ -74,7 +74,7 @@ static const uint8_t  TABLE_ID = 0xff;
  *
  *   @raise [ArgumentError] if supplied transaction_id is not an unsigned 32-bit integer.
  *
- *   @return [StatsRequest] 
+ *   @return [StatsRequest]
  *     an object that encapsulates an +OFPT_STATS_REQUEST+ OpenFlow message.
  */
 static VALUE
@@ -127,7 +127,7 @@ desc_stats_request_alloc( VALUE klass ) {
 }
 
 
-static VALUE 
+static VALUE
 flow_stats_request_alloc( VALUE klass ) {
   buffer *flow_stats_request = create_flow_stats_request( MY_TRANSACTION_ID, NO_FLAGS, MATCH, TABLE_ID, OUT_PORT );
   return Data_Wrap_Struct( klass, NULL, free_buffer, flow_stats_request );
@@ -306,7 +306,7 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *
  * @overload initialize(options={})
  *
- *   @example 
+ *   @example
  *     DescStatsRequest.new
  *     DescStatsRequest.new( :transaction_id => 1234 )
  *
@@ -317,7 +317,7 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *     set the transaction_id as specified or auto-generate it.
  *
  *   @return [DescStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -441,7 +441,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *
  * @overload initialize(options={})
  *
- *   @example 
+ *   @example
  *     TableStatsRequest.new
  *     TableStatsRequest.new( :transaction_id => 1234 )
  *
@@ -452,7 +452,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *     set the transaction_id as specified or auto-generate it.
  *
  *   @return [TableStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -479,7 +479,7 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     to +OFPP_NONE+ for all ports.
  *
  *   @return [PortStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ OpenFlow 
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -587,7 +587,7 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     to a default value of 0x00004cff.
  *
  *   @return [VendorStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ OpenFlow
  *     message.
  */
 static VALUE

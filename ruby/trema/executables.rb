@@ -24,13 +24,21 @@ require "trema/path"
 
 
 #
-# Holds the list of executalbes found in {Trema.objects} directory.
+# Holds a list of executables found in Trema.objects directory.
 #
 class Trema::Executables
   class << self
+    #
+    # Cycles through a list of file names testing if there are executable or
+    # not.
+    #
+    # @return [FalseClass, Array] 
+    #   false if a file name is not an executable program or a list of all
+    #   file names that are.
+    #
     def compiled?
       @list.each do | each |
-        return false if not FileTest.executable?( __send__ each )
+        return false unless FileTest.executable?( __send__ each )
       end
     end
 
@@ -40,12 +48,28 @@ class Trema::Executables
     ############################################################################
 
 
+    #
+    # Adds the name to a list.
+    #
     def add name
       @list ||= []
       @list << name
     end
 
 
+    #
+    # Defines a class method that returns the full path name of an executable
+    # program constructed from its relative path. It also adds the
+    # class method name to an array.
+    #
+    # @example
+    #   path "openvswitch/bin/ovs-ofctl"
+    #
+    # @param [String] path
+    #   the relative path to an executable program.
+    #
+    # @return [Array] a list of a class method to access each executable program.
+    #
     def path path
       name = File.basename( path ).underscore
       define_class_method( name ) do
