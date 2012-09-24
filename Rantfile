@@ -182,7 +182,7 @@ end
 
 
 desc "Run the c cbench switch controller to benchmark"
-task "cbench" => "cbench:c"
+task "cbench" => "cbench:ruby"
 
 
 desc "Run the c cbench switch controller to benchmark"
