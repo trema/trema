@@ -143,6 +143,7 @@ log_file( int priority, const char *format, va_list ap ) {
   va_list new_ap;
   va_copy( new_ap, ap );
   vsnprintf( message, max_message_length, format, new_ap );
+  va_end( new_ap );
 
   trema_fprintf( fd, "%s [%s] %s\n", now, priority_name, message );
   fflush( fd );
@@ -156,13 +157,17 @@ log_stdout( const char *format, va_list ap ) {
   va_list new_ap;
   va_copy( new_ap, ap );
   trema_vprintf( format_newline, new_ap );
+  va_end( new_ap );
   fflush( stdout );
 }
 
 
 static void
 log_syslog( int priority, const char *format, va_list ap ) {
-  trema_vsyslog( priority, format, ap );
+  va_list new_ap;
+  va_copy( new_ap, ap );
+  trema_vsyslog( priority, format, new_ap );
+  va_end( new_ap );
 }
 
 
