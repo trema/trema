@@ -40,7 +40,7 @@ module Trema
     # @example
     #   SendOutPort.new( 1 )
     #   SendOutPort.new( :port_number => 1 )
-    #   SendOutPort.new( :port_number => 1, :max_len => 256 )
+    #   SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => 256 )
     #
     # @param [Integer|Hash] options
     #   the port number or the options hash to create this action class instance with.
