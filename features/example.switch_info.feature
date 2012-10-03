@@ -11,7 +11,7 @@ Feature: "Switch Info" sample application
       vswitch { datapath_id 0xabc }
       """
      And I run `trema run ../../objects/examples/switch_info/switch_info -c switch_info.conf -d`
-     And wait until "switch_info" is up
+     And *** sleep 2 ***
     Then the file "../../tmp/log/switch_info.log" should contain "datapath_id: 0xabc"
      And the file "../../tmp/log/switch_info.log" should contain "#ports: 1"
 
@@ -24,8 +24,8 @@ Feature: "Switch Info" sample application
       link "0xabc", "0xdef"
       """
      And I run `trema run ../../objects/examples/switch_info/switch_info -c switch_info.conf -d`
-     And wait until "switch_info" is up
-     And the file "../../tmp/log/switch_info.log" should contain "#ports: 2"
+     And *** sleep 2 ***
+    Then the file "../../tmp/log/switch_info.log" should contain "#ports: 2"
 
   @slow_process
   Scenario: Run "Switch Info" Ruby example
@@ -34,7 +34,7 @@ Feature: "Switch Info" sample application
       vswitch { datapath_id 0xabc }
       """
      And I run `trema run ../../src/examples/switch_info/switch-info.rb -c switch_info.conf -d`
-     And wait until "SwitchInfo" is up
+     And *** sleep 2 ***
     Then the file "../../tmp/log/SwitchInfo.log" should contain "datapath_id: 0xabc"
      And the file "../../tmp/log/SwitchInfo.log" should contain "#ports: 1"
 
@@ -47,5 +47,5 @@ Feature: "Switch Info" sample application
       link "0xabc", "0xdef"
       """
      And I run `trema run ../../src/examples/switch_info/switch-info.rb -c switch_info.conf -d`
-     And wait until "SwitchInfo" is up
-     And the file "../../tmp/log/SwitchInfo.log" should contain "#ports: 2"
+     And *** sleep 2 ***
+    Then the file "../../tmp/log/SwitchInfo.log" should contain "#ports: 2"

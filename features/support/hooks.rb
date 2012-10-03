@@ -19,7 +19,7 @@
 Before do
   @aruba_timeout_seconds = 5
   run "trema killall"
-  sleep 1
+  sleep 5
 end
 
 
@@ -30,6 +30,7 @@ end
 
 After do
   run "trema killall"
+  sleep 1
 end
 
 

@@ -21,6 +21,7 @@ Feature: trema killall command
       link "0x3", "host3"
       """
      And I successfully run `trema run ../../objects/examples/switch_monitor/switch_monitor -c switch_monitor.conf -d`
+     And wait until "switch_monitor" is up
     When I run `trema killall`
     Then switch_manager is terminated
      And switch is terminated
