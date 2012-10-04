@@ -22,6 +22,7 @@ Supported Platforms
 
 Trema supports GNU/Linux only. And it has been tested on the following environments:
 
+* Ruby 1.8.7 (1.9.x is NOT supported yet)
 * Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
 
