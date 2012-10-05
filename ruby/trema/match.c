@@ -166,7 +166,7 @@ match_from( int argc, VALUE *argv, VALUE self ) {
  * @example
  *   def packet_in datapath_id, message
  *     match = Match.new( :dl_type => 0x0800, :nw_src => "192.168.0.1" )
- *     if match.compare( ExactMatch.form( message ) )
+ *     if match.compare( ExactMatch.from( message ) )
  *       info "Received packet from 192.168.0.1"
  *     end
  *   end
