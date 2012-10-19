@@ -43,8 +43,7 @@ ofp_match *get_match( VALUE self ) {
 
 /*
  * Creates a {Match} instance from packet_in's data, the method accepts an
- * additional single argument whose type is an array of symbols to wildcard set
- * to don't care and ignore while matching flow entries.
+ * additional list of symbols to wildcard set and ignore while matching flow entries.
  *
  * @overload match_from(message, *options)
  *
@@ -52,7 +51,7 @@ ofp_match *get_match( VALUE self ) {
  *     def packet_in datapath_id, message
  *       send_flow_mod(
  *         datapath_id,
- *         :match => Match.from( message, [ :dl_type, :nw_proto ] ),
+ *         :match => Match.from( message, :dl_type, :nw_proto ),
  *         :actions => Trema::ActionOutput.new( 2 )
  *       )
  *     end
@@ -60,8 +59,8 @@ ofp_match *get_match( VALUE self ) {
  *   @param [PacketIn] message
  *     the {PacketIn}'s message content.
  *
- *   @param [optional, Array] options
- *     If supplied an array of symbol ids indicating fields to be wildcarded.
+ *   @param [optional, list] options
+ *     If supplied a comma-separated list of symbol ids indicating fields to be wildcarded.
  *
  *     [:inport]
  *       the physical port number to wildcard.
