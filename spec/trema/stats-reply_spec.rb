@@ -295,13 +295,14 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
           :actions => ActionOutput.new( :port => PortStatsController::OFPP_FLOOD )
         )
+        sleep 1 # FIXME: wait to send_flow_mod_add
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
 
         controller( "PortStatsController" ).should_receive( :stats_reply ) do | datapath_id, message |
           datapath_id.should == 0xabc
           message.type.should == 4
-          message.stats[ 0 ].should be_an_instance_of(Trema::PortStatsReply)
+          message.stats[ 0 ].should be_an_instance_of( Trema::PortStatsReply )
           message.stats[ 0 ].should respond_to :to_s
         end
         controller( "PortStatsController" ).send_message( 0xabc,
@@ -326,6 +327,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
           0xabc,
           :actions => ActionOutput.new( :port => TableStatsController::OFPP_FLOOD )
         )
+        sleep 1 # FIXME: wait to send_flow_mod_add
         send_packets "host1", "host2"
         sleep 2 # FIXME: wait to send_packets
 
