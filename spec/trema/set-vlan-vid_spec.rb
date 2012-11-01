@@ -28,7 +28,7 @@ describe SetVlanVid, ".new( number )" do
     its( :vlan_id ) { should == 1024 }
   end
 
-  it_validates "option range", :vlan_id, 1..4096
+  it_validates "option range", :vlan_id, 1..4095
 end
 
 
