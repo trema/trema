@@ -105,6 +105,13 @@ static char program_name[PATH_MAX];
 static char cli_server_sock_file[PATH_MAX];
 static char cli_client_sock_file[PATH_MAX];
 
+static void cli_set_host_addr_print_usage();
+static void cli_send_packets_print_usage();
+static void cli_add_arp_entry_print_usage();
+static void cli_delete_arp_entry_print_usage();
+static void cli_reset_stats_print_usage();
+static void cli_show_stats_print_usage();
+
 int main(int argc, char **argv)
 {
     char instance[PATH_MAX];
@@ -472,7 +479,7 @@ int cli_parse_set_host_addr(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -480,6 +487,7 @@ int cli_parse_set_host_addr(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_set_host_addr_print_usage();
         return -1;
     }
 
@@ -646,7 +654,7 @@ int cli_parse_send_packets(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -654,6 +662,7 @@ int cli_parse_send_packets(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_send_packets_print_usage();
         return -1;
     }
 
@@ -739,7 +748,7 @@ int cli_parse_add_arp_entry(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -747,6 +756,7 @@ int cli_parse_add_arp_entry(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_add_arp_entry_print_usage();
         return -1;
     }
 
@@ -805,7 +815,7 @@ int cli_parse_delete_arp_entry(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -813,6 +823,7 @@ int cli_parse_delete_arp_entry(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_delete_arp_entry_print_usage();
         return -1;
     }
 
@@ -862,7 +873,7 @@ int cli_parse_reset_stats(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -870,6 +881,7 @@ int cli_parse_reset_stats(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_reset_stats_print_usage();
         return -1;
     }
 
@@ -926,7 +938,7 @@ int cli_parse_show_stats(int argc, char **argv)
         case 'v':
             log_set_level(LOG_DEBUG);
             break;
-        case '?':
+        case 'h':
         default:
             ret = -1;
             break;
@@ -934,6 +946,7 @@ int cli_parse_show_stats(int argc, char **argv)
     }
 
     if(ret < 0){
+        cli_show_stats_print_usage();
         return -1;
     }
 
@@ -1069,6 +1082,50 @@ int cli_set_program_name(const char *name)
     return 0;
 }
 
+static void cli_set_host_addr_print_usage()
+{
+    printf("usage: %s set_host_addr [-v] [-h] [--ip_addr ip-address] "
+           "[--ip_mask netmask] [--mac_addr mac-address]\n",
+           program_name);
+}
+
+static void cli_send_packets_print_usage()
+{
+    printf("usage: %s send_packets [-v] [-h] [--ip_src source ip-address] [--ip_dst destination ip-address]\n"
+"                                  [--tp_src source transport-address] [--tp_dst destination transport-address]\n"
+"                                  [--n_pkts amount of packet] [--length length of packet]\n"
+"                                  [--inc_ip_src] [--inc_ip_dst] [--inc_tp_src] [--inc_tp_dst]\n"
+"                                  [--inc_payload] [--n_pkts amount of packet]\n"
+"                                  [--duration sending duration]\n"
+"                                  [--pps packets per second] [--nonblock] [--background]\n",
+           program_name);
+}
+
+static void cli_add_arp_entry_print_usage()
+{
+    printf("usage: %s add_arp_entry [-v] [-h] [--ip_addr ip-address] "
+           "[--mac_addr mac-address]\n",
+           program_name);
+}
+
+static void cli_delete_arp_entry_print_usage()
+{
+    printf("usage: %s delete_arp_entry [-v] [-h] [--ip_addr ip-address]\n",
+           program_name);
+}
+
+static void cli_reset_stats_print_usage()
+{
+    printf("usage: %s reset_stats [-v] [-h] [--tx] [--rx]\n",
+           program_name);
+}
+
+static void cli_show_stats_print_usage()
+{
+    printf("usage: %s show_stats [-v] [-h] [--tx] [--rx]\n",
+           program_name);
+}
+
 int cli_print_usage()
 {
     printf("usage: %s [-i instance] {set_host_addr|add_arp_entry|"
@@ -1077,4 +1134,3 @@ int cli_print_usage()
            program_name);
     return 0;
 }
-
