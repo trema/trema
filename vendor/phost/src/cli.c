@@ -379,45 +379,43 @@ int cli_recv(void *reply, uint32_t *length, struct timeval timeout)
     return ret;
 }
 
-static void cli_set_host_addr_print_usage()
+static void cli_print_set_host_addr_usage()
 {
-    printf("usage: %s set_host_addr [-v] [-h] [--ip_addr ip-address] "
-           "[--ip_mask netmask] [--mac_addr mac-address]\n",
+    printf("usage: %s set_host_addr [-v] [-h]\n"
+           "       [--ip_addr IP_ADDRESS] [--ip_mask NETMASK] [--mac_addr MAC_ADDRESS]\n",
            program_name);
 }
 
-static void cli_send_packets_print_usage()
+static void cli_print_send_packets_usage()
 {
-    printf("usage: %s send_packets [-v] [-h] [--ip_src source ip-address] [--ip_dst destination ip-address]\n"
-"                                  [--tp_src source transport-address] [--tp_dst destination transport-address]\n"
-"                                  [--n_pkts amount of packet] [--length length of packet]\n"
-"                                  [--inc_ip_src] [--inc_ip_dst] [--inc_tp_src] [--inc_tp_dst]\n"
-"                                  [--inc_payload] [--n_pkts amount of packet]\n"
-"                                  [--duration sending duration]\n"
-"                                  [--pps packets per second] [--nonblock] [--background]\n",
+    printf("usage: %s send_packets [-v] [-h]\n"
+           "       [--ip_src source IP_ADDRESS] [--ip_dst destination IP_ADDRESS]\n"
+           "       [--tp_src SOURCE_PORT] [--tp_dst DESTINATION_PORT]\n"
+           "       [--duration DURATION] [--pps PPS] [--length PAYLOAD_LENGTH]\n"
+           "       [--inc_ip_src] [--inc_ip_dst] [--inc_tp_src] [--inc_tp_dst] [--inc_payload]\n"
+           "       [--nonblock]  [--n_pkts NUMBER_OF_PACKETS] [--background]\n",
            program_name);
 }
 
-static void cli_add_arp_entry_print_usage()
+static void cli_print_add_arp_entry_usage()
 {
-    printf("usage: %s add_arp_entry [-v] [-h] [--ip_addr ip-address] "
-           "[--mac_addr mac-address]\n",
+    printf("usage: %s add_arp_entry [-v] [-h] [--ip_addr IP_ADDRESS] [--mac_addr MAC_ADDRESS]\n",
            program_name);
 }
 
-static void cli_delete_arp_entry_print_usage()
+static void cli_print_delete_arp_entry_usage()
 {
-    printf("usage: %s delete_arp_entry [-v] [-h] [--ip_addr ip-address]\n",
+    printf("usage: %s delete_arp_entry [-v] [-h] [--ip_addr IP_ADDRESS]\n",
            program_name);
 }
 
-static void cli_reset_stats_print_usage()
+static void cli_print_reset_stats_usage()
 {
     printf("usage: %s reset_stats [-v] [-h] [--tx] [--rx]\n",
            program_name);
 }
 
-static void cli_show_stats_print_usage()
+static void cli_print_show_stats_usage()
 {
     printf("usage: %s show_stats [-v] [-h] [--tx] [--rx]\n",
            program_name);
@@ -427,7 +425,7 @@ int cli_print_usage()
 {
     printf("usage: %s [-i instance] {set_host_addr|add_arp_entry|"
            "delete_arp_entry|send_packets|reset_stats|show_stats|"
-           "enable_promisc|disable_promisc} options\n",
+           "enable_promisc|disable_promisc} OPTIONS\n",
            program_name);
     return 0;
 }
@@ -533,7 +531,7 @@ int cli_parse_set_host_addr(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_set_host_addr_print_usage();
+        cli_print_set_host_addr_usage();
         return -1;
     }
 
@@ -708,7 +706,7 @@ int cli_parse_send_packets(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_send_packets_print_usage();
+        cli_print_send_packets_usage();
         return -1;
     }
 
@@ -802,7 +800,7 @@ int cli_parse_add_arp_entry(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_add_arp_entry_print_usage();
+        cli_print_add_arp_entry_usage();
         return -1;
     }
 
@@ -869,7 +867,7 @@ int cli_parse_delete_arp_entry(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_delete_arp_entry_print_usage();
+        cli_print_delete_arp_entry_usage();
         return -1;
     }
 
@@ -927,7 +925,7 @@ int cli_parse_reset_stats(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_reset_stats_print_usage();
+        cli_print_reset_stats_usage();
         return -1;
     }
 
@@ -992,7 +990,7 @@ int cli_parse_show_stats(int argc, char **argv)
     }
 
     if(ret < 0){
-        cli_show_stats_print_usage();
+        cli_print_show_stats_usage();
         return -1;
     }
 
