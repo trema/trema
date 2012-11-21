@@ -72,10 +72,10 @@ module Rant
     end
 
     module Env
-        OS = ::Config::CONFIG['target']
-        RUBY = ::Config::CONFIG['ruby_install_name']
-        RUBY_BINDIR = ::Config::CONFIG['bindir']
-        RUBY_EXE = File.join(RUBY_BINDIR, RUBY + ::Config::CONFIG["EXEEXT"])
+        OS = ::RbConfig::CONFIG['target']
+        RUBY = ::RbConfig::CONFIG['ruby_install_name']
+        RUBY_BINDIR = ::RbConfig::CONFIG['bindir']
+        RUBY_EXE = File.join(RUBY_BINDIR, RUBY + ::RbConfig::CONFIG["EXEEXT"])
 
         @@zip_bin = false
         @@tar_bin = false
@@ -416,8 +416,8 @@ module Rant
 
 	def valid_vid(obj)
 	    case obj
-	    when String: obj
-	    when Symbol: obj.to_s
+	    when String; obj
+	    when Symbol; obj.to_s
 	    else
 		if obj.respond_to? :to_str
 		    obj.to_str
@@ -1175,8 +1175,8 @@ module Rant
         def reference_name
             sd = rac.current_subdir
             case sd
-            when "": full_name
-            when project_subdir: name
+            when ""; full_name
+            when project_subdir; name
             else "@#{full_name}".sub(/^@#{Regexp.escape sd}\//, '')
             end
         end
@@ -1857,8 +1857,8 @@ module Rant
                                 }
                             }
                         end
-                    when Proc: src_arg
-                    when nil: lambda { |name| [] }
+                    when Proc; src_arg
+                    when nil; lambda { |name| [] }
                     else
                         rac.abort_at(ch, "rule source has to be a " +
                             "String, Array or Proc")
@@ -1903,8 +1903,8 @@ module Rant
                 def create_nodes(rel_project_dir, target, deps)
                     @rant.goto_project_dir rel_project_dir
                     case nodes = @block[target, deps]
-                    when Array: nodes
-                    when Node: [nodes]
+                    when Array; nodes
+                    when Node; [nodes]
                     else
                         @rant.abort_at(@ch, "Block has to " +
                             "return Node or array of Nodes.")
@@ -1929,11 +1929,11 @@ module Rant
 	class Action
 	    def self.rant_gen(rac, ch, args, &block)
                 case args.size
-                when 0:
+                when 0
                     unless (rac[:tasks] || rac[:stop_after_load])
                         yield
                     end
-                when 1:
+                when 1
                     rx = args.first
                     unless rx.kind_of? Regexp
                         rac.abort_at(ch, "Action: argument has " +
@@ -2016,8 +2016,8 @@ module Rant::Console
     def ask_yes_no text
         $stderr.print msg_prefix + text + " [y|n] "
         case $stdin.readline
-        when /y|yes/i: true
-        when /n|no/i: false
+        when /y|yes/i; true
+        when /n|no/i; false
         else
             $stderr.puts(' ' * msg_prefix.length +
                 "Please answer with `yes' or `no'")
@@ -2270,9 +2270,9 @@ class Rant::RantApp
 
     def expand_path(subdir, path)
 	case path
-	when nil:	subdir.dup
-	when "":	subdir.dup
-	when /^@/:	path.sub(/^@/, '')
+	when nil;	subdir.dup
+	when "";	subdir.dup
+	when /^@/;	path.sub(/^@/, '')
 	else
             path = path.sub(/^\\(?=@)/, '')
 	    if subdir.empty?
@@ -2762,7 +2762,7 @@ class Rant::RantApp
 		return s if s
 	    }
 	    []
-	when Rant::Node: [s]
+	when Rant::Node; [s]
 	else # assuming list of tasks
 	    s
 	end
@@ -2779,7 +2779,7 @@ class Rant::RantApp
 		return s if s
 	    }
 	    []
-	when Rant::Node: [s]
+	when Rant::Node; [s]
 	else
 	    s
 	end
@@ -2897,7 +2897,7 @@ class Rant::RantApp
 	cmd_opts.quiet = true
 	cmd_opts.each { |opt, value|
 	    case opt
-	    when "--verbose": @opts[:verbose] += 1
+	    when "--verbose"; @opts[:verbose] += 1
 	    when "--version"
 		puts "rant #{Rant::VERSION}"
 		raise Rant::RantDoneException
@@ -3082,7 +3082,7 @@ module Rant::C
 	    l_includes = []
 	    in_block_comment = false
 	    prev_line = nil
-	    src.each { |line|
+	    src.each_line { |line|
 		line.chomp!
                 if block_start_i = line.index("/*")
                     c_start_i = line.index("//")
@@ -3272,9 +3272,11 @@ class Rant::Generators::DirectedRule
 		"Source directory argument has to be a list.")
 	end
 	target, source = nil, nil
-	ts_h.each { |target, source| }
+	target = ts_h.keys.first
+	source = ts_h.values.first
 	target_dir, source_dirs = nil, nil
-	dir_h.each { |target_dir, source_dirs| }
+	target_dir = dir_h.keys.first
+	source_dirs = dir_h.values.first
 	if target_dir.respond_to? :to_str
 	    target_dir = target_dir.to_str
 	else
