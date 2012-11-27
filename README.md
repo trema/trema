@@ -245,6 +245,7 @@ Project Status
 
 * Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
 * Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
+* Code Quality [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/trema/trema)
 
 
 License
