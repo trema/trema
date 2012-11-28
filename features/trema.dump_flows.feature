@@ -21,7 +21,7 @@ Feature: trema dump_flows command
 
   @slow_process
   Scenario: dump a flow entry
-    Given I run `trema send_packets --source host1 --dest host2`
+    Given I run trema send_packets "--source host1 --dest host2"
     When I run `trema dump_flows repeater_hub`
     Then the output should contain "actions=FLOOD"
 
