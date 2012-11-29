@@ -32,23 +32,23 @@ create_fdb() {
 
 uint16_t
 lookup_fdb( hash_table *db, uint8_t *mac ) {
-  fdb *fdb = lookup_hash_entry( db, mac );
-  return ( uint16_t ) ( fdb == NULL ? ENTRY_NOT_FOUND_IN_FDB : fdb->port_number );
+  fdb *entry = lookup_hash_entry( db, mac );
+  return ( uint16_t ) ( entry == NULL ? ENTRY_NOT_FOUND_IN_FDB : entry->port_number );
 
 }
 
 
 void
 learn_fdb( hash_table *db, uint8_t *mac, uint16_t port_number ) {
-  fdb *fdb = lookup_hash_entry( db, mac );
-  if ( fdb == NULL ) {
-    fdb = xmalloc( sizeof( fdb ) );
-    memcpy( fdb->mac, mac, ETH_ADDRLEN );
-    fdb->port_number = port_number;
-    insert_hash_entry( db, fdb->mac, fdb );
+  fdb *entry = lookup_hash_entry( db, mac );
+  if ( entry == NULL ) {
+    entry = xmalloc( sizeof( fdb ) );
+    memcpy( entry->mac, mac, ETH_ADDRLEN );
+    entry->port_number = port_number;
+    insert_hash_entry( db, entry->mac, entry );
   }
   else {
-    fdb->port_number = port_number;
+    entry->port_number = port_number;
   }
 }
 

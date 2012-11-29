@@ -32,16 +32,16 @@ create_counter() {
 
 void
 add_counter( hash_table *db, uint8_t *mac, uint64_t packet_count, uint64_t byte_count ) {
-  counter *counter = lookup_hash_entry( db, mac );
-  if ( counter == NULL ) {
-    counter = xmalloc( sizeof( counter ) );
-    memcpy( counter->mac, mac, ETH_ADDRLEN );
-    counter->packet_count = 0;
-    counter->byte_count = 0;
-    insert_hash_entry( db, counter->mac, counter );
+  counter *entry = lookup_hash_entry( db, mac );
+  if ( entry == NULL ) {
+    entry = xmalloc( sizeof( counter ) );
+    memcpy( entry->mac, mac, ETH_ADDRLEN );
+    entry->packet_count = 0;
+    entry->byte_count = 0;
+    insert_hash_entry( db, entry->mac, entry );
   }
-  counter->packet_count += packet_count;
-  counter->byte_count += byte_count;
+  entry->packet_count += packet_count;
+  entry->byte_count += byte_count;
 }
 
 
