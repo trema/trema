@@ -42,6 +42,7 @@ task :default => [
   :switch,
   :topology,
   :show_topology,
+  :show_switch_status,
   :packetin_filter,
   :tremashark,
   :packet_capture,
@@ -512,6 +513,18 @@ end
 desc "Build show_topology."
 task :show_topology => Trema::Executables.show_topology
 file Trema::Executables.show_topology => show_topology_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+end
+
+show_switch_status_objects = [
+  "show_switch_status.o"
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build show_switch_status."
+task :show_switch_status => Trema::Executables.show_switch_status
+file Trema::Executables.show_switch_status => show_switch_status_objects + [ libtrema ] do | t |
   sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
 end
 
