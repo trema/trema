@@ -15,8 +15,8 @@ gemspec
 group :development do
   gem "aruba", "~> 0.5.1"
   gem "cucumber", "~> 1.2.1"
-  gem "flay", "~> 2.0.0"
-  gem "flog", "~> 3.1.0"
+  gem "flay", "~> 1.4.3"
+  gem "flog", "~> 2.5.3"
   gem "rake", "~> 10.0.2"
   gem "rcov", "~> 1.0.0"
   gem "rdoc", "~> 3.12"
