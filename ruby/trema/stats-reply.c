@@ -149,6 +149,13 @@ Init_stats_reply() {
   rb_require( "trema/queue-stats-reply" );
   rb_require( "trema/vendor-stats-reply" );
   cStatsReply = rb_define_class_under( mTrema, "StatsReply", rb_cObject );
+  rb_define_const( cStatsReply, "OFPST_DESC", INT2NUM( OFPST_DESC ) );
+  rb_define_const( cStatsReply, "OFPST_FLOW", INT2NUM( OFPST_FLOW ) );
+  rb_define_const( cStatsReply, "OFPST_AGGREGATE", INT2NUM( OFPST_AGGREGATE ) );
+  rb_define_const( cStatsReply, "OFPST_TABLE", INT2NUM( OFPST_TABLE ) );
+  rb_define_const( cStatsReply, "OFPST_PORT", INT2NUM( OFPST_PORT ) );
+  rb_define_const( cStatsReply, "OFPST_QUEUE", INT2NUM( OFPST_QUEUE ) );
+  rb_define_const( cStatsReply, "OFPST_VENDOR", INT2NUM( OFPST_VENDOR ) );
   rb_define_method( cStatsReply, "initialize", stats_reply_init, 1 );
   rb_define_method( cStatsReply, "datapath_id", stats_reply_datapath_id, 0 );
   rb_define_method( cStatsReply, "transaction_id", stats_reply_transaction_id, 0 );
