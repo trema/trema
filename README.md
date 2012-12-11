@@ -30,6 +30,12 @@ It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
 
 
+Supported OpenFlow Protocol Versions
+------------------------------------
+
+Trema currently supports OpenFlow version 1.0 only.
+
+
 Getting Started
 ---------------
 
