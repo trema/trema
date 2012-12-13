@@ -125,6 +125,18 @@ extern ssize_t mock_read( int fd, void *buf, size_t count );
 #define kill mock_kill
 extern int mock_kill( pid_t pid, int sig );
 
+#ifdef readlink
+#undef readlink
+#endif // readlink
+#define readlink mock_readlink
+extern ssize_t mock_readlink( const char *path, char *buf, size_t bufsiz );
+
+#ifdef basename
+#undef basename
+#endif // basename
+#define basename mock_basename
+extern char *mock_basename( char *path );
+
 #ifdef rename
 #undef rename
 #endif // rename
@@ -266,6 +278,21 @@ read_pid( const char *directory, const char *name ) {
     if ( errno == ESRCH ) {
       unlink( path );
     }
+    return -1;
+  }
+
+  char proc_path[ 32 ];
+  char exe_path[ PATH_MAX ];
+  sprintf( proc_path, "/proc/%d/exe", pid );
+  ssize_t readsiz = readlink( proc_path, exe_path, sizeof( exe_path ) );
+  if ( readsiz == -1 ) {
+    warn( "Failed to check process id %d ( %s [%d] ).", pid, strerror( errno ), errno );
+    return -1;
+  }
+
+  char *exe_name = basename( exe_path );
+  if ( strcmp( name, exe_name ) != 0 ) {
+    warn( "Failed to check process name %s ( %s [%d] ).", name, strerror( errno ), errno );
     return -1;
   }
 
