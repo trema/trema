@@ -25,27 +25,27 @@ require "trema"
 describe Trema, ".constants" do
   subject { Trema.constants }
 
-  it { should include "OFPC_FLOW_STATS" }
-  it { should include "OFPC_TABLE_STATS" }
-  it { should include "OFPC_PORT_STATS" }
-  it { should include "OFPC_STP" }
-  it { should include "OFPC_RESERVED" }
-  it { should include "OFPC_IP_REASM" }
-  it { should include "OFPC_QUEUE_STATS" }
-  it { should include "OFPC_ARP_MATCH_IP" }
+  it { should include :OFPC_FLOW_STATS }
+  it { should include :OFPC_TABLE_STATS }
+  it { should include :OFPC_PORT_STATS }
+  it { should include :OFPC_STP }
+  it { should include :OFPC_RESERVED }
+  it { should include :OFPC_IP_REASM }
+  it { should include :OFPC_QUEUE_STATS }
+  it { should include :OFPC_ARP_MATCH_IP }
 
-  it { should include "OFPAT_OUTPUT" }
-  it { should include "OFPAT_SET_VLAN_VID" }
-  it { should include "OFPAT_SET_VLAN_PCP" }
-  it { should include "OFPAT_STRIP_VLAN" }
-  it { should include "OFPAT_SET_DL_SRC" }
-  it { should include "OFPAT_SET_DL_DST" }
-  it { should include "OFPAT_SET_NW_SRC" }
-  it { should include "OFPAT_SET_NW_DST" }
-  it { should include "OFPAT_SET_NW_TOS" }
-  it { should include "OFPAT_SET_TP_DST" }
-  it { should include "OFPAT_ENQUEUE" }
-  it { should include "OFPAT_VENDOR" }
+  it { should include :OFPAT_OUTPUT }
+  it { should include :OFPAT_SET_VLAN_VID }
+  it { should include :OFPAT_SET_VLAN_PCP }
+  it { should include :OFPAT_STRIP_VLAN }
+  it { should include :OFPAT_SET_DL_SRC }
+  it { should include :OFPAT_SET_DL_DST }
+  it { should include :OFPAT_SET_NW_SRC }
+  it { should include :OFPAT_SET_NW_DST }
+  it { should include :OFPAT_SET_NW_TOS }
+  it { should include :OFPAT_SET_TP_DST }
+  it { should include :OFPAT_ENQUEUE }
+  it { should include :OFPAT_VENDOR }
 end
 
 

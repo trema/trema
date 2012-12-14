@@ -22,8 +22,7 @@
 #define OPENFLOW_ERROR_H
 
 
-#include "ruby.h"
-#include "trema.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cOpenflowError;

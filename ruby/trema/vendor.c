@@ -16,7 +16,6 @@
  */
 
 
-#include "ruby.h"
 #include "trema-ruby-utils.h"
 #include "trema.h"
 
@@ -196,7 +195,7 @@ handle_vendor(
   void *user_data
 ) {
   VALUE controller = ( VALUE ) user_data;
-  if ( rb_respond_to( controller, rb_intern( "vendor" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "vendor" ) ) ) {
     return;
   }
   VALUE attributes = rb_hash_new();

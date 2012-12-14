@@ -17,7 +17,7 @@
 
 
 #include <stdint.h>
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 uint32_t

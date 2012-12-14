@@ -16,7 +16,6 @@
  */
 
 
-#include "ruby.h"
 #include "trema.h"
 #include "trema-ruby-utils.h"
 
@@ -58,7 +57,7 @@ flow_mod_init( int argc, VALUE *argv, VALUE self ) {
     if ( options == Qnil ) {
       set_xid( flow_mod, get_transaction_id() );
     }
-    else if ( rb_obj_is_kind_of( options, rb_cInteger ) == Qtrue ) {
+    else if ( RB_OBJ_IS_KIND_OF( options, rb_cInteger ) ) {
       validate_xid( options );
       set_xid( flow_mod, ( uint32_t ) NUM2UINT( options ) );
     }

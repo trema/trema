@@ -26,7 +26,7 @@ class PacketOutController < Controller
   def packet_in datapath_id, message
     send_flow_mod_add(
       datapath_id,
-      :match => Match.from( message ),
+      :match => Trema::Match.from( message ),
       :actions => Trema::ActionOutput.new( :port => 2 )
     )
     send_packet_out(

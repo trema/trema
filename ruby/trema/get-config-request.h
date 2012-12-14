@@ -24,7 +24,7 @@
 #define GET_CONFIG_REQUEST_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cGetConfigRequest;

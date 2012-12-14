@@ -22,7 +22,7 @@
 #define STATS_REQUEST_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cStatsRequest;

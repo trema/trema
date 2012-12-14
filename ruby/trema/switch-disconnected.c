@@ -18,14 +18,14 @@
  */
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 
 
 void
 handle_switch_disconnected( uint64_t datapath_id, void *user_data ) {
   VALUE controller = ( VALUE ) user_data;
-  if ( rb_respond_to( controller, rb_intern( "switch_disconnected" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "switch_disconnected" ) ) ) {
     return;
   }
   rb_funcall( controller, rb_intern( "switch_disconnected" ), 1, ULL2NUM( datapath_id ) );

@@ -19,8 +19,8 @@
 
 
 #include <arpa/inet.h>
+#include "trema-ruby-utils.h"
 #include "trema.h"
-#include "ruby.h"
 #include "action-common.h"
 
 
@@ -287,7 +287,7 @@ handle_stats_reply(
   void *user_data
 ) {
   VALUE controller = ( VALUE ) user_data;
-  if ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "stats_reply" ) ) ) {
     return;
   }
   if ( body == NULL ) {

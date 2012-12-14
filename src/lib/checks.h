@@ -22,7 +22,7 @@
 #define CHECKS_H
 
 
-#define DEPRECATED __attribute__ ( ( deprecated ) )
+#define TREMA_DEPRECATED __attribute__ ( ( deprecated ) )
 #define UNUSED( x ) ( void ) ( x )
 #define UNREACHABLE() die( "unreachable code" )
 #define die_if_NULL( data )                                     \

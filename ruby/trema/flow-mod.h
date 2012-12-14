@@ -22,7 +22,7 @@
 #define RUBY_FLOW_MOD_H
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cFlowMod;

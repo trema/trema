@@ -18,7 +18,7 @@
 
 #include <string.h>
 #include "buffer.h"
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 
 
@@ -1136,7 +1136,7 @@ Init_packet_in() {
 void
 handle_packet_in( uint64_t datapath_id, packet_in message ) {
   VALUE controller = ( VALUE ) message.user_data;
-  if ( rb_respond_to( controller, rb_intern( "packet_in" ) ) == Qfalse ) {
+  if ( !RB_RESPOND_TO( controller, rb_intern( "packet_in" ) ) ) {
     return;
   }
 

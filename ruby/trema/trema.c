@@ -18,6 +18,9 @@
  */
 
 
+#include "trema.h"
+
+
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
@@ -40,7 +43,6 @@
 #include "port.h"
 #include "queue-get-config-reply.h"
 #include "queue-get-config-request.h"
-#include "ruby.h"
 #include "set-config.h"
 #include "stats-reply.h"
 #include "stats-request.h"

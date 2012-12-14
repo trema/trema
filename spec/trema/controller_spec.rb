@@ -25,15 +25,15 @@ module Trema
     context "when using OpenFlow constants" do
       subject { Controller.constants }
 
-      it { should include "OFPP_MAX" }
-      it { should include "OFPP_IN_PORT" }
-      it { should include "OFPP_TABLE" }
-      it { should include "OFPP_NORMAL" }
-      it { should include "OFPP_FLOOD" }
-      it { should include "OFPP_ALL" }
-      it { should include "OFPP_CONTROLLER" }
-      it { should include "OFPP_LOCAL" }
-      it { should include "OFPP_NONE" }
+      it { should include :OFPP_MAX }
+      it { should include :OFPP_IN_PORT }
+      it { should include :OFPP_TABLE }
+      it { should include :OFPP_NORMAL }
+      it { should include :OFPP_FLOOD }
+      it { should include :OFPP_ALL }
+      it { should include :OFPP_CONTROLLER }
+      it { should include :OFPP_LOCAL }
+      it { should include :OFPP_NONE }
     end
 
 

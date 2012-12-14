@@ -170,7 +170,7 @@ module Rant
                 "\"#{sarg}\""
             end
             def regular_filename(fn)
-                fn.to_str.tr("\\", "/").gsub(%r{/{2,}}, "/")
+                fn.to_s.tr("\\", "/").gsub(%r{/{2,}}, "/")
             end
         else
             def _escaped_path(path)
@@ -178,7 +178,7 @@ module Rant
             end
             alias _escaped _escaped_path
             def regular_filename(fn)
-                fn.to_str.gsub(%r{/{2,}}, "/")
+                fn.to_s.gsub(%r{/{2,}}, "/")
             end
         end
         private :_escaped_path
@@ -416,11 +416,11 @@ module Rant
 
 	def valid_vid(obj)
 	    case obj
-	    when String: obj
-	    when Symbol: obj.to_s
+	    when String then obj
+	    when Symbol then obj.to_s
 	    else
-		if obj.respond_to? :to_str
-		    obj.to_str
+		if obj.respond_to? :to_s
+		    obj.to_s
 		else
 		    raise InvalidVidError.new(obj)
 		end
@@ -1020,8 +1020,8 @@ module Rant
         end
 
 	def safe_ln(src, dest)
-            dest = dest.to_str
-            src = src.respond_to?(:to_ary) ? src.to_ary : src.to_str
+            dest = dest.to_s
+            src = src.respond_to?(:to_ary) ? src.to_ary : src.to_s
 	    unless Sys.symlink_supported
 		cp(src, dest)
 	    else
@@ -1146,8 +1146,8 @@ module Rant
 	    @tasks = []
 	    @project_subdir = nil
 	end
-        alias to_s path
-        alias to_str path
+        alias :to_s :path
+        alias :to_str :path
     end	# class Rantfile
 
     module Node
@@ -1175,8 +1175,8 @@ module Rant
         def reference_name
             sd = rac.current_subdir
             case sd
-            when "": full_name
-            when project_subdir: name
+            when "" then full_name
+            when project_subdir then name
             else "@#{full_name}".sub(/^@#{Regexp.escape sd}\//, '')
             end
         end
@@ -1190,7 +1190,7 @@ module Rant
 	end
 
         def ch
-            {:file => rantfile.to_str, :ln => line_number}
+            {:file => rantfile.to_s, :ln => line_number}
         end
 
 	def goto_task_home
@@ -1745,8 +1745,8 @@ module Rant
 		    self.task(rac, ch, name, pre, &block)
 		when 2
 		    basedir = args.shift
-		    if basedir.respond_to? :to_str
-			basedir = basedir.to_str
+		    if basedir.respond_to? :to_s
+			basedir = basedir.to_s
 		    else
 			rac.abort_at(ch,
 			    "Directory: basedir argument has to be a string.")
@@ -1814,14 +1814,14 @@ module Rant
 		src_arg = nil
 		if Symbol === arg
 		    target = ".#{arg}"
-		elsif arg.respond_to? :to_str
-		    target = arg.to_str
+		elsif arg.respond_to? :to_s
+		    target = arg.to_s
 		elsif Regexp === arg
 		    target = arg
 		elsif Hash === arg && arg.size == 1
 		    arg.each_pair { |target, src_arg| }
-		    src_arg = src_arg.to_str if src_arg.respond_to? :to_str
-		    target = target.to_str if target.respond_to? :to_str
+		    src_arg = src_arg.to_s if src_arg.respond_to? :to_s
+		    target = target.to_s if target.respond_to? :to_s
 		    src_arg = ".#{src_arg}" if Symbol === src_arg
 		    target = ".#{target}" if Symbol === target
 		else
@@ -1857,8 +1857,8 @@ module Rant
                                 }
                             }
                         end
-                    when Proc: src_arg
-                    when nil: lambda { |name| [] }
+                    when Proc then src_arg
+                    when nil then lambda { |name| [] }
                     else
                         rac.abort_at(ch, "rule source has to be a " +
                             "String, Array or Proc")
@@ -1903,8 +1903,8 @@ module Rant
                 def create_nodes(rel_project_dir, target, deps)
                     @rant.goto_project_dir rel_project_dir
                     case nodes = @block[target, deps]
-                    when Array: nodes
-                    when Node: [nodes]
+                    when Array then nodes
+                    when Node then [nodes]
                     else
                         @rant.abort_at(@ch, "Block has to " +
                             "return Node or array of Nodes.")
@@ -1929,11 +1929,11 @@ module Rant
 	class Action
 	    def self.rant_gen(rac, ch, args, &block)
                 case args.size
-                when 0:
+                when 0
                     unless (rac[:tasks] || rac[:stop_after_load])
                         yield
                     end
-                when 1:
+                when 1
                     rx = args.first
                     unless rx.kind_of? Regexp
                         rac.abort_at(ch, "Action: argument has " +
@@ -2016,8 +2016,8 @@ module Rant::Console
     def ask_yes_no text
         $stderr.print msg_prefix + text + " [y|n] "
         case $stdin.readline
-        when /y|yes/i: true
-        when /n|no/i: false
+        when /y|yes/i then true
+        when /n|no/i then false
         else
             $stderr.puts(' ' * msg_prefix.length +
                 "Please answer with `yes' or `no'")
@@ -2270,9 +2270,9 @@ class Rant::RantApp
 
     def expand_path(subdir, path)
 	case path
-	when nil:	subdir.dup
-	when "":	subdir.dup
-	when /^@/:	path.sub(/^@/, '')
+	when nil then	subdir.dup
+	when "" then	subdir.dup
+	when /^@/ then	path.sub(/^@/, '')
 	else
             path = path.sub(/^\\(?=@)/, '')
 	    if subdir.empty?
@@ -2427,7 +2427,7 @@ class Rant::RantApp
 	file = ch[:file]
 
 	pl_name = args.shift
-	pl_name = pl_name.to_str if pl_name.respond_to? :to_str
+	pl_name = pl_name.to_s if pl_name.respond_to? :to_s
 	pl_name = pl_name.to_s if pl_name.is_a? Symbol
 	unless pl_name.is_a? String
 	    abort(pos_text(file, ln),
@@ -2495,8 +2495,8 @@ class Rant::RantApp
 	args.flatten!
 	ch = Rant::Lib::parse_caller_elem(caller[1])
 	args.each { |arg|
-	    if arg.respond_to? :to_str
-		arg = arg.to_str
+	    if arg.respond_to? :to_s
+		arg = arg.to_s
 	    else
 		abort_at(ch, "subdirs: arguments must be strings")
 	    end
@@ -2762,7 +2762,7 @@ class Rant::RantApp
 		return s if s
 	    }
 	    []
-	when Rant::Node: [s]
+	when Rant::Node then [s]
 	else # assuming list of tasks
 	    s
 	end
@@ -2779,7 +2779,7 @@ class Rant::RantApp
 		return s if s
 	    }
 	    []
-	when Rant::Node: [s]
+	when Rant::Node then [s]
 	else
 	    s
 	end
@@ -2897,7 +2897,7 @@ class Rant::RantApp
 	cmd_opts.quiet = true
 	cmd_opts.each { |opt, value|
 	    case opt
-	    when "--verbose": @opts[:verbose] += 1
+	    when "--verbose" then @opts[:verbose] += 1
 	    when "--version"
 		puts "rant #{Rant::VERSION}"
 		raise Rant::RantDoneException
@@ -3006,8 +3006,8 @@ class Rant::RantApp
 	return arg if arg.is_a? String
 	if Symbol === arg
 	    arg.to_s
-	elsif arg.respond_to? :to_str
-	    arg.to_str
+	elsif arg.respond_to? :to_s
+	    arg.to_s
 	else
 	    abort_at(ch, "Task name has to be a string or symbol.")
 	end
@@ -3073,8 +3073,8 @@ module Rant end
 module Rant::C
     module Include
 	def parse_includes(src)
-	    if src.respond_to? :to_str
-		src = src.to_str
+	    if src.respond_to? :to_s
+		src = src.to_s
 	    else
 		raise ArgumentError, "src has to be a string"
 	    end
@@ -3153,8 +3153,8 @@ class Rant::Generators::C::Dependencies
 		    c_files = v
 		when :search, :search_pathes, :include_pathes
 		    include_pathes = 
-		    if v.respond_to? :to_str
-			[v.to_str]
+		    if v.respond_to? :to_s
+			[v.to_s]
 		    else
 			v
 		    end
@@ -3169,8 +3169,8 @@ class Rant::Generators::C::Dependencies
 	out_fn ||= "c_dependencies"
 	c_files ||= rac.cx.sys["**/*.{c,cpp,cc,h,hpp}"]
 	include_pathes ||= ["."]
-	if out_fn.respond_to? :to_str
-	    out_fn = out_fn.to_str
+	if out_fn.respond_to? :to_s
+	    out_fn = out_fn.to_s
 	else
 	    rac.abort_at(ch, "filename has to be a string")
 	end
@@ -3203,7 +3203,7 @@ class Rant::Generators::C::Dependencies
 		    rac.warn_msg "#{t.name}: no such file -- #{cf}"
 		    next
 		end
-		f_task = tmp_rac.tasks[cf.to_str]
+		f_task = tmp_rac.tasks[cf.to_s]
 		deps = f_task ? f_task.prerequisites : nil
 		if !deps or File.mtime(cf) > depfile_ts
 		    rac.cmd_msg "scanning #{cf}"
@@ -3244,8 +3244,8 @@ class Rant::Generators::C::Dependencies
 	nil
     end
     def self.file_deps(target, deps)
-	s = "gen SourceNode, #{target.to_str.dump} => "
-	s << "[#{ deps.map{ |fn| fn.to_str.dump }.join(', ')}]"
+	s = "gen SourceNode, #{target.to_s.dump} => "
+	s << "[#{ deps.map{ |fn| fn.to_s.dump }.join(', ')}]"
     end
 end # class Rant::Generators::C::Dependencies
 
@@ -3275,28 +3275,28 @@ class Rant::Generators::DirectedRule
 	ts_h.each { |target, source| }
 	target_dir, source_dirs = nil, nil
 	dir_h.each { |target_dir, source_dirs| }
-	if target_dir.respond_to? :to_str
-	    target_dir = target_dir.to_str
+	if target_dir.respond_to? :to_s
+	    target_dir = target_dir.to_s
 	else
 	    rac.abort_at(ch, "String required as target directory.")
 	end
 	if source_dirs.respond_to? :to_ary
 	    source_dirs = source_dirs.to_ary
-	elsif source_dirs.respond_to? :to_str
-	    source_dirs = [source_dirs.to_str]
+	elsif source_dirs.respond_to? :to_s
+	    source_dirs = [source_dirs.to_s]
 	else
 	    rac.abort_at(ch,
 		"List of strings or string required for source directories.")
 	end
 	target = ".#{target}" if Symbol === target
 	source = ".#{source}" if Symbol === source
-	if target.respond_to? :to_str
-	    target = target.to_str
+	if target.respond_to? :to_s
+	    target = target.to_s
 	else
 	    rac.abort_at(ch, "target has to be a string")
 	end
-	if source.respond_to? :to_str
-	    source = source.to_str
+	if source.respond_to? :to_s
+	    source = source.to_s
 	else
 	    rac.abort_at(ch, "source has to be a string or symbol")
 	end

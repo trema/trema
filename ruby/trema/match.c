@@ -17,8 +17,8 @@
 
 
 #include <string.h>
+#include "trema-ruby-utils.h"
 #include "trema.h"
-#include "ruby.h"
 #include "action-common.h"
 
 
@@ -466,7 +466,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
       VALUE dl_src = rb_hash_aref( options, ID2SYM( rb_intern( "dl_src" ) ) );
       if ( dl_src != Qnil ) {
         VALUE dl_addr;
-        if ( rb_obj_is_kind_of( dl_src, rb_eval_string( "Trema::Mac" ) ) ) {
+        if ( RB_OBJ_IS_KIND_OF( dl_src, rb_eval_string( "Trema::Mac" ) ) ) {
           dl_addr = dl_src;
         }
         else {
@@ -479,7 +479,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
       VALUE dl_dst = rb_hash_aref( options, ID2SYM( rb_intern( "dl_dst" ) ) );
       if ( dl_dst != Qnil ) {
         VALUE dl_addr;
-        if ( rb_obj_is_kind_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) ) {
+        if ( RB_OBJ_IS_KIND_OF( dl_dst, rb_eval_string( "Trema::Mac" ) ) ) {
           dl_addr = dl_dst;
         }
         else {

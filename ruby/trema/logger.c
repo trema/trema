@@ -18,6 +18,10 @@
  */
 
 
+#include "trema-ruby-utils.h"
+#include "trema.h"
+
+
 #include "checks.h"
 #include "log.h"
 #include "logger.h"

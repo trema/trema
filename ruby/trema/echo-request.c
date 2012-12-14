@@ -18,6 +18,7 @@
 
 #include "echo.h"
 #include "trema-ruby-utils.h"
+#include "trema.h"
 
 
 extern VALUE mTrema;

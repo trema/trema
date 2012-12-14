@@ -22,8 +22,7 @@
 #define PACKET_IN_H
 
 
-#include "ruby.h"
-#include "trema.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cPacketIn;

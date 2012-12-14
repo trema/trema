@@ -22,8 +22,7 @@
 #define LIST_SWITCHES_REPLY_H
 
 
-#include "ruby.h"
-#include "trema.h"
+#include "trema-ruby-utils.h"
 
 
 void handle_list_switches_reply( const list_element *switches, void *user_data );

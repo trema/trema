@@ -18,8 +18,7 @@
  */
 
 
-#include "ruby.h"
-#include "trema.h"
+#include "trema-ruby-utils.h"
 
 
 extern VALUE cPortMod;

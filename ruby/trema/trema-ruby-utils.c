@@ -16,7 +16,7 @@
  */
 
 
-#include "ruby.h"
+#include "trema-ruby-utils.h"
 #include "trema.h"
 
 
@@ -49,7 +49,7 @@ get_length( const buffer *openflow_message ) {
 
 void
 validate_xid( VALUE xid ) {
-  if ( rb_obj_is_kind_of( xid, rb_cInteger ) != Qtrue ) {
+  if ( !RB_OBJ_IS_KIND_OF( xid, rb_cInteger ) ) {
     rb_raise( rb_eTypeError, "Transaction ID must be an integer" );
   }
   if ( rb_funcall( xid, rb_intern( "unsigned_32bit?" ), 0 ) == Qfalse ) {
