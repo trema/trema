@@ -1,8 +1,6 @@
 /*
  * Unit tests for daemon functions.
  *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
