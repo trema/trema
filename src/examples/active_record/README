@@ -1,0 +1,12 @@
+You should execute following commands to use this program code.
+
+#sudo gem install rubygems-update
+#sudo /var/lib/gems/1.8/bin/update_rubygems
+#sudo /usr/bin/gem1.8  install activerecord
+#sudo /usr/bin/gem1.8  install sqlite3
+#sudo /usr/bin/gem1.8  install activesupport
+
+change directory where trema placed and apply the patch(trema.patch) 
+in this directory. in this case, I copied patch to /tmp/ beforehand.
+
+#patch < /tmp/trema.patch
