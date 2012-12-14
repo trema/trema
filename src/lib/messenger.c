@@ -419,7 +419,7 @@ send_dump_message( uint16_t dump_type, const char *service_name, const void *dat
  */
 static void
 delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
-  debug( "Deleting a receive queue ( service_name = %s, _rq = %p, user_data = %p ).", service_name, _rq, user_data );
+  debug( "Deleting a receive queue ( service_name = %s, _rq = %p, user_data = %p ).", ( char * ) service_name, _rq, user_data );
 
   receive_queue *rq = _rq;
   messenger_socket *client_socket;
@@ -919,7 +919,7 @@ send_queue_connect_timer( send_queue *sq ) {
     add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect_timeout, ( void * ) sq );
     sq->running_timer = true;
 
-    debug( "refused_count = %d, reconnect_interval = %u.", sq->refused_count, sq->reconnect_interval.tv_sec );
+    debug( "refused_count = %d, reconnect_interval = %" PRIu64 ".", sq->refused_count, ( int64_t ) sq->reconnect_interval.tv_sec );
     return 0;
 
   case 1:
@@ -1664,7 +1664,7 @@ on_send_write( int fd, void *data ) {
       }
       truncate_message_buffer( sq->buffer, sent_total );
       if ( err == EMSGSIZE || err == ENOBUFS || err == ENOMEM ) {
-        warn( "Dropping %u bytes data in send queue ( service_name = %s ).", sq->buffer->data_length, sq->service_name );
+        warn( "Dropping %zu bytes data in send queue ( service_name = %s ).", sq->buffer->data_length, sq->service_name );
         truncate_message_buffer( sq->buffer, sq->buffer->data_length );
       }
       return;

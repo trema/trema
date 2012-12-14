@@ -116,7 +116,7 @@ void ( *init_event_handler )() = _init_event_handler;
 static void
 _finalize_event_handler() {
   if ( event_last != event_list ) {
-    warn( "Event Handler finalized with %i fd event handlers still active. (%i, ...)",
+    warn( "Event Handler finalized with %ti fd event handlers still active. (%i, ...)",
           ( event_last - event_list ), ( event_last > event_list ? event_list->fd : -1 ) );
     return;
   }

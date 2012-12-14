@@ -538,7 +538,7 @@ handle_error( const uint64_t datapath_id, buffer *data ) {
   body = duplicate_buffer( data );
   remove_front_buffer( body, offsetof( struct ofp_error_msg, data ) );
 
-  debug( "An error message is received from %#lx "
+  debug( "An error message is received from %#" PRIx64 " "
          "( transaction_id = %#x, type = %#x, code = %#x, data length = %zu ).",
          datapath_id, transaction_id, type, code, body->length );
 

@@ -351,8 +351,8 @@ switch_event_recv_echoreply( struct switch_info *sw_info, buffer *buf ) {
   SUB_TIMESPEC( &now, &tim, &tim );
 
   if ( tim.tv_sec > 0 || tim.tv_nsec > ( ( long ) WARNING_ECHO_RTT * 1000000 ) ) {
-    warn( "echo round-trip time is greater then %d ms ( round-trip time = %" PRId64 ".%09d ).",
-          WARNING_ECHO_RTT, ( int64_t ) tim.tv_sec, ( int32_t ) tim.tv_nsec );
+    warn( "echo round-trip time is greater then %ld ms ( round-trip time = %" PRId64 ".%09ld ).",
+          ( long ) WARNING_ECHO_RTT, ( int64_t ) tim.tv_sec, tim.tv_nsec );
   }
 
   return 0;

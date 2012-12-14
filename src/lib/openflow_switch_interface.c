@@ -701,7 +701,7 @@ handle_packet_out( buffer *data ) {
   }
 
   debug( "A packet-out is received ( transaction_id = %#x, buffer_id = %#x, in_port = %u, "
-         "actions_len = %u, frame_length = %u ).",
+         "actions_len = %zu, frame_length = %zu ).",
          transaction_id, buffer_id, in_port, actions_len, frame_length );
 
   if ( event_handlers.packet_out_callback == NULL ) {

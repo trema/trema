@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
+#include <inttypes.h>
 #include "doubly_linked_list.h"
 #include "log.h"
 #include "timer.h"
@@ -143,9 +144,9 @@ on_timer( timer_callback_info *callback, struct timespec *now ) {
   assert( callback != NULL );
   assert( callback->function != NULL );
 
-  debug( "Executing a timer event ( function = %p, expires_at = %u.%09u, interval = %u.%09u, user_data = %p ).",
-         callback->function, callback->expires_at.tv_sec, callback->expires_at.tv_nsec,
-         callback->interval.tv_sec, callback->interval.tv_nsec, callback->user_data );
+  debug( "Executing a timer event ( function = %p, expires_at = %" PRIu64 ".%09lu, interval = %" PRIu64 ".%09lu, user_data = %p ).",
+         callback->function, ( int64_t ) callback->expires_at.tv_sec, callback->expires_at.tv_nsec	,
+         ( int64_t ) callback->interval.tv_sec, callback->interval.tv_nsec, callback->user_data );
 
   if ( VALID_TIMESPEC( &callback->expires_at ) ) {
     callback->function( callback->user_data );
@@ -161,7 +162,7 @@ on_timer( timer_callback_info *callback, struct timespec *now ) {
       callback->expires_at.tv_nsec = 0;
       callback->function = NULL;
     }
-    debug( "Set expires_at value to %u.%09u.", callback->expires_at.tv_sec, callback->expires_at.tv_nsec );
+    debug( "Set expires_at value to %" PRIu64 ".%09lu.", ( int64_t ) callback->expires_at.tv_sec, callback->expires_at.tv_nsec );
   }
   else {
     error( "Invalid expires_at value." );
@@ -245,9 +246,9 @@ _add_timer_event_callback( struct itimerspec *interval, timer_callback callback,
   assert( interval != NULL );
   assert( callback != NULL );
 
-  debug( "Adding a timer event callback ( interval = %u.%09u, initial expiration = %u.%09u, callback = %p, user_data = %p ).",
-         interval->it_interval.tv_sec, interval->it_interval.tv_nsec,
-         interval->it_value.tv_sec, interval->it_value.tv_nsec, callback, user_data );
+  debug( "Adding a timer event callback ( interval = %" PRIu64 ".%09lu, initial expiration = %" PRIu64 ".%09lu, callback = %p, user_data = %p ).",
+         ( int64_t ) interval->it_interval.tv_sec, interval->it_interval.tv_nsec,
+         ( int64_t ) interval->it_value.tv_sec, interval->it_value.tv_nsec, callback, user_data );
 
   timer_callback_info *cb;
   struct timespec now;
@@ -277,7 +278,7 @@ _add_timer_event_callback( struct itimerspec *interval, timer_callback callback,
     return false;
   }
 
-  debug( "Set an initial expiration time to %u.%09u.", now.tv_sec, now.tv_nsec );
+  debug( "Set an initial expiration time to %" PRIu64 ".%09lu.", ( int64_t ) now.tv_sec, now.tv_nsec );
 
   assert( timer_callbacks != NULL );
   insert_timer_callback( cb );
@@ -291,8 +292,8 @@ bool
 _add_periodic_event_callback( const time_t seconds, timer_callback callback, void *user_data ) {
   assert( callback != NULL );
 
-  debug( "Adding a periodic event callback ( interval = %u, callback = %p, user_data = %p ).",
-         seconds, callback, user_data );
+  debug( "Adding a periodic event callback ( interval = %" PRIu64 ", callback = %p, user_data = %p ).",
+         ( const int64_t )seconds, callback, user_data );
 
   struct itimerspec interval;
 

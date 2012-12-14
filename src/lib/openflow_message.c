@@ -1637,7 +1637,7 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
     body_length = ( uint16_t ) body->length;
   }
 
-  debug( "Appending a vendor action ( vendor = %#" PRIx64 ", body length = %u ).", vendor, body_length );
+  debug( "Appending a vendor action ( vendor = %#" PRIx32 ", body length = %u ).", vendor, body_length );
 
   assert( actions != NULL );
 

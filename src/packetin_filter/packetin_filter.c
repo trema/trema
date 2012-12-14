@@ -502,14 +502,14 @@ static void
 handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
   assert( handle != NULL );
 
-  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %zu ).",
          handle, tag, data, length );
 
   switch ( tag ) {
     case MESSENGER_ADD_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( add_packetin_filter_request ) ) {
-        error( "Invalid add packetin filter request ( length = %u ).", length );
+        error( "Invalid add packetin filter request ( length = %zu ).", length );
         return;
       }
 
@@ -519,7 +519,7 @@ handle_request( const messenger_context_handle *handle, uint16_t tag, void *data
     case MESSENGER_DELETE_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( delete_packetin_filter_request ) ) {
-        error( "Invalid delete packetin filter request ( length = %u ).", length );
+        error( "Invalid delete packetin filter request ( length = %zu ).", length );
         return;
       }
 
@@ -529,7 +529,7 @@ handle_request( const messenger_context_handle *handle, uint16_t tag, void *data
     case MESSENGER_DUMP_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( dump_packetin_filter_request ) ) {
-        error( "Invalid dump packetin filter request ( length = %u ).", length );
+        error( "Invalid dump packetin filter request ( length = %zu ).", length );
         return;
       }
 
