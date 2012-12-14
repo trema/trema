@@ -282,11 +282,12 @@ read_pid( const char *directory, const char *name ) {
   char proc_path[ 32 ];
   char exe_path[ PATH_MAX ];
   sprintf( proc_path, "/proc/%d/exe", pid );
-  ssize_t readsiz = readlink( proc_path, exe_path, sizeof( exe_path ) );
+  ssize_t readsiz = readlink( proc_path, exe_path, sizeof( exe_path ) - 1 );
   if ( readsiz == -1 ) {
     warn( "Failed to check process id %d ( %s [%d] ).", pid, strerror( errno ), errno );
     return -1;
   }
+  exe_path[ readsiz ] = '\0';
 
   char *exe_name = basename( exe_path );
   if ( strcmp( name, exe_name ) != 0 ) {

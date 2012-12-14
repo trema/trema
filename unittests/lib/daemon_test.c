@@ -175,7 +175,7 @@ mock_readlink( const char *path, char *buf, size_t bufsiz ) {
 char *
 mock_basename( char *path ) {
   check_expected( path );
-  return ( char * ) mock();
+  return ( char * )( intptr_t )  mock();
 }
 
 
@@ -381,7 +381,7 @@ test_read_pid_successed() {
   char proc_path[] = "/proc/123/exe";
   expect_string( mock_readlink, path, proc_path );
   expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX );
+  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
   char valid_exe_path[] = "/home/yasuhito/trema/bin/chess";
   link_buffer = valid_exe_path;
   link_length = strlen( valid_exe_path );
@@ -649,7 +649,7 @@ test_read_pid_fail_if_readlink_fail() {
   char proc_path[] = "/proc/123/exe";
   expect_string( mock_readlink, path, proc_path );
   expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX );
+  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
   will_return( mock_readlink, -1 );
 
   // Go
@@ -695,7 +695,7 @@ test_read_pid_fail_if_strcmp_fail() {
   char proc_path[] = "/proc/123/exe";
   expect_string( mock_readlink, path, proc_path );
   expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX );
+  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
   char INVALID_exe_path[] = "/home/yasuhito/trema/bin/chess2";
   link_buffer = INVALID_exe_path;
   link_length = strlen( INVALID_exe_path );
