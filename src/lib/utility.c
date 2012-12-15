@@ -45,7 +45,7 @@ _die( const char *format, ... ) {
   vsnprintf( err, sizeof( err ), format, args );
   va_end( args );
 
-  critical( err );
+  critical( "%s", err );
   trema_abort();
 }
 void ( *die )( const char *format, ... ) = _die;
