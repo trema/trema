@@ -133,7 +133,7 @@ service_recv_from_application( uint16_t message_type, buffer *buf ) {
    char *service_name;
 
   if ( buf->length < sizeof( openflow_service_header_t ) + sizeof( struct ofp_header ) ) {
-    error( "Too short openflow application message(%u).", buf->length );
+    error( "Too short openflow application message(%zu).", buf->length );
     free_buffer( buf );
 
     return;

@@ -60,12 +60,12 @@ bool set_syslog_facility( const char *facility );
 
 extern int ( *get_logging_level )( void );
 
-extern void ( *critical )( const char *format, ... );
-extern void ( *error )( const char *format, ... );
-extern void ( *warn )( const char *format, ... );
-extern void ( *notice )( const char *format, ... );
-extern void ( *info )( const char *format, ... );
-extern void ( *debug )( const char *format, ... );
+extern void ( *critical )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
+extern void ( *error )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
+extern void ( *warn )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
+extern void ( *notice )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
+extern void ( *info )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
+extern void ( *debug )( const char *format, ... ) __attribute__((format(printf, 1, 2)));
 
 
 #endif // LOG_H

@@ -39,8 +39,8 @@ handle_features_reply(
   UNUSED( user_data );
 
   info( "datapath_id: %#" PRIx64, datapath_id );
-  info( "transaction_id: %#lx", transaction_id );
-  info( "n_buffers: %lu", n_buffers );
+  info( "transaction_id: %#" PRIx32 "", transaction_id );
+  info( "n_buffers: %" PRIu32 "", n_buffers );
   info( "n_tables: %u", n_tables );
   info( "capabilities:" );
   if ( capabilities & OFPC_FLOW_STATS ) {
@@ -123,12 +123,12 @@ handle_features_reply(
       phy_port->hw_addr[ 5 ]
     );
     info( "  name = %s", phy_port->name );
-    info( "  config = %#lx", phy_port->config );
-    info( "  state = %#lx", phy_port->state );
-    info( "  curr = %#lx", phy_port->curr );
-    info( "  advertised = %#lx", phy_port->advertised );
-    info( "  supported = %#lx", phy_port->supported );
-    info( "  peer = %#lx", phy_port->peer );
+    info( "  config = %#" PRIx32 "", phy_port->config );
+    info( "  state = %#" PRIx32 "", phy_port->state );
+    info( "  curr = %#" PRIx32 "", phy_port->curr );
+    info( "  advertised = %#" PRIx32 "", phy_port->advertised );
+    info( "  supported = %#" PRIx32 "", phy_port->supported );
+    info( "  peer = %#" PRIx32 "", phy_port->peer );
   }
 }
 

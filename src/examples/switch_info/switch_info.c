@@ -48,11 +48,11 @@ handle_features_reply (
   UNUSED( user_data );
 
   info( "datapath_id: %#" PRIx64, datapath_id );
-  info( "transaction_id: %#lx", transaction_id );
-  info( "n_buffers: %lu", n_buffers );
+  info( "transaction_id: %#" PRIx32 "", transaction_id );
+  info( "n_buffers: %" PRIu32 "", n_buffers );
   info( "n_tables: %u", n_tables );
-  info( "capabilities: %lu", capabilities );
-  info( "actions: %lu", actions );
+  info( "capabilities: %" PRIu32 "", capabilities );
+  info( "actions: %" PRIu32 "", actions );
   info( "#ports: %d", list_length_of( phy_ports ) );
 
   stop_trema();

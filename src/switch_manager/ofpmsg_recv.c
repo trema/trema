@@ -295,9 +295,9 @@ ofpmsg_recv_flowremoved( struct switch_info *sw_info, buffer *buf ) {
   }
 
   debug( "Cookie found ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64
-         ", service name = %s, flags = %#x ], reference_count = %d, expire_at = %u ).",
+         ", service name = %s, flags = %#x ], reference_count = %d, expire_at = %" PRIu64 " ).",
          cookie, entry->application.cookie, entry->application.service_name, entry->application.flags,
-         entry->reference_count, entry->expire_at );
+         entry->reference_count, ( int64_t ) entry->expire_at );
 
   if ( entry->application.flags & OFPFF_SEND_FLOW_REM ) {
     flow_removed->cookie = htonll( entry->application.cookie );
@@ -358,7 +358,7 @@ ofpmsg_recv_statsreply( struct switch_info *sw_info, buffer *buf ) {
   uint32_t xid = ntohl( stats_reply->header.xid );
   xid_entry_t *xid_entry = lookup_xid_entry( xid );
   if ( xid_entry == NULL ) {
-    error( "No transaction id entry found ( transaction_id = %#lx ).", xid );
+    error( "No transaction id entry found ( transaction_id = %#" PRIx32 " ).", xid );
     free_buffer( buf );
     return -1;
   }
