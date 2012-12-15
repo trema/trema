@@ -619,6 +619,17 @@ add_message_callback( const char *service_name, uint8_t message_type, void *call
     }
   }
 
+  if ( message_type == MESSAGE_TYPE_REQUEST || message_type == MESSAGE_TYPE_REPLY ) {
+    for ( dlist_element *e = rq->message_callbacks->next; e; e = e->next ) {
+      receive_queue_callback *cb = e->data;
+      if ( cb->message_type == message_type ) {
+        warn( "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
+              service_name, message_type, callback );
+        break;
+      }
+    }
+  }
+
   receive_queue_callback *cb = xmalloc( sizeof( receive_queue_callback ) );
   cb->message_type = message_type;
   cb->function = callback;
