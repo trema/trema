@@ -39,9 +39,9 @@ ping() {
     local service_name="$1"
 
     if [ -z "$service_name" ]; then
-	echo "Service name must be specified."
-	print_ping_usage
-	exit 1
+        echo "Service name must be specified."
+        print_ping_usage
+        exit 1
     fi
 
     $ECHO $service_name
@@ -53,14 +53,14 @@ set_logging_level() {
     local logging_level="$2"
 
     if [ -z "$service_name" ]; then
-	echo "Service name must be specified."
-	print_set_logging_level_usage
-	exit 1
+        echo "Service name must be specified."
+        print_set_logging_level_usage
+        exit 1
     fi
     if [ -z "$logging_level" ]; then
-	echo "Logging level must be specified."
-	print_set_logging_level_usage
-	exit 1
+        echo "Logging level must be specified."
+        print_set_logging_level_usage
+        exit 1
     fi
 
     $SET_LOGGING_LEVEL $service_name $logging_level
@@ -71,9 +71,9 @@ show_stats() {
     local service_name="$1"
 
     if [ -z "$service_name" ]; then
-	echo "Service name must be specified."
-	print_show_stats_usage
-	exit 1
+        echo "Service name must be specified."
+        print_show_stats_usage
+        exit 1
     fi
 
     $SHOW_STATS $service_name
@@ -86,14 +86,14 @@ application() {
     local data="$3"
 
     if [ -z "$service_name" ]; then
-	echo "Service name must be specified."
-	print_application_usage
-	exit 1
+        echo "Service name must be specified."
+        print_application_usage
+        exit 1
     fi
     if [ -z "$application_id" ]; then
-	echo "Application specific identifier must be specified."
-	print_application_usage
-	exit 1
+        echo "Application specific identifier must be specified."
+        print_application_usage
+        exit 1
     fi
 
     $APPLICATION $service_name $application_id $data
@@ -102,23 +102,23 @@ application() {
 
 check_variables() {
     if [ -z "$TREMA_HOME" ]; then
-	echo "TREMA_HOME environment variable must be set."
-	exit 1
+        echo "TREMA_HOME environment variable must be set."
+        exit 1
     fi
 
     if [ ! -d "$TREMA_HOME" ]; then
-	echo "$TREMA_HOME does not exist."
-	exit 1
+        echo "$TREMA_HOME does not exist."
+        exit 1
     fi
 
     if [ ! -d "$SOCK_DIR" ]; then
-	echo "$SOCK_DIR does not exist."
-	exit 1
+        echo "$SOCK_DIR does not exist."
+        exit 1
     fi
 
     if [ ! -d "$EXECUTABLES_DIR" ]; then
-	echo "$EXECUTABLES_DIR does not exist."
-	exit 1
+        echo "$EXECUTABLES_DIR does not exist."
+        exit 1
     fi
 }
 
@@ -157,27 +157,27 @@ check_variables
 
 case "$1" in
     services)
-	list_services
-	;;
+        list_services
+        ;;
 
     ping)
-	ping $2
+        ping $2
         ;;
 
     set_logging_level)
-	set_logging_level $2 $3
+        set_logging_level $2 $3
         ;;
 
     show_stats)
-	show_stats $2
+        show_stats $2
         ;;
 
     application)
-	application $2 $3 $4
+        application $2 $3 $4
         ;;
 
     *)
-	print_usage
+        print_usage
         exit 1
 esac
 

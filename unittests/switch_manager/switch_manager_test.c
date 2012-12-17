@@ -924,7 +924,7 @@ test_secure_channel_accept_parent_succeeded() {
 
   int listen_fd = 0;
   int accept_fd = 1;
-  int pid = 1;	/* parent */
+  int pid = 1; /* parent */
 
   listener_info.listen_fd = listen_fd;
 
@@ -993,7 +993,7 @@ test_secure_channel_accept_child_succeeded() {
 
   int listen_fd = 0;
   int accept_fd = 3;
-  int pid = 0;	/* child */
+  int pid = 0; /* child */
 
   listener_info.switch_manager = "switch_manager";
   listener_info.switch_manager_argc = 0;
@@ -1061,7 +1061,7 @@ test_secure_channel_accept_child_and_args_succeeded() {
 
   int listen_fd = 0;
   int accept_fd = 3;
-  int pid = 0;	/* child */
+  int pid = 0; /* child */
   static char const *argv[] = { "a", "b" };
 
   listener_info.switch_manager = "switch_manager";
