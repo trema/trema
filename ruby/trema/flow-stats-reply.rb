@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -93,7 +91,7 @@ module Trema
     #     an array of action objects for the flow.
     #
     #   @return [FlowStatsReply]
-    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_FLOW) OpenFlow message.
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_FLOW) OpenFlow message.
     #
     def initialize options
       super FIELDS, options
