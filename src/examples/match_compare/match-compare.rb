@@ -82,8 +82,8 @@ class MatchCompare < Controller
         next
       end
       if each.match.compare( match )
-	action = each.action
-	log = each.log
+        action = each.action
+        log = each.log
         break
       end
     end

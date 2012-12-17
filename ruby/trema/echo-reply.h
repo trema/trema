@@ -17,7 +17,7 @@
 
 
 #ifndef ECHO_REPLY_H
-#define	ECHO_REPLY_H
+#define ECHO_REPLY_H
 
 
 #include "ruby.h"
@@ -29,7 +29,7 @@ extern VALUE cEchoReply;
 void Init_echo_reply( void );
 
 
-#endif	// ECHO_REPLY_H
+#endif // ECHO_REPLY_H
 
 
 /*

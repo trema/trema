@@ -3952,7 +3952,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
       if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
         warn( "Invalid vlan id ( change %#x to %#x )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
-	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
+        match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
       }
     }
     else {
@@ -3964,7 +3964,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
       if ( ( match->dl_vlan_pcp & ~VLAN_PCP_MASK ) != 0 ) {
         warn( "Invalid vlan pcp ( change %u to %u )", match->dl_vlan_pcp, match->dl_vlan_pcp & VLAN_PCP_MASK );
-	match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
+        match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
       }
     }
   }
@@ -4125,7 +4125,7 @@ normalize_match( struct ofp_match *match ) {
       match->nw_proto &= ARP_OP_MASK;
     }
     if ( match->dl_type == ETH_ETHTYPE_IPV4 &&
-	 match->nw_proto != IPPROTO_TCP && match->nw_proto != IPPROTO_UDP && match->nw_proto != IPPROTO_ICMP ) {
+         match->nw_proto != IPPROTO_TCP && match->nw_proto != IPPROTO_UDP && match->nw_proto != IPPROTO_ICMP ) {
       match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
       match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
       match->tp_src = 0;
