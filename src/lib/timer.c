@@ -145,7 +145,7 @@ on_timer( timer_callback_info *callback, struct timespec *now ) {
   assert( callback->function != NULL );
 
   debug( "Executing a timer event ( function = %p, expires_at = %" PRIu64 ".%09lu, interval = %" PRIu64 ".%09lu, user_data = %p ).",
-         callback->function, ( int64_t ) callback->expires_at.tv_sec, callback->expires_at.tv_nsec	,
+         callback->function, ( int64_t ) callback->expires_at.tv_sec, callback->expires_at.tv_nsec,
          ( int64_t ) callback->interval.tv_sec, callback->interval.tv_nsec, callback->user_data );
 
   if ( VALID_TIMESPEC( &callback->expires_at ) ) {

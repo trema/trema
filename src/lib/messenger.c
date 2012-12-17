@@ -1574,9 +1574,9 @@ get_send_data( send_queue *sq, size_t offset ) {
     if ( ioctl( sq->server_socket, SIOCOUTQ, &used ) == 0 ) {
       if ( used < sq->socket_buffer_size ) {
         bucket_size = ( uint32_t ) ( sq->socket_buffer_size - used ) << 1;
-	if ( bucket_size > messenger_bucket_size ) {
-	  bucket_size = messenger_bucket_size;
-	}
+        if ( bucket_size > messenger_bucket_size ) {
+          bucket_size = messenger_bucket_size;
+        }
       }
       else {
         bucket_size = 1;
