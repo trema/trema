@@ -127,7 +127,7 @@ mock_unlink( char *pathname ) {
 
 
 int
-mock_access( char *pathname, int mode) {
+mock_access( char *pathname, int mode ) {
   check_expected( pathname );
   check_expected( mode );
   return ( int ) mock();

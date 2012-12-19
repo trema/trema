@@ -176,7 +176,7 @@ wildcards_to_string( uint32_t wildcards, char *str, size_t size ) {
   uint32_t nw_src_mask = ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
   uint32_t nw_dst_mask = ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
   uint32_t mask = OFPFW_ALL & ~OFPFW_NW_SRC_MASK & ~OFPFW_NW_DST_MASK;
-  if ( ( wildcards & mask ) == mask && nw_src_mask >=32 && nw_dst_mask >= 32 ) {
+  if ( ( wildcards & mask ) == mask && nw_src_mask >= 32 && nw_dst_mask >= 32 ) {
     ret &= append_string( str, size, "all" );
     return ret;
   }
@@ -520,7 +520,7 @@ actions_to_string( const struct ofp_action_header *actions, uint16_t actions_len
     }
     char *p = str + current_str_length;
     const struct ofp_action_header *header = ( const struct ofp_action_header * ) ( ( const char * ) actions + offset );
-    switch( header->type ) {
+    switch ( header->type ) {
       case OFPAT_OUTPUT:
         ret = action_output_to_string( ( const struct ofp_action_output * ) header, p, remaining_str_length );
         break;

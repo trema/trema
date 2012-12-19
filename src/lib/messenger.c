@@ -303,7 +303,7 @@ free_message_buffer( message_buffer *buf ) {
 }
 
 
-static void*
+static void *
 get_message_buffer_head( message_buffer *buf ) {
   return ( char * ) buf->buffer + buf->head_offset;
 }
@@ -906,7 +906,7 @@ send_queue_connect_timer( send_queue *sq ) {
   }
   if ( sq->running_timer ) {
     sq->running_timer = false;
-    delete_timer_event( ( timer_callback )send_queue_connect_timeout, sq );
+    delete_timer_event( ( timer_callback ) send_queue_connect_timeout, sq );
   }
 
   int ret = send_queue_connect( sq );
@@ -927,7 +927,7 @@ send_queue_connect_timer( send_queue *sq ) {
     interval.it_interval.tv_sec = 0;
     interval.it_interval.tv_nsec = 0;
     interval.it_value = sq->reconnect_interval;
-    add_timer_event_callback( &interval, ( void (*)(void *) )send_queue_connect_timeout, ( void * ) sq );
+    add_timer_event_callback( &interval, ( void (*)( void * ) ) send_queue_connect_timeout, ( void * ) sq );
     sq->running_timer = true;
 
     debug( "refused_count = %d, reconnect_interval = %" PRIu64 ".", sq->refused_count, ( int64_t ) sq->reconnect_interval.tv_sec );
@@ -1289,7 +1289,7 @@ add_recv_queue_client_fd( receive_queue *rq, int fd ) {
 
 static void
 on_accept( int fd, void *data ) {
-  receive_queue *rq = ( receive_queue* )data;
+  receive_queue *rq = ( receive_queue * ) data;
 
   assert( rq != NULL );
 
@@ -1510,7 +1510,7 @@ call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uin
 
 static void
 on_recv( int fd, void *data ) {
-  receive_queue *rq = ( receive_queue* )data;
+  receive_queue *rq = ( receive_queue * ) data;
 
   assert( rq != NULL );
   assert( fd >= 0 );
@@ -1609,7 +1609,7 @@ on_send_read( int fd, void *data ) {
   UNUSED( fd );
 
   char buf[ 256 ];
-  send_queue *sq = ( send_queue* )data;
+  send_queue *sq = ( send_queue * ) data;
 
   if ( recv( sq->server_socket, buf, sizeof( buf ), 0 ) <= 0 ) {
     send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
@@ -1634,7 +1634,7 @@ on_send_read( int fd, void *data ) {
 
 static void
 on_send_write( int fd, void *data ) {
-  send_queue *sq = ( send_queue* )data;
+  send_queue *sq = ( send_queue * ) data;
 
   assert( sq != NULL );
   assert( fd >= 0 );

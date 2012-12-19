@@ -293,7 +293,7 @@ _add_periodic_event_callback( const time_t seconds, timer_callback callback, voi
   assert( callback != NULL );
 
   debug( "Adding a periodic event callback ( interval = %" PRIu64 ", callback = %p, user_data = %p ).",
-         ( const int64_t )seconds, callback, user_data );
+         ( const int64_t ) seconds, callback, user_data );
 
   struct itimerspec interval;
 

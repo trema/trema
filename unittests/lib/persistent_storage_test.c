@@ -65,7 +65,7 @@ mock_sqlite3_close( sqlite3 *db ) {
 static char error_message[] = "ERROR";
 
 static int
-mock_sqlite3_exec( sqlite3 *db, const char *sql, int ( *callback ) ( void *, int, char **, char ** ), void *argument, char **errmsg ) {
+mock_sqlite3_exec( sqlite3 *db, const char *sql, int ( *callback )( void *, int, char **, char ** ), void *argument, char **errmsg ) {
   sqlite3_exec( db, sql, callback, argument, errmsg );
   *errmsg = error_message;
   return ( int ) mock();

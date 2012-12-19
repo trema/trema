@@ -135,14 +135,14 @@ static void
 parse_options( int *argc, char **argv[] ) {
   int opt;
 
-  while( 1 ) {
+  while ( 1 ) {
     opt = getopt( *argc, *argv, "p:s:" );
 
-    if( opt < 0 ){
+    if ( opt < 0 ) {
       break;
     }
 
-    switch ( opt ){
+    switch ( opt ) {
       case 'p':
         if ( ( optarg != NULL ) && ( atoi( optarg ) <= UINT16_MAX ) && ( atoi ( optarg ) >= 0 ) ) {
           listen_port = ( uint16_t ) atoi( optarg );

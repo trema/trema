@@ -201,7 +201,7 @@ bool mock_finalize_openflow_application_interface( void );
 #undef printf
 #endif
 #define printf mock_printf
-int mock_printf(const char *format, ...);
+int mock_printf( const char *format, ...);
 
 typedef struct stat _stat;
 #ifdef stat
@@ -244,7 +244,7 @@ bool mock_finalize_timer();
 #undef set_external_callback
 #endif
 #define set_external_callback mock_set_external_callback
-bool mock_set_external_callback( void ( *callback ) ( void ) );
+bool mock_set_external_callback( void ( *callback )( void ) );
 
 #ifdef dump_stats
 #undef dump_stats

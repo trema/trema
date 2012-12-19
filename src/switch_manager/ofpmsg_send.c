@@ -118,7 +118,7 @@ ofpmsg_send_error_msg( struct switch_info *sw_info, uint16_t type, uint16_t code
   int ret;
   buffer *buf;
 
-  if (data->length > OFP_ERROR_MSG_MAX_DATA ) {
+  if ( data->length > OFP_ERROR_MSG_MAX_DATA ) {
     // FIXME
     data->length = OFP_ERROR_MSG_MAX_DATA;
   }

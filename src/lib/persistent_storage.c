@@ -131,14 +131,14 @@ save_value( void *value, int n_columns, char **columns, char **column_names ) {
 }
 
 
-static char*
+static char *
 get_value_from_backend( const char *key ) {
   assert( db_handle != NULL );
   assert( key != NULL );
 
   char *value = NULL;
   char *err = NULL;
-  char *statement= sqlite3_mprintf( "SELECT value FROM trema WHERE key = '%q'", key );
+  char *statement = sqlite3_mprintf( "SELECT value FROM trema WHERE key = '%q'", key );
   int ret = trema_sqlite3_exec( db_handle, statement, save_value, &value, &err );
   if ( ret != SQLITE_OK ) {
     error( "Failed to execute a SQL statement ( statement = %s, error = %s ).", statement, err );
@@ -442,13 +442,13 @@ delete_key_value( const char *key ) {
 }
 
 
-const char*
+const char *
 _get_db_file( void ) {
   return db_file;
 }
 
 
-const sqlite3*
+const sqlite3 *
 _get_db_handle( void ) {
   return db_handle;
 }

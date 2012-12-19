@@ -153,7 +153,7 @@ static bool packet_in_handler_called = false;
  * Mocks.
  ********************************************************************************/
 
-const char*
+const char *
 mock_get_trema_name() {
   return "TEST_SERVICE_NAME";
 }
@@ -280,12 +280,12 @@ mock_error_handler( uint64_t datapath_id, uint32_t transaction_id, uint16_t type
 
 static void
 mock_echo_reply_handler( uint64_t datapath_id, uint32_t transaction_id, const buffer *data,
-                         void *user_data ){
+                         void *user_data ) {
   void *data_uc;
 
   check_expected( &datapath_id );
   check_expected( transaction_id );
-  if( data != NULL ) {
+  if ( data != NULL ) {
     check_expected( data->length );
     check_expected( data->data );
   }
@@ -299,13 +299,13 @@ mock_echo_reply_handler( uint64_t datapath_id, uint32_t transaction_id, const bu
 
 static void
 mock_vendor_handler( uint64_t datapath_id, uint32_t transaction_id, uint32_t vendor,
-                     const buffer *data, void *user_data ){
+                     const buffer *data, void *user_data ) {
   void *data_uc;
 
   check_expected( &datapath_id );
   check_expected( transaction_id );
   check_expected( vendor );
-  if( data != NULL ) {
+  if ( data != NULL ) {
     check_expected( data->length );
     check_expected( data->data );
   }
@@ -1643,8 +1643,8 @@ test_handle_features_reply() {
   set_features_reply_handler( mock_features_reply_handler, USER_DATA );
   handle_features_reply( DATAPATH_ID, buffer );
 
-  xfree( phy_port[0] );
-  xfree( phy_port[1] );
+  xfree( phy_port[ 0 ] );
+  xfree( phy_port[ 1 ] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -1727,8 +1727,8 @@ test_handle_features_reply_if_handler_is_not_registered() {
 
   handle_features_reply( DATAPATH_ID, buffer );
 
-  xfree( phy_port[0] );
-  xfree( phy_port[1] );
+  xfree( phy_port[ 0 ] );
+  xfree( phy_port[ 1 ] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -2990,8 +2990,8 @@ test_handle_openflow_message() {
     stat = lookup_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" );
     assert_int_equal( ( int ) stat->value, 1 );
 
-    xfree( phy_port[0] );
-    xfree( phy_port[1] );
+    xfree( phy_port[ 0 ] );
+    xfree( phy_port[ 1 ] );
     delete_list( ports );
     free_buffer( buffer );
     xfree( delete_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" ) );

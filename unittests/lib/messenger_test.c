@@ -124,8 +124,8 @@ static size_t message_buffer_remain_bytes( message_buffer *buf );
 
 static void delete_timer_callbacks( void );
 
-static messenger_context* insert_context( void *user_data );
-static messenger_context* get_context( uint32_t transaction_id );
+static messenger_context *insert_context( void *user_data );
+static messenger_context *get_context( uint32_t transaction_id );
 static void delete_context( messenger_context *context );
 static void delete_context_db( void );
 static void age_context_db( void * );
@@ -295,7 +295,7 @@ mock_warn_check( char *format, va_list args ) {
 void
 mock_warn( char *format, ... ) {
   UNUSED( format );
-  if( check_warn ) {
+  if ( check_warn ) {
     va_list arg;
     va_start( arg, format );
     mock_warn_check( format, arg );
@@ -418,7 +418,7 @@ test_send_then_message_received_callback_is_called() {
 }
 
 
-static void callback_req_hello( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ){
+static void callback_req_hello( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) {
   UNUSED( handle );
   check_expected( tag );
   check_expected( data );
@@ -428,7 +428,7 @@ static void callback_req_hello( const messenger_context_handle *handle, uint16_t
 }
 
 
-static void callback_req_hello2( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ){
+static void callback_req_hello2( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) {
   UNUSED( handle );
   UNUSED( tag );
   UNUSED( data );
@@ -436,7 +436,7 @@ static void callback_req_hello2( const messenger_context_handle *handle, uint16_
 }
 
 
-static void callback_rep_hello_end( uint16_t tag, void *data, size_t len, void* user_data ){
+static void callback_rep_hello_end( uint16_t tag, void *data, size_t len, void *user_data ) {
   check_expected( tag );
   check_expected( data );
   check_expected( len );
@@ -447,7 +447,7 @@ static void callback_rep_hello_end( uint16_t tag, void *data, size_t len, void* 
 }
 
 
-static void callback_rep_hello2( uint16_t tag, void *data, size_t len, void* user_data ){
+static void callback_rep_hello2( uint16_t tag, void *data, size_t len, void *user_data ) {
   UNUSED( tag );
   UNUSED( data );
   UNUSED( len );
@@ -491,9 +491,9 @@ test_double_add_message_requested_callback_prints_error_message() {
 
 
   const char service_name[] = "Some Service";
-  char expected_mes[1024+1] = {};
-  snprintf(expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
-           service_name, MESSAGE_TYPE_REQUEST, callback_req_hello2);
+  char expected_mes[ 1024+1 ] = {};
+  snprintf( expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
+           service_name, MESSAGE_TYPE_REQUEST, callback_req_hello2 );
 
 
   check_warn = true;
@@ -514,9 +514,9 @@ test_double_add_message_replied_callback_prints_error_message() {
 
 
   const char service_name[] = "Some Service";
-  char expected_mes[1024+1] = {};
-  snprintf(expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
-           service_name, MESSAGE_TYPE_REPLY , callback_rep_hello2);
+  char expected_mes[ 1024+1 ] = {};
+  snprintf( expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
+           service_name, MESSAGE_TYPE_REPLY, callback_rep_hello2 );
 
 
   check_warn = true;

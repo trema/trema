@@ -42,7 +42,7 @@ delete_message_queue( message_queue *queue ) {
     die( "queue must not be NULL" );
   }
 
-  while( queue->head != NULL ) {
+  while ( queue->head != NULL ) {
     message_queue_element *element = queue->head;
     if ( queue->head->data != NULL ) {
       free_buffer( element->data );
