@@ -131,9 +131,9 @@ append_action( openflow_actions *actions, VALUE action ) {
       Check_Type( rbody, T_ARRAY );
       uint16_t length = ( uint16_t ) RARRAY_LEN( rbody );
       buffer *body = alloc_buffer_with_length( length );
-      int i;
-      for ( i = 0; i < length; i++ ) {
-        ( ( uint8_t * ) body->data )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
+      void *p = append_back_buffer( body, length );
+      for ( int i = 0; i < length; i++ ) {
+        ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
       }
       append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), body );
       free_buffer( body );
