@@ -93,10 +93,11 @@ port_mod_init( int argc, VALUE *argv, VALUE self ) {
       if ( rb_obj_is_kind_of( hw_addr, rb_cString ) == Qtrue ||
         rb_obj_is_kind_of( hw_addr, rb_cInteger ) == Qtrue ) {
         mac = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, hw_addr );
-      } else if ( rb_obj_is_instance_of( hw_addr, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
+      }
+      else if ( rb_obj_is_instance_of( hw_addr, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
         rb_raise( rb_eArgError, "hw_addr must be a string or an integer or Mac object" );
       }
-      ptr = ( uint8_t* ) dl_addr_to_a( mac, haddr );
+      ptr = ( uint8_t * ) dl_addr_to_a( mac, haddr );
       rb_iv_set( self, "@hw_addr", mac );
     }
     VALUE port_no;
@@ -107,15 +108,15 @@ port_mod_init( int argc, VALUE *argv, VALUE self ) {
       rb_iv_set( self, "@port_no", port_no );
     }
     VALUE config;
-    if ( ( config = rb_hash_aref( options, ID2SYM( rb_intern( "config" ) ) ) ) != Qnil ){
+    if ( ( config = rb_hash_aref( options, ID2SYM( rb_intern( "config" ) ) ) ) != Qnil ) {
       rb_iv_set( self, "@config", config );
     }
     VALUE  mask;
-    if ( ( mask = rb_hash_aref( options, ID2SYM( rb_intern( "mask" ) ) ) ) != Qnil ){
+    if ( ( mask = rb_hash_aref( options, ID2SYM( rb_intern( "mask" ) ) ) ) != Qnil ) {
       rb_iv_set( self, "@mask", mask );
     }
     VALUE advertise;
-    if ( ( advertise = rb_hash_aref( options, ID2SYM( rb_intern( "advertise" ) ) ) ) != Qnil ){
+    if ( ( advertise = rb_hash_aref( options, ID2SYM( rb_intern( "advertise" ) ) ) ) != Qnil ) {
       rb_iv_set( self, "@advertise", advertise );
     }
     uint32_t xid = get_transaction_id();

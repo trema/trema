@@ -188,7 +188,7 @@ service_send_state( struct switch_info *sw_info, uint64_t *dpid, uint16_t tag ) 
 
 
 static void
-secure_channel_read( int fd, void* data ) {
+secure_channel_read( int fd, void *data ) {
   UNUSED( fd );
   UNUSED( data );
 
@@ -208,7 +208,7 @@ secure_channel_read( int fd, void* data ) {
 
 
 static void
-secure_channel_write( int fd, void* data ) {
+secure_channel_write( int fd, void *data ) {
   UNUSED( fd );
   UNUSED( data );
 
@@ -631,20 +631,20 @@ main( int argc, char *argv[] ) {
 #define PORTSTATUS_PREFIX "port_status::"
 #define STATE_PREFIX "state_notify::"
   for ( i = optind; i < argc; i++ ) {
-    if ( strncmp( argv[i], VENDER_PREFIX, strlen( VENDER_PREFIX ) ) == 0 ) {
-      service_name = xstrdup( argv[i] + strlen( VENDER_PREFIX ) );
+    if ( strncmp( argv[ i ], VENDER_PREFIX, strlen( VENDER_PREFIX ) ) == 0 ) {
+      service_name = xstrdup( argv[ i ] + strlen( VENDER_PREFIX ) );
       insert_in_front( &switch_info.vendor_service_name_list, service_name );
     }
-    else if ( strncmp( argv[i], PACKET_IN_PREFIX, strlen( PACKET_IN_PREFIX ) ) == 0 ) {
-      service_name = xstrdup( argv[i] + strlen( PACKET_IN_PREFIX ) );
+    else if ( strncmp( argv[ i ], PACKET_IN_PREFIX, strlen( PACKET_IN_PREFIX ) ) == 0 ) {
+      service_name = xstrdup( argv[ i ] + strlen( PACKET_IN_PREFIX ) );
       insert_in_front( &switch_info.packetin_service_name_list, service_name );
     }
-    else if ( strncmp( argv[i], PORTSTATUS_PREFIX, strlen( PORTSTATUS_PREFIX ) ) == 0 ) {
-      service_name = xstrdup( argv[i] + strlen( PORTSTATUS_PREFIX ) );
+    else if ( strncmp( argv[ i ], PORTSTATUS_PREFIX, strlen( PORTSTATUS_PREFIX ) ) == 0 ) {
+      service_name = xstrdup( argv[ i ] + strlen( PORTSTATUS_PREFIX ) );
       insert_in_front( &switch_info.portstatus_service_name_list, service_name );
     }
-    else if ( strncmp( argv[i], STATE_PREFIX, strlen( STATE_PREFIX ) ) == 0 ) {
-      service_name = xstrdup( argv[i] + strlen( STATE_PREFIX ) );
+    else if ( strncmp( argv[ i ], STATE_PREFIX, strlen( STATE_PREFIX ) ) == 0 ) {
+      service_name = xstrdup( argv[ i ] + strlen( STATE_PREFIX ) );
       insert_in_front( &switch_info.state_service_name_list, service_name );
     }
   }

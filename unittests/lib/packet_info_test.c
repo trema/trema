@@ -84,7 +84,7 @@ static void
 test_calloc_packet_info_fails_if_buffer_is_NULL() {
   expect_string( mock_die, output,
                  "Argument of calloc_packet_info must not be NULL." );
-  expect_assert_failure( calloc_packet_info( NULL ) ) ;
+  expect_assert_failure( calloc_packet_info( NULL ) );
 }
 
 
@@ -105,7 +105,7 @@ static void
 test_packet_type_eth_dix_fails() {
   expect_string( mock_die, output,
                  "Argument of packet_type_eth_dix must not be NULL." );
-  expect_assert_failure( packet_type_eth_dix( NULL ) ) ;
+  expect_assert_failure( packet_type_eth_dix( NULL ) );
 }
 
 

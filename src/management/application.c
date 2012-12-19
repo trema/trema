@@ -110,7 +110,7 @@ parse_arguments( int argc, char **argv ) {
   snprintf( service_name, MESSENGER_SERVICE_NAME_LENGTH, "%s", get_management_service_name( argv[ 1 ] ) );
 
   char *endp = NULL;
-  application_id = ( uint32_t ) strtoul( argv[ 2 ] ,&endp, 0 );
+  application_id = ( uint32_t ) strtoul( argv[ 2 ], &endp, 0 );
   if ( *endp != '\0' ) {
     print_usage_and_exit();
   }

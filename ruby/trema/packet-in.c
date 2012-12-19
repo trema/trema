@@ -42,7 +42,8 @@ VALUE cPacketIn;
   {                                                                     \
     if ( get_packet_in_info( self )->format & flag ) {                  \
       return func( get_packet_in_info( self )->packet_member );         \
-    } else {                                                            \
+    }                                                                   \
+    else {                                                              \
       return Qnil;                                                      \
     }                                                                   \
   }

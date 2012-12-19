@@ -293,7 +293,7 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
 
   if ( n_ports ) {
     phy_port = ( struct ofp_phy_port * ) ( ( char * ) buffer->data
-                                           + offsetof( struct ofp_switch_features, ports) );
+                                           + offsetof( struct ofp_switch_features, ports ) );
     port = p;
     while ( port != NULL ) {
       phy_port_to_string( port->data, port_str, sizeof( port_str ) );
@@ -435,7 +435,7 @@ create_flow_removed( const uint32_t transaction_id, const struct ofp_match match
 
 buffer *
 create_port_status( const uint32_t transaction_id, const uint8_t reason,
-                    const struct ofp_phy_port desc) {
+                    const struct ofp_phy_port desc ) {
   char desc_str[ 1024 ];
   buffer *buffer;
   struct ofp_phy_port d = desc;
@@ -587,7 +587,7 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
            "buffer_id = %#x, out_port = %u, flags = %#x ).",
            transaction_id, match_str, cookie, command,
            idle_timeout, hard_timeout, priority,
-           buffer_id, out_port, flags  );
+           buffer_id, out_port, flags );
   }
 
   if ( actions != NULL ) {

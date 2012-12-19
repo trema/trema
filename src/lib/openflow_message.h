@@ -69,7 +69,7 @@ buffer *create_flow_removed( const uint32_t transaction_id, const struct ofp_mat
                             const uint32_t duration_nsec, const uint16_t idle_timeout,
                             const uint64_t packet_count, const uint64_t byte_count );
 buffer *create_port_status( const uint32_t transaction_id, const uint8_t reason,
-                            const struct ofp_phy_port desc);
+                            const struct ofp_phy_port desc );
 buffer *create_packet_out( const uint32_t transaction_id, const uint32_t buffer_id,
                            const uint16_t in_port, const openflow_actions *actions,
                            const buffer *data );

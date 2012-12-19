@@ -102,7 +102,7 @@ mock_secure_channel_accept( struct listener_info *listener_info ) {
 }
 
 int
-mock_access( const char *pathname, int mode) {
+mock_access( const char *pathname, int mode ) {
   UNUSED( pathname );
   UNUSED( mode );
 
@@ -162,7 +162,7 @@ mock_get_executable_name( void ) {
 
 
 void
-mock_set_external_callback( void ( *callback ) ( void ) ) {
+mock_set_external_callback( void ( *callback )( void ) ) {
   check_expected( callback );
 }
 
@@ -587,8 +587,8 @@ test_switch_manager_main_succeeded() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
-      ( char * )( uintptr_t )"--switch_manager=switch_manager",
+      ( char * ) ( uintptr_t ) "switch_manager",
+      ( char * ) ( uintptr_t ) "--switch_manager=switch_manager",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -619,8 +619,8 @@ test_switch_manager_main_and_port_option_succeeded() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
-      ( char * )( uintptr_t )"--port=6633",
+      ( char * ) ( uintptr_t ) "switch_manager",
+      ( char * ) ( uintptr_t ) "--port=6633",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -651,8 +651,8 @@ test_switch_manager_main_and_port_option_failed() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
-      ( char * )( uintptr_t )"--port=0",
+      ( char * ) ( uintptr_t ) "switch_manager",
+      ( char * ) ( uintptr_t ) "--port=0",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -676,8 +676,8 @@ test_switch_manager_main_help_and_exit() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
-      ( char * )( uintptr_t )"-x",
+      ( char * ) ( uintptr_t ) "switch_manager",
+      ( char * ) ( uintptr_t ) "-x",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -704,7 +704,7 @@ test_switch_manager_main_get_current_dir_name_failed() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
+      ( char * ) ( uintptr_t ) "switch_manager",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -726,7 +726,7 @@ test_switch_manager_main_secure_channel_listen_start_failed() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"switch_manager",
+      ( char * ) ( uintptr_t ) "switch_manager",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -1066,7 +1066,7 @@ test_secure_channel_accept_child_and_args_succeeded() {
 
   listener_info.switch_manager = "switch_manager";
   listener_info.switch_manager_argc = 2;
-  listener_info.switch_manager_argv = ( char ** )( uintptr_t )argv;
+  listener_info.switch_manager_argv = ( char ** ) ( uintptr_t ) argv;
   listener_info.listen_fd = listen_fd;
 
   expect_value( mock_accept, sockfd, listen_fd );

@@ -267,7 +267,7 @@ test_duplicate_buffer_succeeds() {
   unsigned char *data = append_back_buffer( buf, 1024 );
   int i;
   for ( i = 0; i < 1024; i++ ) {
-    data[ i ] = ( unsigned char ) ( i % 0xff ) ;
+    data[ i ] = ( unsigned char ) ( i % 0xff );
   }
 
   buffer *duplicate = duplicate_buffer( buf );

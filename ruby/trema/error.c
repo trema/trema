@@ -234,9 +234,9 @@ Init_error() {
   rb_define_const( mTrema, "OFPPMFC_BAD_HW_ADDR", INT2NUM( OFPPMFC_BAD_HW_ADDR ) );
 
   rb_define_const( mTrema, "OFPET_QUEUE_OP_FAILED", INT2NUM( OFPET_QUEUE_OP_FAILED ) );
-  rb_define_const( mTrema, "OFPQOFC_BAD_PORT", INT2NUM(OFPQOFC_BAD_PORT));
-  rb_define_const( mTrema, "OFPQOFC_BAD_QUEUE", INT2NUM(OFPQOFC_BAD_QUEUE));
-  rb_define_const( mTrema, "OFPQOFC_EPERM", INT2NUM(OFPQOFC_EPERM));
+  rb_define_const( mTrema, "OFPQOFC_BAD_PORT", INT2NUM( OFPQOFC_BAD_PORT ) );
+  rb_define_const( mTrema, "OFPQOFC_BAD_QUEUE", INT2NUM( OFPQOFC_BAD_QUEUE ) );
+  rb_define_const( mTrema, "OFPQOFC_EPERM", INT2NUM( OFPQOFC_EPERM ) );
 
   cError = rb_define_class_under( mTrema, "Error", rb_cObject );
 

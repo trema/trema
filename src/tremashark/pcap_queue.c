@@ -57,7 +57,7 @@ delete_pcap_queue( void ) {
 
 
 buffer *
-create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_t dump_len, void* data, size_t data_len ) {
+create_pcap_packet( void *pcap_header, size_t pcap_len, void *dump_header, size_t dump_len, void *data, size_t data_len ) {
   size_t length = pcap_len + dump_len + data_len;
   assert( length != 0 );
   assert( pcap_header != NULL && dump_header != NULL );

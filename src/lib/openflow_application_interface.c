@@ -718,7 +718,7 @@ handle_features_reply( const uint64_t datapath_id, buffer *data ) {
 
   if ( event_handlers.features_reply_callback == NULL ) {
     debug( "Callback function for features reply events is not set." );
-    if( phy_ports_head != NULL ) {
+    if ( phy_ports_head != NULL ) {
       element = phy_ports_head;
       while ( element != NULL ) {
         xfree( element->data );
@@ -1647,7 +1647,7 @@ handle_list_switches_reply( uint16_t message_type, void *data, size_t length, vo
   UNUSED( message_type );
   assert( data != NULL );
 
-  uint64_t *dpid = ( uint64_t *) data;
+  uint64_t *dpid = ( uint64_t * ) data;
   size_t num_switch = length / sizeof( uint64_t );
 
   debug( "A list switches reply message is received ( number of switches = %zu ).",
@@ -1663,7 +1663,7 @@ handle_list_switches_reply( uint16_t message_type, void *data, size_t length, vo
 
   unsigned int i;
   for ( i = 0; i < num_switch; ++i ) {
-    uint64_t *datapath_id = ( uint64_t *) xmalloc( sizeof( uint64_t ) );
+    uint64_t *datapath_id = ( uint64_t * ) xmalloc( sizeof( uint64_t ) );
     *datapath_id = ntohll( dpid[ i ] );
     insert_dpid( &switches, datapath_id );
   }

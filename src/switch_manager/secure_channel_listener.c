@@ -93,7 +93,7 @@ int mock_dup2( int oldfd, int newfd );
 #undef open
 #endif
 #define open mock_open
-int mock_open(const char *pathname, int flags);
+int mock_open( const char *pathname, int flags );
 
 #ifdef execvp
 #undef execvp
@@ -222,7 +222,7 @@ secure_channel_accept( int fd, void *data ) {
   accept_fd = accept( fd, ( struct sockaddr * ) &addr, &addr_len );
   if ( accept_fd < 0 ) {
     // TODO: close listener socket
-    error( "Failed to accept from switch. :%s.", strerror( errno )  );
+    error( "Failed to accept from switch. :%s.", strerror( errno ) );
     return;
   }
   pid = fork();

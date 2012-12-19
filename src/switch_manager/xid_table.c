@@ -91,7 +91,7 @@ init_xid_table( void ) {
 
 void
 finalize_xid_table( void ) {
-  for( int i = 0; i < XID_MAX_ENTRIES; i++ ) {
+  for ( int i = 0; i < XID_MAX_ENTRIES; i++ ) {
     if ( xid_table.entries[ i ] != NULL ) {
       free_xid_entry( xid_table.entries[ i ] );
       xid_table.entries[ i ] = NULL;

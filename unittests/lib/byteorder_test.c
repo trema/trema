@@ -469,7 +469,7 @@ test_ntoh_action_enqueue() {
 
   assert_int_equal( htons( dst.type ), src->type );
   assert_int_equal( htons( dst.len ), src->len );
-  assert_int_equal( htons( dst.port) , src->port );
+  assert_int_equal( htons( dst.port ), src->port );
   assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
   xfree( src );
@@ -643,7 +643,7 @@ test_ntoh_action() {
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
-    assert_int_equal( htons( dst.port) , src->port );
+    assert_int_equal( htons( dst.port ), src->port );
     assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
     xfree( src );
@@ -837,7 +837,7 @@ test_hton_action() {
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
-    assert_int_equal( htons( dst.port) , src->port );
+    assert_int_equal( htons( dst.port ), src->port );
     assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
     xfree( src );
@@ -903,7 +903,7 @@ test_ntoh_flow_stats_without_action() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
 
   ntoh_flow_stats( dst, src );
 
@@ -944,7 +944,7 @@ test_ntoh_flow_stats_with_single_output_action() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
   struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = htons( OFPAT_OUTPUT );
   act_src->len = htons( 8 );
@@ -996,7 +996,7 @@ test_ntoh_flow_stats_with_two_output_actions() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
   struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = htons( OFPAT_OUTPUT );
@@ -1064,7 +1064,7 @@ test_hton_flow_stats_without_action() {
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
 
   hton_flow_stats( dst, src );
 
@@ -1103,13 +1103,13 @@ test_hton_flow_stats_with_single_output_action() {
   src->table_id = 1;
   src->match = MATCH;
   src->duration_sec = 60;
-  src->duration_nsec = 5000 ;
+  src->duration_nsec = 5000;
   src->priority = UINT16_MAX;
   src->idle_timeout = 60;
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
   struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = OFPAT_OUTPUT;
   act_src->len = 8;
@@ -1165,7 +1165,7 @@ test_hton_flow_stats_with_two_output_actions() {
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
   struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = OFPAT_OUTPUT;

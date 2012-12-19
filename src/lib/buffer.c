@@ -191,7 +191,8 @@ append_front_buffer( buffer *buf, size_t length ) {
   if ( already_allocated( pbuf, length ) ) {
     memmove( ( char * ) b->data + length, b->data, b->length );
     memset( b->data, 0, length );
-  } else {
+  }
+  else {
     append_front( pbuf, length );
   }
   b->length += length;

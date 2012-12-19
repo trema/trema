@@ -179,7 +179,7 @@ flush_packet_buffer( void *user_data ) {
   debug( "Flushing packet queue ( length = %u ).", packet_queue->length );
 
   buffer *packet = peek( packet_queue );
-  while( packet != NULL ) {
+  while ( packet != NULL ) {
     bool ret = send_message( dump_service_name, MESSENGER_DUMP_PCAP, packet->data, packet->length );
     if ( ret ) {
       packet = dequeue( packet_queue );
@@ -237,7 +237,7 @@ static void
 parse_options( int *argc, char **argv[] ) {
   int opt;
 
-  while( 1 ) {
+  while ( 1 ) {
     opt = getopt( *argc, *argv, "i:s:" );
 
     if ( opt < 0 ) {

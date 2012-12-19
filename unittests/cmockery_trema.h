@@ -69,10 +69,11 @@ void unstub_logger( void );
     if ( expression ) {                                                                         \
       print_message( "Expected assertion %s occurred\n", expression );                          \
       global_expecting_assert = 0;                                                              \
-    } else {                                                                                    \
-      function_call ;                                                                           \
+    }                                                                                           \
+    else {                                                                                      \
+      function_call;                                                                            \
       global_expecting_assert = 0;                                                              \
-      print_error( "Expected assert in %s\n", #function_call )    ;                             \
+      print_error( "Expected assert in %s\n", #function_call );                                 \
       _fail( __FILE__, __LINE__ );                                                              \
     }                                                                                           \
   }
