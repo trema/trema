@@ -211,7 +211,7 @@ get_log_directory() {
 }
 
 
-static FILE*
+static FILE *
 open_log_file( bool append ) {
   assert( strlen( get_log_directory() ) > 0 );
   assert( strlen( get_ident_string() ) > 0 );
@@ -521,7 +521,8 @@ do_log( int priority, const char *format, va_list ap ) {
       va_end( _args );                                  \
       pthread_mutex_unlock( &mutex );                   \
     }                                                   \
-  } while ( 0 )
+  }                                                     \
+  while ( 0 )
 
 
 static void

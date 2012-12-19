@@ -297,7 +297,7 @@ map_exact_match_table( hash_table *exact_table, struct ofp_match *match, void fu
 
 static void
 init_wildcards_match_table( list_element **wildcards_table ) {
-  assert( wildcards_table != NULL);
+  assert( wildcards_table != NULL );
 
   create_list( wildcards_table );
 }
@@ -589,7 +589,7 @@ _map_match_table( struct ofp_match *match, void function( struct ofp_match match
 
 
 void
-foreach_match_table( void function( struct ofp_match, uint16_t, void *, void *), void *user_data ) {
+foreach_match_table( void function( struct ofp_match, uint16_t, void *, void * ), void *user_data ) {
   _map_match_table( NULL, function, user_data );
 }
 

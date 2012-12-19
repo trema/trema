@@ -302,7 +302,7 @@ update_packet_status( guint32 packet_number, guint32 reassemble_id ) {
     packet_status_info **new_table_buffer = g_malloc( packets_status_size * sizeof( packet_status_info * ) );
     memset( new_table_buffer, 0, packets_status_size * sizeof( packet_status_info * ) );
     if ( packets_status != NULL ) {
-      memcpy( ( void * )new_table_buffer, ( void * )packets_status, current_size * sizeof( packet_status_info * ) );
+      memcpy( ( void * ) new_table_buffer, ( void * ) packets_status, current_size * sizeof( packet_status_info * ) );
       g_free( packets_status );
     }
     packets_status = new_table_buffer;
@@ -396,7 +396,7 @@ generate_reassemble_id() {
  *  FALSE means the stream has enough fragments, it can be reassembled.
  */
 static gboolean
-is_last_fragment( fragmented_stream_info* fragment_info ) {
+is_last_fragment( fragmented_stream_info *fragment_info ) {
   assert( fragment_info != NULL );
 
   if ( fragment_info->unreceived_length <= 0 ) {
@@ -934,7 +934,7 @@ dissect_openflow( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
       col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
     }
 
-    if( check_col( pinfo->cinfo, COL_INFO ) ) {
+    if ( check_col( pinfo->cinfo, COL_INFO ) ) {
         col_append_str( pinfo->cinfo, COL_INFO, " => " );
     }
 
@@ -1264,7 +1264,7 @@ dissect_ethernet( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
       col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
     }
 
-    if( check_col( pinfo->cinfo, COL_INFO ) ) {
+    if ( check_col( pinfo->cinfo, COL_INFO ) ) {
         col_append_str( pinfo->cinfo, COL_INFO, " => " );
     }
 
@@ -1335,7 +1335,7 @@ dissect_syslog( tvbuff_t *tvb, packet_info *pinfo, proto_tree *trema_tree ) {
       col_append_str( pinfo->cinfo, COL_PROTOCOL, "+" );
     }
 
-    if( check_col( pinfo->cinfo, COL_INFO ) ) {
+    if ( check_col( pinfo->cinfo, COL_INFO ) ) {
         col_append_str( pinfo->cinfo, COL_INFO, " => " );
     }
 
@@ -1414,7 +1414,7 @@ dissect_text_dump( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
       col_append_str( pinfo->cinfo, COL_PROTOCOL, "+TEXT" );
     }
 
-    if( check_col( pinfo->cinfo, COL_INFO ) && string != NULL ) {
+    if ( check_col( pinfo->cinfo, COL_INFO ) && string != NULL ) {
       col_append_str( pinfo->cinfo, COL_INFO, " => " );
       col_append_str( pinfo->cinfo, COL_INFO, string );
     }

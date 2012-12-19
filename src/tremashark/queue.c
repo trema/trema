@@ -39,7 +39,7 @@ bool
 delete_queue( queue *queue ) {
   assert( queue != NULL );
 
-  while( queue->head != NULL ) {
+  while ( queue->head != NULL ) {
     queue_element *e = queue->head;
     if ( queue->head->data != NULL ) {
       free_buffer( queue->head->data );
@@ -139,7 +139,8 @@ sort_queue( queue *queue, bool compare( const buffer *x, const buffer *y ) ) {
       do {
         elements[ j ]->data = elements[ j - 1 ]->data;
         j--;
-      } while ( j > 0 && compare( elements[ j - 1 ]->data, data ) );
+      }
+      while ( j > 0 && compare( elements[ j - 1 ]->data, data ) );
       elements[ j ]->data = data;
     }
   }

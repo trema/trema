@@ -95,7 +95,7 @@ get_switches( void ) {
   init_hash_iterator( dpid_table, &iter );
   while ( ( entry = iterate_hash_next( &iter ) ) != NULL ) {
     uint64_t *dpid = append_back_buffer( buf, sizeof( uint64_t ) );
-    *dpid = htonll( *( uint64_t * )( entry->value ) );
+    *dpid = htonll( *( uint64_t * ) ( entry->value ) );
   }
 
   return buf;

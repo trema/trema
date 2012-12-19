@@ -285,7 +285,7 @@ get_stats_request_table_id( VALUE self ) {
 static VALUE
 parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -485,7 +485,7 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 static VALUE
 port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -537,7 +537,7 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 static VALUE
 queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -594,7 +594,7 @@ static VALUE
 vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
 
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -617,7 +617,7 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 
 
 void
-Init_stats_request(){
+Init_stats_request() {
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
 
   cDescStatsRequest = rb_define_class_under( mTrema, "DescStatsRequest", cStatsRequest );

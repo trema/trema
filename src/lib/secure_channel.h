@@ -25,7 +25,7 @@
 
 
 typedef void ( *connected_handler )( void );
-typedef void ( *disconnected_handler ) ( void );
+typedef void ( *disconnected_handler )( void );
 
 
 bool init_secure_channel( uint32_t ip, uint16_t port,

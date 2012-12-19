@@ -231,7 +231,8 @@ match_dl( VALUE self, uint8_t which ) {
   match = get_match( self );
   if ( which ) {
     dl_addr = match->dl_src;
-  } else {
+  }
+  else {
     dl_addr = match->dl_dst;
   }
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( dl_addr ) ) );
@@ -311,7 +312,8 @@ match_nw( VALUE self, uint8_t which ) {
   if ( which ) {
     nw_addr = match->nw_src;
     masklen = ( match->wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
-  } else {
+  }
+  else {
     nw_addr = match->nw_dst;
     masklen = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
   }

@@ -176,14 +176,14 @@ static void
 parse_options( int *argc, char **argv[] ) {
   int opt;
 
-  while( 1 ) {
+  while ( 1 ) {
     opt = getopt( *argc, *argv, "s:" );
 
-    if( opt < 0 ){
+    if ( opt < 0 ) {
       break;
     }
 
-    switch ( opt ){
+    switch ( opt ) {
       case 's':
         if ( optarg && dump_service_name == NULL ) {
           dump_service_name = xstrdup( optarg );

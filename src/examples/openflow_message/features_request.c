@@ -68,43 +68,43 @@ handle_features_reply(
     info( "  OFPC_ARP_MATCH_IP" );
   }
   info( "actions:" );
-  if( actions & ( 1 << OFPAT_OUTPUT ) ) {
+  if ( actions & ( 1 << OFPAT_OUTPUT ) ) {
     info( "  OFPAT_OUTPUT" );
   }
-  if( actions & ( 1 << OFPAT_SET_VLAN_VID ) ) {
+  if ( actions & ( 1 << OFPAT_SET_VLAN_VID ) ) {
     info( "  OFPAT_SET_VLAN_VID" );
   }
-  if( actions & ( 1 << OFPAT_SET_VLAN_PCP ) ) {
+  if ( actions & ( 1 << OFPAT_SET_VLAN_PCP ) ) {
     info( "  OFPAT_SET_VLAN_PCP" );
   }
-  if( actions & ( 1 << OFPAT_STRIP_VLAN ) ) {
+  if ( actions & ( 1 << OFPAT_STRIP_VLAN ) ) {
     info( "  OFPAT_STRIP_VLAN" );
   }
-  if( actions & ( 1 << OFPAT_SET_DL_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_DL_SRC ) ) {
     info( "  OFPAT_SET_DL_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_DL_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_DL_DST ) ) {
     info( "  OFPAT_SET_DL_DST" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_SRC ) ) {
     info( "  OFPAT_SET_NW_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_DST ) ) {
     info( "  OFPAT_SET_NW_DST" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_TOS ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_TOS ) ) {
     info( "  OFPAT_SET_NW_TOS" );
   }
-  if( actions & ( 1 << OFPAT_SET_TP_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_TP_SRC ) ) {
     info( "  OFPAT_SET_TP_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_TP_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_TP_DST ) ) {
     info( "  OFPAT_SET_TP_DST" );
   }
-  if( actions & ( 1 << OFPAT_ENQUEUE ) ) {
+  if ( actions & ( 1 << OFPAT_ENQUEUE ) ) {
     info( "  OFPAT_ENQUEUE" );
   }
-  if( actions & OFPAT_VENDOR ) {
+  if ( actions & OFPAT_VENDOR ) {
     info( "  OFPAT_VENDOR" );
   }
 

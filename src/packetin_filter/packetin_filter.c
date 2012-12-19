@@ -39,7 +39,7 @@
 #undef printf
 #endif
 #define printf( fmt, args... )  mock_printf2( fmt, ##args )
-int mock_printf2(const char *format, ...);
+int mock_printf2( const char *format, ... );
 
 #ifdef error
 #undef error
@@ -250,7 +250,7 @@ finalize_packetin_match_table( void ) {
 
 static bool
 add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
-  bool ( *insert_or_update_match_entry ) ( struct ofp_match, uint16_t, void * ) = update_match_entry;
+  bool ( *insert_or_update_match_entry )( struct ofp_match, uint16_t, void * ) = update_match_entry;
   list_element *services = lookup_match_strict_entry( match, priority );
   if ( services == NULL ) {
     insert_or_update_match_entry = insert_match_entry;
@@ -369,7 +369,7 @@ set_match_type( int argc, char *argv[] ) {
 static void
 handle_add_filter_request( const messenger_context_handle *handle, add_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   request->entry.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
   if ( strlen( request->entry.service_name ) == 0 ) {
@@ -412,7 +412,7 @@ delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, voi
 static void
 handle_delete_filter_request( const messenger_context_handle *handle, delete_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   buffer *buf = alloc_buffer_with_length( sizeof( delete_packetin_filter_reply ) );
   delete_packetin_filter_reply *reply = append_back_buffer( buf, sizeof( delete_packetin_filter_reply ) );
@@ -461,7 +461,7 @@ dump_filter_walker( struct ofp_match match, uint16_t priority, void *data, void 
 static void
 handle_dump_filter_request( const messenger_context_handle *handle, dump_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   buffer *buf = alloc_buffer_with_length( 2048 );
   dump_packetin_filter_reply *reply = append_back_buffer( buf, offsetof( dump_packetin_filter_reply, entries ) );

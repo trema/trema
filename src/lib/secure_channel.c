@@ -326,7 +326,7 @@ check_connected( void *user_data ) {
     return;
   }
 
-  switch( err ) {
+  switch ( err ) {
     case 0:
       connected();
       break;
@@ -341,7 +341,7 @@ check_connected( void *user_data ) {
       return;
 
     case EINPROGRESS:
-      set_fd_handler( connection.fd, NULL ,NULL, ( event_fd_callback ) check_connected, NULL );
+      set_fd_handler( connection.fd, NULL, NULL, ( event_fd_callback ) check_connected, NULL );
       set_writable( connection.fd, true );
       break;
 
@@ -393,7 +393,7 @@ try_connect() {
 
   ret = connect( connection.fd, ( struct sockaddr * ) &addr, sizeof( struct sockaddr_in ) );
   if ( ret < 0 ) {
-    switch( errno ) {
+    switch ( errno ) {
       case EINTR:
       case EAGAIN:
       case ECONNREFUSED:

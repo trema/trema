@@ -134,7 +134,7 @@ append_back_foreach( void *key, void *value, void *user_data ) {
   assert_true( user_data == NULL );
 
   int i;
-  for ( i = 0 ; i < 3 ; i++ ) {
+  for ( i = 0; i < 3; i++ ) {
     if ( abc[ i ] == NULL ) {
       abc[ i ] = value;
       return;

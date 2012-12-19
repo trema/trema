@@ -231,8 +231,8 @@ test_handle_packet_in_successed() {
   will_return_void( mock_set_match_from_packet );
 
   memset( &match_entry, 0, sizeof( match_entry ) );
-  match_entry.service_name = ( char * )( uintptr_t )( "service_name" );
-  match_entry.entry_name = ( char * )( uintptr_t )( "entry_name" );
+  match_entry.service_name = ( char * ) ( uintptr_t ) ( "service_name" );
+  match_entry.entry_name = ( char * ) ( uintptr_t ) ( "entry_name" );
   expect_not_value( mock_lookup_match_entry, match, NULL );
   will_return( mock_lookup_match_entry, &match_entry );
 
@@ -317,8 +317,8 @@ test_handle_packet_in_send_failed() {
   will_return_void( mock_set_match_from_packet );
 
   memset( &match_entry, 0, sizeof( match_entry ) );
-  match_entry.service_name = ( char * )( uintptr_t )( "service_name" );
-  match_entry.entry_name = ( char * )( uintptr_t )( "entry_name" );
+  match_entry.service_name = ( char * ) ( uintptr_t ) ( "service_name" );
+  match_entry.entry_name = ( char * ) ( uintptr_t ) ( "entry_name" );
   expect_not_value( mock_lookup_match_entry, match, NULL );
   will_return( mock_lookup_match_entry, &match_entry );
 
@@ -391,9 +391,9 @@ test_packetin_filter_main_successed() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"packetin_filter",
-      ( char * )( uintptr_t )"lldp::topo",
-      ( char * )( uintptr_t )"packet_in::hub",
+      ( char * ) ( uintptr_t ) "packetin_filter",
+      ( char * ) ( uintptr_t ) "lldp::topo",
+      ( char * ) ( uintptr_t ) "packet_in::hub",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;
@@ -429,8 +429,8 @@ test_packetin_filter_main_invalid_match_type() {
   setup();
 
   char *argv[] = {
-      ( char * )( uintptr_t )"packetin_filter",
-      ( char * )( uintptr_t )"INVALID_MATCH_TYPE::dummy_service_name",
+      ( char * ) ( uintptr_t ) "packetin_filter",
+      ( char * ) ( uintptr_t ) "INVALID_MATCH_TYPE::dummy_service_name",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;

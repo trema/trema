@@ -97,7 +97,7 @@ write_to_file( buffer *packet ) {
     if ( err == EAGAIN || err == EWOULDBLOCK ) {
       return WRITE_BUSY;
     }
-    error( "write error ( errno = %s [%d] ).", strerror( err), err );
+    error( "write error ( errno = %s [%d] ).", strerror( err ), err );
     return WRITE_ERROR;
   }
 
@@ -219,7 +219,7 @@ write_pcap_packet( void *user_data ) {
 
   timersub( &now, &buffer_length, &threshold );
 
-  for ( ; ; ) {
+  for ( ;; ) {
     buffer *packet;
     queue_status status = peek_pcap_packet( &packet );
     if ( status == QUEUE_EMPTY ) {

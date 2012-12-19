@@ -210,7 +210,8 @@ get_action( const struct ofp_action_header *ah ) {
       if ( ah->type == OFPAT_SET_DL_SRC ) {
         rb_hash_aset( options, ID2SYM( rb_intern( "dl_src" ) ),  dl_addr );
         action = rb_funcall( rb_eval_string( "Trema::ActionSetDlSrc" ), rb_intern( "new" ), 1, options );
-      } else {
+      }
+      else {
         rb_hash_aset( options, ID2SYM( rb_intern( "dl_dst" ) ),  dl_addr );
         action = rb_funcall( rb_eval_string( "Trema::ActionSetDlDst" ), rb_intern( "new" ), 1, options );
       }
@@ -226,7 +227,8 @@ get_action( const struct ofp_action_header *ah ) {
       if ( ah->type == OFPAT_SET_NW_SRC ) {
         rb_hash_aset( options, ID2SYM( rb_intern( "nw_src" ) ), nw_addr );
         action = rb_funcall( rb_eval_string( "Trema::ActionSetNwSrc" ), rb_intern( "new" ), 1, options );
-      } else {
+      }
+      else {
         rb_hash_aset( options, ID2SYM( rb_intern( "nw_dst" ) ), nw_addr );
         action = rb_funcall( rb_eval_string( "Trema::ActionSetNwDst" ), rb_intern( "new" ), 1, options );
       }

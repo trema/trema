@@ -203,7 +203,7 @@ write_pid( const char *directory, const char *name ) {
   }
 
   char str[ PID_STRING_LENGTH ];
-  snprintf( str, sizeof( str ),"%d\n", getpid() );
+  snprintf( str, sizeof( str ), "%d\n", getpid() );
   str[ sizeof( str ) - 1 ] = '\0';
   ssize_t ret = write( fd, str, strlen( str ) );
   if ( ret == -1 ) {
