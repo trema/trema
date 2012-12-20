@@ -28,6 +28,7 @@ require "trema/dsl/run"
 require "trema/dsl/switch"
 require "trema/dsl/vhost"
 require "trema/dsl/vswitch"
+require "trema/dsl/custom-switch"
 require "trema/hardware-switch"
 require "trema/host"
 require "trema/link"
@@ -37,6 +38,7 @@ require "trema/open-vswitch"
 require "trema/packetin-filter"
 require "trema/ruby-switch"
 require "trema/switch-manager"
+require "trema/custom-switch"
 
 
 module Trema
@@ -76,6 +78,13 @@ module Trema
         stanza = Trema::DSL::Rswitch.new( name )
         stanza.instance_eval( &block )
         Trema::RubySwitch.new( stanza )
+      end
+
+
+      def custom_switch name = nil, &block
+        stanza = Trema::DSL::CustomSwitch.new( name )
+        stanza.instance_eval( &block )
+        Trema::CustomSwitch.new stanza
       end
 
 
