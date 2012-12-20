@@ -4455,7 +4455,7 @@ test_validate_action_enqueue_fails_with_invalid_action_type() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
   openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
-  struct ofp_action_vendor_header *action_vendor = xmalloc( body->length );
+  struct ofp_action_vendor_header *action_vendor = xmalloc( sizeof( struct ofp_action_vendor_header ) + body->length );
   hton_action_vendor( action_vendor, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
 
   assert_int_equal( validate_action_enqueue( ( struct ofp_action_enqueue * ) action_vendor ), ERROR_INVALID_ACTION_TYPE );
