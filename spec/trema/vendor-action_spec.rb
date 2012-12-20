@@ -46,7 +46,7 @@ describe VendorAction, ".new( vendor_id, body )" do
   subject { VendorAction.new vendor_id, body }
   let( :vendor_id ) { 0x00004cff }
 
-  context %{when body == "deadbeef".unpack( "C*" )} do
+  context %{when body == [ 0x0008, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ]} do
     let( :body ) { "deadbeef".unpack( "C*" ) }
 
     its( :vendor_id ) { should == 0x00004cff }
@@ -55,14 +55,15 @@ describe VendorAction, ".new( vendor_id, body )" do
     context "when sending Flow Mod Add with action set to VendorAction" do
       it "should have a flow with action set to VendorAction" do
         class FlowModAddController < Controller; end
-        pending "Use Nicira's vendor ID and body"
         network {
           vswitch { datapath_id 0xabc }
         }.run( FlowModAddController ) {
-          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => VendorAction.new( 0x00004cff, "deadbeef".unpack( "C*" ) ) )
+	  body = [ 0x0008, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ].pack( "nC6" )
+          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => VendorAction.new( 0x00002320, body.unpack( "C*" ) ) )
 	  sleep 2 # FIXME: wait to send_flow_mod_add
           vswitch( "0xabc" ).should have( 1 ).flows
-          vswitch( "0xabc" ).flows[ 0 ].actions.should match( /mod_vendor/ )
+          p vswitch( "0xabc" ).flows[ 0 ].actions
+          vswitch( "0xabc" ).flows[ 0 ].actions.should match( /note:54.72.65.6d.61.00/ )
         }
       end
     end

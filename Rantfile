@@ -691,6 +691,7 @@ openflow_messages = [
   "features_request",
   "hello",
   "set_config",
+  "vendor_action",
 ]
 
 openflow_message_source_dir = "src/examples/openflow_message"
