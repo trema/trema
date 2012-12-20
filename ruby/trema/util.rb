@@ -97,7 +97,7 @@ EOF
 
   def find_switch_by_name name
     Trema::DSL::Context.load_current.switches[ name ]
-  end    
+  end
 
 
   def find_host_by_name name

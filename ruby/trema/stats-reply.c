@@ -419,7 +419,7 @@ handle_stats_reply(
         table_stats_reply = rb_funcall( rb_eval_string( "Trema::TableStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( table_stats_arr, table_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_table_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_table_stats ) );
         if ( body_length ) {
           table_stats++;
         }
@@ -453,7 +453,7 @@ handle_stats_reply(
         port_stats_reply = rb_funcall( rb_eval_string( "Trema::PortStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( port_stats_arr, port_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_port_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_port_stats ) );
         if ( body_length ) {
           port_stats++;
         }
@@ -476,7 +476,7 @@ handle_stats_reply(
         queue_stats_reply = rb_funcall( rb_eval_string( "Trema::QueueStatsReply" ), rb_intern( "new" ), 1, options );
 
         rb_ary_push( queue_stats_arr, queue_stats_reply );
-        body_length = ( uint16_t ) ( body_length - sizeof ( struct ofp_queue_stats ) );
+        body_length = ( uint16_t ) ( body_length - sizeof( struct ofp_queue_stats ) );
         if ( body_length ) {
           queue_stats++;
         }

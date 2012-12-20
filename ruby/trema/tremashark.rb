@@ -29,8 +29,8 @@ module Trema
     #
     # Runs the tremashark program as a daemon for debugging.
     #
-    # @return [Boolean, Nil] 
-    #   a true or false tremashark exit status code or nil if failed to run. 
+    # @return [Boolean, Nil]
+    #   a true or false tremashark exit status code or nil if failed to run.
     #
     def run
       sh "#{ Executables.tremashark } --daemonize"

@@ -49,4 +49,3 @@ int ofpmsg_send_deny_all( struct switch_info *sw_info );
  * indent-tabs-mode: nil
  * End:
  */
-

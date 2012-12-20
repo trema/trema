@@ -211,7 +211,7 @@ module Trema
     #
     # @raise [RuntimeError] if stats type is invalid.
     #
-    # @return [Stat] 
+    # @return [Stat]
     #   the object that represents the results of a particular stats type.
     #
     def stats type

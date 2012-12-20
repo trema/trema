@@ -18,8 +18,8 @@
  */
 
 
-#include <openflow.h>
 #include <inttypes.h>
+#include <openflow.h>
 #include <stdio.h>
 #include <string.h>
 #include "cookie_table.h"

@@ -251,8 +251,6 @@ write_pcap_packet( void *user_data ) {
   }
 
   fsync( outfile_fd );
-
-  return;
 }
 
 
@@ -274,7 +272,6 @@ set_timer_event() {
     critical( "failed in set timer event" );
     abort();
   }
-  return;
 }
 
 
@@ -350,8 +347,6 @@ write_circular_buffer( void ) {
   foreach_pcap_queue( ( void * ) write_to_file );
 
   finalize_pcap();
-
-  return;
 }
 
 

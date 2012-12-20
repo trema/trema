@@ -20,6 +20,7 @@
  */
 
 
+#include <arpa/inet.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -27,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 #include "cmockery_trema.h"
 #include "log.h"
 #include "ipv4.h"
