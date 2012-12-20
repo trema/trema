@@ -1647,6 +1647,10 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
   action_vendor->len = ( uint16_t ) ( sizeof( struct ofp_action_vendor_header ) + body_length );
   action_vendor->vendor = vendor;
 
+  if ( body_length > 0 ) {
+    memcpy( ( char * ) action_vendor + sizeof( struct ofp_action_vendor_header ), body->data, body_length );
+  }
+
   ret = append_to_tail( &actions->list, ( void * ) action_vendor );
   if ( ret ) {
     actions->n_actions++;
@@ -3449,18 +3453,14 @@ validate_action_enqueue( const struct ofp_action_enqueue *action ) {
 
 int
 validate_action_vendor( const struct ofp_action_vendor_header *action ) {
-  struct ofp_action_vendor_header vendor;
-
-  ntoh_action_vendor( &vendor, action );
-
-  if ( vendor.type != OFPAT_VENDOR ) {
+  if ( ntohs( action->type ) != OFPAT_VENDOR ) {
     return ERROR_INVALID_ACTION_TYPE;
   }
-  if ( vendor.len < sizeof( struct ofp_action_vendor_header ) ) {
+  if ( ntohs( action->len ) < sizeof( struct ofp_action_vendor_header ) ) {
     return ERROR_TOO_SHORT_ACTION_VENDOR;
   }
 
-  // vendor.vendor
+  // action->vendor
 
   return 0;
 }

@@ -1213,7 +1213,7 @@ static void
 test_append_action_vendor() {
   openflow_actions *actions = NULL;
   uint32_t vendor = 1;
-  buffer *body;
+  buffer *body = NULL;
   struct ofp_action_vendor_header *action_vendor;
   uint16_t length;
   bool ret;
@@ -1234,6 +1234,7 @@ test_append_action_vendor() {
   assert_int_equal( action_vendor->type, OFPAT_VENDOR );
   assert_int_equal( action_vendor->len, length );
   assert_int_equal( ( int ) action_vendor->vendor, ( int ) vendor );
+  assert_memory_equal( ( char * ) action_vendor + sizeof( struct ofp_action_vendor_header ), body->data, body->length );
 
   assert_int_equal( actions->n_actions, 1 );
 
@@ -4454,13 +4455,14 @@ test_validate_action_enqueue_fails_with_invalid_action_type() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
   openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
-  struct ofp_action_vendor_header action_vendor;
-  hton_action_vendor( &action_vendor, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
+  struct ofp_action_vendor_header *action_vendor = xmalloc( body->length );
+  hton_action_vendor( action_vendor, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
 
-  assert_int_equal( validate_action_enqueue( ( struct ofp_action_enqueue * ) &action_vendor ), ERROR_INVALID_ACTION_TYPE );
+  assert_int_equal( validate_action_enqueue( ( struct ofp_action_enqueue * ) action_vendor ), ERROR_INVALID_ACTION_TYPE );
 
   free_buffer( body );
   delete_actions( actions );
+  xfree( action_vendor );
 }
 
 
@@ -4509,13 +4511,14 @@ test_validate_action_vendor() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
   openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
-  struct ofp_action_vendor_header action_vendor_header;
-  hton_action_vendor( &action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
+  struct ofp_action_vendor_header *action_vendor_header = xmalloc( sizeof( struct ofp_action_vendor_header ) + body->length );
+  hton_action_vendor( action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
 
-  assert_int_equal( validate_action_vendor( &action_vendor_header ), 0 );
+  assert_int_equal( validate_action_vendor( action_vendor_header ), 0 );
 
   free_buffer( body );
   delete_actions( actions );
+  xfree( action_vendor_header );
 }
 
 
@@ -4540,15 +4543,16 @@ test_validate_action_vendor_fails_with_too_short_ofp_action_vendor_header() {
   buffer *body = create_dummy_data( SHORT_DATA_LENGTH );
   openflow_actions *actions = create_actions();
   append_action_vendor( actions, VENDOR_ID, body );
+  struct ofp_action_vendor_header *too_short_action_vendor_header = xmalloc( sizeof( struct ofp_action_vendor_header ) + body->length );
+  hton_action_vendor( too_short_action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
   uint16_t too_short_action_length = sizeof( struct ofp_action_vendor_header ) - 1;
-  ( ( struct ofp_action_vendor_header * )( actions->list->data ) )->len = too_short_action_length;
-  struct ofp_action_vendor_header too_short_action_vendor_header;
-  hton_action_vendor( &too_short_action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
+  too_short_action_vendor_header->len = htons( too_short_action_length );
 
-  assert_int_equal( validate_action_vendor( &too_short_action_vendor_header ), ERROR_TOO_SHORT_ACTION_VENDOR );
+  assert_int_equal( validate_action_vendor( too_short_action_vendor_header ), ERROR_TOO_SHORT_ACTION_VENDOR );
 
   free_buffer( body );
-  delete_actions( ( openflow_actions * ) actions );
+  delete_actions( actions );
+  xfree( too_short_action_vendor_header );
 }
 
 

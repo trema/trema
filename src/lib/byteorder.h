@@ -72,7 +72,7 @@ void ntoh_action_enqueue( struct ofp_action_enqueue *dst, const struct ofp_actio
 #define hton_action_enqueue ntoh_action_enqueue
 
 void ntoh_action_vendor( struct ofp_action_vendor_header *dst, const struct ofp_action_vendor_header *src );
-#define hton_action_vendor ntoh_action_vendor
+void hton_action_vendor( struct ofp_action_vendor_header *dst, const struct ofp_action_vendor_header *src );
 
 void ntoh_action( struct ofp_action_header *dst, const struct ofp_action_header *src );
 void hton_action( struct ofp_action_header *dst, const struct ofp_action_header *src );
