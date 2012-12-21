@@ -58,6 +58,7 @@ task :examples => [
   "examples:learning_switch",
   "examples:list_switches",
   "examples:multi_learning_switch",
+  "examples:openflow_switch",
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",
@@ -677,6 +678,41 @@ standalone_examples.each do | each |
   task "examples:#{ each }" => target
   file target => objects.candidates + [ libtrema ] do | t |
     sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+  end
+end
+
+
+########################################################################################
+# Build openflow switches
+################################################################################
+
+openflow_switches = [
+  "hello_switch",
+]
+
+openflow_switch_source_dir = "src/examples/openflow_switch"
+openflow_switch_objects_dir = objects( "examples/openflow_switch" )
+
+gen C::Dependencies, dependency( "openflow_switch" ),
+  :search => [ Trema.include ], :sources => sys[ "#{ openflow_switch_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "openflow_switch" )
+end
+
+gen Directory, openflow_switch_objects_dir
+
+
+gen DirectedRule, openflow_switch_objects_dir => [ openflow_switch_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+openflow_switches.each do | each |
+  target = File.join( openflow_switch_objects_dir, each )
+  task "examples:openflow_switch" => target
+  file target => [ File.join( openflow_switch_objects_dir, "#{ each }.o" ), libtrema ] do | t |
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
   end
 end
 
