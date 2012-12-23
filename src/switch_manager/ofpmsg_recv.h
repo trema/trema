@@ -39,4 +39,3 @@ int ofpmsg_recv( struct switch_info *sw_info, buffer *buf );
  * indent-tabs-mode: nil
  * End:
  */
-

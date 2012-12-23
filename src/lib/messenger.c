@@ -877,7 +877,7 @@ send_queue_connect( send_queue *sq ) {
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
 
-  socklen_t optlen = sizeof ( sq->socket_buffer_size );
+  socklen_t optlen = sizeof( sq->socket_buffer_size );
   if ( getsockopt( sq->server_socket, SOL_SOCKET, SO_SNDBUF, &sq->socket_buffer_size, &optlen ) == -1 ) {
     sq->socket_buffer_size = 0;
   }
@@ -927,7 +927,7 @@ send_queue_connect_timer( send_queue *sq ) {
     interval.it_interval.tv_sec = 0;
     interval.it_interval.tv_nsec = 0;
     interval.it_value = sq->reconnect_interval;
-    add_timer_event_callback( &interval, ( void (*)( void * ) ) send_queue_connect_timeout, ( void * ) sq );
+    add_timer_event_callback( &interval, ( void ( * )( void * ) ) send_queue_connect_timeout, ( void * ) sq );
     sq->running_timer = true;
 
     debug( "refused_count = %d, reconnect_interval = %" PRIu64 ".", sq->refused_count, ( int64_t ) sq->reconnect_interval.tv_sec );
@@ -942,7 +942,7 @@ send_queue_connect_timer( send_queue *sq ) {
 
   default:
     die( "Got invalid value from send_queue_connect_timer( send_queue* )." );
-  };
+  }
 
   return -1;
 }

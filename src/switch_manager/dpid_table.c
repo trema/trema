@@ -19,8 +19,8 @@
 
 
 #include <assert.h>
-#include <string.h>
 #include <inttypes.h>
+#include <string.h>
 #include "trema.h"
 #include "dpid_table.h"
 
@@ -63,7 +63,7 @@ insert_dpid_entry( uint64_t *dpid ) {
     return;
   }
 
-  uint64_t *new_entry = xmalloc( sizeof ( uint64_t ) );
+  uint64_t *new_entry = xmalloc( sizeof( uint64_t ) );
   *new_entry = *dpid;
   insert_hash_entry( dpid_table, new_entry, new_entry );
 }

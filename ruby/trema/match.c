@@ -186,7 +186,7 @@ match_compare( VALUE self, VALUE other ) {
  */
 static VALUE
 match_replace( VALUE self, VALUE other ) {
-  memcpy( get_match( self ), get_match( other ), sizeof ( struct ofp_match ) );
+  memcpy( get_match( self ), get_match( other ), sizeof( struct ofp_match ) );
   return self;
 }
 
@@ -198,7 +198,7 @@ static VALUE
 match_to_s( VALUE self ) {
   char match_str[ 1024 ];
 
-  match_to_string( get_match( self ), match_str, sizeof ( match_str ) );
+  match_to_string( get_match( self ), match_str, sizeof( match_str ) );
   return rb_str_new2( match_str );
 }
 
@@ -451,7 +451,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
   // Always clear the memory as the unused memory locations are
   // exposed to both the user and the OpenFlow controller.
   Data_Get_Struct( self, struct ofp_match, match );
-  memset( match, 0, sizeof ( *match ) );
+  memset( match, 0, sizeof( *match ) );
 
   // Default matches all packets.
   match->wildcards = ( OFPFW_ALL & ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK ) )

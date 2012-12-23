@@ -21,14 +21,14 @@
 
 
 #include <arpa/inet.h>
+#include <net/if_arp.h>
+#include <netinet/ip.h>
 #include <openflow.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <netinet/ip.h>
-#include <net/if_arp.h>
 #include "byteorder.h"
 #include "checks.h"
 #include "cmockery_trema.h"
@@ -2328,7 +2328,7 @@ test_create_vendor_stats_request() {
   assert_int_equal( ( int ) ntohs( stats->flags ), ( int ) VENDOR_STATS_FLAG );
   uint32_t vendor_id = *( ( uint32_t * ) ( ( char * ) stats + offsetof( struct ofp_stats_request, body ) ) );
   assert_int_equal( ( int ) ntohl( vendor_id ), ( int ) VENDOR_ID );
-  assert_memory_equal( ( char * ) stats + offsetof( struct ofp_stats_request, body ) + sizeof ( uint32_t ),
+  assert_memory_equal( ( char * ) stats + offsetof( struct ofp_stats_request, body ) + sizeof( uint32_t ),
                        body->data, body_length );
 
   free_buffer( body );

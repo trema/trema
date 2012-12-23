@@ -64,7 +64,7 @@ static xid_entry_t *
 allocate_xid_entry( uint32_t original_xid, char *service_name, int index ) {
   xid_entry_t *new_entry;
 
-  new_entry = xmalloc( sizeof ( xid_entry_t ) );
+  new_entry = xmalloc( sizeof( xid_entry_t ) );
   new_entry->xid = generate_xid();
   new_entry->original_xid = original_xid;
   new_entry->service_name = xstrdup( service_name );

@@ -18,17 +18,17 @@
  */
 
 
-#include <limits.h>
 #include <errno.h>
 #include <getopt.h>
 #include <inttypes.h>
+#include <limits.h>
+#include <openflow.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
-#include <openflow.h>
+#include <unistd.h>
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"

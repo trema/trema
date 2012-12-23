@@ -24,8 +24,8 @@
 #define BYTEORDER_H
 
 
-#include <endian.h>
 #include <byteswap.h>
+#include <endian.h>
 #include <openflow.h>
 
 
