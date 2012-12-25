@@ -11,7 +11,7 @@ Feature: Send a features request message
       vswitch( "features_request" ) { datapath_id "0xabc" }
       """
       And wait until "features_request" is up
-      And I terminated all trema services
+      And I run `trema killall`
     Then the output should include:
     """
     datapath_id: 0xabc
@@ -51,7 +51,7 @@ Feature: Send a features request message
       vswitch( "features-request" ) { datapath_id "0xabc" }
       """
       And wait until "FeaturesRequestController" is up
-      And I terminated all trema services
+      And I run `trema killall`
     Then the output should include:
     """
     datapath_id: 0xabc

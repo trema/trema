@@ -17,7 +17,7 @@ Feature: Send hello messages
   Scenario: Hello trema
     When I run `trema run "../../objects/examples/openflow_message/hello 10" -c hello.conf -d`
       And wait until "hello" is up
-      And I terminated all trema services
+      And I run `trema killall`
     Then the file "../../tmp/log/customswitch.hello.log" should contain:
       """
       received: OFPT_HELLO
@@ -43,5 +43,5 @@ Feature: Send hello messages
       }
       """
       And wait until "HelloController" is up
-      And I terminated all trema services
+      And I run `trema killall`
     Then the log file "customswitch.hello-r.log" should include "received: OFPT_HELLO" x 11

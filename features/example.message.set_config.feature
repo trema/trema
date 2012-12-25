@@ -12,7 +12,7 @@ Feature: Send set config messages
       """
       And wait until "set_config" is up
       And *** sleep 2 ***
-      And I terminated all trema services
+      And I run `trema killall`
     Then the log file "openflowd.set_config.log" should include "received: OFPT_SET_CONFIG" x 11
 
   @wip
@@ -23,5 +23,5 @@ Feature: Send set config messages
       """
       And wait until "SetConfigController" is up
       And *** sleep 2 ***
-      And I terminated all trema services
+      And I run `trema killall`
     Then the log file "openflowd.set-config.log" should include "received: OFPT_SET_CONFIG" x 11
