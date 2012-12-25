@@ -542,7 +542,7 @@ controller_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
-  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  char **argv = xmalloc( sizeof( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );

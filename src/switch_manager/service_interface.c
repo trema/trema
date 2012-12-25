@@ -18,8 +18,8 @@
  */
 
 
-#include <string.h>
 #include <inttypes.h>
+#include <string.h>
 #include "ofpmsg_send.h"
 #include "openflow_service_interface.h"
 #include "service_interface.h"

@@ -28,7 +28,7 @@ module Trema
     # by accepting and validating a hash of queue options.
     #
     # @param [Hash] queues a hash of queue arguments to assign.
-    # @option queues [Symbol] :port_status 
+    # @option queues [Symbol] :port_status
     #   the controller(s) to receive port status messages.
     # @option queues [Symbol] :packet_in
     #   the controller(s) to receive packet_in messages.

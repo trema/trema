@@ -19,10 +19,10 @@
 
 
 #include <assert.h>
+#include <openflow.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openflow.h>
 #include "checks.h"
 #include "match.h"
 #include "match_table.h"
@@ -53,7 +53,7 @@ typedef struct {
 
 typedef struct {
   struct ofp_match *match;
-  void ( * function )( struct ofp_match, uint16_t, void *, void * );
+  void ( *function )( struct ofp_match, uint16_t, void *, void * );
   void *user_data;
 } match_walker;
 
@@ -277,7 +277,7 @@ exact_match_table_walker( void *key, void *value, void *user_data ) {
       return;
     }
   }
-  void ( * function )( struct ofp_match, uint16_t, void *, void * ) = walker->function;
+  void ( *function )( struct ofp_match, uint16_t, void *, void * ) = walker->function;
 
   function( entry->match, entry->priority, entry->data, walker->user_data );
 }

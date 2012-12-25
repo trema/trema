@@ -20,9 +20,9 @@
  */
 
 
+#include <assert.h>
 #include <inttypes.h>
 #include <time.h>
-#include <assert.h>
 #include "trema.h"
 
 

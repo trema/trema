@@ -40,4 +40,3 @@ int handle_messages_from_secure_channel( struct switch_info *sw_info );
  * indent-tabs-mode: nil
  * End:
  */
-
