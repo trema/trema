@@ -17,7 +17,7 @@
 
 
 Given /^I terminated all trema services$/ do
-  run "./trema killall"
+  step "I run `trema killall`"
 end
 
 
