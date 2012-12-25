@@ -19,7 +19,7 @@ Feature: trema show_stats command
 
   @slow_process
   Scenario: show_stats hostname
-    When I run trema send_packets "--source host1 --dest host2"
+    When I run `trema send_packets --source host1 --dest host2`
      And I run `trema show_stats host1`
     Then the output should contain:
       """
@@ -31,7 +31,7 @@ Feature: trema show_stats command
 
   @slow_process
   Scenario: show_stats hostname --tx
-    When I run trema send_packets "--source host1 --dest host2"
+    When I run `trema send_packets --source host1 --dest host2`
      And I run `trema show_stats host1 --tx`
     Then the output should contain:
       """
@@ -41,7 +41,7 @@ Feature: trema show_stats command
 
   @slow_process
   Scenario: show_stats hostname --rx
-    When I run trema send_packets "--source host1 --dest host2"
+    When I run `trema send_packets --source host1 --dest host2`
      And I run `trema show_stats host2 --rx`
     Then the output should contain:
       """
