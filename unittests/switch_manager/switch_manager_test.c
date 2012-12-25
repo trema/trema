@@ -20,13 +20,13 @@
  */
 
 
+#include <errno.h>
 #include <fcntl.h>
+#include <netinet/tcp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/wait.h>
-#include <netinet/tcp.h>
 #include "unittest.h"
 #include "trema.h"
 #include "switch_manager.h"
@@ -101,6 +101,7 @@ mock_secure_channel_accept( struct listener_info *listener_info ) {
   ( void ) mock();
 }
 
+
 int
 mock_access( const char *pathname, int mode ) {
   UNUSED( pathname );
@@ -109,10 +110,12 @@ mock_access( const char *pathname, int mode ) {
   return ( int ) mock();
 }
 
+
 char *
 mock_get_current_dir_name( void ) {
   return ( char * ) mock();
 }
+
 
 void
 mock_init_trema( int *argc, char ***argv ) {
@@ -122,12 +125,14 @@ mock_init_trema( int *argc, char ***argv ) {
   ( void ) mock();
 }
 
+
 void
 mock_set_fd_set_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
   UNUSED( callback );
 
   ( void ) mock();
 }
+
 
 void
 mock_set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *write_set ) ) {
@@ -136,12 +141,14 @@ mock_set_check_fd_isset_callback( void ( *callback )( fd_set *read_set, fd_set *
   ( void ) mock();
 }
 
+
 bool
 mock_secure_channel_listen_start( struct listener_info *listener_info ) {
   UNUSED( listener_info );
 
   return ( bool ) mock();
 }
+
 
 char *
 mock_get_trema_home( void ) {

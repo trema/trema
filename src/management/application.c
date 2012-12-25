@@ -1,6 +1,6 @@
 /*
  * Management command for any application specific managements.
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2012 NEC Corporation
@@ -100,7 +100,7 @@ parse_arguments( int argc, char **argv ) {
 
   if ( argv[ 1 ] == NULL || ( argv[ 1 ] != NULL && strlen( argv[ 1 ] ) == 0 ) ) {
     print_usage_and_exit();
-  } 
+  }
 
   if ( argv[ 2 ] == NULL ) {
     print_usage_and_exit();

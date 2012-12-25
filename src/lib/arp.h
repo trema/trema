@@ -46,7 +46,7 @@ typedef struct arp_header {
   uint32_t sip;
   uint8_t tha[ ETH_ADDRLEN ];
   uint32_t tip;
-} __attribute__((packed)) arp_header_t;
+} __attribute__( ( packed ) ) arp_header_t;
 
 
 #define ARP_OP_REQUEST 1

@@ -18,9 +18,9 @@
  */
 
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <inttypes.h>
-#include <arpa/inet.h>
 #include <syslog.h>
 #include "chibach_private.h"
 #include "hash_table.h"

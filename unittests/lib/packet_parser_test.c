@@ -18,13 +18,12 @@
  */
 
 
-
 #include <assert.h>
-#include <string.h>
-#include <stdio.h>
-#include <pcap.h>
-#include <netinet/ip.h>
 #include <netinet/igmp.h>
+#include <netinet/ip.h>
+#include <pcap.h>
+#include <stdio.h>
+#include <string.h>
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "packet_info.h"
@@ -103,7 +102,7 @@ test_parse_packet_snap_succeeds() {
   assert_memory_equal( packet_info->snap_oui, oui, SNAP_OUI_LENGTH );
   assert_int_equal( packet_info->snap_type, 0xb700 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l2_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l2_payload );
   assert_int_equal( sample, 0x0400 );
 
   assert_int_equal( packet_info->l2_payload_length, 0xb2 );
@@ -213,7 +212,7 @@ test_parse_packet_udp_succeeds() {
   assert_int_equal( packet_info->udp_len, 0x38 );
   assert_int_equal( packet_info->udp_checksum, 0x04a1 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0xf937 );
 
   assert_int_equal( packet_info->l4_payload_length, 48 );
@@ -260,7 +259,7 @@ test_parse_packet_udp_fragmented_head_succeeds() {
   assert_int_equal( packet_info->udp_len, 0x2330 );
   assert_int_equal( packet_info->udp_checksum, 0x8749 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x8020 );
 
   assert_int_equal( packet_info->l4_payload_length, 1472 );
@@ -300,7 +299,7 @@ test_parse_packet_udp_fragmented_next_succeeds() {
   assert_int_equal( packet_info->ipv4_saddr, 0xc0a8642c );
   assert_int_equal( packet_info->ipv4_daddr, 0xc0a8642b );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l3_payload );
   assert_int_equal( sample, 0x9102 );
 
   assert_int_equal( packet_info->l3_payload_length, 1480 );
@@ -411,7 +410,7 @@ test_parse_packet_tcp_succeeds() {
   assert_int_equal( packet_info->tcp_checksum, 0x4c2d );
   assert_int_equal( packet_info->tcp_urgent, 0 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x4854 );
 
   assert_int_equal( packet_info->l4_payload_length, 30 );
@@ -458,7 +457,7 @@ test_parse_packet_icmpv4_echo_request_succeeds() {
   assert_int_equal( packet_info->icmpv4_id, 1076 );
   assert_int_equal( packet_info->icmpv4_seq, 1 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0xa0a9 );
 
   assert_int_equal( packet_info->l4_payload_length, 56 );
@@ -517,7 +516,7 @@ test_parse_packet_vtag_icmpv4_echo_request_succeeds() {
   assert_int_equal( packet_info->icmpv4_id, 1024 );
   assert_int_equal( packet_info->icmpv4_seq, 24576 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x6162 );
   assert_int_equal( packet_info->l4_payload_length, 32 );
 
@@ -575,7 +574,7 @@ test_parse_packet_vtag_icmpv4_echo_reply_succeeds() {
   assert_int_equal( packet_info->icmpv4_id, 1024 );
   assert_int_equal( packet_info->icmpv4_seq, 24576 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x6162 );
   assert_int_equal( packet_info->l4_payload_length, 32 );
 
@@ -633,7 +632,7 @@ test_parse_packet_lldp_succeeds() {
   assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l3_payload );
   assert_int_equal( sample, 0x0205 );
   assert_int_equal( packet_info->l3_payload_length, 46 );
 
@@ -670,7 +669,7 @@ test_parse_packet_lldp_over_ip_succeeds() {
   assert_int_equal( packet_info->ipv4_saddr, 0x0a2a7aca );
   assert_int_equal( packet_info->ipv4_daddr, 0x0a2a7ad4 );
 
-  uint16_t sample = ntohs( * ( uint16_t * ) packet_info->l4_payload );
+  uint16_t sample = ntohs( *( uint16_t * ) packet_info->l4_payload );
   assert_int_equal( sample, 0x0180 );
   assert_int_equal( packet_info->l4_payload_length, 31 );
 
@@ -695,7 +694,7 @@ test_parse_packet_lldp_over_ip_succeeds() {
   assert_memory_equal( packet_info->eth_macda, lldp_macda, ETH_ADDRLEN );
   assert_memory_equal( packet_info->eth_macsa, lldp_macsa, ETH_ADDRLEN );
 
-  sample = ntohs( * ( uint16_t * ) packet_info->l3_payload );
+  sample = ntohs( *( uint16_t * ) packet_info->l3_payload );
   assert_int_equal( sample, 0x0205 );
   assert_int_equal( packet_info->l3_payload_length, 17 );
 

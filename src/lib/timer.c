@@ -20,8 +20,8 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <limits.h>
 #include <inttypes.h>
+#include <limits.h>
 #include "doubly_linked_list.h"
 #include "log.h"
 #include "timer.h"

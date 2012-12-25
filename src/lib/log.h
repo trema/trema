@@ -33,8 +33,8 @@
 #define LOG_H
 
 
-#include "bool.h"
 #include <syslog.h>
+#include "bool.h"
 
 
 #define LOGGING_LEVEL_STR_LENGTH 12

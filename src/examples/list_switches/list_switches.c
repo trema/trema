@@ -28,7 +28,7 @@ join( char *result, const list_element *switches ) {
   const list_element *element;
   for ( element = switches; element != NULL; element = element->next ) {
     char tmp[ 19 ]; // "0x" + 64bits in hex + '\0'
-    snprintf( tmp, sizeof( tmp ), "%#" PRIx64, * ( uint64_t * ) element->data );
+    snprintf( tmp, sizeof( tmp ), "%#" PRIx64, *( uint64_t * ) element->data );
     strcat( result, tmp );
     strcat( result, comma );
   }

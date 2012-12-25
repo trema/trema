@@ -16,11 +16,11 @@
  */
 
 
-#include <assert.h>
-#include <stdint.h>
 #include <arpa/inet.h>
+#include <assert.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#include <stdint.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
@@ -115,8 +115,6 @@ parse_ether( buffer *buf ) {
     packet_info->l2_payload = ptr;
     packet_info->l2_payload_length = payload_length;
   }
-
-  return;
 }
 
 
@@ -147,9 +145,7 @@ parse_arp( buffer *buf ) {
   packet_info->arp_tpa = ntohl( arp_header->tip );
 
   packet_info->format |= NW_ARP;
-
-  return;
-};
+}
 
 
 static void
@@ -196,8 +192,6 @@ parse_ipv4( buffer *buf ) {
   }
 
   packet_info->format |= NW_IPV4;
-
-  return;
 }
 
 
@@ -228,8 +222,6 @@ parse_ipv6( buffer *buf ) {
   memcpy( packet_info->ipv6_daddr, ipv6_header->daddr, IPV6_ADDRLEN );
 
   packet_info->format |= NW_IPV6;
-
-  return;
 }
 
 
@@ -248,8 +240,6 @@ parse_lldp( buffer *buf ) {
   }
 
   packet_info->format |= NW_LLDP;
-
-  return;
 }
 
 
@@ -296,9 +286,7 @@ parse_icmp( buffer *buf ) {
   }
 
   packet_info->format |= NW_ICMPV4;
-
-  return;
-};
+}
 
 
 static void
@@ -330,9 +318,7 @@ parse_udp( buffer *buf ) {
   }
 
   packet_info->format |= TP_UDP;
-
-  return;
-};
+}
 
 
 static void
@@ -377,10 +363,7 @@ parse_tcp( buffer *buf ) {
   }
 
   packet_info->format |= TP_TCP;
-
-  return;
-};
-
+}
 
 
 static void
@@ -404,8 +387,6 @@ parse_igmp( buffer *buf ) {
   packet_info->igmp_group = ntohl( igmp->group );
 
   packet_info->format |= NW_IGMP;
-
-  return;
 }
 
 
@@ -437,8 +418,6 @@ parse_etherip( buffer *buf ) {
   }
 
   packet_info->format |= TP_ETHERIP;
-
-  return;
 }
 
 

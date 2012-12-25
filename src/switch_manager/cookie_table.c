@@ -92,7 +92,7 @@ static cookie_entry_t *
 allocate_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t flags ) {
   cookie_entry_t *new_entry;
 
-  new_entry = xmalloc( sizeof ( cookie_entry_t ) );
+  new_entry = xmalloc( sizeof( cookie_entry_t ) );
   memset( new_entry, 0, sizeof( cookie_entry_t ) );
 
   new_entry->cookie = generate_cookie();

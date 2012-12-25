@@ -32,7 +32,7 @@ class Trema::Executables
     # Cycles through a list of file names testing if there are executable or
     # not.
     #
-    # @return [FalseClass, Array] 
+    # @return [FalseClass, Array]
     #   false if a file name is not an executable program or a list of all
     #   file names that are.
     #

@@ -20,8 +20,8 @@
  */
 
 
-#include <time.h>
 #include <assert.h>
+#include <time.h>
 #include "trema.h"
 
 
