@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +19,7 @@
 Then /^the total number of tx packets should be:$/ do | table |
   sleep 1
   table.hashes[ 0 ].each_pair do | host, n |
-    count_packets( `./trema show_stats #{ host } --tx` ).should == n.to_i
+    count_packets( `trema show_stats #{ host } --tx` ).should == n.to_i
   end
 end
 
@@ -29,7 +27,7 @@ end
 Then /^the total number of rx packets should be:$/ do | table |
   sleep 1
   table.hashes[ 0 ].each_pair do | host, n |
-    count_packets( `./trema show_stats #{ host } --rx` ).should == n.to_i
+    count_packets( `trema show_stats #{ host } --rx` ).should == n.to_i
   end
 end
 
