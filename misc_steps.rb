@@ -68,11 +68,6 @@ Then /^([^\s]*) is started$/ do | name |
 end
 
 
-Then /^switch_manager should be killed$/ do
-  IO.read( @log ).should match( /^Shutting down switch_manager/ )
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
