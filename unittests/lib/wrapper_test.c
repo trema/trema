@@ -1,6 +1,6 @@
 /*
  * Unit tests for x-wrappers.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -157,9 +157,9 @@ test_xstrdup_fail() {
 static char *
 test_xvasprintf_helper( const char *fmt, ... ) {
   va_list ap;
-  va_start(ap, fmt);
+  va_start(ap, fmt );
   char *str = xvasprintf( fmt, ap );
-  va_end(ap);
+  va_end( ap );
   return str;
 }
 

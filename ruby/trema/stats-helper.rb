@@ -21,8 +21,8 @@
 module Trema
   class StatsHelper
 
-    
-    # Invoked by each StatsReply subclass to assign their instance attributes 
+
+    # Invoked by each StatsReply subclass to assign their instance attributes
     # to a value.
     #
     # @overload initialize(fields, options={})
@@ -41,7 +41,7 @@ module Trema
       end
     end
 
-    
+
     #
     # @return [String]
     #   an alphabetically sorted text of attribute name/value pairs.

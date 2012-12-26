@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,6 +18,9 @@
 
 module Trema
   class OrderedHash
+    attr_reader :keys
+
+
     def initialize
       @keys = Array.new
       @content = Hash.new
@@ -38,11 +39,11 @@ module Trema
 
     def []= key, value
       @content[ key ] = value
-      if not @keys.include?( key )
+      unless @keys.include?( key )
         @keys << key
       end
     end
-    
+
 
     def values
       @keys.map do | each |

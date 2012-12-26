@@ -1,49 +1,52 @@
-Feature: Control one openflow switch with repeater_hub controller
+Feature: "Repeater Hub" sample application
 
-  As a Trema user
-  I want to control one openflow switch using repeater_hub controller
-  So that I can flood incoming packets to every other port
+  In order to learn how to flood incoming packets to every other port
+  As a developer using Trema
+  I want to execute "Repeater Hub" sample application
 
-
-  Scenario: Run repeater hub
-    When I try trema run "./objects/examples/repeater_hub/repeater_hub" with following configuration (backgrounded):
+  Background:
+    Given a file named "repeater_hub.conf" with:
       """
-      vswitch("repeater_hub") { datapath_id "0xabc" }
+      vswitch("repeater_hub") { datapath_id 0xabc }
 
-      vhost("host1") { promisc "On" }
-      vhost("host2") { promisc "On" }
-      vhost("host3") { promisc "On" }
+      vhost("host1") {
+        ip "192.168.0.1"
+        promisc "On"
+      }
+      vhost("host2") {
+        ip "192.168.0.2"
+        promisc "On"
+      }
+      vhost("host3") {
+        ip "192.168.0.3"
+        promisc "On"
+      }
 
       link "repeater_hub", "host1"
       link "repeater_hub", "host2"
       link "repeater_hub", "host3"
       """
-      And wait until "repeater_hub" is up
-      And I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1 --tx" (log = "host1.repeater_hub.log")
-      And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater_hub.log")
-      And I try to run "./trema show_stats host3 --rx" (log = "host3.repeater_hub.log")
-    Then the content of "host1.repeater_hub.log" and "host2.repeater_hub.log" should be identical
-     And the content of "host1.repeater_hub.log" and "host3.repeater_hub.log" should be identical
 
+  @slow_process
+  Scenario: Run "Repeater Hub" C example
+    Given I run `trema run ../../objects/examples/repeater_hub/repeater_hub -c repeater_hub.conf -d`
+     And wait until "repeater_hub" is up
+    When I send 1 packet from host1 to host2
+     And I run `trema show_stats host1 --tx`
+     And I run `trema show_stats host2 --rx`
+     And I run `trema show_stats host3 --rx`
+    Then the output from "trema show_stats host1 --tx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host2 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host3 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
 
-  Scenario: Run repeater hub (Ruby)
-    When I try trema run "./src/examples/repeater_hub/repeater-hub.rb" with following configuration (backgrounded):
-      """
-      vswitch("repeater_hub") { datapath_id "0xabc" }
-
-      vhost("host1") { promisc "On" }
-      vhost("host2") { promisc "On" }
-      vhost("host3") { promisc "On" }
-
-      link "repeater_hub", "host1"
-      link "repeater_hub", "host2"
-      link "repeater_hub", "host3"
-      """
-      And wait until "RepeaterHub" is up
-      And I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1 --tx" (log = "host1.repeater-hub.rb.log")
-      And I try to run "./trema show_stats host2 --rx" (log = "host2.repeater-hub.rb.log")
-      And I try to run "./trema show_stats host3 --rx" (log = "host3.repeater-hub.rb.log")
-    Then the content of "host1.repeater-hub.rb.log" and "host2.repeater-hub.rb.log" should be identical
-     And the content of "host1.repeater-hub.rb.log" and "host3.repeater-hub.rb.log" should be identical
+  @slow_process
+  Scenario: Run "Repeater Hub" Ruby example
+    Given I run `trema run ../../src/examples/repeater_hub/repeater-hub.rb -c repeater_hub.conf -d`
+     And wait until "RepeaterHub" is up
+    When I send 1 packet from host1 to host2
+     And I run `trema show_stats host1 --tx`
+     And I run `trema show_stats host2 --rx`
+     And I run `trema show_stats host3 --rx`
+    Then the output from "trema show_stats host1 --tx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host2 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host3 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"

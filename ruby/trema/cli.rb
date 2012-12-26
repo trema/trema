@@ -28,7 +28,7 @@ module Trema
     class Packet
     end
 
-    
+
     attr_reader :ip_dst
     attr_reader :tp_dst
     attr_reader :ip_src
@@ -36,7 +36,7 @@ module Trema
     attr_reader :n_pkts
     attr_reader :n_octets
 
-    
+
     def initialize ip_dst, tp_dst, ip_src, tp_src, n_pkts, n_octets
       @ip_dst = ip_dst
       @tp_dst = tp_dst.to_i
@@ -71,7 +71,7 @@ module Trema
       end
 
       sh( "#{ Executables.cli } -i #{ @host.interface } send_packets " +
-          "--ip_src #{ @host.ip } --ip_dst #{ dest.ip } " + 
+          "--ip_src #{ @host.ip } --ip_dst #{ dest.ip } " +
           send_packets_options( options ) )
     end
 
@@ -84,12 +84,12 @@ module Trema
     def show_rx_stats
       puts stats( :rx )
     end
-    
+
 
     def tx_stats
       stat = stats( :tx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( "," )        
+        Trema::Stats.new *stat.split( "," )
       else
         nil
       end
@@ -99,7 +99,7 @@ module Trema
     def rx_stats
       stat = stats( :rx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( "," )        
+        Trema::Stats.new *stat.split( "," )
       else
         Trema::Stats.new nil, nil, nil, nil, 0, 0
       end
@@ -115,7 +115,7 @@ module Trema
     def add_arp_entry other
       sh "sudo #{ Executables.cli } -i #{ @host.interface } add_arp_entry --ip_addr #{ other.ip } --mac_addr #{ other.mac }"
     end
-    
+
 
     def set_ip_and_mac_address
       sh "sudo #{ Executables.cli } -i #{ @host.interface } set_host_addr --ip_addr #{ @host.ip } --ip_mask #{ @host.netmask } --mac_addr #{ @host.mac }"
@@ -125,7 +125,7 @@ module Trema
     def enable_promisc
       sh "sudo #{ Executables.cli } -i #{ @host.interface } enable_promisc"
     end
-    
+
 
     ################################################################################
     private

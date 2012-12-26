@@ -41,13 +41,13 @@ int ( *trema_unlink )( const char *pathname ) = unlink;
 
 pid_t ( *trema_getpid )( void ) = getpid;
 
-void ( *trema_openlog ) ( const char *ident, int option, int facility ) = openlog;
-void ( *trema_closelog ) ( void ) = closelog;
-void ( *trema_vsyslog ) ( int priority, const char *format, va_list ap ) = vsyslog;
+void ( *trema_openlog )( const char *ident, int option, int facility ) = openlog;
+void ( *trema_closelog )( void ) = closelog;
+void ( *trema_vsyslog )( int priority, const char *format, va_list ap ) = vsyslog;
 
 int ( *trema_sqlite3_open )( const char *filename, sqlite3 **ppDb ) = sqlite3_open;
 int ( *trema_sqlite3_close )( sqlite3 * ) = sqlite3_close;
-int ( *trema_sqlite3_exec )( sqlite3 *, const char *sql, int ( *callback ) ( void *, int, char **, char ** ), void *, char **errmsg ) = sqlite3_exec;
+int ( *trema_sqlite3_exec )( sqlite3 *, const char *sql, int ( *callback )( void *, int, char **, char ** ), void *, char **errmsg ) = sqlite3_exec;
 int ( *trema_sqlite3_changes )( sqlite3 * ) = sqlite3_changes;
 void ( *trema_sqlite3_free )( void * ) = sqlite3_free;
 const char * ( *trema_sqlite3_errmsg )( sqlite3 * ) = sqlite3_errmsg;

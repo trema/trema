@@ -1,6 +1,6 @@
 /*
  * tremashark: A bridge for printing various events on Wireshark
- * 
+ *
  * Author: Yasunobu Chiba, Yasunori Nakazawa
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -97,7 +97,7 @@ write_to_file( buffer *packet ) {
     if ( err == EAGAIN || err == EWOULDBLOCK ) {
       return WRITE_BUSY;
     }
-    error( "write error ( errno = %s [%d] ).", strerror( err), err );
+    error( "write error ( errno = %s [%d] ).", strerror( err ), err );
     return WRITE_ERROR;
   }
 
@@ -219,7 +219,7 @@ write_pcap_packet( void *user_data ) {
 
   timersub( &now, &buffer_length, &threshold );
 
-  for ( ; ; ) {
+  for ( ;; ) {
     buffer *packet;
     queue_status status = peek_pcap_packet( &packet );
     if ( status == QUEUE_EMPTY ) {
@@ -251,8 +251,6 @@ write_pcap_packet( void *user_data ) {
   }
 
   fsync( outfile_fd );
-
-  return;
 }
 
 
@@ -274,7 +272,6 @@ set_timer_event() {
     critical( "failed in set timer event" );
     abort();
   }
-  return;
 }
 
 
@@ -350,8 +347,6 @@ write_circular_buffer( void ) {
   foreach_pcap_queue( ( void * ) write_to_file );
 
   finalize_pcap();
-
-  return;
 }
 
 
@@ -403,16 +398,18 @@ usage( void ) {
   printf(
     "Usage: tremashark [OPTION]...\n"
     "\n"
-    "  -t                          launch tshark instead of wireshark\n"
-    "  -w FILE_TO_SAVE             save messages to pcap file\n"
-    "  -p                          do not launch wireshark nor tshark\n"
-    "  -r                          do not trust remote clock\n"
-    "  -c NUMBER_OF_MESSAGES       save messages to circular buffer\n"
-    "  -s DUMP_SERVICE_NAME        dump service name\n"
-    "  -n, --name=SERVICE_NAME     service name\n"
-    "  -d, --daemonize             run in the background\n"
-    "  -l, --logging_level=LEVEL   set logging level\n"
-    "  -h, --help                  display this help and exit\n"
+    "  -t                              launch tshark instead of wireshark\n"
+    "  -w FILE_TO_SAVE                 save messages to pcap file\n"
+    "  -p                              do not launch wireshark nor tshark\n"
+    "  -r                              do not trust remote clock\n"
+    "  -c NUMBER_OF_MESSAGES           save messages to circular buffer\n"
+    "  -s DUMP_SERVICE_NAME            dump service name\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
   );
 }
 

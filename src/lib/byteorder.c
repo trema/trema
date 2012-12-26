@@ -178,6 +178,19 @@ ntoh_action_enqueue( struct ofp_action_enqueue *dst, const struct ofp_action_enq
 }
 
 
+static void
+copy_action_vendor_body( struct ofp_action_vendor_header *dst, const struct ofp_action_vendor_header *src, size_t body_length ) {
+  assert( src != NULL );
+  assert( dst != NULL );
+
+  if ( body_length > 0 ) {
+    const void *body_src = ( const char * ) src + sizeof( struct ofp_action_vendor_header );
+    void *body_dst = ( char * ) dst + sizeof( struct ofp_action_vendor_header );
+    bcopy( body_src, body_dst, body_length );
+  }
+}
+
+
 void
 ntoh_action_vendor( struct ofp_action_vendor_header *dst, const struct ofp_action_vendor_header *src ) {
   assert( src != NULL );
@@ -186,6 +199,19 @@ ntoh_action_vendor( struct ofp_action_vendor_header *dst, const struct ofp_actio
   dst->type = ntohs( src->type );
   dst->len = ntohs( src->len );
   dst->vendor = ntohl( src->vendor );
+  copy_action_vendor_body( dst, src, dst->len - sizeof( struct ofp_action_vendor_header ) );
+}
+
+
+void
+hton_action_vendor( struct ofp_action_vendor_header *dst, const struct ofp_action_vendor_header *src ) {
+  assert( src != NULL );
+  assert( dst != NULL );
+
+  dst->type = htons( src->type );
+  dst->len = htons( src->len );
+  dst->vendor = htonl( src->vendor );
+  copy_action_vendor_body( dst, src, src->len - sizeof( struct ofp_action_vendor_header ) );
 }
 
 
@@ -302,12 +328,12 @@ ntoh_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
   dst->cookie = ntohll( fs->cookie );
   dst->packet_count = ntohll( fs->packet_count );
   dst->byte_count = ntohll( fs->byte_count );
-  
+
   uint16_t actions_length = ( uint16_t ) ( ntohs( fs->length ) - offsetof( struct ofp_flow_stats, actions ) );
 
   struct ofp_action_header *ah_src = fs->actions;
   struct ofp_action_header *ah_dst = dst->actions;
-  
+
   while ( actions_length >= sizeof( struct ofp_action_header ) ) {
     ntoh_action( ah_dst, ah_src );
     actions_length = ( uint16_t ) ( actions_length - ah_dst->len );
@@ -345,7 +371,7 @@ hton_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
 
   struct ofp_action_header *ah_src = fs->actions;
   struct ofp_action_header *ah_dst = dst->actions;
-  
+
   while ( actions_length >= sizeof( struct ofp_action_header ) ) {
     hton_action( ah_dst, ah_src );
     actions_length = ( uint16_t ) ( actions_length - ah_src->len );
@@ -433,7 +459,7 @@ ntoh_queue_property( struct ofp_queue_prop_header *dst, const struct ofp_queue_p
 
   dst->property = ntohs( ph->property );
   dst->len = ntohs( ph->len );
-  
+
   if ( dst->property == OFPQT_MIN_RATE ) {
     struct ofp_queue_prop_min_rate *mr_src = ( struct ofp_queue_prop_min_rate * ) ph;
     struct ofp_queue_prop_min_rate *mr_dst = ( struct ofp_queue_prop_min_rate * ) dst;
@@ -457,7 +483,7 @@ hton_queue_property( struct ofp_queue_prop_header *dst, const struct ofp_queue_p
 
   dst->property = htons( ph->property );
   dst->len = htons( ph->len );
-  
+
   if ( src->property == OFPQT_MIN_RATE ) {
     struct ofp_queue_prop_min_rate *mr_src = ( struct ofp_queue_prop_min_rate * ) ph;
     struct ofp_queue_prop_min_rate *mr_dst = ( struct ofp_queue_prop_min_rate * ) dst;

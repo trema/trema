@@ -41,12 +41,6 @@
  * Helpers.
  ********************************************************************************/
 
-typedef struct {
-  char key[ STAT_KEY_LENGTH ];
-  uint64_t value;
-} stat_entry;
-
-
 extern bool openflow_application_interface_initialized;
 extern openflow_event_handlers_t event_handlers;
 extern char service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
@@ -159,7 +153,7 @@ static bool packet_in_handler_called = false;
  * Mocks.
  ********************************************************************************/
 
-const char*
+const char *
 mock_get_trema_name() {
   return "TEST_SERVICE_NAME";
 }
@@ -286,12 +280,12 @@ mock_error_handler( uint64_t datapath_id, uint32_t transaction_id, uint16_t type
 
 static void
 mock_echo_reply_handler( uint64_t datapath_id, uint32_t transaction_id, const buffer *data,
-                         void *user_data ){
+                         void *user_data ) {
   void *data_uc;
 
   check_expected( &datapath_id );
   check_expected( transaction_id );
-  if( data != NULL ) {
+  if ( data != NULL ) {
     check_expected( data->length );
     check_expected( data->data );
   }
@@ -305,13 +299,13 @@ mock_echo_reply_handler( uint64_t datapath_id, uint32_t transaction_id, const bu
 
 static void
 mock_vendor_handler( uint64_t datapath_id, uint32_t transaction_id, uint32_t vendor,
-                     const buffer *data, void *user_data ){
+                     const buffer *data, void *user_data ) {
   void *data_uc;
 
   check_expected( &datapath_id );
   check_expected( transaction_id );
   check_expected( vendor );
-  if( data != NULL ) {
+  if ( data != NULL ) {
     check_expected( data->length );
     check_expected( data->data );
   }
@@ -1319,7 +1313,7 @@ test_send_openflow_message() {
   will_return( mock_send_message, true );
 
   ret = send_openflow_message( DATAPATH_ID, buffer );
-  
+
   assert_true( ret );
   stat_entry *stat = lookup_hash_entry( stats, "openflow_application_interface.hello_send_succeeded" );
   assert_int_equal( ( int ) stat->value, 1 );
@@ -1649,8 +1643,8 @@ test_handle_features_reply() {
   set_features_reply_handler( mock_features_reply_handler, USER_DATA );
   handle_features_reply( DATAPATH_ID, buffer );
 
-  xfree( phy_port[0] );
-  xfree( phy_port[1] );
+  xfree( phy_port[ 0 ] );
+  xfree( phy_port[ 1 ] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -1733,8 +1727,8 @@ test_handle_features_reply_if_handler_is_not_registered() {
 
   handle_features_reply( DATAPATH_ID, buffer );
 
-  xfree( phy_port[0] );
-  xfree( phy_port[1] );
+  xfree( phy_port[ 0 ] );
+  xfree( phy_port[ 1 ] );
   delete_list( ports );
   free_buffer( buffer );
 }
@@ -2884,7 +2878,7 @@ test_handle_openflow_message() {
     data = alloc_buffer_with_length( 16 );
     append_back_buffer( data, 16 );
     memset( data->data, 'a', 16 );
-    
+
     buffer = create_error( TRANSACTION_ID, OFPET_HELLO_FAILED, OFPHFC_INCOMPATIBLE, data );
     append_front_buffer( buffer, sizeof( openflow_service_header_t ) );
     memcpy( buffer->data, &messenger_header, sizeof( openflow_service_header_t ) );
@@ -2895,7 +2889,7 @@ test_handle_openflow_message() {
     expect_value( mock_error_handler, data->length, data->length );
     expect_memory( mock_error_handler, data->data, data->data, data->length );
     expect_memory( mock_error_handler, user_data, USER_DATA, USER_DATA_LEN );
-    
+
     set_error_handler( mock_error_handler, USER_DATA );
     handle_openflow_message( buffer->data, buffer->length );
 
@@ -2925,7 +2919,7 @@ test_handle_openflow_message() {
     expect_value( mock_vendor_handler, data->length, data->length );
     expect_memory( mock_vendor_handler, data->data, data->data, data->length );
     expect_memory( mock_vendor_handler, user_data, USER_DATA, USER_DATA_LEN );
-    
+
     set_vendor_handler( mock_vendor_handler, USER_DATA );
     handle_openflow_message( buffer->data, buffer->length );
 
@@ -2996,8 +2990,8 @@ test_handle_openflow_message() {
     stat = lookup_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" );
     assert_int_equal( ( int ) stat->value, 1 );
 
-    xfree( phy_port[0] );
-    xfree( phy_port[1] );
+    xfree( phy_port[ 0 ] );
+    xfree( phy_port[ 1 ] );
     delete_list( ports );
     free_buffer( buffer );
     xfree( delete_hash_entry( stats, "openflow_application_interface.features_reply_receive_succeeded" ) );
@@ -3312,7 +3306,7 @@ test_handle_openflow_message_with_malformed_message() {
   memcpy( buffer->data, &messenger_header, sizeof( openflow_service_header_t ) );
 
   handle_openflow_message( buffer->data, buffer->length );
-    
+
   free_buffer( buffer );
 }
 

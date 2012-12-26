@@ -33,7 +33,7 @@ vendor_alloc( VALUE klass ) {
 
 
 /*
- * Creates a Vendor Reqeust message. This message can be used
+ * Creates a Vendor Request message. This message can be used
  * to facilitate sending of vendor-defined arbitrary data.
  *
  * @overload initialize

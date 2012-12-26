@@ -1,5 +1,6 @@
+#! /usr/bin/env ruby
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Trema compile helper.
 #
 # Copyright (C) 2008-2012 NEC Corporation
 #
@@ -18,13 +19,41 @@
 #
 
 
-Given /^I terminated all trema services$/ do
-  run "./trema killall"
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../ruby" ) )
+
+
+require "fileutils"
+require "optparse"
+require "trema/path"
+
+
+$opts = OptionParser.new
+
+FileUtils.cd Trema.home do
+  $opts.banner = "Usage: #{ File.basename $0 } [OPTIONS ...]"
+
+  $opts.on( "-c", "--cflags" ) do
+    $cflags = true
+  end
+  $opts.on( "-l", "--libs" ) do
+    $libs = true
+  end
+
+  $opts.parse! ARGV
+
+  output = []
+  if $cflags
+    output << "-I#{ Trema.home }/src/lib -I#{ Trema.openflow }"
+  end
+  if $libs
+    output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread -lsqlite3 -ldl"
+  end
+  print output.join( " " )
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

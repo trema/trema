@@ -64,7 +64,7 @@ static xid_entry_t *
 allocate_xid_entry( uint32_t original_xid, char *service_name, int index ) {
   xid_entry_t *new_entry;
 
-  new_entry = xmalloc( sizeof ( xid_entry_t ) );
+  new_entry = xmalloc( sizeof( xid_entry_t ) );
   new_entry->xid = generate_xid();
   new_entry->original_xid = original_xid;
   new_entry->service_name = xstrdup( service_name );
@@ -91,7 +91,7 @@ init_xid_table( void ) {
 
 void
 finalize_xid_table( void ) {
-  for( int i = 0; i < XID_MAX_ENTRIES; i++ ) {
+  for ( int i = 0; i < XID_MAX_ENTRIES; i++ ) {
     if ( xid_table.entries[ i ] != NULL ) {
       free_xid_entry( xid_table.entries[ i ] );
       xid_table.entries[ i ] = NULL;
@@ -107,7 +107,7 @@ uint32_t
 insert_xid_entry( uint32_t original_xid, char *service_name ) {
   xid_entry_t *new_entry;
 
-  debug( "Inserting xid entry ( original_xid = %#lx, service_name = %s ).",
+  debug( "Inserting xid entry ( original_xid = %#" PRIx32 ", service_name = %s ).",
          original_xid, service_name );
 
   if ( xid_table.next_index >= XID_MAX_ENTRIES ) {
@@ -133,13 +133,13 @@ insert_xid_entry( uint32_t original_xid, char *service_name ) {
 
 void
 delete_xid_entry( xid_entry_t *delete_entry ) {
-  debug( "Deleting xid entry ( xid = %#lx, original_xid = %#lx, service_name = %s, index = %d ).",
+  debug( "Deleting xid entry ( xid = %#" PRIx32 ", original_xid = %#" PRIx32 ", service_name = %s, index = %d ).",
          delete_entry->xid, delete_entry->original_xid, delete_entry->service_name, delete_entry->index );
 
   xid_entry_t *deleted = delete_hash_entry( xid_table.hash, &delete_entry->xid );
 
   if ( deleted == NULL ) {
-    error( "Failed to delete xid entry ( xid = %#lx ).", delete_entry->xid );
+    error( "Failed to delete xid entry ( xid = %#" PRIx32 " ).", delete_entry->xid );
     free_xid_entry( ( xid_entry_t * ) delete_entry );
     return;
   }
@@ -157,7 +157,7 @@ lookup_xid_entry( uint32_t xid ) {
 
 static void
 dump_xid_entry( xid_entry_t *entry ) {
-  info( "xid = %#lx, original_xid = %#lx, service_name = %s, index = %d",
+  info( "xid = %#" PRIx32 ", original_xid = %#" PRIx32 ", service_name = %s, index = %d",
         entry->xid, entry->original_xid, entry->service_name, entry->index );
 }
 

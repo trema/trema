@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -34,7 +32,7 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     QueueStatsReply.new(
     #       :port_no => 1,
     #       :queue_id => 123,
@@ -62,7 +60,7 @@ module Trema
     #     a counter of transmitted errors.
     #
     #   @return [QueueStatsReply]
-    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_QUEUE) OpenFlow message. 
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_QUEUE) OpenFlow message.
     #
     def initialize options
       super FIELDS, options

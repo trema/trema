@@ -39,8 +39,8 @@ handle_features_reply(
   UNUSED( user_data );
 
   info( "datapath_id: %#" PRIx64, datapath_id );
-  info( "transaction_id: %#lx", transaction_id );
-  info( "n_buffers: %lu", n_buffers );
+  info( "transaction_id: %#" PRIx32 "", transaction_id );
+  info( "n_buffers: %" PRIu32 "", n_buffers );
   info( "n_tables: %u", n_tables );
   info( "capabilities:" );
   if ( capabilities & OFPC_FLOW_STATS ) {
@@ -68,43 +68,43 @@ handle_features_reply(
     info( "  OFPC_ARP_MATCH_IP" );
   }
   info( "actions:" );
-  if( actions & ( 1 << OFPAT_OUTPUT ) ) {
+  if ( actions & ( 1 << OFPAT_OUTPUT ) ) {
     info( "  OFPAT_OUTPUT" );
   }
-  if( actions & ( 1 << OFPAT_SET_VLAN_VID ) ) {
+  if ( actions & ( 1 << OFPAT_SET_VLAN_VID ) ) {
     info( "  OFPAT_SET_VLAN_VID" );
   }
-  if( actions & ( 1 << OFPAT_SET_VLAN_PCP ) ) {
+  if ( actions & ( 1 << OFPAT_SET_VLAN_PCP ) ) {
     info( "  OFPAT_SET_VLAN_PCP" );
   }
-  if( actions & ( 1 << OFPAT_STRIP_VLAN ) ) {
+  if ( actions & ( 1 << OFPAT_STRIP_VLAN ) ) {
     info( "  OFPAT_STRIP_VLAN" );
   }
-  if( actions & ( 1 << OFPAT_SET_DL_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_DL_SRC ) ) {
     info( "  OFPAT_SET_DL_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_DL_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_DL_DST ) ) {
     info( "  OFPAT_SET_DL_DST" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_SRC ) ) {
     info( "  OFPAT_SET_NW_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_DST ) ) {
     info( "  OFPAT_SET_NW_DST" );
   }
-  if( actions & ( 1 << OFPAT_SET_NW_TOS ) ) {
+  if ( actions & ( 1 << OFPAT_SET_NW_TOS ) ) {
     info( "  OFPAT_SET_NW_TOS" );
   }
-  if( actions & ( 1 << OFPAT_SET_TP_SRC ) ) {
+  if ( actions & ( 1 << OFPAT_SET_TP_SRC ) ) {
     info( "  OFPAT_SET_TP_SRC" );
   }
-  if( actions & ( 1 << OFPAT_SET_TP_DST ) ) {
+  if ( actions & ( 1 << OFPAT_SET_TP_DST ) ) {
     info( "  OFPAT_SET_TP_DST" );
   }
-  if( actions & ( 1 << OFPAT_ENQUEUE ) ) {
+  if ( actions & ( 1 << OFPAT_ENQUEUE ) ) {
     info( "  OFPAT_ENQUEUE" );
   }
-  if( actions & OFPAT_VENDOR ) {
+  if ( actions & OFPAT_VENDOR ) {
     info( "  OFPAT_VENDOR" );
   }
 
@@ -123,12 +123,12 @@ handle_features_reply(
       phy_port->hw_addr[ 5 ]
     );
     info( "  name = %s", phy_port->name );
-    info( "  config = %#lx", phy_port->config );
-    info( "  state = %#lx", phy_port->state );
-    info( "  curr = %#lx", phy_port->curr );
-    info( "  advertised = %#lx", phy_port->advertised );
-    info( "  supported = %#lx", phy_port->supported );
-    info( "  peer = %#lx", phy_port->peer );
+    info( "  config = %#" PRIx32 "", phy_port->config );
+    info( "  state = %#" PRIx32 "", phy_port->state );
+    info( "  curr = %#" PRIx32 "", phy_port->curr );
+    info( "  advertised = %#" PRIx32 "", phy_port->advertised );
+    info( "  supported = %#" PRIx32 "", phy_port->supported );
+    info( "  peer = %#" PRIx32 "", phy_port->peer );
   }
 }
 

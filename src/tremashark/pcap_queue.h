@@ -1,6 +1,6 @@
 /*
  * Queue implementation for keeping pcap formatted packets.
- * 
+ *
  * Author: Yasunori Nakazawa, Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -36,7 +36,7 @@ typedef enum {
 
 bool create_pcap_queue( void );
 bool delete_pcap_queue( void );
-buffer* create_pcap_packet( void* pcap_header, size_t pcap_len, void* dump_header, size_t dump_len, void* data, size_t data_len );
+buffer *create_pcap_packet( void *pcap_header, size_t pcap_len, void *dump_header, size_t dump_len, void *data, size_t data_len );
 bool delete_pcap_packet( buffer *packet );
 queue_status enqueue_pcap_packet( buffer *packet );
 queue_status peek_pcap_packet( buffer **packet );

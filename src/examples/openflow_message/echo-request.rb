@@ -39,7 +39,7 @@ class EchoRequestController < Controller
       exit false
     end
   end
-  
+
 
   def switch_ready msg_datapath_id
     may_raise_error msg_datapath_id

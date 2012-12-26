@@ -28,7 +28,9 @@ module Trema
     DEFAULT_MAX_LEN = 2 ** 16 - 1
 
 
+    # @return [Fixnum] the value of attribute {#max_len}
     attr_reader :max_len
+    # @return [Fixnum] the value of attribute {#port_number}
     attr_reader :port_number
 
 
@@ -38,7 +40,7 @@ module Trema
     # @example
     #   SendOutPort.new( 1 )
     #   SendOutPort.new( :port_number => 1 )
-    #   SendOutPort.new( :port_number => 1, :max_len => 256 )
+    #   SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => 256 )
     #
     # @param [Integer|Hash] options
     #   the port number or the options hash to create this action class instance with.
@@ -81,14 +83,14 @@ module Trema
       if @port_number.nil?
         raise ArgumentError, "Port number is a mandatory option"
       end
-      if not @port_number.unsigned_16bit?
+      unless @port_number.unsigned_16bit?
         raise ArgumentError, "Port number must be an unsigned 16-bit integer"
       end
     end
 
 
     def check_max_len
-      if not @max_len.unsigned_16bit?
+      unless @max_len.unsigned_16bit?
         raise ArgumentError, "Max length must be an unsigned 16-bit integer"
       end
     end

@@ -92,7 +92,7 @@ static cookie_entry_t *
 allocate_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t flags ) {
   cookie_entry_t *new_entry;
 
-  new_entry = xmalloc( sizeof ( cookie_entry_t ) );
+  new_entry = xmalloc( sizeof( cookie_entry_t ) );
   memset( new_entry, 0, sizeof( cookie_entry_t ) );
 
   new_entry->cookie = generate_cookie();
@@ -178,9 +178,9 @@ insert_cookie_entry( uint64_t *original_cookie, char *service_name, uint16_t fla
 void
 delete_cookie_entry( cookie_entry_t *entry ) {
   debug( "Deleting cookie entry ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
-         "flags = %#x ], reference_count = %d, expire_at = %u ).",
+         "flags = %#x ], reference_count = %d, expire_at = %" PRIu64 " ).",
          entry->cookie, entry->application.cookie, entry->application.service_name,
-         entry->application.flags, entry->reference_count, entry->expire_at );
+         entry->application.flags, entry->reference_count, ( int64_t ) entry->expire_at );
 
   if ( entry->reference_count > 1 ) {
     debug( "Decrementing reference counter ( reference_count = %d ).", entry->reference_count );
@@ -229,9 +229,9 @@ age_cookie_entry( cookie_entry_t *entry ) {
   if ( entry->expire_at < time( NULL ) ) {
     // TODO: check if the target flow is still alive or not
     warn( "Aging out cookie entry ( cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
-          "flags = %#x ], reference_count = %d, expire_at = %u ).",
+          "flags = %#x ], reference_count = %d, expire_at = %" PRIu64 " ).",
           entry->cookie, entry->application.cookie, entry->application.service_name,
-          entry->application.flags, entry->reference_count, entry->expire_at );
+          entry->application.flags, entry->reference_count, ( int64_t ) entry->expire_at );
 
     delete_hash_entry( cookie_table.global, &entry->cookie );
     delete_hash_entry( cookie_table.application, &entry->application );
@@ -257,9 +257,9 @@ age_cookie_table( void *user_data ) {
 static void
 dump_cookie_entry( cookie_entry_t *entry ) {
   info( "cookie = %#" PRIx64 ", application = [ cookie = %#" PRIx64 ", service_name = %s, "
-        "flags = %#x ], reference_count = %d, expire_at = %u",
+        "flags = %#x ], reference_count = %d, expire_at = %" PRIu64 "",
         entry->cookie, entry->application.cookie, entry->application.service_name,
-        entry->application.flags, entry->reference_count, entry->expire_at );
+        entry->application.flags, entry->reference_count, ( int64_t ) entry->expire_at );
 }
 
 

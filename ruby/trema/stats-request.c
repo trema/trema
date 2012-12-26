@@ -74,7 +74,7 @@ static const uint8_t  TABLE_ID = 0xff;
  *
  *   @raise [ArgumentError] if supplied transaction_id is not an unsigned 32-bit integer.
  *
- *   @return [StatsRequest] 
+ *   @return [StatsRequest]
  *     an object that encapsulates an +OFPT_STATS_REQUEST+ OpenFlow message.
  */
 static VALUE
@@ -127,7 +127,7 @@ desc_stats_request_alloc( VALUE klass ) {
 }
 
 
-static VALUE 
+static VALUE
 flow_stats_request_alloc( VALUE klass ) {
   buffer *flow_stats_request = create_flow_stats_request( MY_TRANSACTION_ID, NO_FLAGS, MATCH, TABLE_ID, OUT_PORT );
   return Data_Wrap_Struct( klass, NULL, free_buffer, flow_stats_request );
@@ -234,7 +234,7 @@ stats_out_port( VALUE self ) {
 /*
  * Restrict port statistics to a specific port_no or to all ports.
  *
-  @return [Number] the value of port_no.
+ * @return [Number] the value of port_no.
  */
 static VALUE
 stats_port_no( VALUE self ) {
@@ -285,7 +285,7 @@ get_stats_request_table_id( VALUE self ) {
 static VALUE
 parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -300,15 +300,15 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * A {DescStatsRequest} object instance to request descriptive information of vswitch.
- * Such information includes switch manufacturer, hardware revision and serial number
+ * A {DescStatsRequest} object instance to request descriptive information of
+ * OpenFlow switch. Such information includes switch manufacturer, hardware
+ * revision and serial number
  *
  * @overload initialize(options={})
  *
- *   @example 
- *     DescStatsRequest.new(
- *       :transaction_id => 1234
- *     )
+ *   @example
+ *     DescStatsRequest.new
+ *     DescStatsRequest.new( :transaction_id => 1234 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -316,8 +316,8 @@ parse_common_arguments( int argc, VALUE *argv, VALUE self ) {
  *   @option options [Number] :transaction_id
  *     set the transaction_id as specified or auto-generate it.
  *
- *   @return [TableStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DSST)+ openflow
+ *   @return [DescStatsRequest]
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_DESC)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -331,9 +331,9 @@ desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  * @overload initialize(options={})
  *   @example
- *     FlowStatsRequest.new(
- *       :match => Match
- *     )
+ *     FlowStatsRequest.new( :match => Match )
+ *     FlowStatsRequest.new( :match => Match, :table_id => 1 )
+ *     FlowStatsRequest.new( :match => Match, :table_id => 1, :out_port => 2 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -350,7 +350,8 @@ desc_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- *   @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option match is not specified.
+ *   @raise [TypeError] if option match is not a Trema::Match object.
  *
  *   @return [FlowStatsRequest]
  *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_FLOW)+ OpenFlow message.
@@ -384,9 +385,8 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  * A {AggregateStatsRequest} object instance to request aggregate statistics.
  * @overload initialize(options={})
  *   @example
- *     AggregateStatsRequest.new(
- *       :match => Match
- *     )
+ *     AggregateStatsRequest.new( :match => Match )
+ *     AggregateStatsRequest.new( :match => Match, :table_id => 1, :out_port => 2 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -403,7 +403,8 @@ flow_stats_request_init( VALUE self, VALUE options ) {
  *     a value of +OFPP_NONE+ would match all flow entries and is set to if not
  *     specified.
  *
- *   @raise [ArgumentError] if option[:match] is not specified.
+ *   @raise [ArgumentError] if option match is not specified.
+ *   @raise [TypeError] if option match is not a Trema::Match object.
  *
  *   @return [AggregateStatsRequest]
  *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_AGGREGATE)+ OpenFlow message.
@@ -440,10 +441,9 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *
  * @overload initialize(options={})
  *
- *   @example 
- *     TableStatsRequest.new(
- *       :transaction_id => 1234
- *     )
+ *   @example
+ *     TableStatsRequest.new
+ *     TableStatsRequest.new( :transaction_id => 1234 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -452,7 +452,7 @@ aggregate_stats_request_init( VALUE self, VALUE options ) {
  *     set the transaction_id as specified or auto-generate it.
  *
  *   @return [TableStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_TABLE)+ OpenFlow
  *     message.
  */
 static VALUE
@@ -468,9 +468,8 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
- *     PortStatsRequest.new(
- *       :port_no => port_no
- *     )
+ *     PortStatsRequest.new
+ *     PortStatsRequest.new( :port_no => 1 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -480,13 +479,13 @@ table_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     to +OFPP_NONE+ for all ports.
  *
  *   @return [PortStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ OpenFlow 
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_PORT)+ OpenFlow
  *     message.
  */
 static VALUE
 port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -515,10 +514,10 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
- *     QueueStatsRequest.new(
- *       :port_no => port_no,
- *       :queue_id => queue_id
- *     )
+ *     QueueStatsRequest.new
+ *     QueueStatsRequest.new( :port_no => 1, :queue_id => 123 )
+ *     QueueStatsRequest.new( :port_no => 1 )
+ *     QueueStatsRequest.new( :queue_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -538,7 +537,7 @@ port_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 static VALUE
 queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -577,9 +576,8 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  * @overload initialize(options={})
  *
  *   @example
- *     VendorStatsRequeset.new(
- *       :vendor_id => vendor_id
- *     )
+ *     VendorStatsRequest.new
+ *     VendorStatsRequest.new( :vendor_id => 123 )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -589,14 +587,14 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *     to a default value of 0x00004cff.
  *
  *   @return [VendorStatsRequest]
- *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ openflow
+ *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ OpenFlow
  *     message.
  */
 static VALUE
 vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   VALUE options;
 
-  if ( !rb_scan_args( argc, argv, "01", &options )) {
+  if ( !rb_scan_args( argc, argv, "01", &options ) ) {
     options = rb_hash_new();
   }
   rb_call_super( 1, &options );
@@ -619,7 +617,7 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 
 
 void
-Init_stats_request(){
+Init_stats_request() {
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
 
   cDescStatsRequest = rb_define_class_under( mTrema, "DescStatsRequest", cStatsRequest );

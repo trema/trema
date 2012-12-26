@@ -1,8 +1,4 @@
 #
-# trema dump_flows command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,8 +16,6 @@
 #
 
 
-require "optparse"
-require "trema/dsl"
 require "trema/ofctl"
 require "trema/util"
 
@@ -31,25 +25,12 @@ module Trema
     include Trema::Util
 
 
-    def dump_flows
-      sanity_check
-
-      switch = Trema::DSL::Context.load_current.switches[ ARGV[ 0 ] ]
-
-      options = OptionParser.new
-      options.banner = "Usage: trema dump_flows SWITCH [OPTIONS ...]"
-
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
+    def trema_dump_flows switches
+      switches.each do | each |
+        switch = find_switch_by_name( each )
+        exit_now! "No switch named `#{ each }` found!" if switch.nil?
+        puts Trema::Ofctl.new.dump_flows( switch )
       end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
-
-      options.parse! ARGV
-
-      puts Trema::Ofctl.new.dump_flows( switch )
     end
   end
 end

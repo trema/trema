@@ -26,7 +26,8 @@ require "trema/dsl"
 module Trema
   module Shell
     def reset_stats host_name = nil
-      sanity_check
+      assert_trema_is_built
+
       if host_name and Host[ host_name ].nil?
         raise "Host '#{ host_name }' is not defined."
       end

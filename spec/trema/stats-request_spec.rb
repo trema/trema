@@ -38,7 +38,7 @@ describe StatsRequest do
   context "when .FlowStatsRequest.new( MANDATORY OPTION MISSING )" do
     subject { FlowStatsRequest.new }
     it "should raise ArgumentError" do
-      expect { subject }.to raise_error( ArgumentError ) 
+      expect { subject }.to raise_error( ArgumentError )
     end
   end
 
@@ -53,8 +53,8 @@ describe StatsRequest do
 
 
   context "when .FlowStatsRequest.new( VALID OPTIONS )" do
-    subject do 
-      FlowStatsRequest.new( 
+    subject do
+      FlowStatsRequest.new(
         :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
         :table_id => 1,
         :out_port => 2
@@ -70,7 +70,7 @@ describe StatsRequest do
   context "when .AggregateStatsRequest.new( MANDATORY OPTION MISSING )" do
     subject { AggregateStatsRequest.new }
     it "should raise ArgumentError" do
-      expect { subject }.to raise_error( ArgumentError ) 
+      expect { subject }.to raise_error( ArgumentError )
     end
   end
 
@@ -85,8 +85,8 @@ describe StatsRequest do
 
 
   context "when .AggregateStatsRequest.new( VALID OPTIONS )" do
-    subject do 
-      AggregateStatsRequest.new( 
+    subject do
+      AggregateStatsRequest.new(
         :match => Match.new( :dl_type => 0x800, :nw_proto => 17 ),
         :table_id => 1,
         :out_port => 2

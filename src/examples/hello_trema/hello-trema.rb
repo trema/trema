@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,13 +16,16 @@
 #
 
 
-When /^I try trema up "([^"]*)"$/ do | component |
-  run "./trema up #{ component }"
+class HelloTrema < Controller
+  def switch_ready datapath_id
+    info "Hello %#x!" % datapath_id
+    shutdown!
+  end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

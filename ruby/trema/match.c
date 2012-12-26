@@ -43,8 +43,7 @@ ofp_match *get_match( VALUE self ) {
 
 /*
  * Creates a {Match} instance from packet_in's data, the method accepts an
- * additional single argument whose type is an array of symbols to wildcard set
- * to don't care and ignore while matching flow entries.
+ * additional list of symbols to wildcard set and ignore while matching flow entries.
  *
  * @overload match_from(message, *options)
  *
@@ -52,7 +51,7 @@ ofp_match *get_match( VALUE self ) {
  *     def packet_in datapath_id, message
  *       send_flow_mod(
  *         datapath_id,
- *         :match => Match.from( message, [ :dl_type, :nw_proto ] ),
+ *         :match => Match.from( message, :dl_type, :nw_proto ),
  *         :actions => Trema::ActionOutput.new( 2 )
  *       )
  *     end
@@ -60,10 +59,10 @@ ofp_match *get_match( VALUE self ) {
  *   @param [PacketIn] message
  *     the {PacketIn}'s message content.
  *
- *   @param [optional, Array] options
- *     If supplied an array of symbol ids indicating fields to be wildcarded.
+ *   @param [optional, list] options
+ *     If supplied a comma-separated list of symbol ids indicating fields to be wildcarded.
  *
- *     [:inport]
+ *     [:in_port]
  *       the physical port number to wildcard.
  *
  *     [:dl_src]
@@ -117,7 +116,7 @@ match_from( int argc, VALUE *argv, VALUE self ) {
     int i;
     for ( i = 0; i < RARRAY_LEN( options ); i++ ) {
       wildcard_id = SYM2ID( RARRAY_PTR( options )[ i ] );
-      if ( rb_intern( "inport" ) == wildcard_id ) {
+      if ( rb_intern( "in_port" ) == wildcard_id ) {
         wildcards |= OFPFW_IN_PORT;
       }
       if ( rb_intern( "dl_src" ) == wildcard_id ) {
@@ -166,7 +165,7 @@ match_from( int argc, VALUE *argv, VALUE self ) {
  * @example
  *   def packet_in datapath_id, message
  *     match = Match.new( :dl_type => 0x0800, :nw_src => "192.168.0.1" )
- *     if match.compare( ExactMatch.form( message ) )
+ *     if match.compare( ExactMatch.from( message ) )
  *       info "Received packet from 192.168.0.1"
  *     end
  *   end
@@ -187,7 +186,7 @@ match_compare( VALUE self, VALUE other ) {
  */
 static VALUE
 match_replace( VALUE self, VALUE other ) {
-  memcpy( get_match( self ), get_match( other ), sizeof ( struct ofp_match ) );
+  memcpy( get_match( self ), get_match( other ), sizeof( struct ofp_match ) );
   return self;
 }
 
@@ -199,7 +198,7 @@ static VALUE
 match_to_s( VALUE self ) {
   char match_str[ 1024 ];
 
-  match_to_string( get_match( self ), match_str, sizeof ( match_str ) );
+  match_to_string( get_match( self ), match_str, sizeof( match_str ) );
   return rb_str_new2( match_str );
 }
 
@@ -232,7 +231,8 @@ match_dl( VALUE self, uint8_t which ) {
   match = get_match( self );
   if ( which ) {
     dl_addr = match->dl_src;
-  } else {
+  }
+  else {
     dl_addr = match->dl_dst;
   }
   return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( dl_addr ) ) );
@@ -312,7 +312,8 @@ match_nw( VALUE self, uint8_t which ) {
   if ( which ) {
     nw_addr = match->nw_src;
     masklen = ( match->wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
-  } else {
+  }
+  else {
     nw_addr = match->nw_dst;
     masklen = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
   }
@@ -387,7 +388,7 @@ match_tp_dst( VALUE self ) {
  *
  *   @param [Hash] options the options hash.
  *
- *   @option options [Number] :inport
+ *   @option options [Number] :in_port
  *     the physical port number to match.
  *
  *   @option options [String,Number,Trema::Mac] :dl_src
@@ -450,7 +451,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
   // Always clear the memory as the unused memory locations are
   // exposed to both the user and the OpenFlow controller.
   Data_Get_Struct( self, struct ofp_match, match );
-  memset( match, 0, sizeof ( *match ) );
+  memset( match, 0, sizeof( *match ) );
 
   // Default matches all packets.
   match->wildcards = ( OFPFW_ALL & ~( OFPFW_NW_SRC_MASK | OFPFW_NW_DST_MASK ) )

@@ -37,6 +37,7 @@ import "directedrule"
 desc "Build trema."
 task :default => [
   :libtrema,
+  :management_commands,
   :rubylib,
   :switch_manager,
   :switch,
@@ -57,6 +58,7 @@ task :examples => [
   "examples:learning_switch",
   "examples:list_switches",
   "examples:multi_learning_switch",
+  "examples:openflow_switch",
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",
@@ -64,6 +66,14 @@ task :examples => [
   "examples:switch_info",
   "examples:switch_monitor",
   "examples:traffic_monitor",
+]
+
+
+task :management_commands => [
+  "management_commands:application",
+  "management_commands:echo",
+  "management_commands:set_logging_level",
+  "management_commands:show_stats",
 ]
 
 
@@ -173,7 +183,7 @@ end
 
 
 desc "Run the c cbench switch controller to benchmark"
-task "cbench" => "cbench:c"
+task "cbench" => "cbench:ruby"
 
 
 desc "Run the c cbench switch controller to benchmark"
@@ -589,6 +599,45 @@ end
 
 
 ################################################################################
+# Build management commands
+################################################################################
+
+management_commands = [
+  "application",
+  "echo",
+  "set_logging_level",
+  "show_stats",
+]
+
+management_source_dir = "src/management"
+management_objects_dir = objects( "management" )
+
+gen C::Dependencies, dependency( "management" ),
+  :search => [ Trema.include ], :sources => sys[ "#{ management_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "management" )
+end
+
+gen Directory, management_objects_dir
+
+
+gen DirectedRule, management_objects_dir => [ management_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+management_commands.each do | each |
+  target = File.join( management_objects_dir, each )
+  desc "Build #{ each } management command."
+  task "management_commands:#{ each }" => target
+  file target => [ File.join( management_objects_dir, "#{ each }.o" ), libtrema ] do | t |
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+  end
+end
+
+
+################################################################################
 # Build standalone examples
 ################################################################################
 
@@ -633,6 +682,41 @@ standalone_examples.each do | each |
 end
 
 
+########################################################################################
+# Build openflow switches
+################################################################################
+
+openflow_switches = [
+  "hello_switch",
+]
+
+openflow_switch_source_dir = "src/examples/openflow_switch"
+openflow_switch_objects_dir = objects( "examples/openflow_switch" )
+
+gen C::Dependencies, dependency( "openflow_switch" ),
+  :search => [ Trema.include ], :sources => sys[ "#{ openflow_switch_source_dir }/*.c" ]
+
+gen Action do
+  source dependency( "openflow_switch" )
+end
+
+gen Directory, openflow_switch_objects_dir
+
+
+gen DirectedRule, openflow_switch_objects_dir => [ openflow_switch_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+openflow_switches.each do | each |
+  target = File.join( openflow_switch_objects_dir, each )
+  task "examples:openflow_switch" => target
+  file target => [ File.join( openflow_switch_objects_dir, "#{ each }.o" ), libtrema ] do | t |
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+  end
+end
+
+
 ################################################################################
 # Build openflow messages
 ################################################################################
@@ -643,6 +727,7 @@ openflow_messages = [
   "features_request",
   "hello",
   "set_config",
+  "vendor_action",
 ]
 
 openflow_message_source_dir = "src/examples/openflow_message"
@@ -794,6 +879,8 @@ tests = [
   "objects/unittests/wrapper_test",
   "objects/unittests/match_table_test",
   "objects/unittests/message_queue_test",
+  "objects/unittests/management_interface_test",
+  "objects/unittests/management_service_interface_test",
 ]
 
 

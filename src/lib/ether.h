@@ -77,7 +77,7 @@ typedef struct snap_header {
 #define TCI_CREATE( _prio, _cfi, _vid )         \
   ( uint16_t )( ( ( ( _prio ) & 7 ) << 13 ) |   \
                 ( ( ( _cfi ) & 1 ) << 12 ) |    \
-                ( ( _vid ) & 0x0FFF ) ) 
+                ( ( _vid ) & 0x0FFF ) )
 
 uint16_t fill_ether_padding( buffer *buf );
 

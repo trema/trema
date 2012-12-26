@@ -45,7 +45,7 @@ _die( const char *format, ... ) {
   vsnprintf( err, sizeof( err ), format, args );
   va_end( args );
 
-  critical( err );
+  critical( "%s", err );
   trema_abort();
 }
 void ( *die )( const char *format, ... ) = _die;
@@ -176,7 +176,7 @@ wildcards_to_string( uint32_t wildcards, char *str, size_t size ) {
   uint32_t nw_src_mask = ( wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
   uint32_t nw_dst_mask = ( wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
   uint32_t mask = OFPFW_ALL & ~OFPFW_NW_SRC_MASK & ~OFPFW_NW_DST_MASK;
-  if ( ( wildcards & mask ) == mask && nw_src_mask >=32 && nw_dst_mask >= 32 ) {
+  if ( ( wildcards & mask ) == mask && nw_src_mask >= 32 && nw_dst_mask >= 32 ) {
     ret &= append_string( str, size, "all" );
     return ret;
   }
@@ -195,7 +195,7 @@ wildcards_to_string( uint32_t wildcards, char *str, size_t size ) {
   }
   if ( wildcards & OFPFW_DL_VLAN ) {
     ret &= append_string( str, size, "dl_vlan|" );
-  } 
+  }
   if ( wildcards & OFPFW_DL_VLAN_PCP ) {
     ret &= append_string( str, size, "dl_vlan_pcp|" );
   }
@@ -263,7 +263,7 @@ match_to_string( const struct ofp_match *match, char *str, size_t size ) {
               "wildcards = %#x(%s), in_port = %u, "
               "dl_src = %02x:%02x:%02x:%02x:%02x:%02x, "
               "dl_dst = %02x:%02x:%02x:%02x:%02x:%02x, "
-              "dl_vlan = %u, dl_vlan_pcp = %u, dl_type = %#x, "
+              "dl_vlan = %#x, dl_vlan_pcp = %#x, dl_type = %#x, "
               "nw_tos = %u, nw_proto = %u, nw_src = %s/%u, nw_dst = %s/%u, "
               "tp_src = %u, tp_dst = %u",
               match->wildcards, wildcards_str, match->in_port,
@@ -520,7 +520,7 @@ actions_to_string( const struct ofp_action_header *actions, uint16_t actions_len
     }
     char *p = str + current_str_length;
     const struct ofp_action_header *header = ( const struct ofp_action_header * ) ( ( const char * ) actions + offset );
-    switch( header->type ) {
+    switch ( header->type ) {
       case OFPAT_OUTPUT:
         ret = action_output_to_string( ( const struct ofp_action_output * ) header, p, remaining_str_length );
         break;
@@ -567,7 +567,7 @@ actions_to_string( const struct ofp_action_header *actions, uint16_t actions_len
 
     if ( ret == false ) {
       break;
-    } 
+    }
     offset += header->len;
   }
 

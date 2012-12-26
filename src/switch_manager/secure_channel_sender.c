@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <openflow.h>
 #include <string.h>
 #include <unistd.h>
@@ -54,13 +55,19 @@ typedef struct {
 } writev_args;
 
 
-static void
+static bool
 append_to_writev_args( buffer *message, void *user_data ) {
   writev_args *args = user_data;
 
   args->iov[ args->iovcnt ].iov_base = message->data;
   args->iov[ args->iovcnt ].iov_len = message->length;
   args->iovcnt++;
+
+  if ( args->iovcnt >= IOV_MAX ) {
+    return false;
+  }
+
+  return true;
 }
 
 

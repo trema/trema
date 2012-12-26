@@ -22,11 +22,18 @@ Supported Platforms
 
 Trema supports GNU/Linux only. And it has been tested on the following environments:
 
-* Ubuntu 12.04, 11.10, 11.04, 10.10, and 10.04 (i386/amd64, Desktop Edition)
+* Ruby 1.8.7 (1.9.x is NOT supported yet)
+* Ubuntu 12.10, 12.04, 11.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
+
+
+Supported OpenFlow Protocol Versions
+------------------------------------
+
+Trema currently supports OpenFlow version 1.0 only.
 
 
 Getting Started
@@ -34,7 +41,11 @@ Getting Started
 
 1.Install the prerequisites at the command prompt:
 
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev irb libpcap-dev libsqlite3-dev
+    (In Debian GNU/Linux or Ubuntu 12.04 and below)
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
+
+    (In Ubuntu 12.10)
+    $ sudo apt-get install gcc make ruby1.8 rubygems1.8 ruby1.8-dev libpcap-dev libsqlite3-dev
 
 2.Install Trema at the command prompt:
 
@@ -51,7 +62,7 @@ Getting Started
 Ruby API
 --------
 
-The following is an exerpt from the Trema Ruby API.
+The following is an excerpt from the Trema Ruby API.
 The full documents are found here http://rubydoc.info/github/trema/trema/master/frames
 
 ### Event and Message Handlers
@@ -60,6 +71,22 @@ Subclass
 [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
 and override some of the following methods to implement your own
 controller.
+
+```ruby
+class MyController < Controller
+  # handle Packet-In messages here.
+  def packet_in datapath_id, message
+    # ...
+  end
+  
+  # handle Flow-Removed messages here.
+  def flow_removed datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
 
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
 * [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
@@ -80,6 +107,18 @@ For sending Flow-Mod and Packet-Out, there are some methods defined in
 [Trema::Controller](http://rubydoc.info/github/trema/trema/master/Trema/Controller)
 class.
 
+```ruby
+class MyController < Controller
+  def packet_in datapath_id, message
+    # ...
+    send_flow_mod_add( datapath_id, ... )
+    send_packet_out( datapath_id, ... )
+  end
+  
+  # ...
+end
+```
+
 * [send_flow_mod_add(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_add)
 * [send_flow_mod_delete(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_delete)
 * [send_flow_mod_modify(datapath_id, options)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_flow_mod_modify)
@@ -90,6 +129,24 @@ class.
 The following OpenFlow messages can be sent with
 [Trema::Controller#send_message](http://rubydoc.info/github/trema/trema/master/Trema/Controller:send_message)
 
+```ruby
+class MyController < Controller
+  def switch_ready datapath_id
+    # send a FeaturesRequest message
+    send_message datapath_id, FeaturesRequest.new
+  end
+  
+  def features_reply datapath_id, message
+    # ...
+  end
+  
+  # ...
+end
+```
+
+* [Trema::Hello](http://rubydoc.info/github/trema/trema/master/Trema/Hello)
+* [Trema::EchoRequest](http://rubydoc.info/github/trema/trema/master/Trema/EchoRequest)
+* [Trema::EchoReply](http://rubydoc.info/github/trema/trema/master/Trema/EchoReply)
 * [Trema::FeaturesRequest](http://rubydoc.info/github/trema/trema/master/Trema/FeaturesRequest)
 * [Trema::SetConfig](http://rubydoc.info/github/trema/trema/master/Trema/SetConfig)
 * [Trema::GetConfigRequest](http://rubydoc.info/github/trema/trema/master/Trema/GetConfigRequest)
@@ -105,9 +162,57 @@ The following OpenFlow messages can be sent with
 * [Trema::PortMod](http://rubydoc.info/github/trema/trema/master/Trema/PortMod)
 * [Trema::Vendor](http://rubydoc.info/github/trema/trema/master/Trema/Vendor)
 
+### Matching Rules
+
+The matching rule of each flow table entry can be created with
+[Match.new(options)](http://rubydoc.info/github/trema/trema/master/Trema/Match)
+and passed as ":match =>" option when sending Flow-Mod or Packet-Out.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => Match.new( :in_port => message.in_port, ...)
+    # ...
+  )
+  
+  # ...
+end
+```
+
+Also there is a utility method called
+[ExactMatch.from(packetin)](http://rubydoc.info/github/trema/trema/master/Trema/ExactMatch)
+for getting an exact match corresponding to a packet.
+
+```ruby
+def packet_in datapath_id, message
+  # ...
+
+  send_flow_mod_add(
+    datapath_id,
+    :match => ExactMatch.from( message )
+    # ...
+  )
+  
+  # ...
+end
+```
+
 ### Actions
 
-Each flow table entry contains a list of actions that will be executed when a packet matches the entry.
+The actions list of each flow table entry can be set with ":actions
+=>" when sending Flow-Mod or Packet-Out.
+
+```ruby
+# Strip the VLAN tag of a packet then send it out to switch port #1
+send_flow_mod_add(
+  datapath_id,
+  # ...
+  :actions => [ StripVlanHeader.new, SendOutPort.new( 1 ) ]
+)
+```
 
 * [Trema::SendOutPort](http://rubydoc.info/github/trema/trema/master/Trema/SendOutPort)
 * [Trema::SetEthSrcAddr](http://rubydoc.info/github/trema/trema/master/Trema/SetEthSrcAddr)
@@ -135,7 +240,8 @@ Meta
 Contributors
 ------------
 
-Special thanks to all contributors for submitting patches. A full list of contributors including their patches can be found at:
+Special thanks to all contributors for submitting patches. A full list
+of contributors including their patches can be found at:
 
 https://github.com/trema/trema/contributors
 
@@ -145,6 +251,7 @@ Project Status
 
 * Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
 * Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
+* Code Quality [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/trema/trema)
 
 
 License

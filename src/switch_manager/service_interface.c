@@ -18,8 +18,8 @@
  */
 
 
-#include <string.h>
 #include <inttypes.h>
+#include <string.h>
 #include "ofpmsg_send.h"
 #include "openflow_service_interface.h"
 #include "service_interface.h"
@@ -40,7 +40,8 @@ create_openflow_application_message( uint64_t *datapath_id, buffer *data ) {
   message = append_back_buffer( buf, sizeof( openflow_service_header_t ) );
   if ( datapath_id == NULL ) {
     message->datapath_id = ~0U; // FIXME: defined invalid datapath_id
-  } else {
+  }
+  else {
     message->datapath_id = htonll( *datapath_id );
   }
   message->service_name_length = htons( 0 );
@@ -85,7 +86,7 @@ service_send_to_application( list_element *service_name_list, uint16_t message_t
   static const char *error_service_name = NULL;
   for ( list = service_name_list; list != NULL; list = list->next ) {
     service_name = list->data;
-    if ( !send_message( service_name, message_type, 
+    if ( !send_message( service_name, message_type,
                         buf->data, buf->length ) ) {
       if ( error_service_name != service_name ) {
         warn( "Failed to send message ( service_name = %s ).", service_name );
@@ -133,7 +134,7 @@ service_recv_from_application( uint16_t message_type, buffer *buf ) {
    char *service_name;
 
   if ( buf->length < sizeof( openflow_service_header_t ) + sizeof( struct ofp_header ) ) {
-    error( "Too short openflow application message(%u).", buf->length );
+    error( "Too short openflow application message(%zu).", buf->length );
     free_buffer( buf );
 
     return;

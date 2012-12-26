@@ -43,4 +43,3 @@ buffer *get_switches( void );
  * indent-tabs-mode: nil
  * End:
  */
-

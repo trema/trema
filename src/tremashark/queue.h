@@ -36,7 +36,7 @@ typedef struct queue {
   queue_element *head;
   queue_element *divider;
   queue_element *tail;
-  int length;
+  volatile int length;
 } queue;
 
 

@@ -184,13 +184,21 @@ create_action_enqueue() {
 
 
 static struct ofp_action_vendor_header *
-create_action_vendor() {
-  struct ofp_action_vendor_header *action = xmalloc( sizeof( struct ofp_action_vendor_header ) );
-  memset( action, 0, sizeof( struct ofp_action_vendor_header ) );
+create_action_vendor( size_t body_length ) {
+  size_t length = sizeof( struct ofp_action_vendor_header ) + body_length;
+  struct ofp_action_vendor_header *action = xmalloc( length );
+  memset( action, 0, length );
 
   action->type = htons( OFPAT_VENDOR );
-  action->len = htons( 8 );
+  action->len = htons( ( uint16_t ) length );
   action->vendor = htonl( 2048 );
+
+  if ( body_length > 0 ) {
+    uint8_t *body = ( uint8_t * ) action + sizeof( struct ofp_action_vendor_header );
+    for ( size_t i = 0; i < body_length; i++ ) {
+      body[ i ] = ( uint8_t ) rand();
+    }
+  }
 
   return action;
 }
@@ -469,7 +477,7 @@ test_ntoh_action_enqueue() {
 
   assert_int_equal( htons( dst.type ), src->type );
   assert_int_equal( htons( dst.len ), src->len );
-  assert_int_equal( htons( dst.port) , src->port );
+  assert_int_equal( htons( dst.port ), src->port );
   assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
   xfree( src );
@@ -482,19 +490,91 @@ test_ntoh_action_enqueue() {
 
 void
 test_ntoh_action_vendor() {
-  struct ofp_action_vendor_header dst;
+  struct ofp_action_vendor_header *src = create_action_vendor( 0 );
 
-  memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
+  size_t length = sizeof( struct ofp_action_vendor_header );
+  struct ofp_action_vendor_header *dst = xmalloc( length );
+  memset( dst, 0, length );
 
-  struct ofp_action_vendor_header *src = create_action_vendor();
+  ntoh_action_vendor( dst, src );
 
-  ntoh_action_vendor( &dst, src );
-
-  assert_int_equal( htons( dst.type ), src->type );
-  assert_int_equal( htons( dst.len ), src->len );
-  assert_int_equal( ( int ) htonl( dst.vendor ), ( int ) src->vendor );
+  assert_int_equal( htons( dst->type ), src->type );
+  assert_int_equal( htons( dst->len ), src->len );
+  assert_int_equal( ( int ) htonl( dst->vendor ), ( int ) src->vendor );
 
   xfree( src );
+  xfree( dst );
+}
+
+
+void
+test_ntoh_action_vendor_with_body() {
+  const size_t body_length = 128;
+  struct ofp_action_vendor_header *src = create_action_vendor( body_length );
+
+  size_t length = sizeof( struct ofp_action_vendor_header ) + body_length;
+  struct ofp_action_vendor_header *dst = xmalloc( length );
+  memset( dst, 0, length );
+
+  ntoh_action_vendor( dst, src );
+
+  assert_int_equal( htons( dst->type ), src->type );
+  assert_int_equal( htons( dst->len ), src->len );
+  assert_int_equal( ( int ) htonl( dst->vendor ), ( int ) src->vendor );
+  void *src_body = ( char * ) src + sizeof( struct ofp_action_header );
+  void *dst_body = ( char * ) dst + sizeof( struct ofp_action_header );
+  assert_memory_equal( dst_body, src_body, body_length );
+
+  xfree( src );
+  xfree( dst );
+}
+
+
+/********************************************************************************
+ * hton_action_vendor() test.
+ ********************************************************************************/
+
+void
+test_hton_action_vendor() {
+  struct ofp_action_vendor_header *src = create_action_vendor( 0 );
+  hton_action_vendor( src, src );
+
+  size_t length = sizeof( struct ofp_action_vendor_header );
+  struct ofp_action_vendor_header *dst = xmalloc( length );
+  memset( dst, 0, length );
+
+  hton_action_vendor( dst, src );
+
+  assert_int_equal( ntohs( dst->type ), src->type );
+  assert_int_equal( ntohs( dst->len ), src->len );
+  assert_int_equal( ( int ) ntohl( dst->vendor ), ( int ) src->vendor );
+
+  xfree( src );
+  xfree( dst );
+}
+
+
+void
+test_hton_action_vendor_with_body() {
+  const size_t body_length = 128;
+  struct ofp_action_vendor_header *src = create_action_vendor( body_length );
+  hton_action_vendor( src, src );
+
+  size_t length = sizeof( struct ofp_action_vendor_header ) + body_length;
+  struct ofp_action_vendor_header *dst = xmalloc( length );
+  memset( dst, 0, length );
+
+  hton_action_vendor( dst, src );
+
+  assert_int_equal( ntohs( dst->type ), src->type );
+  assert_int_equal( ntohs( dst->len ), src->len );
+  assert_int_equal( ( int ) ntohl( dst->vendor ), ( int ) src->vendor );
+  void *src_body = ( char * ) src + sizeof( struct ofp_action_header );
+  void *dst_body = ( char * ) dst + sizeof( struct ofp_action_header );
+  assert_memory_equal( dst_body, src_body, body_length );
+
+  xfree( src );
+  xfree( dst );
 }
 
 
@@ -643,7 +723,7 @@ test_ntoh_action() {
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
-    assert_int_equal( htons( dst.port) , src->port );
+    assert_int_equal( htons( dst.port ), src->port );
     assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
     xfree( src );
@@ -654,7 +734,7 @@ test_ntoh_action() {
 
     memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
 
-    struct ofp_action_vendor_header *src = create_action_vendor();
+    struct ofp_action_vendor_header *src = create_action_vendor( 0 );
 
     ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
 
@@ -676,7 +756,7 @@ test_ntoh_action_with_undefined_action_type() {
   struct ofp_action_output *src = create_action_output();
 
   src->type = htons( OFPAT_ENQUEUE + 1 );
-  
+
   expect_assert_failure( ntoh_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
 
   xfree( src );
@@ -837,7 +917,7 @@ test_hton_action() {
 
     assert_int_equal( htons( dst.type ), src->type );
     assert_int_equal( htons( dst.len ), src->len );
-    assert_int_equal( htons( dst.port) , src->port );
+    assert_int_equal( htons( dst.port ), src->port );
     assert_int_equal( ( int ) htonl( dst.queue_id ), ( int ) src->queue_id );
 
     xfree( src );
@@ -848,7 +928,7 @@ test_hton_action() {
 
     memset( &dst, 0, sizeof( struct ofp_action_vendor_header ) );
 
-    struct ofp_action_vendor_header *src = create_action_vendor();
+    struct ofp_action_vendor_header *src = create_action_vendor( 0 );
     ntoh_action_vendor( src, src );
 
     hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src );
@@ -872,7 +952,7 @@ test_hton_action_with_undefined_action_type() {
   ntoh_action_output( src, src );
 
   src->type = OFPAT_ENQUEUE + 1;
-  
+
   expect_assert_failure( hton_action( ( struct ofp_action_header * ) &dst, ( struct ofp_action_header * ) src ) );
 
   xfree( src );
@@ -903,7 +983,7 @@ test_ntoh_flow_stats_without_action() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
 
   ntoh_flow_stats( dst, src );
 
@@ -944,7 +1024,7 @@ test_ntoh_flow_stats_with_single_output_action() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
   struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = htons( OFPAT_OUTPUT );
   act_src->len = htons( 8 );
@@ -996,7 +1076,7 @@ test_ntoh_flow_stats_with_two_output_actions() {
   src->hard_timeout = htons( 300 );
   src->cookie = htonll( COOKIE );
   src->packet_count = htonll( PACKET_COUNT );
-  src->byte_count= htonll( BYTE_COUNT );
+  src->byte_count = htonll( BYTE_COUNT );
   struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = htons( OFPAT_OUTPUT );
@@ -1064,7 +1144,7 @@ test_hton_flow_stats_without_action() {
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
 
   hton_flow_stats( dst, src );
 
@@ -1103,13 +1183,13 @@ test_hton_flow_stats_with_single_output_action() {
   src->table_id = 1;
   src->match = MATCH;
   src->duration_sec = 60;
-  src->duration_nsec = 5000 ;
+  src->duration_nsec = 5000;
   src->priority = UINT16_MAX;
   src->idle_timeout = 60;
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
   struct ofp_action_output *act_src = ( struct ofp_action_output * ) src->actions;
   act_src->type = OFPAT_OUTPUT;
   act_src->len = 8;
@@ -1165,7 +1245,7 @@ test_hton_flow_stats_with_two_output_actions() {
   src->hard_timeout = 300;
   src->cookie = COOKIE;
   src->packet_count = PACKET_COUNT;
-  src->byte_count= BYTE_COUNT;
+  src->byte_count = BYTE_COUNT;
   struct ofp_action_output *act_src[ 2 ];
   act_src[ 0 ] = ( struct ofp_action_output * ) src->actions;
   act_src[ 0 ]->type = OFPAT_OUTPUT;
@@ -1680,6 +1760,9 @@ main() {
     unit_test( test_ntoh_action_tp_port ),
     unit_test( test_ntoh_action_enqueue ),
     unit_test( test_ntoh_action_vendor ),
+    unit_test( test_ntoh_action_vendor_with_body ),
+    unit_test( test_hton_action_vendor ),
+    unit_test( test_hton_action_vendor_with_body ),
     unit_test( test_ntoh_action ),
     unit_test( test_ntoh_action_with_undefined_action_type ),
     unit_test( test_hton_action ),

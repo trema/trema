@@ -57,11 +57,9 @@ handle_timer_event( void *self ) {
  *   @example
  *     send_message datapath_id, FeaturesRequest.new
  *
- *
- *   @param [Number] datapath_id
+ *   @param [Integer] datapath_id
  *     the datapath to which a message is sent.
- *
- *   @param [FeaturesRequest] message
+ *   @param [Hello, EchoRequest, EchoReply, FeaturesRequest, SetConfig, GetConfigRequest, QueueGetConfigRequest, StatsRequest, BarrierRequest, PortMod, Vendor] message
  *     the message to be sent.
  */
 static VALUE
@@ -94,12 +92,12 @@ append_action( openflow_actions *actions, VALUE action ) {
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetEthDstAddr" ) ) == Qtrue ) {
     uint8_t dl_dst[ OFP_ETH_ALEN ];
-    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
+    uint8_t *ptr = ( uint8_t * ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_dst );
     append_action_set_dl_dst( actions, ptr );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetEthSrcAddr" ) ) == Qtrue ) {
     uint8_t dl_src[ OFP_ETH_ALEN ];
-    uint8_t *ptr = ( uint8_t* ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
+    uint8_t *ptr = ( uint8_t * ) dl_addr_to_a( rb_funcall( action, rb_intern( "mac_address" ), 0 ), dl_src );
     append_action_set_dl_src( actions, ptr );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetIpDstAddr" ) ) == Qtrue ) {
@@ -133,9 +131,9 @@ append_action( openflow_actions *actions, VALUE action ) {
       Check_Type( rbody, T_ARRAY );
       uint16_t length = ( uint16_t ) RARRAY_LEN( rbody );
       buffer *body = alloc_buffer_with_length( length );
-      int i;
-      for ( i = 0; i < length; i++ ) {
-        ( ( uint8_t * ) body->data )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
+      void *p = append_back_buffer( body, length );
+      for ( int i = 0; i < length; i++ ) {
+        ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
       }
       append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), body );
       free_buffer( body );
@@ -221,17 +219,17 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
     if ( opt_idle_timeout != Qnil ) {
-      idle_timeout = ( uint16_t )NUM2UINT( opt_idle_timeout );
+      idle_timeout = ( uint16_t ) NUM2UINT( opt_idle_timeout );
     }
 
     VALUE opt_hard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
     if ( opt_hard_timeout != Qnil ) {
-      hard_timeout = ( uint16_t )NUM2UINT( opt_hard_timeout );
+      hard_timeout = ( uint16_t ) NUM2UINT( opt_hard_timeout );
     }
 
     VALUE opt_priority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
     if ( opt_priority != Qnil ) {
-      priority = ( uint16_t )NUM2UINT( opt_priority );
+      priority = ( uint16_t ) NUM2UINT( opt_priority );
     }
 
     VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
@@ -241,7 +239,7 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
 
     VALUE opt_out_port = rb_hash_aref( options, ID2SYM( rb_intern( "out_port" ) ) );
     if ( opt_out_port != Qnil ) {
-      out_port = ( uint16_t )NUM2UINT( opt_out_port );
+      out_port = ( uint16_t ) NUM2UINT( opt_out_port );
     }
 
     VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
@@ -498,8 +496,8 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
     opt_zero_padding = rb_hash_aref( options, ID2SYM( rb_intern( "zero_padding" ) ) );
     if ( opt_zero_padding != Qnil ) {
-      if ( TYPE( opt_zero_padding ) != T_TRUE && TYPE( opt_zero_padding ) != T_FALSE) {
-        rb_raise(rb_eTypeError, ":zero_padding must be true or false");
+      if ( TYPE( opt_zero_padding ) != T_TRUE && TYPE( opt_zero_padding ) != T_FALSE ) {
+        rb_raise( rb_eTypeError, ":zero_padding must be true or false" );
       }
     }
   }
@@ -544,7 +542,7 @@ controller_run( VALUE self ) {
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
-  char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
+  char **argv = xmalloc( sizeof( char * ) * ( uint32_t ) ( argc + 1 ) );
   argv[ 0 ] = STR2CSTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
   argv[ 2 ] = STR2CSTR( name );

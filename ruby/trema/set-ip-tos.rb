@@ -25,6 +25,7 @@ module Trema
   # An action to modify the IP ToS/DSCP field of a packet.
   #
   class SetIpTos < Action
+    # @return [Fixnum] the value of attribute {#type_of_service}
     attr_reader :type_of_service
 
 
@@ -41,10 +42,10 @@ module Trema
     # @raise [TypeError] if type_of_service argument is not an Integer.
     #
     def initialize type_of_service
-      if not type_of_service.is_a?( Integer )
+      unless type_of_service.is_a?( Integer )
         raise TypeError, "ToS must be an unsigned 8-bit integer"
       end
-      if not type_of_service.unsigned_8bit?
+      unless type_of_service.unsigned_8bit?
         raise ArgumentError, "ToS must be an unsigned 8-bit integer"
       end
       @type_of_service = type_of_service

@@ -25,7 +25,7 @@ require "trema"
 describe QueueGetConfigRequest, ".new( OPTIONAL OPTION MISSING )" do
   its( :port ) { should == 1 }
   it_should_behave_like "any Openflow message with default transaction ID"
-end  
+end
 
 
 describe QueueGetConfigRequest, ".new( VALID OPTIONS )" do

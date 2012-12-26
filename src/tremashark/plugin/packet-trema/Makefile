@@ -40,7 +40,7 @@ ifeq ($(OSTYPE),SunOS)
 ENDIAN=-D_BIG_ENDIAN_
 endif
 
-INC_GLIB = -I/usr/include/glib-2.0 -I/usr/local/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib/i386-linux-gnu/glib-2.0/include 
+INC_GLIB = -I/usr/include/glib-2.0 -I/usr/local/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 INC_OPENFLOW = -I../../../../objects/openflow
 INC_TREMA = -I../../../lib
 

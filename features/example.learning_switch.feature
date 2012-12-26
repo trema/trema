@@ -1,39 +1,37 @@
-Feature: control one openflow switch using learning-switch controller
+Feature: "Learning Switch" sample application
 
-  As a Trema user
-  I want to control one openflow switch using learning-switch controller
-  So that I can send and receive packets
+  In order to learn how to implement software L2 switch
+  As a developer using Trema
+  I want to execute "Learning Switch" sample application
 
-
-  Scenario: Send and receive packets
-    Given I try trema run "learning_switch" example with following configuration (backgrounded):
+  Background:
+    Given a file named "learning_switch.conf" with:
       """
       vswitch("learning") { datapath_id "0xabc" }
 
-      vhost("host1")
-      vhost("host2")
+      vhost("host1") { ip "192.168.0.1" }
+      vhost("host2") { ip "192.168.0.2" }
 
       link "learning", "host1"
       link "learning", "host2"
       """
+
+  @slow_process
+  Scenario: Run "Learning Switch" C example
+    Given I run `trema run ../../objects/examples/learning_switch/learning_switch -c learning_switch.conf -d`
+     And wait until "learning_switch" is up
     When I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1 --tx" (log = "host1.learning_switch.log")
-      And I try to run "./trema show_stats host2 --rx" (log = "host2.learning_switch.log")
-    Then the content of "host1.learning_switch.log" and "host2.learning_switch.log" should be identical
+     And I run `trema show_stats host1 --tx`
+     And I run `trema show_stats host2 --rx`
+    Then the output from "trema show_stats host1 --tx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host2 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
 
-
-  Scenario: Send and receive packets (in Ruby)
-    Given I try trema run "learning-switch.rb" example with following configuration (backgrounded):
-      """
-      vswitch("learning") { datapath_id "0xabc" }
-
-      vhost("host1")
-      vhost("host2")
-
-      link "learning", "host1"
-      link "learning", "host2"
-      """
+  @slow_process
+  Scenario: Run "Learning Switch" Ruby example
+    Given I run `trema run ../../src/examples/learning_switch/learning-switch.rb -c learning_switch.conf -d`
+     And wait until "LearningSwitch" is up
     When I send 1 packet from host1 to host2
-      And I try to run "./trema show_stats host1 --tx" (log = "host1.LearningSwitch.log")
-      And I try to run "./trema show_stats host2 --rx" (log = "host2.LearningSwitch.log")
-    Then the content of "host1.LearningSwitch.log" and "host2.LearningSwitch.log" should be identical
+     And I run `trema show_stats host1 --tx`
+     And I run `trema show_stats host2 --rx`
+    Then the output from "trema show_stats host1 --tx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
+     And the output from "trema show_stats host2 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"

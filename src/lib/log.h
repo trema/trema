@@ -4,8 +4,6 @@
  * Some good logging guidelines can be found here:
  *  http://watchitlater.com/blog/2009/12/logging-guidelines/
  *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,8 +33,11 @@
 #define LOG_H
 
 
-#include "bool.h"
 #include <syslog.h>
+#include "bool.h"
+
+
+#define LOGGING_LEVEL_STR_LENGTH 12
 
 
 typedef enum {
@@ -52,14 +53,17 @@ void rename_log( const char *new_ident );
 bool finalize_log( void );
 
 bool set_logging_level( const char *level );
+bool valid_logging_level( const char *level );
+bool set_syslog_facility( const char *facility );
+
 extern int ( *get_logging_level )( void );
 
-extern void ( *critical )( const char *format, ... );
-extern void ( *error )( const char *format, ... );
-extern void ( *warn )( const char *format, ... );
-extern void ( *notice )( const char *format, ... );
-extern void ( *info )( const char *format, ... );
-extern void ( *debug )( const char *format, ... );
+extern void ( *critical )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+extern void ( *error )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+extern void ( *warn )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+extern void ( *notice )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+extern void ( *info )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+extern void ( *debug )( const char *format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
 
 
 #endif // LOG_H

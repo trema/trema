@@ -1,8 +1,6 @@
 #
 # A test example program to send a OFPT_HELLO message.
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,35 +18,22 @@
 #
 
 
-require "example"
-
-
 class HelloController < Controller
-  include Example
-
-
-  class << self
-    def run args
-      usage unless Example.options_parse args
+  def start
+    if ARGV.size < 2
+      STDERR.puts "Usage: #{ File.basename ARGV[ 0 ] } COUNT"
+      shutdown!
     end
-
-
-    def usage
-      puts Example.cmd_usage
-      puts "Send count number of hello messages to datapath_id."
-      exit false
-    end
+    @count = ARGV[ 1 ].to_i
   end
 
 
-  def switch_ready msg_datapath_id
-    may_raise_error msg_datapath_id
-    send_nr_msgs Hello
+  def switch_ready datapath_id
+    @count.times do
+      send_message datapath_id, Hello.new
+    end
   end
 end
-
-
-HelloController.run ARGV
 
 
 ### Local variables:

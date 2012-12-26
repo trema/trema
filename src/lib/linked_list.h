@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -69,6 +67,8 @@ bool insert_in_front( list_element **head, void *data );
 bool insert_before( list_element **head, const void *sibling, void *data );
 bool append_to_tail( list_element **head, void *data );
 unsigned int list_length_of( const list_element *head );
+void iterate_list( list_element *head, void function( void *data, void *user_data ), void *user_data );
+void *find_list_custom( list_element *head, bool function( void *data, void *user_data ), void *user_data );
 bool delete_element( list_element **head, const void *data );
 bool delete_list( list_element *head );
 

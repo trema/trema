@@ -1,7 +1,5 @@
 /*
- * Sends hello message(s).
- *
- * Author: Shin-ya Zenke, Yasuhito Takamiya <yasuhito@gmail.com>
+ * A test example program to send a OFPT_HELLO message.
  *
  * Copyright (C) 2008-2012 NEC Corporation
  *

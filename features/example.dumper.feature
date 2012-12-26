@@ -1,87 +1,67 @@
-Feature: Dump openflow events with dumper
+Feature: "Dumper" sample application
 
-  As a Trema user
-  I want to dump OpenFlow events with dumper example application
-  So that I can visualize OpenFlow messages
+  In order to learn how to dump miscellaneous OpenFlow messages
+  As a developer using Trema
+  I want to execute "Dumper" sample application
 
-
-  Scenario: Dump packet_in events
-    Given I try trema run "./objects/examples/dumper/dumper" with following configuration (backgrounded):
+  Background:
+    Given a file named "dumper.conf" with:
       """
-      vswitch("dumper") { datapath_id "0xabc" }
+      vswitch("dumper") { datapath_id 0xabc }
 
-      vhost("host1") {
-        ip "192.168.0.1"
-        mac "00:00:00:00:00:01"
-      }
-      vhost("host2") {
-        ip "192.168.0.2"
-        mac "00:00:00:00:00:02"
-      }
+      vhost("host1")
+      vhost("host2")
 
       link "dumper", "host1"
       link "dumper", "host2"
       """
-      And wait until "dumper" is up
-    When I try to run "./trema send_packets --source host1 --dest host2 --length=0"
-      And I terminated all trema services
-    Then the output should include:
-      """
-      [packet_in]
-        datapath_id: 0xabc
-      """
 
+  @slow_process
+  Scenario: Run "Dumper" C example
+    Given I run `trema run ../../objects/examples/dumper/dumper -c dumper.conf -d`
+     And wait until "dumper" is up
+    When I send 1 packet from host1 to host2
+    Then the file "../../tmp/log/dumper.log" should contain "[switch_ready]"
+     And the file "../../tmp/log/dumper.log" should contain "[packet_in]"
+     And the file "../../tmp/log/dumper.log" should contain "datapath_id: 0xabc"
 
-  Scenario: Dump packet_in events (Ruby)
-    Given I try trema run "./src/examples/dumper/dumper.rb" with following configuration (backgrounded):
-      """
-      vswitch("dumper") { datapath_id "0xabc" }
+  @slow_process
+  Scenario: Run "Dumper" Ruby example
+    Given I run `trema run ../../src/examples/dumper/dumper.rb -c dumper.conf -d`
+     And wait until "Dumper" is up
+    When I send 1 packet from host1 to host2
+    Then the file "../../tmp/log/Dumper.log" should contain "[switch_ready]"
+     And the file "../../tmp/log/Dumper.log" should contain "[packet_in]"
+     And the file "../../tmp/log/Dumper.log" should contain "datapath_id: 0xabc"
 
-      vhost("host1") {
-        ip "192.168.0.1"
-        mac "00:00:00:00:00:01"
-      }
-      vhost("host2") {
-        ip "192.168.0.2"
-        mac "00:00:00:00:00:02"
-      }
-
-      link "dumper", "host1"
-      link "dumper", "host2"
-      """
-      And wait until "Dumper" is up
-    When I try to run "./trema send_packets --source host1 --dest host2 --length=0"
-      And I terminated all trema services
-    Then the output should include:
-      """
-      [packet_in]
-        datapath_id: 0xabc
-      """
-
-
-  Scenario: dumper --help
-    When I try to run "./objects/examples/dumper/dumper --help" (log = "dumper_help.log")
-    Then the log file "dumper_help.log" should be:
+  Scenario: "dumper --help"
+    When I run `../../objects/examples/dumper/dumper --help`
+    Then the output should contain exactly:
       """
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
 
-        -n, --name=SERVICE_NAME     service name
-        -d, --daemonize             run in the background
-        -l, --logging_level=LEVEL   set logging level
-        -h, --help                  display this help and exit
+        -n, --name=SERVICE_NAME         service name
+        -d, --daemonize                 run in the background
+        -l, --logging_level=LEVEL       set logging level
+        -g, --syslog                    output log messages to syslog
+        -f, --logging_facility=FACILITY set syslog facility
+        -h, --help                      display this help and exit
+
       """
 
-
-  Scenario: dumper -h
-    When I try to run "./objects/examples/dumper/dumper -h" (log = "dumper_h.log")
-    Then the log file "dumper_h.log" should be:
+  Scenario: "dumper -h"
+    When I run `../../objects/examples/dumper/dumper -h`
+    Then the output should contain exactly:
       """
       OpenFlow Event Dumper.
       Usage: dumper [OPTION]...
 
-        -n, --name=SERVICE_NAME     service name
-        -d, --daemonize             run in the background
-        -l, --logging_level=LEVEL   set logging level
-        -h, --help                  display this help and exit
+        -n, --name=SERVICE_NAME         service name
+        -d, --daemonize                 run in the background
+        -l, --logging_level=LEVEL       set logging level
+        -g, --syslog                    output log messages to syslog
+        -f, --logging_facility=FACILITY set syslog facility
+        -h, --help                      display this help and exit
+
       """

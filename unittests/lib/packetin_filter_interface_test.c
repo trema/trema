@@ -1,6 +1,6 @@
 /*
  * Unit tests for packetin_filter_interface.[ch]
- * 
+ *
  * Author: Yasunobu Chiba
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -42,17 +42,17 @@ typedef struct {
 } handler_data;
 
 
-static pid_t ( *original_getpid ) ( void );
+static pid_t ( *original_getpid )( void );
 static void ( *original_warn )( const char *format, ... );
 static void ( *original_error )( const char *format, ... );
-static bool ( *original_add_message_replied_callback ) ( const char *service_name,
+static bool ( *original_add_message_replied_callback )( const char *service_name,
                                                          void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
-static bool ( *original_delete_message_replied_callback) ( const char *service_name,
+static bool ( *original_delete_message_replied_callback )( const char *service_name,
                                                          void ( *callback )( uint16_t tag, void *data, size_t len, void *user_data ) );
-static bool ( *original_send_request_message ) ( const char *to_service_name, const char *from_service_name,
+static bool ( *original_send_request_message )( const char *to_service_name, const char *from_service_name,
                                                  const uint16_t tag, const void *data, size_t len, void *user_data );
 
-static void ( *handle_reply ) ( uint16_t tag, void *data, size_t length, void *user_data ) = NULL;
+static void ( *handle_reply )( uint16_t tag, void *data, size_t length, void *user_data ) = NULL;
 
 static void *HANDLER = ( void * ) 0x12345678;
 static void *USER_DATA = ( void * ) 0x87654321;

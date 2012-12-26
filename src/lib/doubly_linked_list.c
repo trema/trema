@@ -194,8 +194,13 @@ find_element( dlist_element *element, const void *data ) {
   pthread_mutex_lock( ( ( private_dlist_element * ) element )->mutex );
 
   dlist_element *e = NULL;
-
   for ( e = element; e; e = e->next ) {
+    if ( e->data == data ) {
+      pthread_mutex_unlock( ( ( private_dlist_element * ) element )->mutex );
+      return e;
+    }
+  }
+  for ( e = element->prev; e; e = e->prev ) {
     if ( e->data == data ) {
       pthread_mutex_unlock( ( ( private_dlist_element * ) element )->mutex );
       return e;

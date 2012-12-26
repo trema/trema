@@ -1,14 +1,13 @@
-Feature: show network stats with `trema show_stats' command
+Feature: trema show_stats command
 
-  As a Trema user
-  I want to get packet stats with `trema show_stats' command
-  So that I can easily debug trema applications
-
+  In order to get the stats of sent/received packets
+  As a developer using Trema
+  I want to execute "trema show_stats" command
 
   Background:
-    Given I try trema run "learning_switch" example with following configuration (backgrounded):
+    Given a file named "learning_switch.conf" with:
       """
-      vswitch { datapath_id "0xabc" }
+      vswitch { datapath_id 0xabc }
 
       vhost("host1") { ip "192.168.0.1" }
       vhost("host2") { ip "192.168.0.2" }
@@ -16,11 +15,13 @@ Feature: show network stats with `trema show_stats' command
       link "0xabc", "host1"
       link "0xabc", "host2"
       """
+    And I run `trema run ../../src/examples/learning_switch/learning-switch.rb -c learning_switch.conf -d`
 
-
-  Scenario: show_stats
-    When I send 1 packet from host1 to host2
-    Then the stats of "host1" should be:
+  @slow_process
+  Scenario: show_stats hostname
+    When I run `trema send_packets --source host1 --dest host2`
+     And I run `trema show_stats host1`
+    Then the output should contain:
       """
       Sent packets:
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
@@ -28,40 +29,36 @@ Feature: show network stats with `trema show_stats' command
       Received packets:
       """
 
-
-  Scenario: show_stats --tx
-    When I send 1 packet from host1 to host2
-    Then the tx stats of "host1" should be:
+  @slow_process
+  Scenario: show_stats hostname --tx
+    When I run `trema send_packets --source host1 --dest host2`
+     And I run `trema show_stats host1 --tx`
+    Then the output should contain:
       """
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
       192.168.0.2,1,192.168.0.1,1,1,50
       """
 
-
-  Scenario: show_stats --rx
-    When I send 1 packet from host1 to host2
-    Then the rx stats of "host2" should be:
+  @slow_process
+  Scenario: show_stats hostname --rx
+    When I run `trema send_packets --source host1 --dest host2`
+     And I run `trema show_stats host2 --rx`
+    Then the output should contain:
       """
       ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
       192.168.0.2,1,192.168.0.1,1,1,50
       """
 
-
-  Scenario: show_stats error
-    Then "./trema show_stats NO_SUCH_HOST" exits abnormally with an error message:
+  Scenario: argument error
+    Then I run `trema show_stats`
+    Then the output should contain:
       """
-      Unknown host: NO_SUCH_HOST
+      host is required
       """
 
-
-  Scenario: trema help show_stats
-    When I try to run "./trema help show_stats"
-    Then the output should be:
+  Scenario: unknown host error
+    Then I run `trema show_stats NO_SUCH_HOST`
+    Then the output should contain:
       """
-      Usage: ./trema show_stats HOSTNAME [OPTIONS ...]
-          -t, --tx
-          -r, --rx
-
-          -h, --help
-          -v, --verbose
+      unknown host: NO_SUCH_HOST
       """

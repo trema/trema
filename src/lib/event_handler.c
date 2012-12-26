@@ -116,7 +116,7 @@ void ( *init_event_handler )() = _init_event_handler;
 static void
 _finalize_event_handler() {
   if ( event_last != event_list ) {
-    warn( "Event Handler finalized with %i fd event handlers still active. (%i, ...)",
+    warn( "Event Handler finalized with %ti fd event handlers still active. (%i, ...)",
           ( event_last - event_list ), ( event_last > event_list ? event_list->fd : -1 ) );
     return;
   }
@@ -176,7 +176,7 @@ _run_event_handler_once( int timeout_usec ) {
       event_itr = event_itr + 1;
     }
     else {
-      debug( "run_event_handler_once: event fd is changed ( current = %d, new = %d )", current_event.fd, event_itr->fd ) ;
+      debug( "run_event_handler_once: event fd is changed ( current = %d, new = %d )", current_event.fd, event_itr->fd );
     }
   }
 
@@ -260,7 +260,7 @@ static void
 _delete_fd_handler( int fd ) {
   debug( "Deleting event handler for fd %i.", fd );
 
-  event_fd* event = event_list;
+  event_fd *event = event_list;
 
   while ( event != event_last && event->fd != fd ) {
     event++;

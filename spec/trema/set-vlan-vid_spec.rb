@@ -28,7 +28,7 @@ describe SetVlanVid, ".new( number )" do
     its( :vlan_id ) { should == 1024 }
   end
 
-  it_validates "option range", :vlan_id, 1..4096
+  it_validates "option range", :vlan_id, 1..4095
 end
 
 
@@ -50,6 +50,7 @@ describe SetVlanVid, ".new( VALID OPTION )" do
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetVlanVid.new( 1024 ) )
+        sleep 2 # FIXME: wait to send_flow_mod_add
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ )
       }

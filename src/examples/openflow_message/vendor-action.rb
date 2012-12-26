@@ -1,9 +1,9 @@
 #
-# Getting switch information
+# "Vendor Action" sample application
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# Author: SUGYO Kazushi
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,27 +20,26 @@
 #
 
 
-class SwitchInfoController < Controller
+class VendorActionSampleController < Controller
+  NX_VENDOR_ID = 0x00002320
+  NXAST_NOTE = 8
+
   def switch_ready datapath_id
-    send_message datapath_id, FeaturesRequest.new
-  end
-
-
-  def features_reply datapath_id, message
-    info "datapath_id: %#x" % datapath_id
-    info "transaction_id: %#x" % message.transaction_id
-    info "n_buffers: %u" % message.n_buffers
-    info "n_tables: %u" % message.n_tables
-    info "capabilities: %u" % message.capabilities
-    info "actions: %u" % message.actions
-    info "ports: %s" % message.ports.collect { | each | each.number }.sort.join( ", " )
-    shutdown!
+    body = [ NXAST_NOTE, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ].pack( "nC6" )
+    actions = VendorAction.new( NX_VENDOR_ID, body.unpack( "C*" ) )
+    send_flow_mod_modify(
+      datapath_id,
+      :hard_timeout => 60,
+      :match => Match.new,
+      :actions => actions,
+      :strict => true
+    )
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

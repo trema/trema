@@ -1,6 +1,6 @@
 /*
  * Unit tests for hash table.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -134,7 +134,7 @@ append_back_foreach( void *key, void *value, void *user_data ) {
   assert_true( user_data == NULL );
 
   int i;
-  for ( i = 0 ; i < 3 ; i++ ) {
+  for ( i = 0; i < 3; i++ ) {
     if ( abc[ i ] == NULL ) {
       abc[ i ] = value;
       return;
@@ -241,7 +241,9 @@ test_iterate_empty_hash() {
   table = create_hash( compare_atom, hash_atom );
   init_hash_iterator( table, &iter );
 
-  while ( iterate_hash_next( &iter ) != NULL ) { UNREACHABLE(); }
+  while ( iterate_hash_next( &iter ) != NULL ) {
+    UNREACHABLE();
+  }
 
   delete_hash( table );
 }

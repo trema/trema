@@ -1,6 +1,6 @@
 /*
  * Unit tests for doubly linked list library.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
  * Copyright (C) 2008-2012 NEC Corporation
@@ -274,6 +274,10 @@ test_find_element() {
   assert_true( new_element->next->next == e );
   e = find_element( new_element, element_data1 );
   assert_true( new_element->next->next->next == e );
+
+  e = find_element( new_element->next->next->next, element_data2 );
+  assert_true( new_element->next->next == e );
+
   e = find_element( new_element, no_such_element );
   assert_true( e == NULL );
 

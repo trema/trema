@@ -57,10 +57,12 @@ extern void mock_debug( const char *format, ... );
 #endif // UNIT_TESTING
 
 
-#define VLAN_VID_MASK 0x0fff // 12 bits
-#define VLAN_PCP_MASK 0x07   // 3 bits
-#define NW_TOS_MASK 0xfc     // upper 6 bits
-#define ARP_OP_MASK 0x00ff   // 8 bits
+#define VLAN_VID_MASK 0x0fff  // 12 bits
+#define VLAN_PCP_MASK 0x07    // 3 bits
+#define NW_TOS_MASK 0xfc      // upper 6 bits
+#define ARP_OP_MASK 0x00ff    // 8 bits
+#define ICMP_TYPE_MASK 0x00ff // 8 bits
+#define ICMP_CODE_MASK 0x00ff // 8 bits
 
 #define PORT_CONFIG ( OFPPC_PORT_DOWN | OFPPC_NO_STP | OFPPC_NO_RECV      \
                       | OFPPC_NO_RECV_STP | OFPPC_NO_FLOOD | OFPPC_NO_FWD \
@@ -104,7 +106,7 @@ init_openflow_message( void ) {
 
 static buffer *
 create_header( const uint32_t transaction_id, const uint8_t type, const uint16_t length ) {
-  debug( "Creating an OpenFlow header (version = %#x, type = %#x, length = %u, xid = %#x).",
+  debug( "Creating an OpenFlow header ( version = %#x, type = %#x, length = %u, xid = %#x ).",
          OFP_VERSION, type, length, transaction_id );
 
   assert( length >= sizeof( struct ofp_header ) );
@@ -291,7 +293,7 @@ create_features_reply( const uint32_t transaction_id, const uint64_t datapath_id
 
   if ( n_ports ) {
     phy_port = ( struct ofp_phy_port * ) ( ( char * ) buffer->data
-                                           + offsetof( struct ofp_switch_features, ports) );
+                                           + offsetof( struct ofp_switch_features, ports ) );
     port = p;
     while ( port != NULL ) {
       phy_port_to_string( port->data, port_str, sizeof( port_str ) );
@@ -433,7 +435,7 @@ create_flow_removed( const uint32_t transaction_id, const struct ofp_match match
 
 buffer *
 create_port_status( const uint32_t transaction_id, const uint8_t reason,
-                    const struct ofp_phy_port desc) {
+                    const struct ofp_phy_port desc ) {
   char desc_str[ 1024 ];
   buffer *buffer;
   struct ofp_phy_port d = desc;
@@ -480,10 +482,10 @@ get_actions_length( const openflow_actions *actions ) {
     action = action->next;
   }
 
-  debug( "Total length of actions = %u.", actions_length );
+  debug( "Total length of actions = %d.", actions_length );
 
   if ( actions_length > UINT16_MAX ) {
-    critical( "Too many actions ( # of actions = %d, actions length = %u ).",
+    critical( "Too many actions ( # of actions = %d, actions length = %d ).",
               actions->n_actions, actions_length );
     assert( 0 );
   }
@@ -585,7 +587,7 @@ create_flow_mod( const uint32_t transaction_id, const struct ofp_match match,
            "buffer_id = %#x, out_port = %u, flags = %#x ).",
            transaction_id, match_str, cookie, command,
            idle_timeout, hard_timeout, priority,
-           buffer_id, out_port, flags  );
+           buffer_id, out_port, flags );
   }
 
   if ( actions != NULL ) {
@@ -922,7 +924,7 @@ create_flow_stats_reply( const uint32_t transaction_id, const uint16_t flags,
     flow = flow->next;
   }
 
-  debug( "# of flows = %u.", n_flows );
+  debug( "# of flows = %d.", n_flows );
 
   length = ( uint16_t ) ( offsetof( struct ofp_stats_reply, body ) + length );
 
@@ -1635,7 +1637,7 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
     body_length = ( uint16_t ) body->length;
   }
 
-  debug( "Appending a vendor action ( vendor = %#" PRIx64 ", body length = %u ).", vendor, body_length );
+  debug( "Appending a vendor action ( vendor = %#" PRIx32 ", body length = %u ).", vendor, body_length );
 
   assert( actions != NULL );
 
@@ -1644,6 +1646,10 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
   action_vendor->type = OFPAT_VENDOR;
   action_vendor->len = ( uint16_t ) ( sizeof( struct ofp_action_vendor_header ) + body_length );
   action_vendor->vendor = vendor;
+
+  if ( body_length > 0 ) {
+    memcpy( ( char * ) action_vendor + sizeof( struct ofp_action_vendor_header ), body->data, body_length );
+  }
 
   ret = append_to_tail( &actions->list, ( void * ) action_vendor );
   if ( ret ) {
@@ -3447,18 +3453,14 @@ validate_action_enqueue( const struct ofp_action_enqueue *action ) {
 
 int
 validate_action_vendor( const struct ofp_action_vendor_header *action ) {
-  struct ofp_action_vendor_header vendor;
-
-  ntoh_action_vendor( &vendor, action );
-
-  if ( vendor.type != OFPAT_VENDOR ) {
+  if ( ntohs( action->type ) != OFPAT_VENDOR ) {
     return ERROR_INVALID_ACTION_TYPE;
   }
-  if ( vendor.len < sizeof( struct ofp_action_vendor_header ) ) {
+  if ( ntohs( action->len ) < sizeof( struct ofp_action_vendor_header ) ) {
     return ERROR_TOO_SHORT_ACTION_VENDOR;
   }
 
-  // vendor.vendor
+  // action->vendor
 
   return 0;
 }
@@ -3929,6 +3931,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
                        const uint32_t wildcards, const buffer *packet ) {
   // Note that wildcards must be filled before calling this function.
 
+  assert( match != NULL );
   assert( packet != NULL );
   assert( packet->user_data != NULL );
 
@@ -3948,8 +3951,8 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( packet_type_eth_vtag( packet ) ) {
       match->dl_vlan = ( ( packet_info * ) packet->user_data )->vlan_vid;
       if ( ( match->dl_vlan & ~VLAN_VID_MASK ) != 0 ) {
-        warn( "Invalid vlan id ( change %u to %u )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
-	match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
+        warn( "Invalid vlan id ( change %#x to %#x )", match->dl_vlan, match->dl_vlan & VLAN_VID_MASK );
+        match->dl_vlan = ( uint16_t ) ( match->dl_vlan & VLAN_VID_MASK );
       }
     }
     else {
@@ -3961,7 +3964,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->dl_vlan_pcp = ( ( packet_info * ) packet->user_data )->vlan_prio;
       if ( ( match->dl_vlan_pcp & ~VLAN_PCP_MASK ) != 0 ) {
         warn( "Invalid vlan pcp ( change %u to %u )", match->dl_vlan_pcp, match->dl_vlan_pcp & VLAN_PCP_MASK );
-	match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
+        match->dl_vlan_pcp = ( uint8_t ) ( match->dl_vlan_pcp & VLAN_PCP_MASK );
       }
     }
   }
@@ -3972,7 +3975,7 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
     if ( !( wildcards & OFPFW_NW_TOS ) ) {
       match->nw_tos = ( ( packet_info * ) packet->user_data )->ipv4_tos;
       if ( ( match->nw_tos & ~NW_TOS_MASK ) != 0 ) {
-        warn( "Invalid ipv4 tos ( change %u to %u )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
+        warn( "Invalid ipv4 tos ( change %#x to %#x )", match->nw_tos, match->nw_tos & NW_TOS_MASK );
         match->nw_tos = ( uint8_t ) ( match->nw_tos & NW_TOS_MASK );
       }
     }
@@ -4031,6 +4034,155 @@ set_match_from_packet( struct ofp_match *match, const uint16_t in_port,
       match->nw_dst = ( ( packet_info * ) packet->user_data )->arp_tpa & ( 0xffffffff << nw_dst_mask_len );
     }
   }
+}
+
+
+void
+normalize_match( struct ofp_match *match ) {
+
+  assert( match != NULL );
+
+  char match_string[ 1024 ];
+  match_to_string( match, match_string, sizeof( match_string ) );
+  debug( "Normalizing match structure ( original match = [%s] ).", match_string );
+
+  memset( match->pad1, 0, sizeof( match->pad1 ) );
+  memset( match->pad2, 0, sizeof( match->pad2 ) );
+
+  match->wildcards &= OFPFW_ALL;
+
+  if ( match->wildcards & OFPFW_IN_PORT ) {
+    match->in_port = 0;
+  }
+  if ( match->wildcards & OFPFW_DL_VLAN ) {
+    match->dl_vlan = 0;
+  }
+  else {
+    if ( match->dl_vlan == UINT16_MAX ) {
+      match->wildcards |= ( uint32_t ) OFPFW_DL_VLAN_PCP;
+      match->dl_vlan_pcp = 0;
+    }
+    else {
+      match->dl_vlan &= VLAN_VID_MASK;
+    }
+  }
+  if ( match->wildcards & OFPFW_DL_SRC ) {
+    memset( match->dl_src, 0, sizeof( match->dl_src ) );
+  }
+  if ( match->wildcards & OFPFW_DL_DST ) {
+    memset( match->dl_dst, 0, sizeof( match->dl_dst ) );
+  }
+  if ( match->wildcards & OFPFW_DL_TYPE ) {
+    match->dl_type = 0;
+    match->wildcards |= ( uint32_t ) OFPFW_NW_TOS;
+    match->wildcards |= ( uint32_t ) OFPFW_NW_PROTO;
+    match->wildcards |= ( uint32_t ) OFPFW_NW_SRC_MASK;
+    match->wildcards |= ( uint32_t ) OFPFW_NW_DST_MASK;
+    match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
+    match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
+    match->nw_tos = 0;
+    match->nw_proto = 0;
+    match->nw_src = 0;
+    match->nw_dst = 0;
+    match->tp_src = 0;
+    match->tp_dst = 0;
+  }
+  else {
+    if ( match->dl_type == ETH_ETHTYPE_ARP ) {
+      match->wildcards |= ( uint32_t ) OFPFW_NW_TOS;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
+      match->nw_tos = 0;
+      match->tp_src = 0;
+      match->tp_dst = 0;
+    }
+    else if ( match->dl_type != ETH_ETHTYPE_IPV4 ) {
+      match->wildcards |= ( uint32_t ) OFPFW_NW_TOS;
+      match->wildcards |= ( uint32_t ) OFPFW_NW_PROTO;
+      match->wildcards |= ( uint32_t ) OFPFW_NW_SRC_MASK;
+      match->wildcards |= ( uint32_t ) OFPFW_NW_DST_MASK;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
+      match->nw_tos = 0;
+      match->nw_proto = 0;
+      match->nw_src = 0;
+      match->nw_dst = 0;
+      match->tp_src = 0;
+      match->tp_dst = 0;
+    }
+  }
+  if ( match->wildcards & OFPFW_NW_PROTO ) {
+    match->nw_proto = 0;
+    if ( match->dl_type != ETH_ETHTYPE_IPV4 ) {
+      match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
+      match->tp_src = 0;
+      match->tp_dst = 0;
+    }
+  }
+  else {
+    if ( match->dl_type == ETH_ETHTYPE_ARP ) {
+      match->nw_proto &= ARP_OP_MASK;
+    }
+    if ( match->dl_type == ETH_ETHTYPE_IPV4 &&
+         match->nw_proto != IPPROTO_TCP && match->nw_proto != IPPROTO_UDP && match->nw_proto != IPPROTO_ICMP ) {
+      match->wildcards |= ( uint32_t ) OFPFW_TP_SRC;
+      match->wildcards |= ( uint32_t ) OFPFW_TP_DST;
+      match->tp_src = 0;
+      match->tp_dst = 0;
+    }
+  }
+
+  unsigned int nw_src_mask_len = ( match->wildcards & OFPFW_NW_SRC_MASK ) >> OFPFW_NW_SRC_SHIFT;
+  if ( nw_src_mask_len >= 32 ) {
+    match->wildcards &= ( uint32_t ) ~OFPFW_NW_SRC_MASK;
+    match->wildcards |= OFPFW_NW_SRC_ALL;
+    match->nw_src = 0;
+  }
+  else {
+    match->nw_src &= ( 0xffffffff << nw_src_mask_len );
+  }
+  unsigned int nw_dst_mask_len = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
+  if ( nw_dst_mask_len >= 32 ) {
+    match->wildcards &= ( uint32_t ) ~OFPFW_NW_DST_MASK;
+    match->wildcards |= OFPFW_NW_DST_ALL;
+    match->nw_dst = 0;
+  }
+  else {
+    match->nw_dst &= ( 0xffffffff << nw_dst_mask_len );
+  }
+  if ( match->wildcards & OFPFW_TP_SRC ) {
+    match->tp_src = 0;
+  }
+  else {
+    if ( match->nw_proto == IPPROTO_ICMP ) {
+      match->tp_src &= ICMP_TYPE_MASK;
+    }
+  }
+  if ( match->wildcards & OFPFW_TP_DST ) {
+    match->tp_dst = 0;
+  }
+  else {
+    if ( match->nw_proto == IPPROTO_ICMP ) {
+      match->tp_dst &= ICMP_CODE_MASK;
+    }
+  }
+
+  if ( match->wildcards & OFPFW_DL_VLAN_PCP ) {
+    match->dl_vlan_pcp = 0;
+  }
+  else {
+    match->dl_vlan_pcp &= VLAN_PCP_MASK;
+  }
+  if ( match->wildcards & OFPFW_NW_TOS ) {
+    match->nw_tos = 0;
+  }
+  else {
+    match->nw_tos &= NW_TOS_MASK;
+  }
+
+  match_to_string( match, match_string, sizeof( match_string ) );
+  debug( "Normalization completed ( updated match = [%s] ).", match_string );
 }
 
 

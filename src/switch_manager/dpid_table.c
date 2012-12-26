@@ -19,8 +19,8 @@
 
 
 #include <assert.h>
-#include <string.h>
 #include <inttypes.h>
+#include <string.h>
 #include "trema.h"
 #include "dpid_table.h"
 
@@ -63,7 +63,7 @@ insert_dpid_entry( uint64_t *dpid ) {
     return;
   }
 
-  uint64_t *new_entry = xmalloc( sizeof ( uint64_t ) );
+  uint64_t *new_entry = xmalloc( sizeof( uint64_t ) );
   *new_entry = *dpid;
   insert_hash_entry( dpid_table, new_entry, new_entry );
 }
@@ -95,7 +95,7 @@ get_switches( void ) {
   init_hash_iterator( dpid_table, &iter );
   while ( ( entry = iterate_hash_next( &iter ) ) != NULL ) {
     uint64_t *dpid = append_back_buffer( buf, sizeof( uint64_t ) );
-    *dpid = htonll( *( uint64_t * )( entry->value ) );
+    *dpid = htonll( *( uint64_t * ) ( entry->value ) );
   }
 
   return buf;

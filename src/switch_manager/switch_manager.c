@@ -18,17 +18,17 @@
  */
 
 
-#include <limits.h>
 #include <errno.h>
 #include <getopt.h>
 #include <inttypes.h>
+#include <limits.h>
+#include <openflow.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
-#include <openflow.h>
+#include <unistd.h>
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
@@ -44,7 +44,7 @@
 #undef printf
 #endif
 #define printf( fmt, args... )  mock_printf2( fmt, ##args )
-int mock_printf2(const char *format, ...);
+int mock_printf2( const char *format, ... );
 
 #ifdef die
 #undef die
@@ -76,7 +76,7 @@ void mock_secure_channel_accept( struct listener_info *listener_info );
 #undef access
 #endif
 #define access mock_access
-int mock_access( const char *pathname, int mode);
+int mock_access( const char *pathname, int mode );
 
 #ifdef get_current_dir_name
 #undef get_current_dir_name
@@ -136,7 +136,7 @@ const char *mock_get_executable_name( void );
 #undef set_external_callback
 #endif
 #define set_external_callback mock_set_external_callback
-void mock_set_external_callback( void ( *callback ) ( void ) );
+void mock_set_external_callback( void ( *callback )( void ) );
 
 #endif // UNIT_TESTING
 
@@ -156,17 +156,19 @@ static char short_options[] = "p:s:";
 void
 usage() {
   printf(
-	 "OpenFlow Switch Manager.\n"
-	 "Usage: %s [OPTION]... [-- SWITCH_MANAGER_OPTION]...\n"
-	 "\n"
-	 "  -s, --switch=PATH           the command path of switch\n"
-	 "  -n, --name=SERVICE_NAME     service name\n"
-         "  -p, --port=PORT             server listen port (default %u)\n"
-	 "  -d, --daemonize             run in the background\n"
-	 "  -l, --logging_level=LEVEL   set logging level\n"
-	 "  -h, --help                  display this help and exit\n"
-	 , get_executable_name(), OFP_TCP_PORT
-	 );
+    "OpenFlow Switch Manager.\n"
+    "Usage: %s [OPTION]... [-- SWITCH_MANAGER_OPTION]...\n"
+    "\n"
+    "  -s, --switch=PATH               the command path of switch\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -p, --port=PORT                 server listen port (default %u)\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
+    , get_executable_name(), OFP_TCP_PORT
+  );
 }
 
 
@@ -257,9 +259,9 @@ init_listener_info( struct listener_info *listener_info ) {
 
 
 static void
-finalize_listener_info(  struct listener_info *listener_info ) {
+finalize_listener_info( struct listener_info *listener_info ) {
   if ( listener_info->switch_daemon != NULL ) {
-    xfree( (void *)( uintptr_t )listener_info->switch_daemon );
+    xfree( ( void * ) ( uintptr_t ) listener_info->switch_daemon );
     listener_info->switch_daemon = NULL;
   }
   if ( listener_info->listen_fd >= 0 ) {
@@ -299,7 +301,7 @@ parse_argument( struct listener_info *listener_info, int argc, char *argv[] ) {
         }
         break;
       case 's':
-        xfree( (void *)( uintptr_t )listener_info->switch_daemon );
+        xfree( ( void * ) ( uintptr_t ) listener_info->switch_daemon );
         listener_info->switch_daemon = xstrdup( optarg );
         break;
       default:
@@ -413,7 +415,7 @@ main( int argc, char *argv[] ) {
 
   switch_daemon = listener_info.switch_daemon;
   listener_info.switch_daemon = absolute_path( startup_dir, switch_daemon );
-  xfree( ( void * )( uintptr_t )switch_daemon );
+  xfree( ( void * ) ( uintptr_t ) switch_daemon );
   // free returned buffer of get_current_dir_name()
   free( startup_dir );
 

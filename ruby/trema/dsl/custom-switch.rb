@@ -1,7 +1,7 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+# The syntax definition of custom_switch { ... } stanza in Trema DSL.
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2012 Hiroyasu OHYAMA
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -18,8 +18,22 @@
 #
 
 
-When /^I try trema kill "([^"]*)"$/ do | component |
-  run "./trema kill #{ component }"
+require "trema/dsl/switch"
+
+
+module Trema
+  module DSL
+    class CustomSwitch < Switch
+      def initialize name = nil
+        super name
+      end
+
+
+      def path filepath
+        @path = filepath
+      end
+    end
+  end
 end
 
 

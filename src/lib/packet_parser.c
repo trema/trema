@@ -16,11 +16,11 @@
  */
 
 
-#include <assert.h>
-#include <stdint.h>
 #include <arpa/inet.h>
+#include <assert.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#include <stdint.h>
 #include "packet_info.h"
 #include "log.h"
 #include "wrapper.h"
@@ -63,7 +63,7 @@ parse_ether( buffer *buf ) {
 
     packet_info->vlan_tci = ntohs( vlantag_header->tci );
     packet_info->vlan_tpid = packet_info->eth_type;
-    packet_info->vlan_prio =TCI_GET_PRIO( packet_info->vlan_tci );
+    packet_info->vlan_prio = TCI_GET_PRIO( packet_info->vlan_tci );
     packet_info->vlan_cfi = TCI_GET_CFI( packet_info->vlan_tci );
     packet_info->vlan_vid = TCI_GET_VID( packet_info->vlan_tci );
 
@@ -76,7 +76,7 @@ parse_ether( buffer *buf ) {
   }
 
   // Skip nested vlan headers.
-  while (  packet_info->eth_type == ETH_ETHTYPE_TPID ) {
+  while ( packet_info->eth_type == ETH_ETHTYPE_TPID ) {
     // Check the length of remained buffer
     length = REMAINED_BUFFER_LENGTH( buf, ptr );
     if ( length < sizeof( vlantag_header_t ) ) {
@@ -115,8 +115,6 @@ parse_ether( buffer *buf ) {
     packet_info->l2_payload = ptr;
     packet_info->l2_payload_length = payload_length;
   }
-
-  return;
 }
 
 
@@ -147,9 +145,7 @@ parse_arp( buffer *buf ) {
   packet_info->arp_tpa = ntohl( arp_header->tip );
 
   packet_info->format |= NW_ARP;
-
-  return;
-};
+}
 
 
 static void
@@ -196,8 +192,6 @@ parse_ipv4( buffer *buf ) {
   }
 
   packet_info->format |= NW_IPV4;
-
-  return;
 }
 
 
@@ -218,8 +212,8 @@ parse_ipv6( buffer *buf ) {
   // Parses IPv6 header
   ipv6_header_t *ipv6_header = ptr;
   uint32_t hdrctl = ntohl( ipv6_header->hdrctl );
-  packet_info->ipv6_version = ( uint8_t )( hdrctl >> 28 );
-  packet_info->ipv6_tc = ( uint8_t )( hdrctl >> 20 & 0xFF );
+  packet_info->ipv6_version = ( uint8_t ) ( hdrctl >> 28 );
+  packet_info->ipv6_tc = ( uint8_t ) ( hdrctl >> 20 & 0xFF );
   packet_info->ipv6_flowlabel = hdrctl & 0xFFFFF;
   packet_info->ipv6_plen = ntohs( ipv6_header->plen );
   packet_info->ipv6_nexthdr = ipv6_header->nexthdr;
@@ -228,8 +222,6 @@ parse_ipv6( buffer *buf ) {
   memcpy( packet_info->ipv6_daddr, ipv6_header->daddr, IPV6_ADDRLEN );
 
   packet_info->format |= NW_IPV6;
-
-  return;
 }
 
 
@@ -248,8 +240,6 @@ parse_lldp( buffer *buf ) {
   }
 
   packet_info->format |= NW_LLDP;
-
-  return;
 }
 
 
@@ -296,9 +286,7 @@ parse_icmp( buffer *buf ) {
   }
 
   packet_info->format |= NW_ICMPV4;
-
-  return;
-};
+}
 
 
 static void
@@ -330,9 +318,7 @@ parse_udp( buffer *buf ) {
   }
 
   packet_info->format |= TP_UDP;
-
-  return;
-};
+}
 
 
 static void
@@ -377,10 +363,7 @@ parse_tcp( buffer *buf ) {
   }
 
   packet_info->format |= TP_TCP;
-
-  return;
-};
-
+}
 
 
 static void
@@ -404,8 +387,6 @@ parse_igmp( buffer *buf ) {
   packet_info->igmp_group = ntohl( igmp->group );
 
   packet_info->format |= NW_IGMP;
-
-  return;
 }
 
 
@@ -433,12 +414,10 @@ parse_etherip( buffer *buf ) {
   if ( payload_length > 0 ) {
     packet_info->l4_payload = ptr;
     packet_info->l4_payload_length = payload_length;
-    packet_info->etherip_offset = ( uint16_t ) ( ( char * ) ptr - ( char *) buf->data );
+    packet_info->etherip_offset = ( uint16_t ) ( ( char * ) ptr - ( char * ) buf->data );
   }
 
   packet_info->format |= TP_ETHERIP;
-
-  return;
 }
 
 

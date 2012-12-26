@@ -124,8 +124,8 @@ static size_t message_buffer_remain_bytes( message_buffer *buf );
 
 static void delete_timer_callbacks( void );
 
-static messenger_context* insert_context( void *user_data );
-static messenger_context* get_context( uint32_t transaction_id );
+static messenger_context *insert_context( void *user_data );
+static messenger_context *get_context( uint32_t transaction_id );
 static void delete_context( messenger_context *context );
 static void delete_context_db( void );
 static void age_context_db( void * );
@@ -282,9 +282,25 @@ mock_debug( char *format, ... ) {
 }
 
 
+static bool check_warn = false;
+static void
+mock_warn_check( char *format, va_list args ) {
+  char message[ 1000 ];
+  vsnprintf( message, 1000, format, args );
+
+  check_expected( message );
+}
+
+
 void
 mock_warn( char *format, ... ) {
   UNUSED( format );
+  if ( check_warn ) {
+    va_list arg;
+    va_start( arg, format );
+    mock_warn_check( format, arg );
+    va_end( arg );
+  }
 }
 
 
@@ -325,6 +341,8 @@ reset_messenger() {
   finalized = false;
 
   execute_timer_events = mock_execute_timer_events;
+
+  check_warn = false;
 }
 
 
@@ -400,6 +418,138 @@ test_send_then_message_received_callback_is_called() {
 }
 
 
+static void callback_req_hello( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) {
+  UNUSED( handle );
+  check_expected( tag );
+  check_expected( data );
+  check_expected( len );
+
+  send_reply_message( handle, 65534, "OLLEH", strlen("OLLEH")+1 );
+}
+
+
+static void callback_req_hello2( const messenger_context_handle *handle, uint16_t tag, void *data, size_t len ) {
+  UNUSED( handle );
+  UNUSED( tag );
+  UNUSED( data );
+  UNUSED( len );
+}
+
+
+static void callback_rep_hello_end( uint16_t tag, void *data, size_t len, void *user_data ) {
+  check_expected( tag );
+  check_expected( data );
+  check_expected( len );
+  check_expected( user_data );
+
+  stop_event_handler();
+  stop_messenger();
+}
+
+
+static void callback_rep_hello2( uint16_t tag, void *data, size_t len, void *user_data ) {
+  UNUSED( tag );
+  UNUSED( data );
+  UNUSED( len );
+  UNUSED( user_data );
+}
+
+
+static void
+test_send_then_message_requested_and_replied_callback_is_called() {
+  init_messenger( "/tmp" );
+
+  const char service_name[] = "Say HELLO";
+
+  expect_value( callback_req_hello, tag, 43556 );
+  expect_string( callback_req_hello, data, "HELLO" );
+  expect_value( callback_req_hello, len, 6 );
+  add_message_requested_callback( service_name, callback_req_hello );
+
+  expect_value( callback_rep_hello_end, tag, 65534 );
+  expect_string( callback_rep_hello_end, data, "OLLEH" );
+  expect_value( callback_rep_hello_end, len, 6 );
+  expect_value( callback_rep_hello_end, user_data, NULL );
+  add_message_replied_callback( service_name, callback_rep_hello_end );
+
+  send_request_message( service_name, service_name,  43556, "HELLO", strlen( "HELLO" ) + 1, NULL );
+
+  start_messenger();
+  start_event_handler();
+
+  delete_message_replied_callback( service_name, callback_rep_hello_end );
+  delete_message_requested_callback( service_name, callback_req_hello );
+  delete_send_queue( lookup_hash_entry( send_queues, service_name ) );
+
+  finalize_messenger();
+}
+
+
+static void
+test_double_add_message_requested_callback_prints_error_message() {
+  init_messenger( "/tmp" );
+
+
+  const char service_name[] = "Some Service";
+  char expected_mes[ 1024+1 ] = {};
+  snprintf( expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
+           service_name, MESSAGE_TYPE_REQUEST, callback_req_hello2 );
+
+
+  check_warn = true;
+
+  assert_true( add_message_requested_callback( service_name, callback_req_hello ) );
+
+  expect_string( mock_warn_check, message, expected_mes );
+  assert_true( add_message_requested_callback( service_name, callback_req_hello2 ) );
+
+  check_warn = false;
+
+  finalize_messenger();
+}
+
+static void
+test_double_add_message_replied_callback_prints_error_message() {
+  init_messenger( "/tmp" );
+
+
+  const char service_name[] = "Some Service";
+  char expected_mes[ 1024+1 ] = {};
+  snprintf( expected_mes, 1024, "Multiple message_requested/replied handler is not supported. ( service_name = %s, message_type = %#x, callback = %p )",
+           service_name, MESSAGE_TYPE_REPLY, callback_rep_hello2 );
+
+
+  check_warn = true;
+
+  assert_true( add_message_replied_callback( service_name, callback_rep_hello_end ) );
+
+  expect_string( mock_warn_check, message, expected_mes );
+  assert_true( add_message_replied_callback( service_name, callback_rep_hello2 ) );
+
+  check_warn = false;
+
+  finalize_messenger();
+}
+
+
+static void
+test_add_1_message_requested_and_replied_callback_each_prints_no_error_message() {
+  init_messenger( "/tmp" );
+
+  const char service_name[] = "Some Service";
+
+  check_warn = true;
+
+  assert_true( add_message_requested_callback( service_name, callback_req_hello ) );
+
+  assert_true( add_message_replied_callback( service_name, callback_rep_hello_end ) );
+
+  check_warn = false;
+
+  finalize_messenger();
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -425,6 +575,21 @@ main() {
     unit_test_setup_teardown( test_send_then_message_received_callback_is_called,
                               reset_messenger,
                               reset_messenger ),
+    // Message request callback tests.
+    unit_test_setup_teardown( test_send_then_message_requested_and_replied_callback_is_called,
+                              reset_messenger,
+                              reset_messenger ),
+    // Message request duplicate registrationcallback tests.
+    unit_test_setup_teardown( test_double_add_message_requested_callback_prints_error_message,
+                              reset_messenger,
+                              reset_messenger ),
+    unit_test_setup_teardown( test_double_add_message_replied_callback_prints_error_message,
+                              reset_messenger,
+                              reset_messenger ),
+    unit_test_setup_teardown( test_add_1_message_requested_and_replied_callback_each_prints_no_error_message,
+                              reset_messenger,
+                              reset_messenger ),
+
   };
   return run_tests( tests );
 }

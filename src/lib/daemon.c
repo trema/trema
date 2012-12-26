@@ -1,6 +1,4 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -125,6 +123,18 @@ extern ssize_t mock_read( int fd, void *buf, size_t count );
 #define kill mock_kill
 extern int mock_kill( pid_t pid, int sig );
 
+#ifdef readlink
+#undef readlink
+#endif // readlink
+#define readlink mock_readlink
+extern ssize_t mock_readlink( const char *path, char *buf, size_t bufsiz );
+
+#ifdef basename
+#undef basename
+#endif // basename
+#define basename mock_basename
+extern char *mock_basename( char *path );
+
 #ifdef rename
 #undef rename
 #endif // rename
@@ -193,7 +203,7 @@ write_pid( const char *directory, const char *name ) {
   }
 
   char str[ PID_STRING_LENGTH ];
-  snprintf( str, sizeof( str ),"%d\n", getpid() );
+  snprintf( str, sizeof( str ), "%d\n", getpid() );
   str[ sizeof( str ) - 1 ] = '\0';
   ssize_t ret = write( fd, str, strlen( str ) );
   if ( ret == -1 ) {
@@ -266,6 +276,22 @@ read_pid( const char *directory, const char *name ) {
     if ( errno == ESRCH ) {
       unlink( path );
     }
+    return -1;
+  }
+
+  char proc_path[ 32 ];
+  char exe_path[ PATH_MAX ];
+  sprintf( proc_path, "/proc/%d/exe", pid );
+  ssize_t readsiz = readlink( proc_path, exe_path, sizeof( exe_path ) - 1 );
+  if ( readsiz == -1 ) {
+    warn( "Failed to check process id %d ( %s [%d] ).", pid, strerror( errno ), errno );
+    return -1;
+  }
+  exe_path[ readsiz ] = '\0';
+
+  char *exe_name = basename( exe_path );
+  if ( strcmp( name, exe_name ) != 0 ) {
+    warn( "Failed to check process name %s ( %s [%d] ).", name, strerror( errno ), errno );
     return -1;
   }
 

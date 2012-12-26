@@ -24,6 +24,8 @@ module Trema
   # @abstract The base class of {SetIpSrcAddr} and {SetIpDstAddr} action.
   #
   class SetIpAddr < Action
+    # @return [IPAddr] the object that holds {#ip_address}'s
+    #   internal representation.
     attr_reader :ip_address
 
 
@@ -31,8 +33,8 @@ module Trema
     # @private
     #
     def initialize ip_address
-      if not ip_address.is_a?( String )
-        raise TypeError, "Source IP address must be an String"
+      unless ip_address.is_a?( String )
+        raise TypeError, "Source IP address must be a String"
       end
       @ip_address = IPAddr.new( ip_address )
     end

@@ -39,7 +39,7 @@
 #undef printf
 #endif
 #define printf( fmt, args... )  mock_printf2( fmt, ##args )
-int mock_printf2(const char *format, ...);
+int mock_printf2( const char *format, ... );
 
 #ifdef error
 #undef error
@@ -112,24 +112,26 @@ const char *mock_get_executable_name( void );
 void
 usage() {
   printf(
-	 "OpenFlow Packet in Filter.\n"
-	 "Usage: %s [OPTION]... [PACKETIN-FILTER-RULE]...\n"
-	 "\n"
-	 "  -n, --name=SERVICE_NAME     service name\n"
-	 "  -d, --daemonize             run in the background\n"
-	 "  -l, --logging_level=LEVEL   set logging level\n"
-	 "  -h, --help                  display this help and exit\n"
-	 "\n"
-	 "PACKETIN-FILTER-RULE:\n"
-	 "  match-type::destination-service-name\n"
-	 "\n"
-	 "match-type:\n"
-	 "  lldp                        LLDP ethernet frame type and priority is 0x8000\n"
-	 "  packet_in                   any packet and priority is zero\n"
-	 "\n"
-	 "destination-service-name      destination service name\n"
-	 , get_executable_name()
-	 );
+    "OpenFlow Packet in Filter.\n"
+    "Usage: %s [OPTION]... [PACKETIN-FILTER-RULE]...\n"
+    "\n"
+    "  -n, --name=SERVICE_NAME         service name\n"
+    "  -d, --daemonize                 run in the background\n"
+    "  -l, --logging_level=LEVEL       set logging level\n"
+    "  -g, --syslog                    output log messages to syslog\n"
+    "  -f, --logging_facility=FACILITY set syslog facility\n"
+    "  -h, --help                      display this help and exit\n"
+    "\n"
+    "PACKETIN-FILTER-RULE:\n"
+    "  match-type::destination-service-name\n"
+    "\n"
+    "match-type:\n"
+    "  lldp                            LLDP ethernet frame type and priority is 0x8000\n"
+    "  packet_in                       any packet and priority is zero\n"
+    "\n"
+    "destination-service-name          destination service name\n"
+    , get_executable_name()
+  );
 }
 
 
@@ -210,7 +212,7 @@ handle_packet_in( uint64_t datapath_id, uint32_t transaction_id,
       free_buffer( buf );
       return;
     }
-  
+
     debug( "Sending a message to %s ( match = %s ).", service_name, match_str );
   }
 
@@ -248,7 +250,7 @@ finalize_packetin_match_table( void ) {
 
 static bool
 add_packetin_match_entry( struct ofp_match match, uint16_t priority, const char *service_name ) {
-  bool ( *insert_or_update_match_entry ) ( struct ofp_match, uint16_t, void * ) = update_match_entry;
+  bool ( *insert_or_update_match_entry )( struct ofp_match, uint16_t, void * ) = update_match_entry;
   list_element *services = lookup_match_strict_entry( match, priority );
   if ( services == NULL ) {
     insert_or_update_match_entry = insert_match_entry;
@@ -367,7 +369,7 @@ set_match_type( int argc, char *argv[] ) {
 static void
 handle_add_filter_request( const messenger_context_handle *handle, add_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   request->entry.service_name[ MESSENGER_SERVICE_NAME_LENGTH - 1 ] = '\0';
   if ( strlen( request->entry.service_name ) == 0 ) {
@@ -392,7 +394,7 @@ handle_add_filter_request( const messenger_context_handle *handle, add_packetin_
 static void
 delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, void *user_data ) {
   UNUSED( data );
-  buffer *reply_buffer = user_data; 
+  buffer *reply_buffer = user_data;
   assert( reply_buffer != NULL );
 
   delete_packetin_filter_reply *reply = reply_buffer->data;
@@ -410,7 +412,7 @@ delete_filter_walker( struct ofp_match match, uint16_t priority, void *data, voi
 static void
 handle_delete_filter_request( const messenger_context_handle *handle, delete_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   buffer *buf = alloc_buffer_with_length( sizeof( delete_packetin_filter_reply ) );
   delete_packetin_filter_reply *reply = append_back_buffer( buf, sizeof( delete_packetin_filter_reply ) );
@@ -459,7 +461,7 @@ dump_filter_walker( struct ofp_match match, uint16_t priority, void *data, void 
 static void
 handle_dump_filter_request( const messenger_context_handle *handle, dump_packetin_filter_request *request ) {
   assert( handle != NULL );
-  assert( request != NULL ) ;
+  assert( request != NULL );
 
   buffer *buf = alloc_buffer_with_length( 2048 );
   dump_packetin_filter_reply *reply = append_back_buffer( buf, offsetof( dump_packetin_filter_reply, entries ) );
@@ -500,14 +502,14 @@ static void
 handle_request( const messenger_context_handle *handle, uint16_t tag, void *data, size_t length ) {
   assert( handle != NULL );
 
-  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %u ).",
+  debug( "Handling a request ( handle = %p, tag = %#x, data = %p, length = %zu ).",
          handle, tag, data, length );
 
   switch ( tag ) {
     case MESSENGER_ADD_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( add_packetin_filter_request ) ) {
-        error( "Invalid add packetin filter request ( length = %u ).", length );
+        error( "Invalid add packetin filter request ( length = %zu ).", length );
         return;
       }
 
@@ -517,7 +519,7 @@ handle_request( const messenger_context_handle *handle, uint16_t tag, void *data
     case MESSENGER_DELETE_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( delete_packetin_filter_request ) ) {
-        error( "Invalid delete packetin filter request ( length = %u ).", length );
+        error( "Invalid delete packetin filter request ( length = %zu ).", length );
         return;
       }
 
@@ -527,7 +529,7 @@ handle_request( const messenger_context_handle *handle, uint16_t tag, void *data
     case MESSENGER_DUMP_PACKETIN_FILTER_REQUEST:
     {
       if ( length != sizeof( dump_packetin_filter_request ) ) {
-        error( "Invalid dump packetin filter request ( length = %u ).", length );
+        error( "Invalid dump packetin filter request ( length = %zu ).", length );
         return;
       }
 

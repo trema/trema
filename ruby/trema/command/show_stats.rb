@@ -1,8 +1,4 @@
 #
-# trema show_stats command.
-#
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,9 +16,7 @@
 #
 
 
-require "optparse"
 require "trema/cli"
-require "trema/dsl"
 require "trema/util"
 
 
@@ -31,47 +25,34 @@ module Trema
     include Trema::Util
 
 
-    def show_stats
-      sanity_check
+    def trema_show_stats hostname, tx, rx
+      cli = get_cli( hostname )
 
-      stats = nil
-
-      options = OptionParser.new
-      options.banner = "Usage: #{ $0 } show_stats HOSTNAME [OPTIONS ...]"
-
-      options.on( "-t", "--tx" ) do
-        stats = :tx
+      unless tx || rx
+        show_tx_and_rx cli
       end
-      options.on( "-r", "--rx" ) do
-        stats = :rx
-      end
+      cli.show_tx_stats if tx
+      cli.show_rx_stats if rx
+    end
 
-      options.separator ""
 
-      options.on( "-h", "--help" ) do
-        puts options.to_s
-        exit 0
-      end
-      options.on( "-v", "--verbose" ) do
-        $verbose = true
-      end
+    ############################################################################
+    private
+    ############################################################################
 
-      options.parse! ARGV
 
-      host = Trema::DSL::Context.load_current.hosts[ ARGV[ 0 ] ]
-      raise "Unknown host: #{ ARGV[ 0 ] }" if host.nil?
+    def show_tx_and_rx cli
+      puts "Sent packets:"
+      cli.show_tx_stats
+      puts "Received packets:"
+      cli.show_rx_stats
+    end
 
-      case stats
-      when :tx
-        Trema::Cli.new( host ).show_tx_stats
-      when :rx
-        Trema::Cli.new( host ).show_rx_stats
-      else
-        puts "Sent packets:"
-        Trema::Cli.new( host ).show_tx_stats
-        puts "Received packets:"
-        Trema::Cli.new( host ).show_rx_stats
-      end
+
+    def get_cli name
+      host = find_host_by_name( name )
+      exit_now! "unknown host: #{ name }" if host.nil?
+      Trema::Cli.new host
     end
   end
 end

@@ -34,8 +34,8 @@ VALUE cFlowRemoved;
  * Returns an object that encapsulates the +OPPT_FLOW_REMOVED+ OpenFlow message.
  *
  * @overload initialize(options={})
- *   @example 
- *     FlowRemoved.new( 
+ *   @example
+ *     FlowRemoved.new(
  *       :datapath_id => 0xabc,
  *       :transaction_id => 0,
  *       :match => Match,
@@ -59,15 +59,15 @@ VALUE cFlowRemoved;
  *     unsolicited message transaction_id is zero.
  *
  *   @option options [Symbol] :match
- *     a {Match} object describing the flow fields copied from the corresponding 
+ *     a {Match} object describing the flow fields copied from the corresponding
  *     flow setup message.
  *
  *   @option options [Symbol] :cookie
- *     an opaque handle copied from the corresponding 
+ *     an opaque handle copied from the corresponding
  *     flow setup message.
  *
  *   @option options [Symbol] :priority
- *     the priority level of the flow copied from the corresponding 
+ *     the priority level of the flow copied from the corresponding
  *     flow setup message.
  *
  *   @option options [Symbol] :reason
@@ -80,7 +80,7 @@ VALUE cFlowRemoved;
  *     the number of nanoseconds the flow was active.
  *
  *   @option options [Symbol] :idle_timeout
- *     time elapsed in seconds before the flow is removed, copied from the 
+ *     time elapsed in seconds before the flow is removed, copied from the
  *     corresponding flow setup message.
  *
  *   @option options [Symbol] :packet_count

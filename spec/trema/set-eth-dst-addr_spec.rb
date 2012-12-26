@@ -59,7 +59,7 @@ describe SetEthDstAddr, ".new( VALID OPTION )" do
           0xabc,
           :actions => SetEthDstAddr.new( "52:54:00:a8:ad:8c" )
         )
-        sleep 2 # FIXME: wait to send_flow_mod
+        sleep 6 # FIXME: wait to send_flow_mod
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_dl_dst:52:54:00:a8:ad:8c/ )
       }

@@ -83,7 +83,7 @@ handle_flow_mod(
   uint16_t flags,
   const openflow_actions *actions,
   void *rbswitch
-){
+) {
   UNUSED( match );
   UNUSED( cookie );
   UNUSED( priority );

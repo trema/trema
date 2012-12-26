@@ -26,21 +26,21 @@ class Queue
     attr_accessor :queues
   end
 
-  
+
   # Add queue to list.
   # @param [PacketQueue] queue a {PacketQueue} instance.
   def self.append queue
     @queues ||= []
     @queues << queue unless @queues.include?(queue)
   end
-  
-  
+
+
   # @return [Array]
   #   an array of {PacketQueue} objects.
   def self.queues
     @queues
   end
-  
+
 
   # Iterate over each {PacketQueue} item.
   # @return [Array] a list of {PacketQueue} items.
@@ -57,11 +57,11 @@ class PacketQueue
   OFPQT_NONE = 0
   # Minimum datarate guaranteed.
   OFPQT_MIN_RATE = 1
-  
-  
+
+
   # Id for the specific queue.
   # @return [Number] queue_id
-  #   the value of attribute queue_id.  
+  #   the value of attribute queue_id.
   attr_accessor :queue_id
   # Queue description's length in bytes.
   # @return [Number] len
@@ -79,7 +79,7 @@ class PacketQueue
   #   id for the specific queue.
   # @option options [Symbol] :len
   #   queue description's length in bytes.
-  # 
+  #
   def initialize options
     @queue_id = options[ :queue_id ]
     @len = options[ :len ]
@@ -146,7 +146,7 @@ class MinRateQueue < QueueProperty
   #   the value of attribute rate.
   attr_accessor :rate
 
-  
+
   # An object that encapsulates the minimum rate queue property description.
   # @param [Number] property
   #   property queue id.

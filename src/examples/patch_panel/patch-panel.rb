@@ -1,6 +1,4 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,21 +16,39 @@
 #
 
 
-Then /^the stats of "([^"]*)" should be:$/ do | host, string |
-  step %{I try to run "./trema show_stats #{ host }" (log = "show_stats.log")}
-  step %{the content of "show_stats.log" should be:}, string
-end
+class PatchPanel < Controller
+  def start
+    @patch = []
+    File.open( "./patch-panel.conf" ).each_line do | each |
+      if /^(\d+)\s+(\d+)$/=~ each
+        @patch << [ $1.to_i, $2.to_i ]
+      end
+    end
+  end
 
 
-Then /^the tx stats of "([^"]*)" should be:$/ do | host, string |
-  step %{I try to run "./trema show_stats #{ host } --tx" (log = "show_stats.log")}
-  step %{the content of "show_stats.log" should be:}, string
-end
+  def switch_ready datapath_id
+    @patch.each do | port_a, port_b |
+      make_patch datapath_id, port_a, port_b
+    end
+  end
 
 
-Then /^the rx stats of "([^"]*)" should be:$/ do | host, string |
-  step %{I try to run "./trema show_stats #{ host } --rx" (log = "show_stats.log")}
-  step %{the content of "show_stats.log" should be:}, string
+  private
+
+
+  def make_patch datapath_id, port_a, port_b
+    send_flow_mod_add(
+      datapath_id,
+      :match => Match.new( :in_port => port_a ),
+      :actions => SendOutPort.new( port_b )
+    )
+    send_flow_mod_add(
+      datapath_id,
+      :match => Match.new( :in_port => port_b ),
+      :actions => SendOutPort.new( port_a )
+    )
+  end
 end
 
 

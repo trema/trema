@@ -1,6 +1,4 @@
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,7 +25,7 @@ module Trema
       %w(priority idle_timeout hard_timeout cookie packet_count byte_count actions)
     FIELDS.each { |field| attr_reader field.intern }
 
-    
+
     # Flow counters for one or more matched flows.
     # A user would not explicitly instantiate a {FlowStatsReply} object but
     # would be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_FLOW)+
@@ -35,10 +33,10 @@ module Trema
     #
     # @overload initialize(options={})
     #
-    #   @example 
+    #   @example
     #     FlowStatsReply.new(
     #       :length => 96,
-    #       :table_id => 0, 
+    #       :table_id => 0,
     #       :match => Match.new
     #       :duration_sec => 10,
     #       :duration_nsec => 106000000,
@@ -77,7 +75,7 @@ module Trema
     #     no deletion.
     #
     #   @option options [Number] :hard_timeout
-    #     a fixed time interval before the flow is deleted. Zero means no 
+    #     a fixed time interval before the flow is deleted. Zero means no
     #     deletion.
     #
     #   @option options [Number] :cookie
@@ -93,9 +91,9 @@ module Trema
     #     an array of action objects for the flow.
     #
     #   @return [FlowStatsReply]
-    #     an object that encapsulates the OFPST_STATS_REPLY(OPPST_FLOW) OpenFlow message.
+    #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_FLOW) OpenFlow message.
     #
-    def initialize options 
+    def initialize options
       super FIELDS, options
     end
   end
