@@ -40,7 +40,7 @@ Feature: Send hello messages
         path "./objects/examples/openflow_switch/hello_switch"
       }
       """
-    When I run `trema run "../../src/examples/openflow_message/hello.rb 0xabc, 10" -c hello-r.conf -d`
+    When I run `trema run "../../src/examples/openflow_message/hello.rb 10" -c hello-r.conf -d`
       And wait until "HelloController" is up
       And I run `trema killall`
     Then the file "../../tmp/log/customswitch.hello-r.log" should contain:
