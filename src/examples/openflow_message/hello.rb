@@ -20,6 +20,10 @@
 
 class HelloController < Controller
   def start
+    if ARGV.size < 2
+      STDERR.puts "Usage: #{ File.basename ARGV[ 0 ] } COUNT"
+      shutdown!
+    end
     @count = ARGV[ 1 ].to_i
   end
 
