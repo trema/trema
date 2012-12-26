@@ -4,7 +4,8 @@ Feature: Send hello messages
   As a Trema user
   I want to send hello messages to openflow switches
 
-  Background:
+  @slow_process
+  Scenario: Hello message in C
     Given a file named "hello.conf" with:
       """
       custom_switch("hello") { 
@@ -12,9 +13,6 @@ Feature: Send hello messages
         path "./objects/examples/openflow_switch/hello_switch"
       }
       """
-
-  @slow_process
-  Scenario: Hello trema
     When I run `trema run "../../objects/examples/openflow_message/hello 10" -c hello.conf -d`
       And wait until "hello" is up
       And I run `trema killall`
@@ -33,15 +31,29 @@ Feature: Send hello messages
       received: OFPT_HELLO
       """
 
-  @wip
-  Scenario: Hello trema in Ruby
-    When I try trema run "./src/examples/openflow_message/hello.rb 0xabc, 10" with following configuration (backgrounded):
+  @slow_process
+  Scenario: Hello message in Ruby
+    Given a file named "hello-r.conf" with:
       """
-      custom_switch("hello-r") {
-        datapath_id "0xabc"
+      custom_switch("hello-r") { 
+        datapath_id "0xabc" 
         path "./objects/examples/openflow_switch/hello_switch"
       }
       """
+    When I run `trema run "../../src/examples/openflow_message/hello.rb 0xabc, 10" -c hello-r.conf -d`
       And wait until "HelloController" is up
       And I run `trema killall`
-    Then the log file "customswitch.hello-r.log" should include "received: OFPT_HELLO" x 11
+    Then the file "../../tmp/log/customswitch.hello-r.log" should contain:
+      """
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      received: OFPT_HELLO
+      """
