@@ -488,7 +488,7 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
     VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
     if ( opt_data != Qnil ) {
       Check_Type( opt_data, T_STRING );
-      uint16_t length = ( u_int16_t ) RSTRING_LEN( opt_data );
+      uint16_t length = ( uint16_t ) RSTRING_LEN( opt_data );
       allocated_data = alloc_buffer_with_length( length );
       memcpy( append_back_buffer( allocated_data, length ), RSTRING_PTR( opt_data ), length );
       data = allocated_data;

@@ -37,7 +37,7 @@ get_xid( VALUE self ) {
 
 void
 set_length( const buffer *openflow_message, uint16_t length ) {
-  ( ( struct ofp_header * ) ( openflow_message->data ) )->length = htons( ( uint16_t ) ( sizeof( struct ofp_header ) + length ) );
+  ( ( struct ofp_header * ) ( openflow_message->data ) )->length = htons( length );
 }
 
 

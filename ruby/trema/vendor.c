@@ -110,7 +110,7 @@ vendor_init( int argc, VALUE *argv, VALUE self ) {
           Check_Type( tmp, T_ARRAY );
           uint16_t length = ( uint16_t ) RARRAY_LEN( tmp );
           append_back_buffer( vendor, length );
-          set_length( vendor, length );
+          set_length( vendor, ( uint16_t ) ( sizeof( struct ofp_vendor_header ) + length ) );
           uint8_t *data = ( uint8_t * ) ( ( char * ) vendor->data + sizeof( struct ofp_vendor_header ) );
           int i;
           for ( i = 0; i < length; i++ ) {
@@ -165,7 +165,7 @@ vendor_data( VALUE self ) {
   if ( length > 0 ) {
     VALUE data_array = rb_ary_new2( length );
     uint8_t *data = ( uint8_t * ) ( ( char * ) vendor->data + sizeof( struct ofp_vendor_header ) );
-    int i;
+    long i;
     for ( i = 0; i < length; i++ ) {
       rb_ary_push( data_array, INT2FIX( data[ i ] ) );
     }
@@ -205,8 +205,13 @@ handle_vendor(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "vendor" ) ), UINT2NUM( vendor ) );
 
-  if ( data->length ) {
-    rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), rb_str_new( data->data, ( long ) data->length ) );
+  if ( data != NULL && data->length > 0 ) {
+    VALUE data_array = rb_ary_new2( ( long ) data->length );
+    long i;
+    for ( i = 0; i < data->length; i++ ) {
+      rb_ary_push( data_array, INT2FIX( ( ( uint8_t * ) data->data)[ i ] ) );
+    }
+    rb_hash_aset( attributes, ID2SYM( rb_intern( "data" ) ), data_array );
   }
   VALUE vendor_r = rb_funcall( cVendor, rb_intern( "new" ), 1, attributes );
   rb_funcall( controller, rb_intern( "vendor" ), 2, ULL2NUM( datapath_id ), vendor_r );

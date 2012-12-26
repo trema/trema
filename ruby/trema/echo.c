@@ -61,9 +61,9 @@ echo_init( int argc, VALUE *argv, VALUE self ) {
       VALUE user_data = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
       if ( user_data != Qnil ) {
         Check_Type( user_data, T_STRING );
-        uint16_t length = ( u_int16_t ) RSTRING_LEN( user_data );
+        uint16_t length = ( uint16_t ) RSTRING_LEN( user_data );
         append_back_buffer( echo, length );
-        set_length( echo, length );
+        set_length( echo, ( uint16_t ) ( sizeof( struct ofp_header ) + length ) );
         memcpy( ( char * ) echo->data + sizeof( struct ofp_header ), RSTRING_PTR( user_data ), length );
       }
     }
