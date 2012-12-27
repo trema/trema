@@ -723,8 +723,7 @@ end
 ################################################################################
 
 openflow_messages = [
-  "echo_reply",
-  "echo_request",
+  "echo",
   "features_request",
   "hello",
   "set_config",
