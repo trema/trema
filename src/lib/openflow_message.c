@@ -2752,7 +2752,7 @@ validate_port_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_port_stats ),
+                         offsetof( struct ofp_stats_reply, body ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
