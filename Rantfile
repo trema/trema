@@ -688,6 +688,7 @@ end
 
 openflow_switches = [
   "hello_switch",
+  "echo_switch",
 ]
 
 openflow_switch_source_dir = "src/examples/openflow_switch"
