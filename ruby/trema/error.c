@@ -115,7 +115,7 @@ error_init( int argc, VALUE *argv, VALUE self ) {
     VALUE data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
     if ( data != Qnil ) {
       Check_Type( data, T_STRING );
-      uint16_t length = ( u_int16_t ) RSTRING_LEN( data );
+      uint16_t length = ( uint16_t ) RSTRING_LEN( data );
       append_back_buffer( error, length );
       ( ( struct ofp_header * ) ( error->data ) )->length = htons( ( uint16_t ) ( offsetof( struct ofp_error_msg, data ) + length ) );
       memcpy( ( char * ) error->data + offsetof( struct ofp_error_msg, data ), RSTRING_PTR( data ), length );

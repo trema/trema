@@ -49,25 +49,62 @@ VALUE cPacketIn;
   }
 
 
+typedef struct rb_packet_in {
+  packet_in packet_in;
+  buffer *data;
+} rb_packet_in;
+
+
+static void
+packet_in_free( rb_packet_in *_packet_in ) {
+  free_buffer( _packet_in->data );
+  xfree( _packet_in );
+}
+
+
 static VALUE
 packet_in_alloc( VALUE klass ) {
-  packet_in *_packet_in = xmalloc( sizeof( packet_in ) );
-  return Data_Wrap_Struct( klass, 0, xfree, _packet_in );
+  rb_packet_in *_packet_in = xmalloc( sizeof( rb_packet_in ) );
+  memset( &_packet_in->packet_in, 0, sizeof( packet_in ) );
+  _packet_in->data = alloc_buffer_with_length( 1 );
+  parse_packet( _packet_in->data );
+  _packet_in->packet_in.data = _packet_in->data;
+  return Data_Wrap_Struct( klass, 0, packet_in_free, _packet_in );
+}
+
+
+static VALUE
+packet_in_init_copy( VALUE self, VALUE orig ) {
+  if ( self == orig ) {
+    return self;
+  }
+
+  rb_packet_in *self_pin, *orig_pin;
+  Data_Get_Struct( self, rb_packet_in, self_pin );
+  Data_Get_Struct( self, rb_packet_in, orig_pin );
+
+  memcpy( &self_pin->packet_in, &orig_pin->packet_in, sizeof( packet_in ) );
+  free_buffer( self_pin->data );
+  self_pin->data = duplicate_buffer( orig_pin->data );
+  parse_packet( self_pin->data );
+  self_pin->packet_in.data = self_pin->data;
+
+  return self;
 }
 
 
 static packet_in *
 get_packet_in( VALUE self ) {
-  packet_in *cpacket;
-  Data_Get_Struct( self, packet_in, cpacket );
-  return cpacket;
+  rb_packet_in *cpacket;
+  Data_Get_Struct( self, rb_packet_in, cpacket );
+  return &cpacket->packet_in;
 }
 
 
 static packet_info *
 get_packet_in_info( VALUE self ) {
-  packet_in *cpacket;
-  Data_Get_Struct( self, packet_in, cpacket );
+  rb_packet_in *cpacket;
+  Data_Get_Struct( self, rb_packet_in, cpacket );
   return ( packet_info * ) cpacket->data->user_data;
 }
 
@@ -1046,6 +1083,8 @@ Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 
+  rb_define_method( cPacketIn, "initialize_copy", packet_in_init_copy, 1 );
+
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
   rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
@@ -1142,9 +1181,13 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   }
 
   VALUE r_message = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
-  packet_in *tmp = NULL;
-  Data_Get_Struct( r_message, packet_in, tmp );
-  memcpy( tmp, &message, sizeof( packet_in ) );
+  rb_packet_in *tmp = NULL;
+  Data_Get_Struct( r_message, rb_packet_in, tmp );
+  memcpy( &tmp->packet_in, &message, sizeof( packet_in ) );
+  free_buffer( tmp->data );
+  tmp->data = duplicate_buffer( message.data );
+  parse_packet( tmp->data );
+  tmp->packet_in.data = tmp->data;
 
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
 }

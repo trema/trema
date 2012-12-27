@@ -91,12 +91,12 @@ features_reply_init( VALUE self, VALUE options ) {
       rb_raise( rb_eArgError, ":transaction_id is a mandatory option" );
     }
   }
-  features_reply->header.xid = htonl( NUM2UINT( tmp ) );
+  features_reply->header.xid = htonl( ( uint32_t ) NUM2UINT( tmp ) );
 
   features_reply->n_buffers = 0;
   tmp = rb_hash_aref( options, ID2SYM( rb_intern( "n_buffers" ) ) );
   if ( tmp != Qnil ) {
-    features_reply->n_buffers = htonl( NUM2UINT( tmp ) );
+    features_reply->n_buffers = htonl( ( uint32_t ) NUM2UINT( tmp ) );
   }
 
   features_reply->n_tables = 1;
@@ -108,13 +108,13 @@ features_reply_init( VALUE self, VALUE options ) {
   features_reply->capabilities = 0;
   tmp = rb_hash_aref( options, ID2SYM( rb_intern( "capabilities" ) ) );
   if ( tmp != Qnil ) {
-    features_reply->capabilities = htonl( NUM2UINT( tmp ) );
+    features_reply->capabilities = htonl( ( uint32_t ) NUM2UINT( tmp ) );
   }
 
   features_reply->actions = htonl( 1 << OFPAT_OUTPUT );
   tmp = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
   if ( tmp != Qnil ) {
-    features_reply->actions = htonl( NUM2UINT( tmp ) );
+    features_reply->actions = htonl( ( uint32_t ) NUM2UINT( tmp ) );
   }
 
   // TODO: ports
