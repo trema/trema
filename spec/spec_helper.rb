@@ -25,6 +25,7 @@ $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "..", "
 require "rubygems"
 
 require "rspec"
+require "rspec/autorun"
 require "trema"
 require "trema/dsl/configuration"
 require "trema/dsl/context"
