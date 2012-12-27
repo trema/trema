@@ -21,40 +21,44 @@
 #include "chibach.h"
 
 
-static void handle_features_request( uint32_t, void * );
-static void handle_hello( uint32_t, uint8_t, void * );
-
-
 static void
-handle_features_request( uint32_t tid, void *user_data ) {
+handle_features_request( uint32_t xid, void *user_data ) {
   UNUSED( user_data );
 
-  uint32_t supported = ( ( 1 << OFPAT_OUTPUT ) | 
-                         ( 1 << OFPAT_SET_VLAN_VID ) | 
-                         ( 1 << OFPAT_SET_VLAN_PCP ) | 
-                         ( 1 << OFPAT_STRIP_VLAN ) | 
-                         ( 1 << OFPAT_SET_DL_SRC ) | 
-                         ( 1 << OFPAT_SET_DL_DST ) | 
-                         ( 1 << OFPAT_SET_NW_SRC ) | 
-                         ( 1 << OFPAT_SET_NW_DST ) | 
-                         ( 1 << OFPAT_SET_NW_TOS ) | 
-                         ( 1 << OFPAT_SET_TP_SRC ) | 
+  uint32_t supported = ( ( 1 << OFPAT_OUTPUT ) |
+                         ( 1 << OFPAT_SET_VLAN_VID ) |
+                         ( 1 << OFPAT_SET_VLAN_PCP ) |
+                         ( 1 << OFPAT_STRIP_VLAN ) |
+                         ( 1 << OFPAT_SET_DL_SRC ) |
+                         ( 1 << OFPAT_SET_DL_DST ) |
+                         ( 1 << OFPAT_SET_NW_SRC ) |
+                         ( 1 << OFPAT_SET_NW_DST ) |
+                         ( 1 << OFPAT_SET_NW_TOS ) |
+                         ( 1 << OFPAT_SET_TP_SRC ) |
                          ( 1 << OFPAT_SET_TP_DST ) );
 
-	buffer *msg = create_features_reply( tid, get_datapath_id(), 0, 1, 0, supported, NULL );
+  buffer *features_reply = create_features_reply(
+    xid,
+    get_datapath_id(),
+    0,
+    1,
+    0,
+    supported,
+    NULL
+  );
 
-  switch_send_openflow_message( msg );
+  switch_send_openflow_message( features_reply );
 }
 
 
 static void
-handle_hello( uint32_t tid, uint8_t version, void *user_data ) {
+handle_hello( uint32_t xid, uint8_t version, void *user_data ) {
   UNUSED( version );
   UNUSED( user_data );
 
   info( "received: OFPT_HELLO" );
 
-  switch_send_openflow_message( create_hello( tid ) );
+  switch_send_openflow_message( create_hello( xid ) );
 }
 
 
