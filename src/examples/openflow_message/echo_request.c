@@ -1,8 +1,6 @@
 /*
  * Sends echo_request messages to the specified datapath ID.
  *
- * Author: Shin-ya Zenke, Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,6 +42,17 @@ send_echo_requests( uint64_t datapath_id, void *count ) {
 }
 
 
+static void
+handle_echo_reply( uint64_t datapath_id, uint32_t xid, const buffer *data, void *user_data ) {
+  UNUSED( datapath_id );
+  UNUSED( xid );
+  UNUSED( data );
+  UNUSED( user_data );
+
+  info( "received: OFPT_ECHO_REPLY" );
+}
+
+
 int
 main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
@@ -55,6 +64,7 @@ main( int argc, char *argv[] ) {
 
   int count = atoi( argv[ 1 ] );
   set_switch_ready_handler( send_echo_requests, &count );
+  set_echo_reply_handler( handle_echo_reply, NULL );
 
   start_trema();
 

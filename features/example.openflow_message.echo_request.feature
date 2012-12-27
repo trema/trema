@@ -29,6 +29,7 @@ Feature: Send echo request messages
       received: OFPT_ECHO_REQUEST
       received: OFPT_ECHO_REQUEST
       """
+      And the file "../../tmp/log/echo_request.log" should match /received: OFPT_ECHO_REPLY/
 
   @slow_process
   Scenario: Echo request in Ruby
@@ -55,3 +56,4 @@ Feature: Send echo request messages
       received: OFPT_ECHO_REQUEST
       received: OFPT_ECHO_REQUEST
       """
+      # And the file "../../tmp/log/EchoRequestController.log" should match /received: OFPT_ECHO_REPLY/
