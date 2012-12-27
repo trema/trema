@@ -75,6 +75,11 @@ EOF
   end
 
 
+  def running?
+    FileTest.exists? Trema::DSL::Context::PATH
+  end
+
+
   def cleanup_current_session
     begin
       cleanup Trema::DSL::Context.load_current

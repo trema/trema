@@ -35,7 +35,7 @@ module Trema
         $use_tremashark = true
       end
 
-      cleanup_current_session
+      need_cleanup = ( not running? )
 
       if $run_as_daemon
         Trema::DSL::Runner.new( load_config ).daemonize
@@ -45,7 +45,7 @@ module Trema
         rescue SystemExit
           # This is OK
         ensure
-          cleanup_current_session
+          cleanup_current_session if need_cleanup
         end
       end
     end

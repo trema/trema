@@ -44,6 +44,9 @@ module Trema
 
 
       def maybe_run_switch_manager
+        # FIXME
+        return if FileTest.exists? File.join( Trema.pid, "switch_manager.pid" )
+
         switch_manager =
           if @context.switch_manager and @context.apps.values.size > 0
             last_app = @context.apps.values.last.name
