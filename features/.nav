@@ -27,6 +27,7 @@
   - topology:
     - show_switch_status.feature
     - show_topology.feature
+    - listener.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
@@ -51,3 +52,4 @@
   - trema-config.feature
 - topology:
   - usage.feature
+  - ruby.feature

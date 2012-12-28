@@ -6,7 +6,7 @@ This directory includes sample application using libtopology.
 - `show_topology` is a command line application, which retrieves 
   link information from Topology daemon and print them in trema network DSL style.
 
-- `show_swith_status` is a command line application, which retrieves 
+- `show_switch_status` is a command line application, which retrieves 
   switch and port information from Topology daemon and print them to stdout.
 
 - `enable_discovery` is a command line application, which enables
@@ -27,8 +27,8 @@ This directory includes sample application using libtopology.
         +----------+                         packet out(LLDP)       +-----------+
 
 
-How to run
-----------
+How to run (show_topology/show_switch_status)
+---------------------------------------------
 
 1. Change to trema directory and build trema, if you haven't done so already. 
 
@@ -51,7 +51,7 @@ How to run
 
         $ ./trema run ./objects/examples/topology/enable_discovery
 
-4. Run show_topology/show_switch_status from trema run 
+4. (C version) Run show_topology/show_switch_status from trema run 
 
         $ ./trema run objects/examples/topology/show_topology
         $ ./trema run objects/examples/topology/show_switch_status
@@ -60,6 +60,12 @@ How to run
 
         $ env TREMA_HOME=`pwd` src/examples/topology/show_topology
         $ env TREMA_HOME=`pwd` src/examples/topology/show_switch_status
+
+4. (Ruby version) Run show-topology.rb/show-switch-status.rb from trema run 
+
+        $ ./trema run src/examples/topology/show-topology.rb
+        $ ./trema run src/examples/topology/show-switch-status.rb
+
 
 
 License & Terms
