@@ -1,7 +1,5 @@
 /*
- * Author: Shuji Ishii, Kazushi SUGYO
- *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -18,32 +16,27 @@
  */
 
 
+#include "topology_option_parser.h"
+
 #include <assert.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <getopt.h>
 #include <stdio.h>
-#include <openflow.h>
-#include "trema.h"
-#include "topology_table.h"
-#include "service_management.h"
-#include "topology_management.h"
+#include <getopt.h>
+#include <netinet/ether.h>
 
+static char short_options[] = "w:e:am:io:r:";
 
-static char short_options[] = "io:r:";
 static struct option long_options[] = {
+  { "liveness_wait", required_argument, NULL, 'w'},
+  { "liveness_limit", required_argument, NULL, 'e'},
+  { "always_run_discovery", no_argument, NULL, 'a'},
+  { "lldp_mac_dst", required_argument, NULL, 'm' },
   { "lldp_over_ip", no_argument, NULL, 'i' },
   { "lldp_ip_src", required_argument, NULL, 'o' },
   { "lldp_ip_dst", required_argument, NULL, 'r' },
   { NULL, 0, NULL, 0  },
 };
 
-
-typedef struct {
-  topology_management_options management;
-} topology_options;
-
+static uint8_t g_lldp_default_dst[ ETH_ADDRLEN ] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e };
 
 void
 usage() {
@@ -51,6 +44,10 @@ usage() {
     "topology manager\n"
     "Usage: %s [OPTION]...\n"
     "\n"
+    "  -w, --liveness_wait=SEC         subscriber liveness check interval\n"
+    "  -e, --liveness_limit=COUNT      set liveness check error threshold\n"
+    "  -a, --always_run_discovery      discovery will always be enabled\n"
+    "  -m, --lldp_mac_dst=MAC_ADDR     destination Mac address for sending LLDP\n"
     "  -i, --lldp_over_ip              send LLDP messages over IP\n"
     "  -o, --lldp_ip_src=IP_ADDR       source IP address for sending LLDP over IP\n"
     "  -r, --lldp_ip_dst=IP_ADDR       destination IP address for sending LLDP over IP\n"
@@ -71,6 +68,21 @@ reset_getopt() {
   opterr = 1;
 }
 
+static bool
+set_mac_address_from_string( uint8_t *address, const char *string ) {
+  assert( address != NULL );
+  assert( string != NULL );
+
+  struct ether_addr *addr = ether_aton( string );
+  if ( addr == NULL ) {
+    error( "Invalid MAC address specified." );
+    return false;
+  }
+
+  memcpy( address, addr->ether_addr_octet, ETH_ADDRLEN );
+
+  return true;
+}
 
 static bool
 set_ip_address_from_string( uint32_t *address, const char *string ) {
@@ -90,7 +102,7 @@ set_ip_address_from_string( uint32_t *address, const char *string ) {
 }
 
 
-static void
+void
 parse_options( topology_options *options, int *argc, char **argv[] ) {
   assert( options != NULL );
   assert( argc != NULL );
@@ -104,33 +116,81 @@ parse_options( topology_options *options, int *argc, char **argv[] ) {
     new_argv[ i ] = ( *argv )[ i ];
   }
 
-  options->management.lldp_over_ip = false;
-  options->management.lldp_ip_src = 0;
-  options->management.lldp_ip_dst = 0;
+
+  options->service.ping_interval_sec = 60;
+  options->service.ping_ageout_cycles = 5;
+
+  memcpy( options->discovery.lldp.lldp_mac_dst, g_lldp_default_dst, ETH_ADDRLEN );
+  options->discovery.lldp.lldp_over_ip = false;
+  options->discovery.lldp.lldp_ip_src = 0;
+  options->discovery.lldp.lldp_ip_dst = 0;
+  options->discovery.always_enabled = false;
 
   int c;
   while ( ( c = getopt_long( *argc, *argv, short_options, long_options, NULL ) ) != -1 ) {
     switch ( c ) {
+      case 'w':
+      {
+        int sec = atoi( optarg );
+        if( sec <= 0 ) {
+          error( "Invalid liveness wait interval." );
+          usage();
+          exit( EXIT_FAILURE );
+          return;
+        }
+        options->service.ping_interval_sec = sec;
+        info( "Liveness check interval is set to %d seconds.", sec );
+        break;
+      }
+
+      case 'e':
+      {
+        int sec = atoi( optarg );
+        if( sec <= 0 ) {
+          error( "Invalid liveness check error count." );
+          usage();
+          exit( EXIT_FAILURE );
+          return;
+        }
+        options->service.ping_ageout_cycles = sec;
+        info( "Liveness check error threshold is set to %d.", sec );
+        break;
+      }
+
+      case 'a':
+        options->discovery.always_enabled = true;
+        info( "Discovery will always be enabled." );
+        break;
+
+      case 'm':
+        if ( set_mac_address_from_string( options->discovery.lldp.lldp_mac_dst, optarg ) == false ) {
+          usage();
+          exit( EXIT_FAILURE );
+          return;
+        }
+        info( "%s is used as destination address for sending LLDP.", ether_ntoa( ( const struct ether_addr * ) options->discovery.lldp.lldp_mac_dst ) );
+        break;
+
       case 'i':
         debug( "Enabling LLDP over IP" );
-        options->management.lldp_over_ip = true;
+        options->discovery.lldp.lldp_over_ip = true;
         break;
 
       case 'o':
-        if ( set_ip_address_from_string( &options->management.lldp_ip_src, optarg ) == false ) {
+        if ( set_ip_address_from_string( &options->discovery.lldp.lldp_ip_src, optarg ) == false ) {
           usage();
           exit( EXIT_FAILURE );
           return;
         }
-        info( "%s ( %#x ) is used as source address for sending LLDP over IP.", optarg, options->management.lldp_ip_src );
+        info( "%s ( %#x ) is used as source address for sending LLDP over IP.", optarg, options->discovery.lldp.lldp_ip_src );
         break;
       case 'r':
-        if ( set_ip_address_from_string( &options->management.lldp_ip_dst, optarg ) == false ) {
+        if ( set_ip_address_from_string( &options->discovery.lldp.lldp_ip_dst, optarg ) == false ) {
           usage();
           exit( EXIT_FAILURE );
           return;
         }
-        info( "%s ( %#x ) is used as destination address for sending LLDP over IP.", optarg, options->management.lldp_ip_dst );
+        info( "%s ( %#x ) is used as destination address for sending LLDP over IP.", optarg, options->discovery.lldp.lldp_ip_dst );
         break;
 
       default:
@@ -148,7 +208,7 @@ parse_options( topology_options *options, int *argc, char **argv[] ) {
     }
   }
 
-  if ( options->management.lldp_over_ip == true && ( options->management.lldp_ip_src == 0 || options->management.lldp_ip_dst == 0 ) ) {
+  if ( options->discovery.lldp.lldp_over_ip == true && ( options->discovery.lldp.lldp_ip_src == 0 || options->discovery.lldp.lldp_ip_dst == 0 ) ) {
     printf( "-o and -r options are mandatory." );
     usage();
     exit( EXIT_FAILURE );
@@ -168,33 +228,4 @@ parse_options( topology_options *options, int *argc, char **argv[] ) {
   reset_getopt();
 }
 
-
-int
-main( int argc, char *argv[] ) {
-  topology_options options;
-
-  init_trema( &argc, &argv );
-  parse_options( &options, &argc, &argv );
-  init_topology_table();
-  init_topology_management( options.management );
-
-  start_topology_management();
-  start_service_management();
-
-  start_trema();
-
-  stop_service_management();
-  stop_topology_management();
-  finalize_topology_table();
-
-  return 0;
-}
-
-
-/*
- * Local variables:
- * c-basic-offset: 2
- * indent-tabs-mode: nil
- * End:
- */
 

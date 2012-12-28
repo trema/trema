@@ -24,6 +24,9 @@
     - delete_forward_entry.feature
     - dump_forward_entries.feature
     - set_forward_entries.feature
+  - topology:
+    - show_switch_status.feature
+    - show_topology.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
@@ -46,3 +49,5 @@
   - switch_manager.feature
   - packetin_filter.feature
   - trema-config.feature
+- topology:
+  - usage.feature

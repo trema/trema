@@ -1,7 +1,7 @@
 /*
  * Author: Shuji Ishii
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -25,13 +25,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "etherip.h"
 #include "trema.h"
-#include "probe_timer_table.h"
 #include "lldp.h"
 
 
-static int recv_lldp( uint64_t *dpid, uint16_t *port, const buffer *buf );
 static buffer *create_lldp_frame( const uint8_t *mac, uint64_t dpid,
                                   uint16_t port_no );
 static int parse_lldp_ull( void *str, uint64_t *value, uint32_t len );
@@ -45,15 +42,16 @@ static uint32_t lldp_ip_dst = 0;
 
 
 bool
-send_lldp( probe_timer_entry *port ) {
+send_lldp( const uint8_t *mac, uint64_t dpid, uint16_t port_no ) {
   buffer *lldp;
 
-  lldp = create_lldp_frame( port->mac, port->datapath_id, port->port_no );
+  lldp = create_lldp_frame( mac, dpid, port_no );
 
   openflow_actions *actions = create_actions();
-  if ( !append_action_output( actions, port->port_no, UINT16_MAX ) ) {
+  if ( !append_action_output( actions, port_no, UINT16_MAX ) ) {
     free_buffer( lldp );
-    error( "Failed to sent LLDP frame(%#" PRIx64 ", %u)", port->datapath_id, port->port_no );
+    delete_actions( actions );
+    error( "Failed to create send LLDP action(%#" PRIx64 ", %u)", dpid, port_no );
     return false;
   }
 
@@ -61,24 +59,25 @@ send_lldp( probe_timer_entry *port ) {
 
   buffer *packetout = create_packet_out( transaction_id, UINT32_MAX,
                                          OFPP_NONE, actions, lldp );
-  if ( !send_openflow_message( port->datapath_id, packetout ) ) {
+  if ( !send_openflow_message( dpid, packetout ) ) {
     free_buffer( lldp );
     free_buffer( packetout );
     delete_actions( actions );
-    die( "send_openflow_message" );
+    error( "Failed to send LLDP frame(%#" PRIx64 ", %u)", dpid, port_no );
+    return false;
   }
 
   free_buffer( lldp );
   free_buffer( packetout );
   delete_actions( actions );
 
-  debug( "Sent LLDP frame(%#" PRIx64 ", %u)", port->datapath_id, port->port_no );
+  debug( "Sent LLDP frame(%#" PRIx64 ", %u)", dpid, port_no );
   return true;
 }
 
 
-static int
-recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
+bool
+parse_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
   int ret;
   size_t remain_len = 0;
   uint16_t *lldp_tlv = NULL;
@@ -95,7 +94,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
 
   if ( packet_type_eth_vtag( buf ) ) {
     error( "no vlan tag is supported" );
-    return -1;
+    return false;
   }
 
   remain_len -= sizeof( ether_header_t );
@@ -103,7 +102,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
   if ( packet_info->eth_type == ETH_ETHTYPE_LLDP ) {
     if ( memcmp( packet_info->eth_macda, lldp_mac_dst, ETH_ADDRLEN ) != 0 ) {
       debug( "Unknown MAC address ( %s ).", ether_ntoa( ( const struct ether_addr *) packet_info->eth_macda ) );
-      return -1;
+      return false;
     }
     lldp_tlv = packet_info->l2_payload;
   }
@@ -111,7 +110,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
     if ( packet_info->ipv4_daddr != lldp_ip_dst ||
          packet_info->ipv4_saddr != lldp_ip_src ) {
       warn( "Unknown IP address ( src = %#x, dst = %#x ).", packet_info->ipv4_saddr, packet_info->ipv4_daddr );
-      return -1;
+      return false;
     }
 
     remain_len -= sizeof( ipv4_header_t ) + sizeof( etherip_header ) + sizeof( ether_header_t );
@@ -119,26 +118,26 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
   }
   else {
     error( "Unsupported ether type ( %#x ).", packet_info->eth_type );
-    return -1;
+    return false;
   }
 
   do {
     if ( remain_len < LLDP_TLV_HEAD_LEN ) {
       info( "Missing size of LLDP tlv header." );
-      return -1;
+      return false;
     }
     assert( lldp_tlv );
     type = LLDP_TYPE( *lldp_tlv );
     len = ( uint32_t ) LLDP_LEN( *lldp_tlv );
     if ( len > LLDP_TLV_INFO_MAX_LEN ) {
       info( "Missing length of LLDP tlv header ( len = %u ).", len );
-      return -1;
+      return false;
     }
 
     remain_len -= LLDP_TLV_HEAD_LEN;
     if ( remain_len < len ) {
       info( "Missing size of LLDP data unit." );
-      return -1;
+      return false;
     }
 
     lldp_du = ( uint8_t * ) lldp_tlv + LLDP_TLV_HEAD_LEN;
@@ -147,14 +146,14 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
     case LLDP_TYPE_END:
       if ( len != 0 ) {
         info( "Missing length of LLDP END ( len = %u ).", len );
-        return -1;
+        return false;
       }
       break;
 
     case LLDP_TYPE_CHASSIS_ID:
       if ( len > ( LLDP_SUBTYPE_LEN + LLDP_TLV_CHASSIS_ID_INFO_MAX_LEN ) ) {
         info( "Missing length of LLDP CHASSIS ID ( len = %u ).", len );
-        return -1;
+        return false;
       }
       subtype = *( ( uint8_t * ) lldp_du );
       lldp_du += LLDP_SUBTYPE_LEN;
@@ -163,7 +162,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
         ret = parse_lldp_ull( lldp_du, dpid, len - LLDP_SUBTYPE_LEN );
         if ( ret < 0 ) {
           info( "Failed to parse dpid." );
-          return -1;
+          return false;
         }
         break;
 
@@ -175,7 +174,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
     case LLDP_TYPE_PORT_ID:
       if ( len > ( LLDP_SUBTYPE_LEN + LLDP_TLV_PORT_ID_INFO_MAX_LEN ) ) {
         info( "Missing length of LLDP PORT ID ( len = %u ).", len );
-        return -1;
+        return false;
       }
       subtype = *( ( uint8_t * ) lldp_du );
       lldp_du += LLDP_SUBTYPE_LEN;
@@ -184,7 +183,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
         ret = parse_lldp_us( lldp_du, port_no, len - LLDP_SUBTYPE_LEN );
         if ( ret < 0 ) {
           info( "Failed to parse port_no." );
-          return -1;
+          return false;
         }
         break;
 
@@ -196,7 +195,7 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
     case LLDP_TYPE_TTL:
       if ( len != 2 ) {
         info( "Missing length of LLDP TTL ( len = %u ).", len );
-        return -1;
+        return false;
       }
       break;
 
@@ -210,14 +209,14 @@ recv_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf ) {
 
     default:
       info( "Unknown LLDP type (%#x).", type );
-      return -1;
+      return false;
     }
 
     remain_len -= len;
     lldp_tlv = ( uint16_t * ) ( ( uint8_t * ) lldp_tlv + LLDP_TLV_HEAD_LEN + len );
   } while ( type != LLDP_TYPE_END );
 
-  return 0;
+  return true;
 }
 
 
@@ -377,42 +376,7 @@ parse_lldp_us( void *str, uint16_t *value, uint32_t len ) {
 }
 
 
-static void
-handle_packet_in( uint64_t dst_datapath_id,
-                  uint32_t transaction_id __attribute__((unused)),
-                  uint32_t buffer_id __attribute__((unused)),
-                  uint16_t total_len __attribute__((unused)),
-                  uint16_t dst_port_no,
-                  uint8_t reason __attribute__((unused)),
-                  const buffer *m,
-                  void *user_data __attribute__((unused)) ) {
-  packet_info *packet_info = m->user_data;
-  assert( packet_info != NULL );
 
-  // check if LLDP or not
-  if ( packet_info->eth_type != lldp_ethtype ) {
-    notice( "Non-LLDP packet is received ( type = %#x ).", packet_info->eth_type );
-    return;
-  }
-
-  uint64_t src_datapath_id;
-  uint16_t src_port_no;
-  if ( recv_lldp( &src_datapath_id, &src_port_no, m ) < 0 ) {
-    return;
-  }
-
-  debug( "Receive LLDP Frame (%#" PRIx64 ", %u) from (%#" PRIx64 ", %u).",
-         dst_datapath_id, dst_port_no, src_datapath_id, src_port_no );
-  probe_timer_entry *entry = delete_probe_timer_entry( &src_datapath_id,
-                                                       src_port_no );
-  if ( entry == NULL ) {
-    debug( "Not found dst datapath_id (%#" PRIx64 ", %u).", src_datapath_id,
-            src_port_no );
-    return;
-  }
-
-  probe_request( entry, PROBE_TIMER_EVENT_RECV_LLDP, &dst_datapath_id, dst_port_no );
-}
 
 
 bool
@@ -421,9 +385,6 @@ init_lldp( lldp_options options ) {
   lldp_over_ip = options.lldp_over_ip;
   lldp_ip_src = options.lldp_ip_src;
   lldp_ip_dst = options.lldp_ip_dst;
-
-  init_openflow_application_interface( get_trema_name() );
-  set_packet_in_handler( handle_packet_in, NULL );
 
   return true;
 }

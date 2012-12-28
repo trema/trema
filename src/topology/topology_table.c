@@ -1,7 +1,7 @@
 /*
  * Author: Shuji Ishii, Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -27,7 +27,7 @@ static list_element *sw_table;
 
 
 link_to *
-update_link_to( port_entry *port, uint64_t *datapath_id, uint16_t port_no, bool up ) {
+update_link_to( port_entry *port, const uint64_t *datapath_id, uint16_t port_no, bool up ) {
   if ( port->link_to != NULL ) {
     xfree( port->link_to );
     port->link_to = NULL;
@@ -82,9 +82,12 @@ port_entry *
 update_port_entry( sw_entry *sw, uint16_t port_no, const char *name ) {
   port_entry *entry;
 
-  entry = lookup_port_entry( sw, port_no, name );
+  entry = lookup_port_entry_by_port( sw, port_no );
   if ( entry != NULL ) {
-      return entry;
+    if ( name != NULL && strcmp( entry->name, name ) != 0 ) {
+      strncpy( entry->name, name, sizeof( entry->name ) );
+    }
+    return entry;
   }
   entry = allocate_port_entry( sw, port_no, name );
   insert_in_front( &( sw->port_table ), entry );
@@ -102,27 +105,31 @@ delete_port_entry( sw_entry *sw, port_entry *port ) {
 
 
 port_entry *
-lookup_port_entry( sw_entry *sw, uint16_t port_no, const char *name ) {
-  port_entry *store = NULL, *entry;
+lookup_port_entry_by_port( sw_entry *sw, uint16_t port_no ) {
+  port_entry *entry;
   list_element *list;
-
   for ( list = sw->port_table; list != NULL; list = list->next ) {
     entry = list->data;
-    if ( name == NULL ) {
-      if ( entry->port_no == port_no ) {
-        return entry;
-      }
-    } else {
-      if ( strcmp( entry->name, name ) == 0 ) {
-        return entry;
-      }
-      if ( entry->port_no == port_no ) {
-        store = entry;
-      }
+    if( entry->port_no == port_no ) {
+      return entry;
     }
   }
-  if ( store != NULL ) {
-    return store;
+
+  return NULL;
+}
+
+
+port_entry *
+lookup_port_entry_by_name( sw_entry *sw, const char *name ) {
+  if ( name == NULL ) return NULL;
+
+  port_entry *entry;
+  list_element *list;
+  for ( list = sw->port_table; list != NULL; list = list->next ) {
+    entry = list->data;
+    if( strcmp( entry->name, name ) == 0 ) {
+      return entry;
+    }
   }
 
   return NULL;
@@ -154,12 +161,13 @@ foreach_port_entry( void function( port_entry *entry, void *user_data ),
 
 
 static sw_entry *
-allocate_sw_entry( uint64_t *datapath_id ) {
+allocate_sw_entry( const uint64_t *datapath_id ) {
   sw_entry *new_entry;
 
   new_entry = xmalloc( sizeof( sw_entry ) );
   new_entry->datapath_id = *datapath_id;
   new_entry->id = get_transaction_id();
+  new_entry->up = true;
   create_list( &( new_entry->port_table ) );
 
   return new_entry;
@@ -179,7 +187,7 @@ free_sw_entry( sw_entry *sw ) {
 
 
 sw_entry *
-update_sw_entry( uint64_t *datapath_id ) {
+update_sw_entry( const uint64_t *datapath_id ) {
   sw_entry *entry;
 
   entry = lookup_sw_entry( datapath_id );
@@ -202,7 +210,7 @@ delete_sw_entry( sw_entry *sw ) {
 
 
 sw_entry *
-lookup_sw_entry( uint64_t *datapath_id ) {
+lookup_sw_entry( const uint64_t *datapath_id ) {
   sw_entry *entry;
   list_element *list;
 

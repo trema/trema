@@ -18,13 +18,9 @@
  */
 
 
-#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "trema.h"
-#include "libtopology.h"
-#include "show_topology.h"
-//#include "topology_service_interface_option_parser.h"
 
 
 struct dpid_entry {
@@ -71,7 +67,7 @@ min_dpid( const uint64_t a, const uint64_t b ) {
 }
 
 
-void
+static void
 print_with_dsl_format( void *param, size_t entries, const topology_link_status *s ) {
   size_t i;
 
@@ -148,6 +144,42 @@ print_with_dsl_format( void *param, size_t entries, const topology_link_status *
   delete_hash( link_hash );
 
   stop_trema();
+}
+
+
+void
+usage() {
+  topology_service_interface_usage( get_executable_name(), "show topology", NULL );
+}
+
+
+static void
+timed_out( void *user_data ) {
+  UNUSED( user_data );
+
+  error( "timed out." );
+
+  stop_trema();
+}
+
+
+int
+main( int argc, char *argv[] ) {
+  init_trema( &argc, &argv );
+  init_topology_service_interface_options( &argc, &argv );
+  init_libtopology( get_topology_service_interface_name() );
+
+
+  get_all_link_status( print_with_dsl_format, NULL );
+
+  add_periodic_event_callback( 10, timed_out, NULL );
+
+  start_trema();
+
+  finalize_libtopology();
+  finalize_topology_service_interface_options();
+
+  return 0;
 }
 
 

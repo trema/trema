@@ -45,6 +45,8 @@
 #include "persistent_storage.h"
 #include "stat.h"
 #include "timer.h"
+#include "topology.h"
+#include "topology_service_interface_option_parser.h"
 #include "utility.h"
 #include "wrapper.h"
 

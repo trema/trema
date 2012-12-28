@@ -1,7 +1,7 @@
 /*
  * Author: Shuji Ishii, Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -22,9 +22,10 @@
 #include <inttypes.h>
 #include <unistd.h>
 #include "trema.h"
-#include "libtopology.h"
-#include "lldp.h"
 #include "probe_timer_table.h"
+
+#include "discovery_management.h"
+#include "service_management.h"
 
 
 dlist_element *probe_timer_table;
@@ -39,12 +40,14 @@ get_current_time( struct timespec *now ) {
 
 static inline void
 set_expires( long millisecond, probe_timer_entry *entry ) {
+  const long MSEC_IN_NSEC = 1000000;
+  const long SEC_IN_NSEC = 1000000000;
   get_current_time( &( entry->expires ) );
   entry->expires.tv_sec += millisecond / 1000;
-  entry->expires.tv_nsec += ( millisecond * 1000000 ) % 1000000000;
-  if ( entry->expires.tv_nsec >= 1000000000 ) {
+  entry->expires.tv_nsec += ( millisecond * MSEC_IN_NSEC ) % SEC_IN_NSEC;
+  if ( entry->expires.tv_nsec >= SEC_IN_NSEC ) {
     entry->expires.tv_sec++;
-    entry->expires.tv_nsec -= 1000000000;
+    entry->expires.tv_nsec -= SEC_IN_NSEC;
   }
   debug( "set expires: %ld", millisecond );
 }
@@ -77,7 +80,7 @@ timespec_le( const struct timespec *a, const struct timespec *b ) {
 
 
 static inline void
-peer_port_status_update( probe_timer_entry *entry ) {
+mark_peer_dirty_if_link_up( probe_timer_entry *entry ) {
   probe_timer_entry *peer = lookup_probe_timer_entry( &entry->to_datapath_id, entry->to_port_no );
   if ( peer == NULL ) {
     return;
@@ -89,7 +92,7 @@ peer_port_status_update( probe_timer_entry *entry ) {
 
 
 static inline void
-peer_link_status_update( probe_timer_entry *entry ) {
+mark_peer_dirty_if_link_mismatch( probe_timer_entry *entry ) {
   probe_timer_entry *peer = lookup_probe_timer_entry( &entry->to_datapath_id, entry->to_port_no );
   if ( peer == NULL ) {
     return;
@@ -142,6 +145,7 @@ reset_wait_state( probe_timer_entry *entry ) {
     set_random_expires( 4000, 8000, entry );
   }
   else {
+    // unreachable in current transition rule.
     set_expires( 16000, entry );
   }
 }
@@ -183,12 +187,12 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           break;
         case PROBE_TIMER_EVENT_TIMEOUT:
           set_wait_state( entry );
-          bool ret = send_lldp( entry );
+          bool ret = send_probe( entry->mac, entry->datapath_id, entry->port_no );
           if ( !ret ) {
             reset_wait_state( entry );
           }
           else {
-	    entry->dirty = false;
+            entry->dirty = false;
           }
           break;
         default:
@@ -212,23 +216,24 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           entry->to_datapath_id = *dpid;
           entry->to_port_no = port_no;
           entry->link_up = true;
-          bool ret = set_link_status( &link_status, NULL, NULL );
-          if ( ret ) {
-	    peer_link_status_update( entry );
-	  }
-	  else {
+          debug( "Link up (%#" PRIx64 ":%u)->(%#" PRIx64 ":%u)", link_status.from_dpid, link_status.from_portno, link_status.to_dpid, link_status.to_portno );
+          uint8_t result = set_discovered_link_status( &link_status );
+          if ( result == TD_RESPONSE_OK ) {
+            mark_peer_dirty_if_link_mismatch( entry );
+          }
+          else {
             reset_confirmed_state( entry );
           }
           break;
         case PROBE_TIMER_EVENT_TIMEOUT:
           if ( --entry->retry_count > 0 ) {
             set_wait_state( entry );
-            bool ret = send_lldp( entry );
+            bool ret = send_probe( entry->mac, entry->datapath_id, entry->port_no );
             if ( !ret ) {
               reset_wait_state( entry );
             }
             else {
-	      entry->dirty = false;
+              entry->dirty = false;
             }
           } else {
             set_confirmed_state( entry );
@@ -247,11 +252,12 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
             entry->to_datapath_id = 0;
             entry->to_port_no = 0;
             entry->link_up = false;
-            bool ret = set_link_status( &link_status, NULL, NULL );
-            if ( ret ) {
-	      peer_link_status_update( entry );
-	    }
-	    else {
+            debug( "Link down (%#" PRIx64 ":%u)->(%#" PRIx64 ":%u)", link_status.from_dpid, link_status.from_portno, link_status.to_dpid, link_status.to_portno );
+            uint8_t result = set_discovered_link_status( &link_status );
+            if ( result == TD_RESPONSE_OK ) {
+              mark_peer_dirty_if_link_mismatch( entry );
+            }
+            else {
               reset_confirmed_state( entry );
             }
           }
@@ -266,7 +272,8 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           set_inactive_state( entry );
           break;
         case PROBE_TIMER_EVENT_TIMEOUT:
-          if ( --entry->retry_count > 0
+          --(entry->retry_count);
+          if ( entry->retry_count > 0
             && !entry->dirty ) {
             set_confirmed_state( entry );
           } else {
@@ -277,7 +284,7 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
           if ( !entry->link_up ) {
             // unstable link
             set_confirmed_state( entry );
-	    entry->dirty = true;
+            entry->dirty = true;
 
             topology_update_link_status link_status;
             link_status.from_dpid = entry->datapath_id;
@@ -285,7 +292,11 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
             link_status.to_dpid = *dpid;
             link_status.to_portno = port_no;
             link_status.status = TD_LINK_UNSTABLE;
-            set_link_status( &link_status, NULL, NULL );
+            debug( "Link unstable (%#" PRIx64 ":%u)->(%#" PRIx64 ":%u)", link_status.from_dpid, link_status.from_portno, link_status.to_dpid, link_status.to_portno );
+            uint8_t result = set_discovered_link_status( &link_status );
+            if ( result != TD_RESPONSE_OK ) {
+              warn( "Failed to set (%#" PRIx64 ",%d)->(%#" PRIx64 ",%d) status to TD_LINK_UNSTABLE.", link_status.from_dpid, link_status.from_portno, link_status.to_dpid, link_status.to_portno );
+            }
           }
           break;
         default:
@@ -298,28 +309,16 @@ probe_request( probe_timer_entry *entry, int event, uint64_t *dpid, uint16_t por
   }
 
   if ( entry->state != old_state ) {
-    debug( "Update probe state: %d <= %d by event %d. dpid %" PRIx64 " %u.",
+    debug( "Update probe state: %d <= %d by event %d. dpid %#" PRIx64 " %u.",
            entry->state, old_state, event,
            entry->datapath_id, entry->port_no );
   }
 
   if ( entry->state == PROBE_TIMER_STATE_INACTIVE ) {
-    peer_port_status_update( entry );
+    mark_peer_dirty_if_link_up( entry );
   }
   else {
     insert_probe_timer_entry( entry );
-  }
-}
-
-
-static inline void
-timespec_sub( const struct timespec *a, const struct timespec *b,
-              struct timespec *result ) {
-  result->tv_sec = a->tv_sec - b->tv_sec;
-  result->tv_nsec = a->tv_nsec - b->tv_nsec;
-  if ( result->tv_nsec < 0 ) {
-    result->tv_sec--;
-    result->tv_nsec += 1000000000;
   }
 }
 
@@ -338,6 +337,13 @@ set_interval_timer( void ) {
 
   add_timer_event_callback( &interval, interval_timer_event, NULL );
   debug( "set interval timer" );
+}
+
+
+static void
+remove_interval_timer( void ) {
+  delete_timer_event( interval_timer_event, NULL );
+  debug( "remove interval timer" );
 }
 
 
@@ -378,6 +384,8 @@ init_probe_timer_table( void ) {
 
 void
 finalize_probe_timer_table( void ) {
+  remove_interval_timer();
+
   dlist_element *dlist;
   for ( dlist = probe_timer_table->next; dlist != NULL; dlist = dlist->next ) {
     xfree( dlist->data );

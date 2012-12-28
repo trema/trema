@@ -1,7 +1,7 @@
 /*
  * Author: Shuji Ishii, Kazushi SUGYO
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -27,6 +27,8 @@
 
 typedef struct subscriber_entry {
   char *name;
+  bool use_discovery;
+  time_t last_seen;
 } subscriber_entry;
 
 
@@ -37,6 +39,14 @@ void delete_subscriber_entry( subscriber_entry *entry );
 subscriber_entry *lookup_subscriber_entry( const char *name );
 void foreach_subscriber( void function( subscriber_entry *entry, void *user_data ), void *user_data );
 
+
+// Use if generalizing subscriber table.
+//typedef struct subscriber_table_t {
+//  list_element* subscribers;
+//} subscriber_table_t;
+
+// subscriber_table_t* create_subscriber_table(void);
+// void delete_subscriber_table(subscriber_table_t* table);
 
 #endif // SUBSCRIBER_TABLE_H
 

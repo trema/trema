@@ -21,9 +21,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "trema.h"
-#include "libtopology.h"
-#include "show_topology.h"
-#include "topology_service_interface_option_parser.h"
 
 
 void
@@ -42,52 +39,16 @@ timed_out( void *user_data ) {
 }
 
 
-void
-print_port_status( void *user_data, size_t number, const topology_port_status *ports ) {
+static void
+result_response( void *user_data, const topology_response *res ) {
   UNUSED( user_data );
-  const topology_port_status *port = ports;
-  
-  printf( "Port status\n" );
-  for ( size_t i = 0; i < number; i++, port++ ) {
-    const char *status = "unknown";
-    switch ( port->status ) {
-      case TD_PORT_DOWN:
-        status = "down";
-        break;
-      case TD_PORT_UP:
-        status = "up";
-        break;
-    }
-    printf( "  dpid : 0x%" PRIx64 ", port : 0x%d(%s), status : %s\n", 
-            port->dpid, port->port_no, port->name, status );
+  if ( res->status != TD_RESPONSE_OK ) {
+    error( "Enable topology discovery failed" );
+  } else {
+    info( "Enabled topology discovery" );
   }
-  
   stop_trema();
 }
-
-
-void
-print_switch_status( void *user_data, size_t number, const topology_switch_status *switches ) {
-  UNUSED( user_data );
-  const topology_switch_status *sw = switches;
-
-  printf( "Switch status\n" );
-  for ( size_t i = 0; i < number; i++, sw++ ) {
-    const char *status = "unknown";
-    switch ( sw->status ) {
-      case TD_SWITCH_DOWN:
-        status = "down";
-        break;
-      case TD_SWITCH_UP:
-        status = "up";
-        break;
-    }
-    printf( "  dpid : 0x%" PRIx64 ", status : %s\n", sw->dpid, status );
-  }
-  
-  get_all_port_status( print_port_status, NULL );
-}
-
 
 int
 main( int argc, char *argv[] ) {
@@ -95,7 +56,7 @@ main( int argc, char *argv[] ) {
   init_topology_service_interface_options( &argc, &argv );
   init_libtopology( get_topology_service_interface_name() );
 
-  get_all_switch_status( print_switch_status, NULL );
+  enable_topology_discovery( result_response, NULL );
 
   add_periodic_event_callback( 15, timed_out, NULL );
 

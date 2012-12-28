@@ -1,6 +1,4 @@
 /*
- * Author: Shuji Ishii, Kazushi SUGYO
- *
  * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,23 +16,32 @@
  */
 
 
-#ifndef TOPOLOGY_MANAGEMENT_H
-#define TOPOLOGY_MANAGEMENT_H
+#ifndef DISCOVERY_MANAGEMENT_H_
+#define DISCOVERY_MANAGEMENT_H_
+
+#include "lldp.h"
+
+typedef struct discovery_management_options {
+  lldp_options lldp;
+  bool always_enabled;
+} discovery_management_options;
+
+bool init_discovery_management( discovery_management_options new_options );
+void finalize_discovery_management( void );
+
+bool start_discovery_management( void );
 
 
-#include "trema.h"
-
-bool init_topology_management( void );
-void finalize_topology_management( void );
-
-bool start_topology_management( void );
-
-#endif // TOPOLOGY_MANAGEMENT_H
-
-
-/*
- * Local variables:
- * c-basic-offset: 2
- * indent-tabs-mode: nil
- * End:
+/**
+ * Enable discovery.
  */
+extern void (* enable_discovery )( void );
+extern void (* disable_discovery )( void );
+
+// TODO Future work: port masking API etc.
+
+
+extern bool ( *send_probe )( const uint8_t *mac, uint64_t dpid, uint16_t port_no );
+
+
+#endif /* DISCOVERY_MANAGEMENT_H_ */

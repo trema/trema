@@ -3,7 +3,7 @@
  *
  * Author: Shuji Ishii
  *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -24,7 +24,11 @@
 #define LLDP_H
 
 
-#include "probe_timer_table.h"
+#include <inttypes.h>
+#include <stdbool.h>
+#include "buffer.h"
+#include "ether.h"
+//#include "probe_timer_table.h"
 
 
 #define LLDP_TLV_INFO_MAX_LEN 511U
@@ -111,7 +115,8 @@ typedef struct {
 } lldp_options;
 
 
-bool send_lldp( probe_timer_entry *port );
+bool send_lldp( const uint8_t *mac, uint64_t dpid, uint16_t port_no );
+bool parse_lldp( uint64_t *dpid, uint16_t *port_no, const buffer *buf );
 bool init_lldp( lldp_options options );
 bool finalize_lldp( void );
 

@@ -1,7 +1,5 @@
 /*
- * Author: Shuji Ishii, Kazushi SUGYO
- *
- * Copyright (C) 2008-2011 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -18,25 +16,21 @@
  */
 
 
-#ifndef SHOW_TOPOLOGY_H
-#define SHOW_TOPOLOGY_H
+#ifndef TOPOLOGY_OPTION_PARSER_H_
+#define TOPOLOGY_OPTION_PARSER_H_
+
+#include "service_management.h"
+#include "discovery_management.h"
 
 
-#include <sys/types.h>
-#include "libtopology.h"
+typedef struct {
+  service_management_options service;
+  discovery_management_options discovery;
+} topology_options;
 
 
-void print_with_dsl_format( void *param, size_t entries, const topology_link_status *s );
-void print_with_graph_easy_format( void *param, size_t entries, const topology_link_status *s );
-void print_with_csv_format( void *param, size_t entries, const topology_link_status *s );
+void
+parse_options( topology_options *options, int *argc, char **argv[] );
 
 
-#endif // SHOW_TOPOLOGY_H
-
-
-/*
- * Local variables:
- * c-basic-offset: 2
- * indent-tabs-mode: nil
- * End:
- */
+#endif /* TOPOLOGY_OPTION_PARSER_H_ */
