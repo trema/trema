@@ -85,6 +85,8 @@ class Trema::Executables
   path "phost/phost"
   path "switch_manager/switch"
   path "switch_manager/switch_manager"
+  path "topology/topology"
+  path "topology/show_topology"
   path "tremashark/packet_capture"
   path "tremashark/stdin_relay"
   path "tremashark/syslog_relay"

@@ -40,6 +40,8 @@ task :default => [
   :rubylib,
   :switch_manager,
   :switch,
+  :topology,
+  :show_topology,
   :packetin_filter,
   :tremashark,
   :packet_capture,
@@ -459,6 +461,59 @@ task "rubylib:distclean" do
   sys.rm_f "ruby/Makefile"
 end
 
+################################################################################
+# Build topology
+################################################################################
+
+topology_objects_dir = objects( "topology" )
+
+gen C::Dependencies, dependency( "topology" ),
+  :search => [ "src/topology", Trema.include ], :sources => sys[ "src/topology/*.c" ]
+
+gen Action do
+  source dependency( "topology" )
+end
+
+
+gen Directory, topology_objects_dir
+
+gen DirectedRule, topology_objects_dir => [ "src/topology" ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+topology_objects = [
+  "discovery_management.o",
+  "lldp.o",
+  "probe_timer_table.o",
+  "service_management.o",
+  "subscriber_table.o",
+  "topology.o",
+  "topology_management.o",
+  "topology_table.o"
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build topology."
+task :topology => Trema::Executables.topology
+file Trema::Executables.topology => topology_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+end
+
+show_topology_objects = [
+  "show_topology.o",
+  "show_topology_csv.o",
+  "show_topology_dsl.o",
+  "show_topology_graph_easy.o",
+].collect do | each |
+  File.join topology_objects_dir, each
+end
+
+desc "Build show_topology."
+task :show_topology => Trema::Executables.show_topology
+file Trema::Executables.show_topology => show_topology_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+end
 
 ################################################################################
 # Build switch manager
