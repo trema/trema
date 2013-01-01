@@ -1,7 +1,7 @@
 /*
- * A simple switch that has minimum function to test hello message.
+ * A simple switch that has minimum function to test echo message.
  *
- * Copyright (C) 2012 Hiroyasu OHYAMA
+ * Copyright (C) 2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -21,6 +21,7 @@
 #include "chibach.h"
 
 
+// FIXME: Copy & Paste from hello_switch.c
 static void
 handle_features_request( uint32_t xid, void *user_data ) {
   UNUSED( user_data );
@@ -37,28 +38,30 @@ handle_features_request( uint32_t xid, void *user_data ) {
                          ( 1 << OFPAT_SET_TP_SRC ) |
                          ( 1 << OFPAT_SET_TP_DST ) );
 
-  buffer *features_reply = create_features_reply(
-    xid,
-    get_datapath_id(),
-    0,
-    1,
-    0,
-    supported,
-    NULL
-  );
+  buffer *msg = create_features_reply( xid, get_datapath_id(), 0, 1, 0, supported, NULL );
 
-  switch_send_openflow_message( features_reply );
+  switch_send_openflow_message( msg );
 }
 
 
+// FIXME: Copy & Paste from hello_switch.c
 static void
 handle_hello( uint32_t xid, uint8_t version, void *user_data ) {
   UNUSED( version );
   UNUSED( user_data );
 
-  info( "received: OFPT_HELLO" );
-
   switch_send_openflow_message( create_hello( xid ) );
+}
+
+
+static void
+handle_echo_request( uint32_t xid, const buffer *body, void *user_data ) {
+  UNUSED( body );
+  UNUSED( user_data );
+
+  info( "received: OFPT_ECHO_REQUEST" );
+
+  switch_send_openflow_message( create_echo_reply( xid, NULL ) );
 }
 
 
@@ -68,6 +71,7 @@ main( int argc, char **argv ) {
 
   set_hello_handler( handle_hello, NULL );
   set_features_request_handler( handle_features_request, NULL );
+  set_echo_request_handler( handle_echo_request, NULL );
 
   start_chibach();
 

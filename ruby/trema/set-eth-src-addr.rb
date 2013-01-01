@@ -30,12 +30,13 @@ module Trema
     # @example
     #   SetEthSrcAddr.new("11:22:33:44:55:66")
     #   SetEthSrcAddr.new(0x112233445566)
+    #   SetEthSrcAddr.new(mac)
     #
-    # @param [String,Integer] mac_address
+    # @param [String,Integer,Mac] mac_address
     #   the Ethernet address to create this action with.
     #
     # @raise [ArgumentError] if invalid format is detected.
-    # @raise [TypeError] if supplied argument is not a String or Integer.
+    # @raise [TypeError] if supplied argument is not a String or Integer or Mac.
     #
     def initialize mac_address
       super mac_address

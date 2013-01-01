@@ -63,6 +63,8 @@ module Trema
         when Integer
           @value = value
           validate_value_range
+        when Mac
+          @value = create_from( value.to_s )
         else
           raise TypeError, "Invalid MAC address: #{ value.inspect }"
       end

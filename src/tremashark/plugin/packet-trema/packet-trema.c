@@ -22,20 +22,20 @@
 #include "config.h"
 #endif
 
-#include <arpa/inet.h>
-#include <epan/addr_resolv.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/emem.h>
-#include <epan/etypes.h>
-#include <epan/ipproto.h>
-#include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/reassemble.h>
-#include <glib.h>
-#include <pcap/pcap.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
+#include <epan/emem.h>
+#include <epan/packet.h>
+#include <epan/dissectors/packet-tcp.h>
+#include <epan/prefs.h>
+#include <epan/ipproto.h>
+#include <epan/etypes.h>
+#include <epan/addr_resolv.h>
+#include <epan/reassemble.h>
+#include <pcap/pcap.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include "messenger.h"
 #include "openflow_service_interface.h"
 

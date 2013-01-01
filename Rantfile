@@ -235,8 +235,9 @@ task :distclean => [
 gen Directory, Trema.objects
 
 task "vendor:openflow" => Trema.openflow_h
-file Trema.openflow_h => Trema.objects do
+file Trema.openflow_h do
   sys.unpack_tgz "#{ Trema.vendor_openflow }.tar.gz", :in => Trema.vendor
+  sys.mkdir_p Trema.objects
   sys.cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
   sys "chmod -R +r #{ File.join Trema.objects, "openflow" }"
 end
@@ -379,7 +380,7 @@ end
 task dependency( "libtrema" ) => "vendor:openflow"
 gen C::Dependencies, dependency( "libtrema" ),
   :search => [ Trema.include, objects( "openflow" ) ],
-  :sources => sys[ "#{ Trema.include }/*.c" ]
+  :sources => sys[ "#{ Trema.include }/*.{c,h}" ]
 
 gen Action do
   source dependency( "libtrema" )
@@ -448,7 +449,7 @@ end
 switch_manager_objects_dir = objects( "switch_manager" )
 
 gen C::Dependencies, dependency( "switch_manager" ),
-  :search => [ "src/switch_manager", Trema.include ], :sources => sys[ "src/switch_manager/*.c" ]
+  :search => [ "src/switch_manager", Trema.include ], :sources => sys[ "src/switch_manager/*.{c,h}" ]
 
 gen Action do
   source dependency( "switch_manager" )
@@ -502,7 +503,7 @@ end
 ################################################################################
 
 gen C::Dependencies, dependency( "packetin_filter" ),
-  :search => [ "src/packetin_filter", Trema.include ], :sources => sys[ "src/packetin_filter/*.c" ]
+  :search => [ "src/packetin_filter", Trema.include ], :sources => sys[ "src/packetin_filter/*.{c,h}" ]
 
 gen Action do
   source dependency( "packetin_filter" )
@@ -529,7 +530,7 @@ end
 tremashark_objects_dir = objects( "tremashark" )
 
 gen C::Dependencies, dependency( "tremashark" ),
-  :search => [ "src/tremashark", Trema.include ], :sources => sys[ "src/tremashark/*.c" ]
+  :search => [ "src/tremashark", Trema.include ], :sources => sys[ "src/tremashark/*.{c,h}" ]
 
 gen Action do
   source dependency( "tremashark" )
@@ -613,7 +614,7 @@ management_source_dir = "src/management"
 management_objects_dir = objects( "management" )
 
 gen C::Dependencies, dependency( "management" ),
-  :search => [ Trema.include ], :sources => sys[ "#{ management_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ management_source_dir }/*.{c,h}" ]
 
 gen Action do
   source dependency( "management" )
@@ -660,7 +661,7 @@ standalone_examples.each do | each |
   target = objects( "examples/#{ each }/#{ each }" )
 
   gen C::Dependencies, dependency( each ),
-    :search => [ "src/examples/#{ each }", Trema.include ], :sources => sys[ "src/examples/#{ each }/*.c" ]
+    :search => [ "src/examples/#{ each }", Trema.include ], :sources => sys[ "src/examples/#{ each }/*.{c,h}" ]
 
   gen Action do
     source dependency( each )
@@ -688,13 +689,14 @@ end
 
 openflow_switches = [
   "hello_switch",
+  "echo_switch",
 ]
 
 openflow_switch_source_dir = "src/examples/openflow_switch"
 openflow_switch_objects_dir = objects( "examples/openflow_switch" )
 
 gen C::Dependencies, dependency( "openflow_switch" ),
-  :search => [ Trema.include ], :sources => sys[ "#{ openflow_switch_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ openflow_switch_source_dir }/*.{c,h}" ]
 
 gen Action do
   source dependency( "openflow_switch" )
@@ -722,8 +724,7 @@ end
 ################################################################################
 
 openflow_messages = [
-  "echo_reply",
-  "echo_request",
+  "echo",
   "features_request",
   "hello",
   "set_config",
@@ -734,7 +735,7 @@ openflow_message_source_dir = "src/examples/openflow_message"
 openflow_message_objects_dir = objects( "examples/openflow_message" )
 
 gen C::Dependencies, dependency( "openflow_message" ),
-  :search => [ Trema.include ], :sources => sys[ "#{ openflow_message_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ openflow_message_source_dir }/*.{c,h}" ]
 
 gen Action do
   source dependency( "openflow_message" )
@@ -773,7 +774,7 @@ packetin_filter_config_source_dir = "src/examples/packetin_filter_config"
 packetin_filter_config_objects_dir = objects( "examples/packetin_filter_config" )
 
 gen C::Dependencies, dependency( "packetin_filter_config" ),
-  :search => [ Trema.include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.c" ]
+  :search => [ Trema.include ], :sources => sys[ "#{ packetin_filter_config_source_dir }/*.{c,h}" ]
 
 gen Action do
   source dependency( "packetin_filter_config" )
@@ -836,7 +837,7 @@ end
 
 
 gen C::Dependencies, dependency( "unittests" ),
-  :search => [ Trema.include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.c" ]
+  :search => [ Trema.include, "unittests" ], :sources => sys[ "unittests/lib/*.c", "src/lib/*.{c,h}" ]
 
 gen Action do
   source dependency( "unittests" )

@@ -1,7 +1,5 @@
 /*
- * Sends echo_reply messages to the specified datapath ID.
- *
- * Author: Shin-ya Zenke, Yasuhito Takamiya <yasuhito@gmail.com>
+ * Sends echo_request messages to the specified datapath ID.
  *
  * Copyright (C) 2008-2012 NEC Corporation
  *
@@ -32,15 +30,26 @@ usage() {
 
 
 static void
-send_echo_replies( uint64_t datapath_id, void *count ) {
+send_echo_requests( uint64_t datapath_id, void *count ) {
   for ( int i = 0; i < *( ( int * ) count ); i++ ) {
-    buffer *echo_reply = create_echo_reply( get_transaction_id(), NULL );
-    bool ret = send_openflow_message( datapath_id, echo_reply );
+    buffer *echo_request = create_echo_request( get_transaction_id(), NULL );
+    bool ret = send_openflow_message( datapath_id, echo_request );
     if ( !ret ) {
-      error( "Failed to send an echo reply message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
+      error( "Failed to send an echo request message to the switch with datapath ID = %#" PRIx64 ".", datapath_id );
     }
-    free_buffer( echo_reply );
+    free_buffer( echo_request );
   }
+}
+
+
+static void
+handle_echo_reply( uint64_t datapath_id, uint32_t xid, const buffer *data, void *user_data ) {
+  UNUSED( datapath_id );
+  UNUSED( xid );
+  UNUSED( data );
+  UNUSED( user_data );
+
+  info( "received: OFPT_ECHO_REPLY" );
 }
 
 
@@ -54,7 +63,8 @@ main( int argc, char *argv[] ) {
   }
 
   int count = atoi( argv[ 1 ] );
-  set_switch_ready_handler( send_echo_replies, &count );
+  set_switch_ready_handler( send_echo_requests, &count );
+  set_echo_reply_handler( handle_echo_reply, NULL );
 
   start_trema();
 

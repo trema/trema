@@ -23,7 +23,7 @@
 require  "example"
 
 
-class EchoRequestController < Controller
+class EchoController < Controller
   include Example
 
 
@@ -48,7 +48,7 @@ class EchoRequestController < Controller
 end
 
 
-EchoRequestController.run ARGV
+EchoController.run ARGV
 
 
 ### Local variables:
