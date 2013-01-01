@@ -37,7 +37,7 @@ class RoutingTable
     dest = IPAddr.new( options[ :destination ] )
     masklen = options[ :masklen ]
     prefix = dest.mask( masklen )
-    @db[ masklen ][ prefix.to_i ] = IPAddr.new( options[ :gateway ] )
+    @db[ masklen ][ prefix.to_i ] = IPAddr.new( options[ :nexthop ] )
   end
 
 
