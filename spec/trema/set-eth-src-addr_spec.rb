@@ -26,6 +26,12 @@ describe SetEthSrcAddr, %{.new( "52:54:00:a8:ad:8c" )} do
 end
 
 
+describe SetEthSrcAddr, %{.new( Mac.new( "52:54:00:a8:ad:8c" ) )} do
+  subject { SetEthSrcAddr.new( Mac.new( "52:54:00:a8:ad:8c" ) )}
+  its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+end
+
+
 describe SetEthSrcAddr, %{.new( "INVALID MAC STRING" )} do
   it { expect { SetEthSrcAddr.new( "INVALID MAC STRING" ) }.to raise_error( ArgumentError ) }
 end
