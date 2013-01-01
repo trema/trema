@@ -1,0 +1,18 @@
+This directory includes an OpenFlow controller that controls a single
+OpenFlow switch and emulates a router.
+
+# How to run 
+
+Run this
+
+ % sudo trema run ./src/examples/simple_router/simple-router.rb -c ./src/examples/simple_router/simple_router_netns.conf -d 
+
+and send packets like as follows.
+
+ % sudo ip netns exec host1 ping 192.168.2.2
+
+Then check flow entries in OpenFlow switch.
+
+ % sudo trema dump_flows 0x1
+
+This will display flow entries created by the controller.
