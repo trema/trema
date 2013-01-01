@@ -94,6 +94,10 @@ module Trema
         raise ArgumentError, "Max length must be an unsigned 16-bit integer"
       end
     end
+
+    def to_s
+      "output: port=#{ @port_number } max_len=#{ @max_len }"
+    end
   end
 
 
