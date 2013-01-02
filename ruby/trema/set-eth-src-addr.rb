@@ -41,6 +41,11 @@ module Trema
     def initialize mac_address
       super mac_address
     end
+
+    
+    def to_s
+      "set_dl_src: #{ mac_address.to_s }"
+    end
   end
 
 
