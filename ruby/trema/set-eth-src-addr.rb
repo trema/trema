@@ -44,7 +44,7 @@ module Trema
 
     
     def to_s
-      "set_dl_src: #{ mac_address.to_s }"
+      "set_dl_src: dl_addr=#{ mac_address.to_s }"
     end
   end
 
