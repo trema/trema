@@ -24,6 +24,7 @@ describe SendOutPort, ".new( 1 )" do
   subject { SendOutPort.new( 1 ) }
   its( :port_number ) { should == 1 }
   its( :max_len ) { should == 2 ** 16 - 1 }
+  its( :to_s ) { should == "output: port=1 max_len=65535" }
 end
 
 
@@ -34,6 +35,7 @@ describe SendOutPort, ".new( :port_number => number )" do
   context "when :port_number == 1" do
     let( :port_number ) { 1 }
     its( :port_number ) { should == 1 }
+    its( :to_s ) { should == "output: port=1 max_len=65535" }
   end
 end
 
@@ -45,6 +47,7 @@ describe SendOutPort, ".new( :port_number => 1, :max_len => number )" do
   context "when :max_len == 256" do
     let( :max_len ) { 256 }
     its( :max_len ) { should == 256 }
+    its( :to_s ) { should == "output: port=1 max_len=256" }
   end
 end
 
