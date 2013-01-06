@@ -132,7 +132,7 @@ class SimpleRouter < Controller
   def resolve_next_hop( daddr )
     interface = @interfaces.find_by_prefix( daddr.value )
     if interface
-      daddr.value 
+      daddr.value
     else
       @routing_table.lookup( daddr.value )
     end
