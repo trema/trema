@@ -168,69 +168,65 @@ Init_stats_reply() {
 static VALUE
 get_action( const struct ofp_action_header *ah ) {
   VALUE action = Qnil;
-  VALUE options = rb_hash_new();
 
   switch ( ah->type ) {
     case OFPAT_OUTPUT:
     {
       const struct ofp_action_output *ao = ( const struct ofp_action_output * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "port" ) ), UINT2NUM( ao->port ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionOutput" ), rb_intern( "new" ), 1, options );
+      VALUE options = rb_hash_new();
+      rb_hash_aset( options, ID2SYM( rb_intern( "port_number" ) ), UINT2NUM( ao->port ) );
+      rb_hash_aset( options, ID2SYM( rb_intern( "max_len" ) ), UINT2NUM( ao->max_len ) );
+      action = rb_funcall( rb_eval_string( "Trema::SendOutPort" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_SET_VLAN_VID:
     {
       const struct ofp_action_vlan_vid *action_vlan_vid = ( const struct ofp_action_vlan_vid * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "vlan_vid" ) ), UINT2NUM( action_vlan_vid->vlan_vid ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanVid" ), rb_intern( "new" ), 1, options );
+      VALUE vlan_id = UINT2NUM( action_vlan_vid->vlan_vid );
+      action = rb_funcall( rb_eval_string( "Trema::SetVlanVid" ), rb_intern( "new" ), 1, vlan_id );
     }
       break;
     case OFPAT_SET_VLAN_PCP:
     {
       const struct ofp_action_vlan_pcp *action_vlan_pcp = ( const struct ofp_action_vlan_pcp * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "vlan_pcp" ) ), UINT2NUM( action_vlan_pcp->vlan_pcp ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetVlanPcp" ), rb_intern( "new" ), 1, options );
+      VALUE vlan_priority =  UINT2NUM( action_vlan_pcp->vlan_pcp );
+      action = rb_funcall( rb_eval_string( "Trema::SetVlanPriority" ), rb_intern( "new" ), 1, vlan_priority );
     }
       break;
     case OFPAT_STRIP_VLAN:
     {
-      action = rb_funcall( rb_eval_string( "Trema::ActionStripVlan" ), rb_intern( "new" ), 0 );
+      action = rb_funcall( rb_eval_string( "Trema::StripVlanHeader" ), rb_intern( "new" ), 0 );
     }
       break;
     case OFPAT_SET_DL_SRC:
     case OFPAT_SET_DL_DST:
     {
-      VALUE dl_addr;
+      VALUE mac_address;
       const struct ofp_action_dl_addr *action_dl_addr = ( const struct ofp_action_dl_addr * ) ah;
 
-      dl_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
+      mac_address = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
       if ( ah->type == OFPAT_SET_DL_SRC ) {
-        rb_hash_aset( options, ID2SYM( rb_intern( "dl_src" ) ),  dl_addr );
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlSrc" ), rb_intern( "new" ), 1, options );
+        action = rb_funcall( rb_eval_string( "Trema::SetEthSrcAddr" ), rb_intern( "new" ), 1, mac_address );
       }
       else {
-        rb_hash_aset( options, ID2SYM( rb_intern( "dl_dst" ) ),  dl_addr );
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetDlDst" ), rb_intern( "new" ), 1, options );
+        action = rb_funcall( rb_eval_string( "Trema::SetEthDstAddr" ), rb_intern( "new" ), 1, mac_address );
       }
     }
       break;
     case OFPAT_SET_NW_SRC:
     case OFPAT_SET_NW_DST:
     {
-      VALUE nw_addr;
       const struct ofp_action_nw_addr *action_nw_addr = ( const struct ofp_action_nw_addr * ) ah;
 
-      nw_addr = rb_funcall( rb_eval_string( "Trema::IP " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
+      VALUE ip_address = rb_funcall( rb_eval_string( "Trema::IP " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
       if ( ah->type == OFPAT_SET_NW_SRC ) {
-        rb_hash_aset( options, ID2SYM( rb_intern( "nw_src" ) ), nw_addr );
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwSrc" ), rb_intern( "new" ), 1, options );
+        action = rb_funcall( rb_eval_string( "Trema::SetIpSrcAddr" ), rb_intern( "new" ), 1, rb_funcall( ip_address, rb_intern( "to_s" ), 0 ) );
       }
       else {
-        rb_hash_aset( options, ID2SYM( rb_intern( "nw_dst" ) ), nw_addr );
-        action = rb_funcall( rb_eval_string( "Trema::ActionSetNwDst" ), rb_intern( "new" ), 1, options );
+        action = rb_funcall( rb_eval_string( "Trema::SetIpDstAddr" ), rb_intern( "new" ), 1, rb_funcall( ip_address, rb_intern( "to_s" ), 0 ) );
       }
     }
       break;
@@ -238,40 +234,53 @@ get_action( const struct ofp_action_header *ah ) {
     {
       const struct ofp_action_nw_tos *action_nw_tos = ( const struct ofp_action_nw_tos * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "nw_tos" ) ), ULL2NUM( action_nw_tos->nw_tos ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetNwTos" ), rb_intern( "new" ), 1, options );
+      VALUE type_of_service = ULL2NUM( action_nw_tos->nw_tos );
+      action = rb_funcall( rb_eval_string( "Trema::SetIpTos" ), rb_intern( "new" ), 1, type_of_service );
     }
       break;
     case OFPAT_SET_TP_SRC:
     {
       const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "tp_src" ) ), ULL2NUM( action_tp_port->tp_port ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpSrc" ), rb_intern( "new" ), 1, options );
+      VALUE port_number = ULL2NUM( action_tp_port->tp_port );
+      action = rb_funcall( rb_eval_string( "Trema::SetTransportSrcPort" ), rb_intern( "new" ), 1, port_number );
     }
       break;
     case OFPAT_SET_TP_DST:
     {
       const struct ofp_action_tp_port *action_tp_port = ( const struct ofp_action_tp_port * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "tp_dst" ) ), ULL2NUM( action_tp_port->tp_port ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionSetTpDst" ), rb_intern( "new" ), 1, options );
+      VALUE port_number = ULL2NUM( action_tp_port->tp_port );
+      action = rb_funcall( rb_eval_string( "Trema::SetTransportDstPort" ), rb_intern( "new" ), 1, port_number );
     }
       break;
     case OFPAT_ENQUEUE:
     {
       const struct ofp_action_enqueue *action_enqueue = ( const struct ofp_action_enqueue * ) ah;
-      rb_hash_aset( options, ID2SYM( rb_intern( "port" ) ), ULL2NUM( action_enqueue->port ) );
+      VALUE options = rb_hash_new();
+      rb_hash_aset( options, ID2SYM( rb_intern( "port_number" ) ), UINT2NUM( action_enqueue->port ) );
       rb_hash_aset( options, ID2SYM( rb_intern( "queue_id" ) ), ULL2NUM( action_enqueue->queue_id ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionEnqueue" ), rb_intern( "new" ), 1, options );
+      action = rb_funcall( rb_eval_string( "Trema::Enqueue" ), rb_intern( "new" ), 1, options );
     }
       break;
     case OFPAT_VENDOR:
     {
-      const struct ofp_action_vendor_header *action_vendor = ( const struct ofp_action_vendor_header * ) ah;
+      const struct ofp_action_vendor_header *vendor_header = ( const struct ofp_action_vendor_header * ) ah;
 
-      rb_hash_aset( options, ID2SYM( rb_intern( "vendor" ) ), ULL2NUM( action_vendor->vendor ) );
-      action = rb_funcall( rb_eval_string( "Trema::ActionVendor" ), rb_intern( "new" ), 1, options );
+      VALUE vendor_id = ULL2NUM( vendor_header->vendor );
+      if ( vendor_header->len > ( uint16_t ) sizeof( *vendor_header ) ) {
+        long length = ( long ) ( vendor_header->len - sizeof( *vendor_header ) );
+        VALUE data_array = rb_ary_new2( length );
+        const uint8_t *data = ( const uint8_t * ) ( ( const char * ) vendor_header + sizeof( *vendor_header ) );
+        long i;
+        for ( i = 0; i < length; i++ ) {
+          rb_ary_push( data_array, UINT2NUM( data[ i ] ) );
+        }
+        action = rb_funcall( rb_eval_string( "Trema::VendorAction" ), rb_intern( "new" ), 2, vendor_id, data_array );
+      }
+      else {
+        action = rb_funcall( rb_eval_string( "Trema::VendorAction" ), rb_intern( "new" ), 1, vendor_id );
+      }
     }
       break;
   }
