@@ -109,16 +109,11 @@ class SimpleRouter < Controller
 
 
   def forward( dpid, message )
-    interface = @interfaces.find_by_prefix( message.ipv4_daddr.value )
-    if interface 
-      next_hop = message.ipv4_daddr
-    else
-      next_hop = resolve_next_hop( message.ipv4_daddr )
-
-      interface = @interfaces.find_by_prefix( next_hop )
-      if not interface or interface.port == message.in_port
-        return
-      end
+    next_hop = resolve_next_hop( message.ipv4_daddr )
+    
+    interface = @interfaces.find_by_prefix( next_hop )
+    if not interface or interface.port == message.in_port
+      return
     end
 
     arp_entry = @arp_table.lookup( next_hop )
@@ -135,11 +130,11 @@ class SimpleRouter < Controller
 
 
   def resolve_next_hop( daddr )
-    next_hop = @routing_table.lookup( daddr.value )
-    if next_hop
-      next_hop
-    else
+    interface = @interfaces.find_by_prefix( daddr.value )
+    if interface 
       daddr.value
+    else
+      @routing_table.lookup( daddr.value )
     end
   end
 
