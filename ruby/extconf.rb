@@ -71,6 +71,7 @@ EOF
 end
 
 
+$CFLAGS << " -Werror" # must be added after find_library
 create_makefile "trema", "trema"
 
 
