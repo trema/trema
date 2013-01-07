@@ -108,7 +108,7 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog [ "ruby" ]
+    flog.flog [ "ruby", "src" ]
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
