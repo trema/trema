@@ -44,7 +44,7 @@ module Trema
 
 
     def to_s
-      "set_dl_dst: dl_addr=#{ mac_address.to_s }"
+      "SetEthDstAddr: mac_address=#{ @mac_address }"
     end
   end
 

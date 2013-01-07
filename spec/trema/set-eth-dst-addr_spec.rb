@@ -23,14 +23,14 @@ require "trema"
 describe SetEthDstAddr, %{.new( "52:54:00:a8:ad:8c" )} do
   subject { SetEthDstAddr.new( "52:54:00:a8:ad:8c" ) }
   its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
-  its( :to_s ) { should == "set_dl_dst: dl_addr=52:54:00:a8:ad:8c" }
+  its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
 end
 
 
 describe SetEthDstAddr, %{.new( Mac.new( "52:54:00:a8:ad:8c" ) )} do
   subject { SetEthDstAddr.new( Mac.new( "52:54:00:a8:ad:8c" ) )}
   its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
-  its( :to_s ) { should == "set_dl_dst: dl_addr=52:54:00:a8:ad:8c" }
+  its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
 end
 
 
