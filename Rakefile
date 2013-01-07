@@ -95,7 +95,7 @@ begin
 
   RoodiTask.new do | t |
     t.verbose = false
-    t.patterns = %w(ruby/**/*.rb spec/**/*.rb features/**/*.rb)
+    t.patterns = [ "ruby/**/*.rb", "src/**/*.rb" ]
   end
 rescue LoadError
   $stderr.puts $!.to_s
