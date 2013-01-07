@@ -88,6 +88,14 @@ end
 # Code Quality Tasks
 ################################################################################
 
+$ruby_sources = FileList[ "ruby/**/*.rb", "src/**/*.rb" ]
+$quality_targets = if ENV[ "QUALITY_TARGETS" ]
+                     ENV[ "QUALITY_TARGETS" ].split
+                   else
+                     $ruby_sources
+                   end
+
+
 desc "Enforce Ruby code quality with static analysis of code"
 task :quality => [ :reek, :roodi, :flog, :flay ]
 
@@ -100,7 +108,7 @@ begin
     t.verbose = false
     t.ruby_opts = [ "-rubygems" ]
     t.reek_opts = "--quiet"
-    t.source_files = FileList[ "ruby/**/*.rb", "src/**/*.rb" ]
+    t.source_files = $quality_targets
   end
 rescue LoadError
   $stderr.puts $!.to_s
@@ -113,7 +121,7 @@ begin
 
   RoodiTask.new do | t |
     t.verbose = false
-    t.patterns = [ "ruby/**/*.rb", "src/**/*.rb" ]
+    t.patterns = $quality_targets
   end
 rescue LoadError
   $stderr.puts $!.to_s
@@ -126,7 +134,7 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog [ "ruby", "src" ]
+    flog.flog $quality_targets
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
@@ -151,7 +159,9 @@ begin
   require "flay_task"
 
   FlayTask.new do | t |
-    t.dirs = %w( ruby src )
+    t.dirs = $ruby_sources.collect do | each |
+      each[ /[^\/]+/ ]
+    end.uniq
     t.threshold = 0
     t.verbose = true
   end
