@@ -82,7 +82,7 @@ begin
     t.verbose = false
     t.ruby_opts = [ "-rubygems" ]
     t.reek_opts = "--quiet"
-    t.source_files = "ruby/**/*.rb"
+    t.source_files = FileList[ "ruby/**/*.rb", "src/**/*.rb" ]
   end
 rescue LoadError
   $stderr.puts $!.to_s
