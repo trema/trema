@@ -41,6 +41,11 @@ module Trema
     def initialize mac_address
       super mac_address
     end
+
+
+    def to_s
+      "SetEthDstAddr: mac_address=#{ @mac_address }"
+    end
   end
 
 

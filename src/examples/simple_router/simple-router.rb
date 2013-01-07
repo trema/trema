@@ -130,11 +130,11 @@ class SimpleRouter < Controller
 
 
   def resolve_next_hop( daddr )
-    next_hop = @routing_table.lookup( daddr.value )
-    if next_hop
-      next_hop
-    else
+    interface = @interfaces.find_by_prefix( daddr.value )
+    if interface
       daddr.value
+    else
+      @routing_table.lookup( daddr.value )
     end
   end
 
@@ -165,8 +165,8 @@ class SimpleRouter < Controller
 
   def create_action_from( macsa, macda, port )
     [
-      SetEthSrcAddr.new( macsa.to_s ),
-      SetEthDstAddr.new( macda.to_s ),
+      SetEthSrcAddr.new( macsa ),
+      SetEthDstAddr.new( macda ),
       SendOutPort.new( port )
     ]
   end
