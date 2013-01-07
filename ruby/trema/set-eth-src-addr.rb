@@ -42,9 +42,9 @@ module Trema
       super mac_address
     end
 
-    
+
     def to_s
-      "set_dl_src: dl_addr=#{ mac_address.to_s }"
+      "SetEthSrcAddr: mac_address=#{ @mac_address }"
     end
   end
 
