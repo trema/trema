@@ -266,7 +266,7 @@ stats_vendor_id( VALUE self ) {
 
 uint32_t
 get_stats_request_num2uint( VALUE self, const char *field ) {
-  return NUM2UINT( rb_iv_get( self, field ) );
+  return ( uint32_t ) NUM2UINT( rb_iv_get( self, field ) );
 }
 
 

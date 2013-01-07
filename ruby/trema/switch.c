@@ -16,12 +16,13 @@
  */
 
 
-#include "chibach.h"
 #include "flow-mod.h"
 #include "logger.h"
 #include "ruby.h"
 #include "rubysig.h"
 #include "switch.h"
+
+#include "chibach.h" // must be included after ruby.h for undef ruby's xmalloc
 
 
 VALUE mTrema;

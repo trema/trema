@@ -207,7 +207,7 @@ handle_vendor(
 
   if ( data != NULL && data->length > 0 ) {
     VALUE data_array = rb_ary_new2( ( long ) data->length );
-    long i;
+    size_t i;
     for ( i = 0; i < data->length; i++ ) {
       rb_ary_push( data_array, INT2FIX( ( ( uint8_t * ) data->data)[ i ] ) );
     }
