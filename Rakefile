@@ -17,16 +17,23 @@
 
 
 require "rubygems"
-
-
 require "rake"
+
 
 task :default do
   sh "./build.rb"
 end
 
 
-task :travis => [ :default, "spec:travis" ]
+################################################################################
+# Maintenance Tasks
+################################################################################
+
+# FIXME: Remove dependency to rant
+desc "Generate a monolithic rant file"
+task "build.rb" do
+  sh "rant-import --force --auto .mono.rant"
+end
 
 
 begin
@@ -34,6 +41,13 @@ begin
 rescue LoadError
   $stderr.puts $!.to_s
 end
+
+
+################################################################################
+# Tests
+################################################################################
+
+task :travis => [ :default, "spec:travis" ]
 
 
 begin
@@ -146,11 +160,9 @@ rescue LoadError
 end
 
 
-desc "Generate a monolithic rant file"
-task "build.rb" do
-  sh "rant-import --force --auto .mono.rant"
-end
-
+################################################################################
+# YARD
+################################################################################
 
 begin
   require "yard"
