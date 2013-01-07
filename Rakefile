@@ -133,7 +133,7 @@ begin
   require "flay_task"
 
   FlayTask.new do | t |
-    t.dirs = %w( ruby )
+    t.dirs = %w( ruby src )
     t.threshold = 0
     t.verbose = true
   end
