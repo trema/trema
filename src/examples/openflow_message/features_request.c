@@ -1,8 +1,6 @@
 /*
  * Sends a features request message.
  *
- * Author: Shin-ya Zenke, Yasuhito Takamiya <yasuhito@gmail.com>
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -108,13 +106,14 @@ handle_features_reply(
     info( "  OFPAT_VENDOR" );
   }
 
+  info( "ports:" );
   list_element ports_list;
   memcpy( &ports_list, phy_ports, sizeof( list_element ) );
   for ( list_element *port = &ports_list; port != NULL; port = port->next ) {
     struct ofp_phy_port *phy_port = port->data;
-    info( "port_no: %u", phy_port->port_no );
+    info( "  port_no: %u", phy_port->port_no );
     info(
-      "  hw_addr = %02x:%02x:%02x:%02x:%02x:%02x",
+      "    hw_addr = %02x:%02x:%02x:%02x:%02x:%02x",
       phy_port->hw_addr[ 0 ],
       phy_port->hw_addr[ 1 ],
       phy_port->hw_addr[ 2 ],
@@ -122,13 +121,13 @@ handle_features_reply(
       phy_port->hw_addr[ 4 ],
       phy_port->hw_addr[ 5 ]
     );
-    info( "  name = %s", phy_port->name );
-    info( "  config = %#" PRIx32 "", phy_port->config );
-    info( "  state = %#" PRIx32 "", phy_port->state );
-    info( "  curr = %#" PRIx32 "", phy_port->curr );
-    info( "  advertised = %#" PRIx32 "", phy_port->advertised );
-    info( "  supported = %#" PRIx32 "", phy_port->supported );
-    info( "  peer = %#" PRIx32 "", phy_port->peer );
+    info( "    name = %s", phy_port->name );
+    info( "    config = %#" PRIx32 "", phy_port->config );
+    info( "    state = %#" PRIx32 "", phy_port->state );
+    info( "    curr = %#" PRIx32 "", phy_port->curr );
+    info( "    advertised = %#" PRIx32 "", phy_port->advertised );
+    info( "    supported = %#" PRIx32 "", phy_port->supported );
+    info( "    peer = %#" PRIx32 "", phy_port->peer );
   }
 }
 

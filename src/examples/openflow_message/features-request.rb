@@ -2,8 +2,6 @@
 # A test example program to send a OFPT_FEATURES_REQUEST message and print
 # the reply.
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -75,16 +73,17 @@ class FeaturesRequestController < Controller
 
 
   def print_ports ports
-    ports.each do | port |
-      info "port_no: %u" % port.number
-      info "  hw_addr = #{ port.hw_addr.to_s }"
-      info "  name = #{ port.name }"
-      info "  config = #{ port.config.to_hex }"
-      info "  state = #{ port.state.to_hex }"
-      info "  curr = #{ port.curr.to_hex }"
-      info "  advertised = #{ port.advertised.to_hex }"
-      info "  supported = #{ port.supported.to_hex }"
-      info "  peer = #{ port.peer.to_hex }"
+    info "ports:"
+    ports.each do | each |
+      info "  port_no: %u" % each.number
+      info "    hw_addr = #{ each.hw_addr.to_s }"
+      info "    name = #{ each.name }"
+      info "    config = #{ each.config.to_hex }"
+      info "    state = #{ each.state.to_hex }"
+      info "    curr = #{ each.curr.to_hex }"
+      info "    advertised = #{ each.advertised.to_hex }"
+      info "    supported = #{ each.supported.to_hex }"
+      info "    peer = #{ each.peer.to_hex }"
     end
   end
 end
