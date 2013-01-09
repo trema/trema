@@ -64,7 +64,7 @@ describe SetEthSrcAddr, ".new( VALID OPTION )" do
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
         controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetEthSrcAddr.new( "52:54:00:a8:ad:8c" ) )
-        sleep 6 # FIXME: wait to send_flow_mod
+        sleep 20 # FIXME: wait to send_flow_mod
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[0].actions.should match( /mod_dl_src:52:54:00:a8:ad:8c/ )
       }
