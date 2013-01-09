@@ -90,6 +90,7 @@ end
 
 * [switch_ready(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_ready)
 * [switch_disconnected(datapath_id)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:switch_disconnected)
+* [list_switches_reply(datapath_ids)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:list_switches_reply)
 * [packet_in(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:packet_in)
 * [flow_removed(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:flow_removed)
 * [port_status(datapath_id, message)](http://rubydoc.info/github/trema/trema/master/Trema/Controller:port_status)
