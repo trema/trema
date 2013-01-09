@@ -62,6 +62,18 @@ module Trema
     handler :switch_disconnected
 
 
+
+    #
+    # @!method list_switches_reply( datapath_ids )
+    #
+    # @abstract List Switches Reply message handler. Override this to implement a custom handler.
+    #
+    # @param [Array<Integer>] datapath_ids
+    #   the datapath IDs of connected OpenFlow switches.
+    #
+    handler :list_switches_reply
+
+
     #
     # @!method packet_in( datapath_id, message )
     #
