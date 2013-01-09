@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 #
 # Copyright (C) 2008-2012 NEC Corporation
 #
@@ -16,13 +17,15 @@
 #
 
 
-module Trema
-  VERSION = "0.3.1"
+if ARGV.empty?
+  system "rake quality"
+else
+  system %Q{rake quality QUALITY_TARGETS="#{ ARGV.join ' ' }"}
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
