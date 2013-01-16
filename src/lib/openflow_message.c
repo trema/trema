@@ -2565,7 +2565,7 @@ validate_desc_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_desc_stats ),
+                         offsetof( struct ofp_stats_reply, body ),
                          offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_desc_stats ) );
   if ( ret < 0 ) {
     return ret;
@@ -2662,7 +2662,7 @@ validate_aggregate_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_aggregate_stats_reply ),
+                         offsetof( struct ofp_stats_reply, body ),
                          offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_aggregate_stats_reply ) );
   if ( ret < 0 ) {
     return ret;
@@ -2697,7 +2697,7 @@ validate_table_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( struct ofp_table_stats ),
+                         offsetof( struct ofp_stats_reply, body ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
@@ -2863,7 +2863,7 @@ validate_vendor_stats_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_STATS_REPLY,
-                         offsetof( struct ofp_stats_reply, body ) + sizeof( uint32_t ),
+                         offsetof( struct ofp_stats_reply, body ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
