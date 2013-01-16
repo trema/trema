@@ -25,6 +25,7 @@ Trema supports GNU/Linux only. And it has been tested on the following environme
 * Ruby 1.8.7 (1.9.x is NOT supported yet)
 * Ubuntu 12.10, 12.04, 11.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
+* Fedora 16 (i386/x86_64)
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
@@ -46,6 +47,9 @@ Getting Started
 
     (In Ubuntu 12.10)
     $ sudo apt-get install gcc make ruby1.8 rubygems1.8 ruby1.8-dev libpcap-dev libsqlite3-dev
+
+    (In Fedora 16)
+    $ sudo yum install gcc make ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel
 
 2.Install Trema at the command prompt:
 
