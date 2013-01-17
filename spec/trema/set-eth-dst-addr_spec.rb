@@ -62,6 +62,7 @@ describe SetEthDstAddr, ".new( mac_address )", :type => "actions" do
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_dl_dst:52:54:00:a8:ad:8c"
       }

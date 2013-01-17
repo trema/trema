@@ -60,6 +60,7 @@ describe SendOutPort, :type => "actions" do
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => SendOutPort.new( 1 ) )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[ 0 ].actions.should == "output:1"
       }
@@ -73,6 +74,7 @@ describe SendOutPort, :type => "actions" do
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => [ SendOutPort.new( 1 ), SendOutPort.new( 2 ) ] )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
         vswitch( "0xabc" ).flows[ 0 ].actions.should match( /output:1\/output:2/ )
       }
