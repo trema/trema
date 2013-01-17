@@ -20,56 +20,51 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe SetEthDstAddr, %{.new( "52:54:00:a8:ad:8c" )} do
-  subject { SetEthDstAddr.new( "52:54:00:a8:ad:8c" ) }
-  its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
-  its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
-end
-
-
-describe SetEthDstAddr, %{.new( Mac.new( "52:54:00:a8:ad:8c" ) )} do
-  subject { SetEthDstAddr.new( Mac.new( "52:54:00:a8:ad:8c" ) )}
-  its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
-  its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
-end
-
-
-describe SetEthDstAddr, %{.new( "INVALID MAC STRING" )} do
-  it { expect { SetEthDstAddr.new( "INVALID MAC STRING" ) }.to raise_error( ArgumentError ) }
-end
-
-
-describe SetEthDstAddr, ".new( number )" do
+describe SetEthDstAddr, ".new( mac_address )", :type => "actions" do
   subject { SetEthDstAddr.new( mac_address ) }
 
-  context "when mac_address == 0x525400a8ad8c" do
+  context "with mac_address (52:54:00:a8:ad:8c)" do
+    let( :mac_address ) { "52:54:00:a8:ad:8c" }
+    its( "mac_address.to_s" ) { should == "52:54:00:a8:ad:8c" }
+    its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
+  end
+
+  context %q{with mac_address (Mac.new("52:54:00:a8:ad:8c"))} do
+    let( :mac_address ) { Mac.new("52:54:00:a8:ad:8c") }
+    its( "mac_address.to_s" ) { should == "52:54:00:a8:ad:8c" }
+    its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
+  end
+
+  context "with mac_address (0x525400a8ad8c)" do
     let( :mac_address ) { 0x525400a8ad8c }
-    its( :mac_address ) { should == Mac.new( "52:54:00:a8:ad:8c" ) }
+    its( "mac_address.to_s" ) { should == "52:54:00:a8:ad:8c" }
+    its( :to_s ) { should == "SetEthDstAddr: mac_address=52:54:00:a8:ad:8c" }
+  end
+
+  context %q{with invalid mac_address ("INVALID MAC STRING")} do
+    let( :mac_address ) { "INVALID MAC STRING" }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
+  context "with invalid mac_address ([1, 2, 3])" do
+    let( :mac_address ) { [ 1, 2, 3 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
   end
 
   it_validates "option range", :mac_address, 0..0xffffffffffff
-end
 
+  context "when sending a Flow Mod with action set to SetEthDstAddr" do
+    let( :mac_address ) { "52:54:00:a8:ad:8c" }
 
-describe SetEthDstAddr, ".new( [ 1, 2, 3 ] )" do
-  it { expect { SetEthDstAddr.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
-end
-
-
-describe SetEthDstAddr, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_dl_dst" do
-    it "should have a flow with action set to mod_dl_dst" do
-      class FlowModAddController < Controller; end
+    it "should insert a new flow with action set to mod_dl_dst" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add(
-          0xabc,
-          :actions => SetEthDstAddr.new( "52:54:00:a8:ad:8c" )
-        )
-        sleep 20 # FIXME: wait to send_flow_mod
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_dl_dst:52:54:00:a8:ad:8c/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_dl_dst:52:54:00:a8:ad:8c"
       }
     end
   end

@@ -54,8 +54,16 @@ begin
   require "rspec/core"
   require "rspec/core/rake_task"
 
-  RSpec::Core::RakeTask.new( :spec ) do | spec |
-    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
+  RSpec::Core::RakeTask.new do | task |
+    task.verbose = $trace
+    task.pattern = FileList[ "spec/**/*_spec.rb" ]
+    task.rspec_opts = "--format documentation --color"
+  end
+
+  RSpec::Core::RakeTask.new( "spec:actions" ) do | task |
+    task.verbose = $trace
+    task.pattern = FileList[ "spec/**/*_spec.rb" ]
+    task.rspec_opts = "--tag type:actions --format documentation --color"
   end
 
   RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
