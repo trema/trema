@@ -20,39 +20,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe SetIpTos, ".new( number )" do
+describe SetIpTos, ".new( type_of_service )", :type => "actions" do
   subject { SetIpTos.new( type_of_service ) }
 
-  context "when type_of_service == 32" do
+  context "with type_of_service (32)" do
     let( :type_of_service ) { 32 }
     its( :type_of_service ) { should == 32 }
   end
 
   it_validates "option range", :type_of_service, 0..( 2 ** 8 - 1 )
-end
 
+  context %{with type_of_service ("32")} do
+    let( :type_of_service ) { "32" }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
-describe SetIpTos, %{.new( "32" )} do
-  it { expect { SetIpTos.new( "32" ) }.to raise_error( TypeError ) }
-end
+  context %{with type_of_service ([32])} do
+    let( :type_of_service ) { [ 32 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
+  context "when sending a Flow Mod with SetIpTos" do
+    let( :type_of_service ) { 4 }
 
-describe SetIpTos, ".new( [ 32 ] )" do
-  it { expect { SetIpTos.new( [ 32 ] ) }.to raise_error( TypeError ) }
-end
-
-
-describe SetIpTos, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_nw_tos" do
-    it "should have a flow with action set to mod_nw_tos" do
-      class FlowModAddController < Controller; end
+    it "should insert a new flow entry with action (mod_nw_tos:4)" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetIpTos.new( 4 ) )
-        sleep 2 # FIXME: wait to send_flow_mod_add
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_tos:4/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /mod_nw_tos:4/ )
       }
     end
   end
