@@ -20,32 +20,36 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe SetIpSrcAddr, ".new(ip_address)" do
+describe SetIpSrcAddr, ".new(ip_address)", :type => "actions" do
   subject { SetIpSrcAddr.new( ip_address ) }
 
-  context %{when "192.168.1.1"} do
+  context %{with ip_address ("192.168.1.1")} do
     let( :ip_address ) { "192.168.1.1" }
-    its( :ip_address ) { should == IPAddr.new( "192.168.1.1" ) }
+    its( "ip_address.to_s" ) { should == "192.168.1.1" }
   end
-end
 
+  context %{with invalid ip_address ("192.168.1")} do
+    let( :ip_address ) { "192.168.1" }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
 
-describe ActionSetTpSrc, ".new( array )" do
-  it { expect { ActionSetTpSrc.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
-end
+  context "with invalid ip_address ([1, 2, 3])" do
+    let( :ip_address ) { [ 1, 2, 3 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
+  context "when sending a Flow Mod with SetIpSrcAddr" do
+    let( :ip_address ) { "192.168.1.1" }
 
-describe SetIpSrcAddr, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_nw_src" do
-    it "should have a flow with action set to mod_nw_src" do
-      class FlowModAddController < Controller; end
+    it "should insert a flow entry with action (mod_nw_src:192.168.1.1)" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetIpSrcAddr.new( "192.168.1.1" ) )
-        sleep 2 # FIXME: wait to send_flow_mod_add
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_nw_src:192.168.1.1/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_nw_src:192.168.1.1"
       }
     end
   end
