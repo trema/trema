@@ -20,39 +20,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe SetTransportDstPort, "new( number )" do
-  subject { SetTransportDstPort.new number }
+describe SetTransportDstPort, "new( port_number )", :type => "actions" do
+  subject { SetTransportDstPort.new port_number }
 
-  context "when number == 5555" do
-    let( :number ) { 5555 }
+  context "with port_number (5555)" do
+    let( :port_number ) { 5555 }
     its( :port_number ) { should == 5555 }
   end
 
-  it_validates "option range", :number, 0..( 2 ** 16 - 1 )
-end
+  it_validates "option range", :port_number, 0..( 2 ** 16 - 1 )
 
+  context %{with invalid port_number ("5555")} do
+    let( :port_number ) { "5555" }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
-describe SetTransportDstPort, ".new( string )" do
-  it { expect { SetTransportDstPort.new( "5555" ) }.to raise_error( TypeError ) }
-end
+  context %{with invalid port_number ([1, 2, 3])} do
+    let( :port_number ) { [ 1, 2, 3 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
+  context "when sending a Flow Mod with SetTransportDstPort" do
+    let( :port_number ) { 5555 }
 
-describe SetTransportDstPort, ".new( array )" do
-  it { expect { SetTransportDstPort.new( [ 1, 2, 3 ] ) }.to raise_error( TypeError ) }
-end
-
-
-describe SetTransportDstPort, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_tp_dst" do
-    it "should have a flow with action set to mod_tp_dst" do
-      class FlowModAddController < Controller; end
+    it "should insert a new flow entry with action (mod_tp_dst:5555)" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetTransportDstPort.new( 5555 ) )
-        sleep 2 # FIXME: wait to send_flow_mod_add
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_tp_dst:5555/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_tp_dst:5555"
       }
     end
   end
