@@ -28,7 +28,7 @@ describe SetVlanVid, ".new(vlan_id)", :type => "actions" do
     its( :vlan_id ) { should == 1024 }
   end
 
-  it_validates "option range", :vlan_id, 1..4095
+  it_validates "option is within range", :vlan_id, 1..4095
 
   context %{with vlan_id ("1024")} do
     let( :vlan_id ) { "1024" }

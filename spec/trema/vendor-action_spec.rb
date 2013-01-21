@@ -28,7 +28,7 @@ describe VendorAction, "new(vendor_id)", :type => "actions" do
     its( :vendor_id ) { should == 0x00004cff }
   end
 
-  it_validates "option range", :vendor_id, 0..( 2 ** 32 - 1 )
+  it_validates "option is within range", :vendor_id, 0..( 2 ** 32 - 1 )
 
   context %{with vendor_id ("0x00004cff")} do
     let( :vendor_id ) { "0x00004cff" }

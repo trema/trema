@@ -51,7 +51,7 @@ describe SetEthDstAddr, ".new( mac_address )", :type => "actions" do
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  it_validates "option range", :mac_address, 0..0xffffffffffff
+  it_validates "option is within range", :mac_address, 0..0xffffffffffff
 
   context "when sending a Flow Mod with action set to SetEthDstAddr" do
     let( :mac_address ) { "52:54:00:a8:ad:8c" }

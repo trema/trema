@@ -38,7 +38,7 @@ describe SendOutPort, :type => "actions" do
       its( :to_s ) { should == "SendOutPort: port_number=1, max_len=65535" }
     end
 
-    it_validates "option range", :port_number, 0..( 2 ** 16 - 1 )
+    it_validates "option is within range", :port_number, 0..( 2 ** 16 - 1 )
   end
 
   context "#new(:port_number => 1, :max_len => max_len)" do
@@ -50,7 +50,7 @@ describe SendOutPort, :type => "actions" do
       its( :to_s ) { should == "SendOutPort: port_number=1, max_len=256" }
     end
 
-    it_validates "option range", :max_len, 0..( 2 ** 16 - 1 )
+    it_validates "option is within range", :max_len, 0..( 2 ** 16 - 1 )
   end
 
   context "when sending a Flow Mod with SendOutPort action" do

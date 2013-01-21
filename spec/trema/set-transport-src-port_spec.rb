@@ -28,7 +28,7 @@ describe SetTransportSrcPort, "new( port_number )", :type => "actions" do
     its( :port_number ) { should == 5555 }
   end
 
-  it_validates "option range", :port_number, 0..( 2 ** 16 - 1 )
+  it_validates "option is within range", :port_number, 0..( 2 ** 16 - 1 )
 
   context %{with invalid port_number ("5555")} do
     let( :port_number ) { "5555" }

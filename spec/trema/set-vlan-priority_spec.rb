@@ -28,7 +28,7 @@ describe SetVlanPriority, ".new(vlan_priority)", :type => "actions" do
     its( :vlan_priority ) { should == 4 }
   end
 
-  it_validates "option range", :vlan_priority, 0..7
+  it_validates "option is within range", :vlan_priority, 0..7
 
   context %{with vlan_priority ("4")} do
     let( :vlan_priority ) { "4" }
