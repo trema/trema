@@ -21,33 +21,33 @@ require "trema"
 
 
 describe SendOutPort, :type => "actions" do
-  context "#new( 1 )" do
+  context "#new(1)" do
     subject { SendOutPort.new( 1 ) }
 
     its( :port_number ) { should == 1 }
     its( :max_len ) { should == 2 ** 16 - 1 }
-    its( :to_s ) { should == "SendOutPort: port=1, max_len=65535" }
+    its( :to_s ) { should == "SendOutPort: port_number=1, max_len=65535" }
   end
 
-  context "#new( :port_number => number )" do
-    subject { SendOutPort.new( :port_number => number ) }
+  context "#new(:port_number => port_number)" do
+    subject { SendOutPort.new( :port_number => port_number ) }
 
-    context "with port number (1)" do
-      let( :number ) { 1 }
+    context "with port_number (1)" do
+      let( :port_number ) { 1 }
       its( :port_number ) { should == 1 }
-      its( :to_s ) { should == "SendOutPort: port=1, max_len=65535" }
+      its( :to_s ) { should == "SendOutPort: port_number=1, max_len=65535" }
     end
 
-    it_validates "option range", :number, 0..( 2 ** 16 - 1 )
+    it_validates "option range", :port_number, 0..( 2 ** 16 - 1 )
   end
 
-  context "#new( :port_number => 1, :max_len => number )" do
+  context "#new(:port_number => 1, :max_len => max_len)" do
     subject { SendOutPort.new( :port_number => 1, :max_len => max_len ) }
 
-    context "with :max_len == 256" do
+    context "with :max_len (256)" do
       let( :max_len ) { 256 }
       its( :max_len ) { should == 256 }
-      its( :to_s ) { should == "SendOutPort: port=1, max_len=256" }
+      its( :to_s ) { should == "SendOutPort: port_number=1, max_len=256" }
     end
 
     it_validates "option range", :max_len, 0..( 2 ** 16 - 1 )
@@ -68,7 +68,7 @@ describe SendOutPort, :type => "actions" do
   end
 
   context "when sending a Flow Mod with multiple SendOutPort actions" do
-    it "should insert a new flow entry with actions (output:1\/output:2)" do
+    it 'should insert a new flow entry with actions (output:1/output:2)' do
       class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
@@ -76,7 +76,7 @@ describe SendOutPort, :type => "actions" do
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => [ SendOutPort.new( 1 ), SendOutPort.new( 2 ) ] )
         sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /output:1\/output:2/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should == 'output:1/output:2'
       }
     end
   end
