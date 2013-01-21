@@ -20,17 +20,17 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe StripVlanHeader, ".new" do
-  context "when sending #flow_mod(add) with action set to strip_vlan" do
-    it "should have a flow with action set to strip_vlan" do
-      class FlowModAddController < Controller; end
+describe StripVlanHeader, :type => "actions" do
+  context "when sending a Flow Mod with StripVlanHeader" do
+    it "should insert a new flow entry with action (strip_vlan)" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => StripVlanHeader.new )
-        sleep 2 # FIXME: wait to send_flow_mod_add
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
         vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /strip_vlan/ )
+        vswitch( "0xabc" ).flows[ 0 ].actions.should == "strip_vlan"
       }
     end
   end
