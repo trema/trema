@@ -1083,6 +1083,9 @@ Init_packet_in() {
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 
+  rb_define_const( cPacketIn, "OFPR_NO_MATCH", INT2NUM( OFPR_NO_MATCH ) );
+  rb_define_const( cPacketIn, "OFPR_ACTION", INT2NUM( OFPR_ACTION ) );
+
   rb_define_method( cPacketIn, "initialize_copy", packet_in_init_copy, 1 );
 
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
