@@ -304,6 +304,18 @@ Init_port() {
 
   rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
   rb_define_const( cPort, "OFPPS_LINK_DOWN", INT2NUM( OFPPS_LINK_DOWN ) );
+  rb_define_const( cPort, "OFPPF_10MB_HD", INT2NUM( OFPPF_10MB_HD ) );
+  rb_define_const( cPort, "OFPPF_10MB_FD", INT2NUM( OFPPF_10MB_FD ) );
+  rb_define_const( cPort, "OFPPF_100MB_HD", INT2NUM( OFPPF_100MB_HD ) );
+  rb_define_const( cPort, "OFPPF_100MB_FD", INT2NUM( OFPPF_100MB_FD ) );
+  rb_define_const( cPort, "OFPPF_1GB_HD", INT2NUM( OFPPF_1GB_HD ) );
+  rb_define_const( cPort, "OFPPF_1GB_FD", INT2NUM( OFPPF_1GB_FD ) );
+  rb_define_const( cPort, "OFPPF_10GB_FD", INT2NUM( OFPPF_10GB_FD ) );
+  rb_define_const( cPort, "OFPPF_COPPER", INT2NUM( OFPPF_COPPER ) );
+  rb_define_const( cPort, "OFPPF_FIBER", INT2NUM( OFPPF_FIBER ) );
+  rb_define_const( cPort, "OFPPF_AUTONEG", INT2NUM( OFPPF_AUTONEG ) );
+  rb_define_const( cPort, "OFPPF_PAUSE", INT2NUM( OFPPF_PAUSE ) );
+  rb_define_const( cPort, "OFPPF_PAUSE_ASYM", INT2NUM( OFPPF_PAUSE_ASYM ) );
 
   rb_define_method( cPort, "initialize", port_init, 1 );
   rb_define_method( cPort, "number", port_number, 0 );
