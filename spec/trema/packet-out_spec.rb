@@ -41,16 +41,14 @@ end
 describe "packet-out" do
   context "a controller instance" do
     it "should respond to #send_packet_out" do
-      PacketOutController.new.should respond_to(:send_packet_out)
+      expect( PacketOutController.new ).to respond_to(:send_packet_out)
     end
   end
 
 
   context "when invoked with no datapath_id" do
     it "should raise an error" do
-      lambda do
-        PacketOutController.new.send_packet_out
-      end.should raise_error("wrong number of arguments (0 for 1)")
+      expect { PacketOutController.new.send_packet_out }.to raise_error("wrong number of arguments (0 for 1)")
     end
   end
 
@@ -66,7 +64,7 @@ describe "packet-out" do
       }.run( PacketOutController ) {
         send_packets "host2", "host1"
         sleep 2
-        vhost( "host1" ).rx_stats.n_pkts.should == 1
+        expect( vhost( "host1" ).rx_stats.n_pkts ).to eq( 1 )
       }
     end
   end
@@ -114,7 +112,7 @@ describe "packet-out" do
           :actions => Trema::ActionOutput.new( :port => 1 )
         )
         sleep 2
-        vhost( "host2" ).rx_stats.n_pkts.should == 1
+        expect( vhost( "host2" ).rx_stats.n_pkts ).to eq( 1 )
       }
     end
   end

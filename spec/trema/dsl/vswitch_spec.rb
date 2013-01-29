@@ -32,30 +32,22 @@ module Trema
 
       context %[when parsing "vswitch { ... }"] do
         it %[recognizes "dpid DATAPATH_ID" directive] do
-          lambda do
-            @vswitch.dpid "0xabc"
-          end.should_not raise_error
+          expect { @vswitch.dpid "0xabc" }.not_to raise_error
         end
 
 
         it %[recognizes "datapath_id DATAPATH_ID" directive] do
-          lambda do
-            @vswitch.datapath_id "0xabc"
-          end.should_not raise_error
+          expect { @vswitch.datapath_id "0xabc" }.not_to raise_error
         end
 
 
         it %[recognizes "ports PORT_NUMBERS" directive] do
-          lambda do
-            @vswitch.ports "0-4"
-          end.should_not raise_error
+          expect { @vswitch.ports "0-4" }.not_to raise_error
         end
 
 
         it %[recognizes "ip IP_ADDRESS" directive] do
-          lambda do
-            @vswitch.ip "192.168.0.1"
-          end.should_not raise_error
+          expect { @vswitch.ip "192.168.0.1" }.not_to raise_error
         end
       end
 
@@ -63,19 +55,19 @@ module Trema
       context "when getting the attributes of a vswitch" do
         it "returns its dpid in long format" do
           @vswitch.dpid "0xabc"
-          @vswitch[ :dpid_long ].should == "0000000000000abc"
+          expect( @vswitch[ :dpid_long ] ).to eq( "0000000000000abc" )
         end
 
 
         it "returns its dpid in short format" do
           @vswitch.dpid "0xabc"
-          @vswitch[ :dpid_short ].should == "0xabc"
+          expect( @vswitch[ :dpid_short ] ).to eq( "0xabc" )
         end
 
 
         it "returns its ip address" do
           @vswitch.ip "192.168.0.1"
-          @vswitch[ :ip ].should == "192.168.0.1"
+          expect( @vswitch[ :ip ] ).to eq( "192.168.0.1" )
         end
       end
     end

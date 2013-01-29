@@ -33,17 +33,17 @@ module Trema
 
 
     it "should return its name" do
-      @switch.name.should == "0xabc"
+      expect( @switch.name ).to eq( "0xabc" )
     end
 
 
     it "should return dpid in long format" do
-      @switch.dpid_long.should == "0000000000000abc"
+      expect( @switch.dpid_long ).to eq( "0000000000000abc" )
     end
 
 
     it "should return dpid in short format" do
-      @switch.dpid_short.should == "0xabc"
+      expect( @switch.dpid_short ).to eq( "0xabc" )
     end
   end
 end

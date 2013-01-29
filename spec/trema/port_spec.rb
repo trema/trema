@@ -25,31 +25,31 @@ require "trema"
 describe Trema::Port do
   it "should have its port number" do
     port = Trema::Port.new( :number => 123 )
-    port.number.should == 123
+    expect( port.number ).to be( 123 )
   end
 
   it "should check the port up" do
     port = Trema::Port.new( :config => 0, :state => 0 )
-    port.up?.should == true
-    port.down?.should == false
+    expect( port.up? ).to be_true
+    expect( port.down? ).to be_false
   end
 
   it "should check the port down(config=0,state=1)" do
     port = Trema::Port.new( :config => 0, :state => 1 )
-    port.up?.should == false
-    port.down?.should == true
+    expect( port.up? ).to be_false
+    expect( port.down? ).to be_true
   end
 
   it "should check the port down(config=1,state=0)" do
     port = Trema::Port.new( :config => 1, :state => 0 )
-    port.up?.should == false
-    port.down?.should == true
+    expect( port.up? ).to be_false
+    expect( port.down? ).to be_true
   end
 
   it "should check the port down(config=1,state=1)" do
     port = Trema::Port.new( :config => 1, :state => 1 )
-    port.up?.should == false
-    port.down?.should == true
+    expect( port.up? ).to be_false
+    expect( port.down? ).to be_true
   end
 end
 

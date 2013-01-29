@@ -51,20 +51,20 @@ describe Trema::Shell, ".vswitch" do
 
     it "should create a new vswitch if name given" do
       Trema::Shell.vswitch { dpid "0xabc" }
-      Trema::OpenflowSwitch.should have( 1 ).switch
-      Trema::OpenflowSwitch[ "0xabc" ].name.should == "0xabc"
-      Trema::OpenflowSwitch[ "0xabc" ].dpid_short.should == "0xabc"
-      Trema::OpenflowSwitch[ "0xabc" ].dpid_long.should == "0000000000000abc"
+      expect( Trema::OpenflowSwitch ).to have( 1 ).switch
+      expect( Trema::OpenflowSwitch[ "0xabc" ].name ).to eq( "0xabc" )
+      expect( Trema::OpenflowSwitch[ "0xabc" ].dpid_short ).to eq( "0xabc" )
+      expect( Trema::OpenflowSwitch[ "0xabc" ].dpid_long ).to eq( "0000000000000abc" )
     end
 
 
     it "should create a new vswitch if dpid given" do
       Trema::Shell.vswitch "0xabc"
 
-      Trema::OpenflowSwitch.should have( 1 ).switch
-      Trema::OpenflowSwitch[ "0xabc" ].name.should == "0xabc"
-      Trema::OpenflowSwitch[ "0xabc" ].dpid_short.should == "0xabc"
-      Trema::OpenflowSwitch[ "0xabc" ].dpid_long.should == "0000000000000abc"
+      expect( Trema::OpenflowSwitch ).to have( 1 ).switch
+      expect( Trema::OpenflowSwitch[ "0xabc" ].name ).to eq( "0xabc" )
+      expect( Trema::OpenflowSwitch[ "0xabc" ].dpid_short ).to eq( "0xabc" )
+      expect( Trema::OpenflowSwitch[ "0xabc" ].dpid_long ).to eq( "0000000000000abc" )
     end
 
 

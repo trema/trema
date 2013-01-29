@@ -33,7 +33,7 @@ describe PortMod, ".new( VALID OPTIONS )" do
     )
   }
   its( :port_no ) { should == 2 }
-  its( :hw_addr ) { subject.to_s.should eq "11:22:33:44:55:66" }
+  its( "hw_addr.to_s" ) { should eq "11:22:33:44:55:66" }
   its( :config ) { should == 1 }
   its( :mask ) { should == 1 }
   its( :advertise ) { should == 0 }
@@ -42,46 +42,45 @@ describe PortMod, ".new( VALID OPTIONS )" do
 
   describe "hw_addr" do
     it "should be a Trema::Mac object" do
-      PortMod.new(
-        :port_no => 2,
-        :hw_addr => Mac::new( "11:22:33:44:55:66" ),
-        :config => 1,
-        :mask => 1,
-        :advertise => 0
-      ).hw_addr.to_s.should eq( "11:22:33:44:55:66" )
+      expect( PortMod.new(
+               :port_no => 2,
+               :hw_addr => Mac::new( "11:22:33:44:55:66" ),
+               :config => 1,
+               :mask => 1,
+               :advertise => 0
+             ).hw_addr.to_s ).to eq( "11:22:33:44:55:66" )
     end
 
 
     it "should be a string('11:22:33:44:55')" do
-      PortMod.new(
-        :port_no => 2,
-        :hw_addr => "11:22:33:44:55:66",
-        :config => 1,
-        :mask => 1,
-        :advertise => 0 ).hw_addr.to_s.should eq( "11:22:33:44:55:66" )
+      expect( PortMod.new(
+               :port_no => 2,
+               :hw_addr => "11:22:33:44:55:66",
+               :config => 1,
+               :mask => 1,
+               :advertise => 0 ).hw_addr.to_s ).to eq( "11:22:33:44:55:66" )
     end
 
 
     it "should be a number(281474976710655)" do
-      PortMod.new(
-        :port_no => 2,
-        :hw_addr => 281474976710655,
-        :config => 1,
-        :mask => 1,
-        :advertise => 0 ).hw_addr.to_s.should eq( "ff:ff:ff:ff:ff:ff" )
+      expect( PortMod.new(
+               :port_no => 2,
+               :hw_addr => 281474976710655,
+               :config => 1,
+               :mask => 1,
+               :advertise => 0 ).hw_addr.to_s ).to eq( "ff:ff:ff:ff:ff:ff" )
     end
 
 
     it "should otherwise raise ArgumentError" do
-      lambda do
-        PortMod.new(
-          :port_no => 2,
-          :hw_addr => Array.new( 1234 ),
-          :config => 1,
-          :mask => 1,
-          :advertise => 0
-        )
-      end.should raise_error ArgumentError
+      expect { PortMod.new(
+                :port_no => 2,
+                :hw_addr => Array.new( 1234 ),
+                :config => 1,
+                :mask => 1,
+                :advertise => 0
+               )
+             }.to raise_error( ArgumentError )
     end
   end
 end

@@ -111,23 +111,23 @@ module Trema
 
           host0.should_receive( :run! ).once
           host0.should_receive( :add_arp_entry ).with do | arg |
-            arg.size.should == 2
-            arg.should include( host1 )
-            arg.should include( host2 )
+            expect( arg.size ).to eq( 2 )
+            expect( arg ).to include( host1 )
+            expect( arg ).to include( host2 )
           end
 
           host1.should_receive( :run! ).once
           host1.should_receive( :add_arp_entry ).with do | arg |
-            arg.size.should == 2
-            arg.should include( host0 )
-            arg.should include( host2 )
+            expect( arg.size ).to eq( 2 )
+            expect( arg ).to include( host0 )
+            expect( arg ).to include( host2 )
           end
 
           host2.should_receive( :run! ).once
           host2.should_receive( :add_arp_entry ).with do | arg |
-            arg.size.should == 2
-            arg.should include( host0 )
-            arg.should include( host1 )
+            expect( arg.size ).to eq( 2 )
+            expect( arg ).to include( host0 )
+            expect( arg ).to include( host1 )
           end
 
           context = mock(

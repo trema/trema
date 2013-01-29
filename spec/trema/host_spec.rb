@@ -166,7 +166,7 @@ module Trema
           it "should get tx stats" do
             @cli.should_receive( :tx_stats ).and_return( @stats )
 
-            @host.tx_stats.should == @stats
+            expect( @host.tx_stats ).to eq( @stats )
           end
         end
       end
@@ -177,7 +177,7 @@ module Trema
           it "should get rx stats" do
             @cli.should_receive( :rx_stats ).and_return( @stats )
 
-            @host.rx_stats.should == @stats
+            expect( @host.rx_stats ).to eq( @stats )
           end
         end
       end

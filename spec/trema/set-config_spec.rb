@@ -59,8 +59,8 @@ describe SetConfig, ".new( VALID OPTIONS )" do
         vswitch { datapath_id 0xabc }
       }.run( SetConfigController ) {
         controller( "SetConfigController" ).should_receive( :get_config_reply ) do | dpid, arg |
-          arg.flags.should == 0
-          arg.miss_send_len.should == 0
+          expect( arg.flags ).to eq( 0 )
+          expect( arg.miss_send_len ).to eq( 0 )
         end
         set_config = SetConfig.new( :flags => 0, :miss_send_len => 0, :transaction_id => 123 )
         controller( "SetConfigController" ).send_message( 0xabc, set_config )

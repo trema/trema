@@ -1,4 +1,3 @@
-
 # Author: Nick Karanatsios <nickkaranatsios@gmail.com>
 #
 # Copyright (C) 2008-2012 NEC Corporation
@@ -56,9 +55,9 @@ describe Trema::PacketIn do
         link "test", "host2"
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.datapath_id.should == 0xabc
-          message.in_port.should > 0
+          expect( datapath_id ).to eq( 0xabc )
+          expect( message.datapath_id ).to eq( 0xabc )
+          expect( message.in_port ).to be > 0
         end
         send_and_wait
       }
@@ -77,22 +76,22 @@ describe Trema::PacketIn do
       }.run( PacketInController ) {
         controller( "PacketInController" ).should_receive( :packet_in ) do | datapath_id, message |
            # packet_in expected to have data portion.
-          message.total_len.should > 20
-          message.data.should be_instance_of( String )
-          message.buffered?.should be_false
+          expect( message.total_len ).to be  > 20
+          expect( message.data ).to be_instance_of( String )
+          expect( message.buffered? ).to be_false
 
-          message.macsa.should be_instance_of( Trema::Mac )
-          message.macsa.to_s.should == "00:00:00:00:00:01"
-          message.macda.should be_instance_of( Trema::Mac )
-          message.macda.to_s.should == "00:00:00:00:00:02"
+          expect( message.macsa ).to be_instance_of( Trema::Mac )
+          expect( message.macsa.to_s ).to eq( "00:00:00:00:00:01" )
+          expect( message.macda ).to be_instance_of( Trema::Mac )
+          expect( message.macda.to_s ).to eq( "00:00:00:00:00:02" )
 
-          message.eth_type.should == 0x0800
-          message.ipv4?.should == true
-          message.ipv4_version.should == 4
-          message.ipv4_saddr.should be_instance_of( Trema::IP )
-          message.ipv4_saddr.to_s.should == "192.168.1.1"
-          message.ipv4_daddr.should be_instance_of( Trema::IP )
-          message.ipv4_daddr.to_s.should == "192.168.1.2"
+          expect( message.eth_type ).to eq( 0x0800 )
+          expect( message.ipv4? ).to be_true
+          expect( message.ipv4_version ).to eq( 4 )
+          expect( message.ipv4_saddr ).to be_instance_of( Trema::IP )
+          expect( message.ipv4_saddr.to_s ).to eq( "192.168.1.1" )
+          expect( message.ipv4_daddr ).to be_instance_of( Trema::IP )
+          expect( message.ipv4_daddr.to_s ).to eq( "192.168.1.2" )
         end
         send_and_wait
       }
@@ -130,66 +129,66 @@ describe Trema::PacketIn do
           0x00, 0x00
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
-          message.in_port.should > 0
-          message.vtag?.should be_false
-          message.arp?.should be_true
-          message.ipv4?.should be_false
-          message.tcp?.should be_false
-          message.udp?.should be_false
-          message.icmpv4?.should be_false
-          message.igmp?.should be_false
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_true
+          expect( message.ipv4? ).to be_false
+          expect( message.tcp? ).to be_false
+          expect( message.udp? ).to be_false
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_false
 
-          message.arp_oper.should == 2
-          message.arp_sha.to_s.should == "00:00:00:00:00:01"
-          message.arp_spa.to_s.should == "192.168.0.1"
-          message.arp_tha.to_s.should == "00:00:00:00:00:02"
-          message.arp_tpa.to_s.should == "192.168.0.2"
-          message.arp_request?.should be_false
-          message.arp_reply?.should be_true
+          expect( message.arp_oper ).to eq( 2 )
+          expect( message.arp_sha.to_s ).to eq( "00:00:00:00:00:01" )
+          expect( message.arp_spa.to_s ).to eq( "192.168.0.1" )
+          expect( message.arp_tha.to_s ).to eq( "00:00:00:00:00:02" )
+          expect( message.arp_tpa.to_s ).to eq( "192.168.0.2" )
+          expect( message.arp_request? ).to be_false
+          expect( message.arp_reply? ).to be_true
 
-          message.vlan_tpid.should be_nil
-          message.vlan_tci.should be_nil
-          message.vlan_prio.should be_nil
-          message.vlan_cfi.should be_nil
-          message.vlan_vid.should be_nil
+          expect( message.vlan_tpid ).to be_nil
+          expect( message.vlan_tci ).to be_nil
+          expect( message.vlan_prio ).to be_nil
+          expect( message.vlan_cfi ).to be_nil
+          expect( message.vlan_vid ).to be_nil
 
-          message.ipv4_version.should be_nil
-          message.ipv4_ihl.should be_nil
-          message.ipv4_tos.should be_nil
-          message.ipv4_tot_len.should be_nil
-          message.ipv4_id.should be_nil
-          message.ipv4_frag_off.should be_nil
-          message.ipv4_ttl.should be_nil
-          message.ipv4_protocol.should be_nil
-          message.ipv4_checksum.should be_nil
-          message.ipv4_saddr.should be_nil
-          message.ipv4_daddr.should be_nil
+          expect( message.ipv4_version ).to be_nil
+          expect( message.ipv4_ihl ).to be_nil
+          expect( message.ipv4_tos ).to be_nil
+          expect( message.ipv4_tot_len ).to be_nil
+          expect( message.ipv4_id ).to be_nil
+          expect( message.ipv4_frag_off ).to be_nil
+          expect( message.ipv4_ttl ).to be_nil
+          expect( message.ipv4_protocol ).to be_nil
+          expect( message.ipv4_checksum ).to be_nil
+          expect( message.ipv4_saddr ).to be_nil
+          expect( message.ipv4_daddr ).to be_nil
 
-          message.icmpv4_type.should be_nil
-          message.icmpv4_code.should be_nil
-          message.icmpv4_checksum.should be_nil
-          message.icmpv4_id.should be_nil
-          message.icmpv4_seq.should be_nil
-          message.icmpv4_gateway.should be_nil
+          expect( message.icmpv4_type ).to be_nil
+          expect( message.icmpv4_code ).to be_nil
+          expect( message.icmpv4_checksum ).to be_nil
+          expect( message.icmpv4_id ).to be_nil
+          expect( message.icmpv4_seq ).to be_nil
+          expect( message.icmpv4_gateway ).to be_nil
 
-          message.igmp_type.should be_nil
-          message.igmp_checksum.should be_nil
-          message.igmp_group.should be_nil
+          expect( message.igmp_type ).to be_nil
+          expect( message.igmp_checksum ).to be_nil
+          expect( message.igmp_group ).to be_nil
 
-          message.tcp_src_port.should be_nil
-          message.tcp_dst_port.should be_nil
-          message.tcp_seq_no.should be_nil
-          message.tcp_ack_no.should be_nil
-          message.tcp_offset.should be_nil
-          message.tcp_flags.should be_nil
-          message.tcp_window.should be_nil
-          message.tcp_checksum.should be_nil
-          message.tcp_urgent.should be_nil
+          expect( message.tcp_src_port ).to be_nil
+          expect( message.tcp_dst_port ).to be_nil
+          expect( message.tcp_seq_no ).to be_nil
+          expect( message.tcp_ack_no ).to be_nil
+          expect( message.tcp_offset ).to be_nil
+          expect( message.tcp_flags ).to be_nil
+          expect( message.tcp_window ).to be_nil
+          expect( message.tcp_checksum ).to be_nil
+          expect( message.tcp_urgent ).to be_nil
 
-          message.udp_src_port.should be_nil
-          message.udp_dst_port.should be_nil
-          message.udp_checksum.should be_nil
-          message.udp_len.should be_nil
+          expect( message.udp_src_port ).to be_nil
+          expect( message.udp_dst_port ).to be_nil
+          expect( message.udp_checksum ).to be_nil
+          expect( message.udp_len ).to be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -240,42 +239,42 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
-          message.in_port.should > 0
-          message.vtag?.should be_false
-          message.arp?.should be_false
-          message.ipv4?.should be_true
-          message.udp?.should be_false
-          message.tcp?.should be_true
-          message.icmpv4?.should be_false
-          message.igmp?.should be_false
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_false
+          expect( message.ipv4? ).to be_true
+          expect( message.udp? ).to be_false
+          expect( message.tcp? ).to be_true
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_false
 
-          message.ipv4_version.should == 4
-          message.ipv4_ihl.should == 5
-          message.ipv4_tos.should == 0
-          message.ipv4_tot_len.should == 0x28
-          message.ipv4_id.should == 0
-          message.ipv4_frag_off.should == 0
-          message.ipv4_ttl.should == 0
-          message.ipv4_protocol.should == 6
-          message.ipv4_checksum.should == 0x397d
-          message.ipv4_saddr.to_s.should == "192.168.0.1"
-          message.ipv4_daddr.to_s.should == "192.168.0.2"
+          expect( message.ipv4_version ).to eq( 4 )
+          expect( message.ipv4_ihl ).to eq( 5 )
+          expect( message.ipv4_tos ).to eq( 0 )
+          expect( message.ipv4_tot_len ).to eq( 0x28 )
+          expect( message.ipv4_id ).to eq( 0 )
+          expect( message.ipv4_frag_off ).to eq( 0 )
+          expect( message.ipv4_ttl ).to eq( 0 )
+          expect( message.ipv4_protocol ).to eq( 6 )
+          expect( message.ipv4_checksum ).to eq( 0x397d )
+          expect( message.ipv4_saddr.to_s ).to eq( "192.168.0.1" )
+          expect( message.ipv4_daddr.to_s ).to eq( "192.168.0.2" )
 
-          message.tcp_src_port.should == 1
-          message.tcp_dst_port.should == 2
-          message.tcp_seq_no.should == 0
-          message.tcp_ack_no.should == 0
-          message.tcp_offset.should == 5
-          message.tcp_flags.should == 0
-          message.tcp_window.should == 0
-          message.tcp_checksum.should == 11910 # 0x2e86
-          message.tcp_urgent.should == 0
+          expect( message.tcp_src_port ).to eq( 1 )
+          expect( message.tcp_dst_port ).to eq( 2 )
+          expect( message.tcp_seq_no ).to eq( 0 )
+          expect( message.tcp_ack_no ).to eq( 0 )
+          expect( message.tcp_offset ).to eq( 5 )
+          expect( message.tcp_flags ).to eq( 0 )
+          expect( message.tcp_window ).to eq( 0 )
+          expect( message.tcp_checksum ).to eq( 11910 ) # 0x2e86
+          expect( message.tcp_urgent ).to eq( 0 )
 
-          message.arp_oper.should be_nil
-          message.arp_sha.should be_nil
-          message.arp_spa.should be_nil
-          message.arp_tha.should be_nil
-          message.arp_tpa.should be_nil
+          expect( message.arp_oper ).to be_nil
+          expect( message.arp_sha ).to be_nil
+          expect( message.arp_spa ).to be_nil
+          expect( message.arp_tha ).to be_nil
+          expect( message.arp_tpa ).to be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -323,31 +322,32 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
-          message.in_port.should > 0
-          message.vtag?.should be_false
-          message.arp?.should be_false
-          message.ipv4?.should be_true
-          message.tcp?.should be_false
-          message.udp?.should be_true
-          message.icmpv4?.should be_false
-          message.igmp?.should be_false
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_false
+          expect( message.ipv4? ).to be_true
+          expect( message.tcp? ).to be_false
+          expect( message.udp? ).to be_true
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_false
 
-          message.ipv4_version.should == 4
-          message.ipv4_ihl.should == 5
-          message.ipv4_tos.should == 0
-          message.ipv4_tot_len.should == 0x32
-          message.ipv4_id.should == 0
-          message.ipv4_frag_off.should == 0
-          message.ipv4_ttl.should == 0x40
-          message.ipv4_protocol.should == 17
-          message.ipv4_checksum.should == 0xf968
-          message.ipv4_saddr.to_s.should == "192.168.0.1"
-          message.ipv4_daddr.to_s.should == "192.168.0.2"
 
-          message.udp_src_port.should == 1
-          message.udp_dst_port.should == 2
-          message.udp_checksum.should == 0
-          message.udp_len.should == 0x1e
+          expect( message.ipv4_version ).to eq( 4 )
+          expect( message.ipv4_ihl ).to eq( 5 )
+          expect( message.ipv4_tos ).to eq( 0 )
+          expect( message.ipv4_tot_len ).to eq( 0x32 )
+          expect( message.ipv4_id ).to eq( 0 )
+          expect( message.ipv4_frag_off ).to eq( 0 )
+          expect( message.ipv4_ttl ).to eq( 0x40 )
+          expect( message.ipv4_protocol ).to eq( 17 )
+          expect( message.ipv4_checksum ).to eq( 0xf968 )
+          expect( message.ipv4_saddr.to_s ).to eq( "192.168.0.1" )
+          expect( message.ipv4_daddr.to_s ).to eq( "192.168.0.2" )
+
+          expect( message.udp_src_port ).to eq( 1 )
+          expect( message.udp_dst_port ).to eq( 2 )
+          expect( message.udp_checksum ).to eq( 0 )
+          expect( message.udp_len ).to eq( 0x1e )
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -375,6 +375,8 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
           # vlan tag
+
+
           0x81, 0x00, # tpid
           0x0f, 0x9f, # tci
           0x08, 0x00, # ether type
@@ -400,44 +402,44 @@ describe Trema::PacketIn do
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
-          message.in_port.should > 0
-          message.vtag?.should be_true
-          message.arp?.should be_false
-          message.ipv4?.should be_true
-          message.udp?.should be_false
-          message.tcp?.should be_false
-          message.icmpv4?.should be_true
-          message.igmp?.should be_false
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_true
+          expect( message.arp? ).to be_false
+          expect( message.ipv4? ).to be_true
+          expect( message.udp? ).to be_false
+          expect( message.tcp? ).to be_false
+          expect( message.icmpv4? ).to be_true
+          expect( message.igmp? ).to be_false
 
-          message.vlan_tpid.should == 0x8100
-          message.vlan_tci.should == 0x0f9f
-          message.vlan_prio.should == 0
-          message.vlan_cfi.should == 0
-          message.vlan_vid.should == 0xf9f
-          message.eth_type.should == 0x0800
+          expect( message.vlan_tpid ).to eq( 0x8100 )
+          expect( message.vlan_tci ).to eq( 0x0f9f )
+          expect( message.vlan_prio ).to eq( 0 )
+          expect( message.vlan_cfi ).to eq( 0 )
+          expect( message.vlan_vid ).to eq( 0xf9f )
+          expect( message.eth_type ).to eq( 0x0800 )
 
-          message.ipv4_version.should == 4
-          message.ipv4_ihl.should == 5
-          message.ipv4_tos.should == 0
-          message.ipv4_tot_len.should == 0x003c
-          message.ipv4_id.should == 0x8c1b
-          message.ipv4_frag_off.should == 0
-          message.ipv4_ttl.should == 0x80
-          message.ipv4_protocol.should == 1
-          message.ipv4_checksum.should == 0xed09
-          message.ipv4_saddr.to_s.should == "192.168.32.74"
-          message.ipv4_daddr.to_s.should == "192.168.32.1"
+          expect( message.ipv4_version ).to eq( 4 )
+          expect( message.ipv4_ihl ).to eq( 5 )
+          expect( message.ipv4_tos ).to eq( 0 )
+          expect( message.ipv4_tot_len ).to eq( 0x003c )
+          expect( message.ipv4_id ).to eq( 0x8c1b )
+          expect( message.ipv4_frag_off ).to eq( 0 )
+          expect( message.ipv4_ttl ).to eq( 0x80 )
+          expect( message.ipv4_protocol ).to eq( 1 )
+          expect( message.ipv4_checksum ).to eq( 0xed09 )
+          expect( message.ipv4_saddr.to_s ).to eq( "192.168.32.74" )
+          expect( message.ipv4_daddr.to_s ).to eq( "192.168.32.1" )
 
-          message.icmpv4_type.should == 8
-          message.icmpv4_code.should == 0
-          message.icmpv4_checksum.should == 0xe95b
-          message.icmpv4_id.should == 0x0400
-          message.icmpv4_seq.should == 0x6000
+          expect( message.icmpv4_type ).to eq( 8 )
+          expect( message.icmpv4_code ).to eq( 0 )
+          expect( message.icmpv4_checksum ).to eq( 0xe95b )
+          expect( message.icmpv4_id ).to eq( 0x0400 )
+          expect( message.icmpv4_seq ).to eq( 0x6000 )
 
-          message.icmpv4_echo_reply?.should be_false
-          message.icmpv4_dst_unreach?.should be_false
-          message.icmpv4_redirect?.should be_false
-          message.icmpv4_echo_request?.should be_true
+          expect( message.icmpv4_echo_reply? ).to be_false
+          expect( message.icmpv4_dst_unreach? ).to be_false
+          expect( message.icmpv4_redirect? ).to be_false
+          expect( message.icmpv4_echo_request? ).to be_true
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -483,35 +485,35 @@ describe Trema::PacketIn do
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack( "C*" )
         controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
-          message.in_port.should > 0
-          message.vtag?.should be_false
-          message.arp?.should be_false
-          message.ipv4?.should be_true
-          message.udp?.should be_false
-          message.tcp?.should be_false
-          message.icmpv4?.should be_false
-          message.igmp?.should be_true
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_false
+          expect( message.ipv4? ).to be_true
+          expect( message.udp? ).to be_false
+          expect( message.tcp? ).to be_false
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_true
 
-          message.igmp_membership_query?.should be_true
-          message.igmp_v1_membership_report?.should be_false
-          message.igmp_v2_membership_report?.should be_false
-          message.igmp_v2_leave_group?.should be_false
-          message.igmp_v3_membership_report?.should be_false
+          expect( message.igmp_membership_query? ).to be_true
+          expect( message.igmp_v1_membership_report? ).to be_false
+          expect( message.igmp_v2_membership_report? ).to be_false
+          expect( message.igmp_v2_leave_group? ).to be_false
+          expect( message.igmp_v3_membership_report? ).to be_false
 
-          message.ipv4_version.should == 4
-          message.ipv4_ihl.should == 6
-          message.ipv4_tos.should == 0xc0
-          message.ipv4_tot_len.should == 0x0020
-          message.ipv4_id.should == 0x3aea
-          message.ipv4_frag_off.should == 0
-          message.ipv4_ttl.should == 1
-          message.ipv4_protocol.should == 2
-          message.ipv4_checksum.should == 0xe458
-          message.ipv4_saddr.to_s.should == "192.168.100.43"
-          message.ipv4_daddr.to_s.should == "224.0.0.1"
+          expect( message.ipv4_version ).to eq( 4 )
+          expect( message.ipv4_ihl ).to eq( 6 )
+          expect( message.ipv4_tos ).to eq( 0xc0 )
+          expect( message.ipv4_tot_len ).to eq( 0x0020 )
+          expect( message.ipv4_id ).to eq( 0x3aea )
+          expect( message.ipv4_frag_off ).to eq( 0 )
+          expect( message.ipv4_ttl ).to eq( 1 )
+          expect( message.ipv4_protocol ).to eq( 2 )
+          expect( message.ipv4_checksum ).to eq( 0xe458 )
+          expect( message.ipv4_saddr.to_s ).to eq( "192.168.100.43" )
+          expect( message.ipv4_daddr.to_s ).to eq( "224.0.0.1" )
 
-          message.igmp_type.should == 0x11
-          message.igmp_checksum.should == 0xee9b
+          expect( message.igmp_type ).to eq( 0x11 )
+          expect( message.igmp_checksum ).to eq( 0xee9b )
         end
 
         controller( "PacketInSendController" ).send_packet_out(

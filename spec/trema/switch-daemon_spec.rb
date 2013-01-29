@@ -31,10 +31,10 @@ module Trema
       }
       switch_daemon = SwitchDaemon.new( rule )
 
-      switch_daemon.options.should include( "port_status::topology" )
-      switch_daemon.options.should include( "packet_in::controller" )
-      switch_daemon.options.should include( "state_notify::topology" )
-      switch_daemon.options.should include( "vendor::controller" )
+      expect( switch_daemon.options ).to include( "port_status::topology" )
+      expect( switch_daemon.options ).to include( "packet_in::controller" )
+      expect( switch_daemon.options ).to include( "state_notify::topology" )
+      expect( switch_daemon.options ).to include( "vendor::controller" )
     end
 
 
@@ -47,14 +47,14 @@ module Trema
       }
       switch_daemon = SwitchDaemon.new( rule )
 
-      switch_daemon.options.should include( "port_status::topology0" )
-      switch_daemon.options.should include( "port_status::topology1" )
-      switch_daemon.options.should include( "packet_in::controller0" )
-      switch_daemon.options.should include( "packet_in::controller1" )
-      switch_daemon.options.should include( "state_notify::topology0" )
-      switch_daemon.options.should include( "state_notify::topology1" )
-      switch_daemon.options.should include( "vendor::controller0" )
-      switch_daemon.options.should include( "vendor::controller1" )
+      expect( switch_daemon.options ).to include( "port_status::topology0" )
+      expect( switch_daemon.options ).to include( "port_status::topology1" )
+      expect( switch_daemon.options ).to include( "packet_in::controller0" )
+      expect( switch_daemon.options ).to include( "packet_in::controller1" )
+      expect( switch_daemon.options ).to include( "state_notify::topology0" )
+      expect( switch_daemon.options ).to include( "state_notify::topology1" )
+      expect( switch_daemon.options ).to include( "vendor::controller0" )
+      expect( switch_daemon.options ).to include( "vendor::controller1" )
     end
 
 
@@ -66,9 +66,9 @@ module Trema
       }
       switch_daemon = SwitchDaemon.new( rule )
 
-      switch_daemon.options.should include( "port_status::topology" )
-      switch_daemon.options.should include( "packet_in::controller" )
-      switch_daemon.options.should include( "state_notify::topology" )
+      expect( switch_daemon.options ).to include( "port_status::topology" )
+      expect( switch_daemon.options ).to include( "packet_in::controller" )
+      expect( switch_daemon.options ).to include( "state_notify::topology" )
     end
   end
 end

@@ -47,7 +47,7 @@ module Trema
     its( :n_tables ) { should == 2 }
     its( :capabilities ) { should == 135 }
     its( :actions ) { should == 2047 }
-    its( :ports ) { subject.size.should == 3 }
+    its( "ports.size" ) { should == 3 }
   end
 
 

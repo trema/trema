@@ -58,7 +58,7 @@ module Trema
         }.run( FlowModAddController ) {
           controller( "FlowModAddController" ).send_flow_mod_add( 0xabc )
           sleep 20 # FIXME: wait to send_flow_mod_add
-          vswitch( "0xabc" ).should have( 1 ).flows
+          expect( vswitch( "0xabc" ) ).to have( 1 ).flows
         }
       end
     end

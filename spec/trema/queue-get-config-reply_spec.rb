@@ -34,8 +34,8 @@ describe QueueGetConfigReply, ".new( VALID OPTIONS )" do
       :queues => Queue.queues
     )
   end
-  its( :queues ) { subject.length.should ==  2  }
-  its( :queues ) { subject[0].should be_an_instance_of PacketQueue }
+  its( "queues.length" ) { should ==  2  }
+  its( "queues.first" ) { should be_an_instance_of PacketQueue }
   its( :datapath_id ) { should == 0xabc }
   its( :transaction_id ) { should == 123 }
 end
