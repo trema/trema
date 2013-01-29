@@ -223,6 +223,9 @@ flow_removed_byte_count( VALUE self ) {
 void
 Init_flow_removed() {
   cFlowRemoved = rb_define_class_under( mTrema, "FlowRemoved", rb_cObject );
+  rb_define_const( cFlowRemoved, "OFPRR_IDLE_TIMEOUT", INT2NUM( OFPRR_IDLE_TIMEOUT ) );
+  rb_define_const( cFlowRemoved, "OFPRR_HARD_TIMEOUT", INT2NUM( OFPRR_HARD_TIMEOUT ) );
+  rb_define_const( cFlowRemoved, "OFPRR_DELETE", INT2NUM( OFPRR_DELETE ) );
   rb_define_method( cFlowRemoved, "initialize", flow_removed_init, 1 );
   rb_define_method( cFlowRemoved, "datapath_id", flow_removed_datapath_id, 0 );
   rb_define_method( cFlowRemoved, "transaction_id", flow_removed_transaction_id, 0 );
