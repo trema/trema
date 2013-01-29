@@ -55,8 +55,8 @@ describe VendorAction, ".new(0x00002320, body)", :type => "actions" do
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should == "note:54.72.65.6d.61.00"
+        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
+        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "note:54.72.65.6d.61.00" )
       }
     end
   end

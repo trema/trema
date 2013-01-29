@@ -41,6 +41,14 @@ Dir[ "#{ File.dirname( __FILE__ ) }/support/**/*.rb" ].each do | each |
 end
 
 
+RSpec.configure do | config |
+  config.expect_with :rspec do | c |
+    # Ensure that 'expect' is used and disable 'should' for consistency
+    c.syntax = :expect
+  end
+end
+
+
 include Trema
 
 

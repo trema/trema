@@ -50,8 +50,8 @@ describe SetTransportDstPort, "new( port_number )", :type => "actions" do
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_tp_dst:5555"
+        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
+        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_tp_dst:5555" )
       }
     end
   end
