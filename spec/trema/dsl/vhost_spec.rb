@@ -96,9 +96,7 @@ module Trema
 
         context "when promisc INVALID_VALUE" do
           specify do
-            lambda do
-              @vhost.promisc "INVALID_VALUE"
-            end.should raise_error( Trema::DSL::SyntaxError )
+            expect { @vhost.promisc "INVALID_VALUE" }.to raise_error( Trema::DSL::SyntaxError )
           end
         end
       end

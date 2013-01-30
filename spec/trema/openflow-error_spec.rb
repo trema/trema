@@ -34,9 +34,9 @@ describe Trema::OpenflowError, "new" do
           :advertise => 0
         )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.type.should == Error::OFPET_PORT_MOD_FAILED
-          message.code.should == Error::OFPPMFC_BAD_PORT
+          expect( datapath_id ).to eq( 0xabc )
+          expect( message.type ).to eq( Error::OFPET_PORT_MOD_FAILED )
+          expect( message.code ).to eq( Error::OFPPMFC_BAD_PORT )
         end
         controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         sleep 2 # FIXME: wait to send_message
@@ -62,9 +62,9 @@ describe Trema::OpenflowError, "new" do
           :advertise => 0
         )
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.type.should == Error::OFPET_PORT_MOD_FAILED
-          message.code.should == Error::OFPPMFC_BAD_HW_ADDR
+          expect( datapath_id ).to eq( 0xabc )
+          expect( message.type ).to eq( Error::OFPET_PORT_MOD_FAILED )
+          expect( message.code ).to eq( Error::OFPPMFC_BAD_HW_ADDR )
         end
         controller( "OpenflowErrorController" ).send_message( 0xabc, port_mod )
         sleep 2 # FIXME: wait to send_message
@@ -84,9 +84,9 @@ describe Trema::OpenflowError, "new" do
         link "host2", "error-port"
       }.run( OpenflowErrorController ) {
         controller( "OpenflowErrorController" ).should_receive( :openflow_error ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.type.should == Error::OFPET_BAD_ACTION
-          message.code.should == Error::OFPBAC_BAD_OUT_PORT
+          expect( datapath_id ).to eq( 0xabc )
+          expect( message.type ).to eq( Error::OFPET_BAD_ACTION )
+          expect( message.code ).to eq( Error::OFPBAC_BAD_OUT_PORT )
         end
         controller( "OpenflowErrorController" ).send_flow_mod_add( 0xabc, :actions => ActionOutput.new( :port => 0x5555 ) )
         sleep 2 # FIXME: wait to send_flow_mod_add
@@ -103,23 +103,23 @@ describe Trema::OpenflowError, "new" do
       }.run( OpenflowController ) {
         queue_get_config_request = Trema::QueueGetConfigRequest.new( :port => 1 )
         controller( "OpenflowController" ).should_receive( :openflow_error ) do | datapath_id, message |
-          message.datapath_id.should == 0xabc
-          message.type.should satisfy { | n |
+          expect( message.datapath_id ).to eq( 0xabc )
+          expect( message.type ).to satisfy { | n |
             n >= 0 && n <= 5
           }
           case message.type
           when 0,4
-            message.code.should include 0,1
+            expect( message.code ).to include( 0,1 )
           when 1,2
-            message.code.should satisfy { | n |
+            expect( message.code ).to satisfy { | n |
               n >= 0 && n <= 8
             }
           when 3
-            message.code.should satisfy { | n |
+            expect( message.code ).to satisfy { | n |
               n >= 0 && n <= 5
             }
           when 5
-            message.code.should satisfy { |n|
+            expect( message.code ).to satisfy { |n|
               n >= 0 && n <= 3
             }
           end

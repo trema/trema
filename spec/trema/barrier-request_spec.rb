@@ -28,7 +28,7 @@ shared_examples_for "barrier request message" do
       vswitch( "barrier-request" ) { datapath_id 0xabc }
     }.run( BarrierRequestController ) {
       controller( "BarrierRequestController" ).send_message( 0xabc, subject )
-      IO.read( File.join( Trema.log, "openflowd.barrier-request.log" ) ).should include( "OFPT_BARRIER_REQUEST" )
+      expect( IO.read( File.join( Trema.log, "openflowd.barrier-request.log" ) ) ).to include( "OFPT_BARRIER_REQUEST" )
     }
   end
 end

@@ -21,63 +21,73 @@ require "trema"
 
 
 describe SendOutPort, :type => "actions" do
-  context "#new( 1 )" do
-    subject { SendOutPort.new( 1 ) }
+  describe "#new(port_number)" do
+    subject( :send_out_port ) { SendOutPort.new( port_number ) }
 
-    its( :port_number ) { should == 1 }
-    its( :max_len ) { should == 2 ** 16 - 1 }
-    its( :to_s ) { should == "SendOutPort: port=1, max_len=65535" }
-  end
 
-  context "#new( :port_number => number )" do
-    subject { SendOutPort.new( :port_number => number ) }
+    context "with port_number (1)" do
+      let( :port_number ) { 1 }
 
-    context "with port number (1)" do
-      let( :number ) { 1 }
-      its( :port_number ) { should == 1 }
-      its( :to_s ) { should == "SendOutPort: port=1, max_len=65535" }
+      its( :port_number ) { should eq( 1 ) }
+      its( :max_len ) { should eq( 2 ** 16 - 1 ) }
+      its( :to_s ) { should eq( "SendOutPort: port_number=1, max_len=65535" ) }
     end
 
-    it_validates "option range", :number, 0..( 2 ** 16 - 1 )
-  end
 
-  context "#new( :port_number => 1, :max_len => number )" do
-    subject { SendOutPort.new( :port_number => 1, :max_len => max_len ) }
+    context "with port_number (10)" do
+      let( :port_number ) { 10 }
 
-    context "with :max_len == 256" do
-      let( :max_len ) { 256 }
-      its( :max_len ) { should == 256 }
-      its( :to_s ) { should == "SendOutPort: port=1, max_len=256" }
+      context "when set as FlowMod's action", :sudo => true do
+        it "should insert a new flow entry with action (output:10)" do
+          class TestController < Controller; end
+          network {
+            vswitch { datapath_id 0xabc }
+          }.run( TestController ) {
+            controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => send_out_port )
+            sleep 2
+            expect( vswitch( "0xabc" ) ).to have( 1 ).flows
+            expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "output:10" )
+          }
+        end
+      end
     end
 
-    it_validates "option range", :max_len, 0..( 2 ** 16 - 1 )
+
+    it_validates "option is within range", :port_number, 0..( 2 ** 16 - 1 )
   end
 
-  context "when sending a Flow Mod with SendOutPort action" do
-    it "should insert a new flow entry with action (output:1)" do
-      class TestController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => SendOutPort.new( 1 ) )
-        sleep 2
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should == "output:1"
-      }
+
+  describe "#new(:port_number => value)" do
+    subject { SendOutPort.new( :port_number => port_number ) }
+
+
+    context "with option (:port_number => 1)" do
+      let( :port_number ) { 1 }
+
+      its( :port_number ) { should eq( 1 ) }
+      its( :max_len ) { should eq( 2 ** 16 - 1 ) }
+      its( :to_s ) { should eq( "SendOutPort: port_number=1, max_len=65535" ) }
     end
   end
 
-  context "when sending a Flow Mod with multiple SendOutPort actions" do
-    it "should insert a new flow entry with actions (output:1\/output:2)" do
-      class TestController < Controller; end
-      network {
-        vswitch { datapath_id 0xabc }
-      }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => [ SendOutPort.new( 1 ), SendOutPort.new( 2 ) ] )
-        sleep 2
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should match( /output:1\/output:2/ )
-      }
+
+  describe "#new(:port_number => value1, :max_len => value2)" do
+    subject { SendOutPort.new( options ) }
+
+
+    context "with options (:port_number => 1, :max_len => 256)" do
+      let( :options ) { { :port_number => 1, :max_len => 256 } }
+
+      its( :port_number ) { should eq( 1 ) }
+      its( :max_len ) { should eq( 256 ) }
+      its( :to_s ) { should eq( "SendOutPort: port_number=1, max_len=256" ) }
+    end
+
+
+    context "with options (:port_number => 1, :max_len => max_len)" do
+      let( :options ) { { :port_number => 1, :max_len => max_len } }
+
+      it_validates "option is within range", :max_len, 0..( 2 ** 16 - 1 )
     end
   end
 end

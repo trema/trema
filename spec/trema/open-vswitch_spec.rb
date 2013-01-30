@@ -38,10 +38,10 @@ module Trema
       OpenVswitch.new mock( "stanza 1", :name => "vswitch 1", :validate => true )
       OpenVswitch.new mock( "stanza 2", :name => "vswitch 2", :validate => true )
 
-      OpenflowSwitch.should have( 3 ).vswitches
-      OpenflowSwitch[ "vswitch 0" ].should_not be_nil
-      OpenflowSwitch[ "vswitch 1" ].should_not be_nil
-      OpenflowSwitch[ "vswitch 2" ].should_not be_nil
+      expect( OpenflowSwitch ).to have( 3 ).vswitches
+      expect( OpenflowSwitch[ "vswitch 0" ] ).not_to be_nil
+      expect( OpenflowSwitch[ "vswitch 1" ] ).not_to be_nil
+      expect( OpenflowSwitch[ "vswitch 2" ] ).not_to be_nil
     end
   end
 
@@ -94,7 +94,7 @@ module Trema
 
       it "should execute ovs openflowd" do
         subject.should_receive( :sh ).with do | command |
-          command.should include( Executables.ovs_openflowd )
+          expect( command ).to include( Executables.ovs_openflowd )
         end
 
         subject.run!
@@ -106,7 +106,7 @@ module Trema
         subject << "VirtualInterface2"
 
         subject.should_receive( :sh ).with do | command |
-          command.should include( "--ports=VirtualInterface0,VirtualInterface1,VirtualInterface2" )
+          expect( command ).to include( "--ports=VirtualInterface0,VirtualInterface1,VirtualInterface2" )
         end
 
         subject.run!

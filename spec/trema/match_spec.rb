@@ -40,17 +40,17 @@ describe Match, ".new" do
     )
   }
   its( :in_port ) { should == 1 }
-  its( :dl_src ) { subject.to_s.should == "00:00:00:00:00:01" }
-  its( :dl_dst ) { subject.to_s.should == "00:00:00:00:00:02" }
+  its( "dl_src.to_s" ) { should == "00:00:00:00:00:01" }
+  its( "dl_dst.to_s" ) { should == "00:00:00:00:00:02" }
   its( :dl_vlan ) { should == 65535 }
   its( :dl_vlan_pcp ) { should == 0 }
   its( :dl_type ) { should == 0x800 }
   its( :nw_tos ) { should == 0 }
   its( :nw_proto ) { should == 17 }
-  its( :nw_src ) { subject.to_s.should == "192.168.0.1" }
-  its( :nw_src ) { subject.prefixlen.should == 32 }
-  its( :nw_dst ) { subject.to_s.should == "192.168.0.0" }
-  its( :nw_dst ) { subject.prefixlen.should == 24 }
+  its( "nw_src.to_s" ) { should == "192.168.0.1" }
+  its( "nw_src.prefixlen" ) { should == 32 }
+  its( "nw_dst.to_s" ) { should == "192.168.0.0" }
+  its( "nw_dst.prefixlen" ) { should == 24 }
   its( :tp_src ) { should == 10 }
   its( :tp_dst ) { should == 20 }
   its( :to_s ) { should == "wildcards = 0x20000(nw_dst(8)), in_port = 1, dl_src = 00:00:00:00:00:01, dl_dst = 00:00:00:00:00:02, dl_vlan = 0xffff, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 17, nw_src = 192.168.0.1/32, nw_dst = 192.168.0.0/24, tp_src = 10, tp_dst = 20" }
@@ -78,7 +78,7 @@ describe Match, ".compare" do
       :nw_src => "192.168.0.0/24",
       :nw_dst => "192.168.0.0/24"
     )
-    pattern.compare( tester ).should == true
+    expect( pattern.compare( tester ) ).to be_true
   end
 
   it "Should not match" do
@@ -101,7 +101,7 @@ describe Match, ".compare" do
       :nw_src => "10.0.0.0/8",
       :nw_dst => "10.0.0.0/8"
     )
-    pattern.compare( tester ).should == false
+    expect( pattern.compare( tester ) ).to be_false
   end
 end
 

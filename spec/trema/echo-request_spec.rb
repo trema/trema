@@ -29,7 +29,7 @@ shared_examples_for "echo reply message" do
     }.run( EchoReplyController ) {
       controller( "EchoReplyController" ).send_message( 0xabc, subject )
       sleep 2 # FIXME: wait to send_message
-      IO.read( File.join( Trema.log, "openflowd.echo.log" ) ).should include( "OFPT_ECHO_REPLY" )
+      expect( IO.read( File.join( Trema.log, "openflowd.echo.log" ) ) ).to include( "OFPT_ECHO_REPLY" )
     }
   end
 end

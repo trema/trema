@@ -31,16 +31,12 @@ describe Trema::Util do
   it "should assert that trema is built" do
     Trema::Executables.stub!( :compiled? ).and_return( false )
     $stderr.should_receive( :puts ).with( /^ERROR/ )
-    lambda do
-      assert_trema_is_built
-    end.should raise_error( SystemExit )
+    expect { assert_trema_is_built }.to raise_error( SystemExit )
   end
 
 
   it "should execute and check the results of a command" do
-    lambda do
-      sh "NO SUCH COMMAND"
-    end.should raise_error( "Command 'NO SUCH COMMAND' failed!" )
+    expect { sh "NO SUCH COMMAND" }.to raise_error( "Command 'NO SUCH COMMAND' failed!" )
   end
 
 

@@ -75,7 +75,7 @@ module Trema
 
 
     def to_s
-      "SendOutPort: port=#{ @port_number }, max_len=#{ @max_len }"
+      "SendOutPort: port_number=#{ @port_number }, max_len=#{ @max_len }"
     end
 
 

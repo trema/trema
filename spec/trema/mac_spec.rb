@@ -86,7 +86,7 @@ module Trema
       it "can be used for Hash keys" do
         fdb = {}
         fdb[ Mac.new( "00:00:00:00:00:01" ) ] = "Port #1"
-        fdb[ Mac.new( "00:00:00:00:00:01" ) ].should == "Port #1"
+        expect( fdb[ Mac.new( "00:00:00:00:00:01" ) ] ).to eq( "Port #1" )
       end
     end
   end

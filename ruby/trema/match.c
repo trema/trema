@@ -564,6 +564,25 @@ void
 Init_match() {
   cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );
   rb_define_alloc_func( cMatch, match_alloc );
+  rb_define_const( cMatch, "OFPFW_IN_PORT", INT2NUM( OFPFW_IN_PORT ) );
+  rb_define_const( cMatch, "OFPFW_DL_VLAN", INT2NUM( OFPFW_DL_VLAN ) );
+  rb_define_const( cMatch, "OFPFW_DL_SRC", INT2NUM( OFPFW_DL_SRC ) );
+  rb_define_const( cMatch, "OFPFW_DL_DST", INT2NUM( OFPFW_DL_DST ) );
+  rb_define_const( cMatch, "OFPFW_DL_TYPE", INT2NUM( OFPFW_DL_TYPE ) );
+  rb_define_const( cMatch, "OFPFW_NW_PROTO", INT2NUM( OFPFW_NW_PROTO ) );
+  rb_define_const( cMatch, "OFPFW_TP_SRC", INT2NUM( OFPFW_TP_SRC ) );
+  rb_define_const( cMatch, "OFPFW_TP_DST", INT2NUM( OFPFW_TP_DST ) );
+  rb_define_const( cMatch, "OFPFW_NW_SRC_SHIFT", INT2NUM( OFPFW_NW_SRC_SHIFT ) );
+  rb_define_const( cMatch, "OFPFW_NW_SRC_BITS", INT2NUM( OFPFW_NW_SRC_BITS ) );
+  rb_define_const( cMatch, "OFPFW_NW_SRC_MASK", INT2NUM( OFPFW_NW_SRC_MASK ) );
+  rb_define_const( cMatch, "OFPFW_NW_SRC_ALL", INT2NUM( OFPFW_NW_SRC_ALL ) );
+  rb_define_const( cMatch, "OFPFW_NW_DST_SHIFT", INT2NUM( OFPFW_NW_DST_SHIFT ) );
+  rb_define_const( cMatch, "OFPFW_NW_DST_BITS", INT2NUM( OFPFW_NW_DST_BITS ) );
+  rb_define_const( cMatch, "OFPFW_NW_DST_MASK", INT2NUM( OFPFW_NW_DST_MASK ) );
+  rb_define_const( cMatch, "OFPFW_NW_DST_ALL", INT2NUM( OFPFW_NW_DST_ALL ) );
+  rb_define_const( cMatch, "OFPFW_DL_VLAN_PCP", INT2NUM( OFPFW_DL_VLAN_PCP ) );
+  rb_define_const( cMatch, "OFPFW_NW_TOS", INT2NUM( OFPFW_NW_TOS ) );
+  rb_define_const( cMatch, "OFPFW_ALL", INT2NUM( OFPFW_ALL ) );
   rb_define_method( cMatch, "initialize", match_init, -1 );
   rb_define_method( cMatch, "compare", match_compare, 1 );
   rb_define_method( cMatch, "replace", match_replace, 1 );

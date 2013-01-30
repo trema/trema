@@ -105,25 +105,25 @@ describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
         vswitch { datapath_id 0xabc }
       }.run( FlowRemovedController ) {
         controller( "FlowRemovedController" ).should_receive( :flow_removed ) do | datapath_id, message |
-          datapath_id.should == 0xabc
-          message.match.in_port.should == 1
-          message.match.dl_src.to_s.should == "00:00:00:00:00:01"
-          message.match.dl_dst.to_s.should == "00:00:00:00:00:02"
-          message.match.dl_type.should == 0x800
-          message.match.dl_vlan.should == 65535
-          message.match.dl_vlan_pcp.should == 0
-          message.match.nw_tos.should == 0
-          message.match.nw_proto.should == 17
-          Trema::IP.new( message.match.nw_src ).to_s.should == "192.168.0.1"
-          Trema::IP.new( message.match.nw_dst ).to_s.should == "192.168.0.2"
-          message.match.tp_src.should == 1
-          message.match.tp_dst.should == 1
-          message.cookie.should == 123456789
-          message.idle_timeout.should == 1
-          message.reason.should == 0
-          message.duration_sec.should >= 1
-          message.packet_count.should == 0
-          message.byte_count.should == 0
+          expect( datapath_id ).to eq( 0xabc )
+          expect( message.match.in_port ).to eq( 1 )
+          expect( message.match.dl_src.to_s ).to eq( "00:00:00:00:00:01" )
+          expect( message.match.dl_dst.to_s ).to eq( "00:00:00:00:00:02" )
+          expect( message.match.dl_type ).to eq( 0x800 )
+          expect( message.match.dl_vlan ).to eq( 65535 )
+          expect( message.match.dl_vlan_pcp ).to eq( 0 )
+          expect( message.match.nw_tos ).to eq( 0 )
+          expect( message.match.nw_proto ).to eq( 17 )
+          expect( Trema::IP.new( message.match.nw_src ).to_s ).to eq( "192.168.0.1" )
+          expect( Trema::IP.new( message.match.nw_dst ).to_s ).to eq( "192.168.0.2" )
+          expect( message.match.tp_src ).to eq( 1 )
+          expect( message.match.tp_dst ).to eq( 1 )
+          expect( message.cookie ).to eq( 123456789 )
+          expect( message.idle_timeout ).to eq( 1 )
+          expect( message.reason ).to eq( 0 )
+          expect( message.duration_sec ).to be >= 1
+          expect( message.packet_count ).to eq( 0 )
+          expect( message.byte_count ).to eq( 0 )
         end
         controller( "FlowRemovedController" ).send_flow_mod_add(
           0xabc,

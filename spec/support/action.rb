@@ -20,20 +20,20 @@ require "rubygems"
 require "rspec"
 
 
-shared_examples_for "option range" do | option, range |
-  context "when #{ option } is within #{ range }" do
+shared_examples_for "option is within range" do | option, range |
+  context "with #{ option } (#{ range })" do
     let( option ) { range.first }
     it { expect { subject }.not_to raise_error( ArgumentError ) }
   end
 
 
-  context "when #{ option } < #{ range.first }" do
+  context "with #{ option } (< #{ range.first })" do
     let( option ) { range.first - 1 }
     it { expect { subject }.to raise_error( ArgumentError ) }
   end
 
 
-  context "when #{ option } > #{ range.last }" do
+  context "with #{ option } (> #{ range.last })" do
     let( option ) { range.last + 1 }
     it { expect { subject }.to raise_error( ArgumentError ) }
   end

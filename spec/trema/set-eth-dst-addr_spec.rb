@@ -51,7 +51,7 @@ describe SetEthDstAddr, ".new( mac_address )", :type => "actions" do
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  it_validates "option range", :mac_address, 0..0xffffffffffff
+  it_validates "option is within range", :mac_address, 0..0xffffffffffff
 
   context "when sending a Flow Mod with action set to SetEthDstAddr" do
     let( :mac_address ) { "52:54:00:a8:ad:8c" }
@@ -63,8 +63,8 @@ describe SetEthDstAddr, ".new( mac_address )", :type => "actions" do
       }.run( TestController ) {
         controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[ 0 ].actions.should == "mod_dl_dst:52:54:00:a8:ad:8c"
+        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
+        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_dl_dst:52:54:00:a8:ad:8c" )
       }
     end
   end

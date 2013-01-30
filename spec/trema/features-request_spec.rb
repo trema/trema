@@ -29,7 +29,7 @@ shared_examples_for "features request message" do
     }.run( FeaturesRequestController ) {
       controller( "FeaturesRequestController" ).send_message( 0xabc, subject )
       sleep 2 # FIXME: wait to send_message
-      IO.read( File.join( Trema.log, "openflowd.features-request.log" ) ).should include( "OFPT_FEATURES_REQUEST" )
+      expect( IO.read( File.join( Trema.log, "openflowd.features-request.log" ) ) ).to include( "OFPT_FEATURES_REQUEST" )
     }
   end
 end

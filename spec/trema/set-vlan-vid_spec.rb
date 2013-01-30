@@ -20,39 +20,38 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe SetVlanVid, ".new( number )" do
+describe SetVlanVid, ".new(vlan_id)", :type => "actions" do
   subject { SetVlanVid.new( vlan_id ) }
 
-  context "when vlan_id == 1024" do
+  context "with vlan_id (1024)" do
     let( :vlan_id ) { 1024 }
     its( :vlan_id ) { should == 1024 }
   end
 
-  it_validates "option range", :vlan_id, 1..4095
-end
+  it_validates "option is within range", :vlan_id, 1..4095
 
+  context %{with vlan_id ("1024")} do
+    let( :vlan_id ) { "1024" }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
-describe SetVlanVid, %{.new( "1024" )} do
-  it { expect { SetVlanVid.new( "1024" ) }.to raise_error( TypeError ) }
-end
+  context "with vlan_id ([1024])" do
+    let( :vlan_id ) { [ 1024 ] }
+    it { expect { subject }.to raise_error( TypeError ) }
+  end
 
+  context "when sending a Flow Mod with SetVlanVid" do
+    let( :vlan_id ) { 1024 }
 
-describe SetVlanVid, ".new( [ 1024 ] )" do
-  it { expect { SetVlanVid.new( [ 1024 ] ) }.to raise_error( TypeError ) }
-end
-
-
-describe SetVlanVid, ".new( VALID OPTION )" do
-  context "when sending #flow_mod(add) with action set to mod_vlan_vid" do
-    it "should have a flow with action set to mod_vlan_vid" do
-      class FlowModAddController < Controller; end
+    it "should insert a new flow entry with action (mod_vlan_vid:1024)" do
+      class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => SetVlanVid.new( 1024 ) )
-        sleep 2 # FIXME: wait to send_flow_mod_add
-        vswitch( "0xabc" ).should have( 1 ).flows
-        vswitch( "0xabc" ).flows[0].actions.should match( /mod_vlan_vid:1024/ )
+      }.run( TestController ) {
+        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        sleep 2
+        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
+        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_vlan_vid:1024" )
       }
     end
   end

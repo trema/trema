@@ -27,9 +27,7 @@ module Trema
     describe Link do
       context %[when parsing "link peerA peerB"] do
         it %[recognizes "link peerA peerB" directive] do
-          lambda do
-            Link.new "Host", "Switch"
-          end.should_not raise_error
+          expect { Link.new "Host", "Switch" }.not_to raise_error
         end
       end
 
@@ -37,9 +35,9 @@ module Trema
       context "when getting attributes of a link" do
         it "remembers peers" do
           link = Link.new( "Host", "Switch" )
-          link.peers.size.should == 2
-          link.peers.should include( "Host" )
-          link.peers.should include( "Switch" )
+          expect( link.peers.size ).to eq( 2 )
+          expect( link.peers ).to include( "Host" )
+          expect( link.peers ).to include( "Switch" )
         end
       end
     end

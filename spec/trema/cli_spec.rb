@@ -135,9 +135,7 @@ module Trema
 
 
       it "should raise if both --duration and --n_pkts are specified" do
-        lambda do
-          @cli.send_packets( @dest, :duration => 10, :n_pkts => 10 )
-        end.should raise_error( "--duration and --n_pkts are exclusive." )
+        expect { @cli.send_packets( @dest, :duration => 10, :n_pkts => 10 ) }.to raise_error( "--duration and --n_pkts are exclusive." )
       end
     end
 
