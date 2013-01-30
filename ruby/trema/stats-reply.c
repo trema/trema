@@ -148,6 +148,7 @@ Init_stats_reply() {
   rb_require( "trema/port-stats-reply" );
   rb_require( "trema/queue-stats-reply" );
   rb_require( "trema/vendor-stats-reply" );
+  mTrema = rb_define_module( "Trema" );
   cStatsReply = rb_define_class_under( mTrema, "StatsReply", rb_cObject );
   rb_define_const( cStatsReply, "OFPST_DESC", INT2NUM( OFPST_DESC ) );
   rb_define_const( cStatsReply, "OFPST_FLOW", INT2NUM( OFPST_FLOW ) );

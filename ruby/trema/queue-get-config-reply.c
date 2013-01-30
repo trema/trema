@@ -112,6 +112,7 @@ queue_get_config_reply_queues( VALUE self ) {
 void
 Init_queue_get_config_reply() {
   rb_require( "trema/packet-queue" );
+  mTrema = rb_define_module( "Trema" );
   cQueueGetConfigReply = rb_define_class_under( mTrema, "QueueGetConfigReply", rb_cObject );
   rb_define_method( cQueueGetConfigReply, "initialize", queue_get_config_reply_init, 1 );
   rb_define_method( cQueueGetConfigReply, "datapath_id", queue_get_config_reply_datapath_id, 0 );

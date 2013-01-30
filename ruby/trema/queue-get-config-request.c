@@ -125,6 +125,7 @@ queue_get_config_request_port( VALUE self ) {
 
 void
 Init_queue_get_config_request() {
+  mTrema = rb_define_module( "Trema" );
   cQueueGetConfigRequest = rb_define_class_under( mTrema, "QueueGetConfigRequest", rb_cObject );
   rb_define_alloc_func( cQueueGetConfigRequest, queue_get_config_request_alloc );
   rb_define_method( cQueueGetConfigRequest, "initialize", queue_get_config_request_init, -1 );

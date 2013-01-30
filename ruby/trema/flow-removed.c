@@ -222,6 +222,7 @@ flow_removed_byte_count( VALUE self ) {
 
 void
 Init_flow_removed() {
+  mTrema = rb_define_module( "Trema" );
   cFlowRemoved = rb_define_class_under( mTrema, "FlowRemoved", rb_cObject );
   rb_define_const( cFlowRemoved, "OFPRR_IDLE_TIMEOUT", INT2NUM( OFPRR_IDLE_TIMEOUT ) );
   rb_define_const( cFlowRemoved, "OFPRR_HARD_TIMEOUT", INT2NUM( OFPRR_HARD_TIMEOUT ) );

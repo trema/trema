@@ -113,6 +113,7 @@ get_config_reply_miss_send_len( VALUE self ) {
 
 void
 Init_get_config_reply() {
+  mTrema = rb_define_module( "Trema" );
   cGetConfigReply = rb_define_class_under( mTrema, "GetConfigReply", rb_cObject );
   rb_define_method( cGetConfigReply, "initialize", get_config_reply_init, 1 );
   rb_define_method( cGetConfigReply, "datapath_id", get_config_reply_datapath_id, 0 );

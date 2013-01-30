@@ -119,6 +119,7 @@ get_config_request_transaction_id( VALUE self ) {
 
 void
 Init_get_config_request() {
+  mTrema = rb_define_module( "Trema" );
   cGetConfigRequest = rb_define_class_under( mTrema, "GetConfigRequest", rb_cObject );
   rb_define_alloc_func( cGetConfigRequest, get_config_request_alloc );
   rb_define_method( cGetConfigRequest, "initialize", get_config_request_init, -1 );

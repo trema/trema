@@ -104,6 +104,7 @@ echo_user_data( VALUE self ) {}
 
 void
 Init_echo_reply() {
+  mTrema = rb_define_module( "Trema" );
   cEchoReply = rb_define_class_under( mTrema, "EchoReply", rb_cObject );
   rb_define_alloc_func( cEchoReply, echo_reply_alloc );
   rb_define_method( cEchoReply, "initialize", echo_init, -1 );

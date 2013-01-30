@@ -130,6 +130,7 @@ flow_mod_hard_timeout( VALUE self ) {
 
 void
 Init_flow_mod() {
+  mTrema = rb_define_module( "Trema" );
   cFlowMod = rb_define_class_under( mTrema, "FlowMod", rb_cObject );
   rb_define_alloc_func( cFlowMod, flow_mod_alloc );
   rb_define_method( cFlowMod, "initialize", flow_mod_init, -1 );

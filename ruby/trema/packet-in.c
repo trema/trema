@@ -1080,6 +1080,7 @@ void
 Init_packet_in() {
   rb_require( "trema/ip" );
   rb_require( "trema/mac" );
+  mTrema = rb_define_module( "Trema" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 

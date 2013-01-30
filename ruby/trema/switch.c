@@ -178,6 +178,7 @@ switch_start_chibach( VALUE self ) {
 
 void
 Init_switch() {
+  mTrema = rb_define_module( "Trema" );
   cSwitch = rb_define_class_under( mTrema, "Switch", rb_cObject );
   rb_include_module( cSwitch, mLogger );
 
