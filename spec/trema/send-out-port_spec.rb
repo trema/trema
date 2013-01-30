@@ -47,6 +47,10 @@ describe SendOutPort, :type => "actions" do
             sleep 2
             expect( vswitch( "0xabc" ) ).to have( 1 ).flows
             expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "output:10" )
+            pending( "Test actions as an object using Trema::Switch" ) do
+              expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to be_a( SendOutPort )
+              expect( vswitch( "0xabc" ).flows[ 0 ].actions.port_number ).to eq( 10 )
+            end
           }
         end
       end
