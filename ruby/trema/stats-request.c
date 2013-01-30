@@ -618,6 +618,7 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 
 void
 Init_stats_request() {
+  mTrema = rb_define_module( "Trema" );
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
 
   cDescStatsRequest = rb_define_class_under( mTrema, "DescStatsRequest", cStatsRequest );

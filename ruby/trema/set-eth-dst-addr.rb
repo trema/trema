@@ -27,6 +27,8 @@ module Trema
     #
     # Creates an action to modify the destination Ethernet address of a packet.
     #
+    # @overload initialize(mac_address)
+    #
     # @example
     #   SetEthDstAddr.new("11:22:33:44:55:66")
     #   SetEthDstAddr.new(0x112233445566)
@@ -38,14 +40,6 @@ module Trema
     # @raise [ArgumentError] if invalid format is detected.
     # @raise [TypeError] if supplied argument is not a String or Integer or Mac.
     #
-    def initialize mac_address
-      super mac_address
-    end
-
-
-    def to_s
-      "SetEthDstAddr: mac_address=#{ @mac_address }"
-    end
   end
 
 

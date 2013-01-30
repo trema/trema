@@ -641,6 +641,7 @@ Init_controller() {
   rb_require( "trema/app" );
 
   VALUE cApp = rb_eval_string( "Trema::App" );
+  mTrema = rb_define_module( "Trema" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
 
   rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );

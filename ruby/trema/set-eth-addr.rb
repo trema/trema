@@ -38,6 +38,11 @@ module Trema
     def initialize mac_address
       @mac_address = Mac.new( mac_address )
     end
+
+
+    def to_s
+      "#{ self.class.to_s }: mac_address=#{ @mac_address }"
+    end
   end
 end
 

@@ -70,6 +70,7 @@ barrier_reply_transaction_id( VALUE self ) {
 
 void
 Init_barrier_reply() {
+  mTrema = rb_define_module( "Trema" );
   cBarrierReply = rb_define_class_under( mTrema, "BarrierReply", rb_cObject );
   rb_define_method( cBarrierReply, "initialize", barrier_reply_init, 2 );
   rb_define_method( cBarrierReply, "datapath_id", barrier_reply_datapath_id, 0 );

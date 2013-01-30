@@ -116,6 +116,7 @@ hello_transaction_id( VALUE self ) {
 
 void
 Init_hello() {
+  mTrema = rb_define_module( "Trema" );
   cHello = rb_define_class_under( mTrema, "Hello", rb_cObject );
   rb_define_alloc_func( cHello, hello_alloc );
   rb_define_method( cHello, "initialize", hello_init, -1 );

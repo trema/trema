@@ -177,6 +177,7 @@ vendor_data( VALUE self ) {
 
 void
 Init_vendor() {
+  mTrema = rb_define_module( "Trema" );
   cVendor = rb_define_class_under( mTrema, "Vendor", rb_cObject );
   rb_define_alloc_func( cVendor, vendor_alloc );
   rb_define_method( cVendor, "initialize", vendor_init, -1 );

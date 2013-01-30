@@ -99,6 +99,7 @@ echo_user_data( VALUE self ) {}
 
 void
 Init_echo_request() {
+  mTrema = rb_define_module( "Trema" );
   cEchoRequest = rb_define_class_under( mTrema, "EchoRequest", rb_cObject );
   rb_define_alloc_func( cEchoRequest, echo_request_alloc );
   rb_define_method( cEchoRequest, "initialize", echo_init, -1 );

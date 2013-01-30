@@ -215,6 +215,7 @@ features_reply_ports( VALUE self ) {
 
 void
 Init_features_reply() {
+  mTrema = rb_define_module( "Trema" );
   cFeaturesReply = rb_define_class_under( mTrema, "FeaturesReply", rb_cObject );
   rb_define_alloc_func( cFeaturesReply, features_reply_alloc );
   rb_define_method( cFeaturesReply, "initialize", features_reply_init, 1 );

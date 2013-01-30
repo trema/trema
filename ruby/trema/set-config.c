@@ -147,6 +147,7 @@ set_config_miss_send_len( VALUE self ) {
 
 void
 Init_set_config() {
+  mTrema = rb_define_module( "Trema" );
   cSetConfig = rb_define_class_under( mTrema, "SetConfig", rb_cObject );
   rb_define_alloc_func( cSetConfig, set_config_alloc );
   rb_define_const( cSetConfig, "OFPC_FRAG_NORMAL", INT2NUM( OFPC_FRAG_NORMAL ) );

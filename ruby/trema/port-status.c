@@ -122,6 +122,7 @@ port_status_phy_port( VALUE self ) {
 
 void
 Init_port_status() {
+  mTrema = rb_define_module( "Trema" );
   cPortStatus = rb_define_class_under( mTrema, "PortStatus", rb_cObject );
 
   rb_define_const( cPortStatus, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );

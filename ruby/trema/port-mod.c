@@ -205,6 +205,7 @@ port_mod_advertise( VALUE self ) {
 
 void
 Init_port_mod() {
+  mTrema = rb_define_module( "Trema" );
   cPortMod = rb_define_class_under( mTrema, "PortMod", rb_cObject );
   rb_define_alloc_func( cPortMod, port_mod_alloc );
   rb_define_method( cPortMod, "initialize", port_mod_init, -1 );

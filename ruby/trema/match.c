@@ -562,6 +562,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
 
 void
 Init_match() {
+  mTrema = rb_define_module( "Trema" );
   cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );
   rb_define_alloc_func( cMatch, match_alloc );
   rb_define_const( cMatch, "OFPFW_IN_PORT", INT2NUM( OFPFW_IN_PORT ) );

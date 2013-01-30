@@ -300,6 +300,7 @@ port_compare( VALUE self, VALUE other ) {
 
 void
 Init_port() {
+  mTrema = rb_define_module( "Trema" );
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
 
   rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
