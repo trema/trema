@@ -145,9 +145,6 @@ list_length_of( const list_element *head ) {
  */
 void
 iterate_list( list_element *head, void function( void *data, void *user_data ), void *user_data ) {
-  if ( head == NULL ) {
-    die( "head must not be NULL" );
-  }
   if ( function != NULL ) {
     for ( list_element *e = head; e != NULL; e = e->next ) {
       function( e->data, user_data );
