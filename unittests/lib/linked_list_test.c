@@ -307,11 +307,6 @@ static void
 test_iterate_list_on_empty_list() {
   create_list( &new_list );
 
-  append_to_tail( &new_list, &alpha );
-  append_to_tail( &new_list, &bravo );
-  delete_element( &new_list, &bravo );
-  delete_element( &new_list, &alpha );
-
   size_t sum_length = 0;
   iterate_list( new_list, get_sum_length, &sum_length );
   assert_int_equal( 0, sum_length );
