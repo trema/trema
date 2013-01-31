@@ -38,6 +38,11 @@ module Trema
       end
       @ip_address = IPAddr.new( ip_address )
     end
+
+
+    def to_s
+      "#{ self.class.to_s }: ip_address=#{ @ip_address }"
+    end
   end
 end
 
