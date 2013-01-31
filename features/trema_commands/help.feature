@@ -1,4 +1,4 @@
-Feature: trema help
+Feature: help command
 
   In order to understand how to use Trema
   As a developer using Trema

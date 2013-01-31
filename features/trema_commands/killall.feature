@@ -1,4 +1,4 @@
-Feature: trema killall command
+Feature: killall command
 
   In order to cleanup the previous trema session
   As a developer using Trema

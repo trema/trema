@@ -1,4 +1,4 @@
-Feature: trema send_packets command
+Feature: send_packets command
 
   In order to send/receive packets between virtual hosts
   As a developer using Trema

@@ -1,4 +1,4 @@
-Feature: trema up command
+Feature: up command
 
   In order to restart killed processes
   As a developer using Trema

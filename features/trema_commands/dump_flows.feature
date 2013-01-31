@@ -1,4 +1,4 @@
-Feature: trema dump_flows command
+Feature: dump_flows command
 
   In order to inspect all flow entries in a Trema virtual switch
   As a developer using Trema
