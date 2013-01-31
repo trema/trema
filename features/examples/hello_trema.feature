@@ -1,21 +1,26 @@
-Feature: "Hello Trema!" sample application
+Feature: "Hello Trema!" example
 
-  In order to learn how to write minimum Trema application
-  As a developer using Trema
-  I want to execute "Hello Trema" sample application
+  The "Hello Trema!" example ([trema]/src/examples/hello_trema/) is one
+  of the simplest OpenFlow controller implementation. The basic
+  functionality of this controller is to establish a secure channel connection
+  with an OpenFlow switch and output the "Hello [switch's dpid]!" message.
+
+  This demonstrates a minimum template for Trema applications written in Ruby
+  or C. Hence it's a good starting point to learn about Trema programming.
 
   Background:
-    Given a file named "hello.conf" with:
+    Given a file named "sample.conf" with:
       """
       vswitch { datapath_id "0xabc" }
       """
 
   @slow_process
-  Scenario: Run "Hello Trema!" C example
-    When I run `trema run ../../objects/examples/hello_trema/hello_trema -c hello.conf`
-    Then the output should contain exactly "Hello 0xabc!\n"
+  Scenario: Run the Ruby example
+    When I run `trema run ../../src/examples/hello_trema/hello-trema.rb -c sample.conf` interactively
+    Then the output should contain "Hello 0xabc!" within the timeout period
 
   @slow_process
-  Scenario: Run "Hello Trema!" Ruby example
-    When I run `trema run ../../src/examples/hello_trema/hello-trema.rb -c hello.conf`
-    Then the output should contain exactly "Hello 0xabc!\n"
+  Scenario: Run the C example
+    Given I compile "../../src/examples/hello_trema/hello_trema.c" into "hello_trema"
+    When I run `trema run ./hello_trema -c sample.conf` interactively
+    Then the output should contain "Hello 0xabc!" within the timeout period
