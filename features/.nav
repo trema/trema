@@ -1,4 +1,5 @@
 - trema_commands:
+  - version_option.feature
   - run.feature
   - kill.feature
   - up.feature

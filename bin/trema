@@ -213,8 +213,16 @@ command :version do | c |
 end
 
 
+GLI::Commands::Help.skips_pre = false
+
+
 pre do | global, command, options, args |
   $verbose = global[ :verbose ]
+
+  if global[ :version ]
+    trema_version
+    exit_now! nil, 0
+  end
 
   assert_trema_is_built
 
