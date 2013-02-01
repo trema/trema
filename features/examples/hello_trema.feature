@@ -9,18 +9,15 @@ Feature: "Hello Trema!" example
   or C. Hence it's a good starting point to learn about Trema programming.
 
   Background:
-    Given a file named "sample.conf" with:
-      """
-      vswitch { datapath_id "0xabc" }
-      """
+    Given I cd to "../../src/examples/hello_trema/"
 
   @slow_process
   Scenario: Run the Ruby example
-    When I run `trema run ../../src/examples/hello_trema/hello-trema.rb -c sample.conf` interactively
+    When I run `trema run ./hello-trema.rb -c sample.conf` interactively
     Then the output should contain "Hello 0xabc!" within the timeout period
 
   @slow_process
   Scenario: Run the C example
-    Given I compile "../../src/examples/hello_trema/hello_trema.c" into "hello_trema"
+    Given I compile "hello_trema.c" into "hello_trema"
     When I run `trema run ./hello_trema -c sample.conf` interactively
     Then the output should contain "Hello 0xabc!" within the timeout period
