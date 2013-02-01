@@ -303,6 +303,18 @@ test_iterate_list() {
 }
 
 
+static void
+test_iterate_list_on_empty_list() {
+  create_list( &new_list );
+
+  size_t sum_length = 0;
+  iterate_list( new_list, get_sum_length, &sum_length );
+  assert_int_equal( 0, sum_length );
+
+  delete_list( new_list );
+}
+
+
 static bool
 find_bravo( void *data, void *user_data ) {
   UNUSED( user_data );
@@ -403,6 +415,7 @@ main() {
     unit_test( test_list_length_of_empty_list ),
 
     unit_test( test_iterate_list ),
+    unit_test( test_iterate_list_on_empty_list ),
     unit_test( test_find_list_custom ),
     unit_test( test_find_list_custom_fail ),
 
