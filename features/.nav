@@ -25,6 +25,7 @@
   - openflow_message.hello.feature
   - openflow_message.echo.feature
   - openflow_message.features_request.feature
+  - openflow_message.stats_request.feature
   - message.set_config.feature
   - message.vendor-action.feature
   - packetin_filter_config.feature
