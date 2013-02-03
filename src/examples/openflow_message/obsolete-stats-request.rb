@@ -1,0 +1,37 @@
+#
+# A test example program to send OFPT_STATS_REQUEST messages and print using backward compatibility handlers
+#
+# Copyright (C) 2012-2013 Hiroyasu OHYAMA
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+class ObsoleteStatsRequest < Controller
+  def switch_ready datapath_id
+    # This is for getting a reply of ofp_flow_stats
+    send_flow_mod_add( datapath_id, :match => Match.new)
+
+    send_message( datapath_id, DescStatsRequest.new )
+    send_message( datapath_id, FlowStatsRequest.new( :match => Match.new ) )
+    send_message( datapath_id, AggregateStatsRequest.new( :match => Match.new ) )
+    send_message( datapath_id, TableStatsRequest.new )
+    send_message( datapath_id, PortStatsRequest.new )
+  end
+
+
+  def stats_reply datapath_id, message
+    info "[ stats_reply ] message: #{ message.class }"
+  end
+end
+
