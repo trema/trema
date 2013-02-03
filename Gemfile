@@ -22,6 +22,7 @@ group :development do
   gem "rdoc", "~> 3.12"
   gem "redcarpet", "~> 2.2.2"
   gem "reek", "~> 1.2.13"
+  gem "relish", "~> 0.6"
   gem "roodi", "~> 2.1.0"
   gem "rspec", "~> 2.12.0"
   gem "yard", "~> 0.8.3"

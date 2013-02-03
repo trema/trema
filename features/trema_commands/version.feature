@@ -1,4 +1,4 @@
-Feature: trema version command
+Feature: version command
 
   In order to know the current version of Trema
   As a developer using Trema

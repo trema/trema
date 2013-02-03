@@ -1,4 +1,4 @@
-Feature: trema kill command
+Feature: kill command
 
   In order to test event handling or just kill unwanted processes
   As a developer using Trema

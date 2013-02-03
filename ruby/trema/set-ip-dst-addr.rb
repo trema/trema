@@ -28,6 +28,8 @@ module Trema
     # Creates an action to modify the IPv4 destination address of a
     # packet.
     #
+    # @overload initialize(ip_address)
+    #
     # @example
     #   SetIpDstAddr.new("192.168.1.1")
     #
@@ -37,9 +39,6 @@ module Trema
     # @raise [ArgumentError] if ip_address is an invalid IPv4 address.
     # @raise [TypeError] if ip_address is not a String.
     #
-    def initialize ip_address
-      super ip_address
-    end
   end
 
 

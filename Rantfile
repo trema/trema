@@ -54,7 +54,6 @@ task :default => [
 task :examples => [
   "examples:cbench_switch",
   "examples:dumper",
-  "examples:hello_trema",
   "examples:learning_switch",
   "examples:list_switches",
   "examples:multi_learning_switch",
@@ -645,7 +644,6 @@ end
 standalone_examples = [
   "cbench_switch",
   "dumper",
-  "hello_trema",
   "learning_switch",
   "list_switches",
   "multi_learning_switch",

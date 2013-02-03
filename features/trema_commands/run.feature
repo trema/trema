@@ -1,4 +1,4 @@
-Feature: trema run command
+Feature: run command
 
   In order to launch trema applications
   As a developer using Trema

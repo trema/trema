@@ -25,7 +25,6 @@ handle_switch_ready( uint64_t datapath_id, void *user_data ) {
   UNUSED( user_data );
 
   info( "Hello %#" PRIx64 "!", datapath_id );
-  stop_trema();
 }
 
 

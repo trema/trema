@@ -16,6 +16,11 @@
 #
 
 
+Given /^I compile "(.*?)" into "(.*?)"$/ do | c_source, executable |
+  run_simple "gcc #{ c_source } #{`trema-config -c -l`} -o #{ executable }", true
+end
+
+
 When /^\*\*\* sleep (\d+) \*\*\*$/ do | sec |
   sleep sec.to_i
 end
@@ -31,6 +36,11 @@ When /^wait until "([^"]*)" is up$/ do | process |
     sleep 0.1
   end
   sleep 1  # FIXME
+end
+
+
+Then /^the output should contain "(.*?)" within the timeout period$/ do | expected |
+  step %{I wait for output to contain "#{ expected }"}
 end
 
 

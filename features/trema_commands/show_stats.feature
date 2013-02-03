@@ -1,4 +1,4 @@
-Feature: trema show_stats command
+Feature: show_stats command
 
   In order to get the stats of sent/received packets
   As a developer using Trema
