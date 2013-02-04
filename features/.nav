@@ -28,6 +28,8 @@
   - message.set_config.feature
   - message.vendor-action.feature
   - packetin_filter_config.feature
+- handlers:
+  - switch_ready.feature
 - core:
   - switch_manager.feature
   - packetin_filter.feature
