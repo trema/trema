@@ -25,6 +25,7 @@ $LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "vendor
 require "trema/executables"
 require "trema/path"
 require "trema/dsl/parser"
+require "trema/version"
 
 import "c/dependencies"
 import "directedrule"
@@ -366,13 +367,18 @@ end
 
 
 ################################################################################
-# Build libtrema.a
+# Build libtrema.{a,so}
 ################################################################################
 
 build_libtrema_a = Proc.new do | t |
   sys "rm -f #{ t.name }"
   sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
   sys "ranlib #{ t.name }"
+end
+
+build_libtrema_so = Proc.new do | t |
+  soname = File.basename( t.name ).sub( /\.\d+\.\d+\Z/, "" )
+  sys "gcc -shared -Wl,-soname=#{ soname } -o #{ t.name } #{ sys.sp t.prerequisites }"
 end
 
 
@@ -390,6 +396,7 @@ gen Directory, Trema.lib
 gen Directory, "#{ Trema.home }/objects/unittests"
 
 libtrema = File.join( Trema.lib, "libtrema.a" )
+libtrema_so = File.join( Trema.lib, "libtrema.so." ) + Trema::VERSION
 libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
 
 libtrema_o = gen DirectedRule, Trema.lib => [ Trema.include ], :o => :c do | t |
@@ -399,10 +406,16 @@ libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ Tre
   sys "gcc --coverage -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
 end
 
-desc "Build trema library."
+desc "Build trema library (static library)."
 task :libtrema => libtrema
 file libtrema => libtrema_o.candidates do | t |
   build_libtrema_a.call t
+end
+
+desc "Build trema library (shared library)."
+task :libtrema_so => libtrema_so
+file libtrema_so => libtrema_o.candidates do | t |
+  build_libtrema_so.call t
 end
 
 desc "Build trema library (coverage)."
