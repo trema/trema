@@ -299,19 +299,15 @@ handle_stats_reply(
   void *user_data
 ) {
   VALUE controller = ( VALUE ) user_data;
-  bool is_specified_cb = false;
 
-  if ( ( rb_respond_to( controller, rb_intern( "desc_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "flow_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "aggregate_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "table_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "port_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "queue_stats_reply" ) ) == Qtrue ) ||
-      ( rb_respond_to( controller, rb_intern( "vendor_stats_reply" ) ) == Qtrue ) ) {
-    is_specified_cb = true;
-  }
-
-  if ( ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) && ( is_specified_cb == false ) ) {
+  if ( ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "desc_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "flow_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "aggregate_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "table_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "port_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "queue_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "vendor_stats_reply" ) ) == Qfalse ) ) {
     return;
   }
   if ( body == NULL ) {
@@ -350,7 +346,7 @@ handle_stats_reply(
       desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( desc_stats_arr, desc_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), desc_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "desc_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "desc_stats_reply" );
       }
     }
@@ -407,7 +403,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), flow_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "flow_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "flow_stats_reply" );
       }
     }
@@ -425,7 +421,7 @@ handle_stats_reply(
       aggregate_stats_reply = rb_funcall( rb_eval_string( " Trema::AggregateStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( aggregate_stats_arr, aggregate_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), aggregate_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "aggregate_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "aggregate_stats_reply" );
       }
     }
@@ -457,7 +453,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), table_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "table_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "table_stats_reply" );
       }
     }
@@ -494,7 +490,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), port_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "port_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "port_stats_reply" );
       }
     }
@@ -520,7 +516,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), queue_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "queue_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "queue_stats_reply" );
       }
     }
@@ -538,7 +534,7 @@ handle_stats_reply(
       rb_ary_push( vendor_stats_arr, vendor_stats_reply );
 
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), vendor_stats_arr );
-      if( is_specified_cb == true ) {
+      if( rb_respond_to( controller, rb_intern( "vendor_stats_reply" ) ) == Qtrue ) {
         cb_method = rb_intern( "vendor_stats_reply" );
       }
     }
