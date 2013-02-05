@@ -149,6 +149,8 @@ module Trema
     # @param [StatsReply] message
     #   the Stats Reply message.
     #
+    # NOTE: This handler is available only for next few versions.
+    #
     handler :stats_reply
 
 
