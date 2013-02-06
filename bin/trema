@@ -148,6 +148,23 @@ command :send_packets do | c |
 end
 
 
+desc "Brings a switch's specified port down"
+command :port_down do | c |
+  c.desc "switch name"
+  c.flag [ :s, :switch ]
+
+  c.desc "port"
+  c.flag [ :p, :port ]
+
+  c.action do | global_options, options, args |
+    raise "--switch option is mandatory" if options[ :switch ].nil?
+    raise "--port option is mandatory" if options[ :port ].nil?
+
+    trema_port_down options[ :switch ], options[ :port ]
+  end
+end
+
+
 desc "Shows stats of packets"
 arg_name "host"
 command :show_stats do | c |
