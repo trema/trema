@@ -21,7 +21,7 @@ require "rake"
 
 
 task :default do
-  sh "./build.rb"
+  sh "#{ Gem.ruby } ./build.rb"
 end
 
 

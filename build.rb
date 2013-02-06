@@ -20,8 +20,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+require "rbconfig"
 
-result = system "cd #{ File.dirname( __FILE__ ) } && ruby .mono.rant #{ ARGV.join ' ' }"
+RUBY_PATH = File.join(
+              RbConfig::CONFIG[ 'bindir' ],
+              RbConfig::CONFIG[ 'RUBY_INSTALL_NAME' ] +
+              RbConfig::CONFIG[ 'EXEEXT' ]
+            )
+
+result = system "cd #{ File.dirname( __FILE__ ) } && #{ RUBY_PATH } .mono.rant #{ ARGV.join ' ' }"
 abort "#{ $0 } aborted!" unless result;
 
 
