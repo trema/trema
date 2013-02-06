@@ -1,56 +1,71 @@
-Feature: x_stats_reply handlers
+Feature: stats_reply handlers
 
   The Read-State message collects many kind of statistics from the switches.
   A kind of information to collect is determined by the type in request message.
-  To handle these reply messages associated with requests at your controller,
-  you must implement :<type>_stats_reply method in the controller class.
+  Through :stats_reply method you can handle all reply messages associated with requests 
+  at your controller. But this callback method will be described in near future version.
 
-  The all of :<type>_stats_reply handlers are specified as following in Trema.
-
-  - desc_stats_reply       :  get information about switch manufacture
-  - flow_stats_reply       :  get information about flows which are installed in switch.
-  - aggregate_stats_reply  :  get aggregate statistics information about flows which are installed in switch
-  - table_stats_reply      :  get statistics information about table of switch
-  - port_stats_reply       :  get statistics information about physical ports of switch
-  - queue_stats_reply      :  get statistics information about queue associated with ports.
-  - vendor_stats_reply     :  get vendor specific information
-
-  Background:
-    Given a file named "stats_request.conf" with:
-     """
-     vswitch( "stats_request" ) { datapath_id "0xabc" }
-     """
+  For backward compatibility, if controller defines both obsolete stats_reply handler and
+  new type-specific handlers (port_stats_reply, flow_stats_reply, etc..), Trema fires former.
 
   @wip
-  Scenario: Stats Request message in Ruby
-    When I run `trema run ../../src/examples/openflow_message/stats-request.rb -c stats_request.conf -d`
-     And wait until "StatsRequestController" is up
-     And I run `trema killall`
-    Then the file "../../tmp/log/StatsRequestController.log" should match /desc_stats_reply/
-     And the file "../../tmp/log/StatsRequestController.log" should match /flow_stats_reply/
-     And the file "../../tmp/log/StatsRequestController.log" should match /aggregate_stats_reply/
-     And the file "../../tmp/log/StatsRequestController.log" should match /table_stats_reply/
-     And the file "../../tmp/log/StatsRequestController.log" should match /port_stats_reply/
+  Scenario: obsolete stats_reply handler
+    Given a file named "obsolete-stats-reply-checker.rb" with:
+    """
+    class ObsoleteStatsReplyChecker < Controller
+      def switch_ready datapath_id
+        # This is for getting a reply of ofp_flow_stats
+        send_flow_mod_add( datapath_id, :match => Match.new)
 
+        send_message( datapath_id, DescStatsRequest.new )
+        send_message( datapath_id, FlowStatsRequest.new( :match => Match.new ) )
+        send_message( datapath_id, AggregateStatsRequest.new( :match => Match.new ) )
+        send_message( datapath_id, TableStatsRequest.new )
+        send_message( datapath_id, PortStatsRequest.new )
+      end
+
+      def stats_reply datapath_id, message
+        info "[ stats_reply ] message: #{ message.class }"
+      end
+    end
+    """
+    And a file named "sample.conf" with:
+    """
+    vswitch { datapath_id "0xabc" }
+    """
+    When I run `trema run ./obsolete-stats-reply-checker.rb -c sample.conf` interactively
+    Then the output should contain "Warning: 'stats_reply' handler will be deprecated" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
 
   @wip
-  Scenario: Stats Request message in Ruby
-    When I run `trema run ../../src/examples/openflow_message/obsolete-stats-request.rb -c stats_request.conf -d`
-     And wait until "ObsoleteStatsRequest" is up
-     And I run `trema killall`
-    Then the file "../../tmp/log/ObsoleteStatsRequest.log" should match /Warning: 'stats_reply' handler will be deprecated/
-     And the file "../../tmp/log/ObsoleteStatsRequest.log" should match /stats_reply/
-     And the file "../../tmp/log/ObsoleteStatsRequest.log" should match /stats_reply/
-     And the file "../../tmp/log/ObsoleteStatsRequest.log" should match /stats_reply/
-     And the file "../../tmp/log/ObsoleteStatsRequest.log" should match /stats_reply/
-     And the file "../../tmp/log/ObsoleteStatsRequest.log" should match /stats_reply/
+  Scenario: hybrid stats_reply handler
+    Given a file named "hybrid-stats-reply-checker.rb" with:
+    """
+    class HybridStatsReplyChecker < Controller
+      def switch_ready datapath_id
+        send_message( datapath_id, TableStatsRequest.new )
+        send_message( datapath_id, PortStatsRequest.new )
+      end
 
-
-  @wip
-  Scenario: Stats Request message in Ruby
-    When I run `trema run ../../src/examples/openflow_message/hybrid-stats-request.rb -c stats_request.conf -d`
-     And wait until "HybridStatsRequest" is up
-     And I run `trema killall`
-    Then the file "../../tmp/log/HybridStatsRequest.log" should match /Warning: 'stats_reply' handler will be deprecated/
-     And the file "../../tmp/log/HybridStatsRequest.log" should match /stats_reply/
-     And the file "../../tmp/log/HybridStatsRequest.log" should match /stats_reply/
+      def port_stats_reply datapath_id, message
+        info "[ port_stats_reply ] message: #{ message.class }"
+      end
+    
+    
+      def stats_reply datapath_id, message
+        info "[ stats_reply ] message: #{ message.class }"
+      end
+    end
+    """
+    And a file named "sample.conf" with:
+    """
+    vswitch { datapath_id "0xabc" }
+    """
+    When I run `trema run ./hybrid-stats-reply-checker.rb -c sample.conf` interactively
+    Then the output should contain "Warning: 'stats_reply' handler will be deprecated" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period
+     And the output should contain "[ stats_reply ]" within the timeout period

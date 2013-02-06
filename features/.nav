@@ -30,6 +30,11 @@
   - packetin_filter_config.feature
 - handlers:
   - switch_ready.feature
+  - desc_stats_reply.feature 
+  - flow_stats_reply.feature 
+  - aggregate_stats_reply.feature 
+  - table_stats_reply.feature 
+  - port_stats_reply.feature 
   - stats_reply.feature 
 - core:
   - switch_manager.feature
