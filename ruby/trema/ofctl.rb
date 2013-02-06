@@ -51,6 +51,11 @@ module Trema
     def dump_flows switch
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.network_device } 2>&1`
     end
+
+
+    def bring_port_down switch, port_number
+      `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } down 2>&1`
+    end
   end
 end
 
