@@ -1,8 +1,6 @@
 /*
  * Trema C++ wrapper.
  *
- * Author: Vladimir Olteanu <vladimir.olteanu@cs.pub.ro>
- *
  * Copyright (C) 2012 Vladimir Olteanu
  *
  * This program is free software; you can redistribute it and/or modify

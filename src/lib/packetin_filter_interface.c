@@ -1,6 +1,4 @@
 /*
- * Author: Yasunobu Chiba
- *
  * Copyright (C) 2011 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
