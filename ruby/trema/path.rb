@@ -66,10 +66,10 @@ module Trema
   dir :tmp, "pid"
   dir :tmp, "sock"
   dir :vendor, "cmockery-20110428", :vendor_cmockery
-  dir :vendor, "oflops-0.03", :vendor_oflops
+  dir :vendor, "oflops-0.03.trema1", :vendor_oflops
   dir :vendor, "openflow-1.0.0", :vendor_openflow
   dir :vendor, "openflow.git", :vendor_openflow_git
-  dir :vendor, "openvswitch-1.2.2", :vendor_openvswitch
+  dir :vendor, "openvswitch-1.2.2.trema1", :vendor_openvswitch
   dir :vendor, "phost", :vendor_phost
   dir :vendor, "ruby-ifconfig-1.2", :vendor_ruby_ifconfig
   file :cmockery, "include/google/cmockery.h"

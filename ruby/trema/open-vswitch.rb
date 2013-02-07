@@ -97,6 +97,11 @@ module Trema
     end
 
 
+    def bring_port_up port_number
+      Ofctl.new.bring_port_up self, port_number
+    end
+
+
     def bring_port_down port_number
       Ofctl.new.bring_port_down self, port_number
     end

@@ -16,8 +16,23 @@
 #
 
 
+require "trema/cli"
+require "trema/util"
+
+
 module Trema
-  VERSION = "0.3.9"
+  module Command
+    include Trema::Util
+
+
+    def trema_port_up switch_name, port
+      switch = find_switch_by_name( switch_name )
+      raise "unknown switch: #{ switch_name }" if switch.nil?
+
+      error = switch.bring_port_up( port.to_i )
+      raise error if $?.exitstatus != 0
+    end
+  end
 end
 
 

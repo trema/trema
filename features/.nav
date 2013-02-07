@@ -6,6 +6,7 @@
   - up.feature
   - killall.feature
   - send_packets.feature
+  - port_up.feature
   - port_down.feature
   - show_stats.feature
   - reset_stats.feature

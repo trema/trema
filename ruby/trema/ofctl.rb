@@ -53,6 +53,11 @@ module Trema
     end
 
 
+    def bring_port_up switch, port_number
+      `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } up 2>&1`
+    end
+
+
     def bring_port_down switch, port_number
       `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } down 2>&1`
     end
