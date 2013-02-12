@@ -118,12 +118,14 @@ stats_reply_flags( VALUE self ) {
 /*
  * A list of reply type objects for this message.
  *
+ * @return [Array<DescStatsReply>]
+ *   an array of {DescStatsReply} objects if type is +OFPST_DESC+.
  * @return [Array<FlowStatsReply>]
  *   an array of {FlowStatsReply} objects if type is +OFPST_FLOW+.
- * @return [Array<TableStatsReply>]
- *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
  * @return [AggregateStatsReply]
  *   a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+.
+ * @return [Array<TableStatsReply>]
+ *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
  * @return [Array<PortStatsReply>]
  *   an array of {PortStatsReply} objects if type is +OFPST_PORT+.
  * @return [Array<QueueStatsReply>]
