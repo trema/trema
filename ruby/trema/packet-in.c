@@ -1087,8 +1087,6 @@ Init_packet_in() {
   rb_define_const( cPacketIn, "OFPR_NO_MATCH", INT2NUM( OFPR_NO_MATCH ) );
   rb_define_const( cPacketIn, "OFPR_ACTION", INT2NUM( OFPR_ACTION ) );
 
-  rb_define_method( cPacketIn, "initialize_copy", packet_in_init_copy, 1 );
-
   rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
   rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );
   rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
@@ -1171,6 +1169,8 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "udp_dst_port", packet_in_udp_dst_port, 0 );
   rb_define_method( cPacketIn, "udp_checksum", packet_in_udp_checksum, 0 );
   rb_define_method( cPacketIn, "udp_len", packet_in_udp_len, 0 );
+
+  rb_define_private_method( cPacketIn, "initialize_copy", packet_in_init_copy, 1 );
 }
 
 
