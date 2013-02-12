@@ -3,7 +3,6 @@ require "trema/version"
 
 
 Gem::Specification.new do | gem |
-  gem.platform = "linux"
   gem.name = "trema"
   gem.version = Trema::VERSION
   gem.summary = "Full-stack OpenFlow framework."
