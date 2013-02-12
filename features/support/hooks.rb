@@ -31,6 +31,7 @@ end
 After do
   run "trema killall"
   sleep 1
+  processes.clear
 end
 
 
