@@ -15,17 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EVENT_FWD_ENTRY_MANIPULATION_H_
-#define EVENT_FWD_ENTRY_MANIPULATION_H_
+#ifndef EVENT_FORWARD_ENTRY_MANIPULATION_H_
+#define EVENT_FORWARD_ENTRY_MANIPULATION_H_
 
-#include "event_fwd_interface.h"
+#include "event_forward_interface.h"
 
-void management_event_fwd_entry_add( list_element** service_list,
-                             const event_fwd_op_request* request, size_t request_len );
-void management_event_fwd_entry_delete( list_element** service_list,
-                             const event_fwd_op_request* request, size_t request_len );
-void management_event_fwd_entries_set( list_element** service_list,
-                             const event_fwd_op_request* request, size_t request_len );
+void management_event_forward_entry_add( list_element** service_list,
+                             const event_forward_operation_request* request, size_t request_len );
+void management_event_forward_entry_delete( list_element** service_list,
+                             const event_forward_operation_request* request, size_t request_len );
+void management_event_forward_entries_set( list_element** service_list,
+                             const event_forward_operation_request* request, size_t request_len );
 
 
-#endif /* EVENT_FWD_ENTRY_MANIPULATION_H_ */
+#endif /* EVENT_FORWARD_ENTRY_MANIPULATION_H_ */

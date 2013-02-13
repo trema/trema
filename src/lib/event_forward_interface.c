@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include "trema.h"
 #include "trema_wrapper.h"
-#include "event_fwd_interface.h"
+#include "event_forward_interface.h"
 
 
 static char *efi_queue_name = NULL;
@@ -30,22 +30,22 @@ static char *efi_queue_name = NULL;
 static hash_table *efi_tx_table = NULL;
 
 
-struct event_fwd_op_req_param {
-  event_fwd_entry_operation_callback callback;
+struct event_forward_operation_request_param {
+  event_forward_entry_operation_callback callback;
   void* user_data;
 };
 
 
-struct event_fwd_op_to_all_req_param {
+struct event_forward_operation_to_all_request_param {
   bool add;
   enum efi_event_type type;
   char* service_name;
-  event_fwd_entry_to_all_callback callback;
+  event_forward_entry_to_all_callback callback;
   void* user_data;
 };
 
 
-struct sw_list_req_param {
+struct sw_list_request_param {
   switch_list_request_callback callback;
   void *user_data;
 };
@@ -56,7 +56,7 @@ typedef struct all_sw_tx {
   hash_table* waiting_dpid;
   enum efi_result tx_result;
 
-  void* user_data; // all_request_param // FIXME void*?
+  struct event_forward_operation_to_all_request_param* request_param;
 } all_sw_tx;
 
 
@@ -67,7 +67,7 @@ struct txinfo {
 
 
 static void
-xfree_event_fwd_op_to_all_req_param( struct event_fwd_op_to_all_req_param* param ) {
+xfree_event_forward_operation_to_all_request_param( struct event_forward_operation_to_all_request_param* param ) {
   xfree( param->service_name );
   param->service_name = NULL;
   xfree( param );
@@ -85,9 +85,9 @@ xfree_dpid( void* key, void* value, void* user_data ) {
 
 static void
 xfree_all_sw_tx( all_sw_tx* tx ) {
-  struct event_fwd_op_to_all_req_param* param = tx->user_data;
-  xfree_event_fwd_op_to_all_req_param( param );
-  tx->user_data = NULL;
+  struct event_forward_operation_to_all_request_param* param = tx->request_param;
+  xfree_event_forward_operation_to_all_request_param( param );
+  tx->request_param = NULL;
 
   foreach_hash( tx->waiting_dpid, xfree_dpid, NULL );
   delete_hash( tx->waiting_dpid );
@@ -103,12 +103,12 @@ _get_efi_queue_name( void ) {
 
 
 buffer*
-create_event_fwd_op_request( buffer* buf, enum efi_event_type type, list_element* service_list ) {
+create_event_forward_operation_request( buffer* buf, enum efi_event_type type, list_element* service_list ) {
   if ( buf == NULL ) {
-    buf = alloc_buffer_with_length( sizeof( event_fwd_op_request ) + MESSENGER_SERVICE_NAME_LENGTH );
+    buf = alloc_buffer_with_length( sizeof( event_forward_operation_request ) + MESSENGER_SERVICE_NAME_LENGTH );
   }
-  event_fwd_op_request* req = append_back_buffer( buf, sizeof( event_fwd_op_request ) );
-  memset( req, 0, sizeof( event_fwd_op_request ) );
+  event_forward_operation_request* req = append_back_buffer( buf, sizeof( event_forward_operation_request ) );
+  memset( req, 0, sizeof( event_forward_operation_request ) );
 
   req->type = ( uint8_t ) type;
 
@@ -129,10 +129,10 @@ create_event_fwd_op_request( buffer* buf, enum efi_event_type type, list_element
 
 
 buffer*
-create_event_fwd_op_reply( enum efi_event_type type, enum efi_result result, list_element* service_list ) {
-  buffer* buf = alloc_buffer_with_length( sizeof( event_fwd_op_reply ) + 32 );
-  event_fwd_op_reply* rep = append_back_buffer( buf, sizeof( event_fwd_op_reply ) );
-  memset( rep, 0, sizeof( event_fwd_op_reply ) );
+create_event_forward_operation_reply( enum efi_event_type type, enum efi_result result, list_element* service_list ) {
+  buffer* buf = alloc_buffer_with_length( sizeof( event_forward_operation_reply ) + MESSENGER_SERVICE_NAME_LENGTH );
+  event_forward_operation_reply* rep = append_back_buffer( buf, sizeof( event_forward_operation_reply ) );
+  memset( rep, 0, sizeof( event_forward_operation_reply ) );
 
   rep->type = ( uint8_t ) type;
   rep->result = ( uint8_t ) result;
@@ -154,13 +154,13 @@ create_event_fwd_op_reply( enum efi_event_type type, enum efi_result result, lis
 
 
 static void
-handle_event_fwd_op_reply( management_application_reply * reply, size_t length, struct event_fwd_op_req_param* param ) {
-  event_fwd_op_result result;
+handle_event_forward_operation_reply( management_application_reply * reply, size_t length, struct event_forward_operation_request_param* param ) {
+  event_forward_operation_result result;
   result.result = EFI_OPERATION_FAILED;
   result.n_services = 0;
   result.services = NULL;
 
-  event_fwd_op_reply* efi_reply = ( event_fwd_op_reply * ) reply->data;
+  event_forward_operation_reply* efi_reply = ( event_forward_operation_reply * ) reply->data;
   efi_reply->n_services = ntohl( efi_reply->n_services );
 
   if ( reply->header.status == MANAGEMENT_REQUEST_FAILED ) {
@@ -194,7 +194,7 @@ handle_event_fwd_op_reply( management_application_reply * reply, size_t length, 
 
   const size_t service_list_len = length
       - offsetof( management_application_reply, data )
-      - offsetof( event_fwd_op_reply, service_list );
+      - offsetof( event_forward_operation_reply, service_list );
 
   // null terminate input to avoid overrun.
   efi_reply->service_list[ service_list_len ] = '\0';
@@ -226,7 +226,7 @@ handle_event_fwd_op_reply( management_application_reply * reply, size_t length, 
 
 
 static void
-handle_get_switch_list_reply( management_application_reply * reply, size_t length, struct sw_list_req_param* param ) {
+handle_get_switch_list_reply( management_application_reply * reply, size_t length, struct sw_list_request_param* param ) {
 
   if ( reply->header.status == MANAGEMENT_REQUEST_FAILED ) {
     warn( "Management request failed." );
@@ -280,13 +280,13 @@ handle_efi_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   // check command validity
   switch ( command ) {
-  case EVENT_FWD_ENTRY_ADD:
-  case EVENT_FWD_ENTRY_DELETE:
-  case EVENT_FWD_ENTRY_DUMP:
-  case EVENT_FWD_ENTRY_SET:
+  case EVENT_FORWARD_ENTRY_ADD:
+  case EVENT_FORWARD_ENTRY_DELETE:
+  case EVENT_FORWARD_ENTRY_DUMP:
+  case EVENT_FORWARD_ENTRY_SET:
   {
-    struct event_fwd_op_req_param *param = user_data;
-    handle_event_fwd_op_reply( reply, length, param );
+    struct event_forward_operation_request_param *param = user_data;
+    handle_event_forward_operation_reply( reply, length, param );
     xfree( param );
     return;
   }
@@ -294,7 +294,7 @@ handle_efi_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   case EFI_GET_SWLIST:
   {
-    struct sw_list_req_param* param = user_data;
+    struct sw_list_request_param* param = user_data;
     handle_get_switch_list_reply( reply, length, param );
     xfree( param );
     return;
@@ -310,7 +310,7 @@ handle_efi_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
 
 bool
-init_event_fwd_interface( void ) {
+init_event_forward_interface( void ) {
   if ( efi_queue_name != NULL ) {
     warn( "already initialized." );
     return false;
@@ -334,9 +334,9 @@ init_event_fwd_interface( void ) {
 
 
 static void
-maybe_init_event_fwd_interface( void ) {
+maybe_init_event_forward_interface( void ) {
   if ( efi_queue_name == NULL ) {
-    init_event_fwd_interface();
+    init_event_forward_interface();
   }
 }
 
@@ -357,7 +357,7 @@ _cleanup_tx_table() {
 
 
 bool
-finalize_event_fwd_interface( void ) {
+finalize_event_forward_interface( void ) {
   if ( efi_queue_name == NULL ) {
     warn( "already finalized." );
     return false;
@@ -376,32 +376,32 @@ finalize_event_fwd_interface( void ) {
 
 
 static bool
-send_efi_event_config_request( const char* service_name, enum switch_management_command command, enum efi_event_type type, list_element* service_list, event_fwd_entry_operation_callback callback, void* user_data ) {
-  maybe_init_event_fwd_interface();
+send_efi_event_config_request( const char* service_name, enum switch_management_command command, enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
+  maybe_init_event_forward_interface();
   if ( service_name == NULL ) {
     return false;
   }
   switch( command ) {
-  case EVENT_FWD_ENTRY_ADD:
-  case EVENT_FWD_ENTRY_DELETE:
-  case EVENT_FWD_ENTRY_DUMP:
-  case EVENT_FWD_ENTRY_SET:
+  case EVENT_FORWARD_ENTRY_ADD:
+  case EVENT_FORWARD_ENTRY_DELETE:
+  case EVENT_FORWARD_ENTRY_DUMP:
+  case EVENT_FORWARD_ENTRY_SET:
     // do nothing;
     break;
   default:
     return false;
   }
 
-  buffer* all_req = alloc_buffer_with_length( sizeof( management_application_request ) + sizeof( event_fwd_op_request ) + MESSENGER_SERVICE_NAME_LENGTH );
+  buffer* all_req = alloc_buffer_with_length( sizeof( management_application_request ) + sizeof( event_forward_operation_request ) + MESSENGER_SERVICE_NAME_LENGTH );
 
   management_application_request* apreq = append_back_buffer( all_req, sizeof( management_application_request ) );
   apreq->header.type = htons( MANAGEMENT_APPLICATION_REQUEST );
   apreq->application_id = htonl( command );
-  create_event_fwd_op_request( all_req, type, service_list );
+  create_event_forward_operation_request( all_req, type, service_list );
 
   apreq->header.length = htonl( ( uint32_t ) all_req->length );
 
-  struct event_fwd_op_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_req_param ) );
+  struct event_forward_operation_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_request_param ) );
   param->callback = callback;
   param->user_data = user_data;
 
@@ -418,27 +418,14 @@ send_efi_event_config_request( const char* service_name, enum switch_management_
 
 // Low level API for switch manager
 bool
-set_switch_manager_event_fwd_entries( enum efi_event_type type, list_element* service_list, event_fwd_entry_operation_callback callback, void* user_data ) {
+set_switch_manager_event_forward_entries( enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
   const char switch_manager[] = "switch_manager.m";
-  return send_efi_event_config_request( switch_manager, EVENT_FWD_ENTRY_SET, type, service_list, callback, user_data );
+  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_SET, type, service_list, callback, user_data );
 }
 
 
 bool
-add_switch_manager_event_fwd_entry( enum efi_event_type type, const char* service_name, event_fwd_entry_operation_callback callback, void* user_data ) {
-  const char switch_manager[] = "switch_manager.m";
-  list_element service_list;
-  service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_manager, EVENT_FWD_ENTRY_ADD, type, &service_list, callback, user_data );
-}
-
-
-bool
-delete_switch_manager_event_fwd_entry( enum efi_event_type type, const char* service_name, event_fwd_entry_operation_callback callback, void* user_data ) {
+add_switch_manager_event_forward_entry( enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
@@ -446,41 +433,40 @@ delete_switch_manager_event_fwd_entry( enum efi_event_type type, const char* ser
 #pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
 #pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_manager, EVENT_FWD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
 }
 
 
 bool
-dump_switch_manager_event_fwd_entries( enum efi_event_type type, event_fwd_entry_operation_callback callback, void* user_data ) {
+delete_switch_manager_event_forward_entry( enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
   const char switch_manager[] = "switch_manager.m";
-  return send_efi_event_config_request( switch_manager, EVENT_FWD_ENTRY_DUMP, type, NULL, callback, user_data );
+  list_element service_list;
+  service_list.next = NULL;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+  service_list.data = ( void * ) service_name;
+#pragma GCC diagnostic pop
+  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
 }
 
 
 bool
-set_switch_event_fwd_entries( uint64_t dpid, enum efi_event_type type, list_element* service_list, event_fwd_entry_operation_callback callback, void* user_data ) {
+dump_switch_manager_event_forward_entries( enum efi_event_type type, event_forward_entry_operation_callback callback, void* user_data ) {
+  const char switch_manager[] = "switch_manager.m";
+  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DUMP, type, NULL, callback, user_data );
+}
+
+
+bool
+set_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
-  return send_efi_event_config_request( switch_name, EVENT_FWD_ENTRY_SET, type, service_list, callback, user_data );
+  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_SET, type, service_list, callback, user_data );
 }
 
 
 bool
-add_switch_event_fwd_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_fwd_entry_operation_callback callback, void* user_data ) {
-  char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
-  snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
-  list_element service_list;
-  service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_name, EVENT_FWD_ENTRY_ADD, type, &service_list, callback, user_data );
-}
-
-
-bool
-delete_switch_event_fwd_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_fwd_entry_operation_callback callback, void* user_data ) {
+add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
@@ -489,21 +475,35 @@ delete_switch_event_fwd_entry( uint64_t dpid, enum efi_event_type type, const ch
 #pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
 #pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_name, EVENT_FWD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
 }
 
 
 bool
-dump_switch_event_fwd_entries( uint64_t dpid, enum efi_event_type type, event_fwd_entry_operation_callback callback, void* user_data ) {
+delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
-  return send_efi_event_config_request( switch_name, EVENT_FWD_ENTRY_DUMP, type, NULL, callback, user_data );
+  list_element service_list;
+  service_list.next = NULL;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+  service_list.data = ( void * ) service_name;
+#pragma GCC diagnostic pop
+  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
+}
+
+
+bool
+dump_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, event_forward_entry_operation_callback callback, void* user_data ) {
+  char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
+  snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
+  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DUMP, type, NULL, callback, user_data );
 }
 
 
 bool
 send_efi_switch_list_request( switch_list_request_callback callback, void* user_data ) {
-  maybe_init_event_fwd_interface();
+  maybe_init_event_forward_interface();
   if ( callback == NULL ) {
     return false;
   }
@@ -513,7 +513,7 @@ send_efi_switch_list_request( switch_list_request_callback callback, void* user_
   req.header.length = htonl( ( uint32_t ) sizeof( management_application_request ) );
   req.application_id = htonl( EFI_GET_SWLIST );
 
-  struct sw_list_req_param* param = xcalloc( 1, sizeof( struct sw_list_req_param ) );
+  struct sw_list_request_param* param = xcalloc( 1, sizeof( struct sw_list_request_param ) );
   param->callback = callback;
   param->user_data = user_data;
 
@@ -545,7 +545,7 @@ hash_table_is_empty( hash_table* tbl ) {
 static bool
 check_tx_result_and_respond( all_sw_tx* tx ) {
   if ( tx->tx_result == EFI_OPERATION_FAILED ) {
-    struct event_fwd_op_to_all_req_param* all_param = tx->user_data;
+    struct event_forward_operation_to_all_request_param* all_param = tx->request_param;
     if ( all_param->callback != NULL ) {
       all_param->callback( tx->tx_result, all_param->user_data );
     }
@@ -588,7 +588,7 @@ _switch_response_timeout( void* user_data ) {
 
 
 void
-_switch_response_handler( event_fwd_op_result result, void *user_data ) {
+_switch_response_handler( event_forward_operation_result result, void *user_data ) {
   struct txinfo* txinfo = user_data;
   const uint64_t dpid = txinfo->dpid;
   const uint32_t txid = txinfo->txid;
@@ -620,7 +620,7 @@ _switch_response_handler( event_fwd_op_result result, void *user_data ) {
   bool tx_ended = check_tx_result_and_respond( tx );
   if ( tx_ended ) return;
 
-  struct event_fwd_op_to_all_req_param* all_param = tx->user_data;
+  struct event_forward_operation_to_all_request_param* all_param = tx->request_param;
   if( hash_table_is_empty( tx->waiting_dpid ) ) {
     // was last element in tx. callback result.
     if ( all_param->callback != NULL ) {
@@ -637,11 +637,11 @@ _switch_response_handler( event_fwd_op_result result, void *user_data ) {
 
 
 all_sw_tx*
-_insert_tx( size_t n_dpids, struct event_fwd_op_to_all_req_param* param ) {
+_insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param* param ) {
   all_sw_tx* tx = xcalloc( 1, sizeof(all_sw_tx) );
   tx->txid = get_txid();
   info( "txid %#x Start dispatching to switches", tx->txid );
-  tx->user_data = param;
+  tx->request_param = param;
   tx->tx_result = EFI_OPERATION_SUCCEEDED;
   tx->waiting_dpid = create_hash_with_size( compare_datapath_id,
                                             hash_datapath_id,
@@ -654,7 +654,7 @@ _insert_tx( size_t n_dpids, struct event_fwd_op_to_all_req_param* param ) {
 
 void
 _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
-  struct event_fwd_op_to_all_req_param* param = user_data;
+  struct event_forward_operation_to_all_request_param* param = user_data;
 
   all_sw_tx* tx = _insert_tx( n_dpids, param );
 
@@ -670,9 +670,9 @@ _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
       bool send_ok;
 
       if ( param->add ) {
-        send_ok = add_switch_event_fwd_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
+        send_ok = add_switch_event_forward_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
       } else {
-        send_ok = delete_switch_event_fwd_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
+        send_ok = delete_switch_event_forward_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
       }
 
       if ( !send_ok ) {
@@ -717,8 +717,8 @@ _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
 
 
 void
-_get_switch_list_after_swm_succ( event_fwd_op_result result, void *user_data ) {
-  struct event_fwd_op_to_all_req_param* param = user_data;
+_get_switch_list_after_swm_succ( event_forward_operation_result result, void *user_data ) {
+  struct event_forward_operation_to_all_request_param* param = user_data;
   bool success = true;
   if ( result.result == EFI_OPERATION_SUCCEEDED ) {
     // get switch list
@@ -732,38 +732,38 @@ _get_switch_list_after_swm_succ( event_fwd_op_result result, void *user_data ) {
     if ( param->callback != NULL ) {
       param->callback( EFI_OPERATION_FAILED, param->user_data );
     }
-    xfree_event_fwd_op_to_all_req_param( param );
+    xfree_event_forward_operation_to_all_request_param( param );
   }
 }
 
 
 bool
-add_event_fwd_to_all_switches( enum efi_event_type type, const char* service_name, event_fwd_entry_to_all_callback callback, void* user_data ) {
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+add_event_forward_entry_to_all_switches( enum efi_event_type type, const char* service_name, event_forward_entry_to_all_callback callback, void* user_data ) {
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = type;
   param->service_name = xstrdup( service_name );
   param->callback = callback;
   param->user_data = user_data;
-  bool sent_ok = add_switch_manager_event_fwd_entry( type, service_name, _get_switch_list_after_swm_succ, param );
+  bool sent_ok = add_switch_manager_event_forward_entry( type, service_name, _get_switch_list_after_swm_succ, param );
   if( !sent_ok ) {
-    xfree_event_fwd_op_to_all_req_param( param );
+    xfree_event_forward_operation_to_all_request_param( param );
   }
   return sent_ok;
 }
 
 
 bool
-delete_event_fwd_to_all_switches( enum efi_event_type type, const char* service_name, event_fwd_entry_to_all_callback callback, void* user_data ) {
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+delete_event_forward_entry_to_all_switches( enum efi_event_type type, const char* service_name, event_forward_entry_to_all_callback callback, void* user_data ) {
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = false;
   param->type = type;
   param->service_name = xstrdup( service_name );
   param->callback = callback;
   param->user_data = user_data;
-  bool sent_ok = delete_switch_manager_event_fwd_entry( type, service_name, _get_switch_list_after_swm_succ, param );
+  bool sent_ok = delete_switch_manager_event_forward_entry( type, service_name, _get_switch_list_after_swm_succ, param );
   if( !sent_ok ) {
-    xfree_event_fwd_op_to_all_req_param( param );
+    xfree_event_forward_operation_to_all_request_param( param );
   }
   return sent_ok;
 }

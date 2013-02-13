@@ -82,13 +82,13 @@ parse_argument( int argc, char *argv[] ) {
         type_specified = true;
         if ( false ) {
         } else if ( strcasecmp( "vendor", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_VENDOR;
+          type = EVENT_FORWARD_TYPE_VENDOR;
         } else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_PACKET_IN;
+          type = EVENT_FORWARD_TYPE_PACKET_IN;
         } else if ( strcasecmp( "port_status", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_PORT_STATUS;
+          type = EVENT_FORWARD_TYPE_PORT_STATUS;
         } else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_STATE_NOTIFY;
+          type = EVENT_FORWARD_TYPE_STATE_NOTIFY;
         } else {
           error( "Invalid type '%s' specified. Must e one of vendor, packet_in, port_status, or state_notify\n", optarg );
           usage();
@@ -128,7 +128,7 @@ timeout( void *user_data ) {
 
 
 static void
-current_result_callback( event_fwd_op_result result, void *user_data) {
+current_result_callback( event_forward_operation_result result, void *user_data) {
   UNUSED( user_data );
 
   if ( result.result != EFI_OPERATION_SUCCEEDED ) {
@@ -140,7 +140,8 @@ current_result_callback( event_fwd_op_result result, void *user_data) {
       info( "Current service name list is empty.");
     } else {
       info( "Current service name list:" );
-      for( unsigned i = 0 ; i < result.n_services ; ++i ) {
+      unsigned i;
+      for( i = 0 ; i < result.n_services ; ++i ) {
         info( "  %s", result.services[ i ] );
       }
     }
@@ -153,10 +154,10 @@ static void
 send_efi_request( void ) {
   info( "Dumping current service name list... " );
   if ( sw_manager ) {
-    dump_switch_manager_event_fwd_entries( type,
+    dump_switch_manager_event_forward_entries( type,
                                            current_result_callback, NULL );
   } else {
-    dump_switch_event_fwd_entries( dpid, type,
+    dump_switch_event_forward_entries( dpid, type,
                                    current_result_callback, NULL );
   }
 }
@@ -167,7 +168,7 @@ main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
   parse_argument( argc, argv );
 
-  init_event_fwd_interface();
+  init_event_forward_interface();
 
   send_efi_request();
 
@@ -175,7 +176,7 @@ main( int argc, char *argv[] ) {
 
   start_trema();
 
-  finalize_event_fwd_interface();
+  finalize_event_forward_interface();
 
   return 0;
 }

@@ -39,7 +39,7 @@ static char short_options[] = "ms:t:";
 void
 usage() {
   printf(
-    "Add OpenFlow Switch Manager/Daemon event forward entry.\n"
+    "Delete OpenFlow Switch Manager/Daemon event forward entry.\n"
     " Both Switch Mgr/Daemon: %s -t EVENT_TYPE service_name\n"
     " Only Switch Manager   : %s -m -t EVENT_TYPE service_name\n"
     " Only Switch Daemon    : %s -s SWITCH_DPID -t EVENT_TYPE service_name\n"
@@ -88,13 +88,13 @@ parse_argument( int argc, char *argv[] ) {
         type_specified = true;
         if ( false ) {
         } else if ( strcasecmp( "vendor", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_VENDOR;
+          type = EVENT_FORWARD_TYPE_VENDOR;
         } else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_PACKET_IN;
+          type = EVENT_FORWARD_TYPE_PACKET_IN;
         } else if ( strcasecmp( "port_status", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_PORT_STATUS;
+          type = EVENT_FORWARD_TYPE_PORT_STATUS;
         } else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
-          type = EVENT_FWD_TYPE_STATE_NOTIFY;
+          type = EVENT_FORWARD_TYPE_STATE_NOTIFY;
         } else {
           error( "Invalid type '%s' specified. Must e one of vendor, packet_in, port_status, or state_notify\n", optarg );
           usage();
@@ -158,7 +158,7 @@ update_result_all_callback( enum efi_result result, void* user_data ) {
 
 
 static void
-update_result_callback( event_fwd_op_result result, void *user_data) {
+update_result_callback( event_forward_operation_result result, void *user_data) {
   UNUSED( user_data );
 
   if ( result.result != EFI_OPERATION_SUCCEEDED ) {
@@ -170,7 +170,8 @@ update_result_callback( event_fwd_op_result result, void *user_data) {
       info( "Updated service name list is empty.");
     } else {
       info( "Updated service name list:" );
-      for( unsigned i = 0 ; i < result.n_services ; ++i ) {
+      unsigned i;
+      for( i = 0 ; i < result.n_services ; ++i ) {
         info( "  %s", result.services[ i ] );
       }
     }
@@ -181,17 +182,17 @@ update_result_callback( event_fwd_op_result result, void *user_data) {
 
 static void
 send_efi_request( void ) {
-  info( "Adding '%s'... ", service_name );
+  info( "Deleting '%s'... ", service_name );
   if ( operate_on_all ) {
-    add_event_fwd_to_all_switches( type, service_name,
-                                   update_result_all_callback, NULL );
+    delete_event_forward_entry_to_all_switches( type, service_name,
+                                      update_result_all_callback, NULL );
   } else {
     if ( sw_manager ) {
-      add_switch_manager_event_fwd_entry( type, service_name,
-                                          update_result_callback, NULL );
+      delete_switch_manager_event_forward_entry( type, service_name,
+                                             update_result_callback, NULL );
     } else {
-      add_switch_event_fwd_entry( dpid, type, service_name,
-                                  update_result_callback, NULL );
+      delete_switch_event_forward_entry( dpid, type, service_name,
+                                     update_result_callback, NULL );
     }
   }
 }
@@ -202,7 +203,7 @@ main( int argc, char *argv[] ) {
   init_trema( &argc, &argv );
   parse_argument( argc, argv );
 
-  init_event_fwd_interface();
+  init_event_forward_interface();
 
   send_efi_request();
 
@@ -210,7 +211,7 @@ main( int argc, char *argv[] ) {
 
   start_trema();
 
-  finalize_event_fwd_interface();
+  finalize_event_forward_interface();
 
   return 0;
 }

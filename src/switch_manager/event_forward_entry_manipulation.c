@@ -17,17 +17,17 @@
 
 #include <assert.h>
 #include "trema.h"
-#include "event_fwd_entry_manipulation.h"
+#include "event_forward_entry_manipulation.h"
 
 
 void
-management_event_fwd_entry_add( list_element** service_list,
-                             const event_fwd_op_request* request, size_t request_len ) {
+management_event_forward_entry_add( list_element** service_list,
+                             const event_forward_operation_request* request, size_t request_len ) {
   if ( request->n_services == 0 ) return;
   if ( request->n_services > 1 ) {
     warn( "Only 1 service name expected for EVENT_FWD_ENTRY_ADD. Ignoring others." );
   }
-  const size_t service_name_len = request_len - offsetof( event_fwd_op_request, service_list );
+  const size_t service_name_len = request_len - offsetof( event_forward_operation_request, service_list );
   if ( service_name_len == 0 ) return;
 
   char* service_name = xcalloc( service_name_len + 1, sizeof(char) );
@@ -45,13 +45,13 @@ management_event_fwd_entry_add( list_element** service_list,
 
 
 void
-management_event_fwd_entry_delete( list_element** service_list,
-                                const event_fwd_op_request* request, size_t request_len ) {
+management_event_forward_entry_delete( list_element** service_list,
+                                const event_forward_operation_request* request, size_t request_len ) {
   if ( request->n_services == 0 ) return;
   if ( request->n_services > 1 ) {
     warn( "Only 1 service name expected for EVENT_FWD_ENTRY_DELETE. Ignoring others." );
   }
-  const size_t service_name_len = request_len - offsetof( event_fwd_op_request, service_list );
+  const size_t service_name_len = request_len - offsetof( event_forward_operation_request, service_list );
   if ( service_name_len == 0 ) return;
 
   char* service_name = xcalloc( service_name_len + 1, sizeof(char) );
@@ -70,9 +70,9 @@ management_event_fwd_entry_delete( list_element** service_list,
 
 
 void
-management_event_fwd_entries_set( list_element** service_list,
-                                const event_fwd_op_request* request, size_t request_len ) {
-  const size_t service_name_list_len = request_len - offsetof( event_fwd_op_request, service_list );
+management_event_forward_entries_set( list_element** service_list,
+                                const event_forward_operation_request* request, size_t request_len ) {
+  const size_t service_name_list_len = request_len - offsetof( event_forward_operation_request, service_list );
 
   const char** service_name_list = xcalloc( request->n_services, sizeof( char * ) );
 

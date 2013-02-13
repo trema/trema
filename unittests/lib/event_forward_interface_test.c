@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "event_fwd_interface.h"
+#include "event_forward_interface.h"
 #include "trema.h"
 #include "trema_private.h"
 #include "trema_wrapper.h"
@@ -34,11 +34,11 @@
  * Fwd decl for internal functions.
  ********************************************************************************/
 
-struct event_fwd_op_to_all_req_param {
+struct event_forward_operation_to_all_request_param {
   bool add;
   enum efi_event_type type;
   char* service_name;
-  event_fwd_entry_to_all_callback callback;
+  event_forward_entry_to_all_callback callback;
   void* user_data;
 };
 
@@ -56,11 +56,11 @@ struct txinfo {
 };
 
 extern const char* _get_efi_queue_name( void );
-extern void _get_switch_list_after_swm_succ( event_fwd_op_result result, void *user_data );
+extern void _get_switch_list_after_swm_succ( event_forward_operation_result result, void *user_data );
 extern void _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data );
-extern void _switch_response_handler( event_fwd_op_result result, void *user_data );
+extern void _switch_response_handler( event_forward_operation_result result, void *user_data );
 extern void _cleanup_tx_table();
-extern all_sw_tx* _insert_tx( size_t n_dpids, struct event_fwd_op_to_all_req_param* param );
+extern all_sw_tx* _insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param* param );
 extern void _switch_response_timeout( void* user_data );
 
 /********************************************************************************
@@ -201,7 +201,7 @@ mock_send_request_message( const char *to_service_name, const char *from_service
 }
 
 
-void mock_event_fwd_entry_operation_callback( event_fwd_op_result result, void *user_data ) {
+void mock_event_forward_entry_operation_callback( event_forward_operation_result result, void *user_data ) {
   check_expected( result.result );
   check_expected( result.n_services );
   for( unsigned i = 0 ; i < result.n_services ; ++i ) {
@@ -219,7 +219,7 @@ void mock_switch_list_request_callback( uint64_t* dpids, size_t n_dpids, void *u
 }
 
 
-void mock_event_fwd_entry_to_all_callback( enum efi_result result, void *user_data ) {
+void mock_event_forward_entry_to_all_callback( enum efi_result result, void *user_data ) {
   check_expected( result );
   check_expected( user_data );
 }
@@ -268,7 +268,7 @@ setup_init_efi() {
   will_return( mock_add_message_replied_callback, true );
 
   assert_true( _get_efi_queue_name() == NULL );
-  assert_true( init_event_fwd_interface() );
+  assert_true( init_event_forward_interface() );
   assert_false( _get_efi_queue_name() == NULL );
 }
 
@@ -296,18 +296,18 @@ teardown_finl_efi() {
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
 
-  assert_true( finalize_event_fwd_interface() );
+  assert_true( finalize_event_forward_interface() );
   assert_true( _get_efi_queue_name() == NULL );
 
   _free_trema_name();
   teardown();
 }
 /********************************************************************************
- * init_event_fwd_interface() tests.
+ * init_event_forward_interface() tests.
  ********************************************************************************/
 
 static void
-test_init_event_fwd_interface_succeeds() {
+test_init_event_forward_interface_succeeds() {
   const char service_name[] = "tetris";
   const char efi_queue_name[] = "tetris-efic-1234";
 
@@ -317,20 +317,20 @@ test_init_event_fwd_interface_succeeds() {
   will_return( mock_add_message_replied_callback, true );
 
   assert_true( _get_efi_queue_name() == NULL );
-  assert_true( init_event_fwd_interface() );
+  assert_true( init_event_forward_interface() );
   assert_false( _get_efi_queue_name() == NULL );
   assert_string_equal( _get_efi_queue_name(), efi_queue_name );
 
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
-  assert_true( finalize_event_fwd_interface() );
+  assert_true( finalize_event_forward_interface() );
 
   _free_trema_name();
 }
 
 
 static void
-test_init_event_fwd_interface_succeeds_even_with_long_name() {
+test_init_event_forward_interface_succeeds_even_with_long_name() {
   const char service_name[] = "tetris1234567890123456";
   const char efi_queue_name[] = "efic-1234";
 
@@ -340,19 +340,19 @@ test_init_event_fwd_interface_succeeds_even_with_long_name() {
   will_return( mock_add_message_replied_callback, true );
 
   assert_true( _get_efi_queue_name() == NULL );
-  assert_true( init_event_fwd_interface() );
+  assert_true( init_event_forward_interface() );
   assert_false( _get_efi_queue_name() == NULL );
   assert_string_equal( _get_efi_queue_name(), efi_queue_name );
 
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
-  assert_true( finalize_event_fwd_interface() );
+  assert_true( finalize_event_forward_interface() );
 
   _free_trema_name();
 }
 
 static void
-test_init_event_fwd_interface_fails_if_already_initialized() {
+test_init_event_forward_interface_fails_if_already_initialized() {
   const char service_name[] = "tetris";
   const char efi_queue_name[] = "tetris-efic-1234";
 
@@ -361,13 +361,13 @@ test_init_event_fwd_interface_fails_if_already_initialized() {
   expect_string( mock_add_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_add_message_replied_callback, true );
 
-  init_event_fwd_interface();
+  init_event_forward_interface();
   assert_false( _get_efi_queue_name() == NULL );
   assert_string_equal( _get_efi_queue_name(), efi_queue_name );
 
   expect_string( mock_warn, message, "already initialized." );
 
-  assert_false( init_event_fwd_interface() );
+  assert_false( init_event_forward_interface() );
 
   assert_false( _get_efi_queue_name() == NULL );
   assert_string_equal(_get_efi_queue_name(), efi_queue_name );
@@ -375,17 +375,17 @@ test_init_event_fwd_interface_fails_if_already_initialized() {
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
 
-  assert_true( finalize_event_fwd_interface() );
+  assert_true( finalize_event_forward_interface() );
   _free_trema_name();
 }
 
 
 /********************************************************************************
- * finalize_event_fwd_interface() tests.
+ * finalize_event_forward_interface() tests.
  ********************************************************************************/
 
 static void
-test_finalize_event_fwd_interface_succeeds() {
+test_finalize_event_forward_interface_succeeds() {
   const char service_name[] = "tetris";
   const char efi_queue_name[] = "tetris-efic-1234";
 
@@ -393,13 +393,13 @@ test_finalize_event_fwd_interface_succeeds() {
 
   expect_string( mock_add_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_add_message_replied_callback, true );
-  assert_true( init_event_fwd_interface() );
+  assert_true( init_event_forward_interface() );
 
 
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
 
-  assert_true( finalize_event_fwd_interface() );
+  assert_true( finalize_event_forward_interface() );
   assert_true( _get_efi_queue_name() == NULL );
 
   _free_trema_name();
@@ -407,20 +407,20 @@ test_finalize_event_fwd_interface_succeeds() {
 
 
 static void
-test_finalize_event_fwd_interface_fails_if_not_initialized() {
+test_finalize_event_forward_interface_fails_if_not_initialized() {
   expect_string( mock_warn, message, "already finalized." );
 
-  assert_false( finalize_event_fwd_interface() );
+  assert_false( finalize_event_forward_interface() );
   assert_true( _get_efi_queue_name() == NULL );
 }
 
 
 /********************************************************************************
- * set_switch_manager_event_fwd_entries() tests.
+ * set_switch_manager_event_forward_entries() tests.
  ********************************************************************************/
 
 static void
-test_set_switch_manager_event_fwd_entries_succeeds() {
+test_set_switch_manager_event_forward_entries_succeeds() {
   list_element* head;
   char alpha[] = "alpha";
   char bravo[] = "bravo";
@@ -428,12 +428,12 @@ test_set_switch_manager_event_fwd_entries_succeeds() {
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
     char bravo[6];
   } __attribute__( ( packed ) ) expected_data = {
@@ -442,10 +442,10 @@ test_set_switch_manager_event_fwd_entries_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_SET),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .n_services = htonl( 2 ),
       },
       .alpha = "alpha",
@@ -461,25 +461,25 @@ test_set_switch_manager_event_fwd_entries_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( set_switch_manager_event_fwd_entries( EVENT_FWD_TYPE_VENDOR, head, callback, user_data ) );
+  assert_true( set_switch_manager_event_forward_entries( EVENT_FORWARD_TYPE_VENDOR, head, callback, user_data ) );
 
   delete_list( head );
 }
 
 
 /********************************************************************************
- * add_switch_manager_event_fwd_entry() tests.
+ * add_switch_manager_event_forward_entry() tests.
  ********************************************************************************/
 
 static void
-test_add_switch_manager_event_fwd_entry_succeeds() {
+test_add_switch_manager_event_forward_entry_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -487,10 +487,10 @@ test_add_switch_manager_event_fwd_entry_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PACKET_IN,
+          .type = EVENT_FORWARD_TYPE_PACKET_IN,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -505,23 +505,23 @@ test_add_switch_manager_event_fwd_entry_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( add_switch_manager_event_fwd_entry( EVENT_FWD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
+  assert_true( add_switch_manager_event_forward_entry( EVENT_FORWARD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
 }
 
 
 /********************************************************************************
- * delete_switch_manager_event_fwd_entry() tests.
+ * delete_switch_manager_event_forward_entry() tests.
  ********************************************************************************/
 
 static void
-test_delete_switch_manager_event_fwd_entry_succeeds() {
+test_delete_switch_manager_event_forward_entry_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -529,10 +529,10 @@ test_delete_switch_manager_event_fwd_entry_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_DELETE),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PORT_STATUS,
+          .type = EVENT_FORWARD_TYPE_PORT_STATUS,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -547,33 +547,33 @@ test_delete_switch_manager_event_fwd_entry_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( delete_switch_manager_event_fwd_entry( EVENT_FWD_TYPE_PORT_STATUS, "alpha", callback, user_data ) );
+  assert_true( delete_switch_manager_event_forward_entry( EVENT_FORWARD_TYPE_PORT_STATUS, "alpha", callback, user_data ) );
 }
 
 
 /********************************************************************************
- * dump_switch_manager_event_fwd_entries() tests.
+ * dump_switch_manager_event_forward_entries() tests.
  ********************************************************************************/
 
 static void
-test_dump_switch_manager_event_fwd_entries_succeeds() {
+test_dump_switch_manager_event_forward_entries_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_DUMP),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_DUMP),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_STATE_NOTIFY,
+          .type = EVENT_FORWARD_TYPE_STATE_NOTIFY,
           .n_services = htonl( 0 ),
       },
   };
@@ -587,16 +587,16 @@ test_dump_switch_manager_event_fwd_entries_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( dump_switch_manager_event_fwd_entries( EVENT_FWD_TYPE_STATE_NOTIFY, callback, user_data ) );
+  assert_true( dump_switch_manager_event_forward_entries( EVENT_FORWARD_TYPE_STATE_NOTIFY, callback, user_data ) );
 }
 
 
 /********************************************************************************
- * set_switch_event_fwd_entries() tests.
+ * set_switch_event_forward_entries() tests.
  ********************************************************************************/
 
 static void
-test_set_switch_event_fwd_entries_succeeds() {
+test_set_switch_event_forward_entries_succeeds() {
   list_element* head;
   char alpha[] = "alpha";
   char bravo[] = "bravo";
@@ -604,12 +604,12 @@ test_set_switch_event_fwd_entries_succeeds() {
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
     char bravo[6];
   } __attribute__( ( packed ) ) expected_data = {
@@ -618,10 +618,10 @@ test_set_switch_event_fwd_entries_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_SET),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .n_services = htonl( 2 ),
       },
       .alpha = "alpha",
@@ -637,25 +637,25 @@ test_set_switch_event_fwd_entries_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( set_switch_event_fwd_entries( 0xabc, EVENT_FWD_TYPE_VENDOR, head, callback, user_data ) );
+  assert_true( set_switch_event_forward_entries( 0xabc, EVENT_FORWARD_TYPE_VENDOR, head, callback, user_data ) );
 
   delete_list( head );
 }
 
 
 /********************************************************************************
- * add_switch_event_fwd_entry() tests.
+ * add_switch_event_forward_entry() tests.
  ********************************************************************************/
 
 static void
-test_add_switch_event_fwd_entry_succeeds() {
+test_add_switch_event_forward_entry_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -663,10 +663,10 @@ test_add_switch_event_fwd_entry_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PACKET_IN,
+          .type = EVENT_FORWARD_TYPE_PACKET_IN,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -681,23 +681,23 @@ test_add_switch_event_fwd_entry_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( add_switch_event_fwd_entry( 0xabc, EVENT_FWD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
+  assert_true( add_switch_event_forward_entry( 0xabc, EVENT_FORWARD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
 }
 
 
 /********************************************************************************
- * delete_switch_event_fwd_entry() tests.
+ * delete_switch_event_forward_entry() tests.
  ********************************************************************************/
 
 static void
-test_delete_switch_event_fwd_entry_succeeds() {
+test_delete_switch_event_forward_entry_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -705,10 +705,10 @@ test_delete_switch_event_fwd_entry_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_DELETE),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PORT_STATUS,
+          .type = EVENT_FORWARD_TYPE_PORT_STATUS,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -723,33 +723,33 @@ test_delete_switch_event_fwd_entry_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( delete_switch_event_fwd_entry( 0xabc, EVENT_FWD_TYPE_PORT_STATUS, "alpha", callback, user_data ) );
+  assert_true( delete_switch_event_forward_entry( 0xabc, EVENT_FORWARD_TYPE_PORT_STATUS, "alpha", callback, user_data ) );
 }
 
 
 /********************************************************************************
- * dump_switch_event_fwd_entries() tests.
+ * dump_switch_event_forward_entries() tests.
  ********************************************************************************/
 
 static void
-test_dump_switch_event_fwd_entries_succeeds() {
+test_dump_switch_event_forward_entries_succeeds() {
 
-  event_fwd_entry_operation_callback callback = (event_fwd_entry_operation_callback) 0x12345678;
+  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_DUMP),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_DUMP),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_STATE_NOTIFY,
+          .type = EVENT_FORWARD_TYPE_STATE_NOTIFY,
           .n_services = htonl( 0 ),
       },
   };
@@ -763,7 +763,7 @@ test_dump_switch_event_fwd_entries_succeeds() {
   expect_value( mock_send_request_message, hd->user_data, user_data );
   will_return( mock_send_request_message, true );
 
-  assert_true( dump_switch_event_fwd_entries( 0xabc, EVENT_FWD_TYPE_STATE_NOTIFY, callback, user_data ) );
+  assert_true( dump_switch_event_forward_entries( 0xabc, EVENT_FORWARD_TYPE_STATE_NOTIFY, callback, user_data ) );
 }
 
 
@@ -776,7 +776,7 @@ test_handle_efi_reply_succeeds_with_success_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
     char alpha[6];
     char bravo[6];
   } __attribute__( ( packed ) ) input_data = {
@@ -786,10 +786,10 @@ test_handle_efi_reply_succeeds_with_success_reply() {
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_SET),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_SUCCEEDED,
           .n_services = htonl( 2 ),
       },
@@ -798,25 +798,25 @@ test_handle_efi_reply_succeeds_with_success_reply() {
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 2  );
-  expect_string( mock_event_fwd_entry_operation_callback, service, "alpha" );
-  expect_string( mock_event_fwd_entry_operation_callback, service, "bravo" );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 2  );
+  expect_string( mock_event_forward_entry_operation_callback, service, "alpha" );
+  expect_string( mock_event_forward_entry_operation_callback, service, "bravo" );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
 
 
 static void
-test_handle_efi_reply_succeeds_with_event_fwd_entry_operation_failure_reply() {
+test_handle_efi_reply_succeeds_with_event_forward_entry_operation_failure_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
@@ -824,22 +824,22 @@ test_handle_efi_reply_succeeds_with_event_fwd_entry_operation_failure_reply() {
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_SET),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_FAILED,
           .n_services = htonl( 0 ),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 0  );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 0  );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
@@ -850,7 +850,7 @@ test_handle_efi_reply_succeeds_with_management_failure_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
@@ -858,24 +858,24 @@ test_handle_efi_reply_succeeds_with_management_failure_reply() {
               .status = MANAGEMENT_REQUEST_FAILED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_SET),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_FAILED,
           .n_services = htonl( 0 ),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_warn, message, "Management request failed." );
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 0  );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 0  );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
@@ -893,12 +893,12 @@ test_handle_efi_reply_ignores_wrong_message_tag_reply() {
               .status = MANAGEMENT_REQUEST_FAILED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_SET),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_error, message, "Unexpected message received tag=0x1234" );
@@ -920,12 +920,12 @@ test_handle_efi_reply_ignores_wrong_message_length_reply() {
               .status = MANAGEMENT_REQUEST_FAILED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_SET),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_error, message, "Data length too short 11. expecting >= 12" );
@@ -939,7 +939,7 @@ static void
 test_handle_efi_reply_ignores_empty_reply() {
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_any( mock_error, message );
@@ -950,11 +950,11 @@ test_handle_efi_reply_ignores_empty_reply() {
 
 
 static void
-test_handle_efi_reply_ignores_wrong_event_fwd_op_command_reply() {
+test_handle_efi_reply_ignores_wrong_event_forward_operation_command_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
@@ -965,14 +965,14 @@ test_handle_efi_reply_ignores_wrong_event_fwd_op_command_reply() {
           .application_id = htonl(0x1234),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_FAILED,
           .n_services = htonl( 0 ),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_warn, message, "Invalid command/application_id: 0x1234" );
@@ -983,11 +983,11 @@ test_handle_efi_reply_ignores_wrong_event_fwd_op_command_reply() {
 
 
 static void
-test_handle_efi_reply_succeeds_with_wrong_event_fwd_op_result_reply() {
+test_handle_efi_reply_succeeds_with_wrong_event_forward_operation_result_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
@@ -995,24 +995,24 @@ test_handle_efi_reply_succeeds_with_wrong_event_fwd_op_result_reply() {
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = 0xFF,
           .n_services = htonl( 0 ),
       },
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_warn, message, "Unknown result type 0xff. Translating as FAILED." );
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 0  );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_FAILED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 0  );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
@@ -1023,7 +1023,7 @@ test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
     char alpha[6];
     char bravo[6];
   } __attribute__( ( packed ) ) input_data = {
@@ -1033,10 +1033,10 @@ test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply() {
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_SUCCEEDED,
           .n_services = htonl( 1 ),
       },
@@ -1045,15 +1045,15 @@ test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply() {
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_warn, message, "Expected 1 name(s), but found more service name. Ignoring 'bravo'." );
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 1  );
-  expect_string( mock_event_fwd_entry_operation_callback, service, "alpha" );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 1  );
+  expect_string( mock_event_forward_entry_operation_callback, service, "alpha" );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
@@ -1064,7 +1064,7 @@ test_handle_efi_reply_succeeds_with_empty_service_name_reply() {
 
   struct input_data {
     management_application_reply mgmt;
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
     char alpha[6];
     char bravo[1];
   } __attribute__( ( packed ) ) input_data = {
@@ -1074,10 +1074,10 @@ test_handle_efi_reply_succeeds_with_empty_service_name_reply() {
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
               .length = htonl(sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_VENDOR,
+          .type = EVENT_FORWARD_TYPE_VENDOR,
           .result = EFI_OPERATION_SUCCEEDED,
           .n_services = htonl( 2 ),
       },
@@ -1086,36 +1086,36 @@ test_handle_efi_reply_succeeds_with_empty_service_name_reply() {
   };
 
   struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
-  user_data->callback = mock_event_fwd_entry_operation_callback;
+  user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_string( mock_warn, message, "Encountered empty service name." );
 
-  expect_value( mock_event_fwd_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
-  expect_value( mock_event_fwd_entry_operation_callback, result.n_services, 1  );
-  expect_string( mock_event_fwd_entry_operation_callback, service, "alpha" );
-  expect_value( mock_event_fwd_entry_operation_callback, user_data, 0x12345678 );
+  expect_value( mock_event_forward_entry_operation_callback, result.result, EFI_OPERATION_SUCCEEDED );
+  expect_value( mock_event_forward_entry_operation_callback, result.n_services, 1  );
+  expect_string( mock_event_forward_entry_operation_callback, service, "alpha" );
+  expect_value( mock_event_forward_entry_operation_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
 }
 
 
 /********************************************************************************
- * create_event_fwd_op_reply() tests.
+ * create_event_forward_op_reply() tests.
  ********************************************************************************/
 
 static void
-test_create_event_fwd_op_reply_with_null_service_list() {
+test_create_event_forward_operation_reply_with_null_service_list() {
   struct expected_data {
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
-        .type = EVENT_FWD_TYPE_PACKET_IN,
+        .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
         .n_services = 0
     }
   };
-  buffer* buf = create_event_fwd_op_reply( EVENT_FWD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, NULL );
+  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, NULL );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1123,19 +1123,19 @@ test_create_event_fwd_op_reply_with_null_service_list() {
 
 
 static void
-test_create_event_fwd_op_reply_with_empty_service_list() {
+test_create_event_forward_operation_reply_with_empty_service_list() {
   struct expected_data {
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
-        .type = EVENT_FWD_TYPE_PACKET_IN,
+        .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
         .n_services = 0
     }
   };
   list_element* head;
   create_list( &head );
-  buffer* buf = create_event_fwd_op_reply( EVENT_FWD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1144,14 +1144,14 @@ test_create_event_fwd_op_reply_with_empty_service_list() {
 
 
 static void
-test_create_event_fwd_op_reply_with_one_service_list() {
+test_create_event_forward_operation_reply_with_one_service_list() {
   char alpha[] = "alpha";
   struct expected_data {
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
     const char service[6];
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
-        .type = EVENT_FWD_TYPE_PACKET_IN,
+        .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
         .n_services = htonl(1)
     },
@@ -1160,7 +1160,7 @@ test_create_event_fwd_op_reply_with_one_service_list() {
   list_element* head;
   create_list( &head );
   append_to_tail( &head, alpha );
-  buffer* buf = create_event_fwd_op_reply( EVENT_FWD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1169,18 +1169,18 @@ test_create_event_fwd_op_reply_with_one_service_list() {
 
 
 static void
-test_create_event_fwd_op_reply_with_multi_service_list() {
+test_create_event_forward_operation_reply_with_multi_service_list() {
   char alpha[] = "alpha";
   char bravo[] = "bravo";
   char charlie[] = "charlie";
   struct expected_data {
-    event_fwd_op_reply efi;
+    event_forward_operation_reply efi;
     const char alpha[6];
     const char bravo[6];
     const char charlie[8];
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
-        .type = EVENT_FWD_TYPE_PACKET_IN,
+        .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
         .n_services = htonl(3)
     },
@@ -1193,7 +1193,7 @@ test_create_event_fwd_op_reply_with_multi_service_list() {
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
   append_to_tail( &head, charlie );
-  buffer* buf = create_event_fwd_op_reply( EVENT_FWD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1301,19 +1301,19 @@ test_handle_efi_reply_succeeds_with_management_failure_on_switch_list_reply() {
 
 
 /********************************************************************************
- * add_event_fwd_to_all_switches() tests.
+ * add_event_forward_to_all_switches() tests.
  ********************************************************************************/
 
 
 static void
-test_add_event_fwd_to_all_switches_succeeds() {
+test_add_event_forward_entry_to_all_switches_succeeds() {
 
-  event_fwd_entry_to_all_callback callback = (event_fwd_entry_to_all_callback) 0x12345678;
+  event_forward_entry_to_all_callback callback = (event_forward_entry_to_all_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -1321,10 +1321,10 @@ test_add_event_fwd_to_all_switches_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PACKET_IN,
+          .type = EVENT_FORWARD_TYPE_PACKET_IN,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -1340,19 +1340,19 @@ test_add_event_fwd_to_all_switches_succeeds() {
 
   // using send fail pattern to avoid all_request_param leak warning
   will_return( mock_send_request_message, false );
-  assert_false( add_event_fwd_to_all_switches( EVENT_FWD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
+  assert_false( add_event_forward_entry_to_all_switches( EVENT_FORWARD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
 }
 
 
 static void
-test_delete_event_fwd_to_all_switches_succeeds() {
+test_delete_event_forward_entry_to_all_switches_succeeds() {
 
-  event_fwd_entry_to_all_callback callback = (event_fwd_entry_to_all_callback) 0x12345678;
+  event_forward_entry_to_all_callback callback = (event_forward_entry_to_all_callback) 0x12345678;
   void* user_data = (void*) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -1360,10 +1360,10 @@ test_delete_event_fwd_to_all_switches_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_DELETE),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PACKET_IN,
+          .type = EVENT_FORWARD_TYPE_PACKET_IN,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -1379,7 +1379,7 @@ test_delete_event_fwd_to_all_switches_succeeds() {
 
   // using send fail pattern to avoid all_request_param leak warning
   will_return( mock_send_request_message, false );
-  assert_false( delete_event_fwd_to_all_switches( EVENT_FWD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
+  assert_false( delete_event_forward_entry_to_all_switches( EVENT_FORWARD_TYPE_PACKET_IN, "alpha", callback, user_data ) );
 }
 
 
@@ -1400,14 +1400,14 @@ test__get_switch_list_after_swm_succ_succeeds() {
       },
   };
 
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
-  param->type = EVENT_FWD_TYPE_PACKET_IN;
+  param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
-  param->callback = mock_event_fwd_entry_to_all_callback;
+  param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
-  event_fwd_op_result result;
+  event_forward_operation_result result;
   result.result = EFI_OPERATION_SUCCEEDED;
   result.n_services = 0;
   result.services = NULL;
@@ -1436,17 +1436,17 @@ test__dispatch_to_all_switch_succeeds() {
 
   void* user_data = (void*) 0xABCDEF;
 
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
-  param->type = EVENT_FWD_TYPE_PACKET_IN;
+  param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
-  param->callback = mock_event_fwd_entry_to_all_callback;
+  param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
 
   struct expected_data {
     management_application_request mgmt;
-    event_fwd_op_request efi;
+    event_forward_operation_request efi;
     char alpha[6];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
@@ -1454,10 +1454,10 @@ test__dispatch_to_all_switch_succeeds() {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
             .length = htonl(sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FWD_ENTRY_ADD),
+        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
       },
       .efi = {
-          .type = EVENT_FWD_TYPE_PACKET_IN,
+          .type = EVENT_FORWARD_TYPE_PACKET_IN,
           .n_services = htonl( 1 ),
       },
       .alpha = "alpha",
@@ -1488,11 +1488,11 @@ test__switch_response_handler_succeeds_when_last_one_standing() {
 
   void* user_data = (void*) 0x1234;
 
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
-  param->type = EVENT_FWD_TYPE_PACKET_IN;
+  param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
-  param->callback = mock_event_fwd_entry_to_all_callback;
+  param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
   all_sw_tx* tx = _insert_tx( 1, param );
@@ -1500,7 +1500,7 @@ test__switch_response_handler_succeeds_when_last_one_standing() {
   *dpid = 0x12345678;
   insert_hash_entry( tx->waiting_dpid, dpid, dpid );
 
-  event_fwd_op_result result;
+  event_forward_operation_result result;
   result.result = EFI_OPERATION_SUCCEEDED;
   result.n_services = 0;
   result.services = NULL;
@@ -1509,8 +1509,8 @@ test__switch_response_handler_succeeds_when_last_one_standing() {
   txinfo->dpid = 0x12345678;
   txinfo->txid = tx->txid;
 
-  expect_value( mock_event_fwd_entry_to_all_callback, result, EFI_OPERATION_SUCCEEDED );
-  expect_value( mock_event_fwd_entry_to_all_callback, user_data, user_data );
+  expect_value( mock_event_forward_entry_to_all_callback, result, EFI_OPERATION_SUCCEEDED );
+  expect_value( mock_event_forward_entry_to_all_callback, user_data, user_data );
 
   _switch_response_handler( result, txinfo );
 }
@@ -1521,11 +1521,11 @@ test__switch_response_timeout_then_fails() {
 
   void* user_data = (void*) 0x1234;
 
-  struct event_fwd_op_to_all_req_param* param = xcalloc( 1, sizeof( struct event_fwd_op_to_all_req_param ) );
+  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
-  param->type = EVENT_FWD_TYPE_PACKET_IN;
+  param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
-  param->callback = mock_event_fwd_entry_to_all_callback;
+  param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
   all_sw_tx* tx = _insert_tx( 1, param );
@@ -1537,8 +1537,8 @@ test__switch_response_timeout_then_fails() {
   txinfo->dpid = 0x12345678;
   txinfo->txid = tx->txid;
 
-  expect_value( mock_event_fwd_entry_to_all_callback, result, EFI_OPERATION_FAILED );
-  expect_value( mock_event_fwd_entry_to_all_callback, user_data, user_data );
+  expect_value( mock_event_forward_entry_to_all_callback, result, EFI_OPERATION_FAILED );
+  expect_value( mock_event_forward_entry_to_all_callback, user_data, user_data );
 
   _switch_response_timeout( txinfo );
   xfree( txinfo );
@@ -1552,39 +1552,39 @@ test__switch_response_timeout_then_fails() {
 int
 main() {
   const UnitTest tests[] = {
-    unit_test_setup_teardown( test_init_event_fwd_interface_succeeds,
+    unit_test_setup_teardown( test_init_event_forward_interface_succeeds,
                               setup, teardown ),
-    unit_test_setup_teardown( test_init_event_fwd_interface_succeeds_even_with_long_name,
+    unit_test_setup_teardown( test_init_event_forward_interface_succeeds_even_with_long_name,
                               setup, teardown ),
-    unit_test_setup_teardown( test_init_event_fwd_interface_fails_if_already_initialized,
-                              setup, teardown ),
-
-    unit_test_setup_teardown( test_finalize_event_fwd_interface_succeeds,
-                              setup, teardown ),
-    unit_test_setup_teardown( test_finalize_event_fwd_interface_fails_if_not_initialized,
+    unit_test_setup_teardown( test_init_event_forward_interface_fails_if_already_initialized,
                               setup, teardown ),
 
-    unit_test_setup_teardown( test_set_switch_manager_event_fwd_entries_succeeds,
+    unit_test_setup_teardown( test_finalize_event_forward_interface_succeeds,
+                              setup, teardown ),
+    unit_test_setup_teardown( test_finalize_event_forward_interface_fails_if_not_initialized,
+                              setup, teardown ),
+
+    unit_test_setup_teardown( test_set_switch_manager_event_forward_entries_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_add_switch_manager_event_fwd_entry_succeeds,
+    unit_test_setup_teardown( test_add_switch_manager_event_forward_entry_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_delete_switch_manager_event_fwd_entry_succeeds,
+    unit_test_setup_teardown( test_delete_switch_manager_event_forward_entry_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_dump_switch_manager_event_fwd_entries_succeeds,
+    unit_test_setup_teardown( test_dump_switch_manager_event_forward_entries_succeeds,
                               setup_init_efi, teardown_finl_efi ),
 
-    unit_test_setup_teardown( test_set_switch_event_fwd_entries_succeeds,
+    unit_test_setup_teardown( test_set_switch_event_forward_entries_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_add_switch_event_fwd_entry_succeeds,
+    unit_test_setup_teardown( test_add_switch_event_forward_entry_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_delete_switch_event_fwd_entry_succeeds,
+    unit_test_setup_teardown( test_delete_switch_event_forward_entry_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_dump_switch_event_fwd_entries_succeeds,
+    unit_test_setup_teardown( test_dump_switch_event_forward_entries_succeeds,
                               setup_init_efi, teardown_finl_efi ),
 
     unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_success_reply,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_event_fwd_entry_operation_failure_reply,
+    unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_event_forward_entry_operation_failure_reply,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_management_failure_reply,
                               setup_init_efi, teardown_finl_efi ),
@@ -1594,22 +1594,22 @@ main() {
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test_handle_efi_reply_ignores_empty_reply,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_handle_efi_reply_ignores_wrong_event_fwd_op_command_reply,
+    unit_test_setup_teardown( test_handle_efi_reply_ignores_wrong_event_forward_operation_command_reply,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_wrong_event_fwd_op_result_reply,
+    unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_wrong_event_forward_operation_result_reply,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test_handle_efi_reply_succeeds_with_empty_service_name_reply,
                               setup_init_efi, teardown_finl_efi ),
 
-    unit_test_setup_teardown( test_create_event_fwd_op_reply_with_null_service_list,
+    unit_test_setup_teardown( test_create_event_forward_operation_reply_with_null_service_list,
                               setup, teardown ),
-    unit_test_setup_teardown( test_create_event_fwd_op_reply_with_empty_service_list,
+    unit_test_setup_teardown( test_create_event_forward_operation_reply_with_empty_service_list,
                               setup, teardown ),
-    unit_test_setup_teardown( test_create_event_fwd_op_reply_with_one_service_list,
+    unit_test_setup_teardown( test_create_event_forward_operation_reply_with_one_service_list,
                               setup, teardown ),
-    unit_test_setup_teardown( test_create_event_fwd_op_reply_with_multi_service_list,
+    unit_test_setup_teardown( test_create_event_forward_operation_reply_with_multi_service_list,
                               setup, teardown ),
 
     unit_test_setup_teardown( test_send_efi_switch_list_request_succeeds,
@@ -1620,9 +1620,9 @@ main() {
                               setup_init_efi, teardown_finl_efi ),
 
 
-    unit_test_setup_teardown( test_add_event_fwd_to_all_switches_succeeds,
+    unit_test_setup_teardown( test_add_event_forward_entry_to_all_switches_succeeds,
                               setup_init_efi, teardown_finl_efi ),
-    unit_test_setup_teardown( test_delete_event_fwd_to_all_switches_succeeds,
+    unit_test_setup_teardown( test_delete_event_forward_entry_to_all_switches_succeeds,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test__get_switch_list_after_swm_succ_succeeds,
                               setup_init_efi, teardown_finl_efi ),
