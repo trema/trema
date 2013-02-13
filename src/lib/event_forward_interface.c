@@ -342,6 +342,7 @@ init_event_forward_interface( void ) {
 static void
 maybe_init_event_forward_interface( void ) {
   if ( efi_queue_name == NULL ) {
+    info( "Initializing at maybe_init_event_forward_interface()" );
     init_event_forward_interface();
   }
 }
