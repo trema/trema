@@ -114,7 +114,7 @@ $quality_targets = if ENV[ "QUALITY_TARGETS" ]
 
 
 desc "Enforce Ruby code quality with static analysis of code"
-task :quality => [ :reek, :roodi, :flog, :flay ]
+task :quality => [ :reek, :flog, :flay ]
 
 
 begin
@@ -130,20 +130,6 @@ begin
 rescue LoadError
   $stderr.puts $!.to_s
 end
-
-
-begin
-  require "roodi"
-  require "roodi_task"
-
-  RoodiTask.new do | t |
-    t.verbose = false
-    t.patterns = $quality_targets
-  end
-rescue LoadError
-  $stderr.puts $!.to_s
-end
-
 
 begin
   require "flog"

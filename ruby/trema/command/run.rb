@@ -73,7 +73,7 @@ module Trema
         if ruby_controller?
           require "trema"
           include Trema
-          ARGV.replace ARGV[ 0 ].split
+          ARGV.replace ARGV[ 0 ].split[ 1..-1 ]
           $LOAD_PATH << File.dirname( controller_file )
           load controller_file
         else
