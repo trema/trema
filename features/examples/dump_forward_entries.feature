@@ -1,13 +1,21 @@
 Feature: Switch Event forwarding configuration command (`dump_forward_entries`)
   
   Switch Event forwarding configuration command (`dump_forward_entries`)
-  is a commands to dump event forwarding entries of 
+  is a command to dump event forwarding entries of 
   Switch Manager and Switch Daemons.
   
-  This command may be useful when: 
-  * One needs to check which controller is handling certain event.
-
+  The types of switch event which can be specified here are:
+   vendor, packet_in, port_stat, and state_notify.
+  
+  This command can be used when: 
+  * One needs to check which controller is handling certain event type.
+  
   This command is also a simple usage example for event_forward_interface.h C API.
+  The event_forward_interface.h API is used in topology daemon to 
+  add itself to packet_in forwarding entry of all existing switch daemons and 
+  switch manager to receive LLDP packets.
+  By removing entry for 'topology' from some switches, it is possible to make 
+  topology daemon to map only subset of all the switches managed by trema.
 
   Background: 
     Given I cd to "../../src/examples/switch_event_config/"
@@ -66,4 +74,3 @@ Feature: Switch Event forwarding configuration command (`dump_forward_entries`)
       | 0x2    | packet_in    |
       | 0x2    | port_status  |
       | 0x2    | state_notify |
-
