@@ -422,8 +422,8 @@ test_finalize_event_forward_interface_fails_if_not_initialized() {
 static void
 test_set_switch_manager_event_forward_entries_succeeds() {
   list_element* head;
-  char alpha[] = "alpha";
-  char bravo[] = "bravo";
+  char alpha[] = "alpha-12345678901234567890";
+  char bravo[] = "bravo-12345678901234567890";
   create_list( &head );
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
@@ -434,8 +434,8 @@ test_set_switch_manager_event_forward_entries_succeeds() {
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
-    char bravo[6];
+    char alpha[6+21];
+    char bravo[6+21];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
@@ -448,9 +448,9 @@ test_set_switch_manager_event_forward_entries_succeeds() {
           .type = EVENT_FORWARD_TYPE_VENDOR,
           .n_services = htonl( 2 ),
       },
-      .alpha = "alpha",
-      .bravo = "bravo",
-  };
+      .alpha = "alpha-12345678901234567890",
+      .bravo = "bravo-12345678901234567890",
+  } ;
 
   expect_string( mock_send_request_message, to_service_name, "switch_manager.m" );
   expect_string( mock_send_request_message, from_service_name, "tetris-efic-1234" );
@@ -1170,23 +1170,23 @@ test_create_event_forward_operation_reply_with_one_service_list() {
 
 static void
 test_create_event_forward_operation_reply_with_multi_service_list() {
-  char alpha[] = "alpha";
-  char bravo[] = "bravo";
-  char charlie[] = "charlie";
+  char alpha[] = "alpha-12345678901234567890";
+  char bravo[] = "bravo-12345678901234567890";
+  char charlie[] = "charlie-12345678901234567890";
   struct expected_data {
     event_forward_operation_reply efi;
-    const char alpha[6];
-    const char bravo[6];
-    const char charlie[8];
+    const char alpha[6+21];
+    const char bravo[6+21];
+    const char charlie[8+21];
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
         .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
         .n_services = htonl(3)
     },
-    .alpha = "alpha",
-    .bravo = "bravo",
-    .charlie = "charlie"
+    .alpha = "alpha-12345678901234567890",
+    .bravo = "bravo-12345678901234567890",
+    .charlie = "charlie-12345678901234567890"
   };
   list_element* head;
   create_list( &head );

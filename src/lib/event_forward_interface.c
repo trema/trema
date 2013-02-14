@@ -112,11 +112,14 @@ create_event_forward_operation_request( buffer* buf, enum efi_event_type type, l
 
   req->type = ( uint8_t ) type;
 
+  size_t request_head_offset = sizeof( event_forward_operation_request );
   uint32_t n_services = 0;
   if ( service_list != NULL ) {
     for ( list_element *e = service_list; e != NULL; e = e->next ) {
       const size_t len = strlen( e->data );
       char* dst = append_back_buffer( buf, len + 1 );
+      req = ( event_forward_operation_request * )( dst - request_head_offset );
+      request_head_offset += len + 1;
       strcpy( dst, e->data );
       dst[ len ] = '\0';
       ++n_services;
@@ -137,11 +140,14 @@ create_event_forward_operation_reply( enum efi_event_type type, enum efi_result 
   rep->type = ( uint8_t ) type;
   rep->result = ( uint8_t ) result;
 
+  size_t reply_head_offset = sizeof( event_forward_operation_reply );
   uint32_t n_services = 0;
   if ( service_list != NULL ) {
     for ( list_element *e = service_list; e != NULL; e = e->next ) {
       const size_t len = strlen( e->data );
       char* dst = append_back_buffer( buf, len + 1 );
+      rep = ( event_forward_operation_reply * )( dst - reply_head_offset );
+      reply_head_offset += len + 1;
       strcpy( dst, e->data );
       dst[ len ] = '\0';
       ++n_services;
@@ -398,7 +404,7 @@ send_efi_event_config_request( const char* service_name, enum switch_management_
   apreq->header.type = htons( MANAGEMENT_APPLICATION_REQUEST );
   apreq->application_id = htonl( command );
   create_event_forward_operation_request( all_req, type, service_list );
-
+  apreq = all_req->data;
   apreq->header.length = htonl( ( uint32_t ) all_req->length );
 
   struct event_forward_operation_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_request_param ) );
