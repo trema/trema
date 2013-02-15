@@ -1,11 +1,23 @@
 Feature: flow_stats_reply handlers
 
-  The Read-State message collects many kind of statistics from the switches.
-  A kind of information to collect is determined by the type in request message.
+  The flow_stats_reply is a message handler to get information about flows in a switch.
 
-  When controller sends a message of which message type is OFPST_FLOW, 
-  flow_stats_reply handler is invoked. This handler has objects of FlowStatsReply.
-  And these objects have statistical information about flow installed in switch.
+  This handler can treat FlowStatsReply object through the 'message' parameter which is 
+  the second argument of this handler. This object has configuration information
+  (e.g. priority of this entry, timeout parameter, and the Match object which has been set 
+  during installation, etc) and statistical information (e.g. the number of packets that this
+  flow has processed). For more information about this, you can see in the Trema API document
+  (http://rubydoc.info/github/trema/trema/master/Trema/FlowStatsReply).
+
+  To handle this message handler, you should send an OpenFlow message which is named 
+  Read-State message to the switch. The Read-State message is classified by 
+  the type of information to get, and the type is identified by the 'type' parameter of 
+  Read-State request message, but the Trema abstracts this mechanism.
+
+  To send a Read-State request message that is corresponding to the flow_stats_reply,
+  the controller should make that using FlowStatsRequest.new, and sends it using 
+  send_message method as shown below. Detail of the parameters of this class is described 
+  in the document (http://rubydoc.info/github/trema/trema/master/Trema/FlowStatsRequest).
 
   Scenario: flow_stats_reply handler
     Given a file named "flow-stats-reply-checker.rb" with:
@@ -13,7 +25,7 @@ Feature: flow_stats_reply handlers
     class FlowStatsReplyChecker < Controller
       def switch_ready datapath_id
         # This is for getting a reply of ofp_flow_stats
-        send_flow_mod_add datapath_id, :match => Match.new, :cookie => 100, :priority => 200
+        send_flow_mod_add datapath_id, :match => Match.new
 
         send_message datapath_id, FlowStatsRequest.new( :match => Match.new ) 
       end
@@ -42,5 +54,15 @@ Feature: flow_stats_reply handlers
     vswitch { datapath_id "0xabc" }
     """
     When I run `trema run ./flow-stats-reply-checker.rb -c sample.conf` interactively
-    Then the output should contain "cookie : 100" within the timeout period
-    Then the output should contain "priority : 200" within the timeout period
+    Then the output should contain "length : " within the timeout period
+     And the output should contain "table_id : " within the timeout period
+     And the output should contain "match : " within the timeout period
+     And the output should contain "duration_sec : " within the timeout period
+     And the output should contain "duration_nsec : " within the timeout period
+     And the output should contain "priority : " within the timeout period
+     And the output should contain "idle_timeout : " within the timeout period
+     And the output should contain "hard_timeout : " within the timeout period
+     And the output should contain "cookie : " within the timeout period
+     And the output should contain "packet_count : " within the timeout period
+     And the output should contain "byte_count : " within the timeout period
+     And the output should contain "actions : " within the timeout period

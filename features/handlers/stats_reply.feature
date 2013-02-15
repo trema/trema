@@ -1,11 +1,26 @@
 Feature: stats_reply handlers
 
-  The Read-State message collects many kind of statistics from the switches.
-  A kind of information to collect is determined by the type in request message.
-  Through :stats_reply method you can handle all reply messages associated with requests 
-  at your controller. But this callback method will be described in near future version.
+  The stats_reply is a message handler to get any kind of statistical information, but note
+  that this handler will be deprecated in near future. Instead, you should use type-specific 
+  handlers (desc_stats_reply, flow_stats_reply, aggregate_stats_reply, table_stats_reply,
+  port_stats_reply, queue_stats_reply and vendor_stats_reply).
 
-  For backward compatibility, if controller defines both obsolete stats_reply handler and
+  This handler can treat StatsReply object through the 'message' parameter which is the second 
+  argument of this handler. This object has the reply message corresponding to the request.
+  For more information about this, you can see in the Trema API document 
+  (http://rubydoc.info/github/trema/trema/master/Trema/StatsReply).
+
+  To handle this message handler, you should send an OpenFlow message which is named 
+  Read-State message to the switch. The Read-State message is classified by 
+  the type of information to get, and the type is identified by the 'type' parameter of 
+  Read-State request message, but the Trema abstracts this mechanism.
+
+  To send a Read-State request message, the controller should instantiate a sub-class 
+  of StatsRequest (DescStatsRequest, FlowStatsRequest, AggregateStatsRequest, TableStatsRequest, 
+  PortStatsRequest, QueueStatsRequest and VendorStatsRequest), and sends it using send_message 
+  method as shown below.
+
+  For backward compatibility, if the controller defines both obsolete stats_reply handler and
   new type-specific handlers (port_stats_reply, flow_stats_reply, etc..), Trema fires former.
 
   Scenario: obsolete stats_reply handler
@@ -25,7 +40,9 @@ Feature: stats_reply handlers
 
 
       def stats_reply datapath_id, message
-        info "message : #{ message.stats[0].class }"
+        message.stats.each do | each |
+          info "message : #{ each.class }"
+        end
       end
     end
     """
