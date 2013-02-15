@@ -15,7 +15,7 @@ gemspec
 group :development do
   gem "aruba", "~> 0.5.1"
   gem "cucumber", "~> 1.2.1"
-  gem "flay", "~> 2.0.1"
+  gem "flay", "~> 2.1.0"
   gem "flog", "~> 3.2.2"
   gem "rcov", "~> 1.0.0"
   gem "redcarpet", "~> 2.2.2"
