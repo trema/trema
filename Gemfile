@@ -1,4 +1,4 @@
-source :rubygems
+source "https://rubygems.org"
 
 
 # Include dependencies from trema.gemspec. DRY!
