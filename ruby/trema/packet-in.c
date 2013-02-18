@@ -594,6 +594,22 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
+ * Is it a LLDP packet?
+ *
+ * @return [Boolean] whether the packet is a LLDP packet or not.
+ */
+static VALUE
+packet_in_is_lldp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_LLDP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
  * Is it an ICMPv4 packet?
  *
  * @return [Boolean] whether the packet is an ICMPv4 packet or not.
@@ -1103,6 +1119,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "vtag?", packet_in_is_vtag, 0 );
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
+  rb_define_method( cPacketIn, "lldp?", packet_in_is_lldp, 0 );
   rb_define_method( cPacketIn, "icmpv4?", packet_in_is_icmpv4, 0 );
   rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );
