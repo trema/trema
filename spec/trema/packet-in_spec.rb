@@ -131,6 +131,7 @@ describe Trema::PacketIn do
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_true
           expect( message.ipv4? ).to be_false
+          expect( message.lldp? ).to be_false
           expect( message.tcp? ).to be_false
           expect( message.udp? ).to be_false
           expect( message.icmpv4? ).to be_false
@@ -241,6 +242,7 @@ describe Trema::PacketIn do
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
           expect( message.ipv4? ).to be_true
+          expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
           expect( message.tcp? ).to be_true
           expect( message.icmpv4? ).to be_false
@@ -324,6 +326,7 @@ describe Trema::PacketIn do
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
           expect( message.ipv4? ).to be_true
+          expect( message.lldp? ).to be_false
           expect( message.tcp? ).to be_false
           expect( message.udp? ).to be_true
           expect( message.icmpv4? ).to be_false
@@ -404,6 +407,7 @@ describe Trema::PacketIn do
           expect( message.vtag? ).to be_true
           expect( message.arp? ).to be_false
           expect( message.ipv4? ).to be_true
+          expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
           expect( message.tcp? ).to be_false
           expect( message.icmpv4? ).to be_true
@@ -487,6 +491,7 @@ describe Trema::PacketIn do
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
           expect( message.ipv4? ).to be_true
+          expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
           expect( message.tcp? ).to be_false
           expect( message.icmpv4? ).to be_false
@@ -512,6 +517,50 @@ describe Trema::PacketIn do
 
           expect( message.igmp_type ).to eq( 0x11 )
           expect( message.igmp_checksum ).to eq( 0xee9b )
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
+        )
+        sleep 2
+      }
+    end
+
+    it "should have correct LLDP packet fields" do
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost "host2"
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # src
+          0x88, 0xcc, # ether type
+          0x02, 0x05, 0x07, 0x30, 0x78, 0x65, 0x31, # Chasis ID
+          0x04, 0x02, 0x07, 0x31, # Port ID
+          0x06, 0x02, 0x00, 0xb4, # TTL
+          0x00, 0x00, # EOF
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 
+          0xa5, 0xa5, 0xa5, 0xa5, 0xa5
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_false
+          expect( message.ipv4? ).to be_false
+          expect( message.lldp? ).to be_true
+          expect( message.udp? ).to be_false
+          expect( message.tcp? ).to be_false
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_false
         end
 
         controller( "PacketInSendController" ).send_packet_out(
