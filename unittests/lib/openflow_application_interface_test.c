@@ -3697,7 +3697,7 @@ main() {
     unit_test_setup_teardown( test_delete_openflow_messages, init, cleanup ),
     unit_test_setup_teardown( test_delete_openflow_messages_if_clear_send_queue_fails, init, cleanup ),
 
-    // disconnect() tests.
+    // disconnect_switch() tests.
     unit_test_setup_teardown( test_disconnect_switch, init, cleanup ),
     unit_test_setup_teardown( test_disconnect_switch_if_send_message_fails, init, cleanup ),
   };
