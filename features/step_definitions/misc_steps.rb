@@ -17,7 +17,7 @@
 
 
 Given /^I compile "(.*?)" into "(.*?)"$/ do | c_source, executable |
-  run_simple "gcc #{ c_source } #{`trema-config -c -l`} -o #{ executable }", true
+  run_simple "gcc #{ c_source } -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing #{`trema-config -c -l`} -o #{ executable }", true
 end
 
 
