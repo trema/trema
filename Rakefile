@@ -56,7 +56,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :default, "spec:travis" ]
+task :travis => [ :default, :spec ]
 
 
 begin
@@ -73,12 +73,6 @@ begin
     task.verbose = $trace
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--tag type:actions --format documentation --color"
-  end
-
-  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
-    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
-    # FIXME: use --tag ~sudo
-    spec.rspec_opts = "--tag nosudo -fs -c"
   end
 
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
