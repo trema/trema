@@ -59,6 +59,13 @@ end
 task :travis => [ :default, :spec ]
 
 
+require "trema/path"
+
+directory Trema.log
+directory Trema.pid
+directory Trema.sock
+
+
 begin
   require "rspec/core"
   require "rspec/core/rake_task"
@@ -80,6 +87,8 @@ begin
     spec.rcov = true
     spec.rcov_opts = [ "-x", "gems" ]
   end
+
+  task :spec => [ Trema.log, Trema.pid, Trema.sock ]
 rescue LoadError
   $stderr.puts $!.to_s
 end
