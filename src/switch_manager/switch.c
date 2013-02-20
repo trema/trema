@@ -752,7 +752,11 @@ main( int argc, char *argv[] ) {
     error( "Failed to set connected state." );
     return -1;
   }
-  flush_secure_channel( &switch_info );
+  ret = flush_secure_channel( &switch_info );
+  if ( ret < 0 ) {
+    error( "Failed to flush secure channel. Terminating %s.", argv[ 0 ] );
+    return -1;
+  }
 
   start_trema();
 

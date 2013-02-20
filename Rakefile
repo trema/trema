@@ -56,7 +56,14 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :default, "spec:travis" ]
+task :travis => [ :default, :spec ]
+
+
+require "trema/path"
+
+directory Trema.log
+directory Trema.pid
+directory Trema.sock
 
 
 begin
@@ -75,17 +82,13 @@ begin
     task.rspec_opts = "--tag type:actions --format documentation --color"
   end
 
-  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
-    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
-    # FIXME: use --tag ~sudo
-    spec.rspec_opts = "--tag nosudo -fs -c"
-  end
-
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
     spec.pattern = "spec/**/*_spec.rb"
     spec.rcov = true
     spec.rcov_opts = [ "-x", "gems" ]
   end
+
+  task :spec => [ Trema.log, Trema.pid, Trema.sock ]
 rescue LoadError
   $stderr.puts $!.to_s
 end
