@@ -26,6 +26,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <getopt.h>
 #include "checks.h"
 #include "log.h"
 #include "wrapper.h"
@@ -290,12 +291,82 @@ read_pid( const char *directory, const char *name ) {
   exe_path[ readsiz ] = '\0';
 
   char *exe_name = basename( exe_path );
-  if ( strcmp( name, exe_name ) != 0 ) {
-    warn( "Failed to check process name %s ( %s [%d] ).", name, strerror( errno ), errno );
+  if ( strcmp( name, exe_name ) == 0 ) {
+    return pid;
+  }
+
+  // check if -n (service_name) option is used
+  sprintf( proc_path, "/proc/%d/cmdline", pid );
+  fd = open( proc_path, O_RDONLY, 0 );
+  if ( fd < 0 ) {
+    warn( "Failed to open %s ( %s [%d] ).", proc_path, strerror( errno ), errno );
     return -1;
   }
 
-  return pid;
+  char* buffer = xcalloc( PATH_MAX+2, sizeof( char ) );
+  char* write_head = buffer;
+  size_t buffer_left = PATH_MAX;
+  size_t read_byte = 0;
+  while( ( readsiz = read( fd, write_head, buffer_left) ) > 0 ) {
+    read_byte += ( size_t ) readsiz;
+    write_head += readsiz;
+    buffer_left = PATH_MAX - read_byte;
+  }
+  close( fd );
+
+  // convert cmdline to argv format
+  size_t argc = 0;
+  char ** argv = xcalloc( 1, sizeof( char * ) );
+
+  char* token = buffer;
+  const char* buffer_end = buffer + read_byte;
+  while( token <= buffer_end ) {
+    size_t token_len = strlen( token );
+    if ( token_len > 0 ) {
+      ++argc;
+      char** new_argv = xmalloc( ( argc + 1 ) * sizeof( char * ) );
+      for ( size_t i = 0 ; i < argc - 1 ; ++i ) {
+        new_argv[ i ] = argv[ i ];
+      }
+      xfree( argv );
+      argv = new_argv;
+      argv[ argc - 1 ] = token;
+      argv[ argc ] = NULL;
+    } else {
+      if ( *(token+1) == '\0' ) {
+        // "\0\0", end of cmdline
+        break;
+      }
+    }
+    token += token_len + 1;
+  }
+
+  const struct option long_options[] = {
+    { "name", 1, NULL, 'n' },
+    { NULL, 0, NULL, 0 },
+  };
+  const char short_options[] = "n:";
+  int c;
+  optind = 0;
+  const char* service_name = "";
+  while ( ( c = getopt_long( ( int )argc, argv, short_options, long_options, NULL ) ) != -1 ){
+    switch ( c ) {
+    case 'n':
+      service_name = optarg;
+      break;
+    }
+  }
+
+  if ( strcmp( name, service_name ) == 0 ) {
+    xfree( argv );
+    xfree( buffer );
+    return pid;
+  } else {
+    warn( "Failed to check process name %s.", name );
+    xfree( argv );
+    xfree( buffer );
+    return -1;
+  }
 }
 
 
