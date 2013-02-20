@@ -364,9 +364,6 @@ def init_cruise
   $start_time = Time.now
   sh "./build.rb distclean"
   sh "bundle install"
-  mkdir_p Trema.log
-  mkdir_p Trema.pid
-  mkdir_p Trema.sock
 end
 
 
