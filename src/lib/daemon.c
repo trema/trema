@@ -349,7 +349,7 @@ read_pid( const char *directory, const char *name ) {
   int c;
   optind = 0;
   opterr = 0;
-  const char* service_name = "";
+  const char* service_name = basename( argv[0] );
   while ( ( c = getopt_long( ( int )argc, argv, short_options, long_options, NULL ) ) != -1 ){
     switch ( c ) {
     case 'n':

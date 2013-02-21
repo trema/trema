@@ -134,16 +134,18 @@ mock_access( char *pathname, int mode ) {
 }
 
 
+static size_t read_length = 0;
+static char *read_buffer = NULL;
+
 ssize_t
 mock_read( int fd, void *buf, size_t count ) {
   check_expected( fd );
   check_expected( buf );
   check_expected( count );
-  ssize_t read_length = ( ssize_t ) mock();
   if ( read_length > 0 ) {
-    memcpy( buf, ( const void * )( intptr_t ) mock(), ( size_t ) read_length );
+    memcpy( buf, read_buffer, read_length );
   }
-  return ( ssize_t ) read_length;
+  return ( int ) mock();
 }
 
 
@@ -363,10 +365,9 @@ test_read_pid_successed() {
   expect_value( mock_read, count, 10 - 1 );
   char valid_pid_string[] = "123\n";
   pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly kill.
   expect_value( mock_kill, pid, valid_pid );
@@ -389,168 +390,6 @@ test_read_pid_successed() {
   // Test if correctly basename.
   expect_string( mock_basename, path, valid_exe_path );
   will_return( mock_basename, strdup( "chess" ) );
-
-  // Go
-  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
-  assert_true( pid == valid_pid );
-}
-
-
-static void
-test_read_pid_successed_when_service_name_specified() {
-  // Test if correctly access.
-  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
-  expect_string( mock_access, pathname, path );
-  expect_value( mock_access, mode, R_OK );
-  will_return( mock_access, 0 );
-
-  // Test if correctly opened.
-  int pid_file_fd = 111;
-  expect_string( mock_open, pathname, path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, pid_file_fd );
-
-  // Test if correctly read.
-  expect_value( mock_read, fd, pid_file_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_value( mock_read, count, 10 - 1 );
-  char valid_pid_string[] = "123\n";
-  pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
-
-  // Test if correctly kill.
-  expect_value( mock_kill, pid, valid_pid );
-  expect_value( mock_kill, sig, 0 );
-  will_return( mock_kill, 0 );
-
-  // Test if correctly close.
-  expect_value( mock_close, fd, pid_file_fd );
-
-  // Test if correctly readlink.
-  char proc_path[] = "/proc/123/exe";
-  expect_string( mock_readlink, path, proc_path );
-  expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
-  char valid_exe_path[] = "/home/yasuhito/trema/bin/shogi";
-  link_buffer = valid_exe_path;
-  link_length = strlen( valid_exe_path );
-  will_return( mock_readlink, link_length );
-
-  // Test if correctly basename.
-  expect_string( mock_basename, path, valid_exe_path );
-  will_return( mock_basename, strdup( "shogi" ) );
-
-  // Test if correctly opened cmdline.
-  int cmdline_fd = 5;
-  char proc_cmdline_path[] = "/proc/123/cmdline";
-  expect_string( mock_open, pathname, proc_cmdline_path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, cmdline_fd );
-
-  // Test if correctly read cmdline.
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  char valid_cmdline_string[] = "/home/yasuhito/trema/tmp/shogi\0-d\0-n\0chess\0\0";
-  // read_length = sizeof( invalid_cmdline_string );
-  will_return( mock_read, sizeof( valid_cmdline_string ) );
-  // read_buffer = invalid_cmdline_string;
-  will_return( mock_read, valid_cmdline_string );
-  // end of file
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  will_return( mock_read, 0 );
-
-  // Test if correctly close cmdline.
-  expect_value( mock_close, fd, cmdline_fd );
-
-
-  // Go
-  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
-  assert_true( pid == valid_pid );
-}
-
-
-static void
-test_read_pid_successed_when_service_name_specified_long() {
-  // Test if correctly access.
-  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
-  expect_string( mock_access, pathname, path );
-  expect_value( mock_access, mode, R_OK );
-  will_return( mock_access, 0 );
-
-  // Test if correctly opened.
-  int pid_file_fd = 111;
-  expect_string( mock_open, pathname, path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, pid_file_fd );
-
-  // Test if correctly read.
-  expect_value( mock_read, fd, pid_file_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_value( mock_read, count, 10 - 1 );
-  char valid_pid_string[] = "123\n";
-  pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
-
-  // Test if correctly kill.
-  expect_value( mock_kill, pid, valid_pid );
-  expect_value( mock_kill, sig, 0 );
-  will_return( mock_kill, 0 );
-
-  // Test if correctly close.
-  expect_value( mock_close, fd, pid_file_fd );
-
-  // Test if correctly readlink.
-  char proc_path[] = "/proc/123/exe";
-  expect_string( mock_readlink, path, proc_path );
-  expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
-  char valid_exe_path[] = "/home/yasuhito/trema/bin/shogi";
-  link_buffer = valid_exe_path;
-  link_length = strlen( valid_exe_path );
-  will_return( mock_readlink, link_length );
-
-  // Test if correctly basename.
-  expect_string( mock_basename, path, valid_exe_path );
-  will_return( mock_basename, strdup( "shogi" ) );
-
-  // Test if correctly opened cmdline.
-  int cmdline_fd = 5;
-  char proc_cmdline_path[] = "/proc/123/cmdline";
-  expect_string( mock_open, pathname, proc_cmdline_path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, cmdline_fd );
-
-  // Test if correctly read cmdline.
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  char valid_cmdline_string[] = "/home/yasuhito/trema/tmp/shogi\0--name=chess\0-d\0\0";
-  // read_length = sizeof( invalid_cmdline_string );
-  will_return( mock_read, sizeof( valid_cmdline_string ) );
-  // read_buffer = invalid_cmdline_string;
-  will_return( mock_read, valid_cmdline_string );
-  // end of file
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  will_return( mock_read, 0 );
-
-  // Test if correctly close cmdline.
-  expect_value( mock_close, fd, cmdline_fd );
-
 
   // Go
   pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
@@ -611,6 +450,7 @@ test_read_pid_fail_if_read_fail() {
   expect_value( mock_read, fd, pid_file_fd );
   expect_not_value( mock_read, buf, NULL );
   expect_value( mock_read, count, 10 - 1 );
+  read_length = 0;
   will_return( mock_read, -1 );
 
   // Test if correctly close.
@@ -642,10 +482,9 @@ test_read_pid_fail_if_pid_is_invalid() {
   expect_not_value( mock_read, buf, NULL );
   expect_value( mock_read, count, 10 - 1 );
   char INVALID_pid_string[] = "not number\n";
-  // read_length = strlen( INVALID_pid_string );
-  will_return( mock_read, strlen( INVALID_pid_string ) );
-  // read_buffer = INVALID_pid_string;
-  will_return( mock_read, INVALID_pid_string );
+  read_buffer = INVALID_pid_string;
+  read_length = strlen( INVALID_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly close.
   expect_value( mock_close, fd, pid_file_fd );
@@ -676,10 +515,9 @@ test_read_pid_fail_if_pid_is_zero() {
   expect_not_value( mock_read, buf, NULL );
   expect_value( mock_read, count, 10 - 1 );
   char ZERO_pid_string[] = "0\n";
-  // read_length = strlen( ZERO_pid_string );
-  will_return( mock_read, strlen( ZERO_pid_string ) );
-  // read_buffer = ZERO_pid_string;
-  will_return( mock_read, ZERO_pid_string );
+  read_buffer = ZERO_pid_string;
+  read_length = strlen( ZERO_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly close.
   expect_value( mock_close, fd, pid_file_fd );
@@ -711,10 +549,9 @@ test_read_pid_fail_if_kill_fail_with_ESRCH() {
   expect_value( mock_read, count, 10 - 1 );
   char valid_pid_string[] = "123\n";
   pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly read.
   expect_value( mock_kill, pid, valid_pid );
@@ -756,10 +593,9 @@ test_read_pid_fail_if_kill_fail_with_EPERM() {
   expect_value( mock_read, count, 10 - 1 );
   char valid_pid_string[] = "123\n";
   pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly read.
   expect_value( mock_kill, pid, valid_pid );
@@ -797,10 +633,9 @@ test_read_pid_fail_if_readlink_fail() {
   expect_value( mock_read, count, 10 - 1 );
   char valid_pid_string[] = "123\n";
   pid_t valid_pid = 123;
-  //read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  //read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
+  read_buffer = valid_pid_string;
+  read_length = strlen( valid_pid_string );
+  will_return( mock_read, read_length );
 
   // Test if correctly kill.
   expect_value( mock_kill, pid, valid_pid );
@@ -816,86 +651,6 @@ test_read_pid_fail_if_readlink_fail() {
   expect_not_value( mock_readlink, buf, NULL );
   expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
   will_return( mock_readlink, -1 );
-
-  // Go
-  pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
-  assert_true( pid == -1 );
-}
-
-
-static void
-test_read_pid_fail_if_strcmp_fail() {
-  // Test if correctly access.
-  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
-  expect_string( mock_access, pathname, path );
-  expect_value( mock_access, mode, R_OK );
-  will_return( mock_access, 0 );
-
-  // Test if correctly opened.
-  int pid_file_fd = 111;
-  expect_string( mock_open, pathname, path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, pid_file_fd );
-
-  // Test if correctly read.
-  expect_value( mock_read, fd, pid_file_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_value( mock_read, count, 10 - 1 );
-  char valid_pid_string[] = "123\n";
-  pid_t valid_pid = 123;
-  // read_length = strlen( valid_pid_string );
-  will_return( mock_read, strlen( valid_pid_string ) );
-  // read_buffer = valid_pid_string;
-  will_return( mock_read, valid_pid_string );
-
-  // Test if correctly kill.
-  expect_value( mock_kill, pid, valid_pid );
-  expect_value( mock_kill, sig, 0 );
-  will_return( mock_kill, 0 );
-
-  // Test if correctly close.
-  expect_value( mock_close, fd, pid_file_fd );
-
-  // Test if correctly readlink.
-  char proc_path[] = "/proc/123/exe";
-  expect_string( mock_readlink, path, proc_path );
-  expect_not_value( mock_readlink, buf, NULL );
-  expect_value( mock_readlink, bufsiz, PATH_MAX - 1 );
-  char INVALID_exe_path[] = "/home/yasuhito/trema/bin/chess2";
-  link_buffer = INVALID_exe_path;
-  link_length = strlen( INVALID_exe_path );
-  will_return( mock_readlink, link_length );
-
-  // Test if correctly basename.
-  expect_string( mock_basename, path, INVALID_exe_path );
-  will_return( mock_basename, strdup( "chess2" ) );
-
-  // Test if correctly opened cmdline.
-  int cmdline_fd = 5;
-  char proc_cmdline_path[] = "/proc/123/cmdline";
-  expect_string( mock_open, pathname, proc_cmdline_path );
-  expect_value( mock_open, flags, O_RDONLY );
-  expect_value( mock_open, mode, 0 );
-  will_return( mock_open, cmdline_fd );
-
-  // Test if correctly read cmdline.
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  char invalid_cmdline_string[] = "/home/yasuhito/trema/tmp/chess2\0\0";
-  // read_length = sizeof( invalid_cmdline_string );
-  will_return( mock_read, sizeof( invalid_cmdline_string ) );
-  // read_buffer = invalid_cmdline_string;
-  will_return( mock_read, invalid_cmdline_string );
-  // end of file
-  expect_value( mock_read, fd, cmdline_fd );
-  expect_not_value( mock_read, buf, NULL );
-  expect_in_range( mock_read, count, 0, PATH_MAX );
-  will_return( mock_read, 0 );
-
-  // Test if correctly close cmdline.
-  expect_value( mock_close, fd, cmdline_fd );
 
   // Go
   pid_t pid = read_pid( "/home/yasuhito/trema/tmp", "chess" );
@@ -965,8 +720,6 @@ main() {
 
     // read_pid() tests.
     unit_test( test_read_pid_successed ),
-    unit_test( test_read_pid_successed_when_service_name_specified ),
-    unit_test( test_read_pid_successed_when_service_name_specified_long ),
     unit_test( test_read_pid_fail_if_access_fail ),
     unit_test( test_read_pid_fail_if_open_fail ),
     unit_test( test_read_pid_fail_if_read_fail ),
@@ -975,7 +728,6 @@ main() {
     unit_test( test_read_pid_fail_if_kill_fail_with_ESRCH ),
     unit_test( test_read_pid_fail_if_kill_fail_with_EPERM ),
     unit_test( test_read_pid_fail_if_readlink_fail ),
-    unit_test( test_read_pid_fail_if_strcmp_fail ),
 
     // rename_pid() tests.
     unit_test( test_rename_pid_successed ),
