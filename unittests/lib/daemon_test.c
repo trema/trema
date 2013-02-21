@@ -141,7 +141,7 @@ mock_read( int fd, void *buf, size_t count ) {
   check_expected( count );
   ssize_t read_length = ( ssize_t ) mock();
   if ( read_length > 0 ) {
-    memcpy( buf, ( const void * ) mock(), ( size_t ) read_length );
+    memcpy( buf, ( const void * )( intptr_t ) mock(), ( size_t ) read_length );
   }
   return ( ssize_t ) read_length;
 }
