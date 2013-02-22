@@ -17,6 +17,7 @@
 #include "flow_manager_interface.h"
 #include "match.h"
 #include "openflow.h"
+#include "trema.h"
 
 #define FLOW_MANAGER_NAME "flow_manager_test_service"
 #define INIT_PATH "./tmp/sock"
@@ -54,35 +55,16 @@ compare_path_private( const void *x, const void *y ) {
 }
 
 static void
-start_flow_manager()
+start_flow_manager_for_test()
 {
-  system("./build.rb");
-  system("./trema run -c src/examples/flow_manager_example/flow_manager_example.conf -d --flowmanager");
+  system( "./build.rb" );
+  system( "./trema run -c src/examples/flow_manager_example/flow_manager_example.conf -d" );
+  start_flow_manager();
 }
 
 static void
-stop_flow_manager()
+stop_flow_manager_for_test()
 {
-
-  char buf[50];
-  FILE *fp;
-  char *pid;
-  char str[50];
-
-  if((fp = fopen("./tmp/pid/flow_manager.pid", "r")) == NULL)
-  {
-     exit(2);
-  }
-
-  if((pid = fgets(buf, 50, fp)) != NULL)
-  {
-    printf("%s\n", pid);
-    sprintf(str, "kill -2 %s", pid );
-    printf("%s\n", str);
-    system(str);
-  }
-
-  fclose(fp);
   system("./trema killall");
 }
 
@@ -1152,7 +1134,6 @@ test_flow_manager_flow_entry_group_setup_request() {
 
   void* user_data = NULL;
 
-
   init_messenger( INIT_PATH );
   init_timer();
 
@@ -1679,7 +1660,6 @@ int main( int argc, char *argv[] ) {
   _argv = argv;
 
   const UnitTest tests[] = {
-
     unit_test( test_status_to_string ),
     unit_test( test_reason_to_string ),
     unit_test( test_get_flow_entry_group_id ),
@@ -1687,11 +1667,6 @@ int main( int argc, char *argv[] ) {
     unit_test( test_dump_hop_with_extra_actions ),
     unit_test( test_dump_path ),
     unit_test( test_dump_match ),
-    unit_test( test_init_and_finalize_path ),
-    unit_test( test_create_hop_with_actions ),
-    unit_test( test_create_hop_without_actions ),
-    unit_test( test_delete_hop_without_actions ),
-    unit_test( test_delete_hop_with_actions),
     unit_test( test_create_path ),
     unit_test( test_delete_path ),
     unit_test( test_append_hop_to_path ),
@@ -1704,18 +1679,22 @@ int main( int argc, char *argv[] ) {
     unit_test( test_create_flow_entry_group_teardown_request ),
     unit_test( test_create_flow_entry_group_teardown_reply ),
     unit_test( test_create_flow_entry_group_teardown ),
-
-    unit_test_setup_teardown( test_flow_manager_flow_entry_group_setup_request, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_flow_manager_flow_entry_group_teardown_request, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_setup_path, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_setup_path_duplicate, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_teardown_path, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_teardown_path_by_match, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_teardown_path_not_found, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_lookup_path, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_lookup_path_not_found, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_lookup_path_by_match, start_flow_manager, stop_flow_manager),
-    unit_test_setup_teardown( test_lookup_path_by_match_max_paths_is_too_short, start_flow_manager, stop_flow_manager),
+    unit_test( test_create_hop_with_actions ),
+    unit_test( test_create_hop_without_actions ),
+    unit_test( test_delete_hop_without_actions ),
+    unit_test( test_delete_hop_with_actions),
+    unit_test( test_init_and_finalize_path),
+    unit_test_setup_teardown( test_setup_path, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_setup_path_duplicate, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_flow_manager_flow_entry_group_setup_request, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_flow_manager_flow_entry_group_teardown_request, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_teardown_path, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_teardown_path_by_match, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_teardown_path_not_found, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_lookup_path, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_lookup_path_not_found, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_lookup_path_by_match, start_flow_manager_for_test, stop_flow_manager_for_test),
+    unit_test_setup_teardown( test_lookup_path_by_match_max_paths_is_too_short, start_flow_manager_for_test, stop_flow_manager_for_test),
 
     //Please test below functions by manual
     //unit_test( test_flow_entry_request_undefined ),
@@ -1738,9 +1717,6 @@ int main( int argc, char *argv[] ) {
   UNUSED( test_flow_entry_request_undefined );
   UNUSED( test_flow_entry_group_setup_request_too_short );
   UNUSED( test_flow_entry_group_teardown_request_too_short );
-
-  UNUSED( start_flow_manager );
-  UNUSED( stop_flow_manager );
 
   setup_leak_detector();
   return run_tests( tests );

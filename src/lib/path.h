@@ -220,5 +220,6 @@ bool init_path( void );
  */
 bool finalize_path( void );
 
+bool start_flow_manager( void );
 
 #endif // PATH_H

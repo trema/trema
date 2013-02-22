@@ -17,6 +17,7 @@
 
 require "trema/controller"
 require "trema/executables"
+require "trema/flow-manager-class"
 
 module Trema
   module FlowManager

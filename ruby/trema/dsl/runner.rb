@@ -83,7 +83,6 @@ module Trema
 
 
       def maybe_run_trema_services
-        maybe_run_flow_manager 
         maybe_run_tremashark
         maybe_run_switch_manager
         maybe_run_packetin_filter
@@ -91,13 +90,6 @@ module Trema
         maybe_run_hosts
         maybe_run_switches
         maybe_run_netnss
-      end
-
-      def maybe_run_flow_manager 
-        Trema::FlowManagerClass.instance if $use_flowmanager
-        #stanza = Trema::DSL::Run.new( nil )
-        #stanza.path "./objects/flow_manager/flow_manager"
-        #Trema::App.new( stanza )
       end
 
       def maybe_run_tremashark

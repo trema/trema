@@ -55,9 +55,6 @@ command :run do | c |
   c.desc "Enables Trema wireshark plugin"
   c.switch [ :s, :tremashark ], :negatable => false
 
-  c.desc "Enables FlowManager deamon"
-  c.switch [ :flowmanager ], :negatable => false
-
   c.desc "Specifies emulated network configuration"
   c.flag [ :c, :conf ]
 

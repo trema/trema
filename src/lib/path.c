@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "path.h"
 #include "flow_manager_interface.h"
 #include "path_utils.h"
@@ -641,6 +642,29 @@ handle_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
 
 bool
+start_flow_manager( void )
+{
+  FILE *fp = NULL;
+  if((fp = fopen("./tmp/pid/flow_manager.pid", "r")) != NULL)
+  {
+	 info( "flow_manager is already existed.");
+	 fclose(fp);
+	 fp = NULL;
+	 return false;
+  }
+
+  char dir[512] = "";
+  getcwd( dir , sizeof(dir) );
+  setenv("TREMA_HOME", dir, 1);
+
+  system("./objects/flow_manager/flow_manager --name flow_manager -d");
+  info( "flow_manager start running.");
+
+  return true;
+}
+
+
+bool
 init_path( void ) {
 
   create_path_db();
@@ -651,17 +675,19 @@ init_path( void ) {
   return true;
 }
 
-static void
-stop_flow_manager()
+
+static bool
+stop_flow_manager( void )
 {
   char buf[50];
-  FILE *fp;
-  char *pid;
+  FILE *fp = NULL;
+  char *pid = NULL;
   char str[50];
 
   if((fp = fopen("./tmp/pid/flow_manager.pid", "r")) == NULL)
   {
-     exit(2);
+     //exit(2);
+	 return false;
   }
 
   if((pid = fgets(buf, 50, fp)) != NULL)
@@ -672,7 +698,10 @@ stop_flow_manager()
 
   fclose(fp);
   system("./trema killall");
+
+  return true;
 }
+
 
 bool
 finalize_path( void ) {

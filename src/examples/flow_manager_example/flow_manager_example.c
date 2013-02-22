@@ -87,9 +87,11 @@ install_flow_entry( void *user_data ) {
 
 int
 main( int argc, char *argv[] ) {
+
   // Initialize the Trema world
   init_trema( &argc, &argv );
-
+  // Start flow_manager deamon
+  start_flow_manager();
   // Init path management library (libpath)
   init_path();
 
