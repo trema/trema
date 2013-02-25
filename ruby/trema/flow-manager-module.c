@@ -26,7 +26,8 @@
 #include "path_utils.h"
 #include "flow_manager_interface.h"
 
-#define DEBUG
+//Please uncomment below when you need debug output
+//#define DEBUG
 #ifdef DEBUG
 #define debug(...) {printf("%s(%d):", __func__, __LINE__); printf(__VA_ARGS__);}
 #else
@@ -67,13 +68,6 @@ handle_setup( int status, const path *p, void *controller ) {
   VALUE obj = Data_Wrap_Struct(cPath, 0, 0, (void *)p);
   #pragma GCC diagnostic pop
   debug("path pointer : %p\n", p);
-
-  /*
-  if(status != 0)
-  {
-	  rb_raise(rb_eException, "Error occured : %s", status_to_string( status ) );
-  }
-  */
 
   if ( rb_respond_to( ( VALUE ) controller, rb_intern( "flow_manager_setup_reply" ) ) == Qtrue ) {
     rb_funcall( ( VALUE ) controller, rb_intern( "flow_manager_setup_reply" ), 2, rb_str_new2(status_to_string( status )), obj);

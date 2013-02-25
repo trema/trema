@@ -27,6 +27,7 @@
 #include "flow-manager-module.h"
 #include "path_utils.h"
 
+//Please uncomment below when you need debug output
 //#define DEBUG
 #ifdef DEBUG
 #define debug(...) {printf("%s(%d):", __func__, __LINE__); printf(__VA_ARGS__);}
