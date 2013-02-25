@@ -723,8 +723,14 @@ get_executable_name() {
 
 
 pid_t
-get_trema_process_from_name( const char *name ) {
+get_pid_by_trema_name( const char *name ) {
   return read_pid( get_trema_pid(), name );
+}
+
+
+pid_t
+get_trema_process_from_name( const char *name ) {
+  return get_pid_by_trema_name( name );
 }
 
 

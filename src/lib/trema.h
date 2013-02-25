@@ -62,7 +62,8 @@ const char *get_trema_tmp( void );
 void set_trema_name( const char *name );
 const char *get_trema_name( void );
 const char *get_executable_name( void );
-pid_t get_trema_process_from_name( const char *name );
+pid_t get_pid_by_trema_name( const char *name );
+pid_t get_trema_process_from_name( const char *name ) __attribute__ ((deprecated));
 bool terminate_trema_process( pid_t pid );
 __attribute__( ( weak ) ) void usage( void );
 
