@@ -17,7 +17,7 @@
 
 
 require "trema/app"
-require "trema/logger"
+require "trema/default-logger"
 require "trema/monkey-patch/integer"
 require "trema/monkey-patch/string"
 require "trema/timers"
@@ -28,7 +28,7 @@ module Trema
   # @abstract The base class of Trema controller. Subclass and override handlers to implement a custom OpenFlow controller.
   #
   class Controller < App
-    include Logger
+    include DefaultLogger
     include Timers
 
 
