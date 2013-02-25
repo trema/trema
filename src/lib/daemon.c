@@ -307,7 +307,7 @@ read_pid( const char *directory, const char *name ) {
   char *write_head = buffer;
   size_t buffer_left = PATH_MAX;
   size_t read_byte = 0;
-  while( ( readsiz = read( fd, write_head, buffer_left) ) > 0 ) {
+  while ( ( readsiz = read( fd, write_head, buffer_left ) ) > 0 ) {
     read_byte += ( size_t ) readsiz;
     write_head += readsiz;
     buffer_left = PATH_MAX - read_byte;
@@ -320,7 +320,7 @@ read_pid( const char *directory, const char *name ) {
 
   char *token = buffer;
   const char *buffer_end = buffer + read_byte;
-  while( token <= buffer_end ) {
+  while ( token <= buffer_end ) {
     size_t token_len = strlen( token );
     if ( token_len > 0 ) {
       ++argc;
