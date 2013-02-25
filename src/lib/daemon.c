@@ -303,8 +303,8 @@ read_pid( const char *directory, const char *name ) {
     return -1;
   }
 
-  char* buffer = xcalloc( PATH_MAX+2, sizeof( char ) );
-  char* write_head = buffer;
+  char *buffer = xcalloc( PATH_MAX + 2, sizeof( char ) );
+  char *write_head = buffer;
   size_t buffer_left = PATH_MAX;
   size_t read_byte = 0;
   while( ( readsiz = read( fd, write_head, buffer_left) ) > 0 ) {
@@ -316,24 +316,25 @@ read_pid( const char *directory, const char *name ) {
 
   // convert cmdline to argv format
   size_t argc = 0;
-  char ** argv = xcalloc( 1, sizeof( char * ) );
+  char **argv = xcalloc( 1, sizeof( char * ) );
 
-  char* token = buffer;
-  const char* buffer_end = buffer + read_byte;
+  char *token = buffer;
+  const char *buffer_end = buffer + read_byte;
   while( token <= buffer_end ) {
     size_t token_len = strlen( token );
     if ( token_len > 0 ) {
       ++argc;
-      char** new_argv = xmalloc( ( argc + 1 ) * sizeof( char * ) );
-      for ( size_t i = 0 ; i < argc - 1 ; ++i ) {
+      char **new_argv = xmalloc( ( argc + 1 ) * sizeof( char * ) );
+      for ( size_t i = 0; i < argc - 1; ++i ) {
         new_argv[ i ] = argv[ i ];
       }
       xfree( argv );
       argv = new_argv;
       argv[ argc - 1 ] = token;
       argv[ argc ] = NULL;
-    } else {
-      if ( *(token+1) == '\0' ) {
+    }
+    else {
+      if ( *( token + 1 ) == '\0' ) {
         // "\0\0", end of cmdline
         break;
       }
@@ -349,12 +350,12 @@ read_pid( const char *directory, const char *name ) {
   int c;
   optind = 0;
   opterr = 0;
-  const char* service_name = basename( argv[0] );
+  const char *service_name = basename( argv[ 0 ] );
   while ( ( c = getopt_long( ( int )argc, argv, short_options, long_options, NULL ) ) != -1 ){
     switch ( c ) {
-    case 'n':
-      service_name = optarg;
-      break;
+      case 'n':
+        service_name = optarg;
+        break;
     }
   }
 
@@ -362,7 +363,8 @@ read_pid( const char *directory, const char *name ) {
     xfree( argv );
     xfree( buffer );
     return pid;
-  } else {
+  }
+  else {
     warn( "Failed to check process name %s.", name );
     xfree( argv );
     xfree( buffer );
