@@ -26,10 +26,10 @@ Gem::Specification.new do | gem |
   gem.extra_rdoc_files = [ "README.md" ]
   gem.test_files = `git ls-files -- {spec,features}/*`.split( "\n" )
 
-  gem.add_dependency "bundler", "~> 1.2.3"
+  gem.add_dependency "bundler", "~> 1.3.0"
   gem.add_dependency "gli", "~> 2.5.4"
   gem.add_dependency "rake", "~> 10.0.3"
-  gem.add_dependency "rdoc", "~> 3.12.1"
+  gem.add_dependency "rdoc", "~> 4.0.0"
 end
 
 
