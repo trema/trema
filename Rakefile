@@ -18,9 +18,15 @@
 
 require "rubygems"
 require "rake"
+require "trema/path"
 
+task :default => :build
 
-task :default do
+directory Trema.log
+directory Trema.pid
+directory Trema.sock
+
+task :build => [ Trema.log, Trema.pid, Trema.sock ] do
   sh "#{ Gem.ruby } ./build.rb"
 end
 
@@ -53,17 +59,22 @@ end
 
 
 ################################################################################
+# Cruise
+################################################################################
+
+task :setup do
+  sh "./build.rb distclean"
+  sh "gem install bundler"
+  sh "bundle update"
+  sh "bundle install"
+end
+
+
+################################################################################
 # Tests
 ################################################################################
 
-task :travis => [ :default, :spec ]
-
-
-require "trema/path"
-
-directory Trema.log
-directory Trema.pid
-directory Trema.sock
+task :travis => [ :setup, :build, :spec ]
 
 
 begin
@@ -87,8 +98,6 @@ begin
     spec.rcov = true
     spec.rcov_opts = [ "-x", "gems" ]
   end
-
-  task :spec => [ Trema.log, Trema.pid, Trema.sock ]
 rescue LoadError
   $stderr.puts $!.to_s
 end

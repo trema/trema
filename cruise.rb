@@ -361,13 +361,12 @@ $options.parse! ARGV
 
 
 def init_cruise
-  $start_time = Time.now
-  sh "./build.rb distclean"
-  sh "bundle install"
+  sh "rake setup"
 end
 
 
 Blocker.start do
+  $start_time = Time.now
   cd Trema.home do
     init_cruise
     run_unit_test if not $acceptance_test_only
