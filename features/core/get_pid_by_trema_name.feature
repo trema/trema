@@ -1,7 +1,8 @@
 Feature: get_pid_by_trema_name()
   
   The function get_pid_by_trema_name() returns the pid of the process 
-  specfied as the `name` argument.  
+  specfied as the `name` argument. 
+  If the `name` was not found inside Trema's name space, the function returns -1.
   
       pid_t get_pid_by_trema_name( const char *name )
   
@@ -29,14 +30,11 @@ Feature: get_pid_by_trema_name()
   then its trema-name is set to 'topology_controller', 
   which is taken from its executable name.  
   
-  **Rule 3:** Trema name can be overwritten using the `-n` or `--name`
+  **Rule 3:** Trema-name can be overwritten using the `-n` or `--name`
   option given through `trema run`:
   
       $ trema run "topology_controller -n topology"
       $ trema run "topology_controller --name=topology"
-  
-  
-  If the `name` was not found inside Trema's name space, the function returns -1.
 
   Background: 
     Given a file named "print_pid.c" with:
@@ -58,7 +56,7 @@ Feature: get_pid_by_trema_name()
       }
       """
     And I compile "print_pid.c" into "print_pid"
-    Given a file named "c_controller.c" with:
+    And a file named "c_controller.c" with:
       """
       #include "trema.h"
       
@@ -69,8 +67,9 @@ Feature: get_pid_by_trema_name()
         return 0;
       }
       """
+    And I compile "c_controller.c" into "c_controller"
 
-  Scenario: Getting the pid of a Ruby controller with default name.
+  Scenario: Getting the pid of a Ruby controller process with default name.
     Given a file named "RubyController.rb" with:
       """
       class RubyController < Controller
@@ -78,44 +77,41 @@ Feature: get_pid_by_trema_name()
       """
     And I run `trema run ./RubyController.rb -d`
     And wait until "RubyController" is up
-    When I run `trema run "./print_pid RubyController"` interactively
+    When I run `trema run "./print_pid RubyController"`
     Then the output should match:
       """
       PID of RubyController = \d+
       """
 
-  Scenario: Getting the pid of a C controller with default name.
-    Given I compile "c_controller.c" into "c_controller"
-    And I run `trema run "./c_controller" -d`
+  Scenario: Getting the pid of a C controller process with default name.
+    Given I run `trema run "./c_controller" -d`
     And wait until "c_controller" is up
-    When I run `trema run "./print_pid c_controller"` interactively
+    When I run `trema run "./print_pid c_controller"`
     Then the output should match:
       """
       PID of c_controller = \d+
       """
 
-  Scenario: Getting the pid of a C controller renamed through CLI option '-n'
-    Given I compile "c_controller.c" into "c_controller"
-    And I run `trema run "./c_controller -n NewName" -d`
+  Scenario: Getting the pid of a C controller process renamed through CLI option '-n'.
+    Given I run `trema run "./c_controller -n NewName" -d`
     And wait until "NewName" is up
-    When I run `trema run "./print_pid NewName"` interactively
+    When I run `trema run "./print_pid NewName"`
     Then the output should match:
       """
       PID of NewName = \d+
       """
 
-  Scenario: Getting the pid of a C controller renamed through CLI option '--name'
-    Given I compile "c_controller.c" into "c_controller"
-    And I run `trema run "./c_controller --name=NewName" -d`
+  Scenario: Getting the pid of a C controller process renamed through CLI option '--name'.
+    Given I run `trema run "./c_controller --name=NewName" -d`
     And wait until "NewName" is up
-    When I run `trema run "./print_pid NewName"` interactively
+    When I run `trema run "./print_pid NewName"`
     Then the output should match:
       """
       PID of NewName = \d+
       """
 
   @wip
-  Scenario: Getting the pid of a Ruby controller renamed through CLI option '-n'
+  Scenario: Getting the pid of a Ruby controller process renamed through CLI option '-n'.
     Given a file named "RubyController.rb" with:
       """
       class RubyController < Controller
@@ -123,17 +119,14 @@ Feature: get_pid_by_trema_name()
       """
     And I run `trema run "./RubyController.rb -n NewName" -d`
     And wait until "NewName" is up
-    When I run `trema run "./print_pid NewName"` interactively
+    When I run `trema run "./print_pid NewName"`
     Then the output should match:
       """
       PID of NewName = \d+
       """
 
-  Scenario: Getting the pid of a controller, which does not exist.
-    Given I compile "c_controller.c" into "c_controller"
-    And I run `trema run "./c_controller" -d`
-    And wait until "c_controller" is up
-    When I run `trema run "./print_pid NO_SUCH_TREMA_PROCESS"` interactively
+  Scenario: Getting the pid of non-existent controller returns an error code -1.
+    When I run `trema run "./print_pid NO_SUCH_TREMA_PROCESS"`
     Then the output should match:
       """
       PID of NO_SUCH_TREMA_PROCESS = -1
