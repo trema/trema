@@ -11,7 +11,7 @@ Feature: get_pid_by_trema_name()
   each controller process. 
   It is determined automatically by the following rules: 
   
-  **Rule 1:** When a Ruby controller starts:
+  **Rule 1:** When you start a Ruby controller:
   
       \# topology-controller.rb
       class TopologyController < Controller
