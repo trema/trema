@@ -67,7 +67,6 @@ end
 
 task :setup do
   sh "./build.rb distclean"
-  sh "gem install bundler"
   sh "bundle update"
   sh "bundle install"
 end
