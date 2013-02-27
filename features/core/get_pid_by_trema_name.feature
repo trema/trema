@@ -13,9 +13,8 @@ Feature: get_pid_by_trema_name()
   
   **Rule 1:** When you start a Ruby controller:
   
-      \# topology-controller.rb
       class TopologyController < Controller
-        \# ...
+        ...
       end
   
       $ trema run topology-controller.rb
