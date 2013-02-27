@@ -55,8 +55,8 @@ Feature: get_pid_by_trema_name()
             printf( "PID of %s = %d\n", argv[ 1 ], pid );
           }
         }
-        start_trema_up();
-        start_trema_down();
+        
+        finalize_trema();
         return 0;
       }
       """

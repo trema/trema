@@ -373,7 +373,7 @@ die_unless_initialized() {
 }
 
 
-static void
+void
 finalize_trema() {
   die_unless_initialized();
 
