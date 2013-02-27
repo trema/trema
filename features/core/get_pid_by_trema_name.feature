@@ -1,17 +1,17 @@
 Feature: get_pid_by_trema_name()
   
   The function get_pid_by_trema_name() returns the PID of the process 
-  specfied as the `name` argument. 
-  If the `name` was not found, the function returns -1.
+  specified by its `name` argument. 
+  If the `name` is not found, the function returns -1. 
   
       pid_t get_pid_by_trema_name( const char *name )
   
-  Here the `name` argument is a controller process's name called *trema-name*.  
-  Inside the Trema's name space, Trema uses the
-  trema-name as a unique identifier to distinguish each controller processes. 
-  It is determined automatically by the following rules:
-   
-  **Rule 1:** When you start a Ruby controller: 
+  The `name` argument refers to controller process name called *trema-name*. 
+  In the trema framework the trema-name is a unique identifier assigned to 
+  each controller process. 
+  It is determined automatically by the following rules: 
+  
+  **Rule 1:** When a Ruby controller starts:
   
       \# topology-controller.rb
       class TopologyController < Controller
@@ -21,17 +21,17 @@ Feature: get_pid_by_trema_name()
       $ trema run topology-controller.rb
   
   then its trema-name is set to "TopologyController", 
-  which is taken from its class name.  
+  which is the same as the class name.  
   
   **Rule 2:** When you start a C controller:
   
       $ trema run topology_controller
   
-  then its trema-name is set to 'topology_controller', 
-  which is taken from its executable name.  
+  then its trema-name is set to "topology_controller", 
+  which is same as the executable name.  
   
   **Rule 3:** Trema-name can be overwritten using the `-n` or `--name`
-  option given through `trema run`:
+  option given by the `trema run` command. 
   
       $ trema run "topology_controller -n topology"
       $ trema run "topology_controller --name=topology"
@@ -74,7 +74,7 @@ Feature: get_pid_by_trema_name()
       """
     And I compile "c_controller.c" into "c_controller"
 
-  Scenario: Getting the PID of a Ruby controller process with default name.
+  Scenario: Getting the PID of a Ruby controller process with a default name.
     Given a file named "RubyController.rb" with:
       """
       class RubyController < Controller
@@ -88,7 +88,7 @@ Feature: get_pid_by_trema_name()
       PID of RubyController = \d+
       """
 
-  Scenario: Getting the PID of a C controller process with default name.
+  Scenario: Getting the PID of a C controller process with a default name.
     Given I run `trema run "./c_controller" -d`
     And wait until "c_controller" is up
     When I run `trema run "./print_pid c_controller"`
