@@ -1,4 +1,4 @@
-Feature: Switch Event forwarding configuration command (`dump_forward_entries`)
+Feature: "dump_forward_entries" C API example command
   
   Switch Event forwarding configuration command (`dump_forward_entries`)
   is a command to dump event forwarding entries of 

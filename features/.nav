@@ -14,6 +14,16 @@
   - version.feature
   - help.feature
 - examples:
+  - switch-event:
+    - README.md
+    - ruby-add.feature
+    - ruby-delete.feature
+    - ruby-dump.feature
+    - ruby-set.feature
+    - add_forward_entry.feature
+    - delete_forward_entry.feature
+    - dump_forward_entries.feature
+    - set_forward_entries.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
