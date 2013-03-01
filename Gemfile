@@ -21,8 +21,8 @@ group :development do
   gem "redcarpet", "~> 2.2.2"
   gem "reek", "~> 1.3.1"
   gem "relish", "~> 0.6"
-  gem "rspec", "~> 2.12.0"
-  gem "yard", "~> 0.8.4.1"
+  gem "rspec", "~> 2.13.0"
+  gem "yard", "~> 0.8.5"
 end
 
 

@@ -19,7 +19,7 @@
 
 
 class ForwardingEntry
-  include Trema::Logger
+  include DefaultLogger
 
 
   attr_reader :mac

@@ -16,10 +16,24 @@
 #
 
 
+require "trema/path"
+
+
+def wait_until_all_pid_files_are_deleted timeout = 5
+  elapsed = 0
+  loop do
+    raise "Failed to clean up remaining processes." if elapsed > timeout
+    break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
+    sleep 1
+    elapsed += 1
+  end
+end
+
+
 Before do
   @aruba_timeout_seconds = 10
   run "trema killall"
-  sleep 5
+  wait_until_all_pid_files_are_deleted
 end
 
 
@@ -30,7 +44,7 @@ end
 
 After do
   run "trema killall"
-  sleep 1
+  wait_until_all_pid_files_are_deleted
   processes.clear
 end
 

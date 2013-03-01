@@ -42,3 +42,4 @@
   - switch_manager.feature
   - packetin_filter.feature
   - trema-config.feature
+  - get_pid_by_trema_name.feature

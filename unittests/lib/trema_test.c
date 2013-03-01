@@ -833,11 +833,11 @@ test_get_executable_name() {
 
 
 /********************************************************************************
- * get_trema_process_from_name() tests.
+ * get_pid_by_trema_name() tests.
  *******************************************************************************/
 
 static void
-test_get_trema_process_from_name() {
+test_get_pid_by_trema_name() {
   char NAME[] = "test_name";
   char TEMP_DIRECTORY[] = "/tmp";
   char PID_DIRECTORY[] = "/tmp/pid";
@@ -848,7 +848,7 @@ test_get_trema_process_from_name() {
   will_return( mock_read_pid, PID );
 
   // Go
-  pid_t pid = get_trema_process_from_name( NAME );
+  pid_t pid = get_pid_by_trema_name( NAME );
   assert_true( pid == PID );
   unset_trema_tmp();
 }
@@ -990,8 +990,8 @@ main() {
     // get_executable_name() test.
     unit_test_setup_teardown( test_get_executable_name, reset_trema, reset_trema ),
 
-    // get_trema_process_from_name() test.
-    unit_test_setup_teardown( test_get_trema_process_from_name, reset_trema, reset_trema ),
+    // get_pid_by_trema_name() test.
+    unit_test_setup_teardown( test_get_pid_by_trema_name, reset_trema, reset_trema ),
 
     // terminate_trema_process() test.
     unit_test_setup_teardown( test_terminate_trema_process_when_was_found, reset_trema, reset_trema ),

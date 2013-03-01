@@ -18,11 +18,11 @@
 
 #include "checks.h"
 #include "log.h"
-#include "logger.h"
+#include "default-logger.h"
 
 
 extern VALUE mTrema;
-VALUE mLogger;
+VALUE mDefaultLogger;
 
 
 static VALUE
@@ -45,7 +45,7 @@ do_log( void ( *log_function )( const char *format, ... ), int argc, VALUE *argv
  *     additional arguments.
  */
 static VALUE
-logger_critical( int argc, VALUE *argv, VALUE self ) {
+default_logger_critical( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( critical, argc, argv ) );
 }
@@ -63,7 +63,7 @@ logger_critical( int argc, VALUE *argv, VALUE self ) {
  *     additional arguments.
  */
 static VALUE
-logger_error( int argc, VALUE *argv, VALUE self ) {
+default_logger_error( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( error, argc, argv ) );
 }
@@ -81,7 +81,7 @@ logger_error( int argc, VALUE *argv, VALUE self ) {
  *     additional arguments.
  */
 static VALUE
-logger_warn( int argc, VALUE *argv, VALUE self ) {
+default_logger_warn( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( warn, argc, argv ) );
 }
@@ -99,7 +99,7 @@ logger_warn( int argc, VALUE *argv, VALUE self ) {
  *     additional arguments.
  */
 static VALUE
-logger_notice( int argc, VALUE *argv, VALUE self ) {
+default_logger_notice( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( notice, argc, argv ) );
 }
@@ -116,7 +116,7 @@ logger_notice( int argc, VALUE *argv, VALUE self ) {
  *     additional arguments.
  */
 static VALUE
-logger_info( int argc, VALUE *argv, VALUE self ) {
+default_logger_info( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( info, argc, argv ) );
 }
@@ -133,23 +133,23 @@ logger_info( int argc, VALUE *argv, VALUE self ) {
  *     additional arguments.
  */
 static VALUE
-logger_debug( int argc, VALUE *argv, VALUE self ) {
+default_logger_debug( int argc, VALUE *argv, VALUE self ) {
   UNUSED( self );
   return( do_log( debug, argc, argv ) );
 }
 
 
 void
-Init_logger() {
+Init_default_logger() {
   mTrema = rb_define_module( "Trema" );
-  mLogger = rb_define_module_under( mTrema, "Logger" );
+  mDefaultLogger = rb_define_module_under( mTrema, "DefaultLogger" );
 
-  rb_define_method( mLogger, "critical", logger_critical, -1 );
-  rb_define_method( mLogger, "error", logger_error, -1 );
-  rb_define_method( mLogger, "warn", logger_warn, -1 );
-  rb_define_method( mLogger, "notice", logger_notice, -1 );
-  rb_define_method( mLogger, "info", logger_info, -1 );
-  rb_define_method( mLogger, "debug", logger_debug, -1 );
+  rb_define_method( mDefaultLogger, "critical", default_logger_critical, -1 );
+  rb_define_method( mDefaultLogger, "error", default_logger_error, -1 );
+  rb_define_method( mDefaultLogger, "warn", default_logger_warn, -1 );
+  rb_define_method( mDefaultLogger, "notice", default_logger_notice, -1 );
+  rb_define_method( mDefaultLogger, "info", default_logger_info, -1 );
+  rb_define_method( mDefaultLogger, "debug", default_logger_debug, -1 );
 }
 
 
