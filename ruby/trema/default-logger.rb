@@ -16,31 +16,14 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
-
-
 module Trema
-  describe Logger do
-    subject {
-      class LoggingObject
-        include Trema::Logger
-      end
-      LoggingObject.new
-    }
-
-    it { should respond_to :critical }
-    it { should respond_to :error }
-    it { should respond_to :warn }
-    it { should respond_to :notice }
-    it { should respond_to :info }
-    it { should respond_to :debug }
+  module DefaultLogger
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
