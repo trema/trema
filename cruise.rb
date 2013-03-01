@@ -317,7 +317,6 @@ end
 def run_unit_test
   test "Running unit tests ..." do
     sh "./build.rb unittests"
-    sh "./build.rb"
     sh "rake spec"
   end
   measure_coverage
@@ -326,7 +325,6 @@ end
 
 def run_acceptance_test
   test "Running acceptance tests ..." do
-    sh "./build.rb"
     sh "rake features"
   end
 end
