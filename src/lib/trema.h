@@ -53,8 +53,6 @@ static const char DEFAULT_DUMP_SERVICE_NAME[] = "dump_service";
 
 void init_trema( int *argc, char ***argv );
 void start_trema( void );
-void start_trema_up();
-void start_trema_down();
 void stop_trema( void );
 void finalize_trema( void );
 void flush( void );
