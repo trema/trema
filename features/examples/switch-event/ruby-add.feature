@@ -28,7 +28,7 @@ Feature: Ruby APIs for adding switch event forwarding entry.
   All the above APIs take result handler as Ruby block, but 
   they can be omitted if result is not necessary.  
   
-  Please see README.md for general notes on switch event forwarding Ruby APIs.
+  Please see README.md for general notes on switch event forwarding APIs.
 
   Scenario Outline: Add a switch event forwarding entry to all switches and switch manager for each event type
     Given a file named "nw_dsl.conf" with:

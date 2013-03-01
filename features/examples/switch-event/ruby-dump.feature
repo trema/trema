@@ -20,7 +20,7 @@ Feature: Ruby APIs for dumping switch event forwarding entry.
   ----
   All the above APIs take result handler as Ruby block.  
   
-  Please see README.md for general notes on switch event forwarding Ruby APIs.
+  Please see README.md for general notes on switch event forwarding APIs.
 
   Scenario Outline: Dump the specified switch's event forwarding entry for each event type
     Given a file named "nw_dsl.conf" with:
