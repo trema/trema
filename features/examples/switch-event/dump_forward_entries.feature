@@ -4,18 +4,20 @@ Feature: "dump_forward_entries" C API example command
   is a command to dump event forwarding entries of 
   Switch Manager and Switch Daemons.
   
-  The types of switch event which can be specified here are:
-   vendor, packet_in, port_stat, and state_notify.
+  The types of switch event can be forwarded are:
+  * vendor
+  * packet_in
+  * port_stat
+  * state_notify
   
-  This command can be used when: 
-  * One needs to check which controller is handling certain event type.
-  
-  This command is also a simple usage example for event_forward_interface.h C API.
-  The event_forward_interface.h API is used in topology daemon to 
+  This command is a simple usage example for event_forward_interface.h C API.
+  The event_forward_interface.h API is used in topology manager to 
   add itself to packet_in forwarding entry of all existing switch daemons and 
   switch manager to receive LLDP packets.
   By removing entry for 'topology' from some switches, it is possible to make 
-  topology daemon to map only subset of all the switches managed by trema.
+  topology manager to map only subset of all the switches managed by trema.
+  
+  Please see README.md for general notes on switch event forwarding APIs.
 
   Background: 
     Given I cd to "../../src/examples/switch_event_config/"

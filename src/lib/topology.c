@@ -556,7 +556,7 @@ maybe_start_topology_daemon( const char* service_name ) {
   if ( disable_auto_start_topology_daemon ) return;
 
   // topology daemon process check
-  if ( get_trema_process_from_name( service_name ) > 0 ) {
+  if ( get_pid_by_trema_name( service_name ) > 0 ) {
     return;
   }
   // topology daemon not running
@@ -626,7 +626,7 @@ maybe_start_topology_daemon( const char* service_name ) {
     // wait for topology daemon to start
     int try = 0;
     const int max_try = 5;
-    while ( get_trema_process_from_name( service_name ) == -1 && ++try <= max_try ) {
+    while ( get_pid_by_trema_name( service_name ) == -1 && ++try <= max_try ) {
       sleep( 1 );
     }
   }

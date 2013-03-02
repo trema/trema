@@ -16,8 +16,8 @@
  */
 
 
+#include "default-logger.h"
 #include "flow-mod.h"
-#include "logger.h"
 #include "ruby.h"
 #include "rubysig.h"
 #include "switch.h"
@@ -180,7 +180,7 @@ void
 Init_switch() {
   mTrema = rb_define_module( "Trema" );
   cSwitch = rb_define_class_under( mTrema, "Switch", rb_cObject );
-  rb_include_module( cSwitch, mLogger );
+  rb_include_module( cSwitch, mDefaultLogger );
 
   rb_define_method( cSwitch, "run!", switch_run, 0 );
   rb_define_method( cSwitch, "send_message", switch_send_message, 1 );

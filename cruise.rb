@@ -317,7 +317,6 @@ end
 def run_unit_test
   test "Running unit tests ..." do
     sh "./build.rb unittests"
-    sh "./build.rb"
     sh "rake spec"
   end
   measure_coverage
@@ -326,7 +325,6 @@ end
 
 def run_acceptance_test
   test "Running acceptance tests ..." do
-    sh "./build.rb"
     sh "rake features"
   end
 end
@@ -361,13 +359,12 @@ $options.parse! ARGV
 
 
 def init_cruise
-  $start_time = Time.now
-  sh "./build.rb distclean"
-  sh "bundle install"
+  sh "rake setup"
 end
 
 
 Blocker.start do
+  $start_time = Time.now
   cd Trema.home do
     init_cruise
     run_unit_test if not $acceptance_test_only

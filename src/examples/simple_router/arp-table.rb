@@ -19,7 +19,7 @@
 
 
 class ARPEntry
-  include Trema::Logger
+  include Trema::DefaultLogger
 
 
   attr_reader :port
