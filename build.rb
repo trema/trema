@@ -27,7 +27,7 @@ RUBY_PATH = File.join(
             )
 
 result = system "cd #{ File.dirname( __FILE__ ) } && #{ RUBY_PATH } .mono.rant #{ ARGV.join ' ' }"
-abort "#{ $0 } aborted!" unless result;
+abort "#{ $0 } aborted!" unless result
 
 
 ### Local variables:

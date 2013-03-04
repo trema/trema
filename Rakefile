@@ -16,11 +16,21 @@
 #
 
 
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
+
+
 require "rubygems"
 require "rake"
+require "trema/path"
 
+task :default => :build_trema
 
-task :default do
+directory Trema.log
+directory Trema.pid
+directory Trema.sock
+
+desc "Build Trema"
+task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
   sh "#{ Gem.ruby } ./build.rb"
 end
 
@@ -29,8 +39,8 @@ end
 # Maintenance Tasks
 ################################################################################
 
+# Generate a monolithic rant file"
 # FIXME: Remove dependency to rant
-desc "Generate a monolithic rant file"
 task "build.rb" do
   sh "rant-import --force --auto .mono.rant"
 end
@@ -53,34 +63,42 @@ end
 
 
 ################################################################################
+# Cruise
+################################################################################
+
+task :setup do
+  sh "./build.rb distclean"
+  sh "bundle update"
+  sh "bundle install"
+end
+
+
+################################################################################
 # Tests
 ################################################################################
 
-task :travis => [ :default, "spec:travis" ]
+task :travis => [ :setup, :spec ]
 
 
 begin
   require "rspec/core"
   require "rspec/core/rake_task"
 
+  task :spec => :build_trema
   RSpec::Core::RakeTask.new do | task |
     task.verbose = $trace
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--format documentation --color"
   end
 
+  task "spec:actions" => :build_trema
   RSpec::Core::RakeTask.new( "spec:actions" ) do | task |
     task.verbose = $trace
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--tag type:actions --format documentation --color"
   end
 
-  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
-    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
-    # FIXME: use --tag ~sudo
-    spec.rspec_opts = "--tag nosudo -fs -c"
-  end
-
+  task :rcov => :build_trema
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
     spec.pattern = "spec/**/*_spec.rb"
     spec.rcov = true
@@ -93,6 +111,7 @@ end
 
 begin
   require "cucumber/rake/task"
+  task :features => :build_trema
   Cucumber::Rake::Task.new( :features ) do | t |
     t.cucumber_opts = "features --tags ~@wip"
   end

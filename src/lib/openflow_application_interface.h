@@ -341,6 +341,13 @@ bool send_list_switches_request( void *user_data );
 bool delete_openflow_messages( uint64_t datapath_id );
 
 
+/********************************************************************************
+ * Function for disconnecting a switch
+ ********************************************************************************/
+
+bool disconnect_switch( uint64_t datapath_id );
+
+
 #endif // OPENFLOW_APPLICATION_INTERFACE_H
 
 

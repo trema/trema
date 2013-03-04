@@ -399,7 +399,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     snprintf( new_service_name, new_service_name_len, "%s%#" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
     // checking duplicate service
-    pid_t pid = get_trema_process_from_name( new_service_name );
+    pid_t pid = get_pid_by_trema_name( new_service_name );
     if ( pid > 0 ) {
       // duplicated
       if ( !terminate_trema_process( pid ) ) {
@@ -682,7 +682,11 @@ main( int argc, char *argv[] ) {
     error( "Failed to set connected state." );
     return -1;
   }
-  flush_secure_channel( &switch_info );
+  ret = flush_secure_channel( &switch_info );
+  if ( ret < 0 ) {
+    error( "Failed to flush secure channel. Terminating %s.", argv[ 0 ] );
+    return -1;
+  }
 
   start_trema();
 
