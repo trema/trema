@@ -21,22 +21,16 @@ class FlowManagerController < Controller
   oneshot_timer_event(:test, 3)
   
   def flow_manager_setup_reply(status, path)
-    info "path.priority:" + path.priority().inspect
-    info "path.idle:" + path.idle_timeout().inspect
-    info "path.hard_timeout:" + path.hard_timeout().inspect
-    info "path.match:" + path.match().inspect
     arrHops = path.hops()
-    info "arrHops[0].datapath_id:" + arrHops[0].datapath_id().inspect
-    info "arrHops[0].in_port:" + arrHops[0].in_port().inspect
-    info "arrHops[0].out_port:" + arrHops[0].out_port().inspect
-    info "arrHops[1].datapath_id:" + arrHops[1].datapath_id().inspect
-    info "arrHops[1].in_port:" + arrHops[1].in_port().inspect
-    info "arrHops[1].out_port:" + arrHops[1].out_port().inspect
-    info "arrHops[1].actions:" + arrHops[1].actions().inspect
+    arrHops.each do |hop|
+      info "\npath.match:" + path.match().inspect + "\npath.priority:" + path.priority().inspect + "\npath.idle:" + path.idle_timeout().inspect + "\npath.hard_timeout:" + path.hard_timeout().inspect + "\ndatapath_id:" + hop.datapath_id().inspect + "\n:in_port:" + hop.in_port().inspect + "\n:out_port:" + hop.out_port().inspect + "\n:actions:" + hop.actions().inspect
+    end
   end
   
   def flow_manager_teardown_reply(reason, path)
-    oneshot_timer_event(:shutdown, 1)
+    arrHops = path.hops()
+    info "datapath_id:" + arrHops[0].datapath_id().inspect
+    oneshot_timer_event(:shutdown, 5)
   end
   
   def switch_ready datapath_id
@@ -44,30 +38,29 @@ class FlowManagerController < Controller
   end
   
   def test
-    Array actions = [SendOutPort.new(1)]
-  	hop11 = Hop.new(0x1,2,1)
-    hop12 = Hop.new(0x2,2,1)
+    #Array actions = [SendOutPort.new(1)]
+  	hop11 = Hop.new(0x1,1,2)
+    hop12 = Hop.new(0x2,3,4)
   	match = Match.new()
-    path1 = Path.new(match, options={:idle_timeout=>10, :hard_timeout=>30})
+    path1 = Path.new(match, options={:priority => 10000, :idle_timeout=>13, :hard_timeout=>31})
     path1 << hop11
     path1.append_hop(hop12)
-
-    hop21 = Hop.new(0x1,1,2)
-    hop22 = Hop.new(0x2,1,2)
-  	match2 = Match.new(:nw_src => "192.168.0.1/32")
-    path2 = Path.new(match2, options={:idle_timeout=>10, :hard_timeout=>30}) 
-    path2 << hop21
-    path2.append_hop(hop22)
-
-  	hop31 = Hop.new(0x1,2,1)
-    hop32 = Hop.new(0x2,2,1)
-  	match3 = Match.new(:nw_src => "192.168.0.2/32")
-    path3 = Path.new(match3, options={:priority => 60000, :idle_timeout=>10, :hard_timeout=>30})
-    path3 << hop31
-    path3.append_hop(hop32)
-
     path1.setup(self)
+
+    hop21 = Hop.new(0x1,5,6)
+    hop22 = Hop.new(0x2,7,8)
+  	match2 = Match.new(:nw_src => "192.168.0.1/32")
+    path2 = Path.new(match2, options={:priority => 20000, :idle_timeout=>12, :hard_timeout=>32}) 
+    path2 << hop21
+    path2 << hop22
     path2.setup(self)
+
+  	hop31 = Hop.new(0x1,9,10)
+    hop32 = Hop.new(0x2,11,12)
+  	match3 = Match.new(:nw_src => "192.168.0.2/32")
+    path3 = Path.new(match3, options={:priority => 30000, :idle_timeout=>11, :hard_timeout=>33})
+    path3.append_hop(hop31)
+    path3.append_hop(hop32)
     path3.setup(self)
   end
 

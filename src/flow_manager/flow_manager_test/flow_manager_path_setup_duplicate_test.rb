@@ -21,13 +21,13 @@ class FlowManagerController < Controller
   oneshot_timer_event(:test, 3)
   
   def flow_manager_setup_reply(status, path)
-  	info "************************flow_manager_setup_reply********************" 
-  	info status  	
+    arrHops = path.hops()
+    arrHops.each do |hop|
+      info "\npath.match:" + path.match().inspect + "\npath.priority:" + path.priority().inspect + "\npath.idle:" + path.idle_timeout().inspect + "\npath.hard_timeout:" + path.hard_timeout().inspect + "\ndatapath_id:" + hop.datapath_id().inspect + "\n:in_port:" + hop.in_port().inspect + "\n:out_port:" + hop.out_port().inspect + "\n:actions:" + hop.actions().inspect
+    end
   end
   
   def flow_manager_teardown_reply(reason, path)
-  	info "*************************flow_manager_teardown_reply*****************" 
-  	info reason
     oneshot_timer_event(:shutdown, 1)
   end 
   
@@ -37,20 +37,14 @@ class FlowManagerController < Controller
   
   def test
   
-    Array actions = [StripVlanHeader.new, SendOutPort.new(1)]
+    Array actions = [StripVlanHeader.new]
   	hop = Hop.new(0x1,1,2, actions)
-	  Array actions2 = [StripVlanHeader.new, SendOutPort.new(2)]
-  	hop2 = Hop.new(0x2,2,3, actions2)
   	match = Match.new(:in_port => 1)
     path = Path.new(match, options={:idle_timeout=>10})
-    path2 = Path.new(match, options={:idle_timeout=>6})
     Flow_manager.append_hop_to_path(path,hop);
-  
-    puts "start setup"
     path.setup(self)
     path.setup(self)
 
-    info "*******************exit switch ready FlowManagerController*****************"
   end
 
   def shutdown

@@ -21,44 +21,36 @@ class FlowManagerController < Controller
   oneshot_timer_event(:test, 3)
   
   def flow_manager_setup_reply(status, path)
-    info "path.priority:" + path.priority().inspect
-    info "path.idle:" + path.idle_timeout().inspect
-    info "path.hard_timeout:" + path.hard_timeout().inspect
-    info "path.match:" + path.match().inspect
     arrHops = path.hops()
-    info "arrHops[0].datapath_id:" + arrHops[0].datapath_id().inspect
-    info "arrHops[0].in_port:" + arrHops[0].in_port().inspect
-    info "arrHops[0].out_port:" + arrHops[0].out_port().inspect
-    #arrAction1 = arrHops[0].actions()
-    #info "arrAction1[0].port_number():" + arrAction1[0].port_number().inspect
-    info "arrHops[1].datapath_id:" + arrHops[1].datapath_id().inspect
-    info "arrHops[1].in_port:" + arrHops[1].in_port().inspect
-    info "arrHops[1].out_port:" + arrHops[1].out_port().inspect
-    info "arrHops[1].actions:" + arrHops[1].actions().inspect
+    arrHops.each do |hop|
+      info "\npath.match:" + path.match().inspect + "\npath.priority:" + path.priority().inspect + "\npath.idle:" + path.idle_timeout().inspect + "\npath.hard_timeout:" + path.hard_timeout().inspect + "\ndatapath_id:" + hop.datapath_id().inspect + "\n:in_port:" + hop.in_port().inspect + "\n:out_port:" + hop.out_port().inspect
+      info "\n:actions:" + hop.actions().inspect
+    end
   end
   
   def flow_manager_teardown_reply(reason, path)
     oneshot_timer_event(:shutdown, 1)
   end
-
-  def features_reply datapath_id, message
-    info "***features_replay***"
-    p message.ports
-  end
-
-  def stats_reply datapath_id, message
-    info "***stats_replay***"
-    puts message.stats
-  end 
   
   def switch_ready datapath_id
  	  info "***Hello %#x from #{ ARGV[ 0 ] }!" % datapath_id
   end
   
   def test
-    Array actions = [SendOutPort.new(1)]
+    Array actions = Array.new([SendOutPort.new(:port_number => 1, :max_len => 256), 
+                  SetEthSrcAddr.new("11:22:33:44:55:66"),
+                  SetEthDstAddr.new("22:33:44:55:66:77"),
+                  SetIpSrcAddr.new("192.168.1.1"),
+                  SetIpDstAddr.new("192.168.2.1"),
+                  SetIpTos.new(32),
+                  SetTransportSrcPort.new( 5555 ),
+                  SetTransportDstPort.new( 6666 ),
+                  ActionSetVlanVid.new( 1 ),
+                  SetVlanPriority.new( 7 ),
+                  StripVlanHeader.new()
+                  ])
   	hop = Hop.new(0x1,2,1)
-    hop2 = Hop.new(0x2,2,1)
+    hop2 = Hop.new(0x2,2,1,actions)
   	match = Match.new()
     path = Path.new(match, options={:idle_timeout=>15, :hard_timeout=>30})
 
@@ -74,10 +66,3 @@ class FlowManagerController < Controller
     self.shutdown!
   end
 end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8
-### indent-tabs-mode: nil
-### End:

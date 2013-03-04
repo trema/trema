@@ -35,15 +35,6 @@ class FlowManagerController < Controller
   def switch_ready datapath_id
  	info "***Hello %#x from #{ ARGV[ 0 ] }!" % datapath_id
   end
-
-  def dump_path path
-    info "path.priority:" + path.priority().inspect
-    info "path.idle_timeout:" + path.idle_timeout().inspect
-    info "path.hard_timeout:" + path.hard_timeout().inspect
-    info "path.match:" + path.match().inspect
-    Array hops = path.hops
-    info "number of hops:" + hops.size().inspect
-  end
   
   def test
   
@@ -59,8 +50,6 @@ class FlowManagerController < Controller
     Flow_manager.append_hop_to_path(path, hop2)
     
     Flow_manager.setup(path,self)
-
-    info "*******************exit switch ready FlowManagerController*****************"
   end
 
   def shutdown

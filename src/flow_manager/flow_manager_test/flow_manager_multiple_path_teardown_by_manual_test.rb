@@ -20,55 +20,40 @@ class FlowManagerController < Controller
   include Trema::FlowManager
   oneshot_timer_event(:test, 3)
   
+  
   def flow_manager_setup_reply(status, path)
-
-    match = Match.new(:in_port => 1)
-
-    info "***lookup start"
-    
-    lookuppath = Flow_manager.lookup(0x1, match, 65535)
-
-    info "path.priority:" + path.priority().inspect
-    info "path.idle:" + path.idle_timeout().inspect
-    info "path.hard_timeout:" + path.hard_timeout().inspect
-    info "path.match:" + path.match().inspect
+    path.teardown
   end
   
   def flow_manager_teardown_reply(reason, path)
+    arrHops = path.hops()
+    arrHops.each do |hop|
+      info "\npath.match:" + path.match().inspect + "\npath.priority:" + path.priority().inspect + "\npath.idle:" + path.idle_timeout().inspect + "\npath.hard_timeout:" + path.hard_timeout().inspect + "\ndatapath_id:" + hop.datapath_id().inspect + "\n:in_port:" + hop.in_port().inspect + "\n:out_port:" + hop.out_port().inspect + "\n:actions:" + hop.actions().inspect
+    end
     oneshot_timer_event(:shutdown, 1)
   end 
   
   def switch_ready datapath_id
  	info "***Hello %#x from #{ ARGV[ 0 ] }!" % datapath_id
   end
-
-  def dump_path path
-    info "path.priority:" + path.priority().inspect
-    info "path.idle_timeout:" + path.idle_timeout().inspect
-    info "path.hard_timeout:" + path.hard_timeout().inspect
-    info "path.match:" + path.match().inspect
-    Array hops = path.hops
-    info "number of hops:" + hops.size().inspect
-  end
   
   def test
-
     Array actions = [StripVlanHeader.new, SendOutPort.new(1)]
-
-  	hop = Hop.new(0x1, 1, 2, actions)
-    hop2 = Hop.new(0x2, 2, 1)
-	
-  	match = Match.new(:in_port => 1)
-    path = Path.new(match, options={:idle_timeout=>10})
+  	hop = Hop.new(0x1,1,2, actions)
+	  Array actions2 = [StripVlanHeader.new, SendOutPort.new(2)]
+  	hop2 = Hop.new(0x2,3,4, actions2)
+  	match = Match.new()
+    path = Path.new(match, options={:idle_timeout=>30})
+    path2 = Path.new(match, options={:idle_timeout=>31})
     
-    Flow_manager.append_hop_to_path(path, hop)
-    Flow_manager.append_hop_to_path(path, hop2)
+    path.append_hop(hop);
+    path2 << hop2
     
-    Flow_manager.setup(path,self)
+    path.setup(self)
+    path2.setup(self)
   end
 
   def shutdown
     self.shutdown!
   end
 end
-

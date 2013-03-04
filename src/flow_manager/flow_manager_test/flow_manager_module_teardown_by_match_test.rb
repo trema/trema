@@ -43,15 +43,12 @@ class FlowManagerController < Controller
     hop2 = Hop.new(0x2, 2, 1)
   
     match = Match.new(:in_port => 1)
-    
     path = Path.new(match, options={:idle_timeout=>30})
     
     Flow_manager.append_hop_to_path(path, hop)
     Flow_manager.append_hop_to_path(path, hop2)
     
     Flow_manager.setup(path,self)
-
-    info "*******************exit switch ready FlowManagerController*****************"
   end
 
   def shutdown
