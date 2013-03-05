@@ -5,11 +5,11 @@ set of methods to add/remove an event forwarding entry to
 Switch Manager and Switch Daemons.
 
 These API can be used when: 
-* Adding another controller to mirror events for debugging purpose.
-* Letting a controller, which was started afterwards, to listen on existing switch's events.
-* Removing controller which was listening on events for debugging purpose.
-* Replacing the controller which is handling switch event type.
-* One needs to check which controller is handling certain event type.
+* Debugging a controller by mirroring switch events to a debugger. 
+* Letting a controller started after the switches to listen on switch events. 
+* Replacing the controller which handles certain switch event type. 
+* Checking event forwarding entries to see which controller is handling 
+  certain switch events. 
 
 The types of switch event can be forwarded are: 
 * :vendor
