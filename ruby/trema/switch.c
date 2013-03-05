@@ -172,13 +172,12 @@ switch_start_chibach( VALUE self ) {
 }
 
 
-/********************************************************************************
- * Init Switch module.
- ********************************************************************************/
-
+/*
+ * Document-class: Trema::Switch
+ */
 void
 Init_switch() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cSwitch = rb_define_class_under( mTrema, "Switch", rb_cObject );
   rb_include_module( cSwitch, mDefaultLogger );
 
