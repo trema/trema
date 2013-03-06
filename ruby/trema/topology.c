@@ -648,6 +648,9 @@ topology_send_all_switch_status( VALUE self ) {
 }
 
 
+/*
+ * Document-module: Trema::Topology
+ */
 void
 Init_topology( void ) {
   mTopology = rb_define_module_under( mTrema, "Topology" );
