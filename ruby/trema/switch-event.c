@@ -564,6 +564,9 @@ dump_forward_entries_from_switch_manager( VALUE self, VALUE type ) {
 }
 
 
+/*
+ * Document-class: Trema::SwitchEvent
+ */
 void
 Init_switch_event( void ) {
   mSwitchEvent = rb_define_module_under( mTrema, "SwitchEvent" );
