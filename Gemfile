@@ -17,6 +17,7 @@ group :development do
   gem "cucumber", "~> 1.2.1"
   gem "flay", "~> 2.1.0"
   gem "flog", "~> 3.2.2"
+  gem "popen4", "~> 0.1.2"
   gem "rcov", "~> 1.0.0"
   gem "redcarpet", "~> 2.2.2"
   gem "reek", "~> 1.3.1"
