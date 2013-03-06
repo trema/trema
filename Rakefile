@@ -40,6 +40,7 @@ end
 ################################################################################
 
 require "rake/c/library-task"
+require "trema/version"
 
 
 CFLAGS = [
