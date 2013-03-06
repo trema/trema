@@ -36,6 +36,80 @@ end
 
 
 ################################################################################
+# Build libtrema.{a,so}
+################################################################################
+
+require "rake/c/library-task"
+require "trema/version"
+
+
+CFLAGS = [
+  "-g",
+  "-std=gnu99",
+  "-D_GNU_SOURCE",
+  "-fno-strict-aliasing",
+  "-Werror",
+  "-Wall",
+  "-Wextra",
+  "-Wformat=2",
+  "-Wcast-qual",
+  "-Wcast-align",
+  "-Wwrite-strings",
+  "-Wconversion",
+  "-Wfloat-equal",
+  "-Wpointer-arith",
+]
+
+
+desc "Build trema library (static library)."
+task "libtrema:static" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:static" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+desc "Build trema library (coverage)."
+task "libtrema:gcov" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:gcov" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = File.join( Trema.objects, "unittests" )
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = [ "--coverage" ] + CFLAGS
+end
+
+
+desc "Build trema library (shared library)."
+task "libtrema:shared" => "vendor:openflow"
+Rake::C::SharedLibraryTask.new "libtrema:shared" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.version = Trema::VERSION
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+################################################################################
+# Extract OpenFlow reference implementation
+################################################################################
+
+task "vendor:openflow" => Trema.openflow_h
+file Trema.openflow_h => Trema.objects do
+  sh "tar xzf #{ Trema.vendor_openflow }.tar.gz -C #{ Trema.vendor }"
+  cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
+end
+directory Trema.objects
+
+CLOBBER.include File.join( Trema.objects, "openflow" )
+
+
+################################################################################
 # Maintenance Tasks
 ################################################################################
 
