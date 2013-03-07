@@ -113,6 +113,50 @@ CLOBBER.include File.join( Trema.vendor_openflow )
 
 
 ################################################################################
+# Build phost
+################################################################################
+
+task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
+
+def phost_src
+  File.join Trema.vendor_phost, "src"
+end
+
+file Trema::Executables.phost do
+  cd phost_src do
+    sh "make"
+  end
+  mkdir_p File.dirname( Trema::Executables.phost )
+  install File.join( phost_src, "phost" ), Trema::Executables.phost, :mode => 0755
+end
+
+file Trema::Executables.cli do
+  cd phost_src do
+    sh "make"
+  end
+  mkdir_p File.dirname( Trema::Executables.cli )
+  install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
+end
+
+CLEAN.include FileList[ File.join( phost_src, "*.o" ) ]
+CLEAN.include File.join( phost_src, "phost" )
+CLEAN.include File.join( phost_src, "cli" )
+CLOBBER.include Trema.phost
+
+
+################################################################################
+# Build vendor/*
+################################################################################
+
+task :vendor => [
+  "vendor:oflops",
+  "vendor:openflow",
+  "vendor:openvswitch",
+  "vendor:phost",
+]
+
+
+################################################################################
 # Build Open vSwitch
 ################################################################################
 
@@ -126,7 +170,8 @@ file Trema::Executables.ovs_openflowd do
   end
 end
 
-CLOBBER.include Trema.vendor_openvswitch
+CLEAN.include Trema.vendor_openvswitch
+CLOBBER.include Trema.openvswitch
 
 
 ################################################################################
@@ -163,7 +208,8 @@ file Trema.libcmockery_a do
   end
 end
 
-CLOBBER.include Trema.vendor_cmockery
+CLEAN.include Trema.vendor_cmockery
+CLOBBER.include Trema.cmockery
 
 
 ################################################################################
