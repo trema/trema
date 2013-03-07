@@ -193,9 +193,12 @@ error_code( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::Error
+ */
 void
 Init_error() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   rb_define_const( mTrema, "OFPET_HELLO_FAILED", INT2NUM( OFPET_HELLO_FAILED ) );
   rb_define_const( mTrema, "OFPHFC_INCOMPATIBLE", INT2NUM( OFPHFC_INCOMPATIBLE ) );
   rb_define_const( mTrema, "OFPHFC_EPERM", INT2NUM( OFPHFC_EPERM ) );

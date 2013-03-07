@@ -68,7 +68,7 @@ features_reply_alloc( VALUE klass ) {
  *   @option options [Number] :actions
  *     supported actions expressed as a 32-bit bitmap.
  *   @option options [Port] :port
- *     an array of {Port} objects detailing physical port description and function.
+ *     an array of {Port} objects detailing port description and function.
  *   @return [FeaturesReply]
  */
 static VALUE
@@ -116,8 +116,6 @@ features_reply_init( VALUE self, VALUE options ) {
   if ( tmp != Qnil ) {
     features_reply->actions = htonl( ( uint32_t ) NUM2UINT( tmp ) );
   }
-
-  // TODO: ports
 
   rb_iv_set( self, "@attribute", options );
 
@@ -203,7 +201,7 @@ features_reply_actions( VALUE self ) {
 
 
 /*
- * An array of {Port} objects detailing physical port description and function.
+ * An array of {Port} objects detailing port description and function.
  *
  * @return [Array<Port>] the value of ports.
  */
@@ -213,9 +211,23 @@ features_reply_ports( VALUE self ) {
 }
 
 
+/*
+ * An array of {Port} objects detailing physical port description and function.
+ *
+ * @return [Array<Port>] the value of ports.
+ */
+static VALUE
+features_reply_physical_ports( VALUE self ) {
+  return rb_hash_aref( rb_iv_get( self, "@attribute" ), ID2SYM( rb_intern( "physical_ports" ) ) );
+}
+
+
+/*
+ * Document-class: Trema::FeaturesReply
+ */
 void
 Init_features_reply() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cFeaturesReply = rb_define_class_under( mTrema, "FeaturesReply", rb_cObject );
   rb_define_alloc_func( cFeaturesReply, features_reply_alloc );
   rb_define_method( cFeaturesReply, "initialize", features_reply_init, 1 );
@@ -227,6 +239,7 @@ Init_features_reply() {
   rb_define_method( cFeaturesReply, "capabilities", features_reply_capabilities, 0 );
   rb_define_method( cFeaturesReply, "actions", features_reply_actions, 0 );
   rb_define_method( cFeaturesReply, "ports", features_reply_ports, 0 );
+  rb_define_method( cFeaturesReply, "physical_ports", features_reply_physical_ports, 0 );
 }
 
 
@@ -242,17 +255,29 @@ handle_switch_ready( uint64_t datapath_id, void *controller ) {
  * Extract and map {Port} to +ofp_phy_port+ structure.
  */
 static VALUE
-ports_from( const list_element *phy_ports ) {
+ports_from( const list_element *c_ports ) {
   VALUE ports = rb_ary_new();
 
+  if ( c_ports == NULL ) {
+    return ports;
+  }
+
   list_element *port_head = xmalloc( sizeof( list_element ) );
-  memcpy( port_head, phy_ports, sizeof( list_element ) );
+  memcpy( port_head, c_ports, sizeof( list_element ) );
   list_element *port = NULL;
   for ( port = port_head; port != NULL; port = port->next ) {
     rb_ary_push( ports, port_from( ( struct ofp_phy_port * ) port->data ) );
   }
   xfree( port_head );
   return ports;
+}
+
+
+static void
+append_physical_port( void *port, void *physical_ports ) {
+  if ( ( ( struct ofp_phy_port * ) port )->port_no <= OFPP_MAX ) {
+    append_to_tail( ( list_element ** ) physical_ports, port );
+  }
 }
 
 
@@ -264,7 +289,7 @@ handle_features_reply(
   uint8_t n_tables,
   uint32_t capabilities,
   uint32_t actions,
-  const list_element *phy_ports,
+  const list_element *ports,
   void *controller
 ) {
   if ( rb_respond_to( ( VALUE ) controller, rb_intern( "features_reply" ) ) == Qfalse ) {
@@ -278,7 +303,16 @@ handle_features_reply(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "n_tables" ) ), UINT2NUM( n_tables ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "capabilities" ) ), UINT2NUM( capabilities ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "actions" ) ), UINT2NUM( actions ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( phy_ports ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( ports ) );
+
+  list_element *tmp_ports = xmalloc( sizeof( list_element ) );
+  memcpy( tmp_ports, ports, sizeof( list_element ) );
+  list_element *physical_ports = xmalloc( sizeof( list_element ) );
+  create_list( &physical_ports );
+  iterate_list( tmp_ports, append_physical_port, &physical_ports );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "physical_ports" ) ), ports_from( physical_ports ) );
+  xfree( physical_ports );
+  xfree( tmp_ports );
 
   VALUE features_reply = rb_funcall( cFeaturesReply, rb_intern( "new" ), 1, attributes );
   rb_funcall( ( VALUE ) controller, rb_intern( "features_reply" ), 2, ULL2NUM( datapath_id ), features_reply );

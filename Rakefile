@@ -16,21 +16,105 @@
 #
 
 
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
+
+
 require "rubygems"
 require "rake"
+require "trema/path"
 
+task :default => :build_trema
 
-task :default do
+directory Trema.log
+directory Trema.pid
+directory Trema.sock
+
+desc "Build Trema"
+task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
   sh "#{ Gem.ruby } ./build.rb"
 end
+
+
+################################################################################
+# Build libtrema.{a,so}
+################################################################################
+
+require "rake/c/library-task"
+require "trema/version"
+
+
+CFLAGS = [
+  "-g",
+  "-std=gnu99",
+  "-D_GNU_SOURCE",
+  "-fno-strict-aliasing",
+  "-Werror",
+  "-Wall",
+  "-Wextra",
+  "-Wformat=2",
+  "-Wcast-qual",
+  "-Wcast-align",
+  "-Wwrite-strings",
+  "-Wconversion",
+  "-Wfloat-equal",
+  "-Wpointer-arith",
+]
+
+
+desc "Build trema library (static library)."
+task "libtrema:static" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:static" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+desc "Build trema library (coverage)."
+task "libtrema:gcov" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:gcov" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = File.join( Trema.objects, "unittests" )
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = [ "--coverage" ] + CFLAGS
+end
+
+
+desc "Build trema library (shared library)."
+task "libtrema:shared" => "vendor:openflow"
+Rake::C::SharedLibraryTask.new "libtrema:shared" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.version = Trema::VERSION
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+################################################################################
+# Extract OpenFlow reference implementation
+################################################################################
+
+task "vendor:openflow" => Trema.openflow_h
+file Trema.openflow_h => Trema.objects do
+  sh "tar xzf #{ Trema.vendor_openflow }.tar.gz -C #{ Trema.vendor }"
+  cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
+end
+directory Trema.objects
+
+CLOBBER.include File.join( Trema.objects, "openflow" )
 
 
 ################################################################################
 # Maintenance Tasks
 ################################################################################
 
+# Generate a monolithic rant file"
 # FIXME: Remove dependency to rant
-desc "Generate a monolithic rant file"
 task "build.rb" do
   sh "rant-import --force --auto .mono.rant"
 end
@@ -53,34 +137,42 @@ end
 
 
 ################################################################################
+# Cruise
+################################################################################
+
+task :setup do
+  sh "./build.rb distclean"
+  sh "bundle update"
+  sh "bundle install"
+end
+
+
+################################################################################
 # Tests
 ################################################################################
 
-task :travis => [ :default, "spec:travis" ]
+task :travis => [ :setup, :spec ]
 
 
 begin
   require "rspec/core"
   require "rspec/core/rake_task"
 
+  task :spec => :build_trema
   RSpec::Core::RakeTask.new do | task |
     task.verbose = $trace
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--format documentation --color"
   end
 
+  task "spec:actions" => :build_trema
   RSpec::Core::RakeTask.new( "spec:actions" ) do | task |
     task.verbose = $trace
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--tag type:actions --format documentation --color"
   end
 
-  RSpec::Core::RakeTask.new( "spec:travis" ) do | spec |
-    spec.pattern = FileList[ "spec/**/*_spec.rb" ]
-    # FIXME: use --tag ~sudo
-    spec.rspec_opts = "--tag nosudo -fs -c"
-  end
-
+  task :rcov => :build_trema
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
     spec.pattern = "spec/**/*_spec.rb"
     spec.rcov = true
@@ -93,6 +185,7 @@ end
 
 begin
   require "cucumber/rake/task"
+  task :features => :build_trema
   Cucumber::Rake::Task.new( :features ) do | t |
     t.cucumber_opts = "features --tags ~@wip"
   end

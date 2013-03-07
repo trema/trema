@@ -118,9 +118,12 @@ port_status_phy_port( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::PortStatus
+ */
 void
 Init_port_status() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cPortStatus = rb_define_class_under( mTrema, "PortStatus", rb_cObject );
 
   rb_define_const( cPortStatus, "OFPPR_ADD", INT2NUM( OFPPR_ADD ) );
@@ -134,6 +137,7 @@ Init_port_status() {
   rb_alias( cPortStatus, rb_intern( "xid" ), rb_intern( "transaction_id" ) );
   rb_define_method( cPortStatus, "reason", port_status_reason, 0 );
   rb_define_method( cPortStatus, "phy_port", port_status_phy_port, 0 );
+  rb_alias( cPortStatus, rb_intern( "port" ), rb_intern( "phy_port" ) );
 
   rb_require( "trema/port-status-add" );
   rb_require( "trema/port-status-delete" );

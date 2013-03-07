@@ -594,6 +594,22 @@ packet_in_ipv4_daddr( VALUE self ) {
 
 
 /*
+ * Is it a LLDP packet?
+ *
+ * @return [Boolean] whether the packet is a LLDP packet or not.
+ */
+static VALUE
+packet_in_is_lldp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_LLDP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
  * Is it an ICMPv4 packet?
  *
  * @return [Boolean] whether the packet is an ICMPv4 packet or not.
@@ -1076,11 +1092,14 @@ packet_in_udp_checksum( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::PacketIn
+ */
 void
 Init_packet_in() {
   rb_require( "trema/ip" );
   rb_require( "trema/mac" );
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );
 
@@ -1103,6 +1122,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "vtag?", packet_in_is_vtag, 0 );
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
+  rb_define_method( cPacketIn, "lldp?", packet_in_is_lldp, 0 );
   rb_define_method( cPacketIn, "icmpv4?", packet_in_is_icmpv4, 0 );
   rb_define_method( cPacketIn, "igmp?", packet_in_is_igmp, 0 );
   rb_define_method( cPacketIn, "tcp?", packet_in_is_tcp, 0 );

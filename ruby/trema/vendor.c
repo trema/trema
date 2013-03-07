@@ -175,9 +175,12 @@ vendor_data( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::Vendor
+ */
 void
 Init_vendor() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cVendor = rb_define_class_under( mTrema, "Vendor", rb_cObject );
   rb_define_alloc_func( cVendor, vendor_alloc );
   rb_define_method( cVendor, "initialize", vendor_init, -1 );
