@@ -130,6 +130,27 @@ CLOBBER.include Trema.vendor_openvswitch
 
 
 ################################################################################
+# Build oflops
+################################################################################
+
+def cbench_command
+  File.join Trema.objects, "oflops/bin/cbench"
+end
+
+task "vendor:oflops" => cbench_command
+file cbench_command => Trema.openflow_h do
+  sh "tar xzf #{ Trema.vendor_oflops }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_oflops do
+    sh "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
+    sh "make install"
+  end
+end
+
+CLOBBER.include Trema.oflops
+CLOBBER.include Trema.vendor_oflops
+
+
+################################################################################
 # Maintenance Tasks
 ################################################################################
 
