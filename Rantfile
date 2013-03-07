@@ -217,9 +217,8 @@ task :vendor => [
 ]
 
 task :distclean => [
-  "vendor:cmockery:distclean",
   "vendor:phost:distclean",
-  "clobber"
+  :clobber
 ]
 
 
@@ -330,15 +329,7 @@ end
 
 task "vendor:cmockery" => Trema.libcmockery_a
 file Trema.libcmockery_a do
-  sys.unpack_tgz "#{ Trema.vendor_cmockery }.tar.gz", :in => Trema.vendor
-  sys.cd Trema::vendor_cmockery do
-    sys "./configure --prefix=#{ Trema.cmockery }"
-    sys "make install"
-  end
-end
-
-task "vendor:cmockery:distclean" do
-  sys.rm_rf Trema.vendor_cmockery
+  sys "rake vendor:cmockery"
 end
 
 
