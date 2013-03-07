@@ -365,19 +365,6 @@ end
 # Build libtrema.{a,so}
 ################################################################################
 
-task dependency( "libtrema" ) => "vendor:openflow"
-gen C::Dependencies, dependency( "libtrema" ),
-  :search => [ Trema.include, objects( "openflow" ) ],
-  :sources => sys[ "#{ Trema.include }/*.{c,h}" ]
-
-gen Action do
-  source dependency( "libtrema" )
-end
-
-
-gen Directory, Trema.lib
-gen Directory, "#{ Trema.home }/objects/unittests"
-
 libtrema = File.join( Trema.lib, "libtrema.a" )
 libtrema_so = File.join( Trema.lib, "libtrema.so." ) + Trema::VERSION
 libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
@@ -849,7 +836,7 @@ end
 libtrema_unit_tests.keys.each do | each |
   target = "unittests/objects/#{ each }"
 
-  task :build_old_unittests => target
+  task :build_old_unittests => [ "vendor:openflow", target ]
   task target => "vendor:cmockery"
   file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
     sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lsqlite3 -ldl -lpthread --coverage --static"
@@ -886,7 +873,7 @@ end
 
 tests.each do | each |
   task :build_unittests => [ "libtrema:gcov", each ]
-  task each => [ "libtrema:gcov", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
+  task each => [ "libtrema:gcov", "vendor:cmockery", "objects/unittests/cmockery_trema.o" ]
   file each => "unittests/lib/#{ File.basename each }.c" do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ Trema.include } -I#{ Trema.openflow } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
     sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
