@@ -41,6 +41,7 @@ module Rake
       def define
         CLEAN.include objects
         CLOBBER.include target_directory
+        CLOBBER.include Dependency.path( @library_name )
 
         task name => [ target_directory, target_path ]
         directory target_directory
