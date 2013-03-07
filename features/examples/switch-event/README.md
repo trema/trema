@@ -7,7 +7,7 @@ This API can be used when:
 
 * Diagnose Controller environment:
     * Check which controller is handling the messages for a certain switch. 
-    * Forward a copy of message to another user-defined controller 
+    * Forward a copy of a message to another user-defined controller 
       for debug level logging, etc. 
 * Dynamically change configuration:
     * Add/Remove a controller on a running network setup. 
@@ -16,7 +16,7 @@ This API can be used when:
 Switch events, OpenFlow messages sent from switches on various types of events, 
 are forwarded to Controllers based on the event forwarding entries of 
 each Switch Daemons.  
-Initial forwarding entries of a Switch Daemons is derived from the 
+Initial forwarding entries of a Switch Daemon are derived from the 
 forwarding entries of the Switch Manager, when a switch first connects to trema. 
 
 In other words, configuring Switch Daemon will change the behavior of 
