@@ -216,14 +216,20 @@ task :vendor => [
   "vendor:phost",
 ]
 
-task :distclean => [
-  "vendor:phost:distclean",
-  :clobber
-]
-
+task :distclean => :clobber
 
 task :clobber do
   sys "rake clobber"
+end
+
+
+#
+# oflops
+#
+
+task "vendor:oflops" => cbench_command
+file cbench_command => Trema.openflow_h do
+  sys "rake vendor:oflops"
 end
 
 
@@ -236,6 +242,25 @@ gen Directory, Trema.objects
 task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h do
   sys "rake vendor:openflow"
+end
+
+
+#
+# Open vSwitch
+#
+
+task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
+file Trema::Executables.ovs_openflowd do
+  sys "rake vendor:openvswitch"
+end
+
+
+#
+# phost
+#
+
+task "vendor:phost" do
+  sys "rake vendor:phost"
 end
 
 
@@ -262,64 +287,6 @@ end
 task "openflow_wireshark_plugin:clean" => "openflow_wireshark_plugin:distclean"
 task "openflow_wireshark_plugin:distclean" do
   sys.rm_rf Trema.vendor_openflow_git
-end
-
-
-#
-# Open vSwitch
-#
-
-task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
-file Trema::Executables.ovs_openflowd do
-  sys "rake vendor:openvswitch"
-end
-
-
-#
-# oflops
-#
-
-task "vendor:oflops" => cbench_command
-file cbench_command => Trema.openflow_h do
-  sys "rake vendor:oflops"
-end
-
-
-#
-# phost
-#
-
-def phost_src
-  File.join Trema.vendor_phost, "src"
-end
-
-
-task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
-
-file Trema::Executables.phost do
-  sys.cd phost_src do
-    sys "make"
-  end
-  sys.mkdir_p File.dirname( Trema::Executables.phost )
-  sys.install File.join( phost_src, "phost" ), Trema::Executables.phost, :mode => 0755
-end
-
-file Trema::Executables.cli do
-  sys.cd phost_src do
-    sys "make"
-  end
-  sys.mkdir_p File.dirname( Trema::Executables.cli )
-  sys.install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
-end
-
-task "vendor:phost:distclean" do
-  begin
-    sys.cd phost_src do
-      sys "make clean"
-    end
-  rescue
-    # ignore.
-  end
 end
 
 
