@@ -209,27 +209,14 @@ end
 import "sys/tgz"
 
 
-task :vendor => [
-  "vendor:oflops",
-  "vendor:openflow",
-  "vendor:openvswitch",
-  "vendor:phost",
-]
+task :vendor do
+  sys "rake vendor"
+end
 
 task :distclean => :clobber
 
 task :clobber do
   sys "rake clobber"
-end
-
-
-#
-# oflops
-#
-
-task "vendor:oflops" => cbench_command
-file cbench_command => Trema.openflow_h do
-  sys "rake vendor:oflops"
 end
 
 
@@ -242,25 +229,6 @@ gen Directory, Trema.objects
 task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h do
   sys "rake vendor:openflow"
-end
-
-
-#
-# Open vSwitch
-#
-
-task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
-file Trema::Executables.ovs_openflowd do
-  sys "rake vendor:openvswitch"
-end
-
-
-#
-# phost
-#
-
-task "vendor:phost" do
-  sys "rake vendor:phost"
 end
 
 
