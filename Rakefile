@@ -146,8 +146,24 @@ file cbench_command => Trema.openflow_h do
   end
 end
 
-CLOBBER.include Trema.oflops
+CLEAN.include Trema.oflops
 CLOBBER.include Trema.vendor_oflops
+
+
+################################################################################
+# cmockery
+################################################################################
+
+task "vendor:cmockery" => Trema.libcmockery_a
+file Trema.libcmockery_a do
+  sh "tar xzf #{ Trema.vendor_cmockery }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_cmockery do
+    sh "./configure --prefix=#{ Trema.cmockery }"
+    sh "make install"
+  end
+end
+
+CLOBBER.include Trema.vendor_cmockery
 
 
 ################################################################################
