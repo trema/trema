@@ -23,7 +23,12 @@ module Rake
 
 
       def self.dump_of name
-        @@store[ name ] ||= PStore.new( File.join Trema.home, ".#{ name }.depends" )
+        @@store[ name ] ||= PStore.new( path( name ) )
+      end
+
+
+      def self.path name
+        File.join Trema.home, ".#{ name }.depends"
       end
     end
   end
