@@ -218,7 +218,6 @@ task :vendor => [
 
 task :distclean => [
   "vendor:cmockery:distclean",
-  "vendor:oflops:distclean",
   "vendor:phost:distclean",
   "clobber"
 ]
@@ -283,15 +282,7 @@ end
 
 task "vendor:oflops" => cbench_command
 file cbench_command => Trema.openflow_h do
-  sys.unpack_tgz "#{ Trema.vendor_oflops }.tar.gz", :in => Trema.vendor
-  sys.cd Trema.vendor_oflops do
-    sys "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
-    sys "make install"
-  end
-end
-
-task "vendor:oflops:distclean" do
-  sys.rm_rf Trema.vendor_oflops
+  sys "rake vendor:oflops"
 end
 
 
