@@ -40,6 +40,7 @@ task :default => [
   :rubylib,
   :switch_manager,
   :switch,
+  :flow_manager,
   :packetin_filter,
   :tremashark,
   :packet_capture,
@@ -64,6 +65,7 @@ task :examples => [
   "examples:switch_info",
   "examples:switch_monitor",
   "examples:traffic_monitor",
+  "examples:flow_manager_example",
 ]
 
 
@@ -330,6 +332,38 @@ file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
   sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
 end
 
+################################################################################
+# Build flow_manager & libpath.a
+################################################################################
+
+flow_manager_objects_dir = objects( "flow_manager" )
+
+gen C::Dependencies, dependency( "flow_manager" ),
+  :search => [ "src/flow_manager", Trema.include ], :sources => sys[ "src/flow_manager/*.c" ]
+
+gen Action do
+  source dependency( "flow_manager" )
+end
+
+gen Directory, flow_manager_objects_dir
+
+gen DirectedRule, flow_manager_objects_dir => [ "src/flow_manager" ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+flow_manager_objects = [
+  #"flow_manager_interface.o",
+  "flow_manager.o",
+].collect do | each |
+  File.join flow_manager_objects_dir, each
+end
+
+desc "Build flow_manager."
+task :flow_manager => Trema::Executables.flow_manager
+file Trema::Executables.flow_manager => flow_manager_objects + [ libtrema ] do | t |
+  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+end
 
 ################################################################################
 # Build packetin filter
@@ -486,6 +520,7 @@ standalone_examples = [
   "switch_info",
   "switch_monitor",
   "traffic_monitor",
+  "flow_manager_example",
 ]
 
 standalone_examples.each do | each |
@@ -714,6 +749,7 @@ tests = [
   "objects/unittests/message_queue_test",
   "objects/unittests/management_interface_test",
   "objects/unittests/management_service_interface_test",
+  "objects/unittests/path_test",
 ]
 
 

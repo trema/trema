@@ -89,6 +89,7 @@ class Trema::Executables
   path "tremashark/stdin_relay"
   path "tremashark/syslog_relay"
   path "tremashark/tremashark"
+  path "flow_manager/flow_manager"
 end
 
 

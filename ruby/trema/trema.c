@@ -46,7 +46,9 @@
 #include "stats-request.h"
 #include "switch.h"
 #include "vendor.h"
-
+#include "flow-manager-hop.h"
+#include "flow-manager-path.h"
+#include "flow-manager-module.h"
 
 VALUE mTrema;
 
@@ -109,6 +111,9 @@ Init_trema() {
   Init_stats_request();
   Init_switch();
   Init_vendor();
+  Init_hop();
+  Init_path();
+  Init_flow_manager_module();
 
   rb_require( "trema/exact-match" );
 }

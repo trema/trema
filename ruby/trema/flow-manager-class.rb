@@ -14,44 +14,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+require "trema/executables"
+require "singleton"
 
+module Trema
+  class FlowManagerClass    
+    include Singleton
 
-require "trema/path"
-
-
-def wait_until_all_pid_files_are_deleted timeout = 10
-  elapsed = 0
-  loop do
-    raise "Failed to clean up remaining processes." if elapsed > timeout
-    break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
-    sleep 1
-    elapsed += 1
+    def initialize
+      pid_file = Trema.pid+"/flow_manager.pid"
+      unless File.exist?(pid_file)
+        sh "#{ Trema::Executables.flow_manager } --daemonize"
+      else
+        puts "flow_manager is already runnning"
+      end
+    end
   end
-  sleep 1
 end
-
-
-Before do
-  @aruba_timeout_seconds = 10
-  run "trema killall"
-  wait_until_all_pid_files_are_deleted
-end
-
-
-Before( "@slow_process" ) do
-  @aruba_io_wait_seconds = 1
-end
-
-
-After do
-  run "trema killall"
-  wait_until_all_pid_files_are_deleted
-  processes.clear
-end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8-unix
-### indent-tabs-mode: nil
-### End:
