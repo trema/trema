@@ -124,7 +124,6 @@ var :CFLAGS => "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -
 # Run cbench benchmarks.
 ################################################################################
 
-
 def cbench_command
   File.join Trema.objects, "oflops/bin/cbench"
 end
@@ -220,10 +219,14 @@ task :vendor => [
 task :distclean => [
   "vendor:cmockery:distclean",
   "vendor:oflops:distclean",
-  "vendor:openflow:distclean",
-  "vendor:openvswitch:distclean",
   "vendor:phost:distclean",
+  "clobber"
 ]
+
+
+task :clobber do
+  sys "rake clobber"
+end
 
 
 #
@@ -235,10 +238,6 @@ gen Directory, Trema.objects
 task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h do
   sys "rake vendor:openflow"
-end
-
-task "vendor:openflow:distclean" do
-  sys.rm_rf Trema.vendor_openflow
 end
 
 
@@ -274,16 +273,7 @@ end
 
 task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
 file Trema::Executables.ovs_openflowd do
-  sys.unpack_tgz "#{ Trema.vendor_openvswitch }.tar.gz", :in => Trema.vendor
-  sys.cd Trema.vendor_openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock }"
-    sys "make install"
-    sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
-  end
-end
-
-task "vendor:openvswitch:distclean" do
-  sys.rm_rf Trema.vendor_openvswitch
+  sys "rake vendor:openvswitch"
 end
 
 

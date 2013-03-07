@@ -21,7 +21,9 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
 
 require "rubygems"
 require "rake"
+require "trema/executables"
 require "trema/path"
+
 
 task :default => :build_trema
 
@@ -107,6 +109,24 @@ end
 directory Trema.objects
 
 CLOBBER.include File.join( Trema.objects, "openflow" )
+CLOBBER.include File.join( Trema.vendor_openflow )
+
+
+################################################################################
+# Build Open vSwitch
+################################################################################
+
+task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
+file Trema::Executables.ovs_openflowd do
+  sh "tar xzf #{ Trema.vendor_openvswitch }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_openvswitch do
+    sh "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock }"
+    sh "make install"
+    cp "./tests/test-openflowd", Trema::Executables.ovs_openflowd
+  end
+end
+
+CLOBBER.include Trema.vendor_openvswitch
 
 
 ################################################################################
