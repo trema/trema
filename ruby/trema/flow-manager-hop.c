@@ -286,6 +286,9 @@ static VALUE create_Hop(VALUE klass)
 	return rHop;
 }
 
+/*
+ * Document-class: Trema::Hop
+ */
 void Init_hop()
 {
 	cHop = rb_define_class_under(mTrema, "Hop", rb_cObject);

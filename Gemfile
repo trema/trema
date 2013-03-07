@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+source "http://rubygems.org"
 
 
 # Include dependencies from trema.gemspec. DRY!
@@ -14,7 +14,7 @@ gemspec
 # Include everything needed to run rake, tests, features, etc.
 group :development do
   gem "aruba", "~> 0.5.1"
-  gem "cucumber", "~> 1.2.1"
+  gem "cucumber", "1.2.1"
   gem "flay", "~> 2.1.0"
   gem "flog", "~> 3.2.2"
   gem "popen4", "~> 0.1.2"

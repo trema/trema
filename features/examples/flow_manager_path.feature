@@ -125,7 +125,8 @@ Feature: flow manager path class function
       """
     Then the file "tmp/log/FlowManagerController.log" should contain "path.match:wildcards = 0x3820ff(all), in_port = 0, dl_src = 00:00:00:00:00:00, dl_dst = 00:00:00:00:00:00, dl_vlan = 0, dl_vlan_pcp = 0, dl_type = 0, nw_tos = 0, nw_proto = 0, nw_src = 0.0.0.0/0, nw_dst = 0.0.0.0/0, tp_src = 0, tp_dst = 0"
     Then the file "tmp/log/FlowManagerController.log" should contain "Trema::SendOutPort"
-    Then the file "tmp/log/FlowManagerController.log" should contain "@port_number=1, @max_len=256"
+    Then the file "tmp/log/FlowManagerController.log" should contain "@port_number=1"
+    Then the file "tmp/log/FlowManagerController.log" should contain "@max_len=256"
     Then the file "tmp/log/FlowManagerController.log" should contain "Trema::SetEthSrcAddr"
     Then the file "tmp/log/FlowManagerController.log" should contain: 
     """

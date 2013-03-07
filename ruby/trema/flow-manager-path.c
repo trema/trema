@@ -417,6 +417,9 @@ static VALUE create_Path(VALUE klass)
     return rPath;
 }
 
+/*
+ * Document-class: Trema::Path
+ */
 void Init_path()
 {
 	cPath = rb_define_class_under(mTrema, "Path", rb_cObject);

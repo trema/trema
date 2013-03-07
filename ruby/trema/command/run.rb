@@ -34,9 +34,6 @@ module Trema
       if options[ :tremashark ]
         $use_tremashark = true
       end
-      if options[ :flowmanager ]
-        $use_flowmanager = true
-      end
 
       need_cleanup = ( not running? )
 

@@ -378,6 +378,9 @@ static VALUE finalize_flow_manager(VALUE self)
   return Qfalse;
 }
 
+/*
+ * Document-module: Trema::Flow_manager
+ */
 void Init_flow_manager_module()
 {
     mFlowManager = rb_define_module_under(mTrema, "Flow_manager");
