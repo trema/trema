@@ -620,7 +620,7 @@ test_get_checksum_icmp_packet() {
 
 static void
 test_xfree_data() {
-  void* mem = xmalloc( 123 );
+  void *mem = xmalloc( 123 );
   xfree_data( mem, NULL );
 }
 
