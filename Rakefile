@@ -21,7 +21,9 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
 
 require "rubygems"
 require "rake"
+require "trema/executables"
 require "trema/path"
+
 
 task :default => :build_trema
 
@@ -32,6 +34,262 @@ directory Trema.sock
 desc "Build Trema"
 task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
   sh "#{ Gem.ruby } ./build.rb"
+end
+
+
+################################################################################
+# Build libtrema.{a,so}
+################################################################################
+
+require "rake/c/library-task"
+require "trema/version"
+
+
+CFLAGS = [
+  "-g",
+  "-std=gnu99",
+  "-D_GNU_SOURCE",
+  "-fno-strict-aliasing",
+  "-Werror",
+  "-Wall",
+  "-Wextra",
+  "-Wformat=2",
+  "-Wcast-qual",
+  "-Wcast-align",
+  "-Wwrite-strings",
+  "-Wconversion",
+  "-Wfloat-equal",
+  "-Wpointer-arith",
+]
+
+
+desc "Build trema library (static library)."
+task "libtrema:static" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:static" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+desc "Build trema library (coverage)."
+task "libtrema:gcov" => "vendor:openflow"
+Rake::C::StaticLibraryTask.new "libtrema:gcov" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = File.join( Trema.objects, "unittests" )
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = [ "--coverage" ] + CFLAGS
+end
+
+
+desc "Build trema library (shared library)."
+task "libtrema:shared" => "vendor:openflow"
+Rake::C::SharedLibraryTask.new "libtrema:shared" do | task |
+  task.library_name = "libtrema"
+  task.target_directory = Trema.lib
+  task.version = Trema::VERSION
+  task.sources = "#{ Trema.include }/*.c"
+  task.includes = [ Trema.openflow ]
+  task.cflags = CFLAGS
+end
+
+
+################################################################################
+# Extract OpenFlow reference implementation
+################################################################################
+
+task "vendor:openflow" => Trema.openflow_h
+file Trema.openflow_h => Trema.objects do
+  sh "tar xzf #{ Trema.vendor_openflow }.tar.gz -C #{ Trema.vendor }"
+  cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
+end
+directory Trema.objects
+
+CLOBBER.include File.join( Trema.objects, "openflow" )
+CLOBBER.include File.join( Trema.vendor_openflow )
+
+
+################################################################################
+# Build phost
+################################################################################
+
+task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
+
+def phost_src
+  File.join Trema.vendor_phost, "src"
+end
+
+file Trema::Executables.phost do
+  cd phost_src do
+    sh "make"
+  end
+  mkdir_p File.dirname( Trema::Executables.phost )
+  install File.join( phost_src, "phost" ), Trema::Executables.phost, :mode => 0755
+end
+
+file Trema::Executables.cli do
+  cd phost_src do
+    sh "make"
+  end
+  mkdir_p File.dirname( Trema::Executables.cli )
+  install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
+end
+
+CLEAN.include FileList[ File.join( phost_src, "*.o" ) ]
+CLEAN.include File.join( phost_src, "phost" )
+CLEAN.include File.join( phost_src, "cli" )
+CLOBBER.include Trema.phost
+
+
+################################################################################
+# Build vendor/*
+################################################################################
+
+task :vendor => [
+  "vendor:oflops",
+  "vendor:openflow",
+  "vendor:openvswitch",
+  "vendor:phost",
+]
+
+
+################################################################################
+# Build Open vSwitch
+################################################################################
+
+task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
+file Trema::Executables.ovs_openflowd do
+  sh "tar xzf #{ Trema.vendor_openvswitch }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_openvswitch do
+    sh "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock }"
+    sh "make install"
+    cp "./tests/test-openflowd", Trema::Executables.ovs_openflowd
+  end
+end
+
+CLEAN.include Trema.vendor_openvswitch
+CLOBBER.include Trema.openvswitch
+
+
+################################################################################
+# Build oflops
+################################################################################
+
+def cbench_command
+  File.join Trema.objects, "oflops/bin/cbench"
+end
+
+task "vendor:oflops" => cbench_command
+file cbench_command => Trema.openflow_h do
+  sh "tar xzf #{ Trema.vendor_oflops }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_oflops do
+    sh "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
+    sh "make install"
+  end
+end
+
+CLEAN.include Trema.oflops
+CLOBBER.include Trema.vendor_oflops
+
+
+################################################################################
+# cmockery
+################################################################################
+
+task "vendor:cmockery" => Trema.libcmockery_a
+file Trema.libcmockery_a do
+  sh "tar xzf #{ Trema.vendor_cmockery }.tar.gz -C #{ Trema.vendor }"
+  cd Trema.vendor_cmockery do
+    sh "./configure --prefix=#{ Trema.cmockery }"
+    sh "make install"
+  end
+end
+
+CLEAN.include Trema.vendor_cmockery
+CLOBBER.include Trema.cmockery
+
+
+################################################################################
+# Run cbench benchmarks
+################################################################################
+
+def cbench_command
+  File.join Trema.objects, "oflops/bin/cbench"
+end
+
+
+def cbench_latency_mode_options
+  "--switches 1 --loops 10 --delay 1000"
+end
+
+
+def cbench_throughput_mode_options
+  cbench_latency_mode_options + " --throughput"
+end
+
+
+def cbench controller, options
+  begin
+    sh "#{ controller }"
+    sh "#{ cbench_command } #{ options }"
+  ensure
+    sh "./trema killall"
+  end
+end
+
+
+def cbench_c_controller
+  "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
+end
+
+
+def cbench_ruby_controller
+  "./trema run src/examples/cbench_switch/cbench-switch.rb -d"
+end
+
+
+def run_cbench controller
+  cbench controller, cbench_latency_mode_options
+  cbench controller, cbench_throughput_mode_options
+end
+
+
+def cbench_profile options
+  valgrind = "valgrind --tool=callgrind --trace-children=yes"
+  begin
+    sh "#{ valgrind } #{ cbench_c_controller }"
+    sh "#{ cbench_command } #{ options }"
+  ensure
+    sh "./trema killall"
+  end
+end
+
+CLEAN.include FileList[ "callgrind.out.*" ]
+
+
+desc "Run the c cbench switch controller to benchmark"
+task "cbench" => "cbench:ruby"
+
+
+desc "Run the c cbench switch controller to benchmark"
+task "cbench:c" => :default do
+  run_cbench cbench_c_controller
+end
+
+
+desc "Run the ruby cbench switch controller to benchmark"
+task "cbench:ruby" => :default do
+  run_cbench cbench_ruby_controller
+end
+
+
+desc "Run cbench with profiling enabled."
+task "cbench:profile" => :default do
+  cbench_profile cbench_latency_mode_options
+  cbench_profile cbench_throughput_mode_options
 end
 
 

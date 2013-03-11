@@ -35,7 +35,7 @@ import "directedrule"
 
 desc "Build trema."
 task :default => [
-  :libtrema,
+  "libtrema:static",
   :management_commands,
   :rubylib,
   :switch_manager,
@@ -125,82 +125,25 @@ var :CFLAGS => "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Werror -Wall -
 # Run cbench benchmarks.
 ################################################################################
 
-
-def cbench_command
-  File.join Trema.objects, "oflops/bin/cbench"
-end
-
-
-def cbench_latency_mode_options
-  "--switches 1 --loops 10 --delay 1000"
-end
-
-
-def cbench_throughput_mode_options
-  cbench_latency_mode_options + " --throughput"
-end
-
-
-def cbench controller, options
-  begin
-    sys "#{ controller }"
-    sys "#{ cbench_command } #{ options }"
-  ensure
-    sys "./trema killall"
-  end
-end
-
-
-def cbench_c_controller
-  "./trema run ./objects/examples/cbench_switch/cbench_switch -d"
-end
-
-
-def cbench_ruby_controller
-  "./trema run src/examples/cbench_switch/cbench-switch.rb -d"
-end
-
-
-def run_cbench controller
-  cbench controller, cbench_latency_mode_options
-  cbench controller, cbench_throughput_mode_options
-end
-
-
-var[ :clean ].include sys[ "callgrind.out.*" ]
-
-
-def cbench_profile options
-  valgrind = "valgrind --tool=callgrind --trace-children=yes"
-  begin
-    sys "#{ valgrind } #{ cbench_c_controller }"
-    sys "#{ cbench_command } #{ options }"
-  ensure
-    sys "./trema killall"
-  end
-end
-
-
 desc "Run the c cbench switch controller to benchmark"
-task "cbench" => "cbench:ruby"
-
-
-desc "Run the c cbench switch controller to benchmark"
-task "cbench:c" => :default do | t |
-  run_cbench cbench_c_controller
-end
+task :cbench => "cbench:ruby"
 
 
 desc "Run the ruby cbench switch controller to benchmark"
-task "cbench:ruby" => :default do | t |
-  run_cbench cbench_ruby_controller
+task "cbench:ruby" do
+  sys "rake cbench:ruby"
+end
+
+
+desc "Run the c cbench switch controller to benchmark"
+task "cbench:c" do
+  sys "rake cbench:c"
 end
 
 
 desc "Run cbench with profiling enabled."
-task "cbench:profile" => :default do
-  cbench_profile cbench_latency_mode_options
-  cbench_profile cbench_throughput_mode_options
+task "cbench:profile" do
+  sys "rake cbench:profile"
 end
 
 
@@ -211,20 +154,15 @@ end
 import "sys/tgz"
 
 
-task :vendor => [
-  "vendor:oflops",
-  "vendor:openflow",
-  "vendor:openvswitch",
-  "vendor:phost",
-]
+task :vendor do
+  sys "rake vendor"
+end
 
-task :distclean => [
-  "vendor:cmockery:distclean",
-  "vendor:oflops:distclean",
-  "vendor:openflow:distclean",
-  "vendor:openvswitch:distclean",
-  "vendor:phost:distclean",
-]
+task :distclean => :clobber
+
+task :clobber do
+  sys "rake clobber"
+end
 
 
 #
@@ -235,14 +173,7 @@ gen Directory, Trema.objects
 
 task "vendor:openflow" => Trema.openflow_h
 file Trema.openflow_h do
-  sys.unpack_tgz "#{ Trema.vendor_openflow }.tar.gz", :in => Trema.vendor
-  sys.mkdir_p Trema.objects
-  sys.cp_r "#{ Trema.vendor_openflow }/include/openflow", Trema.objects
-  sys "chmod -R +r #{ File.join Trema.objects, "openflow" }"
-end
-
-task "vendor:openflow:distclean" do
-  sys.rm_rf Trema.vendor_openflow
+  sys "rake vendor:openflow"
 end
 
 
@@ -273,95 +204,12 @@ end
 
 
 #
-# Open vSwitch
-#
-
-task "vendor:openvswitch" => Trema::Executables.ovs_openflowd
-file Trema::Executables.ovs_openflowd do
-  sys.unpack_tgz "#{ Trema.vendor_openvswitch }.tar.gz", :in => Trema.vendor
-  sys.cd Trema.vendor_openvswitch do
-    sys "./configure --prefix=#{ Trema.openvswitch } --with-rundir=#{ Trema.sock }"
-    sys "make install"
-    sys "cp ./tests/test-openflowd #{ Trema::Executables.ovs_openflowd }"
-  end
-end
-
-task "vendor:openvswitch:distclean" do
-  sys.rm_rf Trema.vendor_openvswitch
-end
-
-
-#
-# oflops
-#
-
-task "vendor:oflops" => cbench_command
-file cbench_command => Trema.openflow_h do
-  sys.unpack_tgz "#{ Trema.vendor_oflops }.tar.gz", :in => Trema.vendor
-  sys.cd Trema.vendor_oflops do
-    sys "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
-    sys "make install"
-  end
-end
-
-task "vendor:oflops:distclean" do
-  sys.rm_rf Trema.vendor_oflops
-end
-
-
-#
-# phost
-#
-
-def phost_src
-  File.join Trema.vendor_phost, "src"
-end
-
-
-task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
-
-file Trema::Executables.phost do
-  sys.cd phost_src do
-    sys "make"
-  end
-  sys.mkdir_p File.dirname( Trema::Executables.phost )
-  sys.install File.join( phost_src, "phost" ), Trema::Executables.phost, :mode => 0755
-end
-
-file Trema::Executables.cli do
-  sys.cd phost_src do
-    sys "make"
-  end
-  sys.mkdir_p File.dirname( Trema::Executables.cli )
-  sys.install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
-end
-
-task "vendor:phost:distclean" do
-  begin
-    sys.cd phost_src do
-      sys "make clean"
-    end
-  rescue
-    # ignore.
-  end
-end
-
-
-#
 # cmockery
 #
 
 task "vendor:cmockery" => Trema.libcmockery_a
 file Trema.libcmockery_a do
-  sys.unpack_tgz "#{ Trema.vendor_cmockery }.tar.gz", :in => Trema.vendor
-  sys.cd Trema::vendor_cmockery do
-    sys "./configure --prefix=#{ Trema.cmockery }"
-    sys "make install"
-  end
-end
-
-task "vendor:cmockery:distclean" do
-  sys.rm_rf Trema.vendor_cmockery
+  sys "rake vendor:cmockery"
 end
 
 
@@ -369,58 +217,26 @@ end
 # Build libtrema.{a,so}
 ################################################################################
 
-build_libtrema_a = Proc.new do | t |
-  sys "rm -f #{ t.name }"
-  sys "ar -cq #{ t.name } #{ sys.sp t.prerequisites }"
-  sys "ranlib #{ t.name }"
-end
-
-build_libtrema_so = Proc.new do | t |
-  soname = File.basename( t.name ).sub( /\.\d+\.\d+\Z/, "" )
-  sys "gcc -shared -Wl,-soname=#{ soname } -o #{ t.name } #{ sys.sp t.prerequisites }"
-end
-
-
-task dependency( "libtrema" ) => "vendor:openflow"
-gen C::Dependencies, dependency( "libtrema" ),
-  :search => [ Trema.include, objects( "openflow" ) ],
-  :sources => sys[ "#{ Trema.include }/*.{c,h}" ]
-
-gen Action do
-  source dependency( "libtrema" )
-end
-
-
-gen Directory, Trema.lib
-gen Directory, "#{ Trema.home }/objects/unittests"
-
 libtrema = File.join( Trema.lib, "libtrema.a" )
 libtrema_so = File.join( Trema.lib, "libtrema.so." ) + Trema::VERSION
 libtrema_gcov = File.join( "#{ Trema.home }/objects/unittests", "libtrema.a" )
 
-libtrema_o = gen DirectedRule, Trema.lib => [ Trema.include ], :o => :c do | t |
-  sys "gcc -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
-end
-libtrema_gcov_o = gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ Trema.include ], :o => :c do | t |
-  sys "gcc --coverage -I#{ objects "openflow" } #{ var :CFLAGS } -fPIC -c -o #{ t.name } #{ t.source }"
-end
-
 desc "Build trema library (static library)."
-task :libtrema => libtrema
-file libtrema => libtrema_o.candidates do | t |
-  build_libtrema_a.call t
+task "libtrema:static" => libtrema
+file libtrema do | t |
+  sys "rake libtrema:static"
 end
 
 desc "Build trema library (shared library)."
-task :libtrema_so => libtrema_so
-file libtrema_so => libtrema_o.candidates do | t |
-  build_libtrema_so.call t
+task "libtrema:shared" => libtrema_so
+file libtrema_so do | t |
+  sys "rake libtrema:shared"
 end
 
 desc "Build trema library (coverage)."
-task "coverage:libtrema" => libtrema_gcov
-file libtrema_gcov => libtrema_gcov_o.candidates do | t |
-  build_libtrema_a.call t
+task "libtrema:gcov" => libtrema_gcov
+file libtrema_gcov do | t |
+  sys "rake libtrema:gcov"
 end
 
 
@@ -917,7 +733,7 @@ end
 libtrema_unit_tests.keys.each do | each |
   target = "unittests/objects/#{ each }"
 
-  task :build_old_unittests => target
+  task :build_old_unittests => [ "vendor:openflow", target ]
   task target => "vendor:cmockery"
   file target => test_object_files( each ) + [ "#{ target }.o" ] do | t |
     sys "gcc -L#{ File.dirname Trema.libcmockery_a } -o #{ t.name } #{ sys.sp t.prerequisites } -DUNIT_TESTING -lrt -lcmockery -lsqlite3 -ldl -lpthread --coverage --static"
@@ -954,8 +770,8 @@ end
 
 
 tests.each do | each |
-  task :build_unittests => [ "coverage:libtrema", each ]
-  task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests" ]
+  task :build_unittests => [ "libtrema:gcov", each ]
+  task each => [ "libtrema:gcov", "vendor:cmockery", "objects/unittests/cmockery_trema.o" ]
   file each => "unittests/lib/#{ File.basename each }.c" do | t |
     sys "gcc --coverage -c unittests/lib/#{ File.basename t.name }.c -o #{ each }.o #{ var :CFLAGS } -I#{ Trema.include } -I#{ Trema.openflow } -I#{ File.dirname Trema.cmockery_h } -Iunittests"
     sys "gcc --coverage -o #{ t.name } #{ each }.o objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"

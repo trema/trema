@@ -296,9 +296,12 @@ port_compare( VALUE self, VALUE other ) {
 }
 
 
+/*
+ * Document-class: Trema::Port
+ */
 void
 Init_port() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
 
   rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
