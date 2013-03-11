@@ -24,7 +24,7 @@ static bool operate_on_all = true;
 static bool sw_manager = true;
 static uint64_t dpid;
 static enum efi_event_type type;
-static const char* service_name = NULL;
+static const char *service_name = NULL;
 
 static struct option long_options[] = {
   { "manager", 0, NULL, 'm' },
@@ -87,15 +87,20 @@ parse_argument( int argc, char *argv[] ) {
       case 't': // add
         type_specified = true;
         if ( false ) {
-        } else if ( strcasecmp( "vendor", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "vendor", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_VENDOR;
-        } else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_PACKET_IN;
-        } else if ( strcasecmp( "port_status", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "port_status", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_PORT_STATUS;
-        } else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_STATE_NOTIFY;
-        } else {
+        }
+        else {
           error( "Invalid type '%s' specified. Must e one of vendor, packet_in, port_status, or state_notify\n", optarg );
           usage();
           exit( EXIT_SUCCESS );
@@ -127,7 +132,7 @@ parse_argument( int argc, char *argv[] ) {
     return false;
   }
 
-  service_name = argv[optind];
+  service_name = argv[ optind ];
 
   return true;
 }
@@ -144,12 +149,13 @@ timeout( void *user_data ) {
 
 
 static void
-update_result_all_callback( enum efi_result result, void* user_data ) {
+update_result_all_callback( enum efi_result result, void *user_data ) {
   UNUSED( user_data );
   if ( result == EFI_OPERATION_SUCCEEDED ) {
     info( "Operation Succeeded." );
     stop_trema();
-  } else {
+  }
+  else {
     error( "Operation Failed." );
     stop_trema();
     exit( EXIT_FAILURE );
@@ -165,13 +171,15 @@ update_result_callback( event_forward_operation_result result, void *user_data) 
     error( "Operation Failed." );
     stop_trema();
     exit( EXIT_FAILURE );
-  } else {
+  }
+  else {
     if ( result.n_services == 0 ) {
       info( "Updated service name list is empty.");
-    } else {
+    }
+    else {
       info( "Updated service name list:" );
       unsigned i;
-      for( i = 0 ; i < result.n_services ; ++i ) {
+      for ( i = 0; i < result.n_services; ++i ) {
         info( "  %s", result.services[ i ] );
       }
     }
@@ -185,14 +193,16 @@ send_efi_request( void ) {
   info( "Adding '%s'... ", service_name );
   if ( operate_on_all ) {
     add_event_forward_entry_to_all_switches( type, service_name,
-                                   update_result_all_callback, NULL );
-  } else {
+                                             update_result_all_callback, NULL );
+  }
+  else {
     if ( sw_manager ) {
       add_switch_manager_event_forward_entry( type, service_name,
-                                          update_result_callback, NULL );
-    } else {
+                                              update_result_callback, NULL );
+    }
+    else {
       add_switch_event_forward_entry( dpid, type, service_name,
-                                  update_result_callback, NULL );
+                                      update_result_callback, NULL );
     }
   }
 }

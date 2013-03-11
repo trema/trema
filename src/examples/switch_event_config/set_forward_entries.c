@@ -23,7 +23,7 @@
 static bool sw_manager = true;
 static uint64_t dpid;
 static enum efi_event_type type;
-static list_element* service_names = NULL;
+static list_element *service_names = NULL;
 
 static struct option long_options[] = {
   { "manager", 0, NULL, 'm' },
@@ -84,15 +84,20 @@ parse_argument( int argc, char *argv[] ) {
       case 't': // add
         type_specified = true;
         if ( false ) {
-        } else if ( strcasecmp( "vendor", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "vendor", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_VENDOR;
-        } else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "packet_in", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_PACKET_IN;
-        } else if ( strcasecmp( "port_status", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "port_status", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_PORT_STATUS;
-        } else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
+        }
+        else if ( strcasecmp( "state_notify", optarg ) == 0 ) {
           type = EVENT_FORWARD_TYPE_STATE_NOTIFY;
-        } else {
+        }
+        else {
           error( "Invalid type '%s' specified. Must e one of vendor, packet_in, port_status, or state_notify\n", optarg );
           usage();
           exit( EXIT_FAILURE );
@@ -124,8 +129,8 @@ parse_argument( int argc, char *argv[] ) {
   }
 
   int i;
-  for ( i = optind ; i < argc ; ++i ) {
-    char* service_name = strtok( argv[i], "," );
+  for ( i = optind; i < argc; ++i ) {
+    char *service_name = strtok( argv[ i ], "," );
     if ( service_name != NULL ) {
       append_to_tail( &service_names, service_name );
       while ( ( service_name = strtok( NULL, "," ) ) != NULL ) {
@@ -156,13 +161,15 @@ update_result_callback( event_forward_operation_result result, void *user_data) 
     error( "Operation Failed." );
     stop_trema();
     exit( EXIT_FAILURE );
-  } else {
+  }
+  else {
     if ( result.n_services == 0 ) {
       info( "Updated service name list is empty.");
-    } else {
+    }
+    else {
       info( "Updated service name list:" );
       unsigned i;
-      for( i = 0 ; i < result.n_services ; ++i ) {
+      for ( i = 0; i < result.n_services; ++i ) {
         info( "  %s", result.services[ i ] );
       }
     }
@@ -176,10 +183,10 @@ send_efi_request( void ) {
   info( "Setting service names... " );
   if ( sw_manager ) {
     set_switch_manager_event_forward_entries( type, service_names,
-                                          update_result_callback, NULL );
+                                              update_result_callback, NULL );
   } else {
     set_switch_event_forward_entries( dpid, type, service_names,
-                                  update_result_callback, NULL );
+                                      update_result_callback, NULL );
   }
 }
 
