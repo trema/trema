@@ -13,6 +13,8 @@
   - dump_flows.feature
   - version.feature
   - help.feature
+- dsl:
+  - switch_port_specifier.feature
 - examples:
   - hello_trema.feature
   - list_switches.feature
