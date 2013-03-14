@@ -1,95 +1,156 @@
-Feature: "delete_forward_entry" C API example command
+Feature: Ruby APIs for deleting switch event forwarding entry.
   
-  Switch Event forwarding configuration command (`delete_forward_entry`)
-  is a command to delete an event forwarding entry from 
-  Switch Manager and Switch Daemons.
+  There are 3 Ruby APIs provided for deleting switch event forwarding entry.
   
-  The types of switch event can be forwarded are:
-  * vendor
-  * packet_in
-  * port_stat
-  * state_notify
+  ** API to delete an entry from all switches and switch manager **
   
-  This command is a simple usage example for event_forward_interface.h C API.
-  The event_forward_interface.h API is used in topology manager to 
-  add itself to packet_in forwarding entry of all existing switch daemons and 
-  switch manager to receive LLDP packets.
-  By removing entry for 'topology' from some switches, it is possible to make 
-  topology manager to map only subset of all the switches managed by trema.
+      delete_forward_entry_from_all_switches type, trema_name
+  
+  This API will delete `trema_name` from all existing switches and switch manager's 
+  event forwarding entry list for the specified switch event `type`.  
+  
+  ** API to delete an entry from specified switch **
+  
+      delete_forward_entry_from_switch dpid, type, trema_name
+  
+  This API will configure against the switch specified by `dpid`. 
+  It will delete `trema_name` from the switch's 
+  event forwarding entry list for the specified switch event `type`.  
+  
+  ** API to delete an entry from switch manager **
+  
+      delete_forward_entry_from_switch_manager type, trema_name
+  
+  This API will delete `trema_name` from the switch manager's 
+  event forwarding entry list for the specified switch event `type`.  
+  
+  ----
+  All the above APIs take result handler as Ruby block, but 
+  they can be omitted if result is not necessary.  
   
   Please see README.md for general notes on switch event forwarding APIs.
 
-  Background: 
-    Given I cd to "../../src/examples/switch_event_config/"
-    Given I compile "delete_forward_entry.c" into "delete_forward_entry"
-    Given I compile "dump_forward_entries.c" into "dump_forward_entries"
-
-  Scenario: delete_forward_entry Usage
-    When I run `trema run './delete_forward_entry -h'`
-    Then the output should contain:
+  Scenario Outline: Delete a switch event forwarding entry from all switces and switch manager for each event type
+    Given a file named "nw_dsl.conf" with:
       """
-      Delete OpenFlow Switch Manager/Daemon event forward entry.
-       Both Switch Mgr/Daemon: delete_forward_entry -t EVENT_TYPE service_name
-       Only Switch Manager   : delete_forward_entry -m -t EVENT_TYPE service_name
-       Only Switch Daemon    : delete_forward_entry -s SWITCH_DPID -t EVENT_TYPE service_name
+      vswitch { datapath_id 0x1 }
+      """
+    And a file named "DeleteAllTest.rb" with:
+      """
+      class DeleteAllTest < Controller
+        include SwitchEvent
       
-       EVENT_TYPE:
-        -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
+        def switch_ready datapath_id
+          oneshot_timer_event :test_start, 0 if datapath_id == 0x1
+        end
+      
+        def test_start
+          
+          delete_forward_entry_from_all_switches <event_type>, "DeleteAllTest" do | success |
+            info "<event_type> result:#{success}"
+            dump_forward_entries_from_switch 0x1, <event_type> do | success, services |
+                info "<event_type> 0x1 result:#{success} services:#{services.inspect}"
+            end
+            dump_forward_entries_from_switch_manager <event_type> do | success, services |
+                info "<event_type> manager result:#{success} services:#{services.inspect}"
+            end
+          end
+        end
+      end
       """
-
-  Scenario Outline: Delete 'RepeaterHub' from All Switch Manager/Daemon's event forward configuration for packet_in
-    Given a file named "nw_dsl.conf" with:
+    When I run `trema run ./DeleteAllTest.rb -c nw_dsl.conf -d`
+    And wait until "DeleteAllTest" is up
+    And *** sleep 1 ***
+    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
       """
-        vswitch { datapath_id 0x1 }
-        vswitch { datapath_id 0x2 }
+      <event_type> result:true
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
-    And wait until "RepeaterHub" is up
-    When I run `trema run './delete_forward_entry -t packet_in RepeaterHub '`
-    Then the output should contain "Operation Succeeded."
-    Then I run `trema run './dump_forward_entries <option> -t packet_in'`
-    Then the output should not match /Current service name list:.*  RepeaterHub/
+    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
+      """
+      <event_type> manager result:true services:[<sw_manager_event_list>]
+      """
+    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
+      """
+      <event_type> 0x1 result:true services:[<sw_event_list>]
+      """
 
     Examples: 
-      | target | option |
-      | SW MGR | -m     |
-      | SW 0x1 | -s 0x1 |
-      | SW 0x2 | -s 0x2 |
+      | event_type    | sw_manager_event_list | sw_event_list    |
+      | :vendor       |                       |                  |
+      | :packet_in    |                       |                  |
+      | :port_status  |                       |                  |
+      | :state_notify |                       | "switch_manager" |
 
-  Scenario Outline: Delete 'RepeaterHub' only from Switch Manager's event forward configuration for packet_in
+  Scenario Outline: Delete a switch event forwarding entry from specified switch for each event type
     Given a file named "nw_dsl.conf" with:
       """
-        vswitch { datapath_id 0x1 }
-        vswitch { datapath_id 0x2 }
+      vswitch { datapath_id 0x1 }
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
-    And wait until "RepeaterHub" is up
-    When I run `trema run './delete_forward_entry -m -t packet_in RepeaterHub'`
-    Then the output should contain "Updated service name list is empty."
-    Then the output should not contain "  RepeaterHub"
-    Then I run `trema run './dump_forward_entries -s <switch> -t packet_in'`
-    Then the output should match /Current service name list:.*  RepeaterHub/
+    And a file named "DeleteSwitchTest.rb" with:
+      """
+      class DeleteSwitchTest < Controller
+        include SwitchEvent
+      
+        def switch_ready datapath_id
+          oneshot_timer_event :test_start, 0
+        end
+      
+        def test_start
+          
+          delete_forward_entry_from_switch 0x1, <event_type>, "DeleteSwitchTest" do | success, services |
+            info "<event_type> result:#{success} services:#{services.inspect}"
+          end
+        end
+      end
+      """
+    When I run `trema run ./DeleteSwitchTest.rb -c nw_dsl.conf -d`
+    And wait until "DeleteSwitchTest" is up
+    And *** sleep 1 ***
+    Then the file "../../tmp/log/DeleteSwitchTest.log" should contain:
+      """
+      <event_type> result:true services:[<sw_event_list>]
+      """
 
     Examples: 
-      | switch |
-      | 0x1    |
-      | 0x2    |
+      | event_type    | sw_event_list    |
+      | :vendor       |                  |
+      | :packet_in    |                  |
+      | :port_status  |                  |
+      | :state_notify | "switch_manager" |
 
-  Scenario Outline: Delete 'RepeaterHub' only from Switch Daemon 0x1's event forward configuration for packet_in
+  Scenario Outline: Delete a switch event forwarding entry from switch manager for each event type
     Given a file named "nw_dsl.conf" with:
       """
-        vswitch { datapath_id 0x1 }
-        vswitch { datapath_id 0x2 }
+      vswitch { datapath_id 0x1 }
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
-    And wait until "RepeaterHub" is up
-    When I run `trema run './delete_forward_entry -s 0x1 -t packet_in RepeaterHub'`
-    Then the output should contain "Updated service name list is empty."
-    Then the output should not contain "  RepeaterHub"
-    Then I run `trema run './dump_forward_entries <option> -t packet_in'`
-    Then the output should match /Current service name list:.*  RepeaterHub/
+    And a file named "DeleteSwitchManagerTest.rb" with:
+      """
+      class DeleteSwitchManagerTest < Controller
+        include SwitchEvent
+      
+        def switch_ready datapath_id
+          oneshot_timer_event :test_start, 0
+        end
+      
+        def test_start
+          
+          delete_forward_entry_from_switch_manager <event_type>, "DeleteSwitchManagerTest" do | success, services |
+            info "<event_type> result:#{success} services:#{services.inspect}"
+          end
+        end
+      end
+      """
+    When I run `trema run ./DeleteSwitchManagerTest.rb -c nw_dsl.conf -d`
+    And wait until "DeleteSwitchManagerTest" is up
+    And *** sleep 1 ***
+    Then the file "../../tmp/log/DeleteSwitchManagerTest.log" should contain:
+      """
+      <event_type> result:true services:[<sw_manager_event_list>]
+      """
 
     Examples: 
-      | target | option |
-      | SW MGR | -m     |
-      | SW 0x2 | -s 0x2 |
+      | event_type    | sw_manager_event_list |
+      | :vendor       |                       |
+      | :packet_in    |                       |
+      | :port_status  |                       |
+      | :state_notify |                       |
