@@ -1,66 +1,64 @@
-Feature: Ruby APIs for dumping switch event forwarding entry.
+Feature: Ruby methods for dumping switch event forwarding entry.
   
-  There are 2 Ruby APIs provided for dumping switch event forwarding entry.
+  There are two Ruby methods provided for dumping switch event forwarding entry.
   
-  ** API to dump the forwarding entries of the specified switch **
+  * dump_forward_entries_from_switch
+  * dump_forward_entries_from_switch_manager
   
-      dump_forward_entries_from_switch dpid, type
+  These methods can be used by including Trema::SwitchEvent module
+  in user controller code. 
   
-  This API will configure against the switch specified by `dpid`. 
+  ** dump_forward_entries_from_switch dpid, event_type **
+  
+  This method will dump the forwarding entries of the switch specified by `dpid`. 
   It will dump the content of the the switch's 
-  event forwarding entry list for the specified switch event `type`.  
+  event forwarding entry list for the specified switch `event_type`.  
   
-  ** API to dump the forwarding entries of the switch manager **
+  ** dump_forward_entries_from_switch_manager event_type **
   
-      dump_forward_entries_from_switch_manager type
-  
-  This API will dump the content of the the switch manager's 
-  event forwarding entry list for the specified switch event `type`.  
+  This method will dump the content of the the switch manager's 
+  event forwarding entry list for the specified switch `event_type`.  
   
   ----
-  All the above APIs take result handler as Ruby block.  
-  
-  Please see README.md for general notes on switch event forwarding APIs.
+  All the above methods take result handler as Ruby block.
 
-  Scenario Outline: Dump the specified switch's event forwarding entry for each event type
+  Scenario Outline: dump_forward_entries_from_switch dpid, event_type
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
-      event :vendor => "vendor", :packet_in => "packet_in", :port_status => "port_status", :state_notify => "state_notify"
+      event :vendor => "vendor", :packet_in => "packet_in", :port_status => "port_status"
       """
-    And a file named "DumpSwitchTest.rb" with:
+    And a file named "DumpSwitchDaemonTest.rb" with:
       """
-      class DumpSwitchTest < Controller
+      class DumpSwitchDaemonTest < Controller
         include SwitchEvent
       
-        oneshot_timer_event :test_start, 0
-      
-        def test_start
-          dump_forward_entries_from_switch 0x1, <event_type> do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+        def switch_ready datapath_id
+          dump_forward_entries_from_switch datapath_id, <event_type> do | success, services |
+            raise "Failed to dump forwarding entry from a switch" if not success
+            info "Dumping switch #{datapath_id.to_hex}'s forwarding entries of <event_type> : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./DumpSwitchTest.rb -c nw_dsl.conf -d`
-    And wait until "DumpSwitchTest" is up
+    When I successfully run `trema run ./DumpSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    And wait until "DumpSwitchDaemonTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/DumpSwitchTest.log" should contain:
+    Then the file "../../tmp/log/DumpSwitchDaemonTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_event_list>]
+      Dumping switch 0x1's forwarding entries of <event_type> : [<switch_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_event_list                    |
-      | :vendor       | "vendor"                         |
-      | :packet_in    | "packet_in"                      |
-      | :port_status  | "port_status"                    |
-      | :state_notify | "state_notify", "switch_manager" |
+      | event_type    | switch_event_list                        |
+      | :vendor       | "vendor"                                 |
+      | :packet_in    | "packet_in"                              |
+      | :port_status  | "port_status"                            |
+      | :state_notify | "DumpSwitchDaemonTest", "switch_manager" |
 
-  Scenario Outline: Dump the switch manager's event forwarding entry for each event type
+  Scenario Outline: dump_forward_entries_from_switch_manager event_type
     Given a file named "nw_dsl.conf" with:
       """
-      vswitch { datapath_id 0x1 }
       event :vendor => "vendor", :packet_in => "packet_in", :port_status => "port_status", :state_notify => "state_notify"
       """
     And a file named "DumpSwitchManagerTest.rb" with:
@@ -69,25 +67,25 @@ Feature: Ruby APIs for dumping switch event forwarding entry.
         include SwitchEvent
       
         oneshot_timer_event :test_start, 0
-      
         def test_start
           dump_forward_entries_from_switch_manager <event_type> do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+            raise "Failed to dump forwarding entry from the switch manager" if not success
+            info "Dumping switch manager's forwarding entries of <event_type> : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./DumpSwitchManagerTest.rb -c nw_dsl.conf -d`
+    When I successfully run `trema run ./DumpSwitchManagerTest.rb -c nw_dsl.conf -d`
     And wait until "DumpSwitchManagerTest" is up
     And *** sleep 1 ***
     Then the file "../../tmp/log/DumpSwitchManagerTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_manager_event_list>]
+      Dumping switch manager's forwarding entries of <event_type> : [<switch_manager_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list |
-      | :vendor       | "vendor"              |
-      | :packet_in    | "packet_in"           |
-      | :port_status  | "port_status"         |
-      | :state_notify | "state_notify"        |
+      | event_type    | switch_manager_event_list |
+      | :vendor       | "vendor"                  |
+      | :packet_in    | "packet_in"               |
+      | :port_status  | "port_status"             |
+      | :state_notify | "state_notify"            |

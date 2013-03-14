@@ -1,101 +1,89 @@
-Feature: Ruby APIs for setting switch event forwarding entry.
+Feature: Ruby methods for setting switch event forwarding entry.
   
-  There are 2 Ruby APIs provided for setting switch event forwarding entry.
+  There are two Ruby methods provided for setting switch event forwarding entry.
   
-  ** API to set the forwarding entries of the specified switch **
+  * set_forward_entries_to_switch
+  * set_forward_entries_to_switch_manager
   
-      set_forward_entries_to_switch dpid, type, trema_names
+  These methods can be used by including Trema::SwitchEvent module
+  in user controller code. 
   
-  This API will configure against the switch specified by `dpid`. 
+  ** set_forward_entries_to_switch dpid, event_type, trema_names **
+  
+  This method will set the forwarding entries of the switch specified by `dpid`. 
   It will replace the switch's 
   event forwarding entry list to the Array of trema-names specified by `trema_names` 
-  for the specified switch event `type`.  
+  for the specified switch `event_type`.  
   
-  ** API to set the forwarding entries of the switch manager **
+  ** set_forward_entries_to_switch_manager event_type, trema_names **
   
-      set_forward_entries_to_switch_manager type, trema_names
-  
-  This API will replace the switch manager's 
+  This method will replace the switch manager's 
   event forwarding entry list to the Array of trema-names specified by `trema_names` 
-  for the specified switch event `type`.  
+  for the specified switch `event_type`.  
   
   ----
-  All the above APIs take result handler as Ruby block, but 
-  they can be omitted if result is not necessary.  
-  
-  Please see README.md for general notes on switch event forwarding APIs.
+  All the above methods take result handler as Ruby block, but 
+  they can be omitted if result is not necessary.
 
-  Scenario Outline: Set the switch event forwarding entries of the specified switch for each event type
+  Scenario Outline: set_forward_entries_to_switch dpid, event_type, trema_names
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
-    And a file named "SetSwitchTest.rb" with:
+    And a file named "SetEntriesToSwitchDaemonTest.rb" with:
       """
-      class SetSwitchTest < Controller
+      class SetEntriesToSwitchDaemonTest < Controller
         include SwitchEvent
       
         def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
-        def test_start
-          
-          set_forward_entries_to_switch 0x1, <event_type>, ["SetSwitchTest","Another"] do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          set_forward_entries_to_switch datapath_id, <event_type>, ["SetEntriesToSwitchDaemonTest","Another"] do | success, services |
+            raise "Failed to set forwarding entry to switch" if not success
+            info "Successfully set a forwarding entries of <event_type> to switch #{datapath_id.to_hex} : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./SetSwitchTest.rb -c nw_dsl.conf -d`
-    And wait until "SetSwitchTest" is up
+    When I successfully run `trema run ./SetEntriesToSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    And wait until "SetEntriesToSwitchDaemonTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/SetSwitchTest.log" should contain:
+    Then the file "../../tmp/log/SetEntriesToSwitchDaemonTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_event_list>]
+      Successfully set a forwarding entries of <event_type> to switch 0x1 : [<switch_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_event_list              |
-      | :vendor       | "SetSwitchTest", "Another" |
-      | :packet_in    | "SetSwitchTest", "Another" |
-      | :port_status  | "SetSwitchTest", "Another" |
-      | :state_notify | "SetSwitchTest", "Another" |
+      | event_type    | switch_event_list                         |
+      | :vendor       | "SetEntriesToSwitchDaemonTest", "Another" |
+      | :packet_in    | "SetEntriesToSwitchDaemonTest", "Another" |
+      | :port_status  | "SetEntriesToSwitchDaemonTest", "Another" |
+      | :state_notify | "SetEntriesToSwitchDaemonTest", "Another" |
 
-  Scenario Outline: Set the switch event forwarding entries of the switch manager for each event type
-    Given a file named "nw_dsl.conf" with:
+  Scenario Outline: set_forward_entries_to_switch_manager event_type, trema_names
+    Given a file named "SetEntriesToSwitchManagerTest.rb" with:
       """
-      vswitch { datapath_id 0x1 }
-      """
-    And a file named "SetSwitchManagerTest.rb" with:
-      """
-      class SetSwitchManagerTest < Controller
+      class SetEntriesToSwitchManagerTest < Controller
         include SwitchEvent
       
-        def switch_ready datapath_id
-          info "switch_ready %#x" % datapath_id
-          oneshot_timer_event :test_start, 0 if datapath_id == 0x1
-        end
-      
+        oneshot_timer_event :test_start, 0
         def test_start
-          
-          set_forward_entries_to_switch_manager <event_type>, ["SetSwitchManagerTest","Another"] do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          set_forward_entries_to_switch_manager <event_type>, ["SetEntriesToSwitchManagerTest","Another"] do | success, services |
+            raise "Failed to set forwarding entry to switch manager" if not success
+            info "Successfully set a forwarding entries of <event_type> to switch manager : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./SetSwitchManagerTest.rb -c nw_dsl.conf -d`
-    And wait until "SetSwitchManagerTest" is up
+    When I successfully run `trema run ./SetEntriesToSwitchManagerTest.rb -d`
+    And wait until "SetEntriesToSwitchManagerTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/SetSwitchManagerTest.log" should contain:
+    Then the file "../../tmp/log/SetEntriesToSwitchManagerTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_manager_event_list>]
+      Successfully set a forwarding entries of <event_type> to switch manager : [<switch_manager_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list             |
-      | :vendor       | "SetSwitchManagerTest", "Another" |
-      | :packet_in    | "SetSwitchManagerTest", "Another" |
-      | :port_status  | "SetSwitchManagerTest", "Another" |
-      | :state_notify | "SetSwitchManagerTest", "Another" |
+      | event_type    | switch_manager_event_list                  |
+      | :vendor       | "SetEntriesToSwitchManagerTest", "Another" |
+      | :packet_in    | "SetEntriesToSwitchManagerTest", "Another" |
+      | :port_status  | "SetEntriesToSwitchManagerTest", "Another" |
+      | :state_notify | "SetEntriesToSwitchManagerTest", "Another" |

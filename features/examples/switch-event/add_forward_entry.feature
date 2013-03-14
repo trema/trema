@@ -1,156 +1,142 @@
-Feature: Ruby APIs for adding switch event forwarding entry.
+Feature: Ruby methods for adding switch event forwarding entry.
   
-  There are 3 Ruby APIs provided for adding switch event forwarding entry:
+  There are three Ruby methods provided for adding switch event forwarding entries:
   
-  ** API to add an entry to all switches and switch manager **
+  * add_forward_entry_to_all_switches
+  * add_forward_entry_to_switch
+  * add_forward_entry_to_switch_manager
   
-      add_forward_entry_to_all_switches type, trema_name
+  These methods can be used by including Trema::SwitchEvent module
+  in user controller code. 
   
-  This API will add `trema_name` to all existing switches and switch manager's 
-  event forwarding entry list for the specified switch event `type`.  
+  ** add_forward_entry_to_all_switches event_type, trema_name **
   
-  ** API to add an entry to specified switch **
+  This method will add `trema_name` to all existing switches and switch manager's 
+  event forwarding entry list for the specified switch `event_type`.  
   
-      add_forward_entry_to_switch dpid, type, trema_name
+  ** add_forward_entry_to_switch dpid, event_type, trema_name **
   
-  This API will configure against the switch specified by `dpid`. 
+  This method will add an entry to a switch specified by `dpid`. 
   It will add `trema_name` to the switch's 
-  event forwarding entry list for the specified switch event `type`.  
+  event forwarding entry list for the specified switch `event_type`.  
   
-  ** API to add an entry to switch manager **
+  ** add_forward_entry_to_switch_manager event_type, trema_name **
   
-      add_forward_entry_to_switch_manager type, trema_name
-  
-  This API will add `trema_name` to the switch manager's 
-  event forwarding entry list for the specified switch event `type`.  
+  This method will add `trema_name` to the switch manager's 
+  event forwarding entry list for the specified switch `event_type`.  
   
   ----
-  All the above APIs take result handler as Ruby block, but 
-  they can be omitted if result is not necessary.  
-  
-  Please see README.md for general notes on switch event forwarding APIs.
+  All the above methods take result handler as Ruby block, but 
+  they can be omitted if result is not necessary.
 
-  Scenario Outline: Add a switch event forwarding entry to all switches and switch manager for each event type
+  Scenario Outline: add_forward_entry_to_all_switches event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
-    And a file named "AddAllTest.rb" with:
+    And a file named "AddEntryToAllTest.rb" with:
       """
-      class AddAllTest < Controller
+      class AddEntryToAllTest < Controller
         include SwitchEvent
       
         def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
-        def test_start
-          
-          add_forward_entry_to_all_switches <event_type>, "added_entry" do | success |
-            info "<event_type> result:#{success}"
-            dump_forward_entries_from_switch 0x1, <event_type> do | success, services |
-                info "<event_type> 0x1 result:#{success} services:#{services.inspect}"
+          add_forward_entry_to_all_switches <event_type>, "new_controller" do | success |
+            raise "Failed to add forwarding entry to all switches" if not success
+            info "Successfully added a forwarding entry of <event_type>."
+            dump_forward_entries_from_switch datapath_id, <event_type> do | success, services |
+              raise "Failed to dump forwarding entry from a switch" if not success
+              info "Dumping switch #{datapath_id.to_hex}'s forwarding entries of <event_type> : #{services.inspect}"
             end
             dump_forward_entries_from_switch_manager <event_type> do | success, services |
-                info "<event_type> manager result:#{success} services:#{services.inspect}"
+              raise "Failed to dump forwarding entry from the switch manager" if not success
+              info "Dumping switch manager's forwarding entries of <event_type> : #{services.inspect}"
             end
           end
         end
       end
       """
-    When I run `trema run ./AddAllTest.rb -c nw_dsl.conf -d`
-    And wait until "AddAllTest" is up
+    When I successfully run `trema run ./AddEntryToAllTest.rb -c nw_dsl.conf -d`
+    And wait until "AddEntryToAllTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/AddAllTest.log" should contain:
+    Then the file "../../tmp/log/AddEntryToAllTest.log" should contain:
       """
-      <event_type> result:true
+      Successfully added a forwarding entry of <event_type>.
       """
-    Then the file "../../tmp/log/AddAllTest.log" should contain:
+    And the file "../../tmp/log/AddEntryToAllTest.log" should contain:
       """
-      <event_type> manager result:true services:[<sw_manager_event_list>]
+      Dumping switch manager's forwarding entries of <event_type> : [<switch_manager_event_list>]
       """
-    Then the file "../../tmp/log/AddAllTest.log" should contain:
+    And the file "../../tmp/log/AddEntryToAllTest.log" should contain:
       """
-      <event_type> 0x1 result:true services:[<sw_event_list>]
+      Dumping switch 0x1's forwarding entries of <event_type> : [<switch_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list       | sw_event_list                                 |
-      | :vendor       | "added_entry", "AddAllTest" | "added_entry", "AddAllTest"                   |
-      | :packet_in    | "added_entry", "AddAllTest" | "added_entry", "AddAllTest"                   |
-      | :port_status  | "added_entry", "AddAllTest" | "added_entry", "AddAllTest"                   |
-      | :state_notify | "added_entry", "AddAllTest" | "added_entry", "AddAllTest", "switch_manager" |
+      | event_type    | switch_manager_event_list             | switch_event_list                                       |
+      | :vendor       | "new_controller", "AddEntryToAllTest" | "new_controller", "AddEntryToAllTest"                   |
+      | :packet_in    | "new_controller", "AddEntryToAllTest" | "new_controller", "AddEntryToAllTest"                   |
+      | :port_status  | "new_controller", "AddEntryToAllTest" | "new_controller", "AddEntryToAllTest"                   |
+      | :state_notify | "new_controller", "AddEntryToAllTest" | "new_controller", "AddEntryToAllTest", "switch_manager" |
 
-  Scenario Outline: Add a switch event forwarding entry to specified switch for each event type
+  Scenario Outline: add_forward_entry_to_switch dpid, event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
-    And a file named "AddSwitchTest.rb" with:
+    And a file named "AddEntryToSwitchDaemonTest.rb" with:
       """
-      class AddSwitchTest < Controller
+      class AddEntryToSwitchDaemonTest < Controller
         include SwitchEvent
       
         def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
-        def test_start
-          
-          add_forward_entry_to_switch 0x1, <event_type>, "added_entry" do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          add_forward_entry_to_switch datapath_id, <event_type>, "new_controller" do | success, services |
+            raise "Failed to add forwarding entry to switch" if not success
+            info "Successfully added a forwarding entry of <event_type> to switch #{datapath_id.to_hex} : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./AddSwitchTest.rb -c nw_dsl.conf -d`
-    And wait until "AddSwitchTest" is up
+    When I successfully run `trema run ./AddEntryToSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    And wait until "AddEntryToSwitchDaemonTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/AddSwitchTest.log" should contain:
+    Then the file "../../tmp/log/AddEntryToSwitchDaemonTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_event_list>]
+      Successfully added a forwarding entry of <event_type> to switch 0x1 : [<switch_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_event_list                                    |
-      | :vendor       | "added_entry", "AddSwitchTest"                   |
-      | :packet_in    | "added_entry", "AddSwitchTest"                   |
-      | :port_status  | "added_entry", "AddSwitchTest"                   |
-      | :state_notify | "added_entry", "AddSwitchTest", "switch_manager" |
+      | event_type    | switch_event_list                                                |
+      | :vendor       | "new_controller", "AddEntryToSwitchDaemonTest"                   |
+      | :packet_in    | "new_controller", "AddEntryToSwitchDaemonTest"                   |
+      | :port_status  | "new_controller", "AddEntryToSwitchDaemonTest"                   |
+      | :state_notify | "new_controller", "AddEntryToSwitchDaemonTest", "switch_manager" |
 
-  Scenario Outline: Add a switch event forwarding entry to switch manager for each event type
-    Given a file named "nw_dsl.conf" with:
+  Scenario Outline: add_forward_entry_to_switch_manager event_type, trema_name
+    Given a file named "AddEntryToSwitchManagerTest.rb" with:
       """
-      vswitch { datapath_id 0x1 }
-      """
-    And a file named "AddSwitchManagerTest.rb" with:
-      """
-      class AddSwitchManagerTest < Controller
+      class AddEntryToSwitchManagerTest < Controller
         include SwitchEvent
-      
-        def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
+        
+        oneshot_timer_event :test_start, 0
         def test_start
-          
-          add_forward_entry_to_switch_manager <event_type>, "added_entry" do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          add_forward_entry_to_switch_manager <event_type>, "new_controller" do | success, services |
+            raise "Failed to add forwarding entry to switch manager" if not success
+            info "Successfully added a forwarding entry of <event_type> to switch manager : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./AddSwitchManagerTest.rb -c nw_dsl.conf -d`
-    And wait until "AddSwitchManagerTest" is up
+    When I successfully run `trema run ./AddEntryToSwitchManagerTest.rb -d`
+    And wait until "AddEntryToSwitchManagerTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/AddSwitchManagerTest.log" should contain:
+    Then the file "../../tmp/log/AddEntryToSwitchManagerTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_manager_event_list>]
+      Successfully added a forwarding entry of <event_type> to switch manager : [<switch_manager_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list                 |
-      | :vendor       | "added_entry", "AddSwitchManagerTest" |
-      | :packet_in    | "added_entry", "AddSwitchManagerTest" |
-      | :port_status  | "added_entry", "AddSwitchManagerTest" |
-      | :state_notify | "added_entry", "AddSwitchManagerTest" |
+      | event_type    | switch_manager_event_list                       |
+      | :vendor       | "new_controller", "AddEntryToSwitchManagerTest" |
+      | :packet_in    | "new_controller", "AddEntryToSwitchManagerTest" |
+      | :port_status  | "new_controller", "AddEntryToSwitchManagerTest" |
+      | :state_notify | "new_controller", "AddEntryToSwitchManagerTest" |

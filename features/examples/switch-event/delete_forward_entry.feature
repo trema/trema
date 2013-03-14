@@ -1,156 +1,142 @@
-Feature: Ruby APIs for deleting switch event forwarding entry.
+Feature: Ruby methods for deleting switch event forwarding entry.
   
-  There are 3 Ruby APIs provided for deleting switch event forwarding entry.
+  There are three Ruby methods provided for deleting switch event forwarding entries.
   
-  ** API to delete an entry from all switches and switch manager **
+  * delete_forward_entry_from_all_switches
+  * delete_forward_entry_from_switch
+  * delete_forward_entry_from_switch_manager
   
-      delete_forward_entry_from_all_switches type, trema_name
+  These methods can be used by including Trema::SwitchEvent module
+  in user controller code. 
   
-  This API will delete `trema_name` from all existing switches and switch manager's 
-  event forwarding entry list for the specified switch event `type`.  
+  ** delete_forward_entry_from_all_switches event_type, trema_name **
   
-  ** API to delete an entry from specified switch **
+  This method will delete `trema_name` from all existing switches and switch manager's 
+  event forwarding entry list for the specified switch `event_type`.  
   
-      delete_forward_entry_from_switch dpid, type, trema_name
+  ** delete_forward_entry_from_switch dpid, event_type, trema_name **
   
-  This API will configure against the switch specified by `dpid`. 
+  This method will delete an entry from switch specified by `dpid`. 
   It will delete `trema_name` from the switch's 
-  event forwarding entry list for the specified switch event `type`.  
+  event forwarding entry list for the specified switch `event_type`.  
   
-  ** API to delete an entry from switch manager **
+  ** delete_forward_entry_from_switch_manager event_type, trema_name **
   
-      delete_forward_entry_from_switch_manager type, trema_name
-  
-  This API will delete `trema_name` from the switch manager's 
-  event forwarding entry list for the specified switch event `type`.  
+  This method will delete `trema_name` from the switch manager's 
+  event forwarding entry list for the specified switch `event_type`.  
   
   ----
-  All the above APIs take result handler as Ruby block, but 
-  they can be omitted if result is not necessary.  
-  
-  Please see README.md for general notes on switch event forwarding APIs.
+  All the above methods take result handler as Ruby block, but 
+  they can be omitted if result is not necessary.
 
-  Scenario Outline: Delete a switch event forwarding entry from all switces and switch manager for each event type
+  Scenario Outline: delete_forward_entry_from_all_switches event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
-    And a file named "DeleteAllTest.rb" with:
+    And a file named "DeleteEntryFromAllTest.rb" with:
       """
-      class DeleteAllTest < Controller
+      class DeleteEntryFromAllTest < Controller
         include SwitchEvent
       
         def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0 if datapath_id == 0x1
-        end
-      
-        def test_start
-          
-          delete_forward_entry_from_all_switches <event_type>, "DeleteAllTest" do | success |
-            info "<event_type> result:#{success}"
-            dump_forward_entries_from_switch 0x1, <event_type> do | success, services |
-                info "<event_type> 0x1 result:#{success} services:#{services.inspect}"
+          delete_forward_entry_from_all_switches <event_type>, "DeleteEntryFromAllTest" do | success |
+            raise "Failed to delete forwarding entry from all switches" if not success
+            info "Successfully deleted a forwarding entry of <event_type>."
+            dump_forward_entries_from_switch datapath_id, <event_type> do | success, services |
+              raise "Failed to dump forwarding entry from a switch" if not success
+              info "Dumping switch #{datapath_id.to_hex}'s forwarding entries of <event_type> : #{services.inspect}"
             end
             dump_forward_entries_from_switch_manager <event_type> do | success, services |
-                info "<event_type> manager result:#{success} services:#{services.inspect}"
+              raise "Failed to dump forwarding entry from the switch manager" if not success
+              info "Dumping switch manager's forwarding entries of <event_type> : #{services.inspect}"
             end
           end
         end
       end
       """
-    When I run `trema run ./DeleteAllTest.rb -c nw_dsl.conf -d`
-    And wait until "DeleteAllTest" is up
+    When I successfully run `trema run ./DeleteEntryFromAllTest.rb -c nw_dsl.conf -d`
+    And wait until "DeleteEntryFromAllTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
+    Then the file "../../tmp/log/DeleteEntryFromAllTest.log" should contain:
       """
-      <event_type> result:true
+      Successfully deleted a forwarding entry of <event_type>.
       """
-    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
+    And the file "../../tmp/log/DeleteEntryFromAllTest.log" should contain:
       """
-      <event_type> manager result:true services:[<sw_manager_event_list>]
+      Dumping switch 0x1's forwarding entries of <event_type> : [<switch_event_list>]
       """
-    Then the file "../../tmp/log/DeleteAllTest.log" should contain:
+    And the file "../../tmp/log/DeleteEntryFromAllTest.log" should contain:
       """
-      <event_type> 0x1 result:true services:[<sw_event_list>]
+      Dumping switch manager's forwarding entries of <event_type> : [<switch_manager_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list | sw_event_list    |
-      | :vendor       |                       |                  |
-      | :packet_in    |                       |                  |
-      | :port_status  |                       |                  |
-      | :state_notify |                       | "switch_manager" |
+      | event_type    | switch_manager_event_list | switch_event_list |
+      | :vendor       |                           |                   |
+      | :packet_in    |                           |                   |
+      | :port_status  |                           |                   |
+      | :state_notify |                           | "switch_manager"  |
 
-  Scenario Outline: Delete a switch event forwarding entry from specified switch for each event type
+  Scenario Outline: delete_forward_entry_from_switch dpid, event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
-    And a file named "DeleteSwitchTest.rb" with:
+    And a file named "DeleteFromSwitchDaemonTest.rb" with:
       """
-      class DeleteSwitchTest < Controller
+      class DeleteFromSwitchDaemonTest < Controller
         include SwitchEvent
       
         def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
-        def test_start
-          
-          delete_forward_entry_from_switch 0x1, <event_type>, "DeleteSwitchTest" do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          delete_forward_entry_from_switch datapath_id, <event_type>, "DeleteFromSwitchDaemonTest" do | success, services |
+            raise "Failed to delete forwarding entry from switch" if not success
+            info "Successfully deleted a forwarding entry of <event_type> from switch #{datapath_id.to_hex} : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./DeleteSwitchTest.rb -c nw_dsl.conf -d`
-    And wait until "DeleteSwitchTest" is up
+    When I successfully run `trema run ./DeleteFromSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    And wait until "DeleteFromSwitchDaemonTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/DeleteSwitchTest.log" should contain:
+    Then the file "../../tmp/log/DeleteFromSwitchDaemonTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_event_list>]
+      Successfully deleted a forwarding entry of <event_type> from switch 0x1 : [<switch_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_event_list    |
-      | :vendor       |                  |
-      | :packet_in    |                  |
-      | :port_status  |                  |
-      | :state_notify | "switch_manager" |
+      | event_type    | switch_event_list |
+      | :vendor       |                   |
+      | :packet_in    |                   |
+      | :port_status  |                   |
+      | :state_notify | "switch_manager"  |
 
-  Scenario Outline: Delete a switch event forwarding entry from switch manager for each event type
-    Given a file named "nw_dsl.conf" with:
+  Scenario Outline: delete_forward_entry_from_switch_manager event_type, trema_name
+    Given a file named "DeleteFromSwitchManagerTest.rb" with:
       """
-      vswitch { datapath_id 0x1 }
-      """
-    And a file named "DeleteSwitchManagerTest.rb" with:
-      """
-      class DeleteSwitchManagerTest < Controller
+      class DeleteFromSwitchManagerTest < Controller
         include SwitchEvent
       
-        def switch_ready datapath_id
-          oneshot_timer_event :test_start, 0
-        end
-      
+        oneshot_timer_event :test_start, 0
         def test_start
-          
-          delete_forward_entry_from_switch_manager <event_type>, "DeleteSwitchManagerTest" do | success, services |
-            info "<event_type> result:#{success} services:#{services.inspect}"
+          delete_forward_entry_from_switch_manager <event_type>, "DeleteFromSwitchManagerTest" do | success, services |
+            raise "Failed to delete forwarding entry from switch manager" if not success
+            info "Successfully deleted a forwarding entry of <event_type> from switch manager : #{services.inspect}"
           end
         end
       end
       """
-    When I run `trema run ./DeleteSwitchManagerTest.rb -c nw_dsl.conf -d`
-    And wait until "DeleteSwitchManagerTest" is up
+    When I successfully run `trema run ./DeleteFromSwitchManagerTest.rb -d`
+    And wait until "DeleteFromSwitchManagerTest" is up
     And *** sleep 1 ***
-    Then the file "../../tmp/log/DeleteSwitchManagerTest.log" should contain:
+    Then the file "../../tmp/log/DeleteFromSwitchManagerTest.log" should contain:
       """
-      <event_type> result:true services:[<sw_manager_event_list>]
+      Successfully deleted a forwarding entry of <event_type> from switch manager : [<switch_manager_event_list>]
       """
 
     Examples: 
-      | event_type    | sw_manager_event_list |
-      | :vendor       |                       |
-      | :packet_in    |                       |
-      | :port_status  |                       |
-      | :state_notify |                       |
+      | event_type    | switch_manager_event_list |
+      | :vendor       |                           |
+      | :packet_in    |                           |
+      | :port_status  |                           |
+      | :state_notify |                           |
