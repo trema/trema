@@ -335,7 +335,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :setup, :spec ]
+task :travis => [ :setup, :build_trema ]
 
 
 begin
