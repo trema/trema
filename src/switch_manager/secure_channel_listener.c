@@ -30,6 +30,7 @@
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
+#include "switch_option.h"
 
 
 const int LISTEN_SOCK_MAX = 128;
@@ -165,7 +166,13 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
 
 static char **
 make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in *addr, int accept_fd ) {
-  int argc = SWITCH_MANAGER_DEFAULT_ARGC + listener_info->switch_daemon_argc + 1;
+  const int argc = SWITCH_MANAGER_DEFAULT_ARGC
+      + listener_info->switch_daemon_argc
+      + ( int ) list_length_of( listener_info->vendor_service_name_list )
+      + ( int ) list_length_of( listener_info->packetin_service_name_list )
+      + ( int ) list_length_of( listener_info->portstatus_service_name_list )
+      + ( int ) list_length_of( listener_info->state_service_name_list )
+      + 1;
   char **argv = xcalloc( ( size_t ) argc, sizeof( char * ) );
   char *command_name = xasprintf( "%s%s:%u", SWITCH_MANAGER_COMMAND_PREFIX,
                                   inet_ntoa( addr->sin_addr ),
@@ -191,6 +198,19 @@ make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in
     argv[ i ] = xstrdup( listener_info->switch_daemon_argv[ j ] );
   }
 
+  for ( list_element *e = listener_info->vendor_service_name_list; e != NULL; e = e->next, ++i ) {
+    argv[ i ] = xasprintf( VENDOR_PREFIX "%s",  e->data );
+  }
+  for ( list_element *e = listener_info->packetin_service_name_list; e != NULL; e = e->next, ++i ) {
+    argv[ i ] = xasprintf( PACKET_IN_PREFIX "%s",  e->data );
+  }
+  for ( list_element *e = listener_info->portstatus_service_name_list; e != NULL; e = e->next, ++i ) {
+    argv[ i ] = xasprintf( PORTSTATUS_PREFIX "%s",  e->data );
+  }
+  for ( list_element *e = listener_info->state_service_name_list; e != NULL; e = e->next, ++i ) {
+    argv[ i ] = xasprintf( STATE_PREFIX "%s",  e->data );
+  }
+
   return argv;
 }
 
@@ -199,9 +219,9 @@ static void
 free_switch_daemon_args( char **argv ) {
   int i;
   for ( i = 0; argv[ i ] != NULL; i++ ) {
-    free( argv[ i ] );
+    xfree( argv[ i ] );
   }
-  free( argv );
+  xfree( argv );
 }
 
 

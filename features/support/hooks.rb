@@ -46,6 +46,7 @@ end
 After do
   run "trema killall"
   wait_until_all_pid_files_are_deleted
+  processes.clear
 end
 
 
