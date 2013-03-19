@@ -1,10 +1,10 @@
-Feature: "dump_forward_entries" C function example command
+Feature: C function example command "dump_forward_entries"
   
   Switch Event forwarding configuration command (`dump_forward_entries`)
   is a command to dump event forwarding entries of 
   Switch Manager and Switch Daemons.
   
-  The types of switch event can be forwarded are:
+  Following switch event types can be configured by this command:
   
   * vendor
   * packet_in
