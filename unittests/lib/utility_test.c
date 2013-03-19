@@ -31,7 +31,7 @@
 #include "ipv4.h"
 #include "trema_wrapper.h"
 #include "utility.h"
-
+#include "wrapper.h"
 
 /********************************************************************************
  * Setup and teardown
@@ -618,6 +618,25 @@ test_get_checksum_icmp_packet() {
 }
 
 
+static void
+test_xfree_data() {
+  void *mem = xmalloc( 123 );
+  xfree_data( mem, NULL );
+}
+
+
+static void
+test_string_equal() {
+  char lhs1[] = "abcd";
+  char rhs1[] = "abcd";
+  assert_true( string_equal( lhs1, rhs1 ) );
+
+  char lhs2[] = "abcde";
+  char rhs2[] = "abcdef";
+  assert_false( string_equal( lhs2, rhs2 ) );
+}
+
+
 /********************************************************************************
  * Run tests.
  ********************************************************************************/
@@ -675,6 +694,9 @@ main() {
 
     unit_test( test_get_checksum_udp_packet ),
     unit_test( test_get_checksum_icmp_packet ),
+
+    unit_test( test_xfree_data ),
+    unit_test( test_string_equal ),
   };
   setup_leak_detector();
   return run_tests( tests );

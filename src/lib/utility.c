@@ -31,7 +31,7 @@
 #include "log.h"
 #include "trema_wrapper.h"
 #include "utility.h"
-
+#include "wrapper.h"
 
 static void
 _die( const char *format, ... ) {
@@ -593,6 +593,18 @@ get_checksum( uint16_t *pos, uint32_t size ) {
   return ( uint16_t ) ~csum;
 }
 
+
+void
+xfree_data( void *data, void *user_data ) {
+  UNUSED( user_data );
+  xfree( data );
+}
+
+
+bool
+string_equal( void *data, void *user_data ) {
+  return strcmp( data, user_data ) == 0;
+}
 
 /*
  * Local variables:

@@ -47,6 +47,10 @@ struct listener_info {
   char **switch_daemon_argv;
   uint16_t listen_port;
   int listen_fd;
+  list_element *vendor_service_name_list;     // vendor manager service
+  list_element *packetin_service_name_list;   // packetin manager service
+  list_element *portstatus_service_name_list; // portstatus manager service
+  list_element *state_service_name_list;      // switch state manager service
 };
 
 

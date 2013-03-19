@@ -16,6 +16,12 @@
 - dsl:
   - switch_port_specifier.feature
 - examples:
+  - switch-event:
+    - README.md
+    - add_forward_entry.feature
+    - delete_forward_entry.feature
+    - dump_forward_entries.feature
+    - set_forward_entries.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature

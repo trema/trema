@@ -27,10 +27,13 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <assert.h>
 #include "trema.h"
 #include "secure_channel_listener.h"
 #include "switch_manager.h"
 #include "dpid_table.h"
+#include "switch_option.h"
+#include "event_forward_entry_manipulation.h"
 
 
 #ifdef UNIT_TESTING
@@ -155,7 +158,7 @@ void
 usage() {
   printf(
     "OpenFlow Switch Manager.\n"
-    "Usage: %s [OPTION]... [-- SWITCH_MANAGER_OPTION]...\n"
+    "Usage: %s [OPTION]... [-- SWITCH_DAEMON_OPTION]...\n"
     "\n"
     "  -s, --switch=PATH               the command path of switch\n"
     "  -n, --name=SERVICE_NAME         service name\n"
@@ -253,6 +256,10 @@ init_listener_info( struct listener_info *listener_info ) {
   listener_info->switch_daemon = xconcatenate_path( get_trema_home(), SWITCH_MANAGER_PATH );
   listener_info->listen_port = OFP_TCP_PORT;
   listener_info->listen_fd = -1;
+  create_list( &listener_info->vendor_service_name_list );
+  create_list( &listener_info->packetin_service_name_list );
+  create_list( &listener_info->portstatus_service_name_list );
+  create_list( &listener_info->state_service_name_list );
 }
 
 
@@ -269,6 +276,25 @@ finalize_listener_info( struct listener_info *listener_info ) {
     close( listener_info->listen_fd );
     listener_info->listen_fd = -1;
   }
+  for ( int i = 0; i < listener_info->switch_daemon_argc; ++i ) {
+    xfree( listener_info->switch_daemon_argv[ i ] );
+    listener_info->switch_daemon_argv[ i ] = NULL;
+  }
+  xfree( listener_info->switch_daemon_argv );
+  listener_info->switch_daemon_argv = NULL;
+
+  iterate_list( listener_info->vendor_service_name_list, xfree_data, NULL );
+  delete_list( listener_info->vendor_service_name_list );
+  listener_info->vendor_service_name_list = NULL;
+  iterate_list( listener_info->packetin_service_name_list, xfree_data, NULL );
+  delete_list( listener_info->packetin_service_name_list );
+  listener_info->packetin_service_name_list = NULL;
+  iterate_list( listener_info->portstatus_service_name_list, xfree_data, NULL );
+  delete_list( listener_info->portstatus_service_name_list );
+  listener_info->portstatus_service_name_list = NULL;
+  iterate_list( listener_info->state_service_name_list, xfree_data, NULL );
+  delete_list( listener_info->state_service_name_list );
+  listener_info->state_service_name_list = NULL;
 }
 
 
@@ -310,8 +336,48 @@ parse_argument( struct listener_info *listener_info, int argc, char *argv[] ) {
     }
   }
 
-  listener_info->switch_daemon_argc = argc - optind;
-  listener_info->switch_daemon_argv = &argv[ optind ];
+  debug( "Start parsing switch daemon arguments." );
+  // index of first switch daemon arguments in argv
+  const int switch_arg_begin = optind;
+
+  // reorder switch daemon arguments
+  while ( getopt_long( argc, argv, switch_short_options, switch_long_options, NULL ) != -1 );
+
+  // index of first packet_in::..., etc. in argv
+  const int switch_arg_option_begin = optind;
+
+  // deep copy switch daemon arguments excluding packet_in::..., etc.
+  listener_info->switch_daemon_argc = switch_arg_option_begin - switch_arg_begin;
+  listener_info->switch_daemon_argv = xcalloc( ( size_t ) listener_info->switch_daemon_argc + 1,
+                                               sizeof( char * ) );
+  for ( int i = 0; i < listener_info->switch_daemon_argc; ++i ) {
+    debug( "switch daemon option: %s\n", argv[switch_arg_begin + i] );
+    listener_info->switch_daemon_argv[ i ] =  xstrdup( argv[ switch_arg_begin + i ] );
+  }
+
+  //  set service lists for each event type
+  for ( int i = switch_arg_option_begin; i < argc; i++ ) {
+    if ( strncmp( argv[ i ], VENDOR_PREFIX, strlen( VENDOR_PREFIX ) ) == 0 ) {
+      char *service_name = xstrdup( argv[ i ] + strlen( VENDOR_PREFIX ) );
+      debug( "event: " VENDOR_PREFIX "%s", service_name );
+      insert_in_front( &listener_info->vendor_service_name_list, service_name );
+    }
+    else if ( strncmp( argv[ i ], PACKET_IN_PREFIX, strlen( PACKET_IN_PREFIX ) ) == 0 ) {
+      char *service_name = xstrdup( argv[ i ] + strlen( PACKET_IN_PREFIX ) );
+      debug( "event: " PACKET_IN_PREFIX "%s", service_name );
+      insert_in_front( &listener_info->packetin_service_name_list, service_name );
+    }
+    else if ( strncmp( argv[ i ], PORTSTATUS_PREFIX, strlen( PORTSTATUS_PREFIX ) ) == 0 ) {
+      char *service_name = xstrdup( argv[ i ] + strlen( PORTSTATUS_PREFIX ) );
+      debug( "event: " PORTSTATUS_PREFIX "%s", service_name );
+      insert_in_front( &listener_info->portstatus_service_name_list, service_name );
+    }
+    else if ( strncmp( argv[ i ], STATE_PREFIX, strlen( STATE_PREFIX ) ) == 0 ) {
+      char *service_name = xstrdup( argv[ i ] + strlen( STATE_PREFIX ) );
+      debug( "event: " STATE_PREFIX "%s", service_name );
+      insert_in_front( &listener_info->state_service_name_list, service_name );
+    }
+  }
 
   return true;
 }
@@ -356,6 +422,112 @@ recv_request( const messenger_context_handle *handle,
   buffer *reply = get_switches();
   send_reply_message( handle, 0, reply->data, reply->length );
   free_buffer( reply );
+}
+
+
+static void
+management_event_forward_entry_operation( const messenger_context_handle *handle, uint32_t command, event_forward_operation_request *req, size_t data_len ) {
+
+  debug( "management efi command:%#x, type:%#x, n_services:%d", command, req->type, req->n_services );
+
+  list_element **subject = NULL;
+  switch ( req->type ) {
+    case EVENT_FORWARD_TYPE_VENDOR:
+      info( "Managing vendor event." );
+      subject = &listener_info.vendor_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_PACKET_IN:
+      info( "Managing packet_in event." );
+      subject = &listener_info.packetin_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_PORT_STATUS:
+      info( "Managing port_status event." );
+      subject = &listener_info.portstatus_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_STATE_NOTIFY:
+      info( "Managing state_notify event." );
+      subject = &listener_info.state_service_name_list;
+      break;
+
+    default:
+      error( "Invalid EVENT_FWD_TYPE ( %#x )", req->type );
+      event_forward_operation_reply res;
+      memset( &res, 0, sizeof( event_forward_operation_reply ) );
+      res.type = req->type;
+      res.result = EFI_OPERATION_FAILED;
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, &res, sizeof( event_forward_operation_reply ) );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+      return;
+  }
+  assert( subject != NULL );
+
+  switch ( command ) {
+    case EVENT_FORWARD_ENTRY_ADD:
+      management_event_forward_entry_add( subject, req, data_len );
+      break;
+
+    case EVENT_FORWARD_ENTRY_DELETE:
+      management_event_forward_entry_delete( subject, req, data_len );
+      break;
+
+    case EVENT_FORWARD_ENTRY_DUMP:
+      info( "Dumping current event filter." );
+      // do nothing
+      break;
+
+    case EVENT_FORWARD_ENTRY_SET:
+      management_event_forward_entries_set( subject, req, data_len );
+      break;
+  }
+
+  buffer *buf = create_event_forward_operation_reply( req->type, EFI_OPERATION_SUCCEEDED, *subject );
+  management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_SUCCEEDED, command, buf->data, buf->length );
+  free_buffer( buf );
+  send_management_application_reply( handle, reply );
+  xfree( reply );
+}
+
+
+static void
+management_recv( const messenger_context_handle *handle, uint32_t command, void *data, size_t data_len, void *user_data ) {
+  UNUSED( user_data );
+
+  switch ( command ) {
+    case EVENT_FORWARD_ENTRY_ADD:
+    case EVENT_FORWARD_ENTRY_DELETE:
+    case EVENT_FORWARD_ENTRY_DUMP:
+    case EVENT_FORWARD_ENTRY_SET:
+    {
+      event_forward_operation_request *req = data;
+      req->n_services = ntohl( req->n_services );
+      management_event_forward_entry_operation( handle, command, req, data_len );
+      return;
+    }
+    break;
+
+    case EFI_GET_SWLIST:
+    {
+      buffer *buf = get_switches();
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_SUCCEEDED, command, buf->data, buf->length );
+      free_buffer( buf );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+    }
+    break;
+
+    default:
+    {
+      error( "Undefined management command ( %#x )", command );
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, NULL, 0 );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+      return;
+    }
+  }
 }
 
 
@@ -406,6 +578,7 @@ main( int argc, char *argv[] ) {
     finalize_listener_info( &listener_info );
     exit( EXIT_FAILURE );
   }
+  set_management_application_request_handler( management_recv, NULL );
 
   init_dpid_table();
   start_service_management();

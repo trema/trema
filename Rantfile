@@ -60,6 +60,7 @@ task :examples => [
   "examples:openflow_message",
   "examples:packet_in",
   "examples:repeater_hub",
+  "examples:switch_event_config",
   "examples:packetin_filter_config",
   "examples:switch_info",
   "examples:switch_monitor",
@@ -298,7 +299,9 @@ end
 
 switch_manager_objects = [
   "dpid_table.o",
+  "event_forward_entry_manipulation.o",
   "switch_manager.o",
+  "switch_option.o",
   "secure_channel_listener.o"
 ].collect do | each |
   File.join switch_manager_objects_dir, each
@@ -313,12 +316,14 @@ end
 
 switch_objects = [
   "cookie_table.o",
+  "event_forward_entry_manipulation.o",
   "ofpmsg_recv.o",
   "ofpmsg_send.o",
   "secure_channel_receiver.o",
   "secure_channel_sender.o",
   "service_interface.o",
   "switch.o",
+  "switch_option.o",
   "xid_table.o",
 ].collect do | each |
   File.join switch_manager_objects_dir, each
@@ -590,6 +595,47 @@ openflow_messages.each do | each |
 end
 
 
+###############################################################################
+# Build switch_event_config
+###############################################################################
+
+switch_event_config = [
+  "add_forward_entry",
+  "delete_forward_entry",
+  "set_forward_entries",
+  "dump_forward_entries",
+]
+
+switch_event_config_source_dir = "src/examples/switch_event_config"
+switch_event_config_objects_dir = objects( "examples/switch_event_config" )
+
+gen C::Dependencies, dependency( "switch_event_config" ),
+  :search => [ Trema.include ], :sources => sys[ "#{ switch_event_config_source_dir }/*.{c,h}" ]
+
+gen Action do
+  source dependency( "switch_event_config" )
+end
+
+gen Directory, switch_event_config_objects_dir
+
+
+gen DirectedRule, switch_event_config_objects_dir => [ switch_event_config_source_dir ], :o => :c do | t |
+  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+
+
+switch_event_config.each do | each |
+  target = File.join( switch_event_config_objects_dir, each )
+  task "examples:switch_event_config" => target
+  file target => [
+    File.join( switch_event_config_objects_dir, "#{ each }.o" ),
+    libtrema
+  ] do | t |
+    sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ t.source } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+  end
+end
+
+
 ################################################################################
 # Build packetin_filter_config
 ################################################################################
@@ -700,6 +746,7 @@ tests = [
   "objects/unittests/buffer_test",
   "objects/unittests/doubly_linked_list_test",
   "objects/unittests/ether_test",
+  "objects/unittests/event_forward_interface_test",
   "objects/unittests/hash_table_test",
   "objects/unittests/linked_list_test",
   "objects/unittests/log_test",
