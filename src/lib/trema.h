@@ -28,6 +28,7 @@
 #include "checks.h"
 #include "doubly_linked_list.h"
 #include "etherip.h"
+#include "event_forward_interface.h"
 #include "event_handler.h"
 #include "hash_table.h"
 #include "linked_list.h"

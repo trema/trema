@@ -60,6 +60,7 @@ module Trema
   dir :objects, "oflops"
   dir :objects, "openflow"
   dir :objects, "openvswitch"
+  dir :objects, "phost"
   dir :tmp, "log"
   dir :tmp, "pid"
   dir :tmp, "sock"

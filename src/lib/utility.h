@@ -54,6 +54,9 @@ bool actions_to_string( const struct ofp_action_header *actions, uint16_t action
 
 uint16_t get_checksum( uint16_t *pos, uint32_t size );
 
+void xfree_data( void *data, void *user_data );
+
+bool string_equal( void *data, void *user_data );
 
 #endif // UTILITY_H
 
