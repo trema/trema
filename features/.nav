@@ -22,6 +22,10 @@
     - delete_forward_entry.feature
     - dump_forward_entries.feature
     - set_forward_entries.feature
+    - C-add_forward_entry.feature
+    - C-delete_forward_entry.feature
+    - C-dump_forward_entries.feature
+    - C-set_forward_entries.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature

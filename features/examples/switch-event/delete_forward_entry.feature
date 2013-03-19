@@ -9,18 +9,18 @@ Feature: Ruby methods for deleting switch event forwarding entry.
   These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
-  ** delete_forward_entry_from_all_switches event_type, trema_name **
+  * ** delete_forward_entry_from_all_switches event_type, trema_name **
   
   This method will delete `trema_name` from all existing switches and switch manager's 
   event forwarding entry list of the specified `event_type`.  
   
-  ** delete_forward_entry_from_switch dpid, event_type, trema_name **
+  * ** delete_forward_entry_from_switch dpid, event_type, trema_name **
   
   This method will delete an entry from switch specified by `dpid`. 
   It will delete `trema_name` from the switch's 
   event forwarding entry list of the specified `event_type`.  
   
-  ** delete_forward_entry_from_switch_manager event_type, trema_name **
+  * ** delete_forward_entry_from_switch_manager event_type, trema_name **
   
   This method will delete `trema_name` from the switch manager's 
   event forwarding entry list of the specified `event_type`.  
