@@ -1,4 +1,4 @@
-Feature: Ruby methods for deleting switch event forwarding entry.
+Feature: Ruby methods for deleting switch event forwarding entry
   
   There are three Ruby methods provided for deleting switch event forwarding entries.
   

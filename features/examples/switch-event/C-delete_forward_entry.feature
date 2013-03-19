@@ -1,10 +1,10 @@
-Feature: "delete_forward_entry" C function example command
+Feature: C function example command "delete_forward_entry"
   
   Switch Event forwarding configuration command (`delete_forward_entry`)
   is a command to delete an event forwarding entry from 
   Switch Manager and Switch Daemons.
   
-  The types of switch event can be forwarded are:
+  Following switch event types can be configured by this command:
   
   * vendor
   * packet_in
