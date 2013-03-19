@@ -1,4 +1,4 @@
-Feature: Ruby methods for setting switch event forwarding entry.
+Feature: Ruby methods for setting switch event forwarding entry
   
   There are two Ruby methods provided for setting switch event forwarding entry.
   
