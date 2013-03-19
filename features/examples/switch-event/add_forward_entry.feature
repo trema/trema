@@ -6,28 +6,28 @@ Feature: Ruby methods for adding switch event forwarding entry.
   * add_forward_entry_to_switch
   * add_forward_entry_to_switch_manager
   
-  These methods can be used by including Trema::SwitchEvent module
+  These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
   ** add_forward_entry_to_all_switches event_type, trema_name **
   
   This method will add `trema_name` to all existing switches and switch manager's 
-  event forwarding entry list for the specified switch `event_type`.  
+  event forwarding entry list of the specified `event_type`.  
   
   ** add_forward_entry_to_switch dpid, event_type, trema_name **
   
   This method will add an entry to a switch specified by `dpid`. 
   It will add `trema_name` to the switch's 
-  event forwarding entry list for the specified switch `event_type`.  
+  event forwarding entry list of the specified `event_type`.  
   
   ** add_forward_entry_to_switch_manager event_type, trema_name **
   
   This method will add `trema_name` to the switch manager's 
-  event forwarding entry list for the specified switch `event_type`.  
+  event forwarding entry list of the specified `event_type`.  
   
   ----
-  All the above methods take result handler as Ruby block, but 
-  they can be omitted if result is not necessary.
+  All the above methods take a result handler as Ruby block, but 
+  can be omitted if checking is not necessary.
 
   Scenario Outline: add_forward_entry_to_all_switches event_type, trema_name
     Given a file named "nw_dsl.conf" with:

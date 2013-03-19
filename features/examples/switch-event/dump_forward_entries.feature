@@ -5,22 +5,22 @@ Feature: Ruby methods for dumping switch event forwarding entry.
   * dump_forward_entries_from_switch
   * dump_forward_entries_from_switch_manager
   
-  These methods can be used by including Trema::SwitchEvent module
+  These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
   ** dump_forward_entries_from_switch dpid, event_type **
   
   This method will dump the forwarding entries of the switch specified by `dpid`. 
   It will dump the content of the the switch's 
-  event forwarding entry list for the specified switch `event_type`.  
+  event forwarding entry list of the specified `event_type`.  
   
   ** dump_forward_entries_from_switch_manager event_type **
   
   This method will dump the content of the the switch manager's 
-  event forwarding entry list for the specified switch `event_type`.  
+  event forwarding entry list of the specified `event_type`.  
   
   ----
-  All the above methods take result handler as Ruby block.
+  All the above methods take a result handler as Ruby block.
 
   Scenario Outline: dump_forward_entries_from_switch dpid, event_type
     Given a file named "nw_dsl.conf" with:
