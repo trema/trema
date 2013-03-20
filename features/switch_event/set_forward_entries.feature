@@ -8,7 +8,7 @@ Feature: Ruby methods for setting switch event forwarding entry
   These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
-  * ** set_forward_entries_to_switch dpid, event_type, trema_names **
+  * **set_forward_entries_to_switch dpid, event_type, trema_names**
   
   This method will set the forwarding entries of the switch specified by `dpid`. 
   It will replace the switch's 
@@ -16,7 +16,7 @@ Feature: Ruby methods for setting switch event forwarding entry
   to Array of trema-names specified by `trema_names`. 
     
   
-  * ** set_forward_entries_to_switch_manager event_type, trema_names **
+  * **set_forward_entries_to_switch_manager event_type, trema_names**
   
   This method will replace the switch manager's 
   event forwarding entry list of the specified `event_type`
@@ -32,7 +32,7 @@ Feature: Ruby methods for setting switch event forwarding entry
       vswitch { datapath_id 0x1 }
       """
     And a file named "SetEntriesToSwitchDaemonTest.rb" with:
-      """
+      """ruby
       class SetEntriesToSwitchDaemonTest < Controller
         include SwitchEvent
       
@@ -61,7 +61,7 @@ Feature: Ruby methods for setting switch event forwarding entry
 
   Scenario Outline: set_forward_entries_to_switch_manager event_type, trema_names
     Given a file named "SetEntriesToSwitchManagerTest.rb" with:
-      """
+      """ruby
       class SetEntriesToSwitchManagerTest < Controller
         include SwitchEvent
       
