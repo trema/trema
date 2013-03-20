@@ -8,13 +8,13 @@ Feature: Ruby methods for dumping switch event forwarding entry
   These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
-  * ** dump_forward_entries_from_switch dpid, event_type **
+  * **dump_forward_entries_from_switch dpid, event_type**
   
   This method will dump the forwarding entries of the switch specified by `dpid`. 
   It will dump the content of the the switch's 
   event forwarding entry list of the specified `event_type`.  
   
-  * ** dump_forward_entries_from_switch_manager event_type **
+  * **dump_forward_entries_from_switch_manager event_type**
   
   This method will dump the content of the the switch manager's 
   event forwarding entry list of the specified `event_type`.  
@@ -29,7 +29,7 @@ Feature: Ruby methods for dumping switch event forwarding entry
       event :vendor => "vendor", :packet_in => "packet_in", :port_status => "port_status"
       """
     And a file named "DumpSwitchDaemonTest.rb" with:
-      """
+      """ruby
       class DumpSwitchDaemonTest < Controller
         include SwitchEvent
       
@@ -62,7 +62,7 @@ Feature: Ruby methods for dumping switch event forwarding entry
       event :vendor => "vendor", :packet_in => "packet_in", :port_status => "port_status", :state_notify => "state_notify"
       """
     And a file named "DumpSwitchManagerTest.rb" with:
-      """
+      """ruby
       class DumpSwitchManagerTest < Controller
         include SwitchEvent
       

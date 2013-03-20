@@ -9,18 +9,18 @@ Feature: Ruby methods for deleting switch event forwarding entry
   These methods can be used by including the Trema::SwitchEvent module
   in user controller code. 
   
-  * ** delete_forward_entry_from_all_switches event_type, trema_name **
+  * **delete_forward_entry_from_all_switches event_type, trema_name**
   
   This method will delete `trema_name` from all existing switches and switch manager's 
   event forwarding entry list of the specified `event_type`.  
   
-  * ** delete_forward_entry_from_switch dpid, event_type, trema_name **
+  * **delete_forward_entry_from_switch dpid, event_type, trema_name**
   
   This method will delete an entry from switch specified by `dpid`. 
   It will delete `trema_name` from the switch's 
   event forwarding entry list of the specified `event_type`.  
   
-  * ** delete_forward_entry_from_switch_manager event_type, trema_name **
+  * **delete_forward_entry_from_switch_manager event_type, trema_name**
   
   This method will delete `trema_name` from the switch manager's 
   event forwarding entry list of the specified `event_type`.  
@@ -35,7 +35,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       vswitch { datapath_id 0x1 }
       """
     And a file named "DeleteEntryFromAllTest.rb" with:
-      """
+      """ruby
       class DeleteEntryFromAllTest < Controller
         include SwitchEvent
       
@@ -84,7 +84,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       vswitch { datapath_id 0x1 }
       """
     And a file named "DeleteFromSwitchDaemonTest.rb" with:
-      """
+      """ruby
       class DeleteFromSwitchDaemonTest < Controller
         include SwitchEvent
       
@@ -113,7 +113,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
 
   Scenario Outline: delete_forward_entry_from_switch_manager event_type, trema_name
     Given a file named "DeleteFromSwitchManagerTest.rb" with:
-      """
+      """ruby
       class DeleteFromSwitchManagerTest < Controller
         include SwitchEvent
       
