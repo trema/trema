@@ -37,17 +37,17 @@
 struct event_forward_operation_to_all_request_param {
   bool add;
   enum efi_event_type type;
-  char* service_name;
+  char *service_name;
   event_forward_entry_to_all_callback callback;
-  void* user_data;
+  void *user_data;
 };
 
 typedef struct all_sw_tx {
   uint32_t txid;
-  hash_table* waiting_dpid;
+  hash_table *waiting_dpid;
   enum efi_result tx_result;
 
-  void* user_data;
+  void *user_data;
 } all_sw_tx;
 
 struct txinfo {
@@ -55,13 +55,13 @@ struct txinfo {
   uint32_t txid;
 };
 
-extern const char* _get_efi_queue_name( void );
+extern const char *_get_efi_queue_name( void );
 extern void _get_switch_list_after_swm_succ( event_forward_operation_result result, void *user_data );
-extern void _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data );
+extern void _dispatch_to_all_switch( uint64_t *dpids, size_t n_dpids, void *user_data );
 extern void _switch_response_handler( event_forward_operation_result result, void *user_data );
 extern void _cleanup_tx_table();
-extern all_sw_tx* _insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param* param );
-extern void _switch_response_timeout( void* user_data );
+extern all_sw_tx *_insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param *param );
+extern void _switch_response_timeout( void *user_data );
 
 /********************************************************************************
  * Mock functions.
@@ -191,7 +191,7 @@ mock_send_request_message( const char *to_service_name, const char *from_service
   check_expected( hd->user_data );
 
   bool sent_ok = ( bool ) mock();
-  if( sent_ok ) {
+  if ( sent_ok ) {
     if ( free_user_data_member ) {
       xfree( hd->user_data );
     }
@@ -204,15 +204,15 @@ mock_send_request_message( const char *to_service_name, const char *from_service
 void mock_event_forward_entry_operation_callback( event_forward_operation_result result, void *user_data ) {
   check_expected( result.result );
   check_expected( result.n_services );
-  for( unsigned i = 0 ; i < result.n_services ; ++i ) {
-    const char* service = result.services[i];
+  for ( unsigned i = 0; i < result.n_services; ++i ) {
+    const char *service = result.services[i];
     check_expected( service );
   }
   check_expected( user_data );
 }
 
 
-void mock_switch_list_request_callback( uint64_t* dpids, size_t n_dpids, void *user_data ) {
+void mock_switch_list_request_callback( uint64_t *dpids, size_t n_dpids, void *user_data ) {
   check_expected( n_dpids );
   check_expected( dpids );
   check_expected( user_data );
@@ -370,7 +370,7 @@ test_init_event_forward_interface_fails_if_already_initialized() {
   assert_false( init_event_forward_interface() );
 
   assert_false( _get_efi_queue_name() == NULL );
-  assert_string_equal(_get_efi_queue_name(), efi_queue_name );
+  assert_string_equal( _get_efi_queue_name(), efi_queue_name );
 
   expect_string( mock_delete_message_replied_callback, service_name, efi_queue_name );
   will_return( mock_delete_message_replied_callback, true );
@@ -421,28 +421,28 @@ test_finalize_event_forward_interface_fails_if_not_initialized() {
 
 static void
 test_set_switch_manager_event_forward_entries_succeeds() {
-  list_element* head;
+  list_element *head;
   char alpha[] = "alpha-12345678901234567890";
   char bravo[] = "bravo-12345678901234567890";
   create_list( &head );
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6+21];
-    char bravo[6+21];
+    char alpha[ 6 + 21 ];
+    char bravo[ 6 + 21 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -450,7 +450,7 @@ test_set_switch_manager_event_forward_entries_succeeds() {
       },
       .alpha = "alpha-12345678901234567890",
       .bravo = "bravo-12345678901234567890",
-  } ;
+  };
 
   expect_string( mock_send_request_message, to_service_name, "switch_manager.m" );
   expect_string( mock_send_request_message, from_service_name, "tetris-efic-1234" );
@@ -474,20 +474,20 @@ test_set_switch_manager_event_forward_entries_succeeds() {
 static void
 test_add_switch_manager_event_forward_entry_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PACKET_IN,
@@ -516,20 +516,20 @@ test_add_switch_manager_event_forward_entry_succeeds() {
 static void
 test_delete_switch_manager_event_forward_entry_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_DELETE ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PORT_STATUS,
@@ -558,8 +558,8 @@ test_delete_switch_manager_event_forward_entry_succeeds() {
 static void
 test_dump_switch_manager_event_forward_entries_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
@@ -568,9 +568,9 @@ test_dump_switch_manager_event_forward_entries_succeeds() {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_DUMP),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_DUMP ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_STATE_NOTIFY,
@@ -597,28 +597,28 @@ test_dump_switch_manager_event_forward_entries_succeeds() {
 
 static void
 test_set_switch_event_forward_entries_succeeds() {
-  list_element* head;
+  list_element *head;
   char alpha[] = "alpha";
   char bravo[] = "bravo";
   create_list( &head );
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
-    char bravo[6];
+    char alpha[ 6 ];
+    char bravo[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -650,20 +650,20 @@ test_set_switch_event_forward_entries_succeeds() {
 static void
 test_add_switch_event_forward_entry_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PACKET_IN,
@@ -692,20 +692,20 @@ test_add_switch_event_forward_entry_succeeds() {
 static void
 test_delete_switch_event_forward_entry_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_DELETE ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PORT_STATUS,
@@ -734,8 +734,8 @@ test_delete_switch_event_forward_entry_succeeds() {
 static void
 test_dump_switch_event_forward_entries_succeeds() {
 
-  event_forward_entry_operation_callback callback = (event_forward_entry_operation_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_operation_callback callback = ( event_forward_entry_operation_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
@@ -744,9 +744,9 @@ test_dump_switch_event_forward_entries_succeeds() {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_DUMP),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_DUMP ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_STATE_NOTIFY,
@@ -777,16 +777,16 @@ test_handle_efi_reply_succeeds_with_success_reply() {
   struct input_data {
     management_application_reply mgmt;
     event_forward_operation_reply efi;
-    char alpha[6];
-    char bravo[6];
+    char alpha[ 6 ];
+    char bravo[ 6 ];
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -797,7 +797,7 @@ test_handle_efi_reply_succeeds_with_success_reply() {
       .bravo = "bravo"
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -822,9 +822,9 @@ test_handle_efi_reply_succeeds_with_event_forward_entry_operation_failure_reply(
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -833,7 +833,7 @@ test_handle_efi_reply_succeeds_with_event_forward_entry_operation_failure_reply(
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -856,9 +856,9 @@ test_handle_efi_reply_succeeds_with_management_failure_reply() {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_FAILED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -867,7 +867,7 @@ test_handle_efi_reply_succeeds_with_management_failure_reply() {
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -891,13 +891,13 @@ test_handle_efi_reply_ignores_wrong_message_tag_reply() {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_FAILED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -918,13 +918,13 @@ test_handle_efi_reply_ignores_wrong_message_length_reply() {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_FAILED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_SET),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_SET ),
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -938,7 +938,7 @@ test_handle_efi_reply_ignores_wrong_message_length_reply() {
 static void
 test_handle_efi_reply_ignores_empty_reply() {
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -960,9 +960,9 @@ test_handle_efi_reply_ignores_wrong_event_forward_operation_command_reply() {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(0x1234),
+          .application_id = htonl( 0x1234 ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -971,7 +971,7 @@ test_handle_efi_reply_ignores_wrong_event_forward_operation_command_reply() {
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -993,9 +993,9 @@ test_handle_efi_reply_succeeds_with_wrong_event_forward_operation_result_reply()
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -1004,7 +1004,7 @@ test_handle_efi_reply_succeeds_with_wrong_event_forward_operation_result_reply()
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -1024,16 +1024,16 @@ test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply() {
   struct input_data {
     management_application_reply mgmt;
     event_forward_operation_reply efi;
-    char alpha[6];
-    char bravo[6];
+    char alpha[ 6 ];
+    char bravo[ 6 ];
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -1044,7 +1044,7 @@ test_handle_efi_reply_succeeds_with_more_service_found_then_expected_reply() {
       .bravo = "bravo"
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -1065,16 +1065,16 @@ test_handle_efi_reply_succeeds_with_empty_service_name_reply() {
   struct input_data {
     management_application_reply mgmt;
     event_forward_operation_reply efi;
-    char alpha[6];
-    char bravo[1];
+    char alpha[ 6 ];
+    char bravo[ 1 ];
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+          .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_VENDOR,
@@ -1085,7 +1085,7 @@ test_handle_efi_reply_succeeds_with_empty_service_name_reply() {
       .bravo = ""
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_event_forward_entry_operation_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -1115,7 +1115,7 @@ test_create_event_forward_operation_reply_with_null_service_list() {
         .n_services = 0
     }
   };
-  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, NULL );
+  buffer *buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, NULL );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1133,9 +1133,9 @@ test_create_event_forward_operation_reply_with_empty_service_list() {
         .n_services = 0
     }
   };
-  list_element* head;
+  list_element *head;
   create_list( &head );
-  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer *buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1148,19 +1148,19 @@ test_create_event_forward_operation_reply_with_one_service_list() {
   char alpha[] = "alpha";
   struct expected_data {
     event_forward_operation_reply efi;
-    const char service[6];
+    const char service[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
         .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
-        .n_services = htonl(1)
+        .n_services = htonl( 1 )
     },
     .service = "alpha"
   };
-  list_element* head;
+  list_element *head;
   create_list( &head );
   append_to_tail( &head, alpha );
-  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer *buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1175,25 +1175,25 @@ test_create_event_forward_operation_reply_with_multi_service_list() {
   char charlie[] = "charlie-12345678901234567890";
   struct expected_data {
     event_forward_operation_reply efi;
-    const char alpha[6+21];
-    const char bravo[6+21];
-    const char charlie[8+21];
+    const char alpha[ 6 + 21 ];
+    const char bravo[ 6 + 21 ];
+    const char charlie[ 8 + 21 ];
   } __attribute__( ( packed ) ) expected_data = {
     .efi = {
         .type = EVENT_FORWARD_TYPE_PACKET_IN,
         .result = EFI_OPERATION_SUCCEEDED,
-        .n_services = htonl(3)
+        .n_services = htonl( 3 )
     },
     .alpha = "alpha-12345678901234567890",
     .bravo = "bravo-12345678901234567890",
     .charlie = "charlie-12345678901234567890"
   };
-  list_element* head;
+  list_element *head;
   create_list( &head );
   append_to_tail( &head, alpha );
   append_to_tail( &head, bravo );
   append_to_tail( &head, charlie );
-  buffer* buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
+  buffer *buf = create_event_forward_operation_reply( EVENT_FORWARD_TYPE_PACKET_IN, EFI_OPERATION_SUCCEEDED, head );
 
   assert_memory_equal( buf->data, &expected_data, sizeof( struct expected_data ) );
   free_buffer( buf );
@@ -1208,8 +1208,8 @@ test_create_event_forward_operation_reply_with_multi_service_list() {
 static void
 test_send_efi_switch_list_request_succeeds() {
 
-  switch_list_request_callback callback = (switch_list_request_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  switch_list_request_callback callback = ( switch_list_request_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
@@ -1217,9 +1217,9 @@ test_send_efi_switch_list_request_succeeds() {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EFI_GET_SWLIST),
+        .application_id = htonl( EFI_GET_SWLIST ),
       },
   };
 
@@ -1242,28 +1242,28 @@ test_handle_efi_reply_succeeds_with_switch_list_reply() {
   const uint64_t dpids_host[] = { 0x12345678, 0xabcdef00 };
   struct input_data {
     management_application_reply mgmt;
-    uint64_t dpids[2];
+    uint64_t dpids[ 2 ];
   } __attribute__( ( packed ) ) input_data = {
       .mgmt = {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_SUCCEEDED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EFI_GET_SWLIST),
+          .application_id = htonl( EFI_GET_SWLIST ),
       },
       .dpids = {
-          htonll(dpids_host[0]),
-          htonll(dpids_host[1])
+          htonll( dpids_host[ 0 ] ),
+          htonll( dpids_host[ 1 ] )
       }
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_switch_list_request_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
   expect_value( mock_switch_list_request_callback, n_dpids, 2 );
-  expect_memory( mock_switch_list_request_callback, dpids, dpids_host, 2*sizeof(uint64_t) );
+  expect_memory( mock_switch_list_request_callback, dpids, dpids_host, 2 * sizeof( uint64_t ) );
   expect_value( mock_switch_list_request_callback, user_data, 0x12345678 );
 
   handle_efi_reply( MESSENGER_MANAGEMENT_REPLY, &input_data, sizeof( struct input_data ), user_data );
@@ -1280,13 +1280,13 @@ test_handle_efi_reply_succeeds_with_management_failure_on_switch_list_reply() {
           .header = {
               .type = htons( MANAGEMENT_APPLICATION_REPLY ),
               .status = MANAGEMENT_REQUEST_FAILED,
-              .length = htonl(sizeof( struct input_data ) ),
+              .length = htonl( sizeof( struct input_data ) ),
           },
-          .application_id = htonl(EFI_GET_SWLIST),
+          .application_id = htonl( EFI_GET_SWLIST ),
       },
   };
 
-  struct callback_info* user_data = xcalloc( 1, sizeof( struct callback_info ) );
+  struct callback_info *user_data = xcalloc( 1, sizeof( struct callback_info ) );
   user_data->callback = mock_switch_list_request_callback;
   user_data->user_data = ( void * ) 0x12345678;
 
@@ -1308,20 +1308,20 @@ test_handle_efi_reply_succeeds_with_management_failure_on_switch_list_reply() {
 static void
 test_add_event_forward_entry_to_all_switches_succeeds() {
 
-  event_forward_entry_to_all_callback callback = (event_forward_entry_to_all_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_to_all_callback callback = ( event_forward_entry_to_all_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PACKET_IN,
@@ -1347,20 +1347,20 @@ test_add_event_forward_entry_to_all_switches_succeeds() {
 static void
 test_delete_event_forward_entry_to_all_switches_succeeds() {
 
-  event_forward_entry_to_all_callback callback = (event_forward_entry_to_all_callback) 0x12345678;
-  void* user_data = (void*) 0xABCDEF;
+  event_forward_entry_to_all_callback callback = ( event_forward_entry_to_all_callback ) 0x12345678;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_DELETE),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_DELETE ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PACKET_IN,
@@ -1386,7 +1386,7 @@ test_delete_event_forward_entry_to_all_switches_succeeds() {
 static void
 test__get_switch_list_after_swm_succ_succeeds() {
 
-  void* user_data = (void*) 0xABCDEF;
+  void *user_data = ( void * ) 0xABCDEF;
 
   struct expected_data {
     management_application_request mgmt;
@@ -1394,13 +1394,13 @@ test__get_switch_list_after_swm_succ_succeeds() {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EFI_GET_SWLIST),
+        .application_id = htonl( EFI_GET_SWLIST ),
       },
   };
 
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
@@ -1434,9 +1434,9 @@ test__dispatch_to_all_switch_succeeds() {
   uint64_t dpids[] = { 0x12345678 };
   const size_t n_dpids = 1;
 
-  void* user_data = (void*) 0xABCDEF;
+  void *user_data = ( void * ) 0xABCDEF;
 
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
@@ -1447,14 +1447,14 @@ test__dispatch_to_all_switch_succeeds() {
   struct expected_data {
     management_application_request mgmt;
     event_forward_operation_request efi;
-    char alpha[6];
+    char alpha[ 6 ];
   } __attribute__( ( packed ) ) expected_data = {
       .mgmt = {
         .header = {
             .type = htons( MANAGEMENT_APPLICATION_REQUEST ),
-            .length = htonl(sizeof( struct expected_data ) ),
+            .length = htonl( sizeof( struct expected_data ) ),
         },
-        .application_id = htonl(EVENT_FORWARD_ENTRY_ADD),
+        .application_id = htonl( EVENT_FORWARD_ENTRY_ADD ),
       },
       .efi = {
           .type = EVENT_FORWARD_TYPE_PACKET_IN,
@@ -1486,17 +1486,17 @@ test__dispatch_to_all_switch_succeeds() {
 static void
 test__switch_response_handler_succeeds_when_last_one_standing() {
 
-  void* user_data = (void*) 0x1234;
+  void *user_data = ( void * ) 0x1234;
 
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
   param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
-  all_sw_tx* tx = _insert_tx( 1, param );
-  uint64_t* dpid = xmalloc( sizeof( uint64_t ) );
+  all_sw_tx *tx = _insert_tx( 1, param );
+  uint64_t *dpid = xmalloc( sizeof( uint64_t ) );
   *dpid = 0x12345678;
   insert_hash_entry( tx->waiting_dpid, dpid, dpid );
 
@@ -1505,7 +1505,7 @@ test__switch_response_handler_succeeds_when_last_one_standing() {
   result.n_services = 0;
   result.services = NULL;
 
-  struct txinfo* txinfo = xmalloc( sizeof( struct txinfo ) );
+  struct txinfo *txinfo = xmalloc( sizeof( struct txinfo ) );
   txinfo->dpid = 0x12345678;
   txinfo->txid = tx->txid;
 
@@ -1519,21 +1519,21 @@ test__switch_response_handler_succeeds_when_last_one_standing() {
 static void
 test__switch_response_timeout_then_fails() {
 
-  void* user_data = (void*) 0x1234;
+  void *user_data = ( void * ) 0x1234;
 
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = EVENT_FORWARD_TYPE_PACKET_IN;
   param->service_name = xstrdup( "alpha" );
   param->callback = mock_event_forward_entry_to_all_callback;
   param->user_data = user_data;
 
-  all_sw_tx* tx = _insert_tx( 1, param );
-  uint64_t* dpid = xmalloc( sizeof( uint64_t ) );
+  all_sw_tx *tx = _insert_tx( 1, param );
+  uint64_t *dpid = xmalloc( sizeof( uint64_t ) );
   *dpid = 0x12345678;
   insert_hash_entry( tx->waiting_dpid, dpid, dpid );
 
-  struct txinfo* txinfo = xmalloc( sizeof( struct txinfo ) );
+  struct txinfo *txinfo = xmalloc( sizeof( struct txinfo ) );
   txinfo->dpid = 0x12345678;
   txinfo->txid = tx->txid;
 

@@ -32,16 +32,16 @@ static hash_table *efi_tx_table = NULL;
 
 struct event_forward_operation_request_param {
   event_forward_entry_operation_callback callback;
-  void* user_data;
+  void *user_data;
 };
 
 
 struct event_forward_operation_to_all_request_param {
   bool add;
   enum efi_event_type type;
-  char* service_name;
+  char *service_name;
   event_forward_entry_to_all_callback callback;
-  void* user_data;
+  void *user_data;
 };
 
 
@@ -53,10 +53,10 @@ struct sw_list_request_param {
 
 typedef struct all_sw_tx {
   uint32_t txid;
-  hash_table* waiting_dpid;
+  hash_table *waiting_dpid;
   enum efi_result tx_result;
 
-  struct event_forward_operation_to_all_request_param* request_param;
+  struct event_forward_operation_to_all_request_param *request_param;
 } all_sw_tx;
 
 
@@ -67,7 +67,7 @@ struct txinfo {
 
 
 static void
-xfree_event_forward_operation_to_all_request_param( struct event_forward_operation_to_all_request_param* param ) {
+xfree_event_forward_operation_to_all_request_param( struct event_forward_operation_to_all_request_param *param ) {
   xfree( param->service_name );
   param->service_name = NULL;
   xfree( param );
@@ -76,7 +76,7 @@ xfree_event_forward_operation_to_all_request_param( struct event_forward_operati
 
 // foreach_hash helper function
 static void
-xfree_dpid( void* key, void* value, void* user_data ) {
+xfree_dpid( void *key, void *value, void *user_data ) {
   UNUSED( value );
   UNUSED( user_data );
   xfree( key );
@@ -84,8 +84,8 @@ xfree_dpid( void* key, void* value, void* user_data ) {
 
 
 static void
-xfree_all_sw_tx( all_sw_tx* tx ) {
-  struct event_forward_operation_to_all_request_param* param = tx->request_param;
+xfree_all_sw_tx( all_sw_tx *tx ) {
+  struct event_forward_operation_to_all_request_param *param = tx->request_param;
   xfree_event_forward_operation_to_all_request_param( param );
   tx->request_param = NULL;
 
@@ -103,11 +103,11 @@ _get_efi_queue_name( void ) {
 
 
 buffer*
-create_event_forward_operation_request( buffer* buf, enum efi_event_type type, list_element* service_list ) {
+create_event_forward_operation_request( buffer *buf, enum efi_event_type type, list_element *service_list ) {
   if ( buf == NULL ) {
     buf = alloc_buffer_with_length( sizeof( event_forward_operation_request ) + MESSENGER_SERVICE_NAME_LENGTH );
   }
-  event_forward_operation_request* req = append_back_buffer( buf, sizeof( event_forward_operation_request ) );
+  event_forward_operation_request *req = append_back_buffer( buf, sizeof( event_forward_operation_request ) );
   memset( req, 0, sizeof( event_forward_operation_request ) );
 
   req->type = ( uint8_t ) type;
@@ -117,7 +117,7 @@ create_event_forward_operation_request( buffer* buf, enum efi_event_type type, l
   if ( service_list != NULL ) {
     for ( list_element *e = service_list; e != NULL; e = e->next ) {
       const size_t len = strlen( e->data );
-      char* dst = append_back_buffer( buf, len + 1 );
+      char *dst = append_back_buffer( buf, len + 1 );
       req = ( event_forward_operation_request * )( dst - request_head_offset );
       request_head_offset += len + 1;
       strcpy( dst, e->data );
@@ -132,9 +132,9 @@ create_event_forward_operation_request( buffer* buf, enum efi_event_type type, l
 
 
 buffer*
-create_event_forward_operation_reply( enum efi_event_type type, enum efi_result result, list_element* service_list ) {
-  buffer* buf = alloc_buffer_with_length( sizeof( event_forward_operation_reply ) + MESSENGER_SERVICE_NAME_LENGTH );
-  event_forward_operation_reply* rep = append_back_buffer( buf, sizeof( event_forward_operation_reply ) );
+create_event_forward_operation_reply( enum efi_event_type type, enum efi_result result, list_element *service_list ) {
+  buffer *buf = alloc_buffer_with_length( sizeof( event_forward_operation_reply ) + MESSENGER_SERVICE_NAME_LENGTH );
+  event_forward_operation_reply *rep = append_back_buffer( buf, sizeof( event_forward_operation_reply ) );
   memset( rep, 0, sizeof( event_forward_operation_reply ) );
 
   rep->type = ( uint8_t ) type;
@@ -145,7 +145,7 @@ create_event_forward_operation_reply( enum efi_event_type type, enum efi_result 
   if ( service_list != NULL ) {
     for ( list_element *e = service_list; e != NULL; e = e->next ) {
       const size_t len = strlen( e->data );
-      char* dst = append_back_buffer( buf, len + 1 );
+      char *dst = append_back_buffer( buf, len + 1 );
       rep = ( event_forward_operation_reply * )( dst - reply_head_offset );
       reply_head_offset += len + 1;
       strcpy( dst, e->data );
@@ -160,13 +160,13 @@ create_event_forward_operation_reply( enum efi_event_type type, enum efi_result 
 
 
 static void
-handle_event_forward_operation_reply( management_application_reply * reply, size_t length, struct event_forward_operation_request_param* param ) {
+handle_event_forward_operation_reply( management_application_reply *reply, size_t length, struct event_forward_operation_request_param *param ) {
   event_forward_operation_result result;
   result.result = EFI_OPERATION_FAILED;
   result.n_services = 0;
   result.services = NULL;
 
-  event_forward_operation_reply* efi_reply = ( event_forward_operation_reply * ) reply->data;
+  event_forward_operation_reply *efi_reply = ( event_forward_operation_reply * ) reply->data;
   efi_reply->n_services = ntohl( efi_reply->n_services );
 
   if ( reply->header.status == MANAGEMENT_REQUEST_FAILED ) {
@@ -179,16 +179,16 @@ handle_event_forward_operation_reply( management_application_reply * reply, size
   }
 
   switch ( efi_reply->result ) {
-  case EFI_OPERATION_SUCCEEDED:
-    result.result = EFI_OPERATION_SUCCEEDED;
-    break;
-  case EFI_OPERATION_FAILED:
-    result.result = EFI_OPERATION_FAILED;
-    break;
-  default:
-    warn( "Unknown result type %#x. Translating as FAILED.", efi_reply->result );
-    result.result = EFI_OPERATION_FAILED;
-    break;
+    case EFI_OPERATION_SUCCEEDED:
+      result.result = EFI_OPERATION_SUCCEEDED;
+      break;
+    case EFI_OPERATION_FAILED:
+      result.result = EFI_OPERATION_FAILED;
+      break;
+    default:
+      warn( "Unknown result type %#x. Translating as FAILED.", efi_reply->result );
+      result.result = EFI_OPERATION_FAILED;
+      break;
   }
 
   if ( result.result == EFI_OPERATION_FAILED ) {
@@ -209,16 +209,18 @@ handle_event_forward_operation_reply( management_application_reply * reply, size
   result.services = xcalloc( n_services_expected, sizeof( char * ) );
 
   result.n_services = 0;
-  const char* next_name = efi_reply->service_list;
+  const char *next_name = efi_reply->service_list;
   while ( next_name < &efi_reply->service_list[ service_list_len ] ) {
     const size_t name_len = strlen( next_name );
     if ( name_len > 0 ) {
       if ( result.n_services < n_services_expected ) {
         result.services[ result.n_services++ ] = next_name;
-      } else {
+      }
+      else {
         warn( "Expected %d name(s), but found more service name. Ignoring '%s'.", n_services_expected, next_name );
       }
-    } else {
+    }
+    else {
       warn( "Encountered empty service name." );
     }
     next_name += name_len + 1;
@@ -232,7 +234,7 @@ handle_event_forward_operation_reply( management_application_reply * reply, size
 
 
 static void
-handle_get_switch_list_reply( management_application_reply * reply, size_t length, struct sw_list_request_param* param ) {
+handle_get_switch_list_reply( management_application_reply *reply, size_t length, struct sw_list_request_param *param ) {
 
   if ( reply->header.status == MANAGEMENT_REQUEST_FAILED ) {
     warn( "Management request failed." );
@@ -286,31 +288,31 @@ handle_efi_reply( uint16_t tag, void *data, size_t length, void *user_data ) {
 
   // check command validity
   switch ( command ) {
-  case EVENT_FORWARD_ENTRY_ADD:
-  case EVENT_FORWARD_ENTRY_DELETE:
-  case EVENT_FORWARD_ENTRY_DUMP:
-  case EVENT_FORWARD_ENTRY_SET:
-  {
-    struct event_forward_operation_request_param *param = user_data;
-    handle_event_forward_operation_reply( reply, length, param );
-    xfree( param );
-    return;
-  }
-  break;
-
-  case EFI_GET_SWLIST:
-  {
-    struct sw_list_request_param* param = user_data;
-    handle_get_switch_list_reply( reply, length, param );
-    xfree( param );
-    return;
-  }
-  break;
-
-  default:
-    warn( "Invalid command/application_id: %#x", command );
-    return;
+    case EVENT_FORWARD_ENTRY_ADD:
+    case EVENT_FORWARD_ENTRY_DELETE:
+    case EVENT_FORWARD_ENTRY_DUMP:
+    case EVENT_FORWARD_ENTRY_SET:
+    {
+      struct event_forward_operation_request_param *param = user_data;
+      handle_event_forward_operation_reply( reply, length, param );
+      xfree( param );
+      return;
+    }
     break;
+
+    case EFI_GET_SWLIST:
+    {
+      struct sw_list_request_param *param = user_data;
+      handle_get_switch_list_reply( reply, length, param );
+      xfree( param );
+      return;
+    }
+    break;
+
+    default:
+      warn( "Invalid command/application_id: %#x", command );
+      return;
+      break;
   }
 }
 
@@ -354,7 +356,7 @@ _cleanup_tx_table() {
   init_hash_iterator( efi_tx_table, &it );
   hash_entry *e = NULL;
   while ( ( e = iterate_hash_next( &it ) ) != NULL ) {
-    all_sw_tx* tx = e->value;
+    all_sw_tx *tx = e->value;
     warn( "txid:%#x was left behind.", tx->txid );
 
     delete_hash_entry( efi_tx_table, &tx->txid );
@@ -383,7 +385,7 @@ finalize_event_forward_interface( void ) {
 
 
 static bool
-send_efi_event_config_request( const char* service_name, enum switch_management_command command, enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
+send_efi_event_config_request( const char *service_name, enum switch_management_command command, enum efi_event_type type, list_element *service_list, event_forward_entry_operation_callback callback, void *user_data ) {
   maybe_init_event_forward_interface();
   if ( service_name == NULL ) {
     return false;
@@ -399,16 +401,16 @@ send_efi_event_config_request( const char* service_name, enum switch_management_
     return false;
   }
 
-  buffer* all_req = alloc_buffer_with_length( sizeof( management_application_request ) + sizeof( event_forward_operation_request ) + MESSENGER_SERVICE_NAME_LENGTH );
+  buffer *all_req = alloc_buffer_with_length( sizeof( management_application_request ) + sizeof( event_forward_operation_request ) + MESSENGER_SERVICE_NAME_LENGTH );
 
-  management_application_request* apreq = append_back_buffer( all_req, sizeof( management_application_request ) );
+  management_application_request *apreq = append_back_buffer( all_req, sizeof( management_application_request ) );
   apreq->header.type = htons( MANAGEMENT_APPLICATION_REQUEST );
   apreq->application_id = htonl( command );
   create_event_forward_operation_request( all_req, type, service_list );
   apreq = all_req->data;
   apreq->header.length = htonl( ( uint32_t ) all_req->length );
 
-  struct event_forward_operation_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_request_param ) );
+  struct event_forward_operation_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_request_param ) );
   param->callback = callback;
   param->user_data = user_data;
 
@@ -425,14 +427,14 @@ send_efi_event_config_request( const char* service_name, enum switch_management_
 
 // Low level API for switch manager
 bool
-set_switch_manager_event_forward_entries( enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
+set_switch_manager_event_forward_entries( enum efi_event_type type, list_element *service_list, event_forward_entry_operation_callback callback, void *user_data ) {
   const char switch_manager[] = "switch_manager.m";
   return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_SET, type, service_list, callback, user_data );
 }
 
 
 bool
-add_switch_manager_event_forward_entry( enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
+add_switch_manager_event_forward_entry( enum efi_event_type type, const char *service_name, event_forward_entry_operation_callback callback, void *user_data ) {
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
@@ -445,7 +447,7 @@ add_switch_manager_event_forward_entry( enum efi_event_type type, const char* se
 
 
 bool
-delete_switch_manager_event_forward_entry( enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
+delete_switch_manager_event_forward_entry( enum efi_event_type type, const char *service_name, event_forward_entry_operation_callback callback, void *user_data ) {
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
@@ -458,14 +460,14 @@ delete_switch_manager_event_forward_entry( enum efi_event_type type, const char*
 
 
 bool
-dump_switch_manager_event_forward_entries( enum efi_event_type type, event_forward_entry_operation_callback callback, void* user_data ) {
+dump_switch_manager_event_forward_entries( enum efi_event_type type, event_forward_entry_operation_callback callback, void *user_data ) {
   const char switch_manager[] = "switch_manager.m";
   return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DUMP, type, NULL, callback, user_data );
 }
 
 
 bool
-set_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, list_element* service_list, event_forward_entry_operation_callback callback, void* user_data ) {
+set_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, list_element *service_list, event_forward_entry_operation_callback callback, void *user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_SET, type, service_list, callback, user_data );
@@ -473,7 +475,7 @@ set_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, list_
 
 
 bool
-add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
+add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char *service_name, event_forward_entry_operation_callback callback, void *user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
@@ -487,7 +489,7 @@ add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const c
 
 
 bool
-delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char* service_name, event_forward_entry_operation_callback callback, void* user_data ) {
+delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const char *service_name, event_forward_entry_operation_callback callback, void *user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
@@ -501,7 +503,7 @@ delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, cons
 
 
 bool
-dump_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, event_forward_entry_operation_callback callback, void* user_data ) {
+dump_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, event_forward_entry_operation_callback callback, void *user_data ) {
   char switch_name[ MESSENGER_SERVICE_NAME_LENGTH ];
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DUMP, type, NULL, callback, user_data );
@@ -509,7 +511,7 @@ dump_switch_event_forward_entries( uint64_t dpid, enum efi_event_type type, even
 
 
 bool
-send_efi_switch_list_request( switch_list_request_callback callback, void* user_data ) {
+send_efi_switch_list_request( switch_list_request_callback callback, void *user_data ) {
   maybe_init_event_forward_interface();
   if ( callback == NULL ) {
     return false;
@@ -520,7 +522,7 @@ send_efi_switch_list_request( switch_list_request_callback callback, void* user_
   req.header.length = htonl( ( uint32_t ) sizeof( management_application_request ) );
   req.application_id = htonl( EFI_GET_SWLIST );
 
-  struct sw_list_request_param* param = xcalloc( 1, sizeof( struct sw_list_request_param ) );
+  struct sw_list_request_param *param = xcalloc( 1, sizeof( struct sw_list_request_param ) );
   param->callback = callback;
   param->user_data = user_data;
 
@@ -542,7 +544,7 @@ get_txid() {
 
 
 static bool
-hash_table_is_empty( hash_table* tbl ) {
+hash_table_is_empty( hash_table *tbl ) {
   hash_iterator it;
   init_hash_iterator( tbl, &it );
   return ( iterate_hash_next( &it ) == NULL );
@@ -550,9 +552,9 @@ hash_table_is_empty( hash_table* tbl ) {
 
 
 static bool
-check_tx_result_and_respond( all_sw_tx* tx ) {
+check_tx_result_and_respond( all_sw_tx *tx ) {
   if ( tx->tx_result == EFI_OPERATION_FAILED ) {
-    struct event_forward_operation_to_all_request_param* all_param = tx->request_param;
+    struct event_forward_operation_to_all_request_param *all_param = tx->request_param;
     if ( all_param->callback != NULL ) {
       all_param->callback( tx->tx_result, all_param->user_data );
     }
@@ -568,22 +570,22 @@ check_tx_result_and_respond( all_sw_tx* tx ) {
 
 
 void
-_switch_response_timeout( void* user_data ) {
-  struct txinfo* txinfo = user_data;
+_switch_response_timeout( void *user_data ) {
+  struct txinfo *txinfo = user_data;
   const uint64_t dpid = txinfo->dpid;
   const uint32_t txid = txinfo->txid;
   //  xfree( txinfo ); // cannot free since _switch_response_handler may be called later.
   txinfo = NULL;
   debug( "txid %#x switch %#" PRIx64 " time out. called", txid, dpid );
 
-  all_sw_tx* tx = lookup_hash_entry( efi_tx_table, &txid );
+  all_sw_tx *tx = lookup_hash_entry( efi_tx_table, &txid );
   if ( tx == NULL ) {
     // transaction already failed. Do nothing.
     return;
   }
 
-  uint64_t* dpid_in_list = lookup_hash_entry( tx->waiting_dpid, &dpid );
-  if( dpid_in_list != NULL ) {
+  uint64_t *dpid_in_list = lookup_hash_entry( tx->waiting_dpid, &dpid );
+  if ( dpid_in_list != NULL ) {
     info( "txid %#x switch %#" PRIx64 " timed out.", txid, dpid );
     delete_hash_entry( tx->waiting_dpid, &dpid );
     xfree( dpid_in_list );
@@ -596,7 +598,7 @@ _switch_response_timeout( void* user_data ) {
 
 void
 _switch_response_handler( event_forward_operation_result result, void *user_data ) {
-  struct txinfo* txinfo = user_data;
+  struct txinfo *txinfo = user_data;
   const uint64_t dpid = txinfo->dpid;
   const uint32_t txid = txinfo->txid;
   delete_timer_event( _switch_response_timeout, txinfo );
@@ -604,14 +606,14 @@ _switch_response_handler( event_forward_operation_result result, void *user_data
   txinfo = NULL;
   debug( "txid %#x switch %#" PRIx64 " response.", txid, dpid );
 
-  all_sw_tx* tx = lookup_hash_entry( efi_tx_table, &txid );
+  all_sw_tx *tx = lookup_hash_entry( efi_tx_table, &txid );
   if ( tx == NULL ) {
     // transaction already failed. Do nothing.
     return;
   }
 
-  uint64_t* dpid_in_list = lookup_hash_entry( tx->waiting_dpid, &dpid );
-  if( dpid_in_list == NULL ) {
+  uint64_t *dpid_in_list = lookup_hash_entry( tx->waiting_dpid, &dpid );
+  if ( dpid_in_list == NULL ) {
     // probably timed out. Do nothing.
     return;
   }
@@ -627,8 +629,8 @@ _switch_response_handler( event_forward_operation_result result, void *user_data
   bool tx_ended = check_tx_result_and_respond( tx );
   if ( tx_ended ) return;
 
-  struct event_forward_operation_to_all_request_param* all_param = tx->request_param;
-  if( hash_table_is_empty( tx->waiting_dpid ) ) {
+  struct event_forward_operation_to_all_request_param *all_param = tx->request_param;
+  if ( hash_table_is_empty( tx->waiting_dpid ) ) {
     // was last element in tx. callback result.
     if ( all_param->callback != NULL ) {
       all_param->callback( tx->tx_result, all_param->user_data );
@@ -644,8 +646,8 @@ _switch_response_handler( event_forward_operation_result result, void *user_data
 
 
 all_sw_tx*
-_insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param* param ) {
-  all_sw_tx* tx = xcalloc( 1, sizeof(all_sw_tx) );
+_insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param *param ) {
+  all_sw_tx *tx = xcalloc( 1, sizeof(all_sw_tx) );
   tx->txid = get_txid();
   info( "txid %#x Start dispatching to switches", tx->txid );
   tx->request_param = param;
@@ -653,32 +655,33 @@ _insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param*
   tx->waiting_dpid = create_hash_with_size( compare_datapath_id,
                                             hash_datapath_id,
                                             ( unsigned ) n_dpids );
-  void* dupe_tx = insert_hash_entry( efi_tx_table, &tx->txid, tx );
+  void *dupe_tx = insert_hash_entry( efi_tx_table, &tx->txid, tx );
   assert( dupe_tx == NULL );
   return tx;
 }
 
 
 void
-_dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
-  struct event_forward_operation_to_all_request_param* param = user_data;
+_dispatch_to_all_switch( uint64_t *dpids, size_t n_dpids, void *user_data ) {
+  struct event_forward_operation_to_all_request_param *param = user_data;
 
-  all_sw_tx* tx = _insert_tx( n_dpids, param );
+  all_sw_tx *tx = _insert_tx( n_dpids, param );
 
   // copy dpid hash to transaction.
   for ( size_t i = 0 ; i < n_dpids ; ++i ) {
-    uint64_t* dpid = xmalloc( sizeof( uint64_t ) );
+    uint64_t *dpid = xmalloc( sizeof( uint64_t ) );
     *dpid = dpids[i];
-    uint64_t* dupe_dpid = insert_hash_entry( tx->waiting_dpid, dpid, dpid );
+    uint64_t *dupe_dpid = insert_hash_entry( tx->waiting_dpid, dpid, dpid );
     if ( dupe_dpid == NULL ) {
-      struct txinfo* txinfo = xcalloc( 1, sizeof( struct txinfo ) );
+      struct txinfo *txinfo = xcalloc( 1, sizeof( struct txinfo ) );
       txinfo->dpid = *dpid;
       txinfo->txid = tx->txid;
       bool send_ok;
 
       if ( param->add ) {
         send_ok = add_switch_event_forward_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
-      } else {
+      }
+      else {
         send_ok = delete_switch_event_forward_entry( *dpid, param->type, param->service_name, _switch_response_handler, txinfo );
       }
 
@@ -705,13 +708,14 @@ _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
         // txinfo will be freed by _switch_response_handler
         continue;
       }
-    } else {
+    }
+    else {
       warn( "Duplicate dpid returned %#." PRIx64, *dupe_dpid );
       xfree( dupe_dpid );
     }
   }
 
-  if( tx->tx_result == EFI_OPERATION_FAILED ) {
+  if ( tx->tx_result == EFI_OPERATION_FAILED ) {
     if ( param->callback != NULL ) {
       param->callback( tx->tx_result, param->user_data );
     }
@@ -725,12 +729,13 @@ _dispatch_to_all_switch( uint64_t* dpids, size_t n_dpids, void *user_data ) {
 
 void
 _get_switch_list_after_swm_succ( event_forward_operation_result result, void *user_data ) {
-  struct event_forward_operation_to_all_request_param* param = user_data;
+  struct event_forward_operation_to_all_request_param *param = user_data;
   bool success = true;
   if ( result.result == EFI_OPERATION_SUCCEEDED ) {
     // get switch list
     success = send_efi_switch_list_request( _dispatch_to_all_switch, param );
-  } else {
+  }
+  else {
     success = false;
   }
 
@@ -745,15 +750,15 @@ _get_switch_list_after_swm_succ( event_forward_operation_result result, void *us
 
 
 bool
-add_event_forward_entry_to_all_switches( enum efi_event_type type, const char* service_name, event_forward_entry_to_all_callback callback, void* user_data ) {
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+add_event_forward_entry_to_all_switches( enum efi_event_type type, const char *service_name, event_forward_entry_to_all_callback callback, void *user_data ) {
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = true;
   param->type = type;
   param->service_name = xstrdup( service_name );
   param->callback = callback;
   param->user_data = user_data;
   bool sent_ok = add_switch_manager_event_forward_entry( type, service_name, _get_switch_list_after_swm_succ, param );
-  if( !sent_ok ) {
+  if ( !sent_ok ) {
     xfree_event_forward_operation_to_all_request_param( param );
   }
   return sent_ok;
@@ -761,15 +766,15 @@ add_event_forward_entry_to_all_switches( enum efi_event_type type, const char* s
 
 
 bool
-delete_event_forward_entry_to_all_switches( enum efi_event_type type, const char* service_name, event_forward_entry_to_all_callback callback, void* user_data ) {
-  struct event_forward_operation_to_all_request_param* param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+delete_event_forward_entry_to_all_switches( enum efi_event_type type, const char *service_name, event_forward_entry_to_all_callback callback, void *user_data ) {
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
   param->add = false;
   param->type = type;
   param->service_name = xstrdup( service_name );
   param->callback = callback;
   param->user_data = user_data;
   bool sent_ok = delete_switch_manager_event_forward_entry( type, service_name, _get_switch_list_after_swm_succ, param );
-  if( !sent_ok ) {
+  if ( !sent_ok ) {
     xfree_event_forward_operation_to_all_request_param( param );
   }
   return sent_ok;

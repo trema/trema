@@ -560,9 +560,12 @@ match_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::Match
+ */
 void
 Init_match() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );
   rb_define_alloc_func( cMatch, match_alloc );
   rb_define_const( cMatch, "OFPFW_IN_PORT", INT2NUM( OFPFW_IN_PORT ) );

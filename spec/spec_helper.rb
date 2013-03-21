@@ -127,14 +127,14 @@ class Network
     @th_controller = Thread.start do
       controller.run!
     end
-    sleep 5  # FIXME: wait until controller.up?
+    wait_until_controller_is_up app_name
   end
 
 
   def trema_kill
     cleanup_current_session
     @th_controller.join if @th_controller
-    sleep 5  # FIXME: wait until switch_manager.down?
+    wait_until_all_pid_files_are_deleted
   end
 
 
@@ -144,6 +144,30 @@ class Network
     @context.hosts.each do | name, each |
       ofctl.add_flow switch, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
     end
+  end
+
+
+  def wait_until_controller_is_up trema_name, timeout = 10
+    elapsed = 0
+    loop do
+      raise "Timed out waiting for #{ trema_name }." if elapsed > timeout
+      break if FileTest.exists?( File.join( Trema.pid, "#{ trema_name }.pid" ) )
+      sleep 1
+      elapsed += 1
+    end
+    sleep 1
+  end
+
+
+  def wait_until_all_pid_files_are_deleted timeout = 10
+    elapsed = 0
+    loop do
+      raise "Failed to clean up remaining processes." if elapsed > timeout
+      break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
+      sleep 1
+      elapsed += 1
+    end
+    sleep 1
   end
 end
 
