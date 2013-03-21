@@ -16,9 +16,6 @@
 - dsl:
   - switch_port_specifier.feature
 - examples:
-  - topology:
-    - show_switch_status.feature
-    - show_topology.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
@@ -53,3 +50,5 @@
   - get_pid_by_trema_name.feature
 - topology:
   - usage.feature
+  - show_switch_status.feature
+  - show_topology.feature

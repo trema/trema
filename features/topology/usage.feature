@@ -1,34 +1,27 @@
-Feature: topology manager usage
+Feature: topology manager command line usage
   
-  Topology manager is usually automatically started, 
-  when a client tries to use the topology API, and no command line options 
-  is required.  
-  But, it is also possible to manually start topology specifying some 
-  command line options to topology manager, in certain cases.  
+  Topology manager is automatically started, when a client use the topology API.
+  But it is also possible to manually start topology manager.
+  Some behavior of topology manager can be controlled
+  by manually starting topology manager with additional options. 
   
   Example: Default enable discovery.
   
       $ trema run "./objects/topology/topology --always_run_discovery" -d
   
   Topology manager's link discovery feature is disable by default, 
-  and client need to enable the feature through topology API calls. 
+  and client need to enable the feature by topology API calls. 
   By manually starting topology manager with `--always_run_discovery` option, 
-  topology manager can start discovering links without user applications request. 
+  topology manager will immediately start discovering links. 
   
-  Using this option, topology manager will start discovering link topology 
-  as soon as possible, so it may speed up the time for the link topology 
-  information to stabilize.  
   This option can also be useful, when migrating legacy apps/topology application, 
-  where link discovery was not controlled by API, 
-  but was contolled by running a separate process. 
+  where link discovery was not enabled by API, 
+  but was enabled by running a separate process. 
   Specifying this option will be equivalent to starting discovery daemon process 
-  in leagacy apps/topology.  
-  
-  Please see the usage message in the following scenarios 
-  for available command line options.
+  in leagacy apps/topology.
 
   Scenario Outline: Show topology usage
-    When I run `../../objects/topology/topology <arg>`
+    When I successfully run `../../objects/topology/topology <argument>`
     Then the output should contain:
       """
       topology manager
@@ -50,6 +43,6 @@ Feature: topology manager usage
       """
 
     Examples: 
-      | arg    |
-      | --help |
-      | -h     |
+      | argument |
+      | --help   |
+      | -h       |

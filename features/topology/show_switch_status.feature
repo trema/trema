@@ -1,9 +1,9 @@
-Feature: show_switch_status example.
+Feature: "show_switch_status" example
   
   show_switch_status is a simple usage example of topology C API.
   
   show_switch_status command will query for all the switch and port information 
-  that the topology daemon hold and print them to standard output.
+  that the topology manager hold and print them to standard output.
 
   Background: 
     Given I cd to "../../src/examples/topology/"
@@ -29,10 +29,10 @@ Feature: show_switch_status example.
       link "topology1", "host1"
       link "topology1", "host2"
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c show_switch_status.conf -d`
-    And I run `trema run "../../../objects/topology/topology -d"`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c show_switch_status.conf -d`
+    And I successfully run `trema run "../../../objects/topology/topology -d"`
     And *** sleep 4 ***
-    When I run `trema run ./show_switch_status`
+    When I successfully run `trema run ./show_switch_status`
     Then the output should contain:
       """
       Switch status

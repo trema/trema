@@ -1,23 +1,22 @@
-Feature: show_topology example.
+Feature: "show_topology" example
   
   show_topology is a simple usage example of topology C API.
   
   show_topology command will query for all the link information that 
-  the topology daemon hold and print them in trema network DSL style.
+  the topology manager hold and print them in trema network DSL style.
   
-  Topology daemon's link discovery feature must be enabled prior to running 
+  Topology manager's link discovery feature must be enabled prior to running 
   show_topology command in order to obtain non-empty result.
   
-  Topology daemon's link discovery feature can be enabled 
+  Topology manager's link discovery feature can be enabled 
   by specifing "--always_run_discovery" option when starting topology daemon,
-  or by calling enable_topology_discovery() API from client application.  
-  
+  or by calling enable_topology_discovery() API from client application.
 
   Background: 
     Given I cd to "../../src/examples/topology/"
 
   @slow_process
-  Scenario: [C API] Show discovered link topology. (Directly start topology daemon)
+  Scenario: [C API] Show discovered link topology. (Manually start topology daemon)
     Given I compile "show_topology.c" into "show_topology"
     Given I compile "enable_discovery.c" into "enable_discovery"
     Given a file named "show_topology.conf" with:
@@ -34,10 +33,10 @@ Feature: show_topology example.
       link "topology2", "topology4"
       link "topology3", "topology4"
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
-    And I run `trema run "../../../objects/topology/topology -d --always_run_discovery"`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
+    And I successfully run `trema run "../../../objects/topology/topology -d --always_run_discovery"`
     And *** sleep 4 ***
-    When I run `trema run ./show_topology`
+    When I successfully run `trema run ./show_topology`
     Then the output should contain:
       """
       vswitch {
@@ -105,10 +104,10 @@ Feature: show_topology example.
       link "topology2", "topology4"
       link "topology3", "topology4"
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
-    And I run `trema run "./enable_discovery"`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
+    And I successfully run `trema run "./enable_discovery"`
     And *** sleep 4 ***
-    When I run `trema run ./show_topology`
+    When I successfully run `trema run ./show_topology`
     Then the output should contain:
       """
       vswitch {
