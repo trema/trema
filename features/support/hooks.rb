@@ -19,7 +19,7 @@
 require "trema/path"
 
 
-def wait_until_all_pid_files_are_deleted timeout = 5
+def wait_until_all_pid_files_are_deleted timeout = 10
   elapsed = 0
   loop do
     raise "Failed to clean up remaining processes." if elapsed > timeout
@@ -27,6 +27,7 @@ def wait_until_all_pid_files_are_deleted timeout = 5
     sleep 1
     elapsed += 1
   end
+  sleep 1
 end
 
 

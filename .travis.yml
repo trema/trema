@@ -14,3 +14,6 @@ before_install:
  - sudo apt-get update -qq
  - sudo apt-get install libpcap-dev -qq
  - gem install bundler
+
+notifications:
+  webhooks: http://trema-hubot.herokuapp.com/hubot/travis?room=1

@@ -1,6 +1,10 @@
 Welcome to Trema
 ================
 
+[![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
+[![Code Climate](https://codeclimate.com/github/trema/trema.png)](https://codeclimate.com/github/trema/trema)
+[![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
+
 Trema is a OpenFlow controller framework that includes everything
 needed to create OpenFlow controllers in Ruby and C.
 
@@ -249,14 +253,6 @@ Special thanks to all contributors for submitting patches. A full list
 of contributors including their patches can be found at:
 
 https://github.com/trema/trema/contributors
-
-
-Project Status
---------------
-
-* Build Status [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
-* Dependency Status [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
-* Code Quality [![Code Climate](https://codeclimate.com/github/trema/trema.png)](https://codeclimate.com/github/trema/trema)
 
 
 License

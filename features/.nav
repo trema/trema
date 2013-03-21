@@ -13,16 +13,10 @@
   - dump_flows.feature
   - version.feature
   - help.feature
+- dsl:
+  - switch_port_specifier.feature
 - examples:
-  - switch-event:
-    - README.md
-    - ruby-add.feature
-    - ruby-delete.feature
-    - ruby-dump.feature
-    - ruby-set.feature
   - topology:
-    - show_switch_status.feature
-    - show_topology.feature
     - listener.feature
   - hello_trema.feature
   - list_switches.feature
@@ -40,6 +34,15 @@
   - message.set_config.feature
   - message.vendor-action.feature
   - packetin_filter_config.feature
+- switch_event:
+  - add_forward_entry.feature
+  - delete_forward_entry.feature
+  - dump_forward_entries.feature
+  - set_forward_entries.feature
+  - C-add_forward_entry.feature
+  - C-delete_forward_entry.feature
+  - C-dump_forward_entries.feature
+  - C-set_forward_entries.feature
 - handlers:
   - switch_ready.feature
 - core:
@@ -50,3 +53,5 @@
 - topology:
   - usage.feature
   - ruby.feature
+  - show_switch_status.feature
+  - show_topology.feature

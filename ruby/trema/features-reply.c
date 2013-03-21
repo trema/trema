@@ -222,9 +222,12 @@ features_reply_physical_ports( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::FeaturesReply
+ */
 void
 Init_features_reply() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cFeaturesReply = rb_define_class_under( mTrema, "FeaturesReply", rb_cObject );
   rb_define_alloc_func( cFeaturesReply, features_reply_alloc );
   rb_define_method( cFeaturesReply, "initialize", features_reply_init, 1 );

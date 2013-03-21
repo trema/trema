@@ -542,61 +542,61 @@ management_event_forward_entry_operation( const messenger_context_handle *handle
 
   debug( "management efi command:%#x, type:%#x, n_services:%d", command, req->type, req->n_services );
 
-  list_element** subject = NULL;
+  list_element **subject = NULL;
   switch ( req->type ) {
-  case EVENT_FORWARD_TYPE_VENDOR:
-    info( "Managing vendor event." );
-    subject = &switch_info.vendor_service_name_list;
-    break;
+    case EVENT_FORWARD_TYPE_VENDOR:
+      info( "Managing vendor event." );
+      subject = &switch_info.vendor_service_name_list;
+      break;
 
-  case EVENT_FORWARD_TYPE_PACKET_IN:
-    info( "Managing packet_in event." );
-    subject = &switch_info.packetin_service_name_list;
-    break;
+    case EVENT_FORWARD_TYPE_PACKET_IN:
+      info( "Managing packet_in event." );
+      subject = &switch_info.packetin_service_name_list;
+      break;
 
-  case EVENT_FORWARD_TYPE_PORT_STATUS:
-    info( "Managing port_status event." );
-    subject = &switch_info.portstatus_service_name_list;
-    break;
+    case EVENT_FORWARD_TYPE_PORT_STATUS:
+      info( "Managing port_status event." );
+      subject = &switch_info.portstatus_service_name_list;
+      break;
 
-  case EVENT_FORWARD_TYPE_STATE_NOTIFY:
-    info( "Managing state_notify event." );
-    subject = &switch_info.state_service_name_list;
-    break;
+    case EVENT_FORWARD_TYPE_STATE_NOTIFY:
+      info( "Managing state_notify event." );
+      subject = &switch_info.state_service_name_list;
+      break;
 
-  default:
-    error( "Invalid EVENT_FWD_TYPE ( %#x )", req->type );
-    event_forward_operation_reply res;
-    memset( &res, 0, sizeof( event_forward_operation_reply ) );
-    res.type = req->type;
-    res.result = EFI_OPERATION_FAILED;
-    management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, &res, sizeof( event_forward_operation_reply ) );
-    send_management_application_reply( handle, reply );
-    xfree( reply );
-    return;
+    default:
+      error( "Invalid EVENT_FWD_TYPE ( %#x )", req->type );
+      event_forward_operation_reply res;
+      memset( &res, 0, sizeof( event_forward_operation_reply ) );
+      res.type = req->type;
+      res.result = EFI_OPERATION_FAILED;
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, &res, sizeof( event_forward_operation_reply ) );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+      return;
   }
   assert( subject != NULL );
 
   switch ( command ) {
-  case EVENT_FORWARD_ENTRY_ADD:
+    case EVENT_FORWARD_ENTRY_ADD:
       management_event_forward_entry_add( subject, req, data_len );
       break;
 
-  case EVENT_FORWARD_ENTRY_DELETE:
+    case EVENT_FORWARD_ENTRY_DELETE:
       management_event_forward_entry_delete( subject, req, data_len );
       break;
 
-  case EVENT_FORWARD_ENTRY_DUMP:
-    info( "Dumping current event filter." );
-    // do nothing
-    break;
+    case EVENT_FORWARD_ENTRY_DUMP:
+      info( "Dumping current event filter." );
+      // do nothing
+      break;
 
-  case EVENT_FORWARD_ENTRY_SET:
-    management_event_forward_entries_set( subject, req, data_len );
-    break;
+    case EVENT_FORWARD_ENTRY_SET:
+      management_event_forward_entries_set( subject, req, data_len );
+      break;
   }
 
-  buffer* buf = create_event_forward_operation_reply( req->type, EFI_OPERATION_SUCCEEDED, *subject );
+  buffer *buf = create_event_forward_operation_reply( req->type, EFI_OPERATION_SUCCEEDED, *subject );
   management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_SUCCEEDED, command, buf->data, buf->length );
   free_buffer( buf );
   send_management_application_reply( handle, reply );
@@ -645,7 +645,7 @@ management_recv( const messenger_context_handle *handle, uint32_t command, void 
     case EVENT_FORWARD_ENTRY_DUMP:
     case EVENT_FORWARD_ENTRY_SET:
     {
-      event_forward_operation_request* req = data;
+      event_forward_operation_request *req = data;
       req->n_services = ntohl( req->n_services );
       management_event_forward_entry_operation( handle, command, req, data_len );
       return;

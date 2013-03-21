@@ -37,19 +37,24 @@ typedef struct callback_info {
 
 
 static bool
-event_type_symbol_to_enum( VALUE rType, enum efi_event_type* cType ) {
+event_type_symbol_to_enum( VALUE rType, enum efi_event_type *cType ) {
   assert( cType != NULL );
   const ID idType = rb_to_id( rType );
   if ( false ) {
-  } else if( idType == idVendor ) {
+  }
+  else if ( idType == idVendor ) {
     *cType = EVENT_FORWARD_TYPE_VENDOR;
-  } else if( idType == idPacketIn ) {
+  }
+  else if ( idType == idPacketIn ) {
     *cType = EVENT_FORWARD_TYPE_PACKET_IN;
-  } else if( idType == idPortStatus ) {
+  }
+  else if ( idType == idPortStatus ) {
     *cType = EVENT_FORWARD_TYPE_PORT_STATUS;
-  } else if( idType == idStateNotify ) {
+  }
+  else if ( idType == idStateNotify ) {
     *cType = EVENT_FORWARD_TYPE_STATE_NOTIFY;
-  } else {
+  }
+  else {
     return false;
   }
   return true;
@@ -57,19 +62,21 @@ event_type_symbol_to_enum( VALUE rType, enum efi_event_type* cType ) {
 
 
 static void
-handle_event_forward_entry_to_all_callback( enum efi_result result, void* user_data ) {
-  info( "%s", __func__ );
-  callback_info* cb = user_data;
+handle_event_forward_entry_to_all_callback( enum efi_result result,
+                                            void *user_data ) {
+  debug( "%s", __func__ );
+  callback_info *cb = user_data;
   if ( cb->block != Qnil ) {
     if ( result == EFI_OPERATION_SUCCEEDED ) {
       rb_funcall( cb->block, rb_intern( "call" ), 1, Qtrue );
-    } else {
+    }
+    else {
       rb_funcall( cb->block, rb_intern( "call" ), 1, Qfalse );
     }
   }
   xfree( cb );
-}
 
+}
 
 /*
  * @!group Operation for all existing switches and switch manager
@@ -86,30 +93,33 @@ handle_event_forward_entry_to_all_callback( enum efi_result result, void* user_d
  */
 static VALUE
 add_forward_entry_to_all_switches( VALUE self, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = add_event_forward_entry_to_all_switches( cType, cServiceName,
-                                                       handle_event_forward_entry_to_all_callback, cb );
+  bool succ = add_event_forward_entry_to_all_switches(
+                                    c_type, c_service_name,
+                                    handle_event_forward_entry_to_all_callback,
+                                    cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -130,31 +140,35 @@ add_forward_entry_to_all_switches( VALUE self, VALUE type, VALUE service_name ) 
  * @yieldparam result [Boolean] true if result successful on all switches and switch manager
  */
 static VALUE
-delete_forward_entry_from_all_switches( VALUE self, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+delete_forward_entry_from_all_switches( VALUE self, VALUE type,
+                                        VALUE service_name ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = delete_event_forward_entry_to_all_switches( cType, cServiceName,
-                                                       handle_event_forward_entry_to_all_callback, cb );
+  bool succ = delete_event_forward_entry_to_all_switches(
+                                    c_type, c_service_name,
+                                    handle_event_forward_entry_to_all_callback,
+                                    cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -162,9 +176,10 @@ delete_forward_entry_from_all_switches( VALUE self, VALUE type, VALUE service_na
 
 
 static void
-handle_event_forward_entry_operation_callback( event_forward_operation_result result, void *user_data ) {
-  info( "%s", __func__ );
-  callback_info* cb = user_data;
+handle_event_forward_entry_operation_callback(
+    event_forward_operation_result result, void *user_data ) {
+  debug( "%s", __func__ );
+  callback_info *cb = user_data;
 
   if ( cb->block != Qnil ) {
     if ( result.result == EFI_OPERATION_SUCCEEDED ) {
@@ -174,7 +189,8 @@ handle_event_forward_entry_operation_callback( event_forward_operation_result re
         rb_ary_push( aryDpid, service_name );
       }
       rb_funcall( cb->block, rb_intern( "call" ), 2, Qtrue, aryDpid );
-    } else {
+    }
+    else {
       VALUE aryDpid = rb_ary_new();
       rb_funcall( cb->block, rb_intern( "call" ), 2, Qfalse, aryDpid );
     }
@@ -199,33 +215,36 @@ handle_event_forward_entry_operation_callback( event_forward_operation_result re
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-add_forward_entry_to_switch( VALUE self, VALUE dpid, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+add_forward_entry_to_switch( VALUE self, VALUE dpid, VALUE type,
+                             VALUE service_name ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const uint64_t cdpid = NUM2ULL( dpid );
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const uint64_t c_dpid = NUM2ULL( dpid );
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = add_switch_event_forward_entry( cdpid, cType, cServiceName,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = add_switch_event_forward_entry(
+                                c_dpid, c_type, c_service_name,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -248,32 +267,36 @@ add_forward_entry_to_switch( VALUE self, VALUE dpid, VALUE type, VALUE service_n
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-delete_forward_entry_from_switch( VALUE self, VALUE dpid, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+delete_forward_entry_from_switch( VALUE self, VALUE dpid, VALUE type,
+                                  VALUE service_name ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const uint64_t cdpid = NUM2ULL( dpid );
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const uint64_t c_dpid = NUM2ULL( dpid );
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = delete_switch_event_forward_entry( cdpid, cType, cServiceName,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = delete_switch_event_forward_entry(
+                                c_dpid, c_type, c_service_name,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -296,41 +319,45 @@ delete_forward_entry_from_switch( VALUE self, VALUE dpid, VALUE type, VALUE serv
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-set_forward_entries_to_switch( VALUE self, VALUE dpid, VALUE type, VALUE service_names ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+set_forward_entries_to_switch( VALUE self, VALUE dpid, VALUE type,
+                               VALUE service_names ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const uint64_t cdpid = NUM2ULL( dpid );
-  list_element* service_list = NULL;
+  const uint64_t c_dpid = NUM2ULL( dpid );
+  list_element *service_list = NULL;
   create_list( &service_list );
-  for( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
-    VALUE rServiceName = rb_ary_entry( service_names, i );
-    char* cServiceName = StringValuePtr( rServiceName );
-    if ( strlen( cServiceName ) == 0 ) {
+  for ( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
+    VALUE ruby_service_name = rb_ary_entry( service_names, i );
+    char *c_service_name = StringValuePtr( ruby_service_name );
+    if ( strlen( c_service_name ) == 0 ) {
       warn( "Ignoring empty service_name" );
       continue;
     }
-    append_to_tail( &service_list, cServiceName );
+    append_to_tail( &service_list, c_service_name );
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = set_switch_event_forward_entries( cdpid, cType, service_list,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = set_switch_event_forward_entries(
+                                c_dpid, c_type, service_list,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
 
   delete_list( service_list );
 
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -353,25 +380,29 @@ set_forward_entries_to_switch( VALUE self, VALUE dpid, VALUE type, VALUE service
  */
 static VALUE
 dump_forward_entries_from_switch( VALUE self, VALUE dpid, VALUE type ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const uint64_t cdpid = NUM2ULL( dpid );
+  const uint64_t c_dpid = NUM2ULL( dpid );
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = dump_switch_event_forward_entries( cdpid, cType, handle_event_forward_entry_operation_callback, cb );
+  bool succ = dump_switch_event_forward_entries(
+                                c_dpid, c_type,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -393,31 +424,35 @@ dump_forward_entries_from_switch( VALUE self, VALUE dpid, VALUE type ) {
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-add_forward_entry_to_switch_manager( VALUE self, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+add_forward_entry_to_switch_manager( VALUE self, VALUE type,
+                                     VALUE service_name ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = add_switch_manager_event_forward_entry( cType, cServiceName,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = add_switch_manager_event_forward_entry(
+                                c_type, c_service_name,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -439,31 +474,35 @@ add_forward_entry_to_switch_manager( VALUE self, VALUE type, VALUE service_name 
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-delete_forward_entry_from_switch_manager( VALUE self, VALUE type, VALUE service_name ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+delete_forward_entry_from_switch_manager( VALUE self, VALUE type,
+                                          VALUE service_name ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  const char* cServiceName = StringValuePtr( service_name );
-  if ( strlen( cServiceName ) == 0 ) {
+  const char *c_service_name = StringValuePtr( service_name );
+  if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = delete_switch_manager_event_forward_entry( cType, cServiceName,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = delete_switch_manager_event_forward_entry(
+                                c_type, c_service_name,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -485,40 +524,44 @@ delete_forward_entry_from_switch_manager( VALUE self, VALUE type, VALUE service_
  * @yieldparam services [Array<String>] Service Name list on forwarding entry after operation.
  */
 static VALUE
-set_forward_entries_to_switch_manager( VALUE self, VALUE type, VALUE service_names ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+set_forward_entries_to_switch_manager( VALUE self, VALUE type,
+                                       VALUE service_names ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-  list_element* service_list = NULL;
+  list_element *service_list = NULL;
   create_list( &service_list );
-  for( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
-    VALUE rServiceName = rb_ary_entry( service_names, i );
-    char* cServiceName = StringValuePtr( rServiceName );
-    if ( strlen( cServiceName ) == 0 ) {
+  for ( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
+    VALUE ruby_service_name = rb_ary_entry( service_names, i );
+    char *c_service_name = StringValuePtr( ruby_service_name );
+    if ( strlen( c_service_name ) == 0 ) {
       warn( "Ignoring empty service_name" );
       continue;
     }
-    append_to_tail( &service_list, cServiceName );
+    append_to_tail( &service_list, c_service_name );
   }
 
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = set_switch_manager_event_forward_entries( cType, service_list,
-                                              handle_event_forward_entry_operation_callback, cb );
+  bool succ = set_switch_manager_event_forward_entries(
+                                c_type, service_list,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
 
   delete_list( service_list );
 
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
@@ -540,30 +583,36 @@ set_forward_entries_to_switch_manager( VALUE self, VALUE type, VALUE service_nam
  */
 static VALUE
 dump_forward_entries_from_switch_manager( VALUE self, VALUE type ) {
-  info( "%s", __func__ );
-  enum efi_event_type cType;
-  if( !event_type_symbol_to_enum( type, &cType ) ) {
+  debug( "%s", __func__ );
+  enum efi_event_type c_type;
+  if ( !event_type_symbol_to_enum( type, &c_type ) ) {
     warn( "Invalid event type was specified" );
     return Qfalse;
   }
 
-
-  callback_info* cb = xcalloc( 1, sizeof( callback_info ) );
+  callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
   if ( rb_block_given_p() == Qtrue ) {
     cb->block = rb_block_proc();
   }
-  bool succ = dump_switch_manager_event_forward_entries( cType, handle_event_forward_entry_operation_callback, cb );
+  bool succ = dump_switch_manager_event_forward_entries(
+                                c_type,
+                                handle_event_forward_entry_operation_callback,
+                                cb );
   if ( succ ) {
     return Qtrue;
-  } else {
+  }
+  else {
     xfree( cb );
     return Qfalse;
   }
 }
 
 
+/*
+ * Document-module: Trema::SwitchEvent
+ */
 void
 Init_switch_event( void ) {
   mSwitchEvent = rb_define_module_under( mTrema, "SwitchEvent" );
@@ -573,16 +622,26 @@ Init_switch_event( void ) {
   idPortStatus = rb_intern( "port_status" );
   idStateNotify = rb_intern( "state_notify" );
 
-  rb_define_method( mSwitchEvent, "add_forward_entry_to_all_switches", add_forward_entry_to_all_switches, 2 );
-  rb_define_method( mSwitchEvent, "delete_forward_entry_from_all_switches", delete_forward_entry_from_all_switches, 2 );
+  rb_define_method( mSwitchEvent, "add_forward_entry_to_all_switches",
+                    add_forward_entry_to_all_switches, 2 );
+  rb_define_method( mSwitchEvent, "delete_forward_entry_from_all_switches",
+                    delete_forward_entry_from_all_switches, 2 );
 
-  rb_define_method( mSwitchEvent, "add_forward_entry_to_switch", add_forward_entry_to_switch, 3 );
-  rb_define_method( mSwitchEvent, "delete_forward_entry_from_switch", delete_forward_entry_from_switch, 3 );
-  rb_define_method( mSwitchEvent, "set_forward_entries_to_switch", set_forward_entries_to_switch, 3 );
-  rb_define_method( mSwitchEvent, "dump_forward_entries_from_switch", dump_forward_entries_from_switch, 2 );
+  rb_define_method( mSwitchEvent, "add_forward_entry_to_switch",
+                    add_forward_entry_to_switch, 3 );
+  rb_define_method( mSwitchEvent, "delete_forward_entry_from_switch",
+                    delete_forward_entry_from_switch, 3 );
+  rb_define_method( mSwitchEvent, "set_forward_entries_to_switch",
+                    set_forward_entries_to_switch, 3 );
+  rb_define_method( mSwitchEvent, "dump_forward_entries_from_switch",
+                    dump_forward_entries_from_switch, 2 );
 
-  rb_define_method( mSwitchEvent, "add_forward_entry_to_switch_manager", add_forward_entry_to_switch_manager, 2 );
-  rb_define_method( mSwitchEvent, "delete_forward_entry_from_switch_manager", delete_forward_entry_from_switch_manager, 2 );
-  rb_define_method( mSwitchEvent, "set_forward_entries_to_switch_manager", set_forward_entries_to_switch_manager, 2 );
-  rb_define_method( mSwitchEvent, "dump_forward_entries_from_switch_manager", dump_forward_entries_from_switch_manager, 1 );
+  rb_define_method( mSwitchEvent, "add_forward_entry_to_switch_manager",
+                    add_forward_entry_to_switch_manager, 2 );
+  rb_define_method( mSwitchEvent, "delete_forward_entry_from_switch_manager",
+                    delete_forward_entry_from_switch_manager, 2 );
+  rb_define_method( mSwitchEvent, "set_forward_entries_to_switch_manager",
+                    set_forward_entries_to_switch_manager, 2 );
+  rb_define_method( mSwitchEvent, "dump_forward_entries_from_switch_manager",
+                    dump_forward_entries_from_switch_manager, 1 );
 }

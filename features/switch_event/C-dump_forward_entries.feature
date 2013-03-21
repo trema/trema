@@ -1,30 +1,32 @@
-Feature: "dump_forward_entries" C API example command
+Feature: C function example command "dump_forward_entries"
   
   Switch Event forwarding configuration command (`dump_forward_entries`)
   is a command to dump event forwarding entries of 
   Switch Manager and Switch Daemons.
   
-  The types of switch event can be forwarded are:
+  Following switch event types can be configured by this command:
+  
   * vendor
   * packet_in
   * port_stat
   * state_notify
   
-  This command is a simple usage example for event_forward_interface.h C API.
-  The event_forward_interface.h API is used in topology manager to 
+  This command is a simple usage example for C version of switch event forwarding API.
+  C version API is defined as a group of functions declared in event_forward_interface.h.
+  These functions are used in topology manager to 
   add itself to packet_in forwarding entry of all existing switch daemons and 
   switch manager to receive LLDP packets.
-  By removing entry for 'topology' from some switches, it is possible to make 
-  topology manager to map only subset of all the switches managed by trema.
+  By adding and removing entry for 'topology' from some switches, it is possible to make 
+  topology manager to map only a subset of the switches managed by trema.
   
-  Please see README.md for general notes on switch event forwarding APIs.
+  Please see README.md for general notes on switch event forwarding API.
 
   Background: 
     Given I cd to "../../src/examples/switch_event_config/"
-    Given I compile "dump_forward_entries.c" into "dump_forward_entries"
+    And I compile "dump_forward_entries.c" into "dump_forward_entries"
 
   Scenario: dump_forward_entries Usage
-    When I run `trema run './dump_forward_entries -h'`
+    When I successfully run `trema run './dump_forward_entries -h'`
     Then the output should contain:
       """
       Dump OpenFlow Switch Manager/Daemon event forward entries.
@@ -35,17 +37,17 @@ Feature: "dump_forward_entries" C API example command
         -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
       """
 
-  Scenario Outline: Dump Switch Manager's event forward configuration for each type
+  Scenario Outline: Dump Switch Manager's event forwarding entries for each event type
     Given a file named "nw_dsl.conf" with:
       """
-        vswitch { datapath_id 0x1 }
-        vswitch { datapath_id 0x2 }
+      vswitch { datapath_id 0x1 }
+      vswitch { datapath_id 0x2 }
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
     And wait until "RepeaterHub" is up
-    When I run `trema run './dump_forward_entries -m -t <type>'`
+    When I successfully run `trema run './dump_forward_entries -m -t <type>'`
     Then the output should contain "Current service name list:"
-    Then the output should contain "  RepeaterHub"
+    And the output should contain "  RepeaterHub"
 
     Examples: 
       | type         |
@@ -54,17 +56,17 @@ Feature: "dump_forward_entries" C API example command
       | port_status  |
       | state_notify |
 
-  Scenario Outline: Dump Switch Daemon's event forward configuration for each type on each switch
+  Scenario Outline: Dump Switch Daemon's event forwarding entries for each event type on each switch
     Given a file named "nw_dsl.conf" with:
       """
-        vswitch { datapath_id 0x1 }
-        vswitch { datapath_id 0x2 }
+      vswitch { datapath_id 0x1 }
+      vswitch { datapath_id 0x2 }
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
     And wait until "RepeaterHub" is up
-    When I run `trema run './dump_forward_entries -s <switch> -t <type>'`
+    When I successfully run `trema run './dump_forward_entries -s <switch> -t <type>'`
     Then the output should contain "Current service name list:"
-    Then the output should contain "  RepeaterHub"
+    And the output should contain "  RepeaterHub"
 
     Examples: 
       | switch | type         |
