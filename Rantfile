@@ -333,8 +333,7 @@ topology_gcov_objects = topology_objects_base.collect do | each |
   File.join "#{ Trema.home }/objects/unittests", each
 end
 
-desc "Build topology. (coverage)"
-task "coverage:topology" => "#{ Trema.home }/objects/unittests/topology"
+task "topology:gcov" => "#{ Trema.home }/objects/unittests/topology"
 file "#{ Trema.home }/objects/unittests/topology" => topology_gcov_objects + [ libtrema ] do | t |
   sys "gcc --coverage -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
 end
@@ -359,14 +358,14 @@ topology_unittests = [
 ]
 
 topology_unittests.each do |each|
-  task :build_unittests => [ "coverage:libtrema", each ]
-  task each => [ "coverage:libtrema", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests", "#{ Trema.home }/objects/unittests/#{ File.basename each }.o" ] + topology_gcov_objects_wo_main
+  task :build_unittests => [ "libtrema:gcov", each ]
+  task each => [ "libtrema:gcov", "vendor:cmockery", "objects/unittests/cmockery_trema.o", "#{ Trema.home }/objects/unittests", "#{ Trema.home }/objects/unittests/#{ File.basename each }.o" ] + topology_gcov_objects_wo_main
   file each => [ "#{ Trema.home }/objects/unittests/#{ File.basename each }.o" ] + topology_gcov_objects_wo_main do | t |
     sys "gcc --coverage -o #{ t.name } #{ each }.o #{ topology_gcov_objects_wo_main.join(' ') } objects/unittests/cmockery_trema.o -Lobjects/unittests -L#{ File.dirname Trema.libcmockery_a } -ltrema -lrt -lcmockery -lsqlite3 -ldl -lpthread --static"
   end
 end
 
-task :build_unittests => [ "coverage:libtrema" ] + topology_unittests
+task :build_unittests => [ "libtrema:gcov" ] + topology_unittests
   
 ################################################################################
 # Build topology examples
