@@ -1,0 +1,6 @@
+enable_discovery
+show_topology
+show_topology.conf
+show_switch_status
+show_switch_status.conf
+

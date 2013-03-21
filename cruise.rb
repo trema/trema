@@ -204,7 +204,7 @@ end
 
 
 def measure_coverage
-  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark", "unittests" ) do | f |
+  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/topology", "src/tremashark", "unittests" ) do | f |
     if /\.c$/=~ f
       path = File.expand_path( f )
       $c_files[ path ] = Testee.new( path )
