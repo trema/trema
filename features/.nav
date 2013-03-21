@@ -16,8 +16,6 @@
 - dsl:
   - switch_port_specifier.feature
 - examples:
-  - topology:
-    - listener.feature
   - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
@@ -55,3 +53,4 @@
   - ruby.feature
   - show_switch_status.feature
   - show_topology.feature
+  - listener.feature

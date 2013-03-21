@@ -66,10 +66,10 @@ Feature: "show_switch_status" example
       link "topology1", "host1"
       link "topology1", "host2"
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c show_switch_status.conf -d`
-    And I run `trema run "../../../objects/topology/topology -d"`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c show_switch_status.conf -d`
+    And I successfully run `trema run "../../../objects/topology/topology -d"`
     And *** sleep 4 ***
-    When I run `trema run ./show-switch-status.rb`
+    When I successfully run `trema run ./show-switch-status.rb`
     Then the output should contain:
       """
       Switch status

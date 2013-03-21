@@ -17,7 +17,7 @@ Feature: "show_topology" example
     Given I cd to "../../src/examples/topology/"
 
   @slow_process
-  Scenario: [C API] Show discovered link topology. (Manually start topology daemon)
+  Scenario: [C API] Show discovered link topology. (Manually start topology manager)
     Given I compile "show_topology.c" into "show_topology"
     Given I compile "enable_discovery.c" into "enable_discovery"
     Given a file named "show_topology.conf" with:
@@ -159,7 +159,7 @@ Feature: "show_topology" example
       """
 
   @slow_process
-  Scenario: [Ruby API] Show discovered link topology. (Directly start topology daemon)
+  Scenario: [Ruby API] Show discovered link topology. (Manually start topology manager)
     Given a file named "show_topology.conf" with:
       """
       vswitch("topology1") { datapath_id "0x1" }
@@ -174,10 +174,10 @@ Feature: "show_topology" example
       link "topology2", "topology4"
       link "topology3", "topology4"
       """
-    And I run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
-    And I run `trema run "../../../objects/topology/topology -d --always_run_discovery"`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c show_topology.conf -d`
+    And I successfully run `trema run "../../../objects/topology/topology -d --always_run_discovery"`
     And *** sleep 4 ***
-    When I run `trema run ./show-topology.rb`
+    When I successfully run `trema run ./show-topology.rb`
     Then the output should contain:
       """
       vswitch {
@@ -226,4 +226,3 @@ Feature: "show_topology" example
       """
       link "0x4", "0x1"
       """
-
