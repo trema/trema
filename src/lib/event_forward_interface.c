@@ -438,10 +438,18 @@ add_switch_manager_event_forward_entry( enum efi_event_type type, const char *se
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
+#else
+  union {
+    const void *const_ptr;
+    void *ptr;
+  } cast = { .const_ptr = service_name };
+  service_list.data = cast.ptr;
+#endif
   return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
 }
 
@@ -451,10 +459,18 @@ delete_switch_manager_event_forward_entry( enum efi_event_type type, const char 
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
+#else
+  union {
+    const void *const_ptr;
+    void *ptr;
+  } cast = { .const_ptr = service_name };
+  service_list.data = cast.ptr;
+#endif
   return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
 }
 
@@ -480,10 +496,18 @@ add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const c
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
+#else
+  union {
+    const void *const_ptr;
+    void *ptr;
+  } cast = { .const_ptr = service_name };
+  service_list.data = cast.ptr;
+#endif
   return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
 }
 
@@ -494,10 +518,18 @@ delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, cons
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wcast-qual"
   service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
+#else
+  union {
+    const void *const_ptr;
+    void *ptr;
+  } cast = { .const_ptr = service_name };
+  service_list.data = cast.ptr;
+#endif
   return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
 }
 
