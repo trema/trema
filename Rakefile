@@ -124,6 +124,7 @@ desc "Build switch daemon."
 task :switch_daemon => "libtrema:static"
 
 PaperHouse::ExecutableTask.new :switch_daemon do | task |
+  task.executable_name = File.basename( Trema::Executables.switch )
   task.target_directory = File.dirname( Trema::Executables.switch )
   task.sources = [
     "src/switch_manager/cookie_table.c",
