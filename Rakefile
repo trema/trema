@@ -37,11 +37,8 @@ task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
 end
 
 
-################################################################################
-# Build libtrema.{a,so}
-################################################################################
-
-require "rake/c/library-task"
+require "paper-house/static-library-task"
+require "paper-house/shared-library-task"
 require "trema/version"
 
 
@@ -63,31 +60,31 @@ CFLAGS = [
 ]
 
 
-desc "Build trema library (static library)."
+desc "Build Trema C library (static library)."
 task "libtrema:static" => "vendor:openflow"
-Rake::C::StaticLibraryTask.new "libtrema:static" do | task |
+PaperHouse::StaticLibraryTask.new "libtrema:static" do | task |
   task.library_name = "libtrema"
   task.target_directory = Trema.lib
   task.sources = "#{ Trema.include }/*.c"
-  task.includes = [ Trema.openflow ]
   task.cflags = CFLAGS
+  task.includes = [ Trema.openflow ]
 end
 
 
-desc "Build trema library (coverage)."
+desc "Build Trema C library (coverage)."
 task "libtrema:gcov" => "vendor:openflow"
-Rake::C::StaticLibraryTask.new "libtrema:gcov" do | task |
+PaperHouse::StaticLibraryTask.new "libtrema:gcov" do | task |
   task.library_name = "libtrema"
-  task.target_directory = File.join( Trema.objects, "unittests" )
+  task.target_directory = Trema.lib
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = [ "--coverage" ] + CFLAGS
 end
 
 
-desc "Build trema library (shared library)."
+desc "Build Trema C library (shared library)."
 task "libtrema:shared" => "vendor:openflow"
-Rake::C::SharedLibraryTask.new "libtrema:shared" do | task |
+PaperHouse::SharedLibraryTask.new "libtrema:shared" do | task |
   task.library_name = "libtrema"
   task.target_directory = Trema.lib
   task.version = Trema::VERSION
