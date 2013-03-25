@@ -438,11 +438,11 @@ add_switch_manager_event_forward_entry( enum efi_event_type type, const char *se
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
+  // Copying only to avoid const_cast warnings. Will not modify in callee.
+  service_list.data = xstrdup( service_name );
+  bool sent_ok = send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
+  xfree( service_list.data );
+  return sent_ok;
 }
 
 
@@ -451,11 +451,11 @@ delete_switch_manager_event_forward_entry( enum efi_event_type type, const char 
   const char switch_manager[] = "switch_manager.m";
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  // Copying only to avoid const_cast warnings. Will not modify in callee.
+  service_list.data = xstrdup( service_name );
+  bool sent_ok = send_efi_event_config_request( switch_manager, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  xfree( service_list.data );
+  return sent_ok;
 }
 
 
@@ -480,11 +480,11 @@ add_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, const c
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
+  // Copying only to avoid const_cast warnings. Will not modify in callee.
+  service_list.data = xstrdup( service_name );
+  bool sent_ok = send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_ADD, type, &service_list, callback, user_data );
+  xfree( service_list.data );
+  return sent_ok;
 }
 
 
@@ -494,11 +494,11 @@ delete_switch_event_forward_entry( uint64_t dpid, enum efi_event_type type, cons
   snprintf( switch_name, MESSENGER_SERVICE_NAME_LENGTH, "switch.%#" PRIx64 ".m", dpid  );
   list_element service_list;
   service_list.next = NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  service_list.data = ( void * ) service_name;
-#pragma GCC diagnostic pop
-  return send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  // Copying only to avoid const_cast warnings. Will not modify in callee.
+  service_list.data = xstrdup( service_name );
+  bool sent_ok = send_efi_event_config_request( switch_name, EVENT_FORWARD_ENTRY_DELETE, type, &service_list, callback, user_data );
+  xfree( service_list.data );
+  return sent_ok;
 }
 
 
