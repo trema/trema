@@ -281,20 +281,21 @@ end
 # Build topology
 ################################################################################
 
-topology_objects_dir = objects( "topology" )
-
-gen C::Dependencies, dependency( "topology" ),
-  :search => [ "src/topology", Trema.include ], :sources => sys[ "src/topology/*.{c,h}" ]
-
-gen Action do
-  source dependency( "topology" )
+desc "Build topology."
+task :topology => Trema::Executables.topology
+file Trema::Executables.topology do | t |
+  sys "rake topology"
 end
 
 
-gen Directory, topology_objects_dir
+################################################################################
+# topology unittests
+################################################################################
 
-gen DirectedRule, topology_objects_dir => [ "src/topology" ], :o => :c do | t |
-  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+gen Directory, "#{ Trema.home }/objects/unittests"
+
+gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ "src/topology" ], :o => :c do | t |
+  sys "gcc --coverage -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
 end
 
 topology_objects_base = [
@@ -308,26 +309,6 @@ topology_objects_base = [
   "topology_table.o",
   "topology_main.o",
 ]
-
-topology_objects = topology_objects_base.collect do | each |
-  File.join topology_objects_dir, each
-end
-
-desc "Build topology."
-task :topology => Trema::Executables.topology
-file Trema::Executables.topology => topology_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
-end
-
-################################################################################
-# topology unittests
-################################################################################
-
-gen Directory, "#{ Trema.home }/objects/unittests"
-
-gen DirectedRule, "#{ Trema.home }/objects/unittests" => [ "src/topology" ], :o => :c do | t |
-  sys "gcc --coverage -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
 
 topology_gcov_objects = topology_objects_base.collect do | each |
   File.join "#{ Trema.home }/objects/unittests", each

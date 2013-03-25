@@ -151,6 +151,36 @@ PaperHouse::ExecutableTask.new :switch_daemon do | task |
 end
 
 
+desc "Build topology."
+task :topology => [ "libtrema:static", "vendor:openflow" ]
+
+PaperHouse::ExecutableTask.new :topology do | task |
+  task.executable_name = File.basename( Trema::Executables.topology )
+  task.target_directory = File.dirname( Trema::Executables.topology )
+  task.sources = [
+    "src/topology/discovery_management.c",
+    "src/topology/lldp.c",
+    "src/topology/probe_timer_table.c",
+    "src/topology/service_management.c",
+    "src/topology/subscriber_table.c",
+    "src/topology/topology_option_parser.c",
+    "src/topology/topology_management.c",
+    "src/topology/topology_table.c",
+    "src/topology/topology_main.c",
+  ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+  ]
+end
+
+
 ################################################################################
 # Extract OpenFlow reference implementation
 ################################################################################
