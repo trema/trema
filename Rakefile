@@ -37,8 +37,9 @@ task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
 end
 
 
-require "paper-house/static-library-task"
+require "paper-house/executable-task"
 require "paper-house/shared-library-task"
+require "paper-house/static-library-task"
 require "trema/version"
 
 
@@ -91,6 +92,61 @@ PaperHouse::SharedLibraryTask.new "libtrema:shared" do | task |
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = CFLAGS
+end
+
+
+desc "Build switch manager."
+task :switch_manager => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :switch_manager do | task |
+  task.target_directory = File.dirname( Trema::Executables.switch_manager )
+  task.sources = [
+    "src/switch_manager/dpid_table.c",
+    "src/switch_manager/event_forward_entry_manipulation.c",
+    "src/switch_manager/secure_channel_listener.c",
+    "src/switch_manager/switch_manager.c",
+    "src/switch_manager/switch_option.c",
+  ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+  ]
+end
+
+
+desc "Build switch daemon."
+task :switch_daemon => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :switch_daemon do | task |
+  task.target_directory = File.dirname( Trema::Executables.switch )
+  task.sources = [
+    "src/switch_manager/cookie_table.c",
+    "src/switch_manager/event_forward_entry_manipulation.c",
+    "src/switch_manager/ofpmsg_recv.c",
+    "src/switch_manager/ofpmsg_send.c",
+    "src/switch_manager/secure_channel_receiver.c",
+    "src/switch_manager/secure_channel_sender.c",
+    "src/switch_manager/service_interface.c",
+    "src/switch_manager/switch.c",
+    "src/switch_manager/switch_option.c",
+    "src/switch_manager/xid_table.c",
+  ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+  ]
 end
 
 

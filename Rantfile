@@ -39,7 +39,7 @@ task :default => [
   :management_commands,
   :rubylib,
   :switch_manager,
-  :switch,
+  :switch_daemon,
   :packetin_filter,
   :tremashark,
   :packet_capture,
@@ -280,59 +280,15 @@ end
 # Build switch manager
 ################################################################################
 
-switch_manager_objects_dir = objects( "switch_manager" )
-
-gen C::Dependencies, dependency( "switch_manager" ),
-  :search => [ "src/switch_manager", Trema.include ], :sources => sys[ "src/switch_manager/*.{c,h}" ]
-
-gen Action do
-  source dependency( "switch_manager" )
-end
-
-
-gen Directory, switch_manager_objects_dir
-
-gen DirectedRule, switch_manager_objects_dir => [ "src/switch_manager" ], :o => :c do | t |
-  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
-
-switch_manager_objects = [
-  "dpid_table.o",
-  "event_forward_entry_manipulation.o",
-  "switch_manager.o",
-  "switch_option.o",
-  "secure_channel_listener.o"
-].collect do | each |
-  File.join switch_manager_objects_dir, each
-end
-
 desc "Build switch manager."
-task :switch_manager => Trema::Executables.switch_manager
-file Trema::Executables.switch_manager => switch_manager_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+task :switch_manager do
+  sys "rake switch_manager"
 end
 
-
-switch_objects = [
-  "cookie_table.o",
-  "event_forward_entry_manipulation.o",
-  "ofpmsg_recv.o",
-  "ofpmsg_send.o",
-  "secure_channel_receiver.o",
-  "secure_channel_sender.o",
-  "service_interface.o",
-  "switch.o",
-  "switch_option.o",
-  "xid_table.o",
-].collect do | each |
-  File.join switch_manager_objects_dir, each
-end
 
 desc "Build switch."
-task :switch => Trema::Executables.switch
-file Trema::Executables.switch => switch_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpthread"
+task :switch_daemon do
+  sys "rake switch_daemon"
 end
 
 
