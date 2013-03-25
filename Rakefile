@@ -75,7 +75,7 @@ desc "Build Trema C library (coverage)."
 task "libtrema:gcov" => "vendor:openflow"
 PaperHouse::StaticLibraryTask.new "libtrema:gcov" do | task |
   task.library_name = "libtrema"
-  task.target_directory = Trema.lib
+  task.target_directory = "#{ Trema.home }/objects/unittests"
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = [ "--coverage" ] + CFLAGS
