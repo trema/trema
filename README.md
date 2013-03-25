@@ -1,6 +1,7 @@
 Welcome to Trema
 ================
 
+[![Gem Version](https://badge.fury.io/rb/trema.png)](http://badge.fury.io/rb/trema)
 [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
 [![Code Climate](https://codeclimate.com/github/trema/trema.png)](https://codeclimate.com/github/trema/trema)
 [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
