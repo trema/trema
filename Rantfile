@@ -244,35 +244,9 @@ end
 # Build trema.so (ruby library)
 ################################################################################
 
-task :clean => "rubylib:clean"
-task :distclean => "rubylib:distclean"
-
-
-require "rbconfig"
-RUBY_PATH = File.join(
-              RbConfig::CONFIG[ 'bindir' ],
-              RbConfig::CONFIG[ 'RUBY_INSTALL_NAME' ] +
-              RbConfig::CONFIG[ 'EXEEXT' ]
-            )
-
 desc "Build ruby library."
-task :rubylib => "ruby/trema.so"
-file "ruby/trema.so" => FileList[ "ruby/trema/*.c", "ruby/trema/*.h", libtrema ] do
-  sys.cd "ruby" do
-    sys "#{ RUBY_PATH } extconf.rb --with-trema-include=#{ Trema.include } --with-trema-lib=#{ Trema.lib } --with-openflow-include=#{ Trema.openflow }"
-    sys "make"
-  end
-end
-
-
-task "rubylib:clean" do
-  sys.cd "ruby" do
-    sys "make clean" rescue nil
-  end
-end
-
-task "rubylib:distclean" do
-  sys.rm_f "ruby/Makefile"
+task :rubylib do
+  sys "rake rubylib"
 end
 
 

@@ -38,6 +38,7 @@ end
 
 
 require "paper-house/executable-task"
+require "paper-house/ruby-library-task"
 require "paper-house/shared-library-task"
 require "paper-house/static-library-task"
 require "trema/version"
@@ -92,6 +93,27 @@ PaperHouse::SharedLibraryTask.new "libtrema:shared" do | task |
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = CFLAGS
+end
+
+
+desc "Build Trema Ruby library."
+task "rubylib" => "libtrema:static"
+PaperHouse::RubyLibraryTask.new "rubylib" do | task |
+  task.library_name = "trema"
+  task.target_directory = Trema.ruby
+  task.sources = "#{ Trema.ruby }/trema/*.c"
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = [ "-Wl,-Bsymbolic", "-L#{ Trema.lib }" ]
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+    "crypt",
+    "m"
+  ]
 end
 
 
