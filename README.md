@@ -1,6 +1,7 @@
 Welcome to Trema
 ================
 
+[![Gem Version](https://badge.fury.io/rb/trema.png)](http://badge.fury.io/rb/trema)
 [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
 [![Code Climate](https://codeclimate.com/github/trema/trema.png)](https://codeclimate.com/github/trema/trema)
 [![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
@@ -27,6 +28,7 @@ Supported Platforms
 Trema supports GNU/Linux only. And it has been tested on the following environments:
 
 * Ruby 1.8.7 (1.9.x is NOT supported yet)
+* RubyGems 1.3.6 or higher
 * Ubuntu 12.10, 12.04, 11.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 6.0 (i386/amd64)
 * Fedora 16 (i386/x86_64)
@@ -46,11 +48,16 @@ Getting Started
 
 1.Install the prerequisites at the command prompt:
 
-    (In Debian GNU/Linux or Ubuntu 12.04 and below)
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
-
     (In Ubuntu 12.10)
     $ sudo apt-get install gcc make ruby1.8 rubygems1.8 ruby1.8-dev libpcap-dev libsqlite3-dev
+
+    (In Ubuntu 12.04, 11.10 or Debian GNU/Linux 6.0)
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
+
+    (In Ubuntu 10.04)
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev
+    $ sudo gem install rubygems-update
+    $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
     (In Fedora 16)
     $ sudo yum install gcc make ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel
