@@ -359,6 +359,7 @@ $options.parse! ARGV
 
 
 def init_cruise
+  sh "bundle"
   sh "rake setup"
 end
 

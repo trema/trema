@@ -402,8 +402,6 @@ end
 
 task :setup do
   sh "./build.rb distclean"
-  sh "bundle update"
-  sh "bundle install"
 end
 
 
