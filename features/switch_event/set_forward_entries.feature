@@ -26,6 +26,7 @@ Feature: Ruby methods for setting switch event forwarding entry
   All the above methods take a result handler as Ruby block, but 
   they can be omitted if checking is not necessary.
 
+  @slow_process
   Scenario Outline: set_forward_entries_to_switch dpid, event_type, trema_names
     Given a file named "nw_dsl.conf" with:
       """
@@ -59,6 +60,7 @@ Feature: Ruby methods for setting switch event forwarding entry
       | :port_status  | "SetEntriesToSwitchDaemonTest", "Another" |
       | :state_notify | "SetEntriesToSwitchDaemonTest", "Another" |
 
+  @slow_process
   Scenario Outline: set_forward_entries_to_switch_manager event_type, trema_names
     Given a file named "SetEntriesToSwitchManagerTest.rb" with:
       """ruby

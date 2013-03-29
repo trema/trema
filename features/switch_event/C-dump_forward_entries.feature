@@ -37,6 +37,7 @@ Feature: C function example command "dump_forward_entries"
         -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
       """
 
+  @slow_process
   Scenario Outline: Dump Switch Manager's event forwarding entries for each event type
     Given a file named "nw_dsl.conf" with:
       """
@@ -56,6 +57,7 @@ Feature: C function example command "dump_forward_entries"
       | port_status  |
       | state_notify |
 
+  @slow_process
   Scenario Outline: Dump Switch Daemon's event forwarding entries for each event type on each switch
     Given a file named "nw_dsl.conf" with:
       """
