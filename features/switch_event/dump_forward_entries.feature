@@ -22,6 +22,7 @@ Feature: Ruby methods for dumping switch event forwarding entry
   ----
   All the above methods take a result handler as Ruby block.
 
+  @slow_process
   Scenario Outline: dump_forward_entries_from_switch dpid, event_type
     Given a file named "nw_dsl.conf" with:
       """
@@ -56,6 +57,7 @@ Feature: Ruby methods for dumping switch event forwarding entry
       | :port_status  | "port_status"                            |
       | :state_notify | "DumpSwitchDaemonTest", "switch_manager" |
 
+  @slow_process
   Scenario Outline: dump_forward_entries_from_switch_manager event_type
     Given a file named "nw_dsl.conf" with:
       """

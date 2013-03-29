@@ -53,6 +53,7 @@ module Trema
 
 
   dir :home, "objects"
+  dir :home, "ruby"
   dir :home, "src/lib", :include
   dir :home, "vendor"
   dir :objects, "cmockery"

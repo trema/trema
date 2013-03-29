@@ -37,11 +37,10 @@ task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
 end
 
 
-################################################################################
-# Build libtrema.{a,so}
-################################################################################
-
-require "rake/c/library-task"
+require "paper-house/executable-task"
+require "paper-house/ruby-library-task"
+require "paper-house/shared-library-task"
+require "paper-house/static-library-task"
 require "trema/version"
 
 
@@ -63,37 +62,114 @@ CFLAGS = [
 ]
 
 
-desc "Build trema library (static library)."
+desc "Build Trema C library (static library)."
 task "libtrema:static" => "vendor:openflow"
-Rake::C::StaticLibraryTask.new "libtrema:static" do | task |
+PaperHouse::StaticLibraryTask.new "libtrema:static" do | task |
   task.library_name = "libtrema"
   task.target_directory = Trema.lib
   task.sources = "#{ Trema.include }/*.c"
-  task.includes = [ Trema.openflow ]
   task.cflags = CFLAGS
+  task.includes = [ Trema.openflow ]
 end
 
 
-desc "Build trema library (coverage)."
+desc "Build Trema C library (coverage)."
 task "libtrema:gcov" => "vendor:openflow"
-Rake::C::StaticLibraryTask.new "libtrema:gcov" do | task |
+PaperHouse::StaticLibraryTask.new "libtrema:gcov" do | task |
   task.library_name = "libtrema"
-  task.target_directory = File.join( Trema.objects, "unittests" )
+  task.target_directory = "#{ Trema.home }/objects/unittests"
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = [ "--coverage" ] + CFLAGS
 end
 
 
-desc "Build trema library (shared library)."
+desc "Build Trema C library (shared library)."
 task "libtrema:shared" => "vendor:openflow"
-Rake::C::SharedLibraryTask.new "libtrema:shared" do | task |
+PaperHouse::SharedLibraryTask.new "libtrema:shared" do | task |
   task.library_name = "libtrema"
   task.target_directory = Trema.lib
   task.version = Trema::VERSION
   task.sources = "#{ Trema.include }/*.c"
   task.includes = [ Trema.openflow ]
   task.cflags = CFLAGS
+end
+
+
+desc "Build Trema Ruby library."
+task "rubylib" => "libtrema:static"
+PaperHouse::RubyLibraryTask.new "rubylib" do | task |
+  task.library_name = "trema"
+  task.target_directory = Trema.ruby
+  task.sources = "#{ Trema.ruby }/trema/*.c"
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = [ "-Wl,-Bsymbolic", "-L#{ Trema.lib }" ]
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+    "crypt",
+    "m"
+  ]
+end
+
+
+desc "Build switch manager."
+task :switch_manager => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :switch_manager do | task |
+  task.target_directory = File.dirname( Trema::Executables.switch_manager )
+  task.sources = [
+    "src/switch_manager/dpid_table.c",
+    "src/switch_manager/event_forward_entry_manipulation.c",
+    "src/switch_manager/secure_channel_listener.c",
+    "src/switch_manager/switch_manager.c",
+    "src/switch_manager/switch_option.c",
+  ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+  ]
+end
+
+
+desc "Build switch daemon."
+task :switch_daemon => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :switch_daemon do | task |
+  task.executable_name = File.basename( Trema::Executables.switch )
+  task.target_directory = File.dirname( Trema::Executables.switch )
+  task.sources = [
+    "src/switch_manager/cookie_table.c",
+    "src/switch_manager/event_forward_entry_manipulation.c",
+    "src/switch_manager/ofpmsg_recv.c",
+    "src/switch_manager/ofpmsg_send.c",
+    "src/switch_manager/secure_channel_receiver.c",
+    "src/switch_manager/secure_channel_sender.c",
+    "src/switch_manager/service_interface.c",
+    "src/switch_manager/switch.c",
+    "src/switch_manager/switch_option.c",
+    "src/switch_manager/xid_table.c",
+  ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+    "trema",
+    "sqlite3",
+    "pthread",
+    "rt",
+    "dl",
+  ]
 end
 
 
@@ -326,8 +402,6 @@ end
 
 task :setup do
   sh "./build.rb distclean"
-  sh "bundle update"
-  sh "bundle install"
 end
 
 
