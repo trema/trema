@@ -29,6 +29,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
   All the above methods take a result handler as Ruby block, but 
   they can be omitted if checking is not necessary.
 
+  @slow_process
   Scenario Outline: delete_forward_entry_from_all_switches event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
@@ -78,6 +79,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :port_status  |                           |                   |
       | :state_notify |                           | "switch_manager"  |
 
+  @slow_process
   Scenario Outline: delete_forward_entry_from_switch dpid, event_type, trema_name
     Given a file named "nw_dsl.conf" with:
       """
@@ -111,6 +113,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :port_status  |                   |
       | :state_notify | "switch_manager"  |
 
+  @slow_process
   Scenario Outline: delete_forward_entry_from_switch_manager event_type, trema_name
     Given a file named "DeleteFromSwitchManagerTest.rb" with:
       """ruby
