@@ -58,7 +58,7 @@ Feature: Ruby methods for adding switch event forwarding entry
       """
     When I successfully run `trema run ./AddEntryToAllTest.rb -c nw_dsl.conf -d`
     And wait until "AddEntryToAllTest" is up
-    And *** sleep 1 ***
+    And *** sleep 2 ***
     Then the file "../../tmp/log/AddEntryToAllTest.log" should contain:
       """
       Successfully added a forwarding entry of <event_type>.
