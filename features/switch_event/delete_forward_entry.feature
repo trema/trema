@@ -58,7 +58,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       """
     When I successfully run `trema run ./DeleteEntryFromAllTest.rb -c nw_dsl.conf -d`
     And wait until "DeleteEntryFromAllTest" is up
-    And *** sleep 1 ***
+    And *** sleep 2 ***
     Then the file "../../tmp/log/DeleteEntryFromAllTest.log" should contain:
       """
       Successfully deleted a forwarding entry of <event_type>.
