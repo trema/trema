@@ -38,6 +38,7 @@ Feature: C function example command "set_forward_entries"
         -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
       """
 
+  @slow_process
   Scenario Outline: Replace Switch Manager's event forwarding entries of packet_in to 'mirror' and 'filter'
     Given a file named "nw_dsl.conf" with:
       """
@@ -61,6 +62,7 @@ Feature: C function example command "set_forward_entries"
       | 0x1    |
       | 0x2    |
 
+  @slow_process
   Scenario Outline: Replace Switch Daemon 0x1's event forwarding entries of packet_in to 'mirror' and 'filter'
     Given a file named "nw_dsl.conf" with:
       """
