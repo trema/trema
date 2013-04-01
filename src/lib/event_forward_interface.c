@@ -715,11 +715,16 @@ _dispatch_to_all_switch( uint64_t *dpids, size_t n_dpids, void *user_data ) {
     }
   }
 
-  if ( tx->tx_result == EFI_OPERATION_FAILED ) {
+  if ( n_dpids == 0 || tx->tx_result == EFI_OPERATION_FAILED ) {
+    if ( n_dpids == 0 ) {
+      info( "txid %#x completed. No switches found.", tx->txid );
+    }
+    else if ( tx->tx_result == EFI_OPERATION_FAILED ) {
+      info( "txid %#x completed with failure.", tx->txid );
+    }
     if ( param->callback != NULL ) {
       param->callback( tx->tx_result, param->user_data );
     }
-    info( "txid %#x completed with failure.", tx->txid );
     // remove and cleanup tx
     delete_hash_entry( efi_tx_table, &tx->txid );
     xfree_all_sw_tx( tx );
