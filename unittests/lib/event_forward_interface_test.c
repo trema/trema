@@ -1484,6 +1484,34 @@ test__dispatch_to_all_switch_succeeds() {
 
 
 static void
+test__dispatch_to_all_switch_with_no_switch_succeeds() {
+  init_timer();
+  uint64_t dpids[] = { 0x12345678 };
+  const size_t n_dpids = 0;
+
+  void *user_data = ( void * ) 0xABCDEF;
+
+  struct event_forward_operation_to_all_request_param *param = xcalloc( 1, sizeof( struct event_forward_operation_to_all_request_param ) );
+  param->add = true;
+  param->type = EVENT_FORWARD_TYPE_PACKET_IN;
+  param->service_name = xstrdup( "alpha" );
+  param->callback = mock_event_forward_entry_to_all_callback;
+  param->user_data = user_data;
+
+  expect_value( mock_event_forward_entry_to_all_callback, result, EFI_OPERATION_SUCCEEDED );
+  expect_value( mock_event_forward_entry_to_all_callback, user_data, user_data );
+
+  _dispatch_to_all_switch( dpids, n_dpids, param );
+
+  // free all_sw_tx, param
+  _cleanup_tx_table();
+
+  finalize_timer();
+}
+
+
+
+static void
 test__switch_response_handler_succeeds_when_last_one_standing() {
 
   void *user_data = ( void * ) 0x1234;
@@ -1627,6 +1655,8 @@ main() {
     unit_test_setup_teardown( test__get_switch_list_after_swm_succ_succeeds,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test__dispatch_to_all_switch_succeeds,
+                              setup_init_efi, teardown_finl_efi ),
+    unit_test_setup_teardown( test__dispatch_to_all_switch_with_no_switch_succeeds,
                               setup_init_efi, teardown_finl_efi ),
     unit_test_setup_teardown( test__switch_response_handler_succeeds_when_last_one_standing,
                               setup_init_efi, teardown_finl_efi ),
