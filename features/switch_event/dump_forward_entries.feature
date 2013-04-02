@@ -55,7 +55,7 @@ Feature: Ruby methods for dumping switch event forwarding entry
       | :vendor       | "vendor"                                 |
       | :packet_in    | "packet_in"                              |
       | :port_status  | "port_status"                            |
-      | :state_notify | "DumpSwitchDaemonTest", "switch_manager" |
+      | :state_notify | "switch_manager", "DumpSwitchDaemonTest" |
 
   @slow_process
   Scenario Outline: dump_forward_entries_from_switch_manager event_type
