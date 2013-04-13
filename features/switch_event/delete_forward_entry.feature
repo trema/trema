@@ -82,7 +82,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :vendor       |                           |                   |
       | :packet_in    |                           |                   |
       | :port_status  |                           |                   |
-      | :state_notify |                           | "switch_manager"  |
+      | :state_notify |                           |                   |
 
   @slow_process
   Scenario Outline: delete_forward_entry_from_switch dpid, event_type, trema_name
@@ -121,7 +121,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :vendor       |                   |
       | :packet_in    |                   |
       | :port_status  |                   |
-      | :state_notify | "switch_manager"  |
+      | :state_notify |                   |
 
   @slow_process
   Scenario Outline: delete_forward_entry_from_switch_manager event_type, trema_name

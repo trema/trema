@@ -78,11 +78,11 @@ Feature: Ruby methods for adding switch event forwarding entry
       """
 
     Examples: 
-      | event_type    | switch_manager_event_list             | switch_event_list                                       |
-      | :vendor       | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller"                   |
-      | :packet_in    | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller"                   |
-      | :port_status  | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller"                   |
-      | :state_notify | "AddEntryToAllTest", "new_controller" | "switch_manager", "AddEntryToAllTest", "new_controller" |
+      | event_type    | switch_manager_event_list             | switch_event_list                     |
+      | :vendor       | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
+      | :packet_in    | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
+      | :port_status  | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
+      | :state_notify | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
 
   @slow_process
   Scenario Outline: add_forward_entry_to_switch dpid, event_type, trema_name
@@ -117,11 +117,11 @@ Feature: Ruby methods for adding switch event forwarding entry
       """
 
     Examples: 
-      | event_type    | switch_event_list                                                |
-      | :vendor       | "AddEntryToSwitchDaemonTest", "new_controller"                   |
-      | :packet_in    | "AddEntryToSwitchDaemonTest", "new_controller"                   |
-      | :port_status  | "AddEntryToSwitchDaemonTest", "new_controller"                   |
-      | :state_notify | "switch_manager", "AddEntryToSwitchDaemonTest", "new_controller" |
+      | event_type    | switch_event_list                              |
+      | :vendor       | "AddEntryToSwitchDaemonTest", "new_controller" |
+      | :packet_in    | "AddEntryToSwitchDaemonTest", "new_controller" |
+      | :port_status  | "AddEntryToSwitchDaemonTest", "new_controller" |
+      | :state_notify | "AddEntryToSwitchDaemonTest", "new_controller" |
 
   @slow_process
   Scenario Outline: add_forward_entry_to_switch_manager event_type, trema_name

@@ -56,11 +56,11 @@ Feature: Ruby methods for dumping switch event forwarding entry
       """
 
     Examples: 
-      | event_type    | switch_event_list                        |
-      | :vendor       | "vendor"                                 |
-      | :packet_in    | "packet_in"                              |
-      | :port_status  | "port_status"                            |
-      | :state_notify | "switch_manager", "DumpSwitchDaemonTest" |
+      | event_type    | switch_event_list      |
+      | :vendor       | "vendor"               |
+      | :packet_in    | "packet_in"            |
+      | :port_status  | "port_status"          |
+      | :state_notify | "DumpSwitchDaemonTest" |
 
   @slow_process
   Scenario Outline: dump_forward_entries_from_switch_manager event_type
