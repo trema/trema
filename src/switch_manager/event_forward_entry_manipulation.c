@@ -36,7 +36,7 @@ management_event_forward_entry_add( list_element **service_list,
   const char *match = find_list_custom( *service_list, string_equal, service_name );
   if ( match == NULL ) {
     info( "Adding '%s' to event filter.", service_name );
-    insert_in_front( service_list, service_name );
+    append_to_tail( service_list, service_name );
   }
   else {
     // already there

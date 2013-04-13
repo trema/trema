@@ -41,12 +41,12 @@ Feature: C function example command "delete_forward_entry"
 
   @slow_process
   Scenario Outline: Delete 'RepeaterHub' from All Switch Manager/Daemon's event forwarding entries of packet_in
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       vswitch { datapath_id 0x2 }
       """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './delete_forward_entry -t packet_in RepeaterHub '`
     Then the output should contain "Operation Succeeded."
@@ -61,12 +61,12 @@ Feature: C function example command "delete_forward_entry"
 
   @slow_process
   Scenario Outline: Delete 'RepeaterHub' only from Switch Manager's event forwarding entries of packet_in
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       vswitch { datapath_id 0x2 }
       """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './delete_forward_entry -m -t packet_in RepeaterHub'`
     Then the output should contain "Updated service name list is empty."
@@ -81,12 +81,12 @@ Feature: C function example command "delete_forward_entry"
 
   @slow_process
   Scenario Outline: Delete 'RepeaterHub' only from Switch Daemon 0x1's event forwarding entries of packet_in
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       vswitch { datapath_id 0x2 }
       """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './delete_forward_entry -s 0x1 -t packet_in RepeaterHub'`
     Then the output should contain "Updated service name list is empty."
