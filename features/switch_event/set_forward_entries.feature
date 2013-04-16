@@ -28,7 +28,7 @@ Feature: Ruby methods for setting switch event forwarding entry
 
   @slow_process
   Scenario Outline: set_forward_entries_to_switch dpid, event_type, trema_names
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
@@ -37,15 +37,20 @@ Feature: Ruby methods for setting switch event forwarding entry
       class SetEntriesToSwitchDaemonTest < Controller
         include SwitchEvent
       
+        def start
+          @event_type = ARGV[0].delete(":").to_sym
+          @event_type_string = ":#{@event_type.to_s}"
+        end
+      
         def switch_ready datapath_id
-          set_forward_entries_to_switch datapath_id, <event_type>, ["SetEntriesToSwitchDaemonTest","Another"] do | success, services |
+          set_forward_entries_to_switch datapath_id, @event_type, ["SetEntriesToSwitchDaemonTest","Another"] do | success, services |
             raise "Failed to set forwarding entry to switch" if not success
-            info "Successfully set a forwarding entries of <event_type> to switch #{datapath_id.to_hex} : #{services.inspect}"
+            info "Successfully set a forwarding entries of #{@event_type_string} to switch #{datapath_id.to_hex} : #{services.inspect}"
           end
         end
       end
       """
-    When I successfully run `trema run ./SetEntriesToSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    When I successfully run `trema run "./SetEntriesToSwitchDaemonTest.rb <event_type>" -c network.conf -d`
     And wait until "SetEntriesToSwitchDaemonTest" is up
     And *** sleep 1 ***
     Then the file "../../tmp/log/SetEntriesToSwitchDaemonTest.log" should contain:
@@ -67,16 +72,21 @@ Feature: Ruby methods for setting switch event forwarding entry
       class SetEntriesToSwitchManagerTest < Controller
         include SwitchEvent
       
+        def start
+          @event_type = ARGV[0].delete(":").to_sym
+          @event_type_string = ":#{@event_type.to_s}"
+        end
+      
         oneshot_timer_event :test_start, 0
         def test_start
-          set_forward_entries_to_switch_manager <event_type>, ["SetEntriesToSwitchManagerTest","Another"] do | success, services |
+          set_forward_entries_to_switch_manager @event_type, ["SetEntriesToSwitchManagerTest","Another"] do | success, services |
             raise "Failed to set forwarding entry to switch manager" if not success
-            info "Successfully set a forwarding entries of <event_type> to switch manager : #{services.inspect}"
+            info "Successfully set a forwarding entries of #{@event_type_string} to switch manager : #{services.inspect}"
           end
         end
       end
       """
-    When I successfully run `trema run ./SetEntriesToSwitchManagerTest.rb -d`
+    When I successfully run `trema run "./SetEntriesToSwitchManagerTest.rb <event_type>" -d`
     And wait until "SetEntriesToSwitchManagerTest" is up
     And *** sleep 1 ***
     Then the file "../../tmp/log/SetEntriesToSwitchManagerTest.log" should contain:

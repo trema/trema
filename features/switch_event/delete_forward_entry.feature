@@ -31,7 +31,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
 
   @slow_process
   Scenario Outline: delete_forward_entry_from_all_switches event_type, trema_name
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
@@ -40,23 +40,28 @@ Feature: Ruby methods for deleting switch event forwarding entry
       class DeleteEntryFromAllTest < Controller
         include SwitchEvent
       
+        def start
+          @event_type = ARGV[0].delete(":").to_sym
+          @event_type_string = ":#{@event_type.to_s}"
+        end
+      
         def switch_ready datapath_id
-          delete_forward_entry_from_all_switches <event_type>, "DeleteEntryFromAllTest" do | success |
+          delete_forward_entry_from_all_switches @event_type, "DeleteEntryFromAllTest" do | success |
             raise "Failed to delete forwarding entry from all switches" if not success
-            info "Successfully deleted a forwarding entry of <event_type>."
-            dump_forward_entries_from_switch datapath_id, <event_type> do | success, services |
+            info "Successfully deleted a forwarding entry of #{@event_type_string}."
+            dump_forward_entries_from_switch datapath_id, @event_type do | success, services |
               raise "Failed to dump forwarding entry from a switch" if not success
               info "Dumping switch #{datapath_id.to_hex}'s forwarding entries of <event_type> : #{services.inspect}"
             end
-            dump_forward_entries_from_switch_manager <event_type> do | success, services |
+            dump_forward_entries_from_switch_manager @event_type do | success, services |
               raise "Failed to dump forwarding entry from the switch manager" if not success
-              info "Dumping switch manager's forwarding entries of <event_type> : #{services.inspect}"
+              info "Dumping switch manager's forwarding entries of #{@event_type_string} : #{services.inspect}"
             end
           end
         end
       end
       """
-    When I successfully run `trema run ./DeleteEntryFromAllTest.rb -c nw_dsl.conf -d`
+    When I successfully run `trema run "./DeleteEntryFromAllTest.rb <event_type>" -c network.conf -d`
     And wait until "DeleteEntryFromAllTest" is up
     And *** sleep 2 ***
     Then the file "../../tmp/log/DeleteEntryFromAllTest.log" should contain:
@@ -77,11 +82,11 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :vendor       |                           |                   |
       | :packet_in    |                           |                   |
       | :port_status  |                           |                   |
-      | :state_notify |                           | "switch_manager"  |
+      | :state_notify |                           |                   |
 
   @slow_process
   Scenario Outline: delete_forward_entry_from_switch dpid, event_type, trema_name
-    Given a file named "nw_dsl.conf" with:
+    Given a file named "network.conf" with:
       """
       vswitch { datapath_id 0x1 }
       """
@@ -90,15 +95,20 @@ Feature: Ruby methods for deleting switch event forwarding entry
       class DeleteFromSwitchDaemonTest < Controller
         include SwitchEvent
       
+        def start
+          @event_type = ARGV[0].delete(":").to_sym
+          @event_type_string = ":#{@event_type.to_s}"
+        end
+      
         def switch_ready datapath_id
-          delete_forward_entry_from_switch datapath_id, <event_type>, "DeleteFromSwitchDaemonTest" do | success, services |
+          delete_forward_entry_from_switch datapath_id, @event_type, "DeleteFromSwitchDaemonTest" do | success, services |
             raise "Failed to delete forwarding entry from switch" if not success
-            info "Successfully deleted a forwarding entry of <event_type> from switch #{datapath_id.to_hex} : #{services.inspect}"
+            info "Successfully deleted a forwarding entry of #{@event_type_string} from switch #{datapath_id.to_hex} : #{services.inspect}"
           end
         end
       end
       """
-    When I successfully run `trema run ./DeleteFromSwitchDaemonTest.rb -c nw_dsl.conf -d`
+    When I successfully run `trema run "./DeleteFromSwitchDaemonTest.rb <event_type>" -c network.conf -d`
     And wait until "DeleteFromSwitchDaemonTest" is up
     And *** sleep 1 ***
     Then the file "../../tmp/log/DeleteFromSwitchDaemonTest.log" should contain:
@@ -111,7 +121,7 @@ Feature: Ruby methods for deleting switch event forwarding entry
       | :vendor       |                   |
       | :packet_in    |                   |
       | :port_status  |                   |
-      | :state_notify | "switch_manager"  |
+      | :state_notify |                   |
 
   @slow_process
   Scenario Outline: delete_forward_entry_from_switch_manager event_type, trema_name
@@ -120,16 +130,21 @@ Feature: Ruby methods for deleting switch event forwarding entry
       class DeleteFromSwitchManagerTest < Controller
         include SwitchEvent
       
+        def start
+          @event_type = ARGV[0].delete(":").to_sym
+          @event_type_string = ":#{@event_type.to_s}"
+        end
+      
         oneshot_timer_event :test_start, 0
         def test_start
-          delete_forward_entry_from_switch_manager <event_type>, "DeleteFromSwitchManagerTest" do | success, services |
+          delete_forward_entry_from_switch_manager @event_type, "DeleteFromSwitchManagerTest" do | success, services |
             raise "Failed to delete forwarding entry from switch manager" if not success
-            info "Successfully deleted a forwarding entry of <event_type> from switch manager : #{services.inspect}"
+            info "Successfully deleted a forwarding entry of #{@event_type_string} from switch manager : #{services.inspect}"
           end
         end
       end
       """
-    When I successfully run `trema run ./DeleteFromSwitchManagerTest.rb -d`
+    When I successfully run `trema run "./DeleteFromSwitchManagerTest.rb <event_type>" -d`
     And wait until "DeleteFromSwitchManagerTest" is up
     And *** sleep 1 ***
     Then the file "../../tmp/log/DeleteFromSwitchManagerTest.log" should contain:
