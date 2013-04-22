@@ -409,7 +409,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :setup, :build_trema ]
+task :travis => [ :setup, :build_trema, "spec:travis" ]
 
 
 begin
@@ -429,6 +429,15 @@ begin
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--tag type:actions --format documentation --color"
   end
+
+
+  task "spec:travis" => :build_trema
+  RSpec::Core::RakeTask.new( "spec:travis" ) do | task |
+    task.verbose = $trace
+    task.pattern = FileList[ "spec/trema/hello_spec.rb" ]
+    task.rspec_opts = "--tag ~sudo --format documentation --color"
+  end
+
 
   task :rcov => :build_trema
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
