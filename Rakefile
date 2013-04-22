@@ -434,7 +434,7 @@ begin
   task "spec:travis" => :build_trema
   RSpec::Core::RakeTask.new( "spec:travis" ) do | task |
     task.verbose = $trace
-    task.pattern = FileList[ "spec/trema/hello_spec.rb" ]
+    task.pattern = FileList[ "spec/trema/hello_spec.rb", "spec/trema/echo-*_spec.rb" ]
     task.rspec_opts = "--tag ~sudo --format documentation --color"
   end
 
