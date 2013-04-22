@@ -1638,6 +1638,7 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
   debug( "Appending a vendor action ( vendor = %#" PRIx32 ", body length = %u ).", vendor, body_length );
 
   assert( actions != NULL );
+  assert( ( body_length % 8 ) == 0 );
 
   action_vendor = ( struct ofp_action_vendor_header * )
                   xcalloc( 1, sizeof( struct ofp_action_vendor_header ) + body_length );
@@ -3457,6 +3458,9 @@ validate_action_vendor( const struct ofp_action_vendor_header *action ) {
   if ( ntohs( action->len ) < sizeof( struct ofp_action_vendor_header ) ) {
     return ERROR_TOO_SHORT_ACTION_VENDOR;
   }
+  else if ( ntohs( action->len ) % 8 != 0 ) {
+    return ERROR_INVALID_LENGTH_ACTION_VENDOR;
+  }
 
   // action->vendor
 
@@ -3758,6 +3762,7 @@ static struct error_map {
       { ERROR_TOO_LONG_ACTION_ENQUEUE, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
       { ERROR_INVALID_PORT_NO, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT },
       { ERROR_TOO_SHORT_ACTION_VENDOR, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
+      { ERROR_INVALID_LENGTH_ACTION_VENDOR, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
       { ERROR_UNDEFINED_ACTION_TYPE, OFPET_BAD_ACTION, OFPBAC_BAD_TYPE },
       { 0, 0, 0 },
     }
@@ -3800,6 +3805,7 @@ static struct error_map {
       { ERROR_TOO_LONG_ACTION_ENQUEUE, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
       { ERROR_INVALID_PORT_NO, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT },
       { ERROR_TOO_SHORT_ACTION_VENDOR, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
+      { ERROR_INVALID_LENGTH_ACTION_VENDOR, OFPET_BAD_ACTION, OFPBAC_BAD_LEN },
       { ERROR_UNDEFINED_ACTION_TYPE, OFPET_BAD_ACTION, OFPBAC_BAD_TYPE },
       { ERROR_INVALID_WILDCARDS, OFPET_FLOW_MOD_FAILED, OFPFMFC_EPERM }, // FIXME
       { ERROR_UNDEFINED_FLOW_MOD_COMMAND, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_COMMAND },
