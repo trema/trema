@@ -16,15 +16,16 @@
 #
 
 
-require "trema/monkey-patch/integer/base-conversions"
-require "trema/monkey-patch/integer/ranges"
-require "trema/monkey-patch/integer/validators"
-
-
-class Integer
-  include MonkeyPatch::Integer::BaseConversions
-  include MonkeyPatch::Integer::Ranges
-  include MonkeyPatch::Integer::Validators
+module MonkeyPatch
+  module Integer
+    module Validators
+      # nw_tos (IP ToS) value consists of 8 bits, of which only the 6 high-order
+      # bits belong to DSCP, the 2 low-order bits must be zero.
+      def valid_nw_tos?
+        unsigned_8bit? and self % 4 == 0
+      end
+    end
+  end
 end
 
 
