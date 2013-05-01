@@ -50,6 +50,20 @@ bool string_to_datapath_id( const char *str, uint64_t *datapath_id );
 bool match_to_string( const struct ofp_match *match, char *str, size_t size );
 bool wildcards_to_string( uint32_t wildcards, char *str, size_t size );
 bool phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size );
+
+bool action_output_to_string( const struct ofp_action_output *action, char *str, size_t size );
+bool action_set_vlan_vid_to_string( const struct ofp_action_vlan_vid *action, char *str, size_t size );
+bool action_set_vlan_pcp_to_string( const struct ofp_action_vlan_pcp *action, char *str, size_t size );
+bool action_strip_vlan_to_string( const struct ofp_action_header *action, char *str, size_t size );
+bool action_set_dl_src_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size );
+bool action_set_dl_dst_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size );
+bool action_set_nw_src_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size );
+bool action_set_nw_dst_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size );
+bool action_set_nw_tos_to_string( const struct ofp_action_nw_tos *action, char *str, size_t size );
+bool action_set_tp_src_to_string( const struct ofp_action_tp_port *action, char *str, size_t size );
+bool action_set_tp_dst_to_string( const struct ofp_action_tp_port *action, char *str, size_t size );
+bool action_enqueue_to_string( const struct ofp_action_enqueue *action, char *str, size_t size );
+bool action_vendor_to_string( const struct ofp_action_vendor_header *action, char *str, size_t size );
 bool actions_to_string( const struct ofp_action_header *actions, uint16_t actions_length, char *str, size_t str_length );
 
 uint16_t get_checksum( uint16_t *pos, uint32_t size );
@@ -57,6 +71,7 @@ uint16_t get_checksum( uint16_t *pos, uint32_t size );
 void xfree_data( void *data, void *user_data );
 
 bool string_equal( void *data, void *user_data );
+
 
 #endif // UTILITY_H
 
