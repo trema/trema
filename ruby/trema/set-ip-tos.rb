@@ -38,15 +38,15 @@ module Trema
     # @param [Integer] type_of_service
     #   the ToS/DSCP field to set to.
     #
-    # @raise [ArgumentError] if type_of_service argument is not an unsigned 8-bit Integer.
+    # @raise [ArgumentError] if type_of_service value is invalid.
     # @raise [TypeError] if type_of_service argument is not an Integer.
     #
     def initialize type_of_service
       unless type_of_service.is_a?( Integer )
         raise TypeError, "ToS must be an unsigned 8-bit integer"
       end
-      unless type_of_service.unsigned_8bit?
-        raise ArgumentError, "ToS must be an unsigned 8-bit integer"
+      unless type_of_service.valid_nw_tos?
+        raise ArgumentError, "Invalid type_of_service (ToS) value."
       end
       @type_of_service = type_of_service
     end
