@@ -40,6 +40,11 @@ describe SetIpTos, ".new( type_of_service )", :type => "actions" do
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
+  context "with type_of_service (1)" do
+    let( :type_of_service ) { 1 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
   context "when sending a Flow Mod with SetIpTos" do
     let( :type_of_service ) { 4 }
 

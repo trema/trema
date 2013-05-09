@@ -45,6 +45,11 @@ describe VendorAction, ".new(0x00002320, body)", :type => "actions" do
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
+  context "with body 9 octets long" do
+    let( :body ) { [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 ] }
+    it { expect { subject }.to raise_error( ArgumentError ) }
+  end
+
   context "when sending a Flow Mod with VendorAction" do
     let( :body ) { [ 0x00, 0x08, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ] }
 
