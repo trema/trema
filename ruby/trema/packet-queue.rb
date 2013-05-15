@@ -98,7 +98,7 @@ module Trema
     #   text representation of {PacketQueue}'s attributes and all its properties
     #   queue object's attributes.
     def to_s
-      str = "queue_id: #{{@queue_id} len: #{{@len} "
+      str = "queue_id: #{@queue_id} len: #{@len} "
       @properties.each do | each |
         str += each.to_s
       end
@@ -136,7 +136,7 @@ module Trema
     # @return [String]
     #  text representation of its attributes (property,len).
     def to_s
-      "property: #{{@property} len: #{{@len} "
+      "property: #{@property} len: #{@len} "
     end
   end
 
@@ -168,7 +168,7 @@ module Trema
     # @return [String]
     #  text representation of rate prefixed by property and length attributes.
     def to_s
-      super.to_s + " rate: #{{rate} "
+      super.to_s + " rate: #{rate} "
     end
   end
 end
