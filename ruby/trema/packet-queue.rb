@@ -161,7 +161,7 @@ module Trema
       super property, len
       @rate = rate
       packet_queue.append self
-      Queue.append packet_queue
+      Trema::Queue.append packet_queue
     end
 
 
