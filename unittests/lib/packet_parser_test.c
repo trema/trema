@@ -148,6 +148,42 @@ test_parse_packet_arp_request_succeeds() {
 
 
 static void
+test_parse_packet_rarp_request_succeeds() {
+  const char filename[] = "./unittests/lib/test_packets/rarp_req.cap";
+  buffer *buffer = store_packet_to_buffer( filename );
+
+  assert_true( parse_packet( buffer ) );
+  packet_info *packet_info = buffer->user_data;
+
+  assert_int_equal( packet_info->format, ETH_RARP );
+
+  u_char macda[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  u_char macsa[] = { 0x0a, 0x1d, 0x79, 0x67, 0x55, 0xad };
+  assert_memory_equal( packet_info->eth_macda, macda, ETH_ADDRLEN );
+  assert_memory_equal( packet_info->eth_macsa, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info->eth_type, ETH_ETHTYPE_RARP );
+
+  assert_int_equal( packet_info->l2_payload_length, 28 );
+
+  assert_int_equal( packet_info->arp_ar_hrd, 0x0001 );
+  assert_int_equal( packet_info->arp_ar_pro, 0x0800 );
+  assert_int_equal( packet_info->arp_ar_hln, 6 );
+  assert_int_equal( packet_info->arp_ar_pln, 4 );
+  assert_int_equal( packet_info->arp_ar_op, 3 );
+  assert_int_equal( packet_info->arp_spa, 0xc0a80003 );
+  assert_memory_equal( packet_info->arp_sha, macsa, ETH_ADDRLEN );
+  assert_int_equal( packet_info->arp_tpa, 0 );
+  u_char whois[] = { 0x22, 0x4f, 0x0d, 0x93, 0xae, 0xf0 };
+  assert_memory_equal( packet_info->arp_tha, whois, ETH_ADDRLEN );
+
+  assert_true( packet_type_rarp_request( buffer ) );
+  assert_false( packet_type_rarp_reply( buffer ) );
+
+  free_buffer( buffer );
+}
+
+
+static void
 test_parse_packet_ipv6_succeeds() {
   const char filename[] = "./unittests/lib/test_packets/icmp6_echo_req.cap";
   buffer *buffer = store_packet_to_buffer( filename );
@@ -713,6 +749,7 @@ main() {
     unit_test( test_parse_packet_snap_succeeds ),
 
     unit_test( test_parse_packet_arp_request_succeeds ),
+    unit_test( test_parse_packet_rarp_request_succeeds ),
 
     unit_test( test_parse_packet_ipv6_succeeds ),
 

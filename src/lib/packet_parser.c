@@ -119,7 +119,7 @@ parse_ether( buffer *buf ) {
 
 
 static void
-parse_arp( buffer *buf ) {
+parse_arp( buffer *buf, uint32_t format ) {
   assert( buf != NULL );
 
   packet_info *packet_info = buf->user_data;
@@ -144,7 +144,7 @@ parse_arp( buffer *buf ) {
   memcpy( packet_info->arp_tha, arp_header->tha, ETH_ADDRLEN );
   packet_info->arp_tpa = ntohl( arp_header->tip );
 
-  packet_info->format |= NW_ARP;
+  packet_info->format |= format;
 }
 
 
@@ -441,7 +441,12 @@ parse_packet( buffer *buf ) {
   switch ( packet_info->eth_type ) {
   case ETH_ETHTYPE_ARP:
     packet_info->l3_header = packet_info->l2_payload;
-    parse_arp( buf );
+    parse_arp( buf, NW_ARP );
+    break;
+
+  case ETH_ETHTYPE_RARP:
+    packet_info->l3_header = packet_info->l2_payload;
+    parse_arp( buf, NW_RARP );
     break;
 
   case ETH_ETHTYPE_IPV4:

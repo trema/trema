@@ -48,7 +48,9 @@ typedef struct arp_header {
 
 
 #define ARP_OP_REQUEST 1
-#define ARP_OP_REPLY   2
+#define ARP_OP_REPLY 2
+#define ARP_OP_RREQUEST 3
+#define ARP_OP_RREPLY 4
 
 
 #endif // ARP_H
