@@ -1,7 +1,5 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -55,6 +53,7 @@ module Trema
 
 
   dir :home, "objects"
+  dir :home, "ruby"
   dir :home, "src/lib", :include
   dir :home, "vendor"
   dir :objects, "cmockery"
@@ -62,14 +61,15 @@ module Trema
   dir :objects, "oflops"
   dir :objects, "openflow"
   dir :objects, "openvswitch"
+  dir :objects, "phost"
   dir :tmp, "log"
   dir :tmp, "pid"
   dir :tmp, "sock"
   dir :vendor, "cmockery-20110428", :vendor_cmockery
-  dir :vendor, "oflops-0.03", :vendor_oflops
+  dir :vendor, "oflops-0.03.trema1", :vendor_oflops
   dir :vendor, "openflow-1.0.0", :vendor_openflow
   dir :vendor, "openflow.git", :vendor_openflow_git
-  dir :vendor, "openvswitch-1.2.2", :vendor_openvswitch
+  dir :vendor, "openvswitch-1.2.2.trema1", :vendor_openvswitch
   dir :vendor, "phost", :vendor_phost
   dir :vendor, "ruby-ifconfig-1.2", :vendor_ruby_ifconfig
   file :cmockery, "include/google/cmockery.h"

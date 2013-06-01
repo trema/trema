@@ -1,9 +1,5 @@
 /*
- * Logger class.
- *
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -19,26 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef SWITCH_OPTION_H_
+#define SWITCH_OPTION_H_
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#include <getopt.h>
 
-
-#include "ruby.h"
-
-
-extern VALUE mLogger;
-
-
-void Init_logger( void );
+enum switch_long_options_val {
+  NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
+  NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE = 2,
+  NO_PACKET_IN_LONG_OPTION_VALUE = 3,
+};
 
 
-#endif // LOGGER_H
+extern struct option switch_long_options[];
 
 
-/*
- * Local variables:
- * c-basic-offset: 2
- * indent-tabs-mode: nil
- * End:
- */
+extern char switch_short_options[];
+
+
+#define VENDOR_PREFIX "vendor::"
+#define PACKET_IN_PREFIX "packet_in::"
+#define PORTSTATUS_PREFIX "port_status::"
+#define STATE_PREFIX "state_notify::"
+
+#endif /* SWITCH_OPTION_H_ */

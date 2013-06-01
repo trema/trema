@@ -1,7 +1,7 @@
 /*
  * Functions for accessing commonly-used header fields values.
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -48,6 +48,7 @@ enum {
   NW_ARP = 0x00001000,
   NW_IGMP = 0x00002000,
   NW_LLDP = 0x00004000,
+  NW_RARP = 0x00008000,
   TP_TCP = 0x00010000,
   TP_UDP = 0x00020000,
   TP_ETHERIP = 0x00040000,
@@ -58,6 +59,7 @@ enum {
   ETH_VTAG_SNAP = ETH_8021Q | ETH_8023_SNAP,
   ETH_ARP = ETH_DIX | NW_ARP,
   ETH_LLDP = ETH_DIX | NW_LLDP,
+  ETH_RARP = ETH_DIX | NW_RARP,
   ETH_IPV4 = ETH_DIX | NW_IPV4,
   ETH_IPV4_ICMPV4 = ETH_IPV4 | NW_ICMPV4,
   ETH_IPV4_IGMP = ETH_IPV4 | NW_IGMP,
@@ -191,6 +193,7 @@ bool packet_type_eth_llc( const buffer *frame );
 bool packet_type_eth_snap( const buffer *frame );
 bool packet_type_ether( const buffer *frame );
 bool packet_type_arp( const buffer *frame );
+bool packet_type_rarp( const buffer *frame );
 bool packet_type_ipv4( const buffer *frame );
 bool packet_type_ipv6( const buffer *frame );
 bool packet_type_lldp( const buffer *frame );
@@ -204,6 +207,8 @@ bool packet_type_ipv4_etherip( const buffer *frame );
 
 bool packet_type_arp_request( const buffer *frame );
 bool packet_type_arp_reply( const buffer *frame );
+bool packet_type_rarp_request( const buffer *frame );
+bool packet_type_rarp_reply( const buffer *frame );
 
 bool packet_type_icmpv4_echo_reply( const buffer *frame );
 bool packet_type_icmpv4_dst_unreach( const buffer *frame );

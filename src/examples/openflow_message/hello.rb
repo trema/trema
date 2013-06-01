@@ -1,7 +1,7 @@
 #
 # A test example program to send a OFPT_HELLO message.
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,11 +20,11 @@
 
 class HelloController < Controller
   def start
-    if ARGV.size < 2
-      STDERR.puts "Usage: #{ File.basename ARGV[ 0 ] } COUNT"
+    if ARGV.size != 1
+      STDERR.puts "Usage: #{ File.basename __FILE__ } COUNT"
       shutdown!
     end
-    @count = ARGV[ 1 ].to_i
+    @count = ARGV[ 0 ].to_i
   end
 
 

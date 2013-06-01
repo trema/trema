@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -43,6 +43,11 @@ describe VendorAction, ".new(0x00002320, body)", :type => "actions" do
   context %{with body ("deadbeef")} do
     let( :body ) { "deadbeef" }
     it { expect { subject }.to raise_error( TypeError ) }
+  end
+
+  context "with body 9 octets long" do
+    let( :body ) { [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 ] }
+    it { expect { subject }.to raise_error( ArgumentError ) }
   end
 
   context "when sending a Flow Mod with VendorAction" do

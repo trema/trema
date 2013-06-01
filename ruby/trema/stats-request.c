@@ -1,7 +1,5 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -616,9 +614,19 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::StatsRequest
+ * Document-class: Trema::DescStatsRequest
+ * Document-class: Trema::FlowStatsRequest
+ * Document-class: Trema::AggregateStatsRequest
+ * Document-class: Trema::TableStatsRequest
+ * Document-class: Trema::PortStatsRequest
+ * Document-class: Trema::QueueStatsRequest
+ * Document-class: Trema::VendorStatsRequest
+ */
 void
 Init_stats_request() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cStatsRequest = rb_define_class_under( mTrema, "StatsRequest", rb_cObject );
 
   cDescStatsRequest = rb_define_class_under( mTrema, "DescStatsRequest", cStatsRequest );

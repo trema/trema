@@ -2,9 +2,7 @@
 #
 # Trema build script
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,9 +18,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+require "rbconfig"
 
-result = system "cd #{ File.dirname( __FILE__ ) } && ruby .mono.rant #{ ARGV.join ' ' }"
-abort "#{ $0 } aborted!" unless result;
+RUBY_PATH = File.join(
+              RbConfig::CONFIG[ 'bindir' ],
+              RbConfig::CONFIG[ 'RUBY_INSTALL_NAME' ] +
+              RbConfig::CONFIG[ 'EXEEXT' ]
+            )
+
+result = system "cd #{ File.dirname( __FILE__ ) } && #{ RUBY_PATH } .mono.rant #{ ARGV.join ' ' }"
+abort "#{ $0 } aborted!" unless result
 
 
 ### Local variables:

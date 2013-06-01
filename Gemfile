@@ -1,4 +1,4 @@
-source :rubygems
+source "https://rubygems.org"
 
 
 # Include dependencies from trema.gemspec. DRY!
@@ -14,18 +14,15 @@ gemspec
 # Include everything needed to run rake, tests, features, etc.
 group :development do
   gem "aruba", "~> 0.5.1"
-  gem "cucumber", "~> 1.2.1"
-  gem "flay", "~> 1.4.3"
-  gem "flog", "~> 2.5.3"
-  gem "rake", "~> 10.0.2"
+  gem "cucumber", "~> 1.2.3"
+  gem "flay", "~> 2.1.0"
+  gem "flog", "~> 3.2.2"
   gem "rcov", "~> 1.0.0"
-  gem "rdoc", "~> 3.12"
   gem "redcarpet", "~> 2.2.2"
-  gem "reek", "~> 1.2.13"
+  gem "reek", "~> 1.3.1"
   gem "relish", "~> 0.6"
-  gem "roodi", "~> 2.1.0"
-  gem "rspec", "~> 2.12.0"
-  gem "yard", "~> 0.8.3"
+  gem "rspec", "~> 2.13.0"
+  gem "yard", "~> 0.8.5.2"
 end
 
 

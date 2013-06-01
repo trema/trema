@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -72,8 +72,8 @@ module Trema
         controller_file = ARGV[ 0 ].split.first
         if ruby_controller?
           require "trema"
-          include Trema
-          ARGV.replace ARGV[ 0 ].split
+          Object.__send__ :include, Trema
+          ARGV.replace ARGV[ 0 ].split[ 1..-1 ]
           $LOAD_PATH << File.dirname( controller_file )
           load controller_file
         else

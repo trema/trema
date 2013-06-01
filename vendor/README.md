@@ -18,3 +18,12 @@ of this OpenFlow controller platform, we disabled the functions. In addition,
 because there are some issues on OpenFlow messages that cbench (a performance
 measurement tool for OpenFlow controllers) sends, we fixed them. Any changes
 from the repository of oflops can be found in oflops_no_snmp+1.0.0.patch.
+
+Notes on Open vSwitch (vendor/openvswitch)
+------------------------------------------
+
+In the recent glibc, we need to link librt to use POSIX timer functions
+such as "timer_create" or "timer_settime". To use openvswitch-1.2.2
+on distributions with the recent glibc, we modified "configure" to
+search librt and Open vSwitch tarball distributed with Trema contains
+the fix. The change can be found in openvswitch-1.2.2_librt-check.diff.

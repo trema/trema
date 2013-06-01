@@ -1,7 +1,5 @@
 /*
- * Author: Kazushi SUGYO
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -28,9 +26,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 #include "trema.h"
 #include "cookie_table.h"
-#include "management_interface.h"
 #include "message_queue.h"
 #include "messenger.h"
 #include "ofpmsg_send.h"
@@ -40,7 +38,8 @@
 #include "service_interface.h"
 #include "switch.h"
 #include "xid_table.h"
-
+#include "switch_option.h"
+#include "event_forward_entry_manipulation.h"
 
 #define SUB_TIMESPEC( _a, _b, _return )                       \
   do {                                                        \
@@ -54,23 +53,6 @@
   while ( 0 )
 
 
-enum long_options_val {
-  NO_FLOW_CLEANUP_LONG_OPTION_VALUE = 1,
-  NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE = 2,
-  NO_PACKET_IN_LONG_OPTION_VALUE = 3,
-};
-
-static struct option long_options[] = {
-  { "socket", 1, NULL, 's' },
-  { "no-flow-cleanup", 0, NULL, NO_FLOW_CLEANUP_LONG_OPTION_VALUE },
-  { "no-cookie-translation", 0, NULL, NO_COOKIE_TRANSLATION_LONG_OPTION_VALUE },
-  { "no-packet_in", 0, NULL, NO_PACKET_IN_LONG_OPTION_VALUE },
-  { NULL, 0, NULL, 0  },
-};
-
-static char short_options[] = "s:";
-
-
 struct switch_info switch_info;
 
 static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600; // sec.
@@ -80,6 +62,9 @@ static const time_t WARNING_ECHO_RTT = 500; // msec. The value must is less than
 
 
 static bool age_cookie_table_enabled = false;
+
+#define SWITCH_MANAGER "switch_manager"
+
 
 typedef struct {
   uint64_t datapath_id;
@@ -140,7 +125,7 @@ option_parser( int argc, char *argv[] ) {
   switch_info.flow_cleanup = true;
   switch_info.cookie_translation = true;
   switch_info.deny_packet_in_on_startup = false;
-  while ( ( c = getopt_long( argc, argv, short_options, long_options, NULL ) ) != -1 ) {
+  while ( ( c = getopt_long( argc, argv, switch_short_options, switch_long_options, NULL ) ) != -1 ) {
     switch ( c ) {
       case 's':
         switch_info.secure_channel_fd = strtofd( optarg );
@@ -382,6 +367,10 @@ echo_request_interval( void *user_data ) {
 }
 
 
+static void
+confirm_self_dpid_is_registerd( uint64_t* dpids, size_t n_dpids, void *user_data );
+
+
 int
 switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
   int ret;
@@ -401,7 +390,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     snprintf( new_service_name, new_service_name_len, "%s%#" PRIx64, SWITCH_MANAGER_PREFIX, sw_info->datapath_id );
 
     // checking duplicate service
-    pid_t pid = get_trema_process_from_name( new_service_name );
+    pid_t pid = get_pid_by_trema_name( new_service_name );
     if ( pid > 0 ) {
       // duplicated
       if ( !terminate_trema_process( pid ) ) {
@@ -425,21 +414,36 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     }
     set_trema_name( new_service_name );
 
-    // notify state and datapath_id
-    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );
-    debug( "send ready state" );
-
+    // reset to default config
     ret = ofpmsg_send_setconfig( sw_info );
     if ( ret < 0 ) {
+      error( "Failed to send setconfig." );
       return ret;
     }
     if ( switch_info.flow_cleanup ) {
+      debug( "Deleting all flows." );
       ret = ofpmsg_send_delete_all_flows( sw_info );
       if ( ret < 0 ) {
+        error( "Failed to send delete all flows." );
         return ret;
       }
     }
-    add_periodic_event_callback( ECHO_REQUEST_INTERVAL, echo_request_interval, sw_info );
+
+    // switch_ready to switch_manager
+    debug( "Notify switch_ready to switch manager." );
+    char switch_manager[] =  SWITCH_MANAGER;
+    list_element switch_manager_only_list;
+    switch_manager_only_list.next = NULL;
+    switch_manager_only_list.data = switch_manager;
+    service_send_to_application( &switch_manager_only_list, MESSENGER_OPENFLOW_READY, &sw_info->datapath_id, NULL );
+
+    init_event_forward_interface();
+    // Check switch_manager registration
+    debug( "Checking switch manager's switch list." );
+    if ( !send_efi_switch_list_request( confirm_self_dpid_is_registerd, sw_info ) ) {
+      error( "Failed to send switch list request to switch manager." );
+      return -1;
+    }
     break;
 
   case SWITCH_STATE_COMPLETED:
@@ -455,6 +459,40 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
   return 0;
 }
+
+
+static void
+notify_state_to_controllers( struct switch_info *sw_info );
+
+
+static void
+confirm_self_dpid_is_registerd( uint64_t* dpids, size_t n_dpids, void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  debug( "Received switch manager's switch list." );
+  for ( size_t i = 0 ; i < n_dpids ; ++i ) {
+    if ( sw_info->datapath_id == dpids[ i ] ) {
+      // self dpid registered
+      debug( "Self dpid found" );
+      return notify_state_to_controllers( sw_info );
+    }
+  }
+
+  debug( "Self dpid not found. Retrying..." );
+  if ( !send_efi_switch_list_request( confirm_self_dpid_is_registerd, sw_info ) ){
+    error( "Failed to send switch list request to switch manager on retry." );
+  }
+}
+
+
+static void
+notify_state_to_controllers( struct switch_info *sw_info ) {
+    // notify state and datapath_id to controllers
+    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );
+    debug( "send ready state" );
+
+    add_periodic_event_callback( ECHO_REQUEST_INTERVAL, echo_request_interval, sw_info );
+ }
 
 
 int
@@ -500,6 +538,20 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
   flush_messenger();
 
+  // free service name list
+  iterate_list( sw_info->vendor_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->vendor_service_name_list );
+  sw_info->vendor_service_name_list = NULL;
+  iterate_list( sw_info->packetin_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->packetin_service_name_list );
+  sw_info->packetin_service_name_list = NULL;
+  iterate_list( sw_info->portstatus_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->portstatus_service_name_list );
+  sw_info->portstatus_service_name_list = NULL;
+  iterate_list( sw_info->state_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->state_service_name_list );
+  sw_info->state_service_name_list = NULL;
+
   stop_trema();
 
   return 0;
@@ -542,9 +594,74 @@ switch_event_recv_error( struct switch_info *sw_info ) {
 
 
 static void
+management_event_forward_entry_operation( const messenger_context_handle *handle, uint32_t command, event_forward_operation_request *req, size_t data_len ) {
+
+  debug( "management efi command:%#x, type:%#x, n_services:%d", command, req->type, req->n_services );
+
+  list_element **subject = NULL;
+  switch ( req->type ) {
+    case EVENT_FORWARD_TYPE_VENDOR:
+      info( "Managing vendor event." );
+      subject = &switch_info.vendor_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_PACKET_IN:
+      info( "Managing packet_in event." );
+      subject = &switch_info.packetin_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_PORT_STATUS:
+      info( "Managing port_status event." );
+      subject = &switch_info.portstatus_service_name_list;
+      break;
+
+    case EVENT_FORWARD_TYPE_STATE_NOTIFY:
+      info( "Managing state_notify event." );
+      subject = &switch_info.state_service_name_list;
+      break;
+
+    default:
+      error( "Invalid EVENT_FWD_TYPE ( %#x )", req->type );
+      event_forward_operation_reply res;
+      memset( &res, 0, sizeof( event_forward_operation_reply ) );
+      res.type = req->type;
+      res.result = EFI_OPERATION_FAILED;
+      management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_FAILED, command, &res, sizeof( event_forward_operation_reply ) );
+      send_management_application_reply( handle, reply );
+      xfree( reply );
+      return;
+  }
+  assert( subject != NULL );
+
+  switch ( command ) {
+    case EVENT_FORWARD_ENTRY_ADD:
+      management_event_forward_entry_add( subject, req, data_len );
+      break;
+
+    case EVENT_FORWARD_ENTRY_DELETE:
+      management_event_forward_entry_delete( subject, req, data_len );
+      break;
+
+    case EVENT_FORWARD_ENTRY_DUMP:
+      info( "Dumping current event filter." );
+      // do nothing
+      break;
+
+    case EVENT_FORWARD_ENTRY_SET:
+      management_event_forward_entries_set( subject, req, data_len );
+      break;
+  }
+
+  buffer *buf = create_event_forward_operation_reply( req->type, EFI_OPERATION_SUCCEEDED, *subject );
+  management_application_reply *reply = create_management_application_reply( MANAGEMENT_REQUEST_SUCCEEDED, command, buf->data, buf->length );
+  free_buffer( buf );
+  send_management_application_reply( handle, reply );
+  xfree( reply );
+}
+
+
+static void
 management_recv( const messenger_context_handle *handle, uint32_t command, void *data, size_t data_len, void *user_data ) {
-  UNUSED( data );
-  UNUSED( data_len );
   UNUSED( user_data );
 
   switch ( command ) {
@@ -576,6 +693,18 @@ management_recv( const messenger_context_handle *handle, uint32_t command, void 
         add_periodic_event_callback( COOKIE_TABLE_AGING_INTERVAL, age_cookie_table, NULL );
         age_cookie_table_enabled = true;
       }
+    }
+    break;
+
+    case EVENT_FORWARD_ENTRY_ADD:
+    case EVENT_FORWARD_ENTRY_DELETE:
+    case EVENT_FORWARD_ENTRY_DUMP:
+    case EVENT_FORWARD_ENTRY_SET:
+    {
+      event_forward_operation_request *req = data;
+      req->n_services = ntohl( req->n_services );
+      management_event_forward_entry_operation( handle, command, req, data_len );
+      return;
     }
     break;
 
@@ -625,27 +754,22 @@ main( int argc, char *argv[] ) {
   create_list( &switch_info.portstatus_service_name_list );
   create_list( &switch_info.state_service_name_list );
 
-  // FIXME
-#define VENDER_PREFIX "vendor::"
-#define PACKET_IN_PREFIX "packet_in::"
-#define PORTSTATUS_PREFIX "port_status::"
-#define STATE_PREFIX "state_notify::"
   for ( i = optind; i < argc; i++ ) {
-    if ( strncmp( argv[ i ], VENDER_PREFIX, strlen( VENDER_PREFIX ) ) == 0 ) {
-      service_name = xstrdup( argv[ i ] + strlen( VENDER_PREFIX ) );
-      insert_in_front( &switch_info.vendor_service_name_list, service_name );
+    if ( strncmp( argv[ i ], VENDOR_PREFIX, strlen( VENDOR_PREFIX ) ) == 0 ) {
+      service_name = xstrdup( argv[ i ] + strlen( VENDOR_PREFIX ) );
+      append_to_tail( &switch_info.vendor_service_name_list, service_name );
     }
     else if ( strncmp( argv[ i ], PACKET_IN_PREFIX, strlen( PACKET_IN_PREFIX ) ) == 0 ) {
       service_name = xstrdup( argv[ i ] + strlen( PACKET_IN_PREFIX ) );
-      insert_in_front( &switch_info.packetin_service_name_list, service_name );
+      append_to_tail( &switch_info.packetin_service_name_list, service_name );
     }
     else if ( strncmp( argv[ i ], PORTSTATUS_PREFIX, strlen( PORTSTATUS_PREFIX ) ) == 0 ) {
       service_name = xstrdup( argv[ i ] + strlen( PORTSTATUS_PREFIX ) );
-      insert_in_front( &switch_info.portstatus_service_name_list, service_name );
+      append_to_tail( &switch_info.portstatus_service_name_list, service_name );
     }
     else if ( strncmp( argv[ i ], STATE_PREFIX, strlen( STATE_PREFIX ) ) == 0 ) {
       service_name = xstrdup( argv[ i ] + strlen( STATE_PREFIX ) );
-      insert_in_front( &switch_info.state_service_name_list, service_name );
+      append_to_tail( &switch_info.state_service_name_list, service_name );
     }
   }
 
@@ -684,9 +808,16 @@ main( int argc, char *argv[] ) {
     error( "Failed to set connected state." );
     return -1;
   }
-  flush_secure_channel( &switch_info );
+  ret = flush_secure_channel( &switch_info );
+  if ( ret < 0 ) {
+    error( "Failed to flush secure channel. Terminating %s.", argv[ 0 ] );
+    return -1;
+  }
 
   start_trema();
+
+  // Note: init_event_forward_interface will be called on feature_reply.
+  finalize_event_forward_interface();
 
   finalize_xid_table();
   if ( switch_info.cookie_translation ) {

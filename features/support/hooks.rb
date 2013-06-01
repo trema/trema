@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,10 +16,25 @@
 #
 
 
+require "trema/path"
+
+
+def wait_until_all_pid_files_are_deleted timeout = 10
+  elapsed = 0
+  loop do
+    raise "Failed to clean up remaining processes." if elapsed > timeout
+    break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
+    sleep 1
+    elapsed += 1
+  end
+  sleep 1
+end
+
+
 Before do
-  @aruba_timeout_seconds = 5
+  @aruba_timeout_seconds = 10
   run "trema killall"
-  sleep 5
+  wait_until_all_pid_files_are_deleted
 end
 
 
@@ -30,7 +45,8 @@ end
 
 After do
   run "trema killall"
-  sleep 1
+  wait_until_all_pid_files_are_deleted
+  processes.clear
 end
 
 

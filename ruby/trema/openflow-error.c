@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -125,9 +125,12 @@ openflow_error_data( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::OpenflowError
+ */
 void
 Init_openflow_error() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cOpenflowError = rb_define_class_under( mTrema, "OpenflowError", rb_cObject );
   rb_define_method( cOpenflowError, "initialize", openflow_error_init, 1 );
   rb_define_method( cOpenflowError, "datapath_id", openflow_error_datapath_id, 0 );

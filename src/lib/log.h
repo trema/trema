@@ -4,7 +4,7 @@
  * Some good logging guidelines can be found here:
  *  http://watchitlater.com/blog/2009/12/logging-guidelines/
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as

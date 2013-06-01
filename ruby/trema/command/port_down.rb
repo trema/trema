@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,8 +16,22 @@
 #
 
 
+require "trema/cli"
+require "trema/util"
+
+
 module Trema
-  module Logger
+  module Command
+    include Trema::Util
+
+
+    def trema_port_down switch_name, port
+      switch = find_switch_by_name( switch_name )
+      raise "unknown switch: #{ switch_name }" if switch.nil?
+
+      error = switch.bring_port_down( port.to_i )
+      raise error if $?.exitstatus != 0
+    end
   end
 end
 

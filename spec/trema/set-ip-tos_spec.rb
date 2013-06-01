@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -38,6 +38,11 @@ describe SetIpTos, ".new( type_of_service )", :type => "actions" do
   context %{with type_of_service ([32])} do
     let( :type_of_service ) { [ 32 ] }
     it { expect { subject }.to raise_error( TypeError ) }
+  end
+
+  context "with type_of_service (1)" do
+    let( :type_of_service ) { 1 }
+    it { expect { subject }.to raise_error( ArgumentError ) }
   end
 
   context "when sending a Flow Mod with SetIpTos" do

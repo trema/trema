@@ -1,7 +1,7 @@
 #
 # Trema sub-commands.
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -22,6 +22,8 @@ require "trema/command/dump_flows"
 require "trema/command/kill"
 require "trema/command/killall"
 require "trema/command/netns"
+require "trema/command/port_up"
+require "trema/command/port_down"
 require "trema/command/reset_stats"
 require "trema/command/ruby"
 require "trema/command/run"

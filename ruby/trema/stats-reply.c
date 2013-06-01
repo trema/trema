@@ -1,7 +1,5 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -120,12 +118,14 @@ stats_reply_flags( VALUE self ) {
 /*
  * A list of reply type objects for this message.
  *
+ * @return [Array<DescStatsReply>]
+ *   an array of {DescStatsReply} objects if type is +OFPST_DESC+.
  * @return [Array<FlowStatsReply>]
  *   an array of {FlowStatsReply} objects if type is +OFPST_FLOW+.
- * @return [Array<TableStatsReply>]
- *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
  * @return [AggregateStatsReply]
  *   a {AggregateStatsReply} object if type is +OFPST_AGGREGATE+.
+ * @return [Array<TableStatsReply>]
+ *   an array of {TableStatsReply} objects if type is +OFPST_TABLE+.
  * @return [Array<PortStatsReply>]
  *   an array of {PortStatsReply} objects if type is +OFPST_PORT+.
  * @return [Array<QueueStatsReply>]
@@ -139,6 +139,9 @@ stats_reply_stats( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::StatsReply
+ */
 void
 Init_stats_reply() {
   rb_require( "trema/desc-stats-reply" );
@@ -148,7 +151,7 @@ Init_stats_reply() {
   rb_require( "trema/port-stats-reply" );
   rb_require( "trema/queue-stats-reply" );
   rb_require( "trema/vendor-stats-reply" );
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cStatsReply = rb_define_class_under( mTrema, "StatsReply", rb_cObject );
   rb_define_const( cStatsReply, "OFPST_DESC", INT2NUM( OFPST_DESC ) );
   rb_define_const( cStatsReply, "OFPST_FLOW", INT2NUM( OFPST_FLOW ) );

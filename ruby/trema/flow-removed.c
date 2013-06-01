@@ -1,7 +1,5 @@
 /*
- * Author: Nick Karanatsios <nickkaranatsios@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -220,9 +218,12 @@ flow_removed_byte_count( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::FlowRemoved
+ */
 void
 Init_flow_removed() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cFlowRemoved = rb_define_class_under( mTrema, "FlowRemoved", rb_cObject );
   rb_define_const( cFlowRemoved, "OFPRR_IDLE_TIMEOUT", INT2NUM( OFPRR_IDLE_TIMEOUT ) );
   rb_define_const( cFlowRemoved, "OFPRR_HARD_TIMEOUT", INT2NUM( OFPRR_HARD_TIMEOUT ) );

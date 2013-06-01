@@ -1,9 +1,7 @@
 /*
  * Unit tests for OpenFlow Application Interface.
  *
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -3479,6 +3477,52 @@ test_delete_openflow_messages_if_clear_send_queue_fails() {
 
 
 /********************************************************************************
+ * disconnect_switch() tests.
+ ********************************************************************************/
+
+static void
+test_disconnect_switch() {
+  size_t expected_length = ( size_t ) ( sizeof( openflow_service_header_t ) + strlen( SERVICE_NAME ) + 1 );
+  void *expected_data = xcalloc( 1, expected_length );
+  openflow_service_header_t *header = expected_data;
+  header->datapath_id = htonll( DATAPATH_ID );
+  header->service_name_length = htons( ( uint16_t ) ( strlen( SERVICE_NAME ) + 1 ) );
+  memcpy( ( char * ) expected_data + sizeof( openflow_service_header_t ), SERVICE_NAME, strlen( SERVICE_NAME ) + 1 );
+
+  expect_string( mock_send_message, service_name, REMOTE_SERVICE_NAME );
+  expect_value( mock_send_message, tag32, MESSENGER_OPENFLOW_DISCONNECT_REQUEST );
+  expect_value( mock_send_message, len, expected_length );
+  expect_memory( mock_send_message, data, expected_data, expected_length );
+  will_return( mock_send_message, true );
+
+  assert_true( disconnect_switch( DATAPATH_ID ) );
+
+  xfree( expected_data );
+}
+
+
+static void
+test_disconnect_switch_if_send_message_fails() {
+  size_t expected_length = ( size_t ) ( sizeof( openflow_service_header_t ) + strlen( SERVICE_NAME ) + 1 );
+  void *expected_data = xcalloc( 1, expected_length );
+  openflow_service_header_t *header = expected_data;
+  header->datapath_id = htonll( DATAPATH_ID );
+  header->service_name_length = htons( ( uint16_t ) ( strlen( SERVICE_NAME ) + 1 ) );
+  memcpy( ( char * ) expected_data + sizeof( openflow_service_header_t ), SERVICE_NAME, strlen( SERVICE_NAME ) + 1 );
+
+  expect_string( mock_send_message, service_name, REMOTE_SERVICE_NAME );
+  expect_value( mock_send_message, tag32, MESSENGER_OPENFLOW_DISCONNECT_REQUEST );
+  expect_value( mock_send_message, len, expected_length );
+  expect_memory( mock_send_message, data, expected_data, expected_length );
+  will_return( mock_send_message, false );
+
+  assert_false( disconnect_switch( DATAPATH_ID ) );
+
+  xfree( expected_data );
+}
+
+
+/********************************************************************************
  * Run tests.
  ********************************************************************************/
 
@@ -3652,6 +3696,10 @@ main() {
     // delete_openflow_messages() tests.
     unit_test_setup_teardown( test_delete_openflow_messages, init, cleanup ),
     unit_test_setup_teardown( test_delete_openflow_messages_if_clear_send_queue_fails, init, cleanup ),
+
+    // disconnect_switch() tests.
+    unit_test_setup_teardown( test_disconnect_switch, init, cleanup ),
+    unit_test_setup_teardown( test_disconnect_switch_if_send_message_fails, init, cleanup ),
   };
   return run_tests( tests );
 }

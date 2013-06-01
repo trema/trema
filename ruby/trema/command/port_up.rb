@@ -1,7 +1,5 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -18,31 +16,28 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require "trema/cli"
+require "trema/util"
 
 
 module Trema
-  describe Logger do
-    subject {
-      class LoggingObject
-        include Trema::Logger
-      end
-      LoggingObject.new
-    }
+  module Command
+    include Trema::Util
 
-    it { should respond_to :critical }
-    it { should respond_to :error }
-    it { should respond_to :warn }
-    it { should respond_to :notice }
-    it { should respond_to :info }
-    it { should respond_to :debug }
+
+    def trema_port_up switch_name, port
+      switch = find_switch_by_name( switch_name )
+      raise "unknown switch: #{ switch_name }" if switch.nil?
+
+      error = switch.bring_port_up( port.to_i )
+      raise error if $?.exitstatus != 0
+    end
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

@@ -1,7 +1,5 @@
 /*
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -1762,6 +1760,35 @@ delete_openflow_messages( uint64_t datapath_id ) {
   snprintf( remote_service_name, sizeof( remote_service_name ),
             "switch.%#" PRIx64, datapath_id );
   return clear_send_queue( remote_service_name );
+}
+
+
+bool
+disconnect_switch( uint64_t datapath_id ) {
+  debug( "Disconnecting a switch ( datapath_id = %#" PRIx64 " ).", datapath_id );
+
+  maybe_init_openflow_application_interface();
+  assert( openflow_application_interface_initialized );
+
+  size_t service_name_length = strlen( service_name ) + 1;
+  size_t length = sizeof( openflow_service_header_t ) + service_name_length;
+  buffer *buf = alloc_buffer_with_length( length );
+  openflow_service_header_t *header = append_back_buffer( buf, sizeof( openflow_service_header_t ) );
+  header->datapath_id = htonll( datapath_id );
+  header->service_name_length = htons( ( uint16_t ) service_name_length );
+  char *name = append_back_buffer( buf, service_name_length );
+  memcpy( name, service_name, service_name_length );
+
+  char remote_service_name[ MESSENGER_SERVICE_NAME_LENGTH ];
+  snprintf( remote_service_name, sizeof( remote_service_name ),
+            "switch.%#" PRIx64, datapath_id );
+
+  bool ret =  send_message( remote_service_name, MESSENGER_OPENFLOW_DISCONNECT_REQUEST,
+                            buf->data, buf->length );
+
+  free_buffer( buf );
+
+  return ret;
 }
 
 

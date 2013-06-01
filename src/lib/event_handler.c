@@ -1,6 +1,4 @@
 /*
- * Author: Jari Sundell
- *
  * Copyright (C) 2011 axsh Ltd.
  *
  * This program is free software; you can redistribute it and/or modify

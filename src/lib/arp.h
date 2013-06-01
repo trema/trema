@@ -1,9 +1,7 @@
 /*
  * ARP header definitions
  *
- * Author: Kazuya Suzuki
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -50,7 +48,9 @@ typedef struct arp_header {
 
 
 #define ARP_OP_REQUEST 1
-#define ARP_OP_REPLY   2
+#define ARP_OP_REPLY 2
+#define ARP_OP_RREQUEST 3
+#define ARP_OP_RREPLY 4
 
 
 #endif // ARP_H

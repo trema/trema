@@ -1,7 +1,5 @@
 /*
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -17,27 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef SWITCH_EVENT_H_
+#define SWITCH_EVENT_H_
 
-#ifndef MANAGEMENT_INTERFACE_H
-#define MANAGEMENT_INTERFACE_H
+#include "ruby.h"
 
+extern VALUE mSwitchEvent;
 
-#include "trema.h"
+void Init_switch_event( void );
 
-
-enum {
-  DUMP_XID_TABLE = 0,
-  DUMP_COOKIE_TABLE,
-  TOGGLE_COOKIE_AGING,
-};
-
-
-#endif // MANAGEMENT_INTERFACE_H
-
-
-/*
- * Local variables:
- * c-basic-offset: 2
- * indent-tabs-mode: nil
- * End:
- */
+#endif /* SWITCH_EVENT_H_ */

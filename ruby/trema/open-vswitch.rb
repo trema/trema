@@ -1,7 +1,5 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -94,6 +92,16 @@ module Trema
     #
     def flows
       Ofctl.new.users_flows( self )
+    end
+
+
+    def bring_port_up port_number
+      Ofctl.new.bring_port_up self, port_number
+    end
+
+
+    def bring_port_down port_number
+      Ofctl.new.bring_port_down self, port_number
     end
 
 

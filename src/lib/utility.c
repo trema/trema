@@ -1,7 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -33,7 +31,7 @@
 #include "log.h"
 #include "trema_wrapper.h"
 #include "utility.h"
-
+#include "wrapper.h"
 
 static void
 _die( const char *format, ... ) {
@@ -312,7 +310,7 @@ phy_port_to_string( const struct ofp_phy_port *phy_port, char *str, size_t size 
 }
 
 
-static bool
+bool
 action_output_to_string( const struct ofp_action_output *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -326,7 +324,7 @@ action_output_to_string( const struct ofp_action_output *action, char *str, size
 }
 
 
-static bool
+bool
 action_set_vlan_vid_to_string( const struct ofp_action_vlan_vid *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -340,7 +338,7 @@ action_set_vlan_vid_to_string( const struct ofp_action_vlan_vid *action, char *s
 }
 
 
-static bool
+bool
 action_set_vlan_pcp_to_string( const struct ofp_action_vlan_pcp *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -354,7 +352,7 @@ action_set_vlan_pcp_to_string( const struct ofp_action_vlan_pcp *action, char *s
 }
 
 
-static bool
+bool
 action_strip_vlan_to_string( const struct ofp_action_header *action, char *str, size_t size ) {
   UNUSED( action );
   assert( action != NULL );
@@ -386,13 +384,13 @@ action_dl_addr_to_string( const struct ofp_action_dl_addr *action, char *str, si
 }
 
 
-static bool
+bool
 action_set_dl_src_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size ) {
   return action_dl_addr_to_string( action, str, size, OFPAT_SET_DL_SRC );
 }
 
 
-static bool
+bool
 action_set_dl_dst_to_string( const struct ofp_action_dl_addr *action, char *str, size_t size ) {
   return action_dl_addr_to_string( action, str, size, OFPAT_SET_DL_DST );
 }
@@ -418,19 +416,19 @@ action_nw_addr_to_string( const struct ofp_action_nw_addr *action, char *str, si
 }
 
 
-static bool
+bool
 action_set_nw_src_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size ) {
   return action_nw_addr_to_string( action, str, size, OFPAT_SET_NW_SRC );
 }
 
 
-static bool
+bool
 action_set_nw_dst_to_string( const struct ofp_action_nw_addr *action, char *str, size_t size ) {
   return action_nw_addr_to_string( action, str, size, OFPAT_SET_NW_DST );
 }
 
 
-static bool
+bool
 action_set_nw_tos_to_string( const struct ofp_action_nw_tos *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -459,19 +457,19 @@ action_tp_port_to_string( const struct ofp_action_tp_port *action, char *str, si
 }
 
 
-static bool
+bool
 action_set_tp_src_to_string( const struct ofp_action_tp_port *action, char *str, size_t size ) {
   return action_tp_port_to_string( action, str, size, OFPAT_SET_TP_SRC );
 }
 
 
-static bool
+bool
 action_set_tp_dst_to_string( const struct ofp_action_tp_port *action, char *str, size_t size ) {
   return action_tp_port_to_string( action, str, size, OFPAT_SET_TP_DST );
 }
 
 
-static bool
+bool
 action_enqueue_to_string( const struct ofp_action_enqueue *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -485,7 +483,7 @@ action_enqueue_to_string( const struct ofp_action_enqueue *action, char *str, si
 }
 
 
-static bool
+bool
 action_vendor_to_string( const struct ofp_action_vendor_header *action, char *str, size_t size ) {
   assert( action != NULL );
   assert( str != NULL );
@@ -595,6 +593,18 @@ get_checksum( uint16_t *pos, uint32_t size ) {
   return ( uint16_t ) ~csum;
 }
 
+
+void
+xfree_data( void *data, void *user_data ) {
+  UNUSED( user_data );
+  xfree( data );
+}
+
+
+bool
+string_equal( void *data, void *user_data ) {
+  return strcmp( data, user_data ) == 0;
+}
 
 /*
  * Local variables:

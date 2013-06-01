@@ -1,9 +1,7 @@
 /*
  * An OpenFlow application interface library.
  *
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -341,6 +339,13 @@ bool send_list_switches_request( void *user_data );
  ********************************************************************************/
 
 bool delete_openflow_messages( uint64_t datapath_id );
+
+
+/********************************************************************************
+ * Function for disconnecting a switch
+ ********************************************************************************/
+
+bool disconnect_switch( uint64_t datapath_id );
 
 
 #endif // OPENFLOW_APPLICATION_INTERFACE_H

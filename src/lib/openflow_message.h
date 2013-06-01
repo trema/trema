@@ -1,9 +1,7 @@
 /*
  * An OpenFlow message library.
  *
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -204,6 +202,7 @@ enum {
   ERROR_TOO_SHORT_ACTION_ENQUEUE,
   ERROR_TOO_LONG_ACTION_ENQUEUE,
   ERROR_TOO_SHORT_ACTION_VENDOR,
+  ERROR_INVALID_LENGTH_ACTION_VENDOR,
   ERROR_UNSUPPORTED_STATS_TYPE,
   ERROR_INVALID_STATS_REPLY_FLAGS,
   ERROR_INVALID_FLOW_PRIORITY,

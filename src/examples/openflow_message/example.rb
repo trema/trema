@@ -1,9 +1,7 @@
 #
 # Common extendable functionality for all openflow message examples.
 #
-# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -22,11 +20,10 @@
 
 module Example
   class << self
-    attr_accessor :exec_name, :count, :datapath_id
+    attr_accessor :count, :datapath_id
 
 
     def options_parse args
-      @exec_name = args.shift
       case args.length
       when 2
         @datapath_id = args[ 0 ] =~ /^0x/ ? args[ 0 ].hex : args[ 0 ].to_i
@@ -38,7 +35,7 @@ module Example
 
 
     def cmd_usage
-      "Usage: #{ @exec_name } datapath_id, count"
+      "Usage: #{ File.basename __FILE__ } datapath_id, count"
     end
   end
 

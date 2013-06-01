@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -21,11 +21,11 @@
 #include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
+#include "default-logger.h"
 #include "features-reply.h"
 #include "flow-removed.h"
 #include "get-config-reply.h"
 #include "list-switches-reply.h"
-#include "logger.h"
 #include "openflow-error.h"
 #include "openflow.h"
 #include "packet-in.h"
@@ -618,10 +618,9 @@ controller_start_trema( VALUE self ) {
 }
 
 
-/********************************************************************************
- * Init Controller module.
- ********************************************************************************/
-
+/*
+ * Document-class: Trema::Controller
+ */
 void
 Init_controller() {
   rb_require( "trema/enqueue" );
@@ -641,7 +640,7 @@ Init_controller() {
   rb_require( "trema/app" );
 
   VALUE cApp = rb_eval_string( "Trema::App" );
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
 
   rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );

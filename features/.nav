@@ -6,11 +6,15 @@
   - up.feature
   - killall.feature
   - send_packets.feature
+  - port_up.feature
+  - port_down.feature
   - show_stats.feature
   - reset_stats.feature
   - dump_flows.feature
   - version.feature
   - help.feature
+- dsl:
+  - switch_port_specifier.feature
 - examples:
   - hello_trema.feature
   - list_switches.feature
@@ -28,6 +32,15 @@
   - message.set_config.feature
   - message.vendor-action.feature
   - packetin_filter_config.feature
+- switch_event:
+  - add_forward_entry.feature
+  - delete_forward_entry.feature
+  - dump_forward_entries.feature
+  - set_forward_entries.feature
+  - C-add_forward_entry.feature
+  - C-delete_forward_entry.feature
+  - C-dump_forward_entries.feature
+  - C-set_forward_entries.feature
 - handlers:
   - switch_ready.feature
   - desc_stats_reply.feature 
@@ -40,3 +53,4 @@
   - switch_manager.feature
   - packetin_filter.feature
   - trema-config.feature
+  - get_pid_by_trema_name.feature

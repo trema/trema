@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -175,9 +175,12 @@ vendor_data( VALUE self ) {
 }
 
 
+/*
+ * Document-class: Trema::Vendor
+ */
 void
 Init_vendor() {
-  mTrema = rb_define_module( "Trema" );
+  mTrema = rb_eval_string( "Trema" );
   cVendor = rb_define_class_under( mTrema, "Vendor", rb_cObject );
   rb_define_alloc_func( cVendor, vendor_alloc );
   rb_define_method( cVendor, "initialize", vendor_init, -1 );

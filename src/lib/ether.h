@@ -1,9 +1,7 @@
 /*
  * Ethernet header definitions
  *
- * Author: Kazuya Suzuki
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -41,6 +39,7 @@
 #define ETH_ETHTYPE_8023 0x05dc
 #define ETH_ETHTYPE_IPV4 0x0800
 #define ETH_ETHTYPE_ARP 0x0806
+#define ETH_ETHTYPE_RARP 0x8035
 #define ETH_ETHTYPE_TPID 0x8100
 #define ETH_ETHTYPE_IPV6 0x86DD
 #define ETH_ETHTYPE_EAPOL 0x88c7

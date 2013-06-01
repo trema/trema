@@ -2,7 +2,7 @@
 #
 # Unit test & acceptance test runner for Trema.
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -34,7 +34,6 @@ $coverage_threshold = 70.2
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
 
 require "rubygems"
-require "bundler/setup"
 
 require "English"
 require "blocker"
@@ -317,7 +316,6 @@ end
 def run_unit_test
   test "Running unit tests ..." do
     sh "./build.rb unittests"
-    sh "./build.rb"
     sh "rake spec"
   end
   measure_coverage
@@ -326,7 +324,6 @@ end
 
 def run_acceptance_test
   test "Running acceptance tests ..." do
-    sh "./build.rb"
     sh "rake features"
   end
 end
@@ -361,16 +358,13 @@ $options.parse! ARGV
 
 
 def init_cruise
-  $start_time = Time.now
-  sh "./build.rb distclean"
-  sh "bundle install"
-  mkdir_p Trema.log
-  mkdir_p Trema.pid
-  mkdir_p Trema.sock
+  sh "bundle"
+  sh "rake setup"
 end
 
 
 Blocker.start do
+  $start_time = Time.now
   cd Trema.home do
     init_cruise
     run_unit_test if not $acceptance_test_only

@@ -1,9 +1,7 @@
 /*
  * Management command to check if a specified application/service is alive or not.
  *
- * Author: Yasunobu Chiba
- *
- * Copyright (C) 2012 NEC Corporation
+ * Copyright (C) 2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as

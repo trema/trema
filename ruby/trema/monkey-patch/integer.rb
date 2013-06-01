@@ -1,7 +1,5 @@
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -20,11 +18,13 @@
 
 require "trema/monkey-patch/integer/base-conversions"
 require "trema/monkey-patch/integer/ranges"
+require "trema/monkey-patch/integer/validators"
 
 
 class Integer
   include MonkeyPatch::Integer::BaseConversions
   include MonkeyPatch::Integer::Ranges
+  include MonkeyPatch::Integer::Validators
 end
 
 

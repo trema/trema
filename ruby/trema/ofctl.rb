@@ -1,9 +1,7 @@
 #
 # The controller class of ovs-ofctl.
 #
-# Author: Yasuhito Takamiya <yasuhito@gmail.com>
-#
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -50,6 +48,16 @@ module Trema
 
     def dump_flows switch
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.network_device } 2>&1`
+    end
+
+
+    def bring_port_up switch, port_number
+      `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } up 2>&1`
+    end
+
+
+    def bring_port_down switch, port_number
+      `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } down 2>&1`
     end
   end
 end

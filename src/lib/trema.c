@@ -1,7 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -375,7 +373,7 @@ die_unless_initialized() {
 }
 
 
-static void
+void
 finalize_trema() {
   die_unless_initialized();
 
@@ -634,35 +632,28 @@ init_trema( int *argc, char ***argv ) {
 }
 
 
+static void
+create_pid_file() {
+  write_pid( get_trema_pid(), get_trema_name() );
+}
+
+
 /**
  * Runs the main loop.
  */
 void
 start_trema() {
-  start_trema_up();
-  start_event_handler();
-  start_trema_down();
-}
-
-
-void
-start_trema_up() {
   pthread_mutex_lock( &mutex );
 
   die_unless_initialized();
-
-  debug( "Starting %s ... ( TREMA_HOME = %s )", get_trema_name(), get_trema_home() );
+  debug( "Starting %s ... (TREMA_HOME = %s)", get_trema_name(), get_trema_home() );
 
   maybe_daemonize();
-  write_pid( get_trema_pid(), get_trema_name() );
+  create_pid_file();
   trema_started = true;
-
   start_messenger();
-}
+  start_event_handler();
 
-
-void
-start_trema_down() {
   finalize_trema();
 
   pthread_mutex_unlock( &mutex );
@@ -725,8 +716,14 @@ get_executable_name() {
 
 
 pid_t
-get_trema_process_from_name( const char *name ) {
+get_pid_by_trema_name( const char *name ) {
   return read_pid( get_trema_pid(), name );
+}
+
+
+pid_t
+get_trema_process_from_name( const char *name ) {
+  return get_pid_by_trema_name( name );
 }
 
 

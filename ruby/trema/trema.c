@@ -1,7 +1,7 @@
 /*
  * Ruby wrapper around libtrema.
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -21,6 +21,7 @@
 #include "barrier-reply.h"
 #include "barrier-request.h"
 #include "controller.h"
+#include "default-logger.h"
 #include "echo-reply.h"
 #include "echo-request.h"
 #include "error.h"
@@ -31,7 +32,6 @@
 #include "get-config-reply.h"
 #include "get-config-request.h"
 #include "hello.h"
-#include "logger.h"
 #include "match.h"
 #include "openflow-error.h"
 #include "packet-in.h"
@@ -45,6 +45,7 @@
 #include "stats-reply.h"
 #include "stats-request.h"
 #include "switch.h"
+#include "switch-event.h"
 #include "vendor.h"
 
 
@@ -85,6 +86,7 @@ Init_trema() {
   Init_barrier_reply();
   Init_barrier_request();
   Init_controller();
+  Init_default_logger();
   Init_echo_reply();
   Init_echo_request();
   Init_error();
@@ -95,7 +97,6 @@ Init_trema() {
   Init_get_config_reply();
   Init_get_config_request();
   Init_hello();
-  Init_logger();
   Init_match();
   Init_openflow_error();
   Init_packet_in();
@@ -108,6 +109,7 @@ Init_trema() {
   Init_stats_reply();
   Init_stats_request();
   Init_switch();
+  Init_switch_event();
   Init_vendor();
 
   rb_require( "trema/exact-match" );

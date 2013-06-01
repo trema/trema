@@ -1,7 +1,5 @@
 /*
- * Author: Kazushi SUGYO
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -133,7 +131,7 @@ service_recv_from_application( uint16_t message_type, buffer *buf ) {
    uint16_t service_name_length;
    char *service_name;
 
-  if ( buf->length < sizeof( openflow_service_header_t ) + sizeof( struct ofp_header ) ) {
+  if ( buf->length < sizeof( openflow_service_header_t ) ) {
     error( "Too short openflow application message(%zu).", buf->length );
     free_buffer( buf );
 
