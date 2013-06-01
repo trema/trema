@@ -155,6 +155,7 @@ module Trema
         end
         pid = ::Process.fork do
           @context.apps.values.last.run!
+          @context.apps.values.last.shutdown!
         end
         ::Process.waitpid pid
       end
