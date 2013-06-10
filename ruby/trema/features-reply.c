@@ -47,7 +47,7 @@ features_reply_alloc( VALUE klass ) {
  *       :n_tables => 1,
  *       :capabilities => 135,
  *       :actions => 2048,
- *       :port => [ port1, port2, ... ]
+ *       :ports => [ port1, port2, ... ]
  *     )
  *   @param [Hash] options
  *     the options to create a message with.
@@ -67,7 +67,7 @@ features_reply_alloc( VALUE klass ) {
  *     IP address lookup in APR packets.
  *   @option options [Number] :actions
  *     supported actions expressed as a 32-bit bitmap.
- *   @option options [Port] :port
+ *   @option options [Port] :ports
  *     an array of {Port} objects detailing port description and function.
  *   @return [FeaturesReply]
  */
