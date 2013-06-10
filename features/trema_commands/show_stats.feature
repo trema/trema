@@ -42,6 +42,7 @@ Feature: show_stats command
   @slow_process
   Scenario: show_stats hostname --rx
     When I run `trema send_packets --source host1 --dest host2`
+     And *** sleep 1 ***
      And I run `trema show_stats host2 --rx`
     Then the output should contain:
       """
