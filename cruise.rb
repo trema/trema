@@ -186,7 +186,7 @@ def gcov gcda, dir
     shell.on_stdout do | l |
       file = File.expand_path( $1 ) if /^File '(.*)'/=~ l
       testee = $c_files[ file ]
-      if /^Lines executed:(.*)% of (.*)$/=~ l
+      if /^Lines executed:(.*)% of (.*)$/=~ l and not testee.nil?
         testee.coverage = $1.to_f
         testee.lines = $2.to_i
       end
