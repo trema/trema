@@ -305,7 +305,18 @@ Init_port() {
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
 
   rb_define_const( cPort, "OFPPC_PORT_DOWN", INT2NUM( OFPPC_PORT_DOWN ) );
+  rb_define_const( cPort, "OFPPC_NO_STP", INT2NUM( OFPPC_NO_STP ) );
+  rb_define_const( cPort, "OFPPC_NO_RECV", INT2NUM( OFPPC_NO_RECV ) );
+  rb_define_const( cPort, "OFPPC_NO_RECV_STP", INT2NUM( OFPPC_NO_RECV_STP ) );
+  rb_define_const( cPort, "OFPPC_NO_FLOOD", INT2NUM( OFPPC_NO_FLOOD ) );
+  rb_define_const( cPort, "OFPPC_NO_FWD", INT2NUM( OFPPC_NO_FWD ) );
+  rb_define_const( cPort, "OFPPC_NO_PACKET_IN", INT2NUM( OFPPC_NO_PACKET_IN ) );
   rb_define_const( cPort, "OFPPS_LINK_DOWN", INT2NUM( OFPPS_LINK_DOWN ) );
+  rb_define_const( cPort, "OFPPS_STP_LISTEN", INT2NUM( OFPPS_STP_LISTEN ) );
+  rb_define_const( cPort, "OFPPS_STP_LEARN", INT2NUM( OFPPS_STP_LEARN ) );
+  rb_define_const( cPort, "OFPPS_STP_FORWARD", INT2NUM( OFPPS_STP_FORWARD ) );
+  rb_define_const( cPort, "OFPPS_STP_BLOCK", INT2NUM( OFPPS_STP_BLOCK ) );
+  rb_define_const( cPort, "OFPPS_STP_MASK", INT2NUM( OFPPS_STP_MASK ) );
   rb_define_const( cPort, "OFPPF_10MB_HD", INT2NUM( OFPPF_10MB_HD ) );
   rb_define_const( cPort, "OFPPF_10MB_FD", INT2NUM( OFPPF_10MB_FD ) );
   rb_define_const( cPort, "OFPPF_100MB_HD", INT2NUM( OFPPF_100MB_HD ) );
