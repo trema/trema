@@ -587,6 +587,10 @@ controller_run( VALUE self ) {
  */
 static VALUE
 controller_shutdown( VALUE self ) {
+  if ( rb_respond_to( self, rb_intern( "stop" ) ) == Qtrue ) {
+    rb_funcall( self, rb_intern( "stop" ), 0 );
+  }
+
   stop_trema();
   return self;
 }

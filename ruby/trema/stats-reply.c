@@ -292,6 +292,15 @@ get_action( const struct ofp_action_header *ah ) {
 }
 
 
+/*
+ * Output warning message when user uses the obsolete stats_reply handler.
+ */
+static void
+deprecated_warning( const char *new_handler_name ) {
+  warn( "Warning: 'stats_reply' handler will be deprecated, please use '%s' handler instead.", new_handler_name);
+}
+
+
 void
 handle_stats_reply(
   uint64_t datapath_id,
@@ -302,7 +311,15 @@ handle_stats_reply(
   void *user_data
 ) {
   VALUE controller = ( VALUE ) user_data;
-  if ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) {
+
+  if ( ( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "desc_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "flow_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "aggregate_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "table_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "port_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "queue_stats_reply" ) ) == Qfalse ) &&
+      ( rb_respond_to( controller, rb_intern( "vendor_stats_reply" ) ) == Qfalse ) ) {
     return;
   }
   if ( body == NULL ) {
@@ -312,6 +329,11 @@ handle_stats_reply(
     return;
   }
   VALUE attributes = rb_hash_new();
+  ID cb_method = 0;
+
+  if( rb_respond_to( controller, rb_intern( "stats_reply" ) ) == Qtrue ) {
+    cb_method = rb_intern( "stats_reply" );
+  }
 
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
@@ -340,6 +362,7 @@ handle_stats_reply(
       desc_stats_reply = rb_funcall( rb_eval_string( " Trema::DescStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( desc_stats_arr, desc_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), desc_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "desc_stats_reply" ) : deprecated_warning( "desc_stats_reply" );
     }
       break;
     case OFPST_FLOW:
@@ -394,6 +417,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), flow_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "flow_stats_reply" ) : deprecated_warning( "flow_stats_reply" );
     }
       break;
     case OFPST_AGGREGATE:
@@ -409,6 +433,7 @@ handle_stats_reply(
       aggregate_stats_reply = rb_funcall( rb_eval_string( " Trema::AggregateStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( aggregate_stats_arr, aggregate_stats_reply );
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), aggregate_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "aggregate_stats_reply" ) : deprecated_warning( "aggregate_stats_reply" );
     }
       break;
     case OFPST_TABLE:
@@ -438,6 +463,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), table_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "table_stats_reply" ) : deprecated_warning( "table_stats_reply" );
     }
       break;
     case OFPST_PORT:
@@ -472,6 +498,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), port_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "port_stats_reply" ) : deprecated_warning( "port_stats_reply" );
     }
       break;
     case OFPST_QUEUE:
@@ -495,6 +522,7 @@ handle_stats_reply(
         }
       }
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), queue_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "queue_stats_reply" ) : deprecated_warning( "queue_stats_reply" );
     }
       break;
     case OFPST_VENDOR:
@@ -510,6 +538,7 @@ handle_stats_reply(
       rb_ary_push( vendor_stats_arr, vendor_stats_reply );
 
       rb_hash_aset( attributes, ID2SYM( rb_intern( "stats" ) ), vendor_stats_arr );
+      ( ! cb_method ) ? cb_method = rb_intern( "vendor_stats_reply" ) : deprecated_warning( "vendor_stats_reply" );
     }
       break;
     default:
@@ -518,7 +547,10 @@ handle_stats_reply(
   }
 
   VALUE r_stats_reply = rb_funcall( cStatsReply, rb_intern( "new" ), 1, attributes );
-  rb_funcall( controller, rb_intern( "stats_reply" ), 2, ULL2NUM( datapath_id ), r_stats_reply );
+
+  if( cb_method ) {
+    rb_funcall( controller, cb_method, 2, ULL2NUM( datapath_id ), r_stats_reply );
+  }
 }
 
 
