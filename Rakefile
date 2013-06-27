@@ -497,15 +497,15 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog $quality_targets
+    flog.flog *$quality_targets
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
-      name != "main#none" && score > threshold
+      ( not ( /##{flog.no_method}$/=~ name ) ) and score > threshold
     end
     bad_methods.sort do | a, b |
       a[ 1 ] <=> b[ 1 ]
-    end.each do | name, score |
+    end.reverse.each do | name, score |
       puts "%8.1f: %s" % [ score, name ]
     end
     unless bad_methods.empty?
