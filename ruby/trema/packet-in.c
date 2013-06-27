@@ -443,6 +443,137 @@ packet_in_arp_tpa( VALUE self ) {
 
 
 /*
+ * Is it an RARP packet?
+ *
+ * @return [Boolean] whether the packet is an RARP packet or not.
+ */
+static VALUE
+packet_in_is_rarp( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_RARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is it an RARP request packet?
+ *
+ * @return [Boolean] whether the packet is an RARP request packet or not.
+ */
+static VALUE
+packet_in_is_rarp_request( VALUE self ) {
+  if ( packet_type_rarp_request( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * Is it an RARP reply packet?
+ *
+ * @return [Boolean] whether the packet is an RARP reply packet or not.
+ */
+static VALUE
+packet_in_is_rarp_reply( VALUE self ) {
+  if ( packet_type_rarp_reply( get_packet_in( self )->data ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+/*
+ * The RARP operation code.
+ *
+ * @return [Integer] the value of the RARP opcode field.
+ */
+static VALUE
+packet_in_rarp_oper( VALUE self ) {
+  PACKET_IN_RETURN_NUM( NW_RARP, UINT2NUM, arp_ar_op );
+}
+
+
+/*
+ * The RARP source hardware address of a packet.
+ *
+ * @return [Trema::Mac, nil]
+ *   the value of the RARP source hardware address as a Trema::Mac object or nil
+ *   if packet not an RARP.
+ */
+static VALUE
+packet_in_rarp_sha( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_RARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_sha );
+  }
+  else {
+    return Qnil;
+  }
+}
+
+
+/*
+ * The RARP source protocol address of a packet.
+ *
+ * @return [Trema::IP, nil]
+ *   the value of RARP source protocol address as a Trema::IP object or nil if
+ *   packet is not an RARP.
+ */
+static VALUE
+packet_in_rarp_spa( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_RARP ) ) {
+    PACKET_IN_RETURN_IP( arp_spa );
+  }
+  else {
+    return Qnil;
+  }
+}
+
+
+/*
+ * The RARP target hardware address of a packet.
+ *
+ * @return [Trema::Mac]
+ *   the value of RARP target hardware address as a Trema::Mac object or nil if
+ *   packet is not an RARP.
+ */
+static VALUE
+packet_in_rarp_tha( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_RARP ) ) {
+    PACKET_IN_RETURN_MAC( arp_tha );
+  }
+  else {
+    return Qnil;
+  }
+}
+
+
+/*
+ * The ARP target protocol address of a packet.
+ *
+ * @return [Trema::IP]
+ *   the value of RARP target protocol address as a Trema::IP object or nil if
+ *   packet is not an RARP.
+ */
+static VALUE
+packet_in_rarp_tpa( VALUE self ) {
+  if ( ( get_packet_in_info( self )->format & NW_RARP ) ) {
+    PACKET_IN_RETURN_IP( arp_tpa );
+  }
+  else {
+    return Qnil;
+  }
+}
+
+
+/*
  * Is it an IPv4 packet?
  *
  * @return [Boolean] whether the packet is an IPv4 packet or not.
@@ -1121,6 +1252,7 @@ Init_packet_in() {
 
   rb_define_method( cPacketIn, "vtag?", packet_in_is_vtag, 0 );
   rb_define_method( cPacketIn, "arp?", packet_in_is_arp, 0 );
+  rb_define_method( cPacketIn, "rarp?", packet_in_is_rarp, 0 );
   rb_define_method( cPacketIn, "ipv4?", packet_in_is_ipv4, 0 );
   rb_define_method( cPacketIn, "lldp?", packet_in_is_lldp, 0 );
   rb_define_method( cPacketIn, "icmpv4?", packet_in_is_icmpv4, 0 );
@@ -1141,6 +1273,14 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "arp_tpa", packet_in_arp_tpa, 0 );
   rb_define_method( cPacketIn, "arp_request?", packet_in_is_arp_request, 0 );
   rb_define_method( cPacketIn, "arp_reply?", packet_in_is_arp_reply, 0 );
+
+  rb_define_method( cPacketIn, "rarp_oper", packet_in_rarp_oper, 0 );
+  rb_define_method( cPacketIn, "rarp_sha", packet_in_rarp_sha, 0 );
+  rb_define_method( cPacketIn, "rarp_spa", packet_in_rarp_spa, 0 );
+  rb_define_method( cPacketIn, "rarp_tha", packet_in_rarp_tha, 0 );
+  rb_define_method( cPacketIn, "rarp_tpa", packet_in_rarp_tpa, 0 );
+  rb_define_method( cPacketIn, "rarp_request?", packet_in_is_rarp_request, 0 );
+  rb_define_method( cPacketIn, "rarp_reply?", packet_in_is_rarp_reply, 0 );
 
   rb_define_method( cPacketIn, "ipv4_version", packet_in_ipv4_version, 0 );
   rb_define_method( cPacketIn, "ipv4_ihl", packet_in_ipv4_ihl, 0 );

@@ -34,7 +34,6 @@
 
 
 const int LISTEN_SOCK_MAX = 128;
-const int SWITCH_MANAGER_DEFAULT_ARGC = 10;
 
 #ifdef UNIT_TESTING
 #define static
@@ -166,7 +165,8 @@ secure_channel_listen_start( struct listener_info *listener_info ) {
 
 static char **
 make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in *addr, int accept_fd ) {
-  const int argc = SWITCH_MANAGER_DEFAULT_ARGC
+  const int SWITCH_DAEMON_DEFAULT_ARGC = 4;
+  const int argc = SWITCH_DAEMON_DEFAULT_ARGC
       + listener_info->switch_daemon_argc
       + ( int ) list_length_of( listener_info->vendor_service_name_list )
       + ( int ) list_length_of( listener_info->packetin_service_name_list )
@@ -176,7 +176,7 @@ make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in
   char **argv = xcalloc( ( size_t ) argc, sizeof( char * ) );
   char *command_name = xasprintf( "%s%s:%u", SWITCH_MANAGER_COMMAND_PREFIX,
                                   inet_ntoa( addr->sin_addr ),
-                                   ntohs( addr->sin_port ) );
+                                  ntohs( addr->sin_port ) );
   char *service_name = xasprintf( "%s%s%s:%u", SWITCH_MANAGER_NAME_OPTION,
                                   SWITCH_MANAGER_PREFIX,
                                   inet_ntoa( addr->sin_addr ),
@@ -184,15 +184,12 @@ make_switch_daemon_args( struct listener_info *listener_info, struct sockaddr_in
   char *socket_opt = xasprintf( "%s%d", SWITCH_MANAGER_SOCKET_OPTION,
                                 accept_fd );
   char *daemonize_opt = xstrdup( SWITCH_MANAGER_DAEMONIZE_OPTION );
-  char *notify_opt = xasprintf( "%s%s", SWITCH_MANAGER_STATE_PREFIX,
-                                get_trema_name() );
 
   int i = 0;
   argv[ i++ ] = command_name;
   argv[ i++ ] = service_name;
   argv[ i++ ] = socket_opt;
   argv[ i++ ] = daemonize_opt;
-  argv[ i++ ] = notify_opt;
   int j;
   for ( j = 0; j < listener_info->switch_daemon_argc; i++, j++ ) {
     argv[ i ] = xstrdup( listener_info->switch_daemon_argv[ j ] );

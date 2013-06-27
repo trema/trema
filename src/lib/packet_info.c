@@ -125,6 +125,13 @@ packet_type_arp( const buffer *frame ) {
 
 
 bool
+packet_type_rarp( const buffer *frame ) {
+  die_if_NULL( frame );
+  return if_packet_type( frame, NW_RARP );
+}
+
+
+bool
 packet_type_ipv4( const buffer *frame ) {
   die_if_NULL( frame );
   return if_packet_type( frame, NW_IPV4 );
@@ -215,6 +222,22 @@ packet_type_arp_reply( const buffer *frame ) {
   die_if_NULL( frame );
   return ( if_packet_type( frame, NW_ARP ) &
            if_arp_opcode( frame, ARP_OP_REPLY ) );
+}
+
+
+bool
+packet_type_rarp_request( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_RARP ) &
+           if_arp_opcode( frame, ARP_OP_RREQUEST ) );
+}
+
+
+bool
+packet_type_rarp_reply( const buffer *frame ) {
+  die_if_NULL( frame );
+  return ( if_packet_type( frame, NW_RARP ) &
+           if_arp_opcode( frame, ARP_OP_RREPLY ) );
 }
 
 

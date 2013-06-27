@@ -409,7 +409,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :setup, :build_trema ]
+task :travis => [ :setup, :build_trema, "spec:travis" ]
 
 
 begin
@@ -429,6 +429,15 @@ begin
     task.pattern = FileList[ "spec/**/*_spec.rb" ]
     task.rspec_opts = "--tag type:actions --format documentation --color"
   end
+
+
+  task "spec:travis" => :build_trema
+  RSpec::Core::RakeTask.new( "spec:travis" ) do | task |
+    task.verbose = $trace
+    task.pattern = FileList[ "spec/trema/hello_spec.rb", "spec/trema/echo-*_spec.rb" ]
+    task.rspec_opts = "--tag ~sudo --format documentation --color"
+  end
+
 
   task :rcov => :build_trema
   RSpec::Core::RakeTask.new( :rcov ) do | spec |
@@ -488,15 +497,15 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog $quality_targets
+    flog.flog *$quality_targets
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
-      name != "main#none" && score > threshold
+      ( not ( /##{flog.no_method}$/=~ name ) ) and score > threshold
     end
     bad_methods.sort do | a, b |
       a[ 1 ] <=> b[ 1 ]
-    end.each do | name, score |
+    end.reverse.each do | name, score |
       puts "%8.1f: %s" % [ score, name ]
     end
     unless bad_methods.empty?

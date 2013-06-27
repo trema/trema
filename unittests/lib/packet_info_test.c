@@ -262,6 +262,21 @@ test_packet_type_arp() {
 
 
 static void
+test_packet_type_rarp() {
+  buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
+  calloc_packet_info( buf );
+
+  assert_false( packet_type_rarp( buf ) );
+
+  packet_info *packet_info = buf->user_data;
+  packet_info->format |= NW_RARP;
+  assert_true( packet_type_rarp( buf ) );
+
+  free_buffer( buf );
+}
+
+
+static void
 test_packet_type_ipv4() {
   buffer *buf = alloc_buffer_with_length( sizeof( struct iphdr ) );
   calloc_packet_info( buf );
@@ -513,6 +528,7 @@ main() {
     unit_test( test_packet_type_ether ),
 
     unit_test( test_packet_type_arp ),
+    unit_test( test_packet_type_rarp ),
     unit_test( test_packet_type_ipv4 ),
     unit_test( test_packet_type_icmpv4 ),
 

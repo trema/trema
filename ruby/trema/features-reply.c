@@ -47,7 +47,7 @@ features_reply_alloc( VALUE klass ) {
  *       :n_tables => 1,
  *       :capabilities => 135,
  *       :actions => 2048,
- *       :port => [ port1, port2, ... ]
+ *       :ports => [ port1, port2, ... ]
  *     )
  *   @param [Hash] options
  *     the options to create a message with.
@@ -67,7 +67,7 @@ features_reply_alloc( VALUE klass ) {
  *     IP address lookup in APR packets.
  *   @option options [Number] :actions
  *     supported actions expressed as a 32-bit bitmap.
- *   @option options [Port] :port
+ *   @option options [Port] :ports
  *     an array of {Port} objects detailing port description and function.
  *   @return [FeaturesReply]
  */
@@ -305,14 +305,17 @@ handle_features_reply(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "actions" ) ), UINT2NUM( actions ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( ports ) );
 
-  list_element *tmp_ports = xmalloc( sizeof( list_element ) );
-  memcpy( tmp_ports, ports, sizeof( list_element ) );
   list_element *physical_ports = xmalloc( sizeof( list_element ) );
   create_list( &physical_ports );
-  iterate_list( tmp_ports, append_physical_port, &physical_ports );
+  if ( ports != NULL ) {
+    // use memcpy() to walk over the const qualifier
+    list_element *tmp_ports = xmalloc( sizeof( list_element ) );
+    memcpy( tmp_ports, ports, sizeof( list_element ) );
+    iterate_list( tmp_ports, append_physical_port, &physical_ports );
+    xfree( tmp_ports );
+  }
   rb_hash_aset( attributes, ID2SYM( rb_intern( "physical_ports" ) ), ports_from( physical_ports ) );
   xfree( physical_ports );
-  xfree( tmp_ports );
 
   VALUE features_reply = rb_funcall( cFeaturesReply, rb_intern( "new" ), 1, attributes );
   rb_funcall( ( VALUE ) controller, rb_intern( "features_reply" ), 2, ULL2NUM( datapath_id ), features_reply );

@@ -130,6 +130,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_true
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_false
           expect( message.lldp? ).to be_false
           expect( message.tcp? ).to be_false
@@ -144,6 +145,125 @@ describe Trema::PacketIn do
           expect( message.arp_tpa.to_s ).to eq( "192.168.0.2" )
           expect( message.arp_request? ).to be_false
           expect( message.arp_reply? ).to be_true
+
+          expect( message.rarp_oper ).to be_nil
+          expect( message.rarp_sha ).to be_nil
+          expect( message.rarp_spa ).to be_nil
+          expect( message.rarp_tha ).to be_nil
+          expect( message.rarp_tpa ).to be_nil
+          expect( message.rarp_request? ).to be_false
+          expect( message.rarp_reply? ).to be_false
+
+          expect( message.vlan_tpid ).to be_nil
+          expect( message.vlan_tci ).to be_nil
+          expect( message.vlan_prio ).to be_nil
+          expect( message.vlan_cfi ).to be_nil
+          expect( message.vlan_vid ).to be_nil
+
+          expect( message.ipv4_version ).to be_nil
+          expect( message.ipv4_ihl ).to be_nil
+          expect( message.ipv4_tos ).to be_nil
+          expect( message.ipv4_tot_len ).to be_nil
+          expect( message.ipv4_id ).to be_nil
+          expect( message.ipv4_frag_off ).to be_nil
+          expect( message.ipv4_ttl ).to be_nil
+          expect( message.ipv4_protocol ).to be_nil
+          expect( message.ipv4_checksum ).to be_nil
+          expect( message.ipv4_saddr ).to be_nil
+          expect( message.ipv4_daddr ).to be_nil
+
+          expect( message.icmpv4_type ).to be_nil
+          expect( message.icmpv4_code ).to be_nil
+          expect( message.icmpv4_checksum ).to be_nil
+          expect( message.icmpv4_id ).to be_nil
+          expect( message.icmpv4_seq ).to be_nil
+          expect( message.icmpv4_gateway ).to be_nil
+
+          expect( message.igmp_type ).to be_nil
+          expect( message.igmp_checksum ).to be_nil
+          expect( message.igmp_group ).to be_nil
+
+          expect( message.tcp_src_port ).to be_nil
+          expect( message.tcp_dst_port ).to be_nil
+          expect( message.tcp_seq_no ).to be_nil
+          expect( message.tcp_ack_no ).to be_nil
+          expect( message.tcp_offset ).to be_nil
+          expect( message.tcp_flags ).to be_nil
+          expect( message.tcp_window ).to be_nil
+          expect( message.tcp_checksum ).to be_nil
+          expect( message.tcp_urgent ).to be_nil
+
+          expect( message.udp_src_port ).to be_nil
+          expect( message.udp_dst_port ).to be_nil
+          expect( message.udp_checksum ).to be_nil
+          expect( message.udp_len ).to be_nil
+        end
+
+        controller( "PacketInSendController" ).send_packet_out(
+          0xabc,
+          :data => data,
+          :actions => Trema::ActionOutput.new( :port => Controller::OFPP_CONTROLLER )
+        )
+        sleep 2
+      }
+    end
+
+    it "should have correct RARP packet fields" do
+      network {
+        vswitch( "packet-in" ) { datapath_id 0xabc }
+        vhost "host1"
+        vhost ( "host2" ) { mac "00:00:00:00:00:02" }
+        link "host1", "packet-in"
+        link "host2", "packet-in"
+      }.run( PacketInSendController ) {
+        data = [
+          0xff, 0xff, 0xff, 0xff, 0xff, 0xff, # dst
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
+          0x80, 0x35, # ether type
+          # rarp
+          0x00, 0x01, # hardware type
+          0x08, 0x00, # protocol type
+          0x06, # hardware address length
+          0x04, # protocol address length
+          0x00, 0x03, # operation
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # sender hardware address
+          0xc0, 0xa8, 0x00, 0x01, # sender protocol address
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # target hardware address
+          0x00, 0x00, 0x00, 0x00, # target protocol address
+          # padding to 64 bytes
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00
+        ].pack( "C*" )
+        controller( "PacketInSendController" ).should_receive( :packet_in ) do | datapath_id, message |
+          expect( message.in_port ).to be > 0
+          expect( message.vtag? ).to be_false
+          expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_true
+          expect( message.ipv4? ).to be_false
+          expect( message.lldp? ).to be_false
+          expect( message.tcp? ).to be_false
+          expect( message.udp? ).to be_false
+          expect( message.icmpv4? ).to be_false
+          expect( message.igmp? ).to be_false
+
+          expect( message.arp_oper ).to be_nil
+          expect( message.arp_sha ).to be_nil
+          expect( message.arp_spa ).to be_nil
+          expect( message.arp_tha ).to be_nil
+          expect( message.arp_tpa ).to be_nil
+          expect( message.arp_request? ).to be_false
+          expect( message.arp_reply? ).to be_false
+
+          expect( message.rarp_oper ).to eq( 3 )
+          expect( message.rarp_sha.to_s ).to eq( "00:00:00:00:00:01" )
+          expect( message.rarp_spa.to_s ).to eq( "192.168.0.1" )
+          expect( message.rarp_tha.to_s ).to eq( "00:00:00:00:00:02" )
+          expect( message.rarp_tpa.to_s ).to eq( "0.0.0.0" )
+          expect( message.rarp_request? ).to be_true
+          expect( message.rarp_reply? ).to be_false
 
           expect( message.vlan_tpid ).to be_nil
           expect( message.vlan_tci ).to be_nil
@@ -241,6 +361,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_true
           expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
@@ -275,6 +396,12 @@ describe Trema::PacketIn do
           expect( message.arp_spa ).to be_nil
           expect( message.arp_tha ).to be_nil
           expect( message.arp_tpa ).to be_nil
+
+          expect( message.rarp_oper ).to be_nil
+          expect( message.rarp_sha ).to be_nil
+          expect( message.rarp_spa ).to be_nil
+          expect( message.rarp_tha ).to be_nil
+          expect( message.rarp_tpa ).to be_nil
         end
 
         controller( "PacketInSendController" ).send_packet_out(
@@ -325,6 +452,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_true
           expect( message.lldp? ).to be_false
           expect( message.tcp? ).to be_false
@@ -406,6 +534,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_true
           expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_true
           expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
@@ -490,6 +619,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_true
           expect( message.lldp? ).to be_false
           expect( message.udp? ).to be_false
@@ -555,6 +685,7 @@ describe Trema::PacketIn do
           expect( message.in_port ).to be > 0
           expect( message.vtag? ).to be_false
           expect( message.arp? ).to be_false
+          expect( message.rarp? ).to be_false
           expect( message.ipv4? ).to be_false
           expect( message.lldp? ).to be_true
           expect( message.udp? ).to be_false

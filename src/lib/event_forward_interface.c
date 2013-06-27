@@ -649,7 +649,6 @@ all_sw_tx*
 _insert_tx( size_t n_dpids, struct event_forward_operation_to_all_request_param *param ) {
   all_sw_tx *tx = xcalloc( 1, sizeof(all_sw_tx) );
   tx->txid = get_txid();
-  info( "txid %#x Start dispatching to switches", tx->txid );
   tx->request_param = param;
   tx->tx_result = EFI_OPERATION_SUCCEEDED;
   tx->waiting_dpid = create_hash_with_size( compare_datapath_id,
@@ -666,7 +665,8 @@ _dispatch_to_all_switch( uint64_t *dpids, size_t n_dpids, void *user_data ) {
   struct event_forward_operation_to_all_request_param *param = user_data;
 
   all_sw_tx *tx = _insert_tx( n_dpids, param );
-
+  info( "txid %#x Start dispatching to switches", tx->txid );
+  debug( "dispatching to %zd switches", n_dpids );
   // copy dpid hash to transaction.
   for ( size_t i = 0 ; i < n_dpids ; ++i ) {
     uint64_t *dpid = xmalloc( sizeof( uint64_t ) );
@@ -715,11 +715,16 @@ _dispatch_to_all_switch( uint64_t *dpids, size_t n_dpids, void *user_data ) {
     }
   }
 
-  if ( tx->tx_result == EFI_OPERATION_FAILED ) {
+  if ( n_dpids == 0 || tx->tx_result == EFI_OPERATION_FAILED ) {
+    if ( n_dpids == 0 ) {
+      info( "txid %#x completed. No switches found.", tx->txid );
+    }
+    else if ( tx->tx_result == EFI_OPERATION_FAILED ) {
+      info( "txid %#x completed with failure.", tx->txid );
+    }
     if ( param->callback != NULL ) {
       param->callback( tx->tx_result, param->user_data );
     }
-    info( "txid %#x completed with failure.", tx->txid );
     // remove and cleanup tx
     delete_hash_entry( efi_tx_table, &tx->txid );
     xfree_all_sw_tx( tx );

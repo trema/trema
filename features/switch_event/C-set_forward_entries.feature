@@ -40,12 +40,7 @@ Feature: C function example command "set_forward_entries"
 
   @slow_process
   Scenario Outline: Replace Switch Manager's event forwarding entries of packet_in to 'mirror' and 'filter'
-    Given a file named "nw_dsl.conf" with:
-      """
-      vswitch { datapath_id 0x1 }
-      vswitch { datapath_id 0x2 }
-      """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './set_forward_entries -m -t packet_in mirror,filter'`
     Then the output should contain "Updated service name list:"
@@ -64,12 +59,7 @@ Feature: C function example command "set_forward_entries"
 
   @slow_process
   Scenario Outline: Replace Switch Daemon 0x1's event forwarding entries of packet_in to 'mirror' and 'filter'
-    Given a file named "nw_dsl.conf" with:
-      """
-      vswitch { datapath_id 0x1 }
-      vswitch { datapath_id 0x2 }
-      """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './set_forward_entries -s 0x1 -t packet_in mirror,filter'`
     Then the output should contain "Updated service name list:"

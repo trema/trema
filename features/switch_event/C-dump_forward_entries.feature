@@ -39,12 +39,7 @@ Feature: C function example command "dump_forward_entries"
 
   @slow_process
   Scenario Outline: Dump Switch Manager's event forwarding entries for each event type
-    Given a file named "nw_dsl.conf" with:
-      """
-      vswitch { datapath_id 0x1 }
-      vswitch { datapath_id 0x2 }
-      """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './dump_forward_entries -m -t <type>'`
     Then the output should contain "Current service name list:"
@@ -59,12 +54,7 @@ Feature: C function example command "dump_forward_entries"
 
   @slow_process
   Scenario Outline: Dump Switch Daemon's event forwarding entries for each event type on each switch
-    Given a file named "nw_dsl.conf" with:
-      """
-      vswitch { datapath_id 0x1 }
-      vswitch { datapath_id 0x2 }
-      """
-    And I successfully run `trema run ../repeater_hub/repeater-hub.rb -c nw_dsl.conf -d`
+    Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
     When I successfully run `trema run './dump_forward_entries -s <switch> -t <type>'`
     Then the output should contain "Current service name list:"

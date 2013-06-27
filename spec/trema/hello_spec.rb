@@ -21,36 +21,36 @@ require "trema"
 
 
 module Trema
-  describe Hello, ".new", :nosudo => true do
+  describe Hello, ".new" do
     it_should_behave_like "any Openflow message with default transaction ID"
   end
 
 
-  describe Hello, ".new(nil)", :nosudo => true do
+  describe Hello, ".new(nil)" do
     subject { Hello.new( nil ) }
     it_should_behave_like "any Openflow message with default transaction ID"
   end
 
 
-  describe Hello, ".new(transaction_id)", :nosudo => true do
+  describe Hello, ".new(transaction_id)" do
     subject { Hello.new( transaction_id ) }
     it_should_behave_like "any Openflow message with transaction ID"
   end
 
 
-  describe Hello, ".new(:transaction_id => value)", :nosudo => true do
+  describe Hello, ".new(:transaction_id => value)" do
     subject { Hello.new( :transaction_id => transaction_id ) }
     it_should_behave_like "any Openflow message with transaction ID"
   end
 
 
-  describe Hello, ".new(:xid => value)", :nosudo => true do
+  describe Hello, ".new(:xid => value)" do
     subject { Hello.new( :xid => xid ) }
     it_should_behave_like "any Openflow message with xid"
   end
 
 
-  describe Hello, '.new("INVALID OPTION")', :nosudo => true do
+  describe Hello, '.new("INVALID OPTION")' do
     it { expect { Hello.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end

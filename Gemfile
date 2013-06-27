@@ -13,16 +13,16 @@ gemspec
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "aruba", "~> 0.5.1"
-  gem "cucumber", "~> 1.2.3"
-  gem "flay", "~> 2.1.0"
-  gem "flog", "~> 3.2.2"
+  gem "aruba", "~> 0.5.3"
+  gem "cucumber", "~> 1.3.2"
+  gem "flay", "~> 2.3.0"
+  gem "flog", "~> 4.1.0"
   gem "rcov", "~> 1.0.0"
-  gem "redcarpet", "~> 2.2.2"
+  gem "redcarpet", "~> 2.3.0"
   gem "reek", "~> 1.3.1"
-  gem "relish", "~> 0.6"
+  gem "relish", "~> 0.7"
   gem "rspec", "~> 2.13.0"
-  gem "yard", "~> 0.8.5.2"
+  gem "yard", "~> 0.8.6.1"
 end
 
 

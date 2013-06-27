@@ -17,6 +17,7 @@ Feature: reset_stats command
       """
     And I run `trema run ../../src/examples/learning_switch/learning-switch.rb -c learning_switch.conf -d`
     And I run `trema send_packets --source host1 --dest host2`
+    And *** sleep 1 ***
 
   @slow_process
   Scenario: reset_stats host1

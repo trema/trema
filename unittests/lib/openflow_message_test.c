@@ -4554,6 +4554,24 @@ test_validate_action_vendor_fails_with_too_short_ofp_action_vendor_header() {
 }
 
 
+static void
+test_validate_action_vendor_fails_with_invalid_length_ofp_action_vendor_header() {
+  buffer *body = create_dummy_data( LONG_DATA_LENGTH );
+  openflow_actions *actions = create_actions();
+  append_action_vendor( actions, VENDOR_ID, body );
+  struct ofp_action_vendor_header *invalid_length_action_vendor_header = xmalloc( sizeof( struct ofp_action_vendor_header ) + body->length );
+  hton_action_vendor( invalid_length_action_vendor_header, ( struct ofp_action_vendor_header * ) ( actions->list->data ) );
+  uint16_t invalid_length_action_vendor = ( uint16_t ) ( LONG_DATA_LENGTH - 1 );
+  invalid_length_action_vendor_header->len = htons( invalid_length_action_vendor );
+
+  assert_int_equal( validate_action_vendor( invalid_length_action_vendor_header ), ERROR_INVALID_LENGTH_ACTION_VENDOR );
+
+  free_buffer( body );
+  delete_actions( actions );
+  xfree( invalid_length_action_vendor_header );
+}
+
+
 /********************************************************************************
  * validate_openflow_message() tests.
  ********************************************************************************/
@@ -7890,6 +7908,7 @@ main() {
     unit_test_setup_teardown( test_validate_action_vendor, init, teardown ),
     unit_test_setup_teardown( test_validate_action_vendor_fails_with_invalid_action_type, init, teardown ),
     unit_test_setup_teardown( test_validate_action_vendor_fails_with_too_short_ofp_action_vendor_header, init, teardown ),
+    unit_test_setup_teardown( test_validate_action_vendor_fails_with_invalid_length_ofp_action_vendor_header, init, teardown ),
 
     unit_test_setup_teardown( test_validate_openflow_message_succeeds_with_valid_OFPT_HELLO_message, init, teardown ),
     unit_test_setup_teardown( test_validate_openflow_message_succeeds_with_valid_OFPT_ERROR_message, init, teardown ),

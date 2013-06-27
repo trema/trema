@@ -115,7 +115,7 @@ module Trema
   end
 
 
-  describe EchoRequest, '.new("INVALID OPTION")', :nosudo => true do
+  describe EchoRequest, '.new("INVALID OPTION")' do
     it { expect { EchoRequest.new "INVALID OPTION" }.to raise_error( TypeError ) }
   end
 end

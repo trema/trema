@@ -49,6 +49,7 @@ module Trema
     # @raise [TypeError] if vendor ID is not an Integer.
     # @raise [ArgumentError] if vendor ID is not an unsigned 32-bit Integer.
     # @raise [TypeError] if body is not an Array.
+    # @raise [ArgumentError] if body length is not a multiple of 8.
     #
     def initialize vendor_id, body = nil
       unless vendor_id.is_a?( Integer )
@@ -57,8 +58,11 @@ module Trema
       unless vendor_id.unsigned_32bit?
         raise ArgumentError, "Vendor ID must be an unsigned 32-bit integer"
       end
-      if ( not body.nil? )  and ( not body.is_a?( Array ) )
+      if ( not body.nil? ) and ( not body.is_a?( Array ) )
         raise TypeError, "Body must be an Array"
+      end
+      if ( not body.nil? ) and ( body.size % 8 != 0 )
+        raise ArgumentError, "Body length must be a multiple of 8"
       end
 
       @vendor_id = vendor_id
