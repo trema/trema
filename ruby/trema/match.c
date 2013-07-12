@@ -105,8 +105,8 @@ ofp_match *get_match( VALUE self ) {
 static VALUE
 match_from( int argc, VALUE *argv, VALUE self ) {
   VALUE message, obj, wildcard_id, options;
-  struct ofp_match *match;
-  packet_in *packet;
+  struct ofp_match *match = NULL;
+  packet_in *packet = NULL;
   uint32_t wildcards = 0;
 
   if ( rb_scan_args( argc, argv, "1*", &message, &options ) >= 1 ) {
@@ -153,8 +153,11 @@ match_from( int argc, VALUE *argv, VALUE self ) {
         wildcards |= OFPFW_TP_DST;
       }
     }
+    set_match_from_packet( match, packet->in_port, wildcards, packet->data );
   }
-  set_match_from_packet( match, packet->in_port, wildcards, packet->data );
+  else {
+    rb_raise( rb_eArgError, "Message is a mandatory option" );
+  }
   return obj;
 }
 
