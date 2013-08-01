@@ -195,9 +195,9 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
   struct ofp_match default_match;
   memset( &default_match, 0, sizeof( struct ofp_match ) );
   default_match.wildcards = OFPFW_ALL;
-  uint32_t transaction_id = get_transaction_id();
+  uint32_t transaction_id;
   struct ofp_match *match = &default_match;
-  uint64_t cookie = get_cookie();
+  uint64_t cookie;
   uint16_t idle_timeout = 0;
   uint16_t hard_timeout = 0;
   uint16_t priority = UINT16_MAX;
@@ -211,6 +211,8 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     VALUE opt_transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
     if ( opt_transaction_id != Qnil ) {
       transaction_id = ( uint32_t ) NUM2ULONG( opt_transaction_id );
+    } else {
+      transaction_id = get_transaction_id();
     }
 
     VALUE opt_match = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
@@ -221,6 +223,8 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     VALUE opt_cookie = rb_hash_aref( options, ID2SYM( rb_intern( "cookie" ) ) );
     if ( opt_cookie != Qnil ) {
       cookie = NUM2ULL( opt_cookie );
+    } else {
+      cookie = get_cookie();
     }
 
     VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
