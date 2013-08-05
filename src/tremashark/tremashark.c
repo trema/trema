@@ -289,20 +289,20 @@ init_pcap() {
   if ( output_to_pcap_file ) {
     outfile_fd = open( pcap_file_pathname, O_RDWR | O_CREAT | O_TRUNC, mode );
     if ( outfile_fd < 0 ) {
-      critical( "Failed to open a file (%s).", pcap_file_pathname );
+      critical( "Failed to open a file ( pcap file = %s ).", pcap_file_pathname );
       assert( 0 );
     }
   }
   else {
     int ret = mkfifo( fifo_pathname, mode );
     if ( ret < 0 ) {
-      critical( "Failed to create a named pipe." );
+      critical( "Failed to create a named pipe ( named pipe = %s ).", fifo_pathname );
       assert( 0 );
     }
 
     outfile_fd = open( fifo_pathname, O_RDWR | O_APPEND | O_NONBLOCK );
     if ( outfile_fd < 0 ) {
-      critical( "Failed to open a named pipe." );
+      critical( "Failed to open a named pipe ( named pipe = %s ).", fifo_pathname );
       assert( 0 );
     }
   }
@@ -310,7 +310,7 @@ init_pcap() {
   ssize_t ret = write( outfile_fd, &header, sizeof( struct pcap_file_header ) );
 
   if ( ret != sizeof( struct pcap_file_header ) ) {
-    critical( "Failed to write a pcap header." );
+    critical( "Failed to write a pcap header ( pcap file = %s ).", pcap_file_pathname );
     assert( 0 );
   }
 
@@ -383,10 +383,13 @@ start_wireshark() {
   if ( pid == 0 ) {
     if ( launch_wireshark ) {
       execlp( WIRESHARK, "wireshark", "-k", "-i", fifo_pathname, NULL );
+      error( "can't execute wireshark ( errno = %s [%d] ).", strerror( errno ), errno );
     }
     else if ( launch_tshark ) {
       execlp( TSHARK, "tshark", "-V", "-i", fifo_pathname, NULL );
+      error( "can't execute tshark ( errno = %s [%d] ).", strerror( errno ), errno );
     }
+    exit( EXIT_FAILURE );
   }
 }
 
