@@ -66,7 +66,11 @@ Getting Started
 
     $ sudo gem install trema
 
-3.Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
+3.Optional: Install Wireshark to diagnose internal data-flows.
+
+    $ sudo apt-get install wireshark
+
+4.Follow the guidelines to start developing your OpenFlow controller. You may find the following resources handy:
 
 * The [Getting Started with Trema](https://github.com/trema/trema/wiki/Quick-start).
 * The [Trema in 10 Minutes Tutorial](http://trema-10min.heroku.com/).
