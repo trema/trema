@@ -255,7 +255,7 @@ int cmdif_send_packets(cmdif_request_send_packets *request)
         reply.duration_sec = 0;
         reply.duration_usec = 0;
         length = sizeof(reply);
-        cmdif_send((void*)&reply, &length);
+        cmdif_send((void*)&reply, (uint32_t*)&length);
     }
 
     return ret;
@@ -264,7 +264,6 @@ int cmdif_send_packets(cmdif_request_send_packets *request)
 void cmdif_do_send_packets(void *req)
 {
     int update_ip;
-    int update_udp;
     uint8_t *payload;
     uint8_t udp_buf[PKT_BUF_SIZE];
     uint8_t ip_buf[PKT_BUF_SIZE];
@@ -366,7 +365,6 @@ void cmdif_do_send_packets(void *req)
     eth = eth_create(macsa, macda, ETH_TYPE_IPV4, ip_buf, ip_len);
 
     update_ip = 0;
-    update_udp = 0;
 
     gettimeofday(&tv, NULL);
     time_t start_sec = tv.tv_sec;
