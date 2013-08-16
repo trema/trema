@@ -269,9 +269,9 @@ init_messenger( const char *working_directory ) {
 
   strcpy( socket_directory, working_directory );
 
-  receive_queues = create_hash( compare_string, hash_string );
-  send_queues = create_hash( compare_string, hash_string );
-  context_db = create_hash( compare_uint32, hash_uint32 );
+  receive_queues = create_hash_with_size( compare_string, hash_string, 8 );
+  send_queues = create_hash_with_size( compare_string, hash_string, 8 );
+  context_db = create_hash_with_size( compare_uint32, hash_uint32, 128 );
 
   initialized = true;
   finalized = false;
