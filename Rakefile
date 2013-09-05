@@ -37,10 +37,7 @@ task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
 end
 
 
-require "paper-house/executable-task"
-require "paper-house/ruby-library-task"
-require "paper-house/shared-library-task"
-require "paper-house/static-library-task"
+require "paper-house"
 require "trema/version"
 
 

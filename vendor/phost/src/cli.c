@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -1026,7 +1027,7 @@ int cli_parse_show_stats(int argc, char **argv)
                    ntohl(reply.st[i].rip), ntohs(reply.st[i].rport),
                    ntohl(reply.st[i].n_pkts), ntohll(reply.st[i].n_octets));
 */
-            printf("%s,%u,%s,%u,%u,%llu\n",
+            printf("%s,%u,%s,%u,%u,%"PRIu64"\n",
                    ultoipaddr(ntohl(reply.st[i].lip), lip_addr),
                    ntohs(reply.st[i].lport),
                    ultoipaddr(ntohl(reply.st[i].rip), rip_addr),

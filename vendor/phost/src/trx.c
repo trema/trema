@@ -488,7 +488,7 @@ int trx_rx_one()
 
     ret = trx_read(buffer, &length);
 
-    if(length <= 0){
+    if(ret < 0 || length <= 0){
         free(buffer);
         return -1;
     }

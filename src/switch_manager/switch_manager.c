@@ -341,6 +341,7 @@ parse_argument( struct listener_info *listener_info, int argc, char *argv[] ) {
   const int switch_arg_begin = optind;
 
   // reorder switch daemon arguments
+  opterr = 0; // disable error messages of trema common options
   while ( getopt_long( argc, argv, switch_short_options, switch_long_options, NULL ) != -1 );
 
   // index of first packet_in::..., etc. in argv
