@@ -28,6 +28,7 @@ shared_examples_for "barrier request message" do
       vswitch( "barrier-request" ) { datapath_id 0xabc }
     }.run( BarrierRequestController ) {
       controller( "BarrierRequestController" ).send_message( 0xabc, subject )
+      sleep 2 # FIXME: wait to send_message
       expect( IO.read( File.join( Trema.log, "openflowd.barrier-request.log" ) ) ).to include( "OFPT_BARRIER_REQUEST" )
     }
   end
