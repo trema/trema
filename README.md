@@ -56,7 +56,7 @@ Getting Started
 
     (In Ubuntu 10.04)
     $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev
-    $ sudo gem install rubygems-update
+    $ sudo gem install rubygems-update --version 2.0.8
     $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
     (In Fedora 16)
