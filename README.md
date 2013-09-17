@@ -49,15 +49,15 @@ Getting Started
 1.Install the prerequisites at the command prompt:
 
     (In Ubuntu or Debian GNU/Linux)
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev libglib2.0-dev
 
     (In Ubuntu 10.04)
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev
+    $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev libglib2.0-dev
     $ sudo gem install rubygems-update --version 2.0.8
     $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
     (In Fedora 16)
-    $ sudo yum install gcc make ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel
+    $ sudo yum install gcc make ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel glib2-devel
 
 2.Install Trema at the command prompt:
 
