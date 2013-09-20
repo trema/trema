@@ -310,6 +310,197 @@ CLOBBER.include Trema.cmockery
 
 
 ################################################################################
+# Build standalone examples
+################################################################################
+
+$standalone_examples = [
+                        "cbench_switch",
+                        "dumper",
+                        "learning_switch",
+                        "list_switches",
+                        "multi_learning_switch",
+                        "packet_in",
+                        "repeater_hub",
+                        "switch_info",
+                        "switch_monitor",
+                        "traffic_monitor",
+                       ]
+
+desc "Build examples."
+task :examples => $standalone_examples.map { | each | "examples:#{ each }" }
+
+$standalone_examples.each do | each |
+  name = "examples:#{ each }"
+
+  desc "Build #{ each } example."
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", each )
+    task.sources = [ "src/examples/#{ each }/*.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build openflow switches
+################################################################################
+
+$openflow_switches = [
+                      "hello_switch",
+                      "echo_switch",
+                     ]
+
+desc "Build OpenFlow switch examples."
+task "examples:openflow_switch" => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
+
+$openflow_switches.each do | each |
+  name = "examples:openflow_switch:#{ each }"
+
+  desc "Build #{ each } example."
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "openflow_switch" )
+    task.sources = [ "src/examples/openflow_switch/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build openflow messages
+################################################################################
+
+$openflow_messages = [
+                      "echo",
+                      "features_request",
+                      "hello",
+                      "set_config",
+                      "vendor_action",
+                     ]
+
+desc "Build OpenFlow message examples."
+task "examples:openflow_message" => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
+
+$openflow_messages.each do | each |
+  name = "examples:openflow_message:#{ each }"
+
+  desc "Build #{ each } example."
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "openflow_message" )
+    task.sources = [ "src/examples/openflow_message/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+###############################################################################
+# Build switch_event_config
+###############################################################################
+
+$switch_event_config = [
+                        "add_forward_entry",
+                        "delete_forward_entry",
+                        "set_forward_entries",
+                        "dump_forward_entries",
+                       ]
+
+desc "Build switch event config examples."
+task "examples:switch_event_config" => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
+
+$switch_event_config.each do | each |
+  name = "examples:switch_event_config:#{ each }"
+
+  desc "Build #{ each } example."
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "switch_event_config" )
+    task.sources = [ "src/examples/switch_event_config/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build packetin_filter_config
+################################################################################
+
+$packetin_filter_config = [
+                           "add_filter",
+                           "delete_filter",
+                           "delete_filter_strict",
+                           "dump_filter",
+                           "dump_filter_strict",
+                          ]
+
+desc "Build packetin_filter config examples."
+task "examples:packetin_filter_config" => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
+
+$packetin_filter_config.each do | each |
+  name = "examples:packetin_filter_config:#{ each }"
+
+  desc "Build #{ each } example."
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "packetin_filter_config" )
+    task.sources = [ "src/examples/packetin_filter_config/#{ each }.c", "src/examples/packetin_filter_config/utils.c"]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
 # Run cbench benchmarks
 ################################################################################
 
