@@ -65,7 +65,7 @@ recv_from_secure_channel( struct switch_info *sw_info ) {
   size_t read_total = 0;
   while ( sw_info->fragment_buf->length >= sizeof( struct ofp_header ) ) {
     struct ofp_header *header = sw_info->fragment_buf->data;
-    if ( header->version != OFP_VERSION ) {
+    if ( ! valid_message_version( header->type, header->version ) ) {
       error( "Receive error: invalid version (version %d)", header->version );
       ofpmsg_send_error_msg( sw_info,
                              OFPET_BAD_REQUEST, OFPBRC_BAD_VERSION, sw_info->fragment_buf );

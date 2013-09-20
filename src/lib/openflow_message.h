@@ -268,6 +268,7 @@ int validate_action_enqueue( const struct ofp_action_enqueue *action );
 int validate_action_vendor( const struct ofp_action_vendor_header *action );
 int validate_openflow_message( const buffer *message );
 bool valid_openflow_message( const buffer *message );
+bool valid_message_version( const uint8_t type, const uint8_t version );
 
 // Utility functions
 bool get_error_type_and_code( const uint8_t type, const int error_no,
