@@ -303,7 +303,7 @@ end
 def test message
   puts message
   cd Trema.home do
-    sh "./build.rb clean"
+    sh "rake clean"
     begin
       yield
     ensure
@@ -315,7 +315,7 @@ end
 
 def run_unit_test
   test "Running unit tests ..." do
-    sh "./build.rb unittests"
+    sh "rake unittests"
     sh "rake spec"
   end
   measure_coverage
@@ -359,7 +359,7 @@ $options.parse! ARGV
 
 def init_cruise
   sh "bundle"
-  sh "rake setup"
+  sh "rake clobber"
 end
 
 

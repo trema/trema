@@ -32,9 +32,19 @@ directory Trema.pid
 directory Trema.sock
 
 desc "Build Trema"
-task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
-  sh "#{ Gem.ruby } ./build.rb"
-end
+task :build_trema => [
+  Trema.log,
+  Trema.pid,
+  Trema.sock,
+  :management_commands,
+  :rubylib,
+  :switch_manager,
+  :switch_daemon,
+  :packetin_filter,
+  :tremashark,
+  :vendor,
+  :examples
+]
 
 
 require "paper-house"
@@ -742,13 +752,6 @@ CLEAN.include Trema.vendor_openflow_git
 # Maintenance Tasks
 ################################################################################
 
-# Generate a monolithic rant file"
-# FIXME: Remove dependency to rant
-task "build.rb" do
-  sh "rant-import --force --auto .mono.rant"
-end
-
-
 begin
   require "bundler/gem_tasks"
 rescue LoadError
@@ -762,15 +765,6 @@ end
 
 task :relish do
   sh "relish push trema/trema"
-end
-
-
-################################################################################
-# Cruise
-################################################################################
-
-task :setup do
-  sh "./build.rb distclean"
 end
 
 
@@ -895,7 +889,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :setup, :build_trema, "spec:travis" ]
+task :travis => [ :clobber, :build_trema, "spec:travis" ]
 
 
 begin
