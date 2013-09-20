@@ -1658,6 +1658,13 @@ append_action_vendor( openflow_actions *actions, const uint32_t vendor, const bu
   return ret;
 }
 
+// A valid remote version is one of the defined wire protocol numbers for a
+// HELLO message and strictly OpenFlow 1.0 for any other message.
+bool
+valid_message_version( const uint8_t type, const uint8_t version ) {
+  return type != OFPT_HELLO ? version == OFP_VERSION :
+    version >= OFP_VERSION && version <= 0x04; // 1.0~1.3
+}
 
 static int
 validate_header( const buffer *message, const uint8_t type,
@@ -1670,7 +1677,7 @@ validate_header( const buffer *message, const uint8_t type,
   }
 
   header = ( struct ofp_header * ) message->data;
-  if ( header->version != OFP_VERSION ) {
+  if ( ! valid_message_version( type, header->version ) ) {
     return ERROR_UNSUPPORTED_VERSION;
   }
   if ( header->type > OFPT_QUEUE_GET_CONFIG_REPLY ) {
