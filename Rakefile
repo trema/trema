@@ -71,7 +71,7 @@ end
 
 
 desc "Build Trema C library (coverage)."
-task "libtrema:gcov" => "vendor:openflow"
+task "libtrema:gcov" => [ "vendor:openflow" ]
 PaperHouse::StaticLibraryTask.new "libtrema:gcov" do | task |
   task.library_name = "libtrema"
   task.target_directory = "#{ Trema.home }/objects/unittests"
@@ -764,6 +764,123 @@ end
 
 task :setup do
   sh "./build.rb distclean"
+end
+
+
+################################################################################
+# C Unit tests.
+################################################################################
+
+def libtrema_unit_tests
+  {
+    :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
+    :daemon_test => [ :log, :utility, :wrapper, :trema_wrapper ],
+    :ether_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :timer, :log, :trema_wrapper ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
+    :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
+    :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :stat_test => [ :hash_table, :doubly_linked_list, :log, :utility, :wrapper, :trema_wrapper ],
+    :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper ],
+    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper ],
+  }
+end
+
+
+def test_c_files test
+  names = [ test.to_s.gsub( /_test$/, "" ) ] + libtrema_unit_tests[ test ]
+  names.collect do | each |
+    if each == :buffer
+      [ "src/lib/buffer.c", "unittests/buffer_stubs.c" ]
+    elsif each == :wrapper
+      [ "src/lib/wrapper.c", "unittests/wrapper_stubs.c" ]
+    else
+      "src/lib/#{ each }.c"
+    end
+  end.flatten
+end
+
+
+directory "objects/unittests"
+
+task :build_old_unittests => libtrema_unit_tests.keys.map { | each | "unittests:#{ each }" }
+
+libtrema_unit_tests.keys.each do | each |
+  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
+    name = "unittests:#{ each }"
+    task name => [ "vendor:cmockery", "vendor:openflow", "objects/unittests" ]
+
+    task.executable_name = each.to_s
+    task.target_directory = File.join( Trema.home, "unittests/objects" )
+    task.sources = test_c_files( each ) + [ "unittests/lib/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
+    task.cflags = [ "-DUNIT_TESTING", "--coverage", CFLAGS ]
+    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage --static"
+    task.library_dependencies = [
+                                 "cmockery",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                 "pcap"
+                                ]
+  end
+end
+
+
+# new unittest
+$tests = [
+          "objects/unittests/buffer_test",
+          "objects/unittests/doubly_linked_list_test",
+          "objects/unittests/ether_test",
+          "objects/unittests/event_forward_interface_test",
+          "objects/unittests/hash_table_test",
+          "objects/unittests/linked_list_test",
+          "objects/unittests/log_test",
+          "objects/unittests/packetin_filter_interface_test",
+          "objects/unittests/packet_info_test",
+          "objects/unittests/packet_parser_test",
+          "objects/unittests/persistent_storage_test",
+          "objects/unittests/trema_private_test",
+          "objects/unittests/utility_test",
+          "objects/unittests/wrapper_test",
+          "objects/unittests/match_table_test",
+          "objects/unittests/message_queue_test",
+          "objects/unittests/management_interface_test",
+          "objects/unittests/management_service_interface_test",
+         ]
+
+task :build_unittests => $tests.map { | each | "unittests:" + File.basename( each ) }
+
+$tests.each do | _each |
+  each = File.basename( _each )
+
+  task "unittests:#{ each }" => [ "libtrema:gcov", "vendor:cmockery" ]
+  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
+    task.executable_name = each.to_s
+    task.target_directory = File.join( Trema.home, "unittests/objects" )
+    task.sources = [ "unittests/lib/#{ each }.c", "unittests/cmockery_trema.c" ]
+    task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
+    task.cflags = [ "--coverage", CFLAGS ]
+    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage --static"
+    task.library_dependencies = [
+                                 "trema",
+                                 "cmockery",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+desc "Run unittests"
+task :unittests => [ :build_old_unittests, :build_unittests ] do
+  Dir.glob( "unittests/objects/*_test" ).each do | each |
+    puts "Running #{ each }..."
+    sh each
+  end
 end
 
 
