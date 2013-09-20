@@ -391,6 +391,42 @@ end
 
 
 ################################################################################
+# Build management commands
+################################################################################
+
+$management_commands = [
+                       "application",
+                       "echo",
+                       "set_logging_level",
+                       "show_stats",
+                      ]
+
+desc "Build management commands."
+task :management_commands => $management_commands.map { | each | "management:#{ each }" }
+
+$management_commands.each do | each |
+  name = "management:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "management" )
+    task.sources = [ "src/management/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
 # Tremashark
 ################################################################################
 
