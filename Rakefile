@@ -637,11 +637,6 @@ end
 ################################################################################
 
 $ruby_sources = FileList[ "ruby/**/*.rb", "src/**/*.rb" ]
-$quality_targets = if ENV[ "QUALITY_TARGETS" ]
-                     ENV[ "QUALITY_TARGETS" ].split
-                   else
-                     $ruby_sources
-                   end
 
 
 desc "Enforce Ruby code quality with static analysis of code"
@@ -652,15 +647,16 @@ begin
   require "reek/rake/task"
 
   Reek::Rake::Task.new do | t |
-    t.fail_on_error = true
+    t.fail_on_error = false
     t.verbose = false
     t.ruby_opts = [ "-rubygems" ]
     t.reek_opts = "--quiet"
-    t.source_files = $quality_targets
+    t.source_files = $ruby_sources
   end
 rescue LoadError
   $stderr.puts $!.to_s
 end
+
 
 begin
   require "flog"
@@ -668,7 +664,7 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog *$quality_targets
+    flog.flog *$ruby_sources
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
@@ -680,7 +676,7 @@ begin
       puts "%8.1f: %s" % [ score, name ]
     end
     unless bad_methods.empty?
-      raise "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
+      $stderr.puts "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
     end
   end
 rescue LoadError
