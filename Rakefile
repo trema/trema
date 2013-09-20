@@ -248,6 +248,30 @@ CLOBBER.include Trema.openvswitch
 
 
 ################################################################################
+# Build packetin filter
+################################################################################
+
+desc "Build packetin filter."
+task :packetin_filter => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :packetin_filter do | task |
+  task.executable_name = File.basename( Trema::Executables.packetin_filter )
+  task.target_directory = File.dirname( Trema::Executables.packetin_filter )
+  task.sources = [ "src/packetin_filter/*.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                              ]
+end
+
+
+################################################################################
 # Build oflops
 ################################################################################
 

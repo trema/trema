@@ -256,24 +256,9 @@ end
 # Build packetin filter
 ################################################################################
 
-gen C::Dependencies, dependency( "packetin_filter" ),
-  :search => [ "src/packetin_filter", Trema.include ], :sources => sys[ "src/packetin_filter/*.{c,h}" ]
-
-gen Action do
-  source dependency( "packetin_filter" )
-end
-
-
-gen Directory, objects( "packetin_filter" )
-
-packetin_filter_objects = gen DirectedRule, objects( "packetin_filter" ) => [ "src/packetin_filter" ], :o => :c do | t |
-  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
 desc "Build packetin filter."
-task :packetin_filter => Trema::Executables.packetin_filter
-file Trema::Executables.packetin_filter => packetin_filter_objects.candidates + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lpthread -lsqlite3 -ldl -lrt"
+task :packetin_filter do
+  sys "rake packetin_filter"
 end
 
 
