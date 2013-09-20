@@ -367,6 +367,33 @@ end
 
 
 ################################################################################
+# Tremashark
+################################################################################
+
+$packet_openflow_so = File.join( Trema.vendor_openflow_git, "utilities", "wireshark_dissectors", "openflow", "packet-openflow.so" )
+$wireshark_plugins_dir = File.join( File.expand_path( "~" ), ".wireshark", "plugins" )
+$wireshark_plugin = File.join( $wireshark_plugins_dir, File.basename( $packet_openflow_so ) )
+
+file $packet_openflow_so do
+  sh "tar xzf #{ Trema.vendor_openflow_git }.tar.gz -C #{ Trema.vendor }"
+  cd File.dirname( $packet_openflow_so ) do
+    sh "make"
+  end
+end
+
+file $wireshark_plugin => [ $packet_openflow_so, $wireshark_plugins_dir ] do
+  cp $packet_openflow_so, $wireshark_plugins_dir
+end
+
+directory $wireshark_plugins_dir
+
+desc "Compile wireshark plugin"
+task :openflow_wireshark_plugin => $wireshark_plugin
+
+CLEAN.include Trema.vendor_openflow_git
+
+
+################################################################################
 # Maintenance Tasks
 ################################################################################
 
