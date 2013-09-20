@@ -394,6 +394,94 @@ end
 # Tremashark
 ################################################################################
 
+desc "Build tremashark."
+task :tremashark => [ :packet_capture, :syslog_relay, :stdin_relay, :openflow_wireshark_plugin, "libtrema:static" ]
+
+PaperHouse::ExecutableTask.new :tremashark do | task |
+  task.executable_name = File.basename( Trema::Executables.tremashark )
+  task.target_directory = File.dirname( Trema::Executables.tremashark )
+  task.sources = [
+                  "src/tremashark/pcap_queue.c",
+                  "src/tremashark/queue.c",
+                  "src/tremashark/tremashark.c",
+                 ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :packet_capture => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :packet_capture do | task |
+  task.executable_name = File.basename( Trema::Executables.packet_capture )
+  task.target_directory = File.dirname( Trema::Executables.packet_capture )
+  task.sources = [
+                  "src/tremashark/packet_capture.c",
+                  "src/tremashark/queue.c",
+                 ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :syslog_relay => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :syslog_relay do | task |
+  task.executable_name = File.basename( Trema::Executables.syslog_relay )
+  task.target_directory = File.dirname( Trema::Executables.syslog_relay )
+  task.sources = [ "src/tremashark/syslog_relay.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :stdin_relay => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :stdin_relay do | task |
+  task.executable_name = File.basename( Trema::Executables.stdin_relay )
+  task.target_directory = File.dirname( Trema::Executables.stdin_relay )
+  task.sources = [ "src/tremashark/stdin_relay.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
 $packet_openflow_so = File.join( Trema.vendor_openflow_git, "utilities", "wireshark_dissectors", "openflow", "packet-openflow.so" )
 $wireshark_plugins_dir = File.join( File.expand_path( "~" ), ".wireshark", "plugins" )
 $wireshark_plugin = File.join( $wireshark_plugins_dir, File.basename( $packet_openflow_so ) )
@@ -411,7 +499,6 @@ end
 
 directory $wireshark_plugins_dir
 
-desc "Compile wireshark plugin"
 task :openflow_wireshark_plugin => $wireshark_plugin
 
 CLEAN.include Trema.vendor_openflow_git

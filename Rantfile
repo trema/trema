@@ -266,75 +266,24 @@ end
 # tremashark
 ################################################################################
 
-tremashark_objects_dir = objects( "tremashark" )
-
-gen C::Dependencies, dependency( "tremashark" ),
-  :search => [ "src/tremashark", Trema.include ], :sources => sys[ "src/tremashark/*.{c,h}" ]
-
-gen Action do
-  source dependency( "tremashark" )
-end
-
-
-gen Directory, tremashark_objects_dir
-
-gen DirectedRule, tremashark_objects_dir => [ "src/tremashark" ], :o => :c do | t |
-  sys "gcc -I#{ Trema.include } -I#{ Trema.openflow } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
-end
-
-
-tremashark_objects = [
-  "pcap_queue.o",
-  "queue.o",
-  "tremashark.o",
-].collect do | each |
-  File.join tremashark_objects_dir, each
-end
-
 desc "Build tremashark."
-task :tremashark => Trema::Executables.tremashark
-file Trema::Executables.tremashark => tremashark_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
+task :tremashark do
+  sys "rake tremashark"
 end
 
 
-packet_capture_objects = [
-  "packet_capture.o",
-  "queue.o",
-].collect do | each |
-  File.join tremashark_objects_dir, each
-end
-
-desc "Build packet_capture."
-task :packet_capture => Trema::Executables.packet_capture
-file Trema::Executables.packet_capture => packet_capture_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
+task :packet_capture do
+  sys "rake packet_capture"
 end
 
 
-syslog_relay_objects = [
-  "syslog_relay.o",
-].collect do | each |
-  File.join tremashark_objects_dir, each
-end
-
-desc "Build syslog_relay."
-task :syslog_relay => Trema::Executables.syslog_relay
-file Trema::Executables.syslog_relay => syslog_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
+task :syslog_relay do
+  sys "rake syslog_relay"
 end
 
 
-stdin_relay_objects = [
-  "stdin_relay.o",
-].collect do | each |
-  File.join tremashark_objects_dir, each
-end
-
-desc "Build stdin_relay."
-task :stdin_relay => Trema::Executables.stdin_relay
-file Trema::Executables.stdin_relay => stdin_relay_objects + [ libtrema ] do | t |
-  sys "gcc -L#{ Trema.lib } -o #{ t.name } #{ sys.sp t.prerequisites } -ltrema -lsqlite3 -ldl -lrt -lpcap -lpthread"
+task :stdin_relay do
+  sys "rake stdin_relay"
 end
 
 
