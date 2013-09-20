@@ -310,7 +310,7 @@ CLOBBER.include Trema.cmockery
 
 
 ################################################################################
-# Build standalone examples
+# Build examples
 ################################################################################
 
 $standalone_examples = [
@@ -327,7 +327,14 @@ $standalone_examples = [
                        ]
 
 desc "Build examples."
-task :examples => $standalone_examples.map { | each | "examples:#{ each }" }
+task :examples =>
+  $standalone_examples.map { | each | "examples:#{ each }" } +
+  [
+   "examples:openflow_switch",
+   "examples:openflow_message",
+   "examples:switch_event_config",
+   "examples:packetin_filter_config"
+  ]
 
 $standalone_examples.each do | each |
   name = "examples:#{ each }"
