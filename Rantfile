@@ -638,20 +638,6 @@ task :unittests => [ :build_old_unittests, :build_unittests ] do
 end
 
 
-################################################################################
-# TODO, FIXME etc.
-################################################################################
-
-desc "Print list of notes."
-task :notes do
-  keywords = [ "TODO", "FIXME", "XXX" ]
-  keywords.each do | key |
-    system "find src unittests -name '*.c' | xargs grep -n #{ key }"
-    system "find ruby spec features -name '*.rb' | xargs grep -n #{ key }"
-  end
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -685,6 +685,20 @@ rescue LoadError
 end
 
 
+################################################################################
+# TODO, FIXME etc.
+################################################################################
+
+desc "Print list of notes."
+task :notes do
+  keywords = [ "TODO", "FIXME", "XXX" ]
+  keywords.each do | each |
+    system "find src unittests -name '*.c' | xargs grep -n #{ each }"
+    system "find ruby spec features -name '*.rb' | xargs grep -n #{ each }"
+  end
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
