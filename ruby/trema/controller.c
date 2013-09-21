@@ -211,7 +211,8 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     VALUE opt_transaction_id = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
     if ( opt_transaction_id != Qnil ) {
       transaction_id = ( uint32_t ) NUM2ULONG( opt_transaction_id );
-    } else {
+    }
+    else {
       transaction_id = get_transaction_id();
     }
 
@@ -223,7 +224,8 @@ controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) 
     VALUE opt_cookie = rb_hash_aref( options, ID2SYM( rb_intern( "cookie" ) ) );
     if ( opt_cookie != Qnil ) {
       cookie = NUM2ULL( opt_cookie );
-    } else {
+    }
+    else {
       cookie = get_cookie();
     }
 
