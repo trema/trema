@@ -8,7 +8,7 @@ Gem::Specification.new do | gem |
   gem.summary = "Full-stack OpenFlow framework."
   gem.description = "Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby and C."
 
-  gem.required_ruby_version = "=> 1.8.7"
+  gem.required_ruby_version = ">= 1.8.7"
 
   gem.license = "GPL2"
 
