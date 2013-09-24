@@ -48,10 +48,7 @@ Getting Started
 
 1.Install the prerequisites at the command prompt:
 
-    (In Ubuntu 13.04, 12.10, or Debian GNU/Linux 7.0)
-    $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
-
-    (In Ubuntu 12.04, 11.10 or Debian GNU/Linux 6.0)
+    (In Ubuntu or Debian GNU/Linux)
     $ sudo apt-get install gcc make ruby rubygems ruby-dev libpcap-dev libsqlite3-dev
 
     (In Ubuntu 10.04)
