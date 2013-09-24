@@ -552,16 +552,16 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 controller_run( VALUE self ) {
-  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+  setenv( "TREMA_HOME", RSTRING_PTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
 
   VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
   char **argv = xmalloc( sizeof( char * ) * ( uint32_t ) ( argc + 1 ) );
-  argv[ 0 ] = STR2CSTR( name );
+  argv[ 0 ] = RSTRING_PTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
-  argv[ 2 ] = STR2CSTR( name );
+  argv[ 2 ] = RSTRING_PTR( name );
   argv[ 3 ] = NULL;
   init_trema( &argc, &argv );
   xfree( argv );
@@ -587,7 +587,7 @@ controller_run( VALUE self ) {
   interval.it_value.tv_nsec = 0;
   add_timer_event_callback( &interval, handle_timer_event, ( void * ) self );
 
-  if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
+  if ( rb_respond_to( self, rb_intern( "start" ) ) ) {
     rb_funcall( self, rb_intern( "start" ), 0 );
   }
 

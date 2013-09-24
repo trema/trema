@@ -240,7 +240,7 @@ test_iterate_empty_hash() {
   init_hash_iterator( table, &iter );
 
   while ( iterate_hash_next( &iter ) != NULL ) {
-    UNREACHABLE();
+    UNREACHABLE_CODE();
   }
 
   delete_hash( table );

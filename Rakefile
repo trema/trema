@@ -56,7 +56,6 @@ CFLAGS = [
   "-std=gnu99",
   "-D_GNU_SOURCE",
   "-fno-strict-aliasing",
-  "-Werror",
   "-Wall",
   "-Wextra",
   "-Wformat=2",
@@ -67,6 +66,7 @@ CFLAGS = [
   "-Wfloat-equal",
   "-Wpointer-arith",
 ]
+CFLAGS << "-Werror" if RUBY_VERSION < "1.9.0"
 
 
 desc "Build Trema C library (static library)."
