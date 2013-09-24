@@ -17,7 +17,7 @@ group :development do
   gem "cucumber", "~> 1.3.8"
   gem "flay", "~> 2.4.0"
   gem "flog", "~> 4.1.2"
-  gem "rcov", "~> 1.0.0"
+  gem "rcov", "~> 1.0.0" if RUBY_VERSION < "1.9.0"
   gem "redcarpet", "~> 2.3.0" if RUBY_VERSION < "1.9.0"
   gem "redcarpet", "~> 3.0.0" if RUBY_VERSION >= "1.9.0"
   gem "reek", "~> 1.3.3"
