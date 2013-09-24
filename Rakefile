@@ -349,7 +349,6 @@ task :examples =>
 $standalone_examples.each do | each |
   name = "examples:#{ each }"
 
-  desc "Build #{ each } example."
   task name => "libtrema:static"
   PaperHouse::ExecutableTask.new name do | task |
     task.executable_name = each
@@ -378,13 +377,11 @@ $openflow_switches = [
                       "echo_switch",
                      ]
 
-desc "Build OpenFlow switch examples."
 task "examples:openflow_switch" => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
 
 $openflow_switches.each do | each |
   name = "examples:openflow_switch:#{ each }"
 
-  desc "Build #{ each } example."
   task name => "libtrema:static"
   PaperHouse::ExecutableTask.new name do | task |
     task.executable_name = each
@@ -416,13 +413,11 @@ $openflow_messages = [
                       "vendor_action",
                      ]
 
-desc "Build OpenFlow message examples."
 task "examples:openflow_message" => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
 
 $openflow_messages.each do | each |
   name = "examples:openflow_message:#{ each }"
 
-  desc "Build #{ each } example."
   task name => "libtrema:static"
   PaperHouse::ExecutableTask.new name do | task |
     task.executable_name = each
@@ -453,13 +448,11 @@ $switch_event_config = [
                         "dump_forward_entries",
                        ]
 
-desc "Build switch event config examples."
 task "examples:switch_event_config" => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
 
 $switch_event_config.each do | each |
   name = "examples:switch_event_config:#{ each }"
 
-  desc "Build #{ each } example."
   task name => "libtrema:static"
   PaperHouse::ExecutableTask.new name do | task |
     task.executable_name = each
@@ -491,13 +484,11 @@ $packetin_filter_config = [
                            "dump_filter_strict",
                           ]
 
-desc "Build packetin_filter config examples."
 task "examples:packetin_filter_config" => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
 
 $packetin_filter_config.each do | each |
   name = "examples:packetin_filter_config:#{ each }"
 
-  desc "Build #{ each } example."
   task name => "libtrema:static"
   PaperHouse::ExecutableTask.new name do | task |
     task.executable_name = each
