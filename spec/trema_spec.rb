@@ -20,30 +20,28 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 require "trema"
 
 
-describe Trema, ".constants" do
-  subject { Trema.constants }
+describe Trema do
+  it { should have_constant :OFPC_FLOW_STATS }
+  it { should have_constant :OFPC_TABLE_STATS }
+  it { should have_constant :OFPC_PORT_STATS }
+  it { should have_constant :OFPC_STP }
+  it { should have_constant :OFPC_RESERVED }
+  it { should have_constant :OFPC_IP_REASM }
+  it { should have_constant :OFPC_QUEUE_STATS }
+  it { should have_constant :OFPC_ARP_MATCH_IP }
 
-  it { should include "OFPC_FLOW_STATS" }
-  it { should include "OFPC_TABLE_STATS" }
-  it { should include "OFPC_PORT_STATS" }
-  it { should include "OFPC_STP" }
-  it { should include "OFPC_RESERVED" }
-  it { should include "OFPC_IP_REASM" }
-  it { should include "OFPC_QUEUE_STATS" }
-  it { should include "OFPC_ARP_MATCH_IP" }
-
-  it { should include "OFPAT_OUTPUT" }
-  it { should include "OFPAT_SET_VLAN_VID" }
-  it { should include "OFPAT_SET_VLAN_PCP" }
-  it { should include "OFPAT_STRIP_VLAN" }
-  it { should include "OFPAT_SET_DL_SRC" }
-  it { should include "OFPAT_SET_DL_DST" }
-  it { should include "OFPAT_SET_NW_SRC" }
-  it { should include "OFPAT_SET_NW_DST" }
-  it { should include "OFPAT_SET_NW_TOS" }
-  it { should include "OFPAT_SET_TP_DST" }
-  it { should include "OFPAT_ENQUEUE" }
-  it { should include "OFPAT_VENDOR" }
+  it { should have_constant :OFPAT_OUTPUT }
+  it { should have_constant :OFPAT_SET_VLAN_VID }
+  it { should have_constant :OFPAT_SET_VLAN_PCP }
+  it { should have_constant :OFPAT_STRIP_VLAN }
+  it { should have_constant :OFPAT_SET_DL_SRC }
+  it { should have_constant :OFPAT_SET_DL_DST }
+  it { should have_constant :OFPAT_SET_NW_SRC }
+  it { should have_constant :OFPAT_SET_NW_DST }
+  it { should have_constant :OFPAT_SET_NW_TOS }
+  it { should have_constant :OFPAT_SET_TP_DST }
+  it { should have_constant :OFPAT_ENQUEUE }
+  it { should have_constant :OFPAT_VENDOR }
 end
 
 
