@@ -20,11 +20,14 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 require "trema"
 
 
-describe Trema::PortStatus do
-  subject { Trema::PortStatus }
-  its( :constants ) { should include "OFPPR_ADD" }
-  its( :constants ) { should include "OFPPR_DELETE" }
-  its( :constants ) { should include "OFPPR_MODIFY" }
+module Trema
+  describe PortStatus do
+    subject { PortStatus }
+
+    it { should have_constant :OFPPR_ADD }
+    it { should have_constant :OFPPR_DELETE }
+    it { should have_constant :OFPPR_MODIFY }
+  end
 end
 
 
