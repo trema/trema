@@ -47,7 +47,7 @@ task :build_trema => [
 ]
 
 
-require "paper-house"
+require "paper_house"
 require "trema/version"
 
 
