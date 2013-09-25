@@ -42,6 +42,48 @@ describe Trema do
   it { should have_constant :OFPAT_SET_TP_DST }
   it { should have_constant :OFPAT_ENQUEUE }
   it { should have_constant :OFPAT_VENDOR }
+
+  it { should have_constant :OFPET_HELLO_FAILED }
+  it { should have_constant :OFPHFC_INCOMPATIBLE }
+  it { should have_constant :OFPHFC_EPERM }
+
+  it { should have_constant :OFPET_BAD_REQUEST }
+  it { should have_constant :OFPBRC_BAD_VERSION }
+  it { should have_constant :OFPBRC_BAD_TYPE }
+  it { should have_constant :OFPBRC_BAD_STAT }
+  it { should have_constant :OFPBRC_BAD_VENDOR }
+  it { should have_constant :OFPBRC_BAD_SUBTYPE }
+  it { should have_constant :OFPBRC_EPERM }
+  it { should have_constant :OFPBRC_BAD_LEN }
+  it { should have_constant :OFPBRC_BUFFER_EMPTY }
+  it { should have_constant :OFPBRC_BUFFER_UNKNOWN }
+
+  it { should have_constant :OFPET_BAD_ACTION }
+  it { should have_constant :OFPBAC_BAD_TYPE }
+  it { should have_constant :OFPBAC_BAD_LEN }
+  it { should have_constant :OFPBAC_BAD_VENDOR }
+  it { should have_constant :OFPBAC_BAD_VENDOR_TYPE }
+  it { should have_constant :OFPBAC_BAD_OUT_PORT }
+  it { should have_constant :OFPBAC_BAD_ARGUMENT }
+  it { should have_constant :OFPBAC_EPERM }
+  it { should have_constant :OFPBAC_TOO_MANY }
+  it { should have_constant :OFPBAC_BAD_QUEUE }
+
+  it { should have_constant :OFPET_FLOW_MOD_FAILED }
+  it { should have_constant :OFPFMFC_ALL_TABLES_FULL }
+  it { should have_constant :OFPFMFC_OVERLAP }
+  it { should have_constant :OFPFMFC_BAD_EMERG_TIMEOUT }
+  it { should have_constant :OFPFMFC_BAD_COMMAND }
+  it { should have_constant :OFPFMFC_UNSUPPORTED }
+
+  it { should have_constant :OFPET_PORT_MOD_FAILED }
+  it { should have_constant :OFPPMFC_BAD_PORT }
+  it { should have_constant :OFPPMFC_BAD_HW_ADDR }
+
+  it { should have_constant :OFPET_QUEUE_OP_FAILED }
+  it { should have_constant :OFPQOFC_BAD_PORT }
+  it { should have_constant :OFPQOFC_BAD_QUEUE }
+  it { should have_constant :OFPQOFC_EPERM }
 end
 
 
