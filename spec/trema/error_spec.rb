@@ -21,52 +21,6 @@ require "trema"
 
 
 module Trema
-  describe Trema, ".constants", :nosudo => true do
-    subject { Trema.constants }
-    it { should include "OFPET_HELLO_FAILED" }
-    it { should include "OFPHFC_INCOMPATIBLE" }
-    it { should include "OFPHFC_EPERM" }
-
-    it { should include "OFPET_BAD_REQUEST" }
-    it { should include "OFPBRC_BAD_VERSION" }
-    it { should include "OFPBRC_BAD_TYPE" }
-    it { should include "OFPBRC_BAD_STAT" }
-    it { should include "OFPBRC_BAD_VENDOR" }
-    it { should include "OFPBRC_BAD_SUBTYPE" }
-    it { should include "OFPBRC_EPERM" }
-    it { should include "OFPBRC_BAD_LEN" }
-    it { should include "OFPBRC_BUFFER_EMPTY" }
-    it { should include "OFPBRC_BUFFER_UNKNOWN" }
-
-    it { should include "OFPET_BAD_ACTION" }
-    it { should include "OFPBAC_BAD_TYPE" }
-    it { should include "OFPBAC_BAD_LEN" }
-    it { should include "OFPBAC_BAD_VENDOR" }
-    it { should include "OFPBAC_BAD_VENDOR_TYPE" }
-    it { should include "OFPBAC_BAD_OUT_PORT" }
-    it { should include "OFPBAC_BAD_ARGUMENT" }
-    it { should include "OFPBAC_EPERM" }
-    it { should include "OFPBAC_TOO_MANY" }
-    it { should include "OFPBAC_BAD_QUEUE" }
-
-    it { should include "OFPET_FLOW_MOD_FAILED" }
-    it { should include "OFPFMFC_ALL_TABLES_FULL" }
-    it { should include "OFPFMFC_OVERLAP" }
-    it { should include "OFPFMFC_BAD_EMERG_TIMEOUT" }
-    it { should include "OFPFMFC_BAD_COMMAND" }
-    it { should include "OFPFMFC_UNSUPPORTED" }
-
-    it { should include "OFPET_PORT_MOD_FAILED" }
-    it { should include "OFPPMFC_BAD_PORT" }
-    it { should include "OFPPMFC_BAD_HW_ADDR" }
-
-    it { should include "OFPET_QUEUE_OP_FAILED" }
-    it { should include "OFPQOFC_BAD_PORT" }
-    it { should include "OFPQOFC_BAD_QUEUE" }
-    it { should include "OFPQOFC_EPERM" }
-  end
-
-
   describe Error, ".new", :nosudo => true do
     it { expect { subject }.to raise_error( ArgumentError, "Type and code are mandatory options" ) }
   end

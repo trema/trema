@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "ruby.h"
 #include "switch-event.h"
+#include "compat.h"
 
 #include "trema.h"
 
@@ -100,7 +101,7 @@ add_forward_entry_to_all_switches( VALUE self, VALUE type, VALUE service_name ) 
     return Qfalse;
   }
 
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -149,7 +150,7 @@ delete_forward_entry_from_all_switches( VALUE self, VALUE type,
     return Qfalse;
   }
 
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -225,7 +226,7 @@ add_forward_entry_to_switch( VALUE self, VALUE dpid, VALUE type,
   }
 
   const uint64_t c_dpid = NUM2ULL( dpid );
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -277,7 +278,7 @@ delete_forward_entry_from_switch( VALUE self, VALUE dpid, VALUE type,
   }
 
   const uint64_t c_dpid = NUM2ULL( dpid );
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -331,9 +332,9 @@ set_forward_entries_to_switch( VALUE self, VALUE dpid, VALUE type,
   const uint64_t c_dpid = NUM2ULL( dpid );
   list_element *service_list = NULL;
   create_list( &service_list );
-  for ( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
+  for ( long i = 0 ; i < RARRAY_LEN( service_names ) ; ++i ) {
     VALUE ruby_service_name = rb_ary_entry( service_names, i );
-    char *c_service_name = StringValuePtr( ruby_service_name );
+    char *c_service_name = RSTRING_PTR( ruby_service_name );
     if ( strlen( c_service_name ) == 0 ) {
       warn( "Ignoring empty service_name" );
       continue;
@@ -433,7 +434,7 @@ add_forward_entry_to_switch_manager( VALUE self, VALUE type,
     return Qfalse;
   }
 
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -483,7 +484,7 @@ delete_forward_entry_from_switch_manager( VALUE self, VALUE type,
     return Qfalse;
   }
 
-  const char *c_service_name = StringValuePtr( service_name );
+  const char *c_service_name = RSTRING_PTR( service_name );
   if ( strlen( c_service_name ) == 0 ) {
     warn( "service_name cannot be empty" );
     return Qfalse;
@@ -535,9 +536,9 @@ set_forward_entries_to_switch_manager( VALUE self, VALUE type,
 
   list_element *service_list = NULL;
   create_list( &service_list );
-  for ( long i = 0 ; i < RARRAY( service_names )->len ; ++i ) {
+  for ( long i = 0 ; i < RARRAY_LEN( service_names ) ; ++i ) {
     VALUE ruby_service_name = rb_ary_entry( service_names, i );
-    char *c_service_name = StringValuePtr( ruby_service_name );
+    char *c_service_name = RSTRING_PTR( ruby_service_name );
     if ( strlen( c_service_name ) == 0 ) {
       warn( "Ignoring empty service_name" );
       continue;

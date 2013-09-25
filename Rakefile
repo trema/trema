@@ -32,12 +32,22 @@ directory Trema.pid
 directory Trema.sock
 
 desc "Build Trema"
-task :build_trema => [ Trema.log, Trema.pid, Trema.sock ] do
-  sh "#{ Gem.ruby } ./build.rb"
-end
+task :build_trema => [
+  Trema.log,
+  Trema.pid,
+  Trema.sock,
+  :management_commands,
+  :rubylib,
+  :switch_manager,
+  :switch_daemon,
+  :packetin_filter,
+  :tremashark,
+  :vendor,
+  :examples
+]
 
 
-require "paper-house"
+require "paper_house"
 require "trema/version"
 
 
@@ -46,7 +56,6 @@ CFLAGS = [
   "-std=gnu99",
   "-D_GNU_SOURCE",
   "-fno-strict-aliasing",
-  "-Werror",
   "-Wall",
   "-Wextra",
   "-Wformat=2",
@@ -57,6 +66,7 @@ CFLAGS = [
   "-Wfloat-equal",
   "-Wpointer-arith",
 ]
+CFLAGS << "-Werror" if RUBY_VERSION < "1.9.0"
 
 
 desc "Build Trema C library (static library)."
@@ -71,7 +81,7 @@ end
 
 
 desc "Build Trema C library (coverage)."
-task "libtrema:gcov" => "vendor:openflow"
+task "libtrema:gcov" => [ "vendor:openflow" ]
 PaperHouse::StaticLibraryTask.new "libtrema:gcov" do | task |
   task.library_name = "libtrema"
   task.target_directory = "#{ Trema.home }/objects/unittests"
@@ -248,6 +258,30 @@ CLOBBER.include Trema.openvswitch
 
 
 ################################################################################
+# Build packetin filter
+################################################################################
+
+desc "Build packetin filter."
+task :packetin_filter => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :packetin_filter do | task |
+  task.executable_name = File.basename( Trema::Executables.packetin_filter )
+  task.target_directory = File.dirname( Trema::Executables.packetin_filter )
+  task.sources = [ "src/packetin_filter/*.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                              ]
+end
+
+
+################################################################################
 # Build oflops
 ################################################################################
 
@@ -283,6 +317,195 @@ end
 
 CLEAN.include Trema.vendor_cmockery
 CLOBBER.include Trema.cmockery
+
+
+################################################################################
+# Build examples
+################################################################################
+
+$standalone_examples = [
+                        "cbench_switch",
+                        "dumper",
+                        "learning_switch",
+                        "list_switches",
+                        "multi_learning_switch",
+                        "packet_in",
+                        "repeater_hub",
+                        "switch_info",
+                        "switch_monitor",
+                        "traffic_monitor",
+                       ]
+
+desc "Build examples."
+task :examples =>
+  $standalone_examples.map { | each | "examples:#{ each }" } +
+  [
+   "examples:openflow_switch",
+   "examples:openflow_message",
+   "examples:switch_event_config",
+   "examples:packetin_filter_config"
+  ]
+
+$standalone_examples.each do | each |
+  name = "examples:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", each )
+    task.sources = [ "src/examples/#{ each }/*.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build openflow switches
+################################################################################
+
+$openflow_switches = [
+                      "hello_switch",
+                      "echo_switch",
+                     ]
+
+task "examples:openflow_switch" => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
+
+$openflow_switches.each do | each |
+  name = "examples:openflow_switch:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "openflow_switch" )
+    task.sources = [ "src/examples/openflow_switch/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build openflow messages
+################################################################################
+
+$openflow_messages = [
+                      "echo",
+                      "features_request",
+                      "hello",
+                      "set_config",
+                      "vendor_action",
+                     ]
+
+task "examples:openflow_message" => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
+
+$openflow_messages.each do | each |
+  name = "examples:openflow_message:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "openflow_message" )
+    task.sources = [ "src/examples/openflow_message/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+###############################################################################
+# Build switch_event_config
+###############################################################################
+
+$switch_event_config = [
+                        "add_forward_entry",
+                        "delete_forward_entry",
+                        "set_forward_entries",
+                        "dump_forward_entries",
+                       ]
+
+task "examples:switch_event_config" => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
+
+$switch_event_config.each do | each |
+  name = "examples:switch_event_config:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "switch_event_config" )
+    task.sources = [ "src/examples/switch_event_config/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+################################################################################
+# Build packetin_filter_config
+################################################################################
+
+$packetin_filter_config = [
+                           "add_filter",
+                           "delete_filter",
+                           "delete_filter_strict",
+                           "dump_filter",
+                           "dump_filter_strict",
+                          ]
+
+task "examples:packetin_filter_config" => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
+
+$packetin_filter_config.each do | each |
+  name = "examples:packetin_filter_config:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "examples", "packetin_filter_config" )
+    task.sources = [ "src/examples/packetin_filter_config/#{ each }.c", "src/examples/packetin_filter_config/utils.c"]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
 
 
 ################################################################################
@@ -367,15 +590,158 @@ end
 
 
 ################################################################################
-# Maintenance Tasks
+# Build management commands
 ################################################################################
 
-# Generate a monolithic rant file"
-# FIXME: Remove dependency to rant
-task "build.rb" do
-  sh "rant-import --force --auto .mono.rant"
+$management_commands = [
+                       "application",
+                       "echo",
+                       "set_logging_level",
+                       "show_stats",
+                      ]
+
+desc "Build management commands."
+task :management_commands => $management_commands.map { | each | "management:#{ each }" }
+
+$management_commands.each do | each |
+  name = "management:#{ each }"
+
+  task name => "libtrema:static"
+  PaperHouse::ExecutableTask.new name do | task |
+    task.executable_name = each
+    task.target_directory = File.join( Trema.objects, "management" )
+    task.sources = [ "src/management/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow ]
+    task.cflags = CFLAGS
+    task.ldflags = "-L#{ Trema.lib }"
+    task.library_dependencies = [
+                                 "trema",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
 end
 
+
+################################################################################
+# Tremashark
+################################################################################
+
+desc "Build tremashark."
+task :tremashark => [ :packet_capture, :syslog_relay, :stdin_relay, :openflow_wireshark_plugin, "libtrema:static" ]
+
+PaperHouse::ExecutableTask.new :tremashark do | task |
+  task.executable_name = File.basename( Trema::Executables.tremashark )
+  task.target_directory = File.dirname( Trema::Executables.tremashark )
+  task.sources = [
+                  "src/tremashark/pcap_queue.c",
+                  "src/tremashark/queue.c",
+                  "src/tremashark/tremashark.c",
+                 ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :packet_capture => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :packet_capture do | task |
+  task.executable_name = File.basename( Trema::Executables.packet_capture )
+  task.target_directory = File.dirname( Trema::Executables.packet_capture )
+  task.sources = [
+                  "src/tremashark/packet_capture.c",
+                  "src/tremashark/queue.c",
+                 ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :syslog_relay => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :syslog_relay do | task |
+  task.executable_name = File.basename( Trema::Executables.syslog_relay )
+  task.target_directory = File.dirname( Trema::Executables.syslog_relay )
+  task.sources = [ "src/tremashark/syslog_relay.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+task :stdin_relay => "libtrema:static"
+
+PaperHouse::ExecutableTask.new :stdin_relay do | task |
+  task.executable_name = File.basename( Trema::Executables.stdin_relay )
+  task.target_directory = File.dirname( Trema::Executables.stdin_relay )
+  task.sources = [ "src/tremashark/stdin_relay.c" ]
+  task.includes = [ Trema.include, Trema.openflow ]
+  task.cflags = CFLAGS
+  task.ldflags = "-L#{ Trema.lib }"
+  task.library_dependencies = [
+                               "trema",
+                               "sqlite3",
+                               "pthread",
+                               "rt",
+                               "dl",
+                               "pcap"
+                              ]
+end
+
+
+$packet_openflow_so = File.join( Trema.vendor_openflow_git, "utilities", "wireshark_dissectors", "openflow", "packet-openflow.so" )
+$wireshark_plugins_dir = File.join( File.expand_path( "~" ), ".wireshark", "plugins" )
+$wireshark_plugin = File.join( $wireshark_plugins_dir, File.basename( $packet_openflow_so ) )
+
+file $packet_openflow_so do
+  sh "tar xzf #{ Trema.vendor_openflow_git }.tar.gz -C #{ Trema.vendor }"
+  cd File.dirname( $packet_openflow_so ) do
+    sh "make"
+  end
+end
+
+file $wireshark_plugin => [ $packet_openflow_so, $wireshark_plugins_dir ] do
+  cp $packet_openflow_so, $wireshark_plugins_dir
+end
+
+directory $wireshark_plugins_dir
+
+task :openflow_wireshark_plugin => $wireshark_plugin
+
+CLEAN.include Trema.vendor_openflow_git
+
+
+################################################################################
+# Maintenance Tasks
+################################################################################
 
 begin
   require "bundler/gem_tasks"
@@ -394,11 +760,119 @@ end
 
 
 ################################################################################
-# Cruise
+# C Unit tests.
 ################################################################################
 
-task :setup do
-  sh "./build.rb distclean"
+def libtrema_unit_tests
+  {
+    :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
+    :daemon_test => [ :log, :utility, :wrapper, :trema_wrapper ],
+    :ether_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :timer, :log, :trema_wrapper ],
+    :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
+    :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],
+    :packet_info_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :stat_test => [ :hash_table, :doubly_linked_list, :log, :utility, :wrapper, :trema_wrapper ],
+    :timer_test => [ :log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper ],
+    :trema_test => [ :utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper ],
+  }
+end
+
+
+def test_c_files test
+  names = [ test.to_s.gsub( /_test$/, "" ) ] + libtrema_unit_tests[ test ]
+  names.collect do | each |
+    if each == :buffer
+      [ "src/lib/buffer.c", "unittests/buffer_stubs.c" ]
+    elsif each == :wrapper
+      [ "src/lib/wrapper.c", "unittests/wrapper_stubs.c" ]
+    else
+      "src/lib/#{ each }.c"
+    end
+  end.flatten
+end
+
+
+directory "objects/unittests"
+
+task :build_old_unittests => libtrema_unit_tests.keys.map { | each | "unittests:#{ each }" }
+
+libtrema_unit_tests.keys.each do | each |
+  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
+    name = "unittests:#{ each }"
+    task name => [ "vendor:cmockery", "vendor:openflow", "objects/unittests" ]
+
+    task.executable_name = each.to_s
+    task.target_directory = File.join( Trema.home, "unittests/objects" )
+    task.sources = test_c_files( each ) + [ "unittests/lib/#{ each }.c" ]
+    task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
+    task.cflags = [ "-DUNIT_TESTING", "--coverage", CFLAGS ]
+    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage --static"
+    task.library_dependencies = [
+                                 "cmockery",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                 "pcap"
+                                ]
+  end
+end
+
+
+# new unittest
+$tests = [
+          "objects/unittests/buffer_test",
+          "objects/unittests/doubly_linked_list_test",
+          "objects/unittests/ether_test",
+          "objects/unittests/event_forward_interface_test",
+          "objects/unittests/hash_table_test",
+          "objects/unittests/linked_list_test",
+          "objects/unittests/log_test",
+          "objects/unittests/packetin_filter_interface_test",
+          "objects/unittests/packet_info_test",
+          "objects/unittests/packet_parser_test",
+          "objects/unittests/persistent_storage_test",
+          "objects/unittests/trema_private_test",
+          "objects/unittests/utility_test",
+          "objects/unittests/wrapper_test",
+          "objects/unittests/match_table_test",
+          "objects/unittests/message_queue_test",
+          "objects/unittests/management_interface_test",
+          "objects/unittests/management_service_interface_test",
+         ]
+
+task :build_unittests => $tests.map { | each | "unittests:" + File.basename( each ) }
+
+$tests.each do | _each |
+  each = File.basename( _each )
+
+  task "unittests:#{ each }" => [ "libtrema:gcov", "vendor:cmockery" ]
+  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
+    task.executable_name = each.to_s
+    task.target_directory = File.join( Trema.home, "unittests/objects" )
+    task.sources = [ "unittests/lib/#{ each }.c", "unittests/cmockery_trema.c" ]
+    task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
+    task.cflags = [ "--coverage", CFLAGS ]
+    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage --static"
+    task.library_dependencies = [
+                                 "trema",
+                                 "cmockery",
+                                 "sqlite3",
+                                 "pthread",
+                                 "rt",
+                                 "dl",
+                                ]
+  end
+end
+
+
+desc "Run unittests"
+task :unittests => [ :build_old_unittests, :build_unittests ] do
+  Dir.glob( "unittests/objects/*_test" ).each do | each |
+    puts "Running #{ each }..."
+    sh each
+  end
 end
 
 
@@ -406,7 +880,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [ :setup, :build_trema, "spec:travis" ]
+task :travis => [ :clobber, :build_trema, "spec:travis" ]
 
 
 begin
@@ -463,11 +937,6 @@ end
 ################################################################################
 
 $ruby_sources = FileList[ "ruby/**/*.rb", "src/**/*.rb" ]
-$quality_targets = if ENV[ "QUALITY_TARGETS" ]
-                     ENV[ "QUALITY_TARGETS" ].split
-                   else
-                     $ruby_sources
-                   end
 
 
 desc "Enforce Ruby code quality with static analysis of code"
@@ -478,15 +947,16 @@ begin
   require "reek/rake/task"
 
   Reek::Rake::Task.new do | t |
-    t.fail_on_error = true
+    t.fail_on_error = false
     t.verbose = false
     t.ruby_opts = [ "-rubygems" ]
     t.reek_opts = "--quiet"
-    t.source_files = $quality_targets
+    t.source_files = $ruby_sources
   end
 rescue LoadError
   $stderr.puts $!.to_s
 end
+
 
 begin
   require "flog"
@@ -494,7 +964,7 @@ begin
   desc "Analyze for code complexity"
   task :flog do
     flog = Flog.new( :continue => true )
-    flog.flog *$quality_targets
+    flog.flog *$ruby_sources
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
@@ -506,7 +976,7 @@ begin
       puts "%8.1f: %s" % [ score, name ]
     end
     unless bad_methods.empty?
-      raise "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
+      $stderr.puts "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
     end
   end
 rescue LoadError
@@ -544,6 +1014,20 @@ begin
   end
 rescue LoadError
   $stderr.puts $!.to_s
+end
+
+
+################################################################################
+# TODO, FIXME etc.
+################################################################################
+
+desc "Print list of notes."
+task :notes do
+  keywords = [ "TODO", "FIXME", "XXX" ]
+  keywords.each do | each |
+    system "find src unittests -name '*.c' | xargs grep -n #{ each }"
+    system "find ruby spec features -name '*.rb' | xargs grep -n #{ each }"
+  end
 end
 
 

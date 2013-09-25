@@ -279,7 +279,7 @@ secure_channel_accept( int fd, void *data ) {
 
     free_switch_daemon_args( argv );
 
-    UNREACHABLE();
+    UNREACHABLE_CODE();
   }
   else {
     /* parent */

@@ -8,7 +8,7 @@ Gem::Specification.new do | gem |
   gem.summary = "Full-stack OpenFlow framework."
   gem.description = "Trema is a full-stack, easy-to-use framework for developing OpenFlow controllers in Ruby and C."
 
-  gem.required_ruby_version = "~> 1.8.7"
+  gem.required_ruby_version = ">= 1.8.7"
 
   gem.license = "GPL2"
 
@@ -27,8 +27,8 @@ Gem::Specification.new do | gem |
   gem.test_files = `git ls-files -- {spec,features}/*`.split( "\n" )
 
   gem.add_dependency "bundler"
-  gem.add_dependency "gli", "~> 2.7.0"
-  gem.add_dependency "paper-house", "~> 0.3.1"
+  gem.add_dependency "gli", "~> 2.8.0"
+  gem.add_dependency "paper_house", "~> 0.4.0"
   gem.add_dependency "rake", "~> 10.1.0"
   gem.add_dependency "rdoc", "~> 4.0.1"
 end

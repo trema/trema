@@ -146,7 +146,7 @@ static void
 init_context() {
   assert( contexts == NULL );
 
-  contexts = create_hash_with_size( compare_context, hash_context, 16 );
+  contexts = create_hash_with_size( compare_context, hash_context, 128 );
 }
 
 

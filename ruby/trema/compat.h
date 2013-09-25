@@ -16,20 +16,16 @@
  */
 
 
-#ifndef CHECKS_H
-#define CHECKS_H
+#ifndef COMPAT_H
+#define COMPAT_H
 
 
-#define DEPRECATED_FUNCTION __attribute__ ( ( deprecated ) )
-#define UNUSED( x ) ( void ) ( x )
-#define UNREACHABLE_CODE() die( "unreachable code" )
-#define die_if_NULL( data )                                     \
-  if ( data == NULL ) {                                         \
-    die( "Argument of %s must not be NULL.", __func__ );        \
-  }
+#ifndef RARRAY_LEN
+#define RARRAY_LEN( ary ) RARRAY( ary )->len
+#endif
 
 
-#endif // CHECKS_H
+#endif // COMPAT_H
 
 
 /*

@@ -18,16 +18,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-require "rbconfig"
 
-RUBY_PATH = File.join(
-              RbConfig::CONFIG[ 'bindir' ],
-              RbConfig::CONFIG[ 'RUBY_INSTALL_NAME' ] +
-              RbConfig::CONFIG[ 'EXEEXT' ]
-            )
-
-result = system "cd #{ File.dirname( __FILE__ ) } && #{ RUBY_PATH } .mono.rant #{ ARGV.join ' ' }"
-abort "#{ $0 } aborted!" unless result
+Dir.chdir File.dirname( __FILE__ ) do
+  result = system( "bundle exec rake #{ ARGV.join ' ' }" )
+  abort "#{ $0 } aborted!" unless result
+end
 
 
 ### Local variables:

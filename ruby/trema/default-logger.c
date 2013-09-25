@@ -28,7 +28,7 @@ VALUE mDefaultLogger;
 static VALUE
 do_log( void ( *log_function )( const char *format, ... ), int argc, VALUE *argv ) {
   VALUE message = rb_f_sprintf( argc, argv );
-  log_function( STR2CSTR( message ) );
+  log_function( RSTRING_PTR( message ) );
   return message;
 }
 

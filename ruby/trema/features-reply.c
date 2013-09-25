@@ -245,7 +245,7 @@ Init_features_reply() {
 
 void
 handle_switch_ready( uint64_t datapath_id, void *controller ) {
-  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "switch_ready" ) ) == Qtrue ) {
+  if ( rb_respond_to( ( VALUE ) controller, rb_intern( "switch_ready" ) ) ) {
     rb_funcall( ( VALUE ) controller, rb_intern( "switch_ready" ), 1, ULL2NUM( datapath_id ) );
   }
 }

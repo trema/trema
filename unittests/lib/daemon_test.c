@@ -44,7 +44,7 @@ mock_die( char *format, ... ) {
   va_end( args );
 
   check_expected( message );
-  mock_assert( false, "UNREACHABLE", __FILE__, __LINE__ ); } // This hoaxes gcov.
+  mock_assert( false, "UNREACHABLE_CODE", __FILE__, __LINE__ ); } // This hoaxes gcov.
 
 
 int
