@@ -44,7 +44,7 @@ VALUE cController;
 
 static void
 handle_timer_event( void *self ) {
-  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) == Qtrue ) {
+  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) ) {
     rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
   }
 }
