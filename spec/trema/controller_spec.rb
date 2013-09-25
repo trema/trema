@@ -22,22 +22,20 @@ require "trema"
 
 module Trema
   describe Controller do
-    context "when using OpenFlow constants" do
-      subject { Controller.constants }
+    subject { Controller }
 
-      it { should include "OFPP_MAX" }
-      it { should include "OFPP_IN_PORT" }
-      it { should include "OFPP_TABLE" }
-      it { should include "OFPP_NORMAL" }
-      it { should include "OFPP_FLOOD" }
-      it { should include "OFPP_ALL" }
-      it { should include "OFPP_CONTROLLER" }
-      it { should include "OFPP_LOCAL" }
-      it { should include "OFPP_NONE" }
-    end
+    it { should have_constant :OFPP_MAX }
+    it { should have_constant :OFPP_IN_PORT }
+    it { should have_constant :OFPP_TABLE }
+    it { should have_constant :OFPP_NORMAL }
+    it { should have_constant :OFPP_FLOOD }
+    it { should have_constant :OFPP_ALL }
+    it { should have_constant :OFPP_CONTROLLER }
+    it { should have_constant :OFPP_LOCAL }
+    it { should have_constant :OFPP_NONE }
 
 
-    context "when logging" do
+    context ".new" do
       subject { Controller.new }
 
       it { should respond_to :critical }
@@ -46,21 +44,6 @@ module Trema
       it { should respond_to :notice }
       it { should respond_to :info }
       it { should respond_to :debug }
-    end
-
-
-    context "when sending flow_mod messages" do
-      it "should send a flow_mod_add message" do
-        class FlowModAddController < Controller; end
-
-        network {
-          vswitch { datapath_id 0xabc }
-        }.run( FlowModAddController ) {
-          controller( "FlowModAddController" ).send_flow_mod_add( 0xabc )
-          sleep 20 # FIXME: wait to send_flow_mod_add
-          expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        }
-      end
     end
   end
 end
