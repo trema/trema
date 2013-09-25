@@ -46,7 +46,7 @@ describe "packet-out" do
 
   context "when invoked with no datapath_id" do
     it "should raise an error" do
-      expect { PacketOutController.new.send_packet_out }.to raise_error("wrong number of arguments (0 for 1)")
+      expect { PacketOutController.new.send_packet_out }.to raise_error
     end
   end
 
