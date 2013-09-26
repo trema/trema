@@ -17,6 +17,7 @@
 
 
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
+require "pio"
 require "trema"
 
 
@@ -112,8 +113,8 @@ describe Trema::FlowRemoved, ".new( VALID OPTIONS )" do
           expect( message.match.dl_vlan_pcp ).to eq( 0 )
           expect( message.match.nw_tos ).to eq( 0 )
           expect( message.match.nw_proto ).to eq( 17 )
-          expect( Trema::IP.new( message.match.nw_src ).to_s ).to eq( "192.168.0.1" )
-          expect( Trema::IP.new( message.match.nw_dst ).to_s ).to eq( "192.168.0.2" )
+          expect( Pio::IPv4Address.new( message.match.nw_src ).to_s ).to eq( "192.168.0.1" )
+          expect( Pio::IPv4Address.new( message.match.nw_dst ).to_s ).to eq( "192.168.0.2" )
           expect( message.match.tp_src ).to eq( 1 )
           expect( message.match.tp_dst ).to eq( 1 )
           expect( message.cookie ).to eq( 123456789 )

@@ -86,9 +86,9 @@ describe Trema::PacketIn do
           expect( message.eth_type ).to eq( 0x0800 )
           expect( message.ipv4? ).to be_true
           expect( message.ipv4_version ).to eq( 4 )
-          expect( message.ipv4_saddr ).to be_instance_of( Trema::IP )
+          expect( message.ipv4_saddr ).to be_instance_of( Pio::IPv4Address )
           expect( message.ipv4_saddr.to_s ).to eq( "192.168.1.1" )
-          expect( message.ipv4_daddr ).to be_instance_of( Trema::IP )
+          expect( message.ipv4_daddr ).to be_instance_of( Pio::IPv4Address )
           expect( message.ipv4_daddr.to_s ).to eq( "192.168.1.2" )
         end
         send_and_wait
