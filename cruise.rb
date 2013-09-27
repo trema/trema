@@ -303,7 +303,7 @@ end
 def test message
   puts message
   cd Trema.home do
-    sh "rake clean"
+    sh "bundle exec rake clean"
     begin
       yield
     ensure
@@ -315,8 +315,8 @@ end
 
 def run_unit_test
   test "Running unit tests ..." do
-    sh "rake unittests"
-    sh "rake spec"
+    sh "bundle exec rake unittests"
+    sh "bundle exec rake spec"
   end
   measure_coverage
 end
@@ -324,7 +324,7 @@ end
 
 def run_acceptance_test
   test "Running acceptance tests ..." do
-    sh "rake features"
+    sh "bundle exec rake features"
   end
 end
 
@@ -358,8 +358,9 @@ $options.parse! ARGV
 
 
 def init_cruise
-  sh "bundle"
-  sh "rake clobber"
+  sh "bundle install"
+  sh "bundle update"
+  sh "bundle exec rake clobber"
 end
 
 
