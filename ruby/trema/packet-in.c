@@ -35,7 +35,7 @@ VALUE cPacketIn;
 #define PACKET_IN_RETURN_IP( packet_member )                                        \
   {                                                                                 \
     VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );             \
-    return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); \
+    return rb_funcall( rb_eval_string( "Pio::IPv4Address" ), rb_intern( "new" ), 1, ret ); \
   }
 
 #define PACKET_IN_RETURN_NUM( flag, func, packet_member )               \
@@ -391,8 +391,8 @@ packet_in_arp_sha( VALUE self ) {
 /*
  * The ARP source protocol address of a packet.
  *
- * @return [Trema::IP, nil]
- *   the value of ARP source protocol address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address, nil]
+ *   the value of ARP source protocol address as a Pio::IPv4Address object or nil if
  *   packet is not an ARP.
  */
 static VALUE
@@ -427,8 +427,8 @@ packet_in_arp_tha( VALUE self ) {
 /*
  * The ARP target protocol address of a packet.
  *
- * @return [Trema::IP]
- *   the value of ARP target protocol address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address]
+ *   the value of ARP target protocol address as a Pio::IPv4Address object or nil if
  *   packet is not an ARP.
  */
 static VALUE
@@ -522,8 +522,8 @@ packet_in_rarp_sha( VALUE self ) {
 /*
  * The RARP source protocol address of a packet.
  *
- * @return [Trema::IP, nil]
- *   the value of RARP source protocol address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address, nil]
+ *   the value of RARP source protocol address as a Pio::IPv4Address object or nil if
  *   packet is not an RARP.
  */
 static VALUE
@@ -558,8 +558,8 @@ packet_in_rarp_tha( VALUE self ) {
 /*
  * The ARP target protocol address of a packet.
  *
- * @return [Trema::IP]
- *   the value of RARP target protocol address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address]
+ *   the value of RARP target protocol address as a Pio::IPv4Address object or nil if
  *   packet is not an RARP.
  */
 static VALUE
@@ -691,8 +691,8 @@ packet_in_ipv4_checksum( VALUE self ) {
 /*
  * The IPv4 source IP address of a packet.
  *
- * @return [Trema::IP,nil]
- *   the value of IPv4 source IP address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address,nil]
+ *   the value of IPv4 source IP address as a Pio::IPv4Address object or nil if
  *   packet is not an IPv4.
  */
 static VALUE
@@ -709,8 +709,8 @@ packet_in_ipv4_saddr( VALUE self ) {
 /*
  * The IPV4 destination IP address of a packet.
  *
- * @return [Trema::IP, nil]
- *   the value of IPv4 destination IP address as a Trema::IP object or nil if
+ * @return [Pio::IPv4Address, nil]
+ *   the value of IPv4 destination IP address as a Pio::IPv4Address object or nil if
  *   packet is not an IPv4.
  */
 static VALUE
@@ -814,8 +814,8 @@ packet_in_icmpv4_seq( VALUE self ) {
 /*
  * The ICMPv4 redirect message gateway IP address.
  *
- * @return [Trema::IP, nil]
- *   the value of ICMPv4 redirect message IP gateway address as a Trema::IP
+ * @return [Pio::IPv4Address, nil]
+ *   the value of ICMPv4 redirect message IP gateway address as a Pio::IPv4Address
  *   object or nil if packet is not ICMPv4.
  */
 static VALUE
@@ -1009,8 +1009,8 @@ packet_in_igmp_type( VALUE self ) {
 /*
  * The IGMP group address.
  *
- * @return [Trema::IP, nil]
- *   the value of IGMP IP group address as a Trema::IP object
+ * @return [Pio::IPv4Address, nil]
+ *   the value of IGMP IP group address as a Pio::IPv4Address object
  *   or nil if packet is not IGMP.
  */
 static VALUE
@@ -1228,7 +1228,8 @@ packet_in_udp_checksum( VALUE self ) {
  */
 void
 Init_packet_in() {
-  rb_require( "trema/ip" );
+  rb_require( "rubygems" );
+  rb_require( "pio" );
   rb_require( "trema/mac" );
   mTrema = rb_eval_string( "Trema" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );

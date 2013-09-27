@@ -321,7 +321,8 @@ match_nw( VALUE self, uint8_t which ) {
     masklen = ( match->wildcards & OFPFW_NW_DST_MASK ) >> OFPFW_NW_DST_SHIFT;
   }
   uint32_t prefixlen = masklen > 32 ? 0 : 32 - masklen;
-  return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 2, UINT2NUM( nw_addr ), UINT2NUM( prefixlen ) );
+  VALUE ipv4_addr = rb_funcall( rb_eval_string( "Pio::IPv4Address" ), rb_intern( "new" ), 1, UINT2NUM( nw_addr ) );
+  return rb_funcall( ipv4_addr, rb_intern( "mask" ), 1, UINT2NUM( prefixlen ) );;
 }
 
 
@@ -526,7 +527,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
 
       VALUE nw_src = rb_hash_aref( options, ID2SYM( rb_intern( "nw_src" ) ) );
       if ( nw_src != Qnil ) {
-        VALUE nw_addr = rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, nw_src );
+        VALUE nw_addr = rb_funcall( rb_eval_string( "Pio::IPv4Address" ), rb_intern( "new" ), 1, nw_src );
         uint32_t prefixlen = ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "prefixlen" ), 0 ) );
         if ( prefixlen > 0 ) {
           match->nw_src = nw_addr_to_i( nw_addr );
@@ -537,7 +538,7 @@ match_init( int argc, VALUE *argv, VALUE self ) {
 
       VALUE nw_dst = rb_hash_aref( options, ID2SYM( rb_intern( "nw_dst" ) ) );
       if ( nw_dst != Qnil ) {
-        VALUE nw_addr = rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, nw_dst );
+        VALUE nw_addr = rb_funcall( rb_eval_string( "Pio::IPv4Address" ), rb_intern( "new" ), 1, nw_dst );
         uint32_t prefixlen = ( uint32_t ) NUM2UINT( rb_funcall( nw_addr, rb_intern( "prefixlen" ), 0 ) );
         if ( prefixlen > 0 ) {
           match->nw_dst = nw_addr_to_i( nw_addr );

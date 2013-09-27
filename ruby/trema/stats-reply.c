@@ -225,7 +225,7 @@ get_action( const struct ofp_action_header *ah ) {
     {
       const struct ofp_action_nw_addr *action_nw_addr = ( const struct ofp_action_nw_addr * ) ah;
 
-      VALUE ip_address = rb_funcall( rb_eval_string( "Trema::IP " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
+      VALUE ip_address = rb_funcall( rb_eval_string( "Pio::IPv4Address " ), rb_intern( "new" ), 1, UINT2NUM( action_nw_addr->nw_addr ) );
       if ( ah->type == OFPAT_SET_NW_SRC ) {
         action = rb_funcall( rb_eval_string( "Trema::SetIpSrcAddr" ), rb_intern( "new" ), 1, rb_funcall( ip_address, rb_intern( "to_s" ), 0 ) );
       }
