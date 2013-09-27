@@ -24,6 +24,7 @@ require "rubygems"
 
 require "rspec"
 require "rspec/autorun"
+require "pio"
 require "trema"
 require "trema/dsl/configuration"
 require "trema/dsl/context"
