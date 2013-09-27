@@ -2268,7 +2268,7 @@ validate_port_mod( const buffer *message ) {
   if ( ( ntohl( port_mod->mask ) & ( uint32_t ) ~PORT_CONFIG ) != 0 ) {
     return ERROR_INVALID_PORT_MASK;
   }
-  if ( ( ntohl( port_mod->advertise ) & ( uint32_t ) ~PORT_CONFIG ) != 0 ) {
+  if ( ( ntohl( port_mod->advertise ) & ( uint32_t ) ~PORT_FEATURES ) != 0 ) {
     return ERROR_INVALID_PORT_FEATURES;
   }
 
