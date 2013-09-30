@@ -144,6 +144,8 @@ stats_reply_stats( VALUE self ) {
  */
 void
 Init_stats_reply() {
+  rb_require( "rubygems" );
+  rb_require( "pio" );
   rb_require( "trema/desc-stats-reply" );
   rb_require( "trema/flow-stats-reply" );
   rb_require( "trema/aggregate-stats-reply" );
