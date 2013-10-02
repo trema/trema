@@ -16,7 +16,7 @@
 #
 
 module Trema
-  class Queue
+  class PacketQueues
     class << self
       #
       # The {PacketQueue} to append to the list.
@@ -161,7 +161,7 @@ module Trema
       super property, len
       @rate = rate
       packet_queue.append self
-      Trema::Queue.append packet_queue
+      Trema::PacketQueues.append packet_queue
     end
 
 
