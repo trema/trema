@@ -16,7 +16,6 @@ Gem::Specification.new do | gem |
   gem.email = [ "yasuhito@gmail.com" ]
   gem.homepage = "http://github.com/trema/trema"
 
-  gem.bindir = "."
   gem.executables = [ "trema", "trema-config" ]
   gem.files = `git ls-files`.split( "\n" )
 
