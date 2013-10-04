@@ -31,7 +31,7 @@ Trema supports GNU/Linux only. And it has been tested on the following environme
 * RubyGems 1.3.6 or higher
 * Ubuntu 13.04, 12.10, 12.04, 11.10, and 10.04 (i386/amd64, Desktop Edition)
 * Debian GNU/Linux 7.0 and 6.0 (i386/amd64)
-* Fedora 16 (i386/x86_64)
+* Fedora 16-19 (i386/x86_64)
 
 It may also run on other GNU/Linux distributions but is not tested and
 NOT SUPPORTED at this moment.
@@ -53,10 +53,10 @@ Getting Started
 
     (In Ubuntu 10.04)
     $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev libglib2.0-dev
-    $ sudo gem install rubygems-update --version 2.0.8
+    $ sudo gem install rubygems-update
     $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
-    (In Fedora 16)
+    (In Fedora 16-19)
     $ sudo yum install gcc make ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel glib2-devel
 
 2.Install Trema at the command prompt:
@@ -94,12 +94,12 @@ class MyController < Controller
   def packet_in datapath_id, message
     # ...
   end
-  
+
   # handle Flow-Removed messages here.
   def flow_removed datapath_id, message
     # ...
   end
-  
+
   # ...
 end
 ```
@@ -131,7 +131,7 @@ class MyController < Controller
     send_flow_mod_add( datapath_id, ... )
     send_packet_out( datapath_id, ... )
   end
-  
+
   # ...
 end
 ```
@@ -152,11 +152,11 @@ class MyController < Controller
     # send a FeaturesRequest message
     send_message datapath_id, FeaturesRequest.new
   end
-  
+
   def features_reply datapath_id, message
     # ...
   end
-  
+
   # ...
 end
 ```
@@ -194,7 +194,7 @@ def packet_in datapath_id, message
     :match => Match.new( :in_port => message.in_port, ...)
     # ...
   )
-  
+
   # ...
 end
 ```
@@ -212,7 +212,7 @@ def packet_in datapath_id, message
     :match => ExactMatch.from( message )
     # ...
   )
-  
+
   # ...
 end
 ```

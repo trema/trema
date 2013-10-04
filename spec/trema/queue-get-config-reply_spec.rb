@@ -29,7 +29,7 @@ describe QueueGetConfigReply, ".new( VALID OPTIONS )" do
     QueueGetConfigReply.new( :datapath_id => 0xabc,
       :transaction_id => 123,
       :port => 1,
-      :queues => Trema::Queue.queues
+      :queues => Trema::PacketQueues.queues
     )
   end
   its( "queues.length" ) { should ==  2  }
