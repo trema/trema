@@ -53,7 +53,7 @@ Getting Started
 
     (In Ubuntu 10.04)
     $ sudo apt-get install gcc make ruby rubygems ruby-dev libopenssl-ruby libpcap-dev libsqlite3-dev libglib2.0-dev
-    $ sudo gem install rubygems-update --version 2.0.8
+    $ sudo gem install rubygems-update
     $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
     (In Fedora 16)
@@ -94,12 +94,12 @@ class MyController < Controller
   def packet_in datapath_id, message
     # ...
   end
-  
+
   # handle Flow-Removed messages here.
   def flow_removed datapath_id, message
     # ...
   end
-  
+
   # ...
 end
 ```
@@ -131,7 +131,7 @@ class MyController < Controller
     send_flow_mod_add( datapath_id, ... )
     send_packet_out( datapath_id, ... )
   end
-  
+
   # ...
 end
 ```
@@ -152,11 +152,11 @@ class MyController < Controller
     # send a FeaturesRequest message
     send_message datapath_id, FeaturesRequest.new
   end
-  
+
   def features_reply datapath_id, message
     # ...
   end
-  
+
   # ...
 end
 ```
@@ -194,7 +194,7 @@ def packet_in datapath_id, message
     :match => Match.new( :in_port => message.in_port, ...)
     # ...
   )
-  
+
   # ...
 end
 ```
@@ -212,7 +212,7 @@ def packet_in datapath_id, message
     :match => ExactMatch.from( message )
     # ...
   )
-  
+
   # ...
 end
 ```
