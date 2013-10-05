@@ -110,7 +110,7 @@ add_forward_entry_to_all_switches( VALUE self, VALUE type, VALUE service_name ) 
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = add_event_forward_entry_to_all_switches(
@@ -159,7 +159,7 @@ delete_forward_entry_from_all_switches( VALUE self, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = delete_event_forward_entry_to_all_switches(
@@ -235,7 +235,7 @@ add_forward_entry_to_switch( VALUE self, VALUE dpid, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = add_switch_event_forward_entry(
@@ -287,7 +287,7 @@ delete_forward_entry_from_switch( VALUE self, VALUE dpid, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = delete_switch_event_forward_entry(
@@ -345,7 +345,7 @@ set_forward_entries_to_switch( VALUE self, VALUE dpid, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = set_switch_event_forward_entries(
@@ -393,7 +393,7 @@ dump_forward_entries_from_switch( VALUE self, VALUE dpid, VALUE type ) {
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = dump_switch_event_forward_entries(
@@ -443,7 +443,7 @@ add_forward_entry_to_switch_manager( VALUE self, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = add_switch_manager_event_forward_entry(
@@ -493,7 +493,7 @@ delete_forward_entry_from_switch_manager( VALUE self, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = delete_switch_manager_event_forward_entry(
@@ -549,7 +549,7 @@ set_forward_entries_to_switch_manager( VALUE self, VALUE type,
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = set_switch_manager_event_forward_entries(
@@ -594,7 +594,7 @@ dump_forward_entries_from_switch_manager( VALUE self, VALUE type ) {
   callback_info *cb = xcalloc( 1, sizeof( callback_info ) );
   cb->self = self;
   cb->block = Qnil;
-  if ( rb_block_given_p() == Qtrue ) {
+  if ( rb_block_given_p() ) {
     cb->block = rb_block_proc();
   }
   bool succ = dump_switch_manager_event_forward_entries(
