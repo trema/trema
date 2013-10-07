@@ -73,6 +73,7 @@ module Trema
             end
             SwitchManager.new( rule, @context.port )
           end
+        switch_manager.no_flow_cleanup = true if $no_flow_cleanup
         switch_manager.run!
       end
 
