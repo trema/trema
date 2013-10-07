@@ -1,4 +1,3 @@
-@wip
 Feature: Ruby methods for dumping switch event forwarding entry
   
   There are two Ruby methods provided for dumping switch event forwarding entry.
