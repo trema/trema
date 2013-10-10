@@ -213,7 +213,7 @@ get_action( const struct ofp_action_header *ah ) {
       VALUE mac_address;
       const struct ofp_action_dl_addr *action_dl_addr = ( const struct ofp_action_dl_addr * ) ah;
 
-      mac_address = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
+      mac_address = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( action_dl_addr->dl_addr ) ) );
       if ( ah->type == OFPAT_SET_DL_SRC ) {
         action = rb_funcall( rb_eval_string( "Trema::SetEthSrcAddr" ), rb_intern( "new" ), 1, mac_address );
       }

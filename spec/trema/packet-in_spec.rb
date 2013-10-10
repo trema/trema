@@ -78,9 +78,9 @@ describe Trema::PacketIn do
           expect( message.data ).to be_instance_of( String )
           expect( message.buffered? ).to be_false
 
-          expect( message.macsa ).to be_instance_of( Trema::Mac )
+          expect( message.macsa ).to be_instance_of( Pio::Mac )
           expect( message.macsa.to_s ).to eq( "00:00:00:00:00:01" )
-          expect( message.macda ).to be_instance_of( Trema::Mac )
+          expect( message.macda ).to be_instance_of( Pio::Mac )
           expect( message.macda.to_s ).to eq( "00:00:00:00:00:02" )
 
           expect( message.eth_type ).to eq( 0x0800 )

@@ -238,7 +238,7 @@ match_dl( VALUE self, uint8_t which ) {
   else {
     dl_addr = match->dl_dst;
   }
-  return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( dl_addr ) ) );
+  return rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( dl_addr ) ) );
 }
 
 
@@ -395,16 +395,16 @@ match_tp_dst( VALUE self ) {
  *   @option options [Number] :in_port
  *     the physical port number to match.
  *
- *   @option options [String,Number,Trema::Mac] :dl_src
+ *   @option options [String,Number,Mac] :dl_src
  *     the source ethernet address to match specified either as 6
  *     pairs of hexadecimal digits delimited by colon or as a
- *     hexadecimal number or as a Trema::Mac object.
+ *     hexadecimal number or as a Mac object.
  *     (eg. "00:11:22:33:44:55" or 0x001122334455 or Mac.new("00:11:22:33:44:55")).
  *
  *   @option options [String,Number] :dl_dst
  *     the destination ethernet address to match specified either as a
  *     6 pairs of hexadecimal digits delimited by colon or as a
- *     hexadecimal number or as a Trema::Mac object.
+ *     hexadecimal number or as a Mac object.
  *     (eg. "00:11:22:33:44:55" or 0x001122334455 or Mac.new("00:11:22:33:44:55")).
  *
  *   @option options [Number] :dl_type
@@ -472,11 +472,11 @@ match_init( int argc, VALUE *argv, VALUE self ) {
       VALUE dl_src = rb_hash_aref( options, ID2SYM( rb_intern( "dl_src" ) ) );
       if ( dl_src != Qnil ) {
         VALUE dl_addr;
-        if ( rb_obj_is_kind_of( dl_src, rb_eval_string( "Trema::Mac" ) ) ) {
+        if ( rb_obj_is_kind_of( dl_src, rb_eval_string( "Pio::Mac" ) ) ) {
           dl_addr = dl_src;
         }
         else {
-          dl_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, dl_src );
+          dl_addr = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, dl_src );
         }
         dl_addr_to_a( dl_addr, match->dl_src );
         match->wildcards &= ( uint32_t ) ~OFPFW_DL_SRC;
@@ -485,11 +485,11 @@ match_init( int argc, VALUE *argv, VALUE self ) {
       VALUE dl_dst = rb_hash_aref( options, ID2SYM( rb_intern( "dl_dst" ) ) );
       if ( dl_dst != Qnil ) {
         VALUE dl_addr;
-        if ( rb_obj_is_kind_of( dl_dst, rb_eval_string( "Trema::Mac" ) ) ) {
+        if ( rb_obj_is_kind_of( dl_dst, rb_eval_string( "Pio::Mac" ) ) ) {
           dl_addr = dl_dst;
         }
         else {
-          dl_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, dl_dst );
+          dl_addr = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, dl_dst );
         }
         dl_addr_to_a( dl_addr, match->dl_dst );
         match->wildcards &= ( uint32_t ) ~OFPFW_DL_DST;

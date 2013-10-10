@@ -79,6 +79,9 @@ Init_trema() {
   rb_define_const( mTrema, "OFPAT_ENQUEUE", INT2NUM( OFPAT_ENQUEUE ) );
   rb_define_const( mTrema, "OFPAT_VENDOR", INT2NUM( OFPAT_VENDOR ) );
 
+  rb_require( "rubygems" );
+  rb_require( "pio" );
+  rb_require( "trema/mac" );
   rb_require( "trema/host" );
   rb_require( "trema/openflow-switch" );
   rb_require( "trema/path" );

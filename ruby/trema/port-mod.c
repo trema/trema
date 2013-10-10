@@ -57,7 +57,7 @@ port_mod_alloc( VALUE kclass ) {
  *   @param [Number] :port_no
  *     an index into datapath's ports list.
  *
- *   @param [String,Number,Trema::Mac] :hw_addr
+ *   @param [String,Number,Mac] :hw_addr
  *     the hardware address of a port.
  *     Unique for each port. Obtained from +OFPT_FEATURES_REPLY+ message.
  *     Can be supplied as a string, number or as a Mac object.
@@ -92,9 +92,9 @@ port_mod_init( int argc, VALUE *argv, VALUE self ) {
       mac = hw_addr;
       if ( rb_obj_is_kind_of( hw_addr, rb_cString ) == Qtrue ||
         rb_obj_is_kind_of( hw_addr, rb_cInteger ) == Qtrue ) {
-        mac = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, hw_addr );
+        mac = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, hw_addr );
       }
-      else if ( rb_obj_is_instance_of( hw_addr, rb_eval_string( "Trema::Mac" ) ) == Qfalse ) {
+      else if ( rb_obj_is_instance_of( hw_addr, rb_eval_string( "Pio::Mac" ) ) == Qfalse ) {
         rb_raise( rb_eArgError, "hw_addr must be a string or an integer or Mac object" );
       }
       ptr = ( uint8_t * ) dl_addr_to_a( mac, haddr );
@@ -159,7 +159,7 @@ port_mod_port_no( VALUE self ) {
 
 
 /*
- * Ethernet address converted and stored as a {Trema::Mac} object.
+ * Ethernet address converted and stored as a {Mac} object.
  *
  * @return [Mac] the value of hw_addr.
  */
@@ -208,6 +208,9 @@ port_mod_advertise( VALUE self ) {
  */
 void
 Init_port_mod() {
+  rb_require( "rubygems" );
+  rb_require( "pio" );
+
   mTrema = rb_eval_string( "Trema" );
   cPortMod = rb_define_class_under( mTrema, "PortMod", rb_cObject );
   rb_define_alloc_func( cPortMod, port_mod_alloc );
