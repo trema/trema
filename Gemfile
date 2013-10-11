@@ -23,7 +23,7 @@ group :development do
   gem "reek", "~> 1.3.3"
   gem "relish", "~> 0.7"
   gem "rspec", "~> 2.14.1"
-  gem "yard", "~> 0.8.7.1"
+  gem "yard", "~> 0.8.7.2"
 end
 
 
