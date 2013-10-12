@@ -269,8 +269,8 @@ file Trema::Executables.ovs_openflowd do
   end
 end
 
-CLEAN.include Trema.vendor_openvswitch
-CLOBBER.include Trema.openvswitch
+CLEAN.include( Trema.vendor_openvswitch ) if FileTest.exists?( Trema.vendor_openvswitch )
+CLOBBER.include( Trema.openvswitch ) if FileTest.exists?( Trema.openvswitch )
 
 
 ################################################################################
