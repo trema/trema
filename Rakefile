@@ -191,8 +191,8 @@ file Trema.openflow_h => Trema.objects do
 end
 directory Trema.objects
 
-CLOBBER.include File.join( Trema.objects, "openflow" )
-CLOBBER.include File.join( Trema.vendor_openflow )
+CLEAN.include( Trema.vendor_openflow ) if FileTest.exists?( Trema.vendor_openflow )
+CLOBBER.include( File.join( Trema.objects, "openflow" ) ) if FileTest.exists?( File.join( Trema.objects, "openflow" ) )
 
 
 ################################################################################
@@ -752,7 +752,7 @@ directory $wireshark_plugins_dir
 
 task :openflow_wireshark_plugin => $wireshark_plugin
 
-CLEAN.include Trema.vendor_openflow_git
+CLEAN.include( Trema.vendor_openflow_git ) if FileTest.exists?( Trema.vendor_openflow_git )
 
 
 ################################################################################
