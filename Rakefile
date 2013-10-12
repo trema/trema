@@ -205,6 +205,24 @@ def phost_src
   File.join Trema.vendor_phost, "src"
 end
 
+def phost_objects
+  FileList[ File.join( phost_src, "*.o" ) ]
+end
+
+def phost_vendor_binary
+  File.join phost_src, "phost"
+end
+
+def phost_cli_vendor_binary
+  File.join phost_src, "cli"
+end
+
+def phost_clean_targets
+  ( phost_objects + [ phost_vendor_binary, phost_cli_vendor_binary ] ).select do | each |
+    FileTest.exists? each
+  end
+end
+
 file Trema::Executables.phost do
   cd phost_src do
     sh "make"
@@ -221,10 +239,8 @@ file Trema::Executables.cli do
   install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
 end
 
-CLEAN.include FileList[ File.join( phost_src, "*.o" ) ]
-CLEAN.include File.join( phost_src, "phost" )
-CLEAN.include File.join( phost_src, "cli" )
-CLOBBER.include Trema.phost
+CLEAN.include phost_clean_targets
+CLOBBER.include( Trema.phost ) if FileTest.exists?( Trema.phost )
 
 
 ################################################################################
