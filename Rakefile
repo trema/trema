@@ -314,8 +314,8 @@ file cbench_command => Trema.openflow_h do
   end
 end
 
-CLEAN.include Trema.oflops
-CLOBBER.include Trema.vendor_oflops
+CLEAN.include( Trema.oflops ) if FileTest.exists?( Trema.oflops )
+CLOBBER.include( Trema.vendor_oflops ) if FileTest.exists?( Trema.vendor_oflops )
 
 
 ################################################################################
