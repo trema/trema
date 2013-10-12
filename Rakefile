@@ -191,7 +191,7 @@ file Trema.openflow_h => Trema.objects do
 end
 directory Trema.objects
 
-CLEAN.include( Trema.vendor_openflow ) if FileTest.exists?( Trema.vendor_openflow )
+CLOBBER.include( Trema.vendor_openflow ) if FileTest.exists?( Trema.vendor_openflow )
 CLOBBER.include( File.join( Trema.objects, "openflow" ) ) if FileTest.exists?( File.join( Trema.objects, "openflow" ) )
 
 
