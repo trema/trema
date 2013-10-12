@@ -331,8 +331,8 @@ file Trema.libcmockery_a do
   end
 end
 
-CLEAN.include Trema.vendor_cmockery
-CLOBBER.include Trema.cmockery
+CLEAN.include( Trema.vendor_cmockery ) if FileTest.exists?( Trema.vendor_cmockery )
+CLOBBER.include( Trema.cmockery ) if FileTest.exists?( Trema.cmockery )
 
 
 ################################################################################
