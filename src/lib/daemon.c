@@ -224,7 +224,12 @@ unlink_pid( const char *directory, const char *name ) {
 
   int ret = unlink( path );
   if ( ret < 0 ) {
-    die( "Could not remove a PID file: %s", path );
+    if ( errno == ENOENT ) {
+      warn( "PID file %s does not exist", path );
+    }
+    else {
+      die( "Could not remove a PID file: %s", path );
+    }
   }
 }
 
