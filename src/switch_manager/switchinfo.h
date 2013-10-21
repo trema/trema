@@ -28,8 +28,10 @@
 #define SWITCH_STATE_CONNECTED           0
 #define SWITCH_STATE_WAIT_HELLO          1
 #define SWITCH_STATE_WAIT_FEATURES_REPLY 2
-#define SWITCH_STATE_COMPLETED           3
-#define SWITCH_STATE_DISCONNECTED        4
+#define SWITCH_STATE_WAIT_REGISTRATION   3
+#define SWITCH_STATE_COMPLETED           4
+#define SWITCH_STATE_DISCONNECTED        5
+#define SWITCH_STATE_CONNECTION_FAILED   6
 
 
 struct switch_info {
@@ -63,6 +65,8 @@ struct switch_info {
   bool running_timer;
 
   uint32_t echo_request_xid;
+
+  int retry_count;
 };
 
 

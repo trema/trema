@@ -57,8 +57,14 @@ struct switch_info switch_info;
 
 static const time_t COOKIE_TABLE_AGING_INTERVAL = 3600; // sec.
 static const time_t ECHO_REQUEST_INTERVAL = 60; // sec.
-static const time_t ECHO_REPLY_TIMEOUT = 2; // ses.
+static const time_t ECHO_REPLY_TIMEOUT = 2; // sec.
 static const time_t WARNING_ECHO_RTT = 500; // msec. The value must is less than 1000.
+static const time_t REGISTRATION_RETRY = 1; // sec.
+static const int REGISTRATION_RETRY_COUNT = 1;
+static const time_t REGISTRATION_TIMEOUT = 1; // sec.
+static const time_t UNREGISTRATION_RETRY = 1; // sec.
+static const int UNREGISTRATION_RETRY_COUNT = 1;
+static const time_t UNREGISTRATION_TIMEOUT = 1; // sec.
 
 
 static bool age_cookie_table_enabled = false;
@@ -308,6 +314,7 @@ static void
 echo_reply_timeout( void *user_data ) {
   UNUSED( user_data );
 
+  switch_info.running_timer = false;
   error( "Echo request timeout ( datapath id %#" PRIx64 ").", switch_info.datapath_id );
   switch_event_disconnected( &switch_info );
 }
@@ -368,6 +375,16 @@ echo_request_interval( void *user_data ) {
 
 
 static void
+registration_timeout( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  sw_info->running_timer = false;
+  error( "Registration timeout ( datapath id %#" PRIx64 ").", sw_info->datapath_id );
+  switch_event_disconnected( sw_info );
+}
+
+
+static void
 confirm_self_dpid_is_registerd( uint64_t* dpids, size_t n_dpids, void *user_data );
 
 
@@ -381,7 +398,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
   case SWITCH_STATE_WAIT_FEATURES_REPLY:
 
     sw_info->datapath_id = *dpid;
-    sw_info->state = SWITCH_STATE_COMPLETED;
+    sw_info->state = SWITCH_STATE_WAIT_REGISTRATION;
 
     // cancel to features_reply_wait-timeout timer
     switch_unset_timeout( switch_event_timeout_features_reply, NULL );
@@ -440,12 +457,15 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     init_event_forward_interface();
     // Check switch_manager registration
     debug( "Checking switch manager's switch list." );
+    sw_info->retry_count = REGISTRATION_RETRY_COUNT;
+    switch_set_timeout( REGISTRATION_TIMEOUT, registration_timeout, sw_info );
     if ( !send_efi_switch_list_request( confirm_self_dpid_is_registerd, sw_info ) ) {
       error( "Failed to send switch list request to switch manager." );
       return -1;
     }
     break;
 
+  case SWITCH_STATE_WAIT_REGISTRATION:
   case SWITCH_STATE_COMPLETED:
     // NOP
     break;
@@ -462,47 +482,104 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
 
 
 static void
-notify_state_to_controllers( struct switch_info *sw_info );
+registration_retry( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+  if ( sw_info->retry_count == 0 ) {
+    switch_event_disconnected( sw_info );
+    return;
+  }
+  sw_info->retry_count--;
+  switch_info.running_timer = false;
+  debug( "Checking switch manager's switch list." );
+  switch_set_timeout( REGISTRATION_TIMEOUT, registration_timeout, sw_info );
+  if ( !send_efi_switch_list_request( confirm_self_dpid_is_registerd, sw_info ) ) {
+    error( "Failed to send switch list request to switch manager." );
+    switch_event_disconnected( sw_info );
+  }
+}
 
 
 static void
 confirm_self_dpid_is_registerd( uint64_t* dpids, size_t n_dpids, void *user_data ) {
   struct switch_info *sw_info = user_data;
 
+  switch_unset_timeout( registration_timeout, sw_info );
+
   debug( "Received switch manager's switch list." );
+  bool found = false;
   for ( size_t i = 0 ; i < n_dpids ; ++i ) {
     if ( sw_info->datapath_id == dpids[ i ] ) {
       // self dpid registered
       debug( "Self dpid found" );
-      return notify_state_to_controllers( sw_info );
+      found = true;
+      break;
     }
   }
+  if ( found ) {
+    sw_info->state = SWITCH_STATE_COMPLETED;
 
-  debug( "Self dpid not found. Retrying..." );
-  if ( !send_efi_switch_list_request( confirm_self_dpid_is_registerd, sw_info ) ){
-    error( "Failed to send switch list request to switch manager on retry." );
-  }
-}
-
-
-static void
-notify_state_to_controllers( struct switch_info *sw_info ) {
     // notify state and datapath_id to controllers
     service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );
     debug( "send ready state" );
 
     add_periodic_event_callback( ECHO_REQUEST_INTERVAL, echo_request_interval, sw_info );
- }
+  }
+  else {
+    debug( "Self dpid not found. Retrying..." );
+    switch_set_timeout( REGISTRATION_RETRY, registration_retry, sw_info );
+  }
+}
+
+
+static void
+stop_switch( struct switch_info *sw_info ) {
+  flush_messenger();
+
+  // free service name list
+  iterate_list( sw_info->vendor_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->vendor_service_name_list );
+  sw_info->vendor_service_name_list = NULL;
+  iterate_list( sw_info->packetin_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->packetin_service_name_list );
+  sw_info->packetin_service_name_list = NULL;
+  iterate_list( sw_info->portstatus_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->portstatus_service_name_list );
+  sw_info->portstatus_service_name_list = NULL;
+  iterate_list( sw_info->state_service_name_list, xfree_data, NULL );
+  delete_list( sw_info->state_service_name_list );
+  sw_info->state_service_name_list = NULL;
+
+  stop_trema();
+}
+
+
+static void
+unregistration_timeout( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  sw_info->running_timer = false;
+  error( "Unregistration timeout ( datapath id %#" PRIx64 ").", sw_info->datapath_id );
+  stop_switch( sw_info );
+}
+
+
+static void
+confirm_self_dpid_is_unregisterd( uint64_t* dpids, size_t n_dpids, void *user_data );
 
 
 int
 switch_event_disconnected( struct switch_info *sw_info ) {
   int old_state = sw_info->state;
 
-  sw_info->state = SWITCH_STATE_DISCONNECTED;
+  if ( sw_info->state == SWITCH_STATE_COMPLETED) {
+    sw_info->state = SWITCH_STATE_DISCONNECTED;
+  }
+  else {
+    sw_info->state = SWITCH_STATE_CONNECTION_FAILED;
+  }
 
   if ( old_state == SWITCH_STATE_COMPLETED ) {
-    delete_timer_event( echo_request_interval, sw_info );
+    switch_unset_timeout( echo_reply_timeout, NULL );
   }
 
   if ( sw_info->fragment_buf != NULL ) {
@@ -529,32 +606,77 @@ switch_event_disconnected( struct switch_info *sw_info ) {
     sw_info->secure_channel_fd = -1;
   }
 
-  if ( old_state != SWITCH_STATE_COMPLETED ) {
-    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_FAILD_TO_CONNECT );
+  uint8_t state = MESSENGER_OPENFLOW_DISCONNECTED;
+  if ( sw_info->state == SWITCH_STATE_CONNECTION_FAILED ) {
+    state = MESSENGER_OPENFLOW_FAILD_TO_CONNECT;
+  }
+  debug( "Notify switch_ready to switch manager." );
+  char switch_manager[] =  SWITCH_MANAGER;
+  list_element switch_manager_only_list;
+  switch_manager_only_list.next = NULL;
+  switch_manager_only_list.data = switch_manager;
+  service_send_to_application( &switch_manager_only_list, state, &sw_info->datapath_id, NULL );
+
+  // Check switch_manager registration
+  debug( "Checking switch manager's switch list." );
+  switch_set_timeout( UNREGISTRATION_TIMEOUT, unregistration_timeout, sw_info );
+  sw_info->retry_count = UNREGISTRATION_RETRY_COUNT;
+  if ( !send_efi_switch_list_request( confirm_self_dpid_is_unregisterd, sw_info ) ) {
+    error( "Failed to send switch list request to switch manager." );
+    stop_switch( sw_info );
+  }
+
+  return 0;
+}
+
+
+static void
+unregistration_retry( void *user_data ) {
+  struct switch_info *sw_info = user_data;
+  if ( sw_info->retry_count == 0 ) {
+    switch_event_disconnected( sw_info );
+    return;
+  }
+  sw_info->retry_count--;
+  switch_info.running_timer = false;
+  debug( "Checking switch manager's switch list." );
+  switch_set_timeout( UNREGISTRATION_TIMEOUT, unregistration_timeout, sw_info );
+  if ( !send_efi_switch_list_request( confirm_self_dpid_is_unregisterd, sw_info ) ) {
+    error( "Failed to send switch list request to switch manager." );
+    switch_event_disconnected( sw_info );
+  }
+}
+
+
+static void
+confirm_self_dpid_is_unregisterd( uint64_t* dpids, size_t n_dpids, void *user_data ) {
+  struct switch_info *sw_info = user_data;
+
+  switch_unset_timeout( unregistration_timeout, sw_info );
+
+  debug( "Received switch manager's switch list." );
+  bool found = false;
+  for ( size_t i = 0 ; i < n_dpids ; ++i ) {
+    if ( sw_info->datapath_id == dpids[ i ] ) {
+      // self dpid registered
+      debug( "Self dpid found" );
+      found = true;
+      break;
+    }
+  }
+  if ( found ) {
+    debug( "Self dpid not found. Retrying..." );
+    switch_set_timeout( UNREGISTRATION_RETRY, unregistration_retry, sw_info );
   }
   else {
     // send secure channle disconnect state to application
-    service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_DISCONNECTED );
+    uint8_t state = MESSENGER_OPENFLOW_DISCONNECTED;
+    if ( sw_info->state == SWITCH_STATE_CONNECTION_FAILED ) {
+      state = MESSENGER_OPENFLOW_FAILD_TO_CONNECT;
+    }
+    service_send_state( sw_info, &sw_info->datapath_id, state );
+    stop_switch( sw_info );
   }
-  flush_messenger();
-
-  // free service name list
-  iterate_list( sw_info->vendor_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->vendor_service_name_list );
-  sw_info->vendor_service_name_list = NULL;
-  iterate_list( sw_info->packetin_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->packetin_service_name_list );
-  sw_info->packetin_service_name_list = NULL;
-  iterate_list( sw_info->portstatus_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->portstatus_service_name_list );
-  sw_info->portstatus_service_name_list = NULL;
-  iterate_list( sw_info->state_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->state_service_name_list );
-  sw_info->state_service_name_list = NULL;
-
-  stop_trema();
-
-  return 0;
 }
 
 
