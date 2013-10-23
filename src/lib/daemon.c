@@ -213,6 +213,7 @@ write_pid( const char *directory, const char *name ) {
   if ( ret == -1 ) {
     die( "Could not write a PID file: %s", path );
   }
+  debug( "Write pid file ( file = %s, pid = %d )", path, getpid() );
 }
 
 
@@ -234,6 +235,7 @@ unlink_pid( const char *directory, const char *name ) {
       die( "Could not remove a PID file: %s", path );
     }
   }
+  debug( "Unlink pid file ( file = %s, pid = %d )", path, getpid() );
 }
 
 
@@ -404,6 +406,7 @@ rename_pid( const char *directory, const char *old, const char *new ) {
   if ( ret < 0 ) {
     die( "Could not rename a PID file from %s to %s.", old_path, new_path );
   }
+  debug( "Rename pid file ( old file = %s, new file = %s, pid = %d )", old_path, new_path, getpid() );
 }
 
 

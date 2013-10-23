@@ -99,11 +99,11 @@ pid_t mock_read_pid( const char *directory, const char *name );
 #define kill mock_kill
 int mock_kill( pid_t pid, int sig );
 
-#ifdef sleep
-#undef sleep
+#ifdef clock_nanosleep
+#undef clock_nanosleep
 #endif
-#define sleep mock_sleep
-unsigned int mock_sleep( unsigned int seconds );
+#define clock_nanosleep mock_clock_nanosleep
+unsigned int mock_clock_nanosleep( clockid_t clock_id, int flags, const struct timespec *request, struct timespec *remain);
 
 #ifdef init_event_handler
 #undef init_event_handler
@@ -741,8 +741,9 @@ terminate_trema_process( pid_t pid ) {
 
   int try = 0;
   const int max_try = 10;
+  struct timespec tv = { 0, 500000000 };
   while ( kill( pid, 0 ) == 0 && ++try <= max_try ) {
-    sleep( 1 );
+    clock_nanosleep( CLOCK_MONOTONIC, 0, &tv, NULL );
   }
   if ( try > max_try ) {
     error( "Failed to terminate %d.", pid );

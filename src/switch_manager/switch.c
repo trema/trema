@@ -410,7 +410,7 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     // checking duplicate service
     pid_t pid = get_pid_by_trema_name( new_service_name );
     if ( pid > 0 ) {
-      // duplicated
+      debug( "duplicated datapath-id %#" PRIx64, sw_info->datapath_id );
       if ( !terminate_trema_process( pid ) ) {
         return -1;
       }
@@ -539,12 +539,15 @@ confirm_self_dpid_is_registered( uint64_t* dpids, size_t n_dpids, void *user_dat
 
 static void
 stop_switch( struct switch_info *sw_info ) {
+  if ( sw_info->secure_channel_fd >= 0 ) {
+    close( sw_info->secure_channel_fd );
+    sw_info->secure_channel_fd = -1;
+  }
   uint8_t state = MESSENGER_OPENFLOW_DISCONNECTED;
   if ( sw_info->state == SWITCH_STATE_CONNECTION_FAILED ) {
     state = MESSENGER_OPENFLOW_FAILD_TO_CONNECT;
   }
   service_send_state( sw_info, &sw_info->datapath_id, state );
-
   flush_messenger();
 
   // free service name list
@@ -615,9 +618,6 @@ switch_event_disconnected( struct switch_info *sw_info ) {
     set_readable( switch_info.secure_channel_fd, false );
     set_writable( switch_info.secure_channel_fd, false );
     delete_fd_handler( switch_info.secure_channel_fd );
-
-    close( sw_info->secure_channel_fd );
-    sw_info->secure_channel_fd = -1;
   }
 
   uint8_t state = MESSENGER_OPENFLOW_DISCONNECTED;
