@@ -378,7 +378,7 @@ static void
 registration_timeout( void *user_data ) {
   struct switch_info *sw_info = user_data;
 
-  switch_info.running_timer = false;
+  sw_info->running_timer = false;
 
   error( "Registration timeout ( datapath id %#" PRIx64 " ).", sw_info->datapath_id );
   switch_event_disconnected( sw_info );
