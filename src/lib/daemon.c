@@ -150,6 +150,9 @@ extern void mock_warn( const char *format, ... );
 
 #endif // UNIT_TESTING
 
+static const char SWITCH_DAEMON[] = "switch.";
+static const char SWITCH_DAEMON_EXE_NAME[] = "switch";
+
 
 void
 daemonize( const char *home ) {
@@ -297,6 +300,11 @@ read_pid( const char *directory, const char *name ) {
 
   char *exe_name = basename( exe_path );
   if ( strcmp( name, exe_name ) == 0 ) {
+    return pid;
+  }
+
+  if ( strncmp( name, SWITCH_DAEMON, strlen( SWITCH_DAEMON ) ) == 0 &&
+       strcmp( exe_name, SWITCH_DAEMON_EXE_NAME ) == 0 ) {
     return pid;
   }
 
