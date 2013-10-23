@@ -1198,7 +1198,7 @@ _clear_send_queue( const char *service_name ) {
   send_queue *sq = lookup_hash_entry( send_queues, service_name );
 
   if ( NULL == sq ) {
-    error( "Send queue is already deleted or not created yet ( service_name = %s ).", service_name );
+    warn( "Send queue is already deleted or not created yet ( service_name = %s ).", service_name );
     return false;
   }
   if ( NULL == sq->buffer ) {
