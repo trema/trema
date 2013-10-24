@@ -179,14 +179,6 @@ mock_basename( char *path ) {
 }
 
 
-int
-mock_rename( char *oldpath, char *newpath ) {
-  check_expected( oldpath );
-  check_expected( newpath );
-  return ( int ) mock();
-}
-
-
 void
 mock_warn( const char *format, ... ) {
   UNUSED( format );
@@ -256,6 +248,9 @@ test_daemonize_fail_if_setsid_fail() {
 
 static void
 test_write_pid_succeed() {
+  extern int locked_fd;
+
+  locked_fd = -1;
   will_return( mock_open, 1111 );
   will_return( mock_lockf, 0 );
 
@@ -282,6 +277,9 @@ test_write_pid_succeed() {
 
 static void
 test_write_pid_fail_if_open_fail() {
+  extern int locked_fd;
+
+  locked_fd = -1;
   will_return( mock_open, -1 );
 
   // Test if correctly opened.
@@ -298,6 +296,9 @@ test_write_pid_fail_if_open_fail() {
 
 static void
 test_write_pid_fail_if_lockf_fail() {
+  extern int locked_fd;
+
+  locked_fd = -1;
   will_return( mock_open, 1111 );
   will_return( mock_lockf, -1 );
 
@@ -660,39 +661,39 @@ test_read_pid_fail_if_readlink_fail() {
 
 static void
 test_rename_pid_successed() {
-  // Test if correctly unlink.
-  expect_string( mock_unlink, pathname, "/home/yasuhito/trema/tmp/hello.pid" );
-  errno = ENOENT;
-  will_return( mock_unlink, -1 );
-  // Test if correctly rename.
-  expect_string( mock_rename, oldpath, "/home/yasuhito/trema/tmp/bye.pid" );
-  expect_string( mock_rename, newpath, "/home/yasuhito/trema/tmp/hello.pid" );
-  will_return( mock_rename, 0 );
+  extern int locked_fd;
+
+  locked_fd = 2222;
+  will_return( mock_open, 1111 );
+  will_return( mock_lockf, 0 );
+
+  // Test if correctly opened.
+  char new_path[] = "/home/yasuhito/trema/tmp/hello.pid";
+  char buffer[] = "1234\n";
+  expect_string( mock_open, pathname, new_path );
+  expect_value( mock_open, flags, ( O_RDWR | O_CREAT ) );
+  expect_value( mock_open, mode, 0600 );
+
+  // Test if correctly locked.
+  expect_value( mock_lockf, fd, 1111 );
+  expect_value( mock_lockf, cmd, F_TLOCK );
+  expect_value( mock_lockf, len, 0 );
+
+  // Test if correctly written.
+  expect_value( mock_write, fd, 1111 );
+  expect_string( mock_write, buf, buffer );
+  expect_value( mock_write, count, strlen( buffer ) );
+
+  expect_value( mock_close, fd, 2222 );
+
+  will_return( mock_unlink, 0 );
+
+  // Test if correctly unlinked.
+  char old_path[] = "/home/yasuhito/trema/tmp/bye.pid";
+  expect_string( mock_unlink, pathname, old_path );
 
   // Go
   rename_pid( "/home/yasuhito/trema/tmp", "bye", "hello" );
-}
-
-
-static void
-test_rename_pid_fail_if_rename_fail() {
-  // Test if correctly unlink.
-  expect_string( mock_unlink, pathname, "/home/yasuhito/trema/tmp/hello.pid" );
-  errno = ENOENT;
-  will_return( mock_unlink, -1 );
-  // Test if correctly rename.
-  expect_string( mock_rename, oldpath, "/home/yasuhito/trema/tmp/bye.pid" );
-  expect_string( mock_rename, newpath, "/home/yasuhito/trema/tmp/hello.pid" );
-  errno = ENOENT;
-  will_return( mock_rename, -1 );
-
-  expect_string( mock_die, message, "Could not rename a PID file from "
-                                    "/home/yasuhito/trema/tmp/bye.pid"
-                                    " to "
-                                    "/home/yasuhito/trema/tmp/hello.pid." );
-
-  // Go
-  expect_assert_failure( rename_pid( "/home/yasuhito/trema/tmp", "bye", "hello" ) );
 }
 
 
@@ -731,7 +732,6 @@ main() {
 
     // rename_pid() tests.
     unit_test( test_rename_pid_successed ),
-    unit_test( test_rename_pid_fail_if_rename_fail ),
 
   };
   return run_tests( tests );
