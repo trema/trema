@@ -25,6 +25,9 @@
 #include <string.h>
 #include <syslog.h>
 #include <time.h>
+#ifdef DEBUG
+#include <sys/time.h>
+#endif
 #include "bool.h"
 #include "log.h"
 #include "trema_wrapper.h"
@@ -130,7 +133,13 @@ static const size_t max_message_length = 1024;
 
 static void
 log_file( int priority, const char *format, va_list ap ) {
+#ifdef DEBUG
+  struct timeval tv;
+  gettimeofday( &tv, NULL );
+  time_t tm = tv.tv_sec;
+#else
   time_t tm = time( NULL );
+#endif
   char now[ 26 ];
   asctime_r( localtime( &tm ), now );
   now[ 24 ] = '\0'; // chomp
@@ -143,7 +152,11 @@ log_file( int priority, const char *format, va_list ap ) {
   vsnprintf( message, max_message_length, format, new_ap );
   va_end( new_ap );
 
+#ifdef DEBUG
+  trema_fprintf( fd, "%s %03dms [%s] %s\n", now, tv.tv_usec / 1000, priority_name, message );
+#else
   trema_fprintf( fd, "%s [%s] %s\n", now, priority_name, message );
+#endif
   fflush( fd );
 }
 
@@ -210,6 +223,9 @@ get_log_directory() {
   return log_directory;
 }
 
+#ifdef DEBUG
+pid_t trema_log_pid = 0;
+#endif
 
 static FILE *
 open_log_file( bool append ) {
@@ -217,7 +233,14 @@ open_log_file( bool append ) {
   assert( strlen( get_ident_string() ) > 0 );
 
   char pathname[ PATH_MAX ];
+#ifdef DEBUG
+  if ( trema_log_pid == 0 ) {
+    trema_log_pid = getpid();
+  }
+  sprintf( pathname, "%s/%s.%d.log", get_log_directory(), get_ident_string(), trema_log_pid );
+#else
   sprintf( pathname, "%s/%s.log", get_log_directory(), get_ident_string() );
+#endif
   FILE *log = fopen( pathname, append ? "a" : "w" );
 
   if ( log == NULL ) {
@@ -369,11 +392,19 @@ rename_log( const char *new_ident ) {
 
   if ( output & LOGGING_TYPE_FILE ) {
     char old_path[ PATH_MAX ];
+#ifdef DEBUG
+    snprintf( old_path, PATH_MAX, "%s/%s.%d.log", get_log_directory(), get_ident_string(), trema_log_pid );
+#else
     snprintf( old_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
+#endif
     old_path[ PATH_MAX - 1 ] = '\0';
     char new_path[ PATH_MAX ];
     set_ident_string( new_ident );
+#ifdef DEBUG
+    snprintf( new_path, PATH_MAX, "%s/%s.%d.log", get_log_directory(), get_ident_string(), trema_log_pid );
+#else
     snprintf( new_path, PATH_MAX, "%s/%s.log", get_log_directory(), get_ident_string() );
+#endif
     new_path[ PATH_MAX - 1 ] = '\0';
 
     unlink( new_path );

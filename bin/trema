@@ -60,6 +60,9 @@ class BinTrema
       c.desc "Specifies emulated network configuration"
       c.flag [ :c, :conf ]
 
+      c.desc "Disables initial flow cleanup for a connected switch"
+      c.switch [ :r, :no_flow_cleanup ], :negatable => false
+
       c.action do | global_options, options, args |
         trema_run options
       end

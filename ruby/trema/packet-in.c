@@ -29,7 +29,7 @@ VALUE cPacketIn;
 #define PACKET_IN_RETURN_MAC( packet_member )                                          \
   {                                                                                    \
     VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
-    return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );   \
+    return rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, ret );   \
   }
 
 #define PACKET_IN_RETURN_IP( packet_member )                                        \
@@ -209,7 +209,7 @@ packet_in_reason( VALUE self ) {
 /*
  * The source MAC address.
  *
- * @return [Trema::Mac] the value of source MAC address as a Trema::MAC object.
+ * @return [Mac] the value of source MAC address as a Mac object.
  */
 static VALUE
 packet_in_macsa( VALUE self ) {
@@ -220,7 +220,7 @@ packet_in_macsa( VALUE self ) {
 /*
  * The destination MAC address.
  *
- * @return [Trema::Mac] the value of destination MAC address as a
+ * @return [Mac] the value of destination MAC address as a
  *   Trema::MAC object.
  */
 static VALUE
@@ -373,8 +373,8 @@ packet_in_arp_oper( VALUE self ) {
 /*
  * The ARP source hardware address of a packet.
  *
- * @return [Trema::Mac, nil]
- *   the value of the ARP source hardware address as a Trema::Mac object or nil
+ * @return [Mac, nil]
+ *   the value of the ARP source hardware address as a Mac object or nil
  *   if packet not an ARP.
  */
 static VALUE
@@ -409,8 +409,8 @@ packet_in_arp_spa( VALUE self ) {
 /*
  * The ARP target hardware address of a packet.
  *
- * @return [Trema::Mac]
- *   the value of ARP target hardware address as a Trema::Mac object or nil if
+ * @return [Mac]
+ *   the value of ARP target hardware address as a Mac object or nil if
  *   packet is not an ARP.
  */
 static VALUE
@@ -504,8 +504,8 @@ packet_in_rarp_oper( VALUE self ) {
 /*
  * The RARP source hardware address of a packet.
  *
- * @return [Trema::Mac, nil]
- *   the value of the RARP source hardware address as a Trema::Mac object or nil
+ * @return [Mac, nil]
+ *   the value of the RARP source hardware address as a Mac object or nil
  *   if packet not an RARP.
  */
 static VALUE
@@ -540,8 +540,8 @@ packet_in_rarp_spa( VALUE self ) {
 /*
  * The RARP target hardware address of a packet.
  *
- * @return [Trema::Mac]
- *   the value of RARP target hardware address as a Trema::Mac object or nil if
+ * @return [Mac]
+ *   the value of RARP target hardware address as a Mac object or nil if
  *   packet is not an RARP.
  */
 static VALUE
@@ -1230,7 +1230,7 @@ void
 Init_packet_in() {
   rb_require( "rubygems" );
   rb_require( "pio" );
-  rb_require( "trema/mac" );
+
   mTrema = rb_eval_string( "Trema" );
   cPacketIn = rb_define_class_under( mTrema, "PacketIn", rb_cObject );
   rb_define_alloc_func( cPacketIn, packet_in_alloc );

@@ -301,6 +301,9 @@ port_compare( VALUE self, VALUE other ) {
  */
 void
 Init_port() {
+  rb_require( "rubygems" );
+  rb_require( "pio" );
+
   mTrema = rb_eval_string( "Trema" );
   cPort = rb_define_class_under( mTrema, "Port", rb_cObject );
 
@@ -354,7 +357,7 @@ VALUE
 port_from( const struct ofp_phy_port *phy_port ) {
   VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "number" ) ), UINT2NUM( phy_port->port_no ) );
-  VALUE hw_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( phy_port->hw_addr ) ) );
+  VALUE hw_addr = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( phy_port->hw_addr ) ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "hw_addr" ) ), hw_addr );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "name" ) ), rb_str_new2( phy_port->name ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "config" ) ), UINT2NUM( phy_port->config ) );

@@ -21,20 +21,15 @@ require "trema"
 
 
 [ SetEthSrcAddr, SetEthDstAddr ].each do | klass |
-  describe klass, "#new(mac_address)", :type => "actions" do
+  describe klass, ".new", :type => "actions" do
     subject { klass.new( mac_address ) }
 
 
-    context "with mac_address (52:54:00:a8:ad:8c)" do
-      let( :mac_address ) { "52:54:00:a8:ad:8c" }
-
-      its( "mac_address.to_s" ) { should eq( "52:54:00:a8:ad:8c" ) }
-      its( :to_s ) { should eq( "#{ klass.to_s }: mac_address=52:54:00:a8:ad:8c" ) }
-    end
-
-
-    context "with mac_address (11:22:33:44:55:66)" do
+    context %{with "11:22:33:44:55:66"} do
       let( :mac_address ) { "11:22:33:44:55:66" }
+
+      its( :mac_address ) { should eq "11:22:33:44:55:66" }
+      its( :to_s ) { should eq "#{ klass.to_s }: mac_address=11:22:33:44:55:66" }
 
       context "when set as FlowMod's action", :sudo => true do
         it "should insert a new flow with action (mod_dl_{src,dst}:11:22:33:44:55:66)" do
@@ -56,39 +51,6 @@ require "trema"
         end
       end
     end
-
-
-    context %q{with mac_address (Mac.new("52:54:00:a8:ad:8c"))} do
-      let( :mac_address ) { Mac.new("52:54:00:a8:ad:8c") }
-
-      its( "mac_address.to_s" ) { should eq( "52:54:00:a8:ad:8c" ) }
-      its( :to_s ) { should eq( "#{ klass.to_s }: mac_address=52:54:00:a8:ad:8c" ) }
-    end
-
-
-    context "with mac_address (0x525400a8ad8c)" do
-      let( :mac_address ) { 0x525400a8ad8c }
-
-      its( "mac_address.to_s" ) { should eq( "52:54:00:a8:ad:8c" ) }
-      its( :to_s ) { should eq( "#{ klass.to_s }: mac_address=52:54:00:a8:ad:8c" ) }
-    end
-
-
-    context %q{with invalid mac_address ("INVALID MAC STRING")} do
-      let( :mac_address ) { "INVALID MAC STRING" }
-
-      it { expect { subject }.to raise_error( ArgumentError ) }
-    end
-
-
-    context "with invalid mac_address ([1, 2, 3])" do
-      let( :mac_address ) { [ 1, 2, 3 ] }
-
-      it { expect { subject }.to raise_error( TypeError ) }
-    end
-
-
-    it_validates "option is within range", :mac_address, 0..0xffffffffffff
   end
 end
 

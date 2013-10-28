@@ -34,6 +34,9 @@ module Trema
       if options[ :tremashark ]
         $use_tremashark = true
       end
+      if options[ :no_flow_cleanup ]
+        $no_flow_cleanup = true
+      end
 
       need_cleanup = ( not running? )
 

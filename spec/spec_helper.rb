@@ -160,7 +160,7 @@ class Network
   end
 
 
-  def wait_until_all_pid_files_are_deleted timeout = 10
+  def wait_until_all_pid_files_are_deleted timeout = 12
     elapsed = 0
     loop do
       raise "Failed to clean up remaining processes." if elapsed > timeout

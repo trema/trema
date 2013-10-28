@@ -25,20 +25,19 @@ module Trema
   #
   class SetEthSrcAddr < SetEthAddr
     #
-    # Creates an action to modify the source Ethernet address of a packet.
+    # Creates an action to modify the source Ethernet address of a
+    # packet.
     #
     # @overload initialize(mac_address)
     #
     # @example
     #   SetEthSrcAddr.new("11:22:33:44:55:66")
     #   SetEthSrcAddr.new(0x112233445566)
-    #   SetEthSrcAddr.new(mac)
+    #   SetEthSrcAddr.new(Mac.new("11:22:33:44:55:66"))
+    #   SetEthSrcAddr.new(Mac.new(0x112233445566))
     #
-    # @param [String,Integer,Mac] mac_address
+    # @param mac_address [#to_str, #to_int]
     #   the Ethernet address to create this action with.
-    #
-    # @raise [ArgumentError] if invalid format is detected.
-    # @raise [TypeError] if supplied argument is not a String or Integer or Mac.
     #
   end
 

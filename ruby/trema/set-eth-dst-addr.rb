@@ -32,13 +32,11 @@ module Trema
     # @example
     #   SetEthDstAddr.new("11:22:33:44:55:66")
     #   SetEthDstAddr.new(0x112233445566)
-    #   SetEthDstAddr.new(mac)
+    #   SetEthDstAddr.new(Mac.new("11:22:33:44:55:66"))
+    #   SetEthDstAddr.new(Mac.new(0x112233445566))
     #
-    # @param [String,Integer,Mac] mac_address
+    # @param mac_address [#to_str, #to_int]
     #   the Ethernet address to create this action with.
-    #
-    # @raise [ArgumentError] if invalid format is detected.
-    # @raise [TypeError] if supplied argument is not a String or Integer or Mac.
     #
   end
 

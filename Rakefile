@@ -105,7 +105,7 @@ end
 
 desc "Build Trema Ruby library."
 task "rubylib" => "libtrema:static"
-PaperHouse::RubyLibraryTask.new "rubylib" do | task |
+PaperHouse::RubyExtensionTask.new "rubylib" do | task |
   task.library_name = "trema"
   task.target_directory = Trema.ruby
   task.sources = "#{ Trema.ruby }/trema/*.c"
@@ -191,8 +191,8 @@ file Trema.openflow_h => Trema.objects do
 end
 directory Trema.objects
 
-CLOBBER.include File.join( Trema.objects, "openflow" )
-CLOBBER.include File.join( Trema.vendor_openflow )
+CLOBBER.include( Trema.vendor_openflow ) if FileTest.exists?( Trema.vendor_openflow )
+CLOBBER.include( File.join( Trema.objects, "openflow" ) ) if FileTest.exists?( File.join( Trema.objects, "openflow" ) )
 
 
 ################################################################################
@@ -203,6 +203,24 @@ task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
 
 def phost_src
   File.join Trema.vendor_phost, "src"
+end
+
+def phost_objects
+  FileList[ File.join( phost_src, "*.o" ) ]
+end
+
+def phost_vendor_binary
+  File.join phost_src, "phost"
+end
+
+def phost_cli_vendor_binary
+  File.join phost_src, "cli"
+end
+
+def phost_clean_targets
+  ( phost_objects + [ phost_vendor_binary, phost_cli_vendor_binary ] ).select do | each |
+    FileTest.exists? each
+  end
 end
 
 file Trema::Executables.phost do
@@ -221,10 +239,8 @@ file Trema::Executables.cli do
   install File.join( phost_src, "cli" ), Trema::Executables.cli, :mode => 0755
 end
 
-CLEAN.include FileList[ File.join( phost_src, "*.o" ) ]
-CLEAN.include File.join( phost_src, "phost" )
-CLEAN.include File.join( phost_src, "cli" )
-CLOBBER.include Trema.phost
+CLEAN.include phost_clean_targets
+CLOBBER.include( Trema.phost ) if FileTest.exists?( Trema.phost )
 
 
 ################################################################################
@@ -253,8 +269,8 @@ file Trema::Executables.ovs_openflowd do
   end
 end
 
-CLEAN.include Trema.vendor_openvswitch
-CLOBBER.include Trema.openvswitch
+CLEAN.include( Trema.vendor_openvswitch ) if FileTest.exists?( Trema.vendor_openvswitch )
+CLOBBER.include( Trema.openvswitch ) if FileTest.exists?( Trema.openvswitch )
 
 
 ################################################################################
@@ -298,8 +314,8 @@ file cbench_command => Trema.openflow_h do
   end
 end
 
-CLEAN.include Trema.oflops
-CLOBBER.include Trema.vendor_oflops
+CLEAN.include( Trema.oflops ) if FileTest.exists?( Trema.oflops )
+CLOBBER.include( Trema.vendor_oflops ) if FileTest.exists?( Trema.vendor_oflops )
 
 
 ################################################################################
@@ -315,8 +331,8 @@ file Trema.libcmockery_a do
   end
 end
 
-CLEAN.include Trema.vendor_cmockery
-CLOBBER.include Trema.cmockery
+CLEAN.include( Trema.vendor_cmockery ) if FileTest.exists?( Trema.vendor_cmockery )
+CLOBBER.include( Trema.cmockery ) if FileTest.exists?( Trema.cmockery )
 
 
 ################################################################################
@@ -736,7 +752,7 @@ directory $wireshark_plugins_dir
 
 task :openflow_wireshark_plugin => $wireshark_plugin
 
-CLEAN.include Trema.vendor_openflow_git
+CLEAN.include( Trema.vendor_openflow_git ) if FileTest.exists?( Trema.vendor_openflow_git )
 
 
 ################################################################################

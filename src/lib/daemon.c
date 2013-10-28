@@ -34,6 +34,8 @@
 
 #ifdef UNIT_TESTING
 
+#define static
+
 #ifdef die
 #undef die
 #endif
@@ -136,12 +138,6 @@ extern ssize_t mock_readlink( const char *path, char *buf, size_t bufsiz );
 #define basename mock_basename
 extern char *mock_basename( char *path );
 
-#ifdef rename
-#undef rename
-#endif // rename
-#define rename mock_rename
-extern int mock_rename( const char *oldpath, const char *newpath );
-
 #ifdef warn
 #undef warn
 #endif // warn
@@ -149,6 +145,9 @@ extern int mock_rename( const char *oldpath, const char *newpath );
 extern void mock_warn( const char *format, ... );
 
 #endif // UNIT_TESTING
+
+static const char SWITCH_DAEMON[] = "switch.";
+static const char SWITCH_DAEMON_EXE_NAME[] = "switch";
 
 
 void
@@ -185,6 +184,8 @@ daemonize( const char *home ) {
 
 static const int PID_STRING_LENGTH = 10;
 
+static int locked_fd = -1;
+
 void
 write_pid( const char *directory, const char *name ) {
   assert( directory != NULL );
@@ -194,22 +195,28 @@ write_pid( const char *directory, const char *name ) {
   snprintf( path, PATH_MAX, "%s/%s.pid", directory, name );
   path[ PATH_MAX - 1 ] = '\0';
 
-  int fd = open( path, O_RDWR | O_CREAT, 0600 );
-  if ( fd == -1 ) {
+  if ( locked_fd > -1 ) {
+    close(locked_fd);
+    locked_fd = -1;
+  }
+
+  locked_fd = open( path, O_RDWR | O_CREAT, 0600 );
+  if ( locked_fd == -1 ) {
     die( "Could not create a PID file: %s", path );
   }
 
-  if ( lockf( fd, F_TLOCK, 0 ) == -1 ) {
+  if ( lockf( locked_fd, F_TLOCK, 0 ) == -1 ) {
     die( "Could not acquire a lock on a PID file: %s", path );
   }
 
   char str[ PID_STRING_LENGTH ];
   snprintf( str, sizeof( str ), "%d\n", getpid() );
   str[ sizeof( str ) - 1 ] = '\0';
-  ssize_t ret = write( fd, str, strlen( str ) );
+  ssize_t ret = write( locked_fd, str, strlen( str ) );
   if ( ret == -1 ) {
     die( "Could not write a PID file: %s", path );
   }
+  debug( "Write pid file ( file = %s, pid = %d )", path, getpid() );
 }
 
 
@@ -224,8 +231,14 @@ unlink_pid( const char *directory, const char *name ) {
 
   int ret = unlink( path );
   if ( ret < 0 ) {
-    die( "Could not remove a PID file: %s", path );
+    if ( errno == ENOENT ) {
+      warn( "PID file %s does not exist", path );
+    }
+    else {
+      die( "Could not remove a PID file: %s", path );
+    }
   }
+  debug( "Unlink pid file ( file = %s, pid = %d )", path, getpid() );
 }
 
 
@@ -292,6 +305,11 @@ read_pid( const char *directory, const char *name ) {
 
   char *exe_name = basename( exe_path );
   if ( strcmp( name, exe_name ) == 0 ) {
+    return pid;
+  }
+
+  if ( strncmp( name, SWITCH_DAEMON, strlen( SWITCH_DAEMON ) ) == 0 &&
+       strcmp( exe_name, SWITCH_DAEMON_EXE_NAME ) == 0 ) {
     return pid;
   }
 
@@ -379,18 +397,15 @@ rename_pid( const char *directory, const char *old, const char *new ) {
   assert( old != NULL );
   assert( new != NULL );
 
-  char old_path[ PATH_MAX ];
-  snprintf( old_path, PATH_MAX, "%s/%s.pid", directory, old );
-  old_path[ PATH_MAX - 1 ] = '\0';
-  char new_path[ PATH_MAX ];
-  snprintf( new_path, PATH_MAX, "%s/%s.pid", directory, new );
-  new_path[ PATH_MAX - 1 ] = '\0';
+  assert( locked_fd > -1 );
 
-  unlink( new_path );
-  int ret = rename( old_path, new_path );
-  if ( ret < 0 ) {
-    die( "Could not rename a PID file from %s to %s.", old_path, new_path );
-  }
+  int old_locked_fd = locked_fd;
+  locked_fd = -1;
+  write_pid( directory, new );
+  close( old_locked_fd );
+  unlink_pid( directory, old );
+
+  debug( "Rename pid file ( old name = %s, new name = %s, pid = %d )", old, new, getpid() );
 }
 
 

@@ -146,8 +146,13 @@ mock_kill( pid_t pid, int sig ) {
 
 
 unsigned int
-mock_sleep( unsigned int seconds ) {
-  check_expected( seconds );
+mock_clock_nanosleep( clockid_t clock_id, int flags, struct timespec *request, struct timespec *remain) {
+  check_expected( clock_id );
+  check_expected( flags );
+  assert_true( request != NULL );
+  check_expected( request->tv_sec );
+  check_expected( request->tv_nsec );
+  check_expected( remain );
   return ( unsigned int ) mock();
 }
 
@@ -906,8 +911,12 @@ test_terminate_trema_process_when_retry_count_1() {
   expect_value_count( mock_kill, sig, 0, 2 );
   will_return_count( mock_kill, 0, 2 );
   will_return_count( mock_kill, -1, 1 );
-  expect_value_count( mock_sleep, seconds, 1, 1 );
-  will_return_count( mock_sleep, 0, 1 );
+  expect_value_count( mock_clock_nanosleep, clock_id, CLOCK_MONOTONIC, 1 );
+  expect_value_count( mock_clock_nanosleep, flags, 0, 1 );
+  expect_value_count( mock_clock_nanosleep, request->tv_sec, 0, 1 );
+  expect_value_count( mock_clock_nanosleep, request->tv_nsec, 500000000, 1 );
+  expect_value_count( mock_clock_nanosleep, remain, NULL, 1 );
+  will_return_count( mock_clock_nanosleep, 0, 1 );
 
   // Go
   assert_true( terminate_trema_process( PID ) );
@@ -922,8 +931,12 @@ test_terminate_trema_process_when_retry_count_10() {
   expect_value_count( mock_kill, sig, 0, 11 );
   will_return_count( mock_kill, 0, 11 );
   will_return_count( mock_kill, -1, 1 );
-  expect_value_count( mock_sleep, seconds, 1, 10 );
-  will_return_count( mock_sleep, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, clock_id, CLOCK_MONOTONIC, 10 );
+  expect_value_count( mock_clock_nanosleep, flags, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, request->tv_sec, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, request->tv_nsec, 500000000, 10 );
+  expect_value_count( mock_clock_nanosleep, remain, NULL, 10 );
+  will_return_count( mock_clock_nanosleep, 0, 10 );
 
   // Go
   assert_true( terminate_trema_process( PID ) );
@@ -937,8 +950,12 @@ test_terminate_trema_process_when_over_max_retry_count() {
   expect_value_count( mock_kill, sig, SIGTERM, 1 );
   expect_value_count( mock_kill, sig, 0, 11 );
   will_return_count( mock_kill, 0, 12 );
-  expect_value_count( mock_sleep, seconds, 1, 10 );
-  will_return_count( mock_sleep, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, clock_id, CLOCK_MONOTONIC, 10 );
+  expect_value_count( mock_clock_nanosleep, flags, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, request->tv_sec, 0, 10 );
+  expect_value_count( mock_clock_nanosleep, request->tv_nsec, 500000000, 10 );
+  expect_value_count( mock_clock_nanosleep, remain, NULL, 10 );
+  will_return_count( mock_clock_nanosleep, 0, 10 );
 
   // Go
   assert_true( !terminate_trema_process( PID ) );

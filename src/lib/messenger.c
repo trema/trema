@@ -776,14 +776,22 @@ rename_message_callback( const char *old_service_name, const char *new_service_n
     return false;
   }
 
+  bool success = true;
   for ( element = old_rq->message_callbacks->next; element; element = element->next ) {
     cb = element->data;
-    add_message_callback( new_service_name, cb->message_type, cb->function );
+    if ( !add_message_callback( new_service_name, cb->message_type, cb->function ) ) {
+      success = false;
+      break;
+    }
+  }
+  if ( success ) {
+    delete_receive_queue( old_rq->service_name, old_rq, NULL );
+  }
+  else if ( ( new_rq = lookup_hash_entry( receive_queues, new_service_name ) ) != NULL ) {
+    delete_receive_queue( new_rq->service_name, new_rq, NULL );
   }
 
-  delete_receive_queue( old_rq->service_name, old_rq, NULL );
-
-  return true;
+  return success;
 }
 
 static bool
@@ -1198,7 +1206,7 @@ _clear_send_queue( const char *service_name ) {
   send_queue *sq = lookup_hash_entry( send_queues, service_name );
 
   if ( NULL == sq ) {
-    error( "Send queue is already deleted or not created yet ( service_name = %s ).", service_name );
+    warn( "Send queue is already deleted or not created yet ( service_name = %s ).", service_name );
     return false;
   }
   if ( NULL == sq->buffer ) {
