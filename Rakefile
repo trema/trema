@@ -105,7 +105,7 @@ end
 
 desc "Build Trema Ruby library."
 task "rubylib" => "libtrema:static"
-PaperHouse::RubyLibraryTask.new "rubylib" do | task |
+PaperHouse::RubyExtensionTask.new "rubylib" do | task |
   task.library_name = "trema"
   task.target_directory = Trema.ruby
   task.sources = "#{ Trema.ruby }/trema/*.c"
