@@ -1717,12 +1717,29 @@ validate_hello( const buffer *message ) {
 int
 validate_error( const buffer *message ) {
   int ret;
+  struct ofp_error_msg *error_msg;
+  const unsigned max_valid_code[OFPET_QUEUE_OP_FAILED + 1] = {
+    [ OFPET_HELLO_FAILED ] = OFPHFC_EPERM,
+    [ OFPET_BAD_REQUEST ] = OFPBRC_BUFFER_UNKNOWN,
+    [ OFPET_BAD_ACTION ] = OFPBAC_BAD_QUEUE,
+    [ OFPET_FLOW_MOD_FAILED ] = OFPFMFC_UNSUPPORTED,
+    [ OFPET_PORT_MOD_FAILED ] = OFPPMFC_BAD_HW_ADDR,
+    [ OFPET_QUEUE_OP_FAILED ] = OFPQOFC_EPERM,
+  };
 
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_ERROR, sizeof( struct ofp_error_msg ), UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
+  }
+
+  error_msg = ( struct ofp_error_msg * ) message->data;
+  if ( ntohs( error_msg->type ) > OFPET_QUEUE_OP_FAILED ) {
+    return ERROR_INVALID_ERROR_TYPE;
+  }
+  if ( ntohs( error_msg->code ) > max_valid_code[ ntohs( error_msg->type ) ] ) {
+    return ERROR_INVALID_ERROR_CODE;
   }
 
   return 0;
