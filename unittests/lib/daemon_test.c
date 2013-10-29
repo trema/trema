@@ -249,25 +249,25 @@ test_daemonize_fail_if_setsid_fail() {
 static void
 test_write_pid_succeed() {
   extern int locked_fd;
-
   locked_fd = -1;
-  will_return( mock_open, 1111 );
-  will_return( mock_lockf, 0 );
 
   // Test if correctly opened.
   char path[] = "/home/yasuhito/trema/tmp/chess.pid";
   char buffer[] = "1234\n";
+  int pid_file_fd = 1111;
   expect_string( mock_open, pathname, path );
   expect_value( mock_open, flags, ( O_RDWR | O_CREAT ) );
   expect_value( mock_open, mode, 0600 );
+  will_return( mock_open, pid_file_fd );
 
   // Test if correctly locked.
-  expect_value( mock_lockf, fd, 1111 );
+  expect_value( mock_lockf, fd, pid_file_fd );
   expect_value( mock_lockf, cmd, F_TLOCK );
   expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, 0 );
 
   // Test if correctly written.
-  expect_value( mock_write, fd, 1111 );
+  expect_value( mock_write, fd, pid_file_fd );
   expect_string( mock_write, buf, buffer );
   expect_value( mock_write, count, strlen( buffer ) );
 
@@ -278,15 +278,14 @@ test_write_pid_succeed() {
 static void
 test_write_pid_fail_if_open_fail() {
   extern int locked_fd;
-
   locked_fd = -1;
-  will_return( mock_open, -1 );
 
   // Test if correctly opened.
   char path[] = "/home/yasuhito/trema/tmp/chess.pid";
   expect_string( mock_open, pathname, path );
   expect_value( mock_open, flags, ( O_RDWR | O_CREAT ) );
   expect_value( mock_open, mode, 0600 );
+  will_return( mock_open, -1 );
 
   expect_string( mock_die, message, "Could not create a PID file: /home/yasuhito/trema/tmp/chess.pid" );
 
@@ -297,21 +296,21 @@ test_write_pid_fail_if_open_fail() {
 static void
 test_write_pid_fail_if_lockf_fail() {
   extern int locked_fd;
-
   locked_fd = -1;
-  will_return( mock_open, 1111 );
-  will_return( mock_lockf, -1 );
 
-  // Test if correctly locked.
+  // Test if correctly opened.
   char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  int pid_file_fd = 1111;
   expect_string( mock_open, pathname, path );
   expect_value( mock_open, flags, ( O_RDWR | O_CREAT ) );
   expect_value( mock_open, mode, 0600 );
+  will_return( mock_open, pid_file_fd );
 
   // Test if correctly locked.
-  expect_value( mock_lockf, fd, 1111 );
+  expect_value( mock_lockf, fd, pid_file_fd );
   expect_value( mock_lockf, cmd, F_TLOCK );
   expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, -1 );
 
   // lockf_return_value = -1;
   expect_string( mock_die, message, "Could not acquire a lock on a PID file: /home/yasuhito/trema/tmp/chess.pid" );
@@ -322,11 +321,24 @@ test_write_pid_fail_if_lockf_fail() {
 
 static void
 test_unlink_pid_succeed() {
-  will_return( mock_unlink, 0 );
+  // Test if correctly opened.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  int pid_file_fd = 1111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDWR );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly locked.
+  expect_value( mock_lockf, fd, pid_file_fd );
+  expect_value( mock_lockf, cmd, F_TLOCK );
+  expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, 0 );
 
   // Test if correctly unlinked.
-  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
   expect_string( mock_unlink, pathname, path );
+  will_return( mock_unlink, 0 );
+  expect_value( mock_close, fd, pid_file_fd );
 
   unlink_pid( "/home/yasuhito/trema/tmp", "chess" );
 }
@@ -334,14 +346,50 @@ test_unlink_pid_succeed() {
 
 static void
 test_unlink_pid_fail_if_unlink_fail() {
-  will_return( mock_unlink, -1 );
-
+  // Test if correctly opened.
   char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  int pid_file_fd = 1111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDWR );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly locked.
+  expect_value( mock_lockf, fd, pid_file_fd );
+  expect_value( mock_lockf, cmd, F_TLOCK );
+  expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, 0 );
+
+  // Test if correctly unlinked.
   expect_string( mock_unlink, pathname, path );
+  errno = EACCES;
+  will_return( mock_unlink, -1 );
+  //expect_value( mock_close, fd, pid_file_fd );
 
   expect_string( mock_die, message, "Could not remove a PID file: /home/yasuhito/trema/tmp/chess.pid" );
 
   expect_assert_failure( unlink_pid( "/home/yasuhito/trema/tmp", "chess" ) );
+}
+
+
+static void
+test_unlink_pid_fail_if_lockf_fail() {
+  // Test if correctly opened.
+  char path[] = "/home/yasuhito/trema/tmp/chess.pid";
+  int pid_file_fd = 1111;
+  expect_string( mock_open, pathname, path );
+  expect_value( mock_open, flags, O_RDWR );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, pid_file_fd );
+
+  // Test if correctly locked.
+  expect_value( mock_lockf, fd, pid_file_fd );
+  expect_value( mock_lockf, cmd, F_TLOCK );
+  expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, -1 );
+  expect_value( mock_close, fd, pid_file_fd );
+
+  unlink_pid( "/home/yasuhito/trema/tmp", "chess" );
 }
 
 
@@ -662,35 +710,44 @@ test_read_pid_fail_if_readlink_fail() {
 static void
 test_rename_pid_successed() {
   extern int locked_fd;
-
   locked_fd = 2222;
-  will_return( mock_open, 1111 );
-  will_return( mock_lockf, 0 );
 
   // Test if correctly opened.
   char new_path[] = "/home/yasuhito/trema/tmp/hello.pid";
   char buffer[] = "1234\n";
+  int new_pid_file_fd = 3333;
   expect_string( mock_open, pathname, new_path );
   expect_value( mock_open, flags, ( O_RDWR | O_CREAT ) );
   expect_value( mock_open, mode, 0600 );
-
+  will_return( mock_open, new_pid_file_fd );
   // Test if correctly locked.
-  expect_value( mock_lockf, fd, 1111 );
+  expect_value( mock_lockf, fd, new_pid_file_fd );
   expect_value( mock_lockf, cmd, F_TLOCK );
   expect_value( mock_lockf, len, 0 );
-
+  will_return( mock_lockf, 0 );
   // Test if correctly written.
-  expect_value( mock_write, fd, 1111 );
+  expect_value( mock_write, fd, new_pid_file_fd );
   expect_string( mock_write, buf, buffer );
   expect_value( mock_write, count, strlen( buffer ) );
 
-  expect_value( mock_close, fd, 2222 );
-
-  will_return( mock_unlink, 0 );
-
-  // Test if correctly unlinked.
+  // Test if correctly opened.
   char old_path[] = "/home/yasuhito/trema/tmp/bye.pid";
+  int old_pid_file_fd = 4444;
+  expect_string( mock_open, pathname, old_path );
+  expect_value( mock_open, flags, O_RDWR );
+  expect_value( mock_open, mode, 0 );
+  will_return( mock_open, old_pid_file_fd );
+  // Test if correctly locked.
+  expect_value( mock_lockf, fd, old_pid_file_fd );
+  expect_value( mock_lockf, cmd, F_TLOCK );
+  expect_value( mock_lockf, len, 0 );
+  will_return( mock_lockf, 0 );
+  // Test if correctly unlinked.
   expect_string( mock_unlink, pathname, old_path );
+  will_return( mock_unlink, 0 );
+  expect_value( mock_close, fd, old_pid_file_fd );
+
+  expect_value( mock_close, fd, 2222 );
 
   // Go
   rename_pid( "/home/yasuhito/trema/tmp", "bye", "hello" );
@@ -718,6 +775,7 @@ main() {
     // unlink_pid() tsets.
     unit_test( test_unlink_pid_succeed ),
     unit_test( test_unlink_pid_fail_if_unlink_fail ),
+    unit_test( test_unlink_pid_fail_if_lockf_fail ),
 
     // read_pid() tests.
     unit_test( test_read_pid_successed ),
