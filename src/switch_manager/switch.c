@@ -588,6 +588,12 @@ int
 switch_event_disconnected( struct switch_info *sw_info ) {
   int old_state = sw_info->state;
 
+  if ( sw_info->state == SWITCH_STATE_DISCONNECTED ||
+       sw_info->state == SWITCH_STATE_CONNECTION_FAILED ) {
+    debug( "already disconnected" );
+    return -1;
+  }
+
   if ( sw_info->state == SWITCH_STATE_COMPLETED ) {
     sw_info->state = SWITCH_STATE_DISCONNECTED;
   }
