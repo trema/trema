@@ -30,7 +30,7 @@
 
 #define VLAN_VID_MASK 0x0fff // 12 bits
 #define VLAN_PCP_MASK 0x07 // 3 bits
-#define NW_TOS_MASK 0x3f // 6 bits
+#define NW_TOS_MASK 0xfc // upper 6 bits
 
 #define MATCH_STRING_LENGTH 1024
 
