@@ -150,7 +150,7 @@ bool append_action_vendor( openflow_actions *actions, const uint32_t vendor,
 // Return code definitions indicating the result of OpenFlow message validation.
 enum {
   SUCCESS = 0,
-  ERROR_UNSUPPORTED_VERSION = -100,
+  ERROR_UNSUPPORTED_VERSION = -63,
   ERROR_INVALID_LENGTH,
   ERROR_TOO_SHORT_MESSAGE,
   ERROR_TOO_LONG_MESSAGE,
