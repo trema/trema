@@ -386,7 +386,7 @@ registration_timeout( void *user_data ) {
 
 
 static void
-confirm_self_dpid_is_registered( uint64_t* dpids, size_t n_dpids, void *user_data );
+confirm_self_dpid_is_registered( const list_element *switches, void *user_data );
 
 
 int
@@ -459,7 +459,8 @@ switch_event_recv_featuresreply( struct switch_info *sw_info, uint64_t *dpid ) {
     // Check switch_manager registration
     debug( "Checking switch manager's switch list." );
     sw_info->retry_count = REGISTRATION_RETRY_COUNT;
-    if ( send_efi_switch_list_request( confirm_self_dpid_is_registered, sw_info ) ) {
+    set_list_switches_reply_handler( confirm_self_dpid_is_registered );
+    if ( send_list_switches_request( sw_info ) ) {
       switch_set_timeout( REGISTRATION_TIMEOUT, registration_timeout, sw_info );
     }
     else {
@@ -495,7 +496,8 @@ registration_retry( void *user_data ) {
   sw_info->retry_count--;
   sw_info->running_timer = false;
   debug( "Checking switch manager's switch list." );
-  if ( send_efi_switch_list_request( confirm_self_dpid_is_registered, sw_info ) ) {
+  set_list_switches_reply_handler( confirm_self_dpid_is_registered );
+  if ( send_list_switches_request( sw_info ) ) {
     switch_set_timeout( REGISTRATION_TIMEOUT, registration_timeout, sw_info );
   }
   else {
@@ -506,15 +508,15 @@ registration_retry( void *user_data ) {
 
 
 static void
-confirm_self_dpid_is_registered( uint64_t* dpids, size_t n_dpids, void *user_data ) {
+confirm_self_dpid_is_registered( const list_element *switches, void *user_data ) {
   struct switch_info *sw_info = user_data;
 
   switch_unset_timeout( registration_timeout, sw_info );
 
   debug( "Received switch manager's switch list." );
   bool found = false;
-  for ( size_t i = 0 ; i < n_dpids ; ++i ) {
-    if ( sw_info->datapath_id == dpids[ i ] ) {
+  for ( const list_element *e = switches; e != NULL; e = e->next ) {
+    if ( sw_info->datapath_id == *( uint64_t * ) e->data ) {
       // self dpid registered
       debug( "Self dpid found" );
       found = true;
@@ -581,7 +583,7 @@ unregistration_timeout( void *user_data ) {
 
 
 static void
-confirm_self_dpid_is_unregistered( uint64_t* dpids, size_t n_dpids, void *user_data );
+confirm_self_dpid_is_unregistered( const list_element *switches, void *user_data );
 
 
 int
@@ -641,7 +643,8 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   // Check switch_manager registration
   debug( "Checking switch manager's switch list." );
   sw_info->retry_count = UNREGISTRATION_RETRY_COUNT;
-  if ( send_efi_switch_list_request( confirm_self_dpid_is_unregistered, sw_info ) ) {
+  set_list_switches_reply_handler( confirm_self_dpid_is_unregistered );
+  if ( send_list_switches_request( sw_info ) ) {
     switch_set_timeout( UNREGISTRATION_TIMEOUT, unregistration_timeout, sw_info );
   }
   else {
@@ -664,7 +667,8 @@ unregistration_retry( void *user_data ) {
   sw_info->retry_count--;
   sw_info->running_timer = false;
   debug( "Checking switch manager's switch list." );
-  if ( send_efi_switch_list_request( confirm_self_dpid_is_unregistered, sw_info ) ) {
+  set_list_switches_reply_handler( confirm_self_dpid_is_unregistered );
+  if ( send_list_switches_request( sw_info ) ) {
     switch_set_timeout( UNREGISTRATION_TIMEOUT, unregistration_timeout, sw_info );
   }
   else {
@@ -675,15 +679,15 @@ unregistration_retry( void *user_data ) {
 
 
 static void
-confirm_self_dpid_is_unregistered( uint64_t* dpids, size_t n_dpids, void *user_data ) {
+confirm_self_dpid_is_unregistered( const list_element *switches, void *user_data ) {
   struct switch_info *sw_info = user_data;
 
   switch_unset_timeout( unregistration_timeout, sw_info );
 
   debug( "Received switch manager's switch list." );
   bool found = false;
-  for ( size_t i = 0 ; i < n_dpids ; ++i ) {
-    if ( sw_info->datapath_id == dpids[ i ] ) {
+  for ( const list_element *e = switches; e != NULL; e = e->next ) {
+    if ( sw_info->datapath_id == *( uint64_t * ) e->data ) {
       // self dpid registered
       debug( "Self dpid found" );
       found = true;
