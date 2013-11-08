@@ -33,6 +33,7 @@ VALUE cPort;
  *   @example
  *     Port.new(
  *       :number => 1,
+ *       :datapath_id => 0x123,
  *       :hw_addr => Mac.new( "4e:1e:9a:7a:44:be" ),
  *       :name => "trema0-0",
  *       :config => 0,
@@ -44,6 +45,9 @@ VALUE cPort;
  *     )
  *
  *   @param [Hash] options the options hash.
+ *  
+ *   @option options [Number] :datapath_id
+ *     the switch's datapath ID.
  *
  *   @option options [Number] :number
  *     the port's unique number.
@@ -80,6 +84,9 @@ port_init( VALUE self, VALUE options ) {
   VALUE number = rb_hash_aref( options, ID2SYM( rb_intern( "number" ) ) );
   rb_iv_set( self, "@number", number );
 
+  VALUE datapath_id = rb_hash_aref( options, ID2SYM( rb_intern( "datapath_id" ) ) );
+  rb_iv_set( self, "@datapath_id", datapath_id );
+
   VALUE hw_addr = rb_hash_aref( options, ID2SYM( rb_intern( "hw_addr" ) ) );
   rb_iv_set( self, "@hw_addr", hw_addr );
 
@@ -115,6 +122,17 @@ port_init( VALUE self, VALUE options ) {
 static VALUE
 port_number( VALUE self ) {
   return rb_iv_get( self, "@number" );
+}
+
+
+/*
+ * The switch's datapath ID.
+ *
+ * @return [Number] the value of number.
+ */
+static VALUE
+port_datapath_id( VALUE self ) {
+  return rb_iv_get( self, "@datapath_id" );
 }
 
 
@@ -335,6 +353,8 @@ Init_port() {
 
   rb_define_method( cPort, "initialize", port_init, 1 );
   rb_define_method( cPort, "number", port_number, 0 );
+  rb_define_method( cPort, "datapath_id", port_datapath_id, 0 );
+  rb_define_method( cPort, "dpid", port_datapath_id, 0 );
   rb_define_method( cPort, "hw_addr", port_hw_addr, 0 );
   rb_define_method( cPort, "name", port_name, 0 );
   rb_define_method( cPort, "config", port_config, 0 );
@@ -354,8 +374,9 @@ Init_port() {
 
 
 VALUE
-port_from( const struct ofp_phy_port *phy_port ) {
+port_from( const struct ofp_phy_port *phy_port, uint64_t datapath_id ) {
   VALUE attributes = rb_hash_new();
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "number" ) ), UINT2NUM( phy_port->port_no ) );
   VALUE hw_addr = rb_funcall( rb_eval_string( "Pio::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( phy_port->hw_addr ) ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "hw_addr" ) ), hw_addr );

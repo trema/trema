@@ -406,14 +406,17 @@ ofpmsg_recv( struct switch_info *sw_info, buffer *buf ) {
   if ( ret != 0 ) {
     notice( "Invalid openflow message. type:%d, errno:%d", header->type, ret );
 
-    error_type = OFPET_BAD_REQUEST;
-    error_code = OFPBRC_BAD_TYPE;
-    get_error_type_and_code( header->type, ret, &error_type, &error_code );
-    debug( "Validation error. type %u, errno %d, error type %u, error code %u",
-           header->type, ret, error_type, error_code );
+    if ( header->type != OFPT_ERROR ) {
+      // Do not send an error of error
+      error_type = OFPET_BAD_REQUEST;
+      error_code = OFPBRC_BAD_TYPE;
+      get_error_type_and_code( header->type, ret, &error_type, &error_code );
+      debug( "Validation error. type %u, errno %d, error type %u, error code %u",
+	     header->type, ret, error_type, error_code );
 
-    ofpmsg_send_error_msg( sw_info, error_type, error_code, buf );
-    free_buffer( buf );
+      ofpmsg_send_error_msg( sw_info, error_type, error_code, buf );
+      free_buffer( buf );
+    }
 
     return -1;
   }

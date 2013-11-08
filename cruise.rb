@@ -358,6 +358,7 @@ $options.parse! ARGV
 
 
 def init_cruise
+  FileUtils.rm_f File.expand_path(File.join(File.dirname(__FILE__), 'Gemfile.lock'))
   sh "bundle install"
   sh "bundle update"
   sh "bundle exec rake clobber"

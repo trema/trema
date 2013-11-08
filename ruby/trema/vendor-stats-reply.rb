@@ -30,7 +30,7 @@ module Trema
     # be created as a result of parsing the +OFPT_STATS_REPLY(OFPST_VENDOR)+
     # openflow message.
     #
-    # @overload initialize(otions={})
+    # @overload initialize(options={})
     #
     #   @example
     #     VendorStatsReply.new(

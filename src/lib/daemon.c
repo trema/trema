@@ -229,6 +229,17 @@ unlink_pid( const char *directory, const char *name ) {
   snprintf( path, PATH_MAX, "%s/%s.pid", directory, name );
   path[ PATH_MAX - 1 ] = '\0';
 
+  int fd = open( path, O_RDWR, 0 );
+  if ( fd < 0 ) {
+    debug( "Failed to open %s ( %s [%d] ).", path, strerror( errno ), errno );
+    return;
+  }
+  if ( lockf( fd, F_TLOCK, 0 ) == -1 ) {
+    warn( "PID file is locked by another process ( %s ).", path );
+    close( fd );
+    return;
+  }
+
   int ret = unlink( path );
   if ( ret < 0 ) {
     if ( errno == ENOENT ) {
@@ -239,6 +250,7 @@ unlink_pid( const char *directory, const char *name ) {
     }
   }
   debug( "Unlink pid file ( file = %s, pid = %d )", path, getpid() );
+  close( fd );
 }
 
 
@@ -402,8 +414,8 @@ rename_pid( const char *directory, const char *old, const char *new ) {
   int old_locked_fd = locked_fd;
   locked_fd = -1;
   write_pid( directory, new );
-  close( old_locked_fd );
   unlink_pid( directory, old );
+  close( old_locked_fd );
 
   debug( "Rename pid file ( old name = %s, new name = %s, pid = %d )", old, new, getpid() );
 }

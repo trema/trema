@@ -21,6 +21,7 @@ Feature: "Packet In" sample application
     Given I run `trema run ../../objects/examples/packet_in/packet_in -c packet_in.conf -d`
      And wait until "packet_in" is up
     When I send 1 packet from host1 to host2
+     And *** sleep 1 ***
     Then the file "../../tmp/log/packet_in.log" should contain "received a packet_in"
 
   @slow_process
@@ -28,4 +29,5 @@ Feature: "Packet In" sample application
     Given I run `trema run ../../src/examples/packet_in/packet-in.rb -c packet_in.conf -d`
      And wait until "PacketInDumper" is up
     When I send 1 packet from host1 to host2
+     And *** sleep 1 ***
     Then the file "../../tmp/log/PacketInDumper.log" should contain "received a packet_in"
