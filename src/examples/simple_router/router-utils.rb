@@ -17,8 +17,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
+require 'rubygems'
 require 'ipaddr'
+require 'pio'
 
 
 def get_checksum csum, val
@@ -52,50 +53,6 @@ class EthernetHeader
 
   def pack
     ( @macda.to_a + @macsa.to_a + [ eth_type ] ).pack( "C12n" )
-  end
-end
-
-
-class ARPPacket
-  attr_accessor :type, :tha, :sha, :tpa, :spa
-
-
-  def initialize type, tha, sha, tpa, spa
-    @type = type
-    @tha = tha
-    @sha = sha
-    @tpa = tpa
-    @spa = spa
-  end
-
-
-  def pack
-    eth_header = EthernetHeader.new( @tha, @sha, 0x0806 )
-
-    # arp
-    arp = [ 0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, @type ]
-    arp += @sha.to_a + @spa.to_a + @tha.to_a + @tpa.to_a
-
-    while arp.length < 46 do
-      arp += [ 0x00 ]
-    end
-
-    eth_header.pack + arp.pack( "C*" )
-  end
-end
-
-
-class ARPRequest < ARPPacket
-  def initialize sha, tpa, spa
-    tha = [ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ]
-    super( 1, tha, sha, tpa, spa )
-  end
-end
-
-
-class ARPReply < ARPPacket
-  def initialize tha, sha, tpa, spa
-    super( 2, tha, sha, tpa, spa )
   end
 end
 
@@ -176,14 +133,19 @@ end
 
 module RouterUtils
   def create_arp_request_from interface, addr
-    arp = ARPRequest.new( interface.hwaddr, addr, interface.ipaddr )
-    arp.pack
+    request = Pio::Arp::Request.new(:source_mac => interface.hwaddr,
+                                    :sender_protocol_address => interface.ipaddr,
+                                    :target_protocol_address => addr)
+    request.to_binary
   end
 
 
   def create_arp_reply_from message, replyaddr
-    arp = ARPReply.new( message.macsa, replyaddr, message.arp_spa, message.arp_tpa )
-    arp.pack
+    reply = Pio::Arp::Reply(:source_mac => message.macsa,
+                            :destination_mac => replyaddr,
+                            :sender_protocol_address => message.arp_spa,
+                            :target_protocol_address => message.arp_tpa)
+    reply.to_binary
   end
 
 
