@@ -165,7 +165,7 @@ handle_port_status(
   VALUE attributes = rb_hash_new();
   rb_hash_aset( attributes, ID2SYM( rb_intern( "datapath_id" ) ), ULL2NUM( datapath_id ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "transaction_id" ) ), UINT2NUM( transaction_id ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "phy_port" ) ), port_from( &phy_port ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "phy_port" ) ), port_from( &phy_port, datapath_id ) );
 
   VALUE port_status = Qnil;
   if ( reason == OFPPR_ADD ) {
