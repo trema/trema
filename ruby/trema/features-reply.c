@@ -255,7 +255,7 @@ handle_switch_ready( uint64_t datapath_id, void *controller ) {
  * Extract and map {Port} to +ofp_phy_port+ structure.
  */
 static VALUE
-ports_from( const list_element *c_ports ) {
+ports_from( const list_element *c_ports, uint64_t datapath_id ) {
   VALUE ports = rb_ary_new();
 
   if ( c_ports == NULL ) {
@@ -266,7 +266,7 @@ ports_from( const list_element *c_ports ) {
   memcpy( port_head, c_ports, sizeof( list_element ) );
   list_element *port = NULL;
   for ( port = port_head; port != NULL; port = port->next ) {
-    rb_ary_push( ports, port_from( ( struct ofp_phy_port * ) port->data ) );
+    rb_ary_push( ports, port_from( ( struct ofp_phy_port * ) port->data, datapath_id ) );
   }
   xfree( port_head );
   return ports;
@@ -303,7 +303,7 @@ handle_features_reply(
   rb_hash_aset( attributes, ID2SYM( rb_intern( "n_tables" ) ), UINT2NUM( n_tables ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "capabilities" ) ), UINT2NUM( capabilities ) );
   rb_hash_aset( attributes, ID2SYM( rb_intern( "actions" ) ), UINT2NUM( actions ) );
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( ports ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "ports" ) ), ports_from( ports, datapath_id ) );
 
   list_element *physical_ports = xmalloc( sizeof( list_element ) );
   create_list( &physical_ports );
@@ -314,7 +314,7 @@ handle_features_reply(
     iterate_list( tmp_ports, append_physical_port, &physical_ports );
     xfree( tmp_ports );
   }
-  rb_hash_aset( attributes, ID2SYM( rb_intern( "physical_ports" ) ), ports_from( physical_ports ) );
+  rb_hash_aset( attributes, ID2SYM( rb_intern( "physical_ports" ) ), ports_from( physical_ports, datapath_id ) );
   xfree( physical_ports );
 
   VALUE features_reply = rb_funcall( cFeaturesReply, rb_intern( "new" ), 1, attributes );

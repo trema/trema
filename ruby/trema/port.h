@@ -31,7 +31,7 @@ extern VALUE cPort;
 void Init_port( void );
 
 
-VALUE port_from( const struct ofp_phy_port *phy_port );
+VALUE port_from( const struct ofp_phy_port *phy_port, uint64_t datapath_id );
 
 
 #endif // PORT_H
