@@ -439,9 +439,8 @@ controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
  *     set automatically according to the value of :packet_in.
  *
  *   @option options [Number] :in_port (OFPP_NONE)
- *     The port from which the frame is to be sent. OFPP_NONE if
- *     none. OFPP_TABLE to perform the actions defined in the flow
- *     table.
+ *     The port to use in flow table lookup when :actions send the packet
+ *     to the special OFPP_TABLE port.
  *
  *   @option options [Number] :buffer_id (0xffffffff)
  *     The buffer ID assigned by the datapath. If 0xffffffff, the
