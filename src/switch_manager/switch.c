@@ -526,6 +526,8 @@ confirm_self_dpid_is_registered( const list_element *switches, void *user_data )
   if ( found ) {
     sw_info->state = SWITCH_STATE_COMPLETED;
 
+    finalize_openflow_application_interface();
+
     // notify state and datapath_id to controllers
     service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );
     debug( "send ready state" );
@@ -700,6 +702,7 @@ confirm_self_dpid_is_unregistered( const list_element *switches, void *user_data
   }
   else {
     // The switch has been deleted from the switch list
+    finalize_openflow_application_interface();
     stop_switch( sw_info );
   }
 }
