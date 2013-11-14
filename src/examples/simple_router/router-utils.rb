@@ -18,17 +18,7 @@
 #
 
 require 'rubygems'
-require 'ipaddr'
-
 require 'pio'
-
-class IPAddr
-  def to_a
-    to_s.split('.').map do |each|
-      each.to_i
-    end
-  end
-end
 
 module RouterUtils
   def create_arp_request_from(interface, addr)
