@@ -4,11 +4,8 @@ source "https://rubygems.org"
 # Include dependencies from trema.gemspec. DRY!
 gemspec
 
-
 # Add dependencies required to use your gem here.
-# Example:
-#   gem "activesupport", ">= 2.3.5"
-
+gem "pio", :github => 'trema/pio', :branch => 'develop'
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
