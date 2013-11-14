@@ -19,6 +19,7 @@
 
 require 'rubygems'
 require 'ipaddr'
+
 require 'pio'
 
 class IPAddr
@@ -31,27 +32,33 @@ end
 
 module RouterUtils
   def create_arp_request_from(interface, addr)
-    Pio::Arp::Request.new(:source_mac => interface.hwaddr,
-                          :sender_protocol_address => interface.ipaddr,
-                          :target_protocol_address => addr).to_binary
+    Pio::Arp::Request.new(
+      :source_mac => interface.hwaddr,
+      :sender_protocol_address => interface.ipaddr,
+      :target_protocol_address => addr
+    ).to_binary
   end
 
   def create_arp_reply_from(message, replyaddr)
-    Pio::Arp::Reply(:source_mac => message.macsa,
-                    :destination_mac => replyaddr,
-                    :sender_protocol_address => message.arp_spa,
-                    :target_protocol_address => message.arp_tpa).to_binary
+    Pio::Arp::Reply.new(
+      :source_mac => replyaddr,
+      :destination_mac => message.macsa,
+      :sender_protocol_address => message.arp_tpa,
+      :target_protocol_address => message.arp_spa
+    ).to_binary
   end
 
   def create_icmpv4_reply(entry, interface, message)
-    request = Pio::Icmp::Request.read(message.data)
-    Pio::Icmp::Reply.new(:destination_mac => entry.hwaddr,
-                         :source_mac => interface.hwaddr,
-                         :ip_source_address => message.ipv4_saddr,
-                         :ip_destination_address => message.ipv4_daddr,
-                         :icmp_identifier => request.icmp_identifier,
-                         :icmp_sequence_number => request.icmp_sequence_number,
-                         :echo_data => request.echo_data).to_binary
+    request = Pio::Icmp.read(message.data)
+    Pio::Icmp::Reply.new(
+      :destination_mac => entry.hwaddr,
+      :source_mac => interface.hwaddr,
+      :ip_source_address => message.ipv4_daddr,
+      :ip_destination_address => message.ipv4_saddr,
+      :icmp_identifier => request.icmp_identifier,
+      :icmp_sequence_number => request.icmp_sequence_number,
+      :echo_data => request.echo_data
+    ).to_binary
   end
 end
 
