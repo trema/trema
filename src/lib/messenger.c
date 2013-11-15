@@ -141,6 +141,7 @@ enum {
   MESSAGE_TYPE_NOTIFY,
   MESSAGE_TYPE_REQUEST,
   MESSAGE_TYPE_REPLY,
+  MESSAGE_TYPE_INVALID = 255,
 };
 
 typedef struct message_buffer {
@@ -172,6 +173,7 @@ typedef struct receive_queue {
   struct sockaddr_un listen_addr;
   dlist_element *client_sockets;
   message_buffer *buffer;
+  bool in_progress;
 } receive_queue;
 
 typedef struct send_queue {
@@ -425,12 +427,14 @@ delete_receive_queue( void *service_name, void *_rq, void *user_data ) {
   receive_queue_callback *cb;
 
   assert( rq != NULL );
+  assert( rq->in_progress == false );
   for ( element = rq->message_callbacks->next; element; element = element->next ) {
     cb = element->data;
     debug( "Deleting a callback ( function = %p, message_type = %#x ).", cb->function, cb->message_type );
     xfree( cb );
   }
   delete_dlist( rq->message_callbacks );
+  rq->message_callbacks = NULL;
 
   for ( element = rq->client_sockets->next; element; element = element->next ) {
     client_socket = element->data;
@@ -591,6 +595,7 @@ create_receive_queue( const char *service_name ) {
   rq->message_callbacks = create_dlist();
   rq->client_sockets = create_dlist();
   rq->buffer = create_message_buffer( messenger_recv_queue_length );
+  rq->in_progress = false;
 
   insert_hash_entry( receive_queues, rq->service_name, rq );
 
@@ -699,11 +704,17 @@ delete_message_callback( const char *service_name, uint8_t message_type, void ( 
       cb = e->data;
       if ( ( cb->function == callback ) && ( cb->message_type == message_type ) ) {
         debug( "Deleting a callback ( message_type = %#x, callback = %p ).", message_type, callback );
-        xfree( cb );
-        delete_dlist_element( e );
-        if ( rq->message_callbacks->next == NULL ) {
-          debug( "No more callback for message_type = %#x.", message_type );
-          delete_receive_queue( rq->service_name, rq, NULL );
+        if ( rq->in_progress ) {
+          cb->function = NULL;
+          cb->message_type = MESSAGE_TYPE_INVALID;
+        }
+        else {
+          xfree( cb );
+          delete_dlist_element( e );
+          if ( rq->message_callbacks->next == NULL ) {
+            debug( "No more callback for message_type = %#x.", message_type );
+            delete_receive_queue( rq->service_name, rq, NULL );
+          }
         }
         return true;
       }
@@ -844,17 +855,15 @@ send_queue_connect( send_queue *sq ) {
     return -1;
   }
 
-  if ( geteuid() == 0 ) {
-    int wmem_size = 1048576;
-    int ret = setsockopt( sq->server_socket, SOL_SOCKET, SO_SNDBUFFORCE, ( const void * ) &wmem_size, ( socklen_t ) sizeof( wmem_size ) );
-    if ( ret < 0 ) {
-      error( "Failed to set SO_SNDBUFFORCE to %d ( %s [%d] ).", wmem_size, strerror( errno ), errno );
-      close( sq->server_socket );
-      sq->server_socket = -1;
-      return -1;
-    }
+  sq->socket_buffer_size = 1048576;
+  int ret = setsockopt( sq->server_socket, SOL_SOCKET, SO_SNDBUF, ( const void * ) &sq->socket_buffer_size, ( socklen_t ) sizeof( sq->socket_buffer_size ) );
+  if ( ret < 0 ) {
+    error( "Failed to set SO_SNDBUF to %d ( %s [%d] ).", sq->socket_buffer_size, strerror( errno ), errno );
+    close( sq->server_socket );
+    sq->server_socket = -1;
+    return -1;
   }
-  int ret = fcntl( sq->server_socket, F_SETFL, O_NONBLOCK );
+  ret = fcntl( sq->server_socket, F_SETFL, O_NONBLOCK );
   if ( ret < 0 ) {
     error( "Failed to set O_NONBLOCK ( %s [%d] ).", strerror( errno ), errno );
     close( sq->server_socket );
@@ -873,7 +882,7 @@ send_queue_connect( send_queue *sq ) {
     return 0;
   }
 
-  set_fd_handler( sq->server_socket, on_send_read, sq, &on_send_write, sq );
+  set_fd_handler( sq->server_socket, on_send_read, sq, on_send_write, sq );
   set_readable( sq->server_socket, true );
 
   if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
@@ -1092,9 +1101,7 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   }
 
   set_writable( sq->server_socket, true );
-  if ( sq->buffer->data_length > messenger_send_length_for_flush ) {
-    on_send_write( sq->server_socket, sq );
-  }
+
   return true;
 }
 
@@ -1215,7 +1222,7 @@ _clear_send_queue( const char *service_name ) {
     return false;
   }
 
-  if ( sq->buffer->data_length > 0 ) {
+  if ( sq->server_socket > -1 ) {
     set_writable( sq->server_socket, false );
   }
 
@@ -1369,14 +1376,13 @@ truncate_message_buffer( message_buffer *buf, size_t len ) {
     len = buf->data_length;
   }
 
-  if ( ( buf->head_offset + len ) <= buf->size ) {
-    buf->head_offset += len;
-  }
-  else {
-    memmove( buf->buffer, ( char * ) buf->buffer + buf->head_offset + len, buf->data_length - len );
+  buf->data_length -= len;
+  if ( buf->data_length == 0 ) {
     buf->head_offset = 0;
   }
-  buf->data_length -= len;
+  else {
+    buf->head_offset += len;
+  }
 }
 
 
@@ -1437,15 +1443,18 @@ static void
 call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uint16_t tag, void *data, size_t len ) {
   assert( rq != NULL );
 
-  dlist_element *element;
+  dlist_element *element, *next;
   receive_queue_callback *cb;
 
   debug( "Calling message callbacks ( service_name = %s, message_type = %#x, tag = %#x, data = %p, len = %zu ).",
          rq->service_name, message_type, tag, data, len );
 
-  for ( element = rq->message_callbacks->next; element; element = element->next ) {
+  assert( rq->in_progress != true );
+  rq->in_progress = true;
+  for ( element = rq->message_callbacks->next; element; element = next ) {
+    next = element->next;
     cb = element->data;
-    if ( cb->message_type != message_type ) {
+    if ( cb == NULL || cb->function == NULL || cb->message_type != message_type ) {
       continue;
     }
     switch ( message_type ) {
@@ -1510,6 +1519,19 @@ call_message_callbacks( receive_queue *rq, const uint8_t message_type, const uin
       error( "Unknown message type ( %#x ).", message_type );
       assert( 0 );
     }
+  }
+  for ( element = rq->message_callbacks->next; element; element = next ) {
+    next = element->next;
+    cb = element->data;
+    if ( cb->function == NULL ) {
+      xfree( cb );
+      delete_dlist_element( element );
+    }
+  }
+  rq->in_progress = false;
+  if ( rq->message_callbacks->next == NULL ) {
+     debug( "No more callback for message_type = %#x.", message_type );
+     delete_receive_queue( rq->service_name, rq, NULL );
   }
 }
 
@@ -1648,11 +1670,6 @@ on_send_write( int fd, void *data ) {
   debug( "Sending data to remote ( fd = %d, service_name = %s, buffer = %p, data_length = %zu ).",
          fd, sq->service_name, get_message_buffer_head( sq->buffer ), sq->buffer->data_length );
 
-  if ( sq->buffer->data_length < sizeof( message_header ) ) {
-    set_writable( sq->server_socket, false );
-    return;
-  }
-
   void *send_data;
   size_t send_len;
   ssize_t sent_len;
@@ -1664,8 +1681,14 @@ on_send_write( int fd, void *data ) {
     if ( sent_len == -1 ) {
       int err = errno;
       if ( err != EAGAIN && err != EWOULDBLOCK ) {
-        error( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
-               sq->service_name, fd, strerror( err ), err );
+        if ( err == EPIPE ) {
+          debug( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
+                 sq->service_name, fd, strerror( err ), err );
+        }
+        else {
+          error( "Failed to send ( service_name = %s, fd = %d, errno = %s [%d] ).",
+                 sq->service_name, fd, strerror( err ), err );
+        }
         send_dump_message( MESSENGER_DUMP_SEND_CLOSED, sq->service_name, NULL, 0 );
 
         set_readable( sq->server_socket, false );

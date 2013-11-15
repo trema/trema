@@ -555,7 +555,20 @@ start_switch_management( void ) {
 
 static void
 stop_switch_management( void ) {
-  // do something here.
+  if ( listener_info.listen_fd > -1 ) {
+    set_readable( listener_info.listen_fd, false );
+    delete_fd_handler( listener_info.listen_fd );
+    listener_info.listen_fd = -1;
+  }
+  stop_trema();
+}
+
+
+static void
+handle_sigterm( int signum ) {
+  UNUSED( signum );
+
+  set_external_callback( stop_switch_management );
 }
 
 
@@ -591,6 +604,12 @@ main( int argc, char *argv[] ) {
   // free returned buffer of get_current_dir_name()
   free( startup_dir );
 
+  struct sigaction signal_exit;
+  memset( &signal_exit, 0, sizeof( struct sigaction ) );
+  signal_exit.sa_handler = handle_sigterm;
+  sigaction( SIGINT, &signal_exit, NULL );
+  sigaction( SIGTERM, &signal_exit, NULL );
+
   catch_sigchild();
 
   // listener start (listen socket binding and listen)
@@ -606,7 +625,6 @@ main( int argc, char *argv[] ) {
   start_trema();
 
   finalize_listener_info( &listener_info );
-  stop_switch_management();
   stop_service_management();
   finalize_dpid_table();
 
