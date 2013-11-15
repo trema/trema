@@ -5,7 +5,6 @@ source "https://rubygems.org"
 gemspec
 
 # Add dependencies required to use your gem here.
-gem "pio", :github => 'trema/pio', :branch => 'develop'
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
