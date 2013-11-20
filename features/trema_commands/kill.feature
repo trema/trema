@@ -24,6 +24,7 @@ Feature: kill command
   @slow_process
   Scenario: kill a switch
     When I run `trema kill 0x1`
+     And *** sleep 1 ***
     Then the vswitch "0x1" is terminated
 
   @slow_process
