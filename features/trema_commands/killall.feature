@@ -23,6 +23,7 @@ Feature: killall command
      And I successfully run `trema run ../../objects/examples/switch_monitor/switch_monitor -c switch_monitor.conf -d`
      And wait until "switch_monitor" is up
     When I run `trema killall`
+     And *** sleep 1 ***
     Then switch_manager is terminated
      And switch is terminated
      And phost is terminated
