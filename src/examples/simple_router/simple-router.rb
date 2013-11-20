@@ -22,7 +22,6 @@ require 'interface'
 require 'routing-table'
 
 class SimpleRouter < Controller
-  include RouterUtils
 
   def start
     load 'simple_router.conf'
