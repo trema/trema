@@ -68,8 +68,19 @@ hash_core( const void *key, int size ) {
   const uint32_t prime = 0x01000193UL;
   const unsigned char *c = key;
 
-  for ( int i = 0; i < size; i++ ) {
-    hash_value ^= ( unsigned char ) c[ i ];
+  uint32_t value = 0;
+  int i = 0;
+  for ( ; ( i + ( int ) sizeof( uint32_t ) ) <= size; i += ( int ) sizeof( uint32_t ) ) {
+    memcpy( &value, &c[ i ], sizeof( uint32_t ) );
+    hash_value ^= value;
+    hash_value *= prime;
+  }
+  if ( i < size ) {
+    for ( ; i < size; i++ ) {
+      value <<= 8;
+      value |= ( ( uint32_t ) c[ i ] & 0xff );
+    }
+    hash_value ^= value;
     hash_value *= prime;
   }
 
