@@ -507,11 +507,17 @@ ignore_sigpipe() {
 
 
 static void
+set_do_stop_trema_as_external_callback() {
+  set_external_callback( stop_trema );
+}
+
+
+static void
 set_exit_handler() {
   struct sigaction signal_exit;
 
   memset( &signal_exit, 0, sizeof( struct sigaction ) );
-  signal_exit.sa_handler = ( void * ) stop_trema;
+  signal_exit.sa_handler = ( void * ) set_do_stop_trema_as_external_callback;
   sigaction( SIGINT, &signal_exit, NULL );
   sigaction( SIGTERM, &signal_exit, NULL );
 }
