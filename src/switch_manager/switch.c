@@ -703,7 +703,7 @@ confirm_self_dpid_is_unregistered( const list_element *switches, void *user_data
   else {
     // The switch has been deleted from the switch list
     finalize_openflow_application_interface();
-    set_external_callback( stop_switch );
+    push_external_callback( stop_switch );
   }
 }
 
@@ -884,7 +884,7 @@ static void
 handle_sigterm( int signum ) {
   UNUSED( signum );
 
-  set_external_callback( stop_switch_daemon );
+  push_external_callback( stop_switch_daemon );
 }
 
 

@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include "external_callback.h"
 #include "pcap_private.h"
 #include "queue.h"
 #include "trema.h"
@@ -303,8 +304,8 @@ static void
 start_packet_capture( void ) {
   set_timer_event();
 
-  if ( set_external_callback != NULL ) {
-    set_external_callback( start_capture );
+  if ( push_external_callback != NULL ) {
+    push_external_callback( start_capture );
   }
 }
 

@@ -133,11 +133,11 @@ void mock_start_trema( void );
 #define get_executable_name mock_get_executable_name
 const char *mock_get_executable_name( void );
 
-#ifdef set_external_callback
-#undef set_external_callback
+#ifdef push_external_callback
+#undef push_external_callback
 #endif
-#define set_external_callback mock_set_external_callback
-void mock_set_external_callback( void ( *callback )( void ) );
+#define push_external_callback mock_push_external_callback
+void mock_push_external_callback( void ( *callback )( void ) );
 
 #endif // UNIT_TESTING
 
@@ -203,8 +203,8 @@ handle_sigchld( int signum ) {
   UNUSED( signum );
 
   // because wait_child() is not signal safe, we call it later.
-  if ( set_external_callback != NULL ) {
-    set_external_callback( wait_child );
+  if ( push_external_callback != NULL ) {
+    push_external_callback( wait_child );
   }
 }
 
@@ -568,7 +568,7 @@ static void
 handle_sigterm( int signum ) {
   UNUSED( signum );
 
-  set_external_callback( stop_switch_management );
+  push_external_callback( stop_switch_management );
 }
 
 

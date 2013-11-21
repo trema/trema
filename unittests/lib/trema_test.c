@@ -333,7 +333,7 @@ mock_clock_gettime( clockid_t clk_id, struct timespec *tp ) {
 
 
 bool
-mock_set_external_callback( void ( *callback )( void ) ) {
+mock_push_external_callback( void ( *callback )( void ) ) {
   UNUSED( callback );
   return true;
 }

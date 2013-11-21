@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include "chibach.h"
 #include "chibach_private.h"
+#include "external_callback.h"
 #include "daemon.h"
 #include "doubly_linked_list.h"
 #include "log.h"
@@ -286,7 +287,7 @@ set_exit_handler() {
 
 static void
 set_dump_stats_as_external_callback() {
-  set_external_callback( dump_stats );
+  push_external_callback( dump_stats );
 }
 
 

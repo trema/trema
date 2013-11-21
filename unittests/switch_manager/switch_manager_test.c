@@ -167,7 +167,7 @@ mock_get_executable_name( void ) {
 
 
 void
-mock_set_external_callback( void ( *callback )( void ) ) {
+mock_push_external_callback( void ( *callback )( void ) ) {
   check_expected( callback );
 }
 
@@ -309,7 +309,7 @@ static void
 test_handle_sigchld_succeeded() {
   setup();
 
-  expect_value( mock_set_external_callback, callback, wait_child );
+  expect_value( mock_push_external_callback, callback, wait_child );
 
   handle_sigchld( 3 );
 

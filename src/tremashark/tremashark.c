@@ -350,8 +350,8 @@ write_circular_buffer( void ) {
 
 static void
 set_write_circular_buffer( void ) {
-  if ( set_external_callback != NULL ) {
-    set_external_callback( write_circular_buffer );
+  if ( push_external_callback != NULL ) {
+    push_external_callback( write_circular_buffer );
   }
 }
 
