@@ -843,7 +843,6 @@ $tests = [
           "objects/unittests/doubly_linked_list_test",
           "objects/unittests/ether_test",
           "objects/unittests/event_forward_interface_test",
-          "objects/unittests/external_callback_test",
           "objects/unittests/hash_table_test",
           "objects/unittests/linked_list_test",
           "objects/unittests/log_test",
