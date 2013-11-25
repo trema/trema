@@ -48,7 +48,7 @@ void *
 mock_xcalloc( size_t nmemb, size_t size ) {
   check_expected( nmemb );
   check_expected( size );
-  return ( void * ) mock();
+  return ( void * ) ( intptr_t ) mock();
 }
 
 
