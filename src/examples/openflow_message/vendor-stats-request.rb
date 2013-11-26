@@ -29,7 +29,7 @@ class VendorStatsRequestSample < Controller
 
   def stats_reply datapath_id, message
     if message.type == StatsReply::OFPST_VENDOR
-      vendor_stats_replay datapath_id, message
+      vendor_stats_reply datapath_id, message
     end
   end
 
@@ -37,8 +37,8 @@ class VendorStatsRequestSample < Controller
   private
 
 
-  def vendor_stats_replay datapath_id, message
-    info "[vendor_stats_replay]"
+  def vendor_stats_reply datapath_id, message
+    info "[vendor_stats_reply]"
     info "vendor_id: 0x%08x" % message.stats.first.vendor_id
     info "data: [#{ message.stats.first.data.map { | n |  "0x%02x" % n }.join ", " }]"
   end
