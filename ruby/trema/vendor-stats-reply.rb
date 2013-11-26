@@ -21,7 +21,7 @@ require "trema/stats-helper"
 
 module Trema
   class VendorStatsReply < StatsHelper
-    FIELDS = %w(vendor_id)
+    FIELDS = %w(vendor_id data)
     FIELDS.each { |field| attr_reader field.intern }
 
 
@@ -34,7 +34,8 @@ module Trema
     #
     #   @example
     #     VendorStatsReply.new(
-    #       :vendor_id => 123
+    #       :vendor_id => 123,
+    #       :data => "deadbeef".unpack( "C*" )
     #     )
     #
     #   @param [Hash] options
@@ -42,6 +43,9 @@ module Trema
     #
     #   @option options [Number] :vendor_id
     #     the specific vendor identifier.
+    #
+    #   @option options [Array] :data
+    #     a String that holds vendor's defined arbitrary length data.
     #
     #   @return [VendorStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_VENDOR) OpenFlow message.

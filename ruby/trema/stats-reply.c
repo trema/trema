@@ -502,12 +502,21 @@ handle_stats_reply(
     case OFPST_VENDOR:
     {
       uint32_t *vendor_id;
-      VALUE options = rb_hash_new();
       VALUE vendor_stats_arr = rb_ary_new2( 1 );
+      VALUE options = rb_hash_new();
       VALUE vendor_stats_reply;
 
       vendor_id = ( uint32_t * ) body->data;
       rb_hash_aset( options, ID2SYM( rb_intern( "vendor_id" ) ), UINT2NUM( *vendor_id ) );
+      if ( body_length > sizeof( uint32_t ) ) {
+        unsigned long length = body_length - sizeof( uint32_t );
+        uint8_t *data = ( uint8_t * ) body->data + sizeof( uint32_t );
+        VALUE ary = rb_ary_new2( ( signed ) length );
+        for ( unsigned long i = 0; i < length; i++ ) {
+          rb_ary_push( ary, INT2FIX( data[ i ] ) );
+        }
+        rb_hash_aset( options, ID2SYM( rb_intern( "data" ) ), ary );
+      }
       vendor_stats_reply = rb_funcall( rb_eval_string( "Trema::VendorStatsReply" ), rb_intern( "new" ), 1, options );
       rb_ary_push( vendor_stats_arr, vendor_stats_reply );
 

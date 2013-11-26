@@ -137,6 +137,7 @@ describe StatsRequest do
     subject { VendorStatsRequest.new }
     it_should_behave_like "any stats-request"
     its( :vendor_id ) { should == 0x00004cff }
+    its( :data ) { should be_nil }
   end
 
 
@@ -144,6 +145,16 @@ describe StatsRequest do
     subject { VendorStatsRequest.new :vendor_id => 123 }
     it_should_behave_like "any stats-request"
     its( :vendor_id ) { should == 123 }
+    its( :data ) { should be_nil }
+  end
+
+
+  context "when .VendorStatsRequest.new(:data => value)" do
+    subject { VendorStatsRequest.new :data => data }
+    it_should_behave_like "any stats-request"
+    let( :data ) { "VENDOR DATA".unpack( "C*" ) }
+    its( :data ) { should == [86, 69, 78, 68, 79, 82, 32, 68, 65, 84, 65] }
+    its( :vendor_id ) { should == 0x00004cff }
   end
 end
 
