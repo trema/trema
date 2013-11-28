@@ -23,7 +23,7 @@ Feature: run command
      And wait until "learning_switch" is up
     Then the output should contain:
      """
-     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
+     switch_manager --daemonize --port=6653 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
      """
      And the output should contain:
      """

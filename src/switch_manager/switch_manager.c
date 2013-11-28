@@ -36,6 +36,9 @@
 #include "event_forward_entry_manipulation.h"
 
 
+#define DEFAULT_TCP_PORT 6653
+
+
 #ifdef UNIT_TESTING
 #define static
 
@@ -168,7 +171,7 @@ usage() {
     "  -g, --syslog                    output log messages to syslog\n"
     "  -f, --logging_facility=FACILITY set syslog facility\n"
     "  -h, --help                      display this help and exit\n"
-    , get_executable_name(), OFP_TCP_PORT
+    , get_executable_name(), DEFAULT_TCP_PORT
   );
 }
 
@@ -254,7 +257,7 @@ static void
 init_listener_info( struct listener_info *listener_info ) {
   memset( listener_info, 0, sizeof( struct listener_info ) );
   listener_info->switch_daemon = xconcatenate_path( get_trema_home(), SWITCH_MANAGER_PATH );
-  listener_info->listen_port = OFP_TCP_PORT;
+  listener_info->listen_port = DEFAULT_TCP_PORT;
   listener_info->listen_fd = -1;
   create_list( &listener_info->vendor_service_name_list );
   create_list( &listener_info->packetin_service_name_list );

@@ -97,7 +97,7 @@ module Trema
       # @return [Configuration]
       #
       def initialize
-        @port = 6633
+        @port = 6653
         @apps = Trema::App.clear
         @hosts = Trema::Host.clear
         @links = Trema::Link.clear

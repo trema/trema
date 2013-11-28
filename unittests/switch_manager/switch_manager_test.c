@@ -625,7 +625,7 @@ test_switch_manager_main_and_port_option_succeeded() {
 
   char *argv[] = {
       ( char * ) ( uintptr_t ) "switch_manager",
-      ( char * ) ( uintptr_t ) "--port=6633",
+      ( char * ) ( uintptr_t ) "--port=6653",
       NULL,
     };
   int argc = ARRAY_SIZE( argv ) - 1;

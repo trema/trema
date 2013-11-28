@@ -23,7 +23,7 @@ require "trema/packetin-filter"
 
 describe Trema::DSL::Syntax do
   before( :each ) do
-    @context = mock( "context", :port => 6633, :dump_to => nil )
+    @context = mock( "context", :port => 6653, :dump_to => nil )
     @syntax = Trema::DSL::Syntax.new( @context )
   end
 

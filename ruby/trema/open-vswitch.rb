@@ -31,7 +31,7 @@ module Trema
     include Trema::Daemon
 
 
-    DEFAULT_PORT = 6633
+    DEFAULT_PORT = 6653
 
 
     log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }

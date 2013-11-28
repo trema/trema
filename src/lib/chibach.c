@@ -192,7 +192,7 @@ parse_argv( int *argc, char ***argv ) {
 
   run_as_daemon = false;
   controller.ip = 0x7f000001;
-  controller.port = 6633;
+  controller.port = 6653;
 
   for ( int i = 0; i < *argc; ++i ) {
     new_argv[ i ] = ( *argv )[ i ];
