@@ -28,11 +28,11 @@ end
 
 When /^wait until "([^"]*)" is up$/ do | process |
   nloop = 0
-  pid_file = File.join( Trema.pid, "#{ process }.pid" )
+  pid_file = File.join(Trema.pid, "#{ process }.pid")
   loop do
     nloop += 1
     fail 'Timeout' if nloop > 60 # FIXME
-    break if FileTest.exists?( pid_file ) && !ps_entry_of( process ).nil?
+    break if FileTest.exists?(pid_file) && !ps_entry_of(process).nil?
     sleep 0.1
   end
   sleep 1  # FIXME
@@ -45,36 +45,36 @@ end
 
 
 Then /^([^\s]*) is terminated$/ do | name |
-  ps_entry_of( name ).should be_empty
+  ps_entry_of(name).should be_empty
 end
 
 
 Then /^the vswitch "(.*?)" is running$/ do | dpid |
-  pid_file = File.join( Trema.pid, "open_vswitch.#{ dpid }.pid" )
-  File.exists?( pid_file ).should be_true
+  pid_file = File.join(Trema.pid, "open_vswitch.#{ dpid }.pid")
+  File.exists?(pid_file).should be_true
 end
 
 
 Then /^the vswitch "([^"]*)" is terminated$/ do | dpid |
-  pid_file = File.join( Trema.pid, "open_vswitch.#{ dpid }.pid" )
-  File.exists?( pid_file ).should be_false
+  pid_file = File.join(Trema.pid, "open_vswitch.#{ dpid }.pid")
+  File.exists?(pid_file).should be_false
 end
 
 
 Then /^the vhost "(.*?)" is terminated$/ do | host |
-  pid_file = File.join( Trema.pid, "phost.#{ host }.pid" )
-  File.exists?( pid_file ).should be_false
+  pid_file = File.join(Trema.pid, "phost.#{ host }.pid")
+  File.exists?(pid_file).should be_false
 end
 
 
 Then /^the controller "(.*?)" is terminated$/ do | controller |
-  pid_file = File.join( Trema.pid, "#{ controller }.pid" )
-  File.exists?( pid_file ).should be_false
+  pid_file = File.join(Trema.pid, "#{ controller }.pid")
+  File.exists?(pid_file).should be_false
 end
 
 
 Then /^([^\s]*) is started$/ do | name |
-  ps_entry_of( name ).should_not be_empty
+  ps_entry_of(name).should_not be_empty
 end
 
 
