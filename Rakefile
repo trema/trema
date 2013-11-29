@@ -1021,7 +1021,7 @@ if RUBY_VERSION >= '1.9.0'
   task :quality => :rubocop
   require 'rubocop/rake_task'
   Rubocop::RakeTask.new do |task|
-    task.patterns = ['ruby/**/*.rb', 'src/**/*.rb', 'bin/*', 'Rakefile', 'Gemfile', 'trema.gemspec']
+    task.patterns = ['ruby/**/*.rb', 'src/**/*.rb', 'bin/*', 'spec/**/*.rb', 'features/**/*.rb', 'Rakefile', 'Gemfile', 'trema.gemspec']
   end
 end
 

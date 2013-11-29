@@ -26,7 +26,8 @@ describe QueueGetConfigReply, ".new( VALID OPTIONS )" do
       pq = PacketQueue.new( :queue_id => i, :len => i * 64 )
       mr = MinRateQueue.new( i, i * 64, 1024 * i, pq)
     end
-    QueueGetConfigReply.new( :datapath_id => 0xabc,
+    QueueGetConfigReply.new(
+      :datapath_id => 0xabc,
       :transaction_id => 123,
       :port => 1,
       :queues => Trema::PacketQueues.queues
