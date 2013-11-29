@@ -1017,6 +1017,13 @@ rescue LoadError
 end
 
 
+if RUBY_VERSION >= '1.9.0'
+  task :quality => :rubocop
+  require 'rubocop/rake_task'
+  Rubocop::RakeTask.new
+end
+
+
 ################################################################################
 # YARD
 ################################################################################
