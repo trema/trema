@@ -27,6 +27,7 @@ module Trema
 
     def trema_run options
       @config_file = options[ :conf ] || nil
+      @openflow_port = options[ :port ] || 6653
 
       if options[ :daemonize ]
         $run_as_daemon = true
@@ -70,6 +71,8 @@ module Trema
       else
         config = Trema::DSL::Configuration.new
       end
+
+      config.port = @openflow_port
 
       if ARGV[ 0 ]
         controller_file = ARGV[ 0 ].split.first

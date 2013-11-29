@@ -57,6 +57,9 @@ class BinTrema
       c.desc "Enables Trema wireshark plugin"
       c.switch [ :s, :tremashark ], :negatable => false
 
+      c.desc "Overrides the default openflow channel port"
+      c.flag [ :p, :port ]
+
       c.desc "Specifies emulated network configuration"
       c.flag [ :c, :conf ]
 
