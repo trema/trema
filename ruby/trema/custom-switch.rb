@@ -26,7 +26,7 @@ module Trema
 
     log_file { |vswitch| "customswitch.#{ vswitch.name }.log" }
 
-    
+
     def initialize stanza
       super stanza
     end
