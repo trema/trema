@@ -19,7 +19,7 @@
 module Trema
   class Switch
     attr_reader :dpid
-    alias :datapath_id :dpid
+    alias_method :datapath_id, :dpid
 
 
     def self.inherited subclass

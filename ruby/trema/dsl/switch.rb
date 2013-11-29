@@ -34,7 +34,7 @@ module Trema
           raise "Invalid datapath_id: #{ value }"
         end
       end
-      alias :datapath_id :dpid
+      alias_method :datapath_id, :dpid
 
 
       def ports str

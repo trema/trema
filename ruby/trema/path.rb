@@ -48,7 +48,7 @@ module Trema
         File.join __send__( base ), path
       end
     end
-    alias :dir :file
+    alias_method :dir, :file
   end
 
 
