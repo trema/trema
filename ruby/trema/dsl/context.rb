@@ -25,12 +25,12 @@ require 'trema/path'
 module Trema
   module DSL
     class Context
-      PATH = File.join( Trema.tmp, '.context' )
+      PATH = File.join(Trema.tmp, '.context')
 
 
       def self.load_current
-        if FileTest.exists?( PATH )
-          Marshal.load( IO.read PATH )
+        if FileTest.exists?(PATH)
+          Marshal.load(IO.read PATH)
         else
           Configuration.new
         end
@@ -52,8 +52,8 @@ module Trema
       # @return [Configuration]
       #
       def dump
-        File.open( PATH, 'w' ) do | f |
-          f.print Marshal.dump( @config )
+        File.open(PATH, 'w') do | f |
+          f.print Marshal.dump(@config)
         end
         @config
       end

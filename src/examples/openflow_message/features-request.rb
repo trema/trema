@@ -56,18 +56,18 @@ class FeaturesRequestController < Controller
 
   def print_actions actions
     info 'actions:'
-    info '  OFPAT_OUTPUT' if actions & ( 1 << OFPAT_OUTPUT ) != 0
-    info '  OFPAT_SET_VLAN_VID' if actions & ( 1 << OFPAT_SET_VLAN_VID ) != 0
-    info '  OFPAT_SET_VLAN_PCP' if actions & ( 1 << OFPAT_SET_VLAN_PCP ) != 0
-    info '  OFPAT_STRIP_VLAN' if actions & ( 1 << OFPAT_STRIP_VLAN ) != 0
-    info '  OFPAT_SET_DL_SRC' if actions & ( 1 << OFPAT_SET_DL_SRC ) != 0
-    info '  OFPAT_SET_DL_DST' if actions & ( 1 << OFPAT_SET_DL_DST ) != 0
-    info '  OFPAT_SET_NW_SRC' if actions & ( 1 << OFPAT_SET_NW_SRC ) != 0
-    info '  OFPAT_SET_NW_DST' if actions & ( 1 << OFPAT_SET_NW_DST ) != 0
-    info '  OFPAT_SET_NW_TOS' if actions & ( 1 << OFPAT_SET_NW_TOS ) != 0
-    info '  OFPAT_SET_TP_SRC' if actions & ( 1 << OFPAT_SET_TP_SRC ) != 0
-    info '  OFPAT_SET_TP_DST' if actions & ( 1 << OFPAT_SET_TP_DST ) != 0
-    info '  OFPAT_ENQUEUE' if actions & ( 1 << OFPAT_ENQUEUE ) != 0
+    info '  OFPAT_OUTPUT' if actions & ( 1 << OFPAT_OUTPUT) != 0
+    info '  OFPAT_SET_VLAN_VID' if actions & ( 1 << OFPAT_SET_VLAN_VID) != 0
+    info '  OFPAT_SET_VLAN_PCP' if actions & ( 1 << OFPAT_SET_VLAN_PCP) != 0
+    info '  OFPAT_STRIP_VLAN' if actions & ( 1 << OFPAT_STRIP_VLAN) != 0
+    info '  OFPAT_SET_DL_SRC' if actions & ( 1 << OFPAT_SET_DL_SRC) != 0
+    info '  OFPAT_SET_DL_DST' if actions & ( 1 << OFPAT_SET_DL_DST) != 0
+    info '  OFPAT_SET_NW_SRC' if actions & ( 1 << OFPAT_SET_NW_SRC) != 0
+    info '  OFPAT_SET_NW_DST' if actions & ( 1 << OFPAT_SET_NW_DST) != 0
+    info '  OFPAT_SET_NW_TOS' if actions & ( 1 << OFPAT_SET_NW_TOS) != 0
+    info '  OFPAT_SET_TP_SRC' if actions & ( 1 << OFPAT_SET_TP_SRC) != 0
+    info '  OFPAT_SET_TP_DST' if actions & ( 1 << OFPAT_SET_TP_DST) != 0
+    info '  OFPAT_ENQUEUE' if actions & ( 1 << OFPAT_ENQUEUE) != 0
     info '  OFPAT_VENDOR' if actions & OFPAT_VENDOR != 0
   end
 

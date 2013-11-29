@@ -25,7 +25,7 @@ module Trema
 
 
     def trema_kill name
-      unless maybe_kill( name )
+      unless maybe_kill(name)
         exit_now! "unknown name: #{ name }"
       end
     end
@@ -37,30 +37,30 @@ module Trema
 
 
     def maybe_kill name
-      killed = maybe_kill_app( name ) || nil
-      killed ||= maybe_shutdown_host( name )
-      killed ||= maybe_shutdown_switch( name )
+      killed = maybe_kill_app(name) || nil
+      killed ||= maybe_shutdown_host(name)
+      killed ||= maybe_shutdown_switch(name)
       # [TODO] kill a link by its name. Needs a good naming convension for link.
       killed
     end
 
 
     def maybe_kill_app name
-      app = find_app_by_name( name )
+      app = find_app_by_name(name)
       app.kill! if app
       app
     end
 
 
     def maybe_shutdown_host name
-      host = find_host_by_name( name )
+      host = find_host_by_name(name)
       host.shutdown! if host
       host
     end
 
 
     def maybe_shutdown_switch name
-      switch = find_switch_by_name( name )
+      switch = find_switch_by_name(name)
       switch.shutdown if switch
       switch
     end

@@ -68,26 +68,26 @@ module Trema
         fail '--duration and --n_pkts are exclusive.'
       end
 
-      sh( "#{ Executables.cli } -i #{ @host.interface } send_packets " +
+      sh("#{ Executables.cli } -i #{ @host.interface } send_packets " +
           "--ip_src #{ @host.ip } --ip_dst #{ dest.ip } " +
-          send_packets_options( options ) )
+          send_packets_options(options))
     end
 
 
     def show_tx_stats
-      puts stats( :tx )
+      puts stats(:tx)
     end
 
 
     def show_rx_stats
-      puts stats( :rx )
+      puts stats(:rx)
     end
 
 
     def tx_stats
-      stat = stats( :tx ).split( "\n" )[ 1 ]
+      stat = stats(:tx).split("\n")[ 1 ]
       if stat
-        Trema::Stats.new(*stat.split( ',' ))
+        Trema::Stats.new(*stat.split(','))
       else
         nil
       end
@@ -95,9 +95,9 @@ module Trema
 
 
     def rx_stats
-      stat = stats( :rx ).split( "\n" )[ 1 ]
+      stat = stats(:rx).split("\n")[ 1 ]
       if stat
-        Trema::Stats.new(*stat.split( ',' ))
+        Trema::Stats.new(*stat.split(','))
       else
         Trema::Stats.new nil, nil, nil, nil, 0, 0
       end
@@ -132,18 +132,18 @@ module Trema
 
     def send_packets_options options
       [
-       tp_src( options[ :tp_src ] || default_tp_src ),
-       tp_dst( options[ :tp_dst ] || default_tp_dst ),
-       pps( options[ :pps ] || default_pps ),
-       options[ :n_pkts ] ? nil : duration( options[ :duration ] || default_duration ),
-       length( options[ :length ] || default_length ),
-       n_pkts( options[ :n_pkts ] ),
-       inc_ip_src( options[ :inc_ip_src ] ),
-       inc_ip_dst( options[ :inc_ip_dst ] ),
-       inc_tp_src( options[ :inc_tp_src ] ),
-       inc_tp_dst( options[ :inc_tp_dst ] ),
-       inc_payload( options[ :inc_payload ] ),
-      ].compact.join( ' ' )
+       tp_src(options[ :tp_src ] || default_tp_src),
+       tp_dst(options[ :tp_dst ] || default_tp_dst),
+       pps(options[ :pps ] || default_pps),
+       options[ :n_pkts ] ? nil : duration(options[ :duration ] || default_duration),
+       length(options[ :length ] || default_length),
+       n_pkts(options[ :n_pkts ]),
+       inc_ip_src(options[ :inc_ip_src ]),
+       inc_ip_dst(options[ :inc_ip_dst ]),
+       inc_tp_src(options[ :inc_tp_src ]),
+       inc_tp_dst(options[ :inc_tp_dst ]),
+       inc_payload(options[ :inc_payload ]),
+      ].compact.join(' ')
     end
 
 

@@ -71,12 +71,12 @@ module Trema
     def run!
       FileUtils.rm_f log_file if log_file
       command_block = self.class.class_eval do
-        class_variable_get( :@@command )
+        class_variable_get(:@@command)
       end
       if command_block
-        sh command_block.call( self )
+        sh command_block.call(self)
       else
-        sh __send__( :command )
+        sh __send__(:command)
       end
       wait_until_up
     end
@@ -105,7 +105,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown!
-      Trema::Process.read( pid_file, name ).kill!
+      Trema::Process.read(pid_file, name).kill!
     end
 
 
@@ -147,17 +147,17 @@ module Trema
 
     def log_file
       log_file_block = self.class.class_eval do
-        class_variable_get( :@@log_file )
+        class_variable_get(:@@log_file)
       end
       return nil if log_file_block.nil?
-      name = log_file_block.call( self )
+      name = log_file_block.call(self)
       File.join Trema.log, name
     end
 
 
     def daemon_id
       m = self.class.class_eval do
-        class_variable_get( :@@daemon_id ) || :name
+        class_variable_get(:@@daemon_id) || :name
       end
       __send__ m
     end
@@ -165,12 +165,12 @@ module Trema
 
     def wait_until_up
       wait = self.class.class_eval do
-        class_variable_get( :@@wait_until_up )
+        class_variable_get(:@@wait_until_up)
       end
       return if not wait
       loop do
         sleep 0.1
-        break if FileTest.exists?( pid_file )
+        break if FileTest.exists?(pid_file)
       end
     end
   end

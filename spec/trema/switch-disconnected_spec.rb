@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -27,10 +27,10 @@ describe SwitchDisconnected do
   context 'when switch is killed' do
     it 'should receive a switch_disconnected' do
       network {
-        vswitch( 'switch-disconnect' ) { datapath_id 0xabc }
-      }.run( SwitchDisconnected ) {
-        controller( 'SwitchDisconnected' ).should_receive( :switch_disconnected )
-        vswitch( 'switch-disconnect' ).shutdown!
+        vswitch('switch-disconnect') { datapath_id 0xabc }
+      }.run(SwitchDisconnected) {
+        controller('SwitchDisconnected').should_receive(:switch_disconnected)
+        vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
       }
     end
@@ -38,10 +38,10 @@ describe SwitchDisconnected do
 
     it 'should receive a switch_disconnected with valid datapath_id' do
       network {
-        vswitch( 'switch-disconnect' ) { datapath_id 0xabc }
-      }.run( SwitchDisconnected ) {
-        controller( 'SwitchDisconnected' ).should_receive( :switch_disconnected ).with( 0xabc )
-        vswitch( 'switch-disconnect' ).shutdown!
+        vswitch('switch-disconnect') { datapath_id 0xabc }
+      }.run(SwitchDisconnected) {
+        controller('SwitchDisconnected').should_receive(:switch_disconnected).with(0xabc)
+        vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
       }
     end

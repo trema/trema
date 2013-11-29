@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/link'
 
 
@@ -24,29 +24,29 @@ module Trema
   describe Link do
     before :each do
       Trema::Link.instances.clear
-      @stanza = mock( 'link stanza', :peers => [ 'Virtual Host', 'Virtual Switch' ] )
+      @stanza = mock('link stanza', :peers => [ 'Virtual Host', 'Virtual Switch' ])
     end
 
 
     context 'when creating/deleting a link' do
       before :each do
-        @link = Link.new( @stanza )
+        @link = Link.new(@stanza)
       end
 
 
       it 'executes ip and ifconfig command' do
-        @link.should_receive( :sh ).once.ordered.with( 'sudo ip link add name trema0-0 type veth peer name trema0-1' )
-        @link.should_receive( :sh ).once.ordered.with( 'sudo /sbin/sysctl -w net.ipv6.conf.trema0-0.disable_ipv6=1 >/dev/null 2>&1' )
-        @link.should_receive( :sh ).once.ordered.with( 'sudo /sbin/sysctl -w net.ipv6.conf.trema0-1.disable_ipv6=1 >/dev/null 2>&1' )
-        @link.should_receive( :sh ).once.ordered.with( 'sudo /sbin/ifconfig trema0-0 up' )
-        @link.should_receive( :sh ).once.ordered.with( 'sudo /sbin/ifconfig trema0-1 up' )
+        @link.should_receive(:sh).once.ordered.with('sudo ip link add name trema0-0 type veth peer name trema0-1')
+        @link.should_receive(:sh).once.ordered.with('sudo /sbin/sysctl -w net.ipv6.conf.trema0-0.disable_ipv6=1 >/dev/null 2>&1')
+        @link.should_receive(:sh).once.ordered.with('sudo /sbin/sysctl -w net.ipv6.conf.trema0-1.disable_ipv6=1 >/dev/null 2>&1')
+        @link.should_receive(:sh).once.ordered.with('sudo /sbin/ifconfig trema0-0 up')
+        @link.should_receive(:sh).once.ordered.with('sudo /sbin/ifconfig trema0-1 up')
 
         @link.enable!
       end
 
 
       it 'executes ip and ifconfig command' do
-        @link.should_receive( :sh ).once.with( 'sudo ip link delete trema0-0 2>/dev/null' )
+        @link.should_receive(:sh).once.with('sudo ip link delete trema0-0 2>/dev/null')
 
         @link.delete!
       end

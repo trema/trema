@@ -29,20 +29,20 @@ module Trema
       options.delete :actions
       option_string = options.collect do | k, v |
         "#{ k }=#{ v }"
-      end.join( ',' )
+      end.join(',')
       sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.network_device } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
 
 
     def flows switch
-      dump_flows( switch ).split( "\n" )[ 1..-1 ].collect do | each |
-        Trema::Flow.parse( each )
+      dump_flows(switch).split("\n")[ 1..-1 ].collect do | each |
+        Trema::Flow.parse(each)
       end.compact
     end
 
 
     def users_flows switch
-      flows( switch ).select( &:users_flow? )
+      flows(switch).select(&:users_flow?)
     end
 
 

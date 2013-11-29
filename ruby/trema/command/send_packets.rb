@@ -27,13 +27,13 @@ module Trema
 
 
     def trema_send_packets source_name, dest_name, options
-      source = find_host_by_name( source_name )
+      source = find_host_by_name(source_name)
       fail "unknown host: #{ source_name }" if source.nil?
 
-      dest = find_host_by_name( dest_name )
+      dest = find_host_by_name(dest_name)
       fail "unknown host: #{ dest_name }" if dest.nil?
 
-      Trema::Cli.new( source ).send_packets( dest, options )
+      Trema::Cli.new(source).send_packets(dest, options)
     end
   end
 end

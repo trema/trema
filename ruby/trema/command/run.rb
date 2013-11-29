@@ -40,13 +40,13 @@ module Trema
         $no_flow_cleanup = true
       end
 
-      need_cleanup = ( not running? )
+      need_cleanup = ( not running?)
 
       if $run_as_daemon
-        Trema::DSL::Runner.new( load_config ).daemonize
+        Trema::DSL::Runner.new(load_config).daemonize
       else
         begin
-          Trema::DSL::Runner.new( load_config ).run
+          Trema::DSL::Runner.new(load_config).run
         rescue SystemExit
           # This is OK
         ensure
@@ -66,9 +66,9 @@ module Trema
       dsl_parser = Trema::DSL::Parser.new
 
       if @config_file
-        config = dsl_parser.parse( @config_file )
-      elsif FileTest.exists?( './trema.conf' )
-        config = dsl_parser.parse( './trema.conf' )
+        config = dsl_parser.parse(@config_file)
+      elsif FileTest.exists?('./trema.conf')
+        config = dsl_parser.parse('./trema.conf')
       else
         config = Trema::DSL::Configuration.new
       end
@@ -81,14 +81,14 @@ module Trema
           require 'trema'
           Object.__send__ :include, Trema
           ARGV.replace ARGV[ 0 ].split[ 1..-1 ]
-          $LOAD_PATH << File.dirname( controller_file )
+          $LOAD_PATH << File.dirname(controller_file)
           load controller_file
         else
           # Assume that the controller is written in C
           stanza = Trema::DSL::Run.new
           stanza.path controller_file
           stanza.options ARGV[ 0 ].split[ 1..-1 ]
-          Trema::App.new( stanza )
+          Trema::App.new(stanza)
         end
       end
 

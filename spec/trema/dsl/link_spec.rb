@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/link'
 
 
@@ -32,10 +32,10 @@ module Trema
 
       context 'when getting attributes of a link' do
         it 'remembers peers' do
-          link = Link.new( 'Host', 'Switch' )
-          expect( link.peers.size ).to eq( 2 )
-          expect( link.peers ).to include( 'Host' )
-          expect( link.peers ).to include( 'Switch' )
+          link = Link.new('Host', 'Switch')
+          expect(link.peers.size).to eq(2)
+          expect(link.peers).to include('Host')
+          expect(link.peers).to include('Switch')
         end
       end
     end

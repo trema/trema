@@ -89,7 +89,7 @@ class FDB
     if entry
       entry.update port_no
     else
-      new_entry = ForwardingEntry.new( mac, port_no, DEFAULT_AGE_MAX, dpid )
+      new_entry = ForwardingEntry.new(mac, port_no, DEFAULT_AGE_MAX, dpid)
       @db[ new_entry.mac ] = new_entry
     end
   end

@@ -23,7 +23,7 @@ module Trema
 
 
     def self.inherited subclass
-      at_exit { subclass.new( eval ARGV[ 0 ] ).run! }
+      at_exit { subclass.new(eval ARGV[ 0 ]).run! }
     end
 
 
@@ -33,7 +33,7 @@ module Trema
 
 
     def name
-      self.class.to_s.split( '::' ).last
+      self.class.to_s.split('::').last
     end
 
 
@@ -43,7 +43,7 @@ module Trema
 
 
     def features_request xid
-      send_message FeaturesReply.new( :datapath_id => @dpid, :transaction_id => xid )
+      send_message FeaturesReply.new(:datapath_id => @dpid, :transaction_id => xid)
     end
   end
 end

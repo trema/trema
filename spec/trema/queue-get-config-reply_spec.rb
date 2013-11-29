@@ -16,15 +16,15 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
 describe QueueGetConfigReply, '.new( VALID OPTIONS )' do
   subject do
     for i in 1..2 do
-      pq = PacketQueue.new( :queue_id => i, :len => i * 64 )
-      mr = MinRateQueue.new( i, i * 64, 1024 * i, pq)
+      pq = PacketQueue.new(:queue_id => i, :len => i * 64)
+      mr = MinRateQueue.new(i, i * 64, 1024 * i, pq)
     end
     QueueGetConfigReply.new(
       :datapath_id => 0xabc,
@@ -33,28 +33,28 @@ describe QueueGetConfigReply, '.new( VALID OPTIONS )' do
       :queues => Trema::PacketQueues.queues
     )
   end
-  its( 'queues.length' ) { should ==  2  }
-  its( 'queues.first' ) { should be_an_instance_of PacketQueue }
-  its( :datapath_id ) { should == 0xabc }
-  its( :transaction_id ) { should == 123 }
+  its('queues.length') { should ==  2  }
+  its('queues.first') { should be_an_instance_of PacketQueue }
+  its(:datapath_id) { should == 0xabc }
+  its(:transaction_id) { should == 123 }
 end
 
 
 describe PacketQueue, '.new( VALID OPTIONS )' do
-  subject { PacketQueue.new( :queue_id => 123, :len => 64 ) }
-  its( :queue_id ) { should == 123 }
-  its( :len ) { should == 64 }
+  subject { PacketQueue.new(:queue_id => 123, :len => 64) }
+  its(:queue_id) { should == 123 }
+  its(:len) { should == 64 }
 end
 
 
 describe MinRateQueue, '.new( VALID OPTIONS )' do
   subject do
-    pq = PacketQueue.new( :queue_id => 123, :len => 64 )
-    MinRateQueue.new( 1, 64, 1024, pq )
+    pq = PacketQueue.new(:queue_id => 123, :len => 64)
+    MinRateQueue.new(1, 64, 1024, pq)
   end
-  its( :property ) { should == 1 }
-  its( :len ) { should == 64 }
-  its( :rate ) { should == 1024 }
+  its(:property) { should == 1 }
+  its(:len) { should == 64 }
+  its(:rate) { should == 1024 }
 end
 
 

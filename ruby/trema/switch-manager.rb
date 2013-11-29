@@ -104,7 +104,7 @@ module Trema
 
 
     def switch_options
-      opts = SwitchDaemon.new( @rule ).options
+      opts = SwitchDaemon.new(@rule).options
       opts << '--no-flow-cleanup' if @no_flow_cleanup
       opts
     end

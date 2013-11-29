@@ -26,7 +26,7 @@ module Trema
 
 
     def trema_show_stats hostname, tx, rx
-      cli = get_cli( hostname )
+      cli = get_cli(hostname)
 
       unless tx || rx
         show_tx_and_rx cli
@@ -50,7 +50,7 @@ module Trema
 
 
     def get_cli name
-      host = find_host_by_name( name )
+      host = find_host_by_name(name)
       exit_now! "unknown host: #{ name }" if host.nil?
       Trema::Cli.new host
     end

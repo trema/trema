@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', '..', '..', 'spec', 'spec_helper' )
-require File.join( File.dirname( __FILE__ ), 'repeater-hub' )
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'spec', 'spec_helper')
+require File.join(File.dirname(__FILE__), 'repeater-hub')
 
 
 describe RepeaterHub do
@@ -32,7 +32,7 @@ describe RepeaterHub do
       link 'switch', 'host1'
       link 'switch', 'host2'
       link 'switch', 'host3'
-    }.run( RepeaterHub ) {
+    }.run(RepeaterHub) {
       example.run
     }
   end
@@ -40,7 +40,7 @@ describe RepeaterHub do
 
   context 'when host1 sends one packet to host2' do
     it 'should #packet_in' do
-      controller( 'RepeaterHub' ).should_receive( :packet_in )
+      controller('RepeaterHub').should_receive(:packet_in)
 
       send_packets 'host1', 'host2'
       sleep 2 # FIXME: wait to send_packets
@@ -48,7 +48,7 @@ describe RepeaterHub do
 
 
     it 'should #send_flow_mod_add' do
-      controller( 'RepeaterHub' ).should_receive( :send_flow_mod_add )
+      controller('RepeaterHub').should_receive(:send_flow_mod_add)
 
       send_packets 'host1', 'host2'
       sleep 2 # FIXME: wait to send_packets
@@ -58,26 +58,26 @@ describe RepeaterHub do
     describe 'switch' do
       before { send_packets 'host1', 'host2' }
 
-      subject { vswitch( 'switch' ) }
+      subject { vswitch('switch') }
 
-      it { should have( 1 ).flows }
-      its( 'flows.first.actions' ) { should == 'FLOOD' }
+      it { should have(1).flows }
+      its('flows.first.actions') { should == 'FLOOD' }
     end
 
 
     describe 'host' do
       before { send_packets 'host1', 'host2' }
 
-      subject { vhost( host_name ) }
+      subject { vhost(host_name) }
 
       context 'RX stats of host2' do
-        let( :host_name ) { 'host2' }
-        its( 'rx_stats.n_pkts' ) { should == 1 }
+        let(:host_name) { 'host2' }
+        its('rx_stats.n_pkts') { should == 1 }
       end
 
       context 'RX stats of host3' do
-        let( :host_name ) { 'host3' }
-        its( 'rx_stats.n_pkts' ) { should == 1 }
+        let(:host_name) { 'host3' }
+        its('rx_stats.n_pkts') { should == 1 }
       end
     end
   end
@@ -87,13 +87,13 @@ describe RepeaterHub do
     before { send_packets 'host1', 'host2' }
 
     it 'should not #packet_in' do
-      controller( 'RepeaterHub' ).should_not_receive( :packet_in )
+      controller('RepeaterHub').should_not_receive(:packet_in)
 
       send_packets 'host1', 'host2'
     end
 
     it 'should not #send_flow_mod_add' do
-      controller( 'RepeaterHub' ).should_not_receive( :send_flow_mod_add )
+      controller('RepeaterHub').should_not_receive(:send_flow_mod_add)
 
       send_packets 'host1', 'host2'
     end
@@ -102,26 +102,26 @@ describe RepeaterHub do
     describe 'switch' do
       before { send_packets 'host1', 'host2' }
 
-      subject { vswitch( 'switch' ) }
+      subject { vswitch('switch') }
 
-      it { should have( 1 ).flows }
-      its( 'flows.first.actions' ) { should == 'FLOOD' }
+      it { should have(1).flows }
+      its('flows.first.actions') { should == 'FLOOD' }
     end
 
 
     describe 'host' do
       before { send_packets 'host1', 'host2' }
 
-      subject { vhost( host_name ) }
+      subject { vhost(host_name) }
 
       context 'RX stats of host2' do
-        let( :host_name ) { 'host2' }
-        its( 'rx_stats.n_pkts' ) { should == 2 }
+        let(:host_name) { 'host2' }
+        its('rx_stats.n_pkts') { should == 2 }
       end
 
       context 'RX stats of host3' do
-        let( :host_name ) { 'host3' }
-        its( 'rx_stats.n_pkts' ) { should == 2 }
+        let(:host_name) { 'host3' }
+        its('rx_stats.n_pkts') { should == 2 }
       end
     end
   end
@@ -131,16 +131,16 @@ describe RepeaterHub do
     describe 'host' do
       before { send_packets 'host1', 'host2', :pps => 100 }
 
-      subject { vhost( host_name ) }
+      subject { vhost(host_name) }
 
       context 'RX stats of host2' do
-        let( :host_name ) { 'host2' }
-        its( 'rx_stats.n_pkts' ) { should == 100 }
+        let(:host_name) { 'host2' }
+        its('rx_stats.n_pkts') { should == 100 }
       end
 
       context 'RX stats of host3' do
-        let( :host_name ) { 'host3' }
-        its( 'rx_stats.n_pkts' ) { should == 100 }
+        let(:host_name) { 'host3' }
+        its('rx_stats.n_pkts') { should == 100 }
       end
     end
   end

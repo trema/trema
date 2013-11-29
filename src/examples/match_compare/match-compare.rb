@@ -26,15 +26,15 @@ class MatchCompare < Controller
 
 
   def packet_in datapath_id, message
-    match = ExactMatch.from( message )
-    action, log = lookup_rules( datapath_id, match )
+    match = ExactMatch.from(message)
+    action, log = lookup_rules(datapath_id, match)
     info "action=#{ action }, datapath_id=#{ datapath_id.to_hex }, message={#{ match.to_s }}" if log
     if action == :allow
-      actions = ActionOutput.new( OFPP_FLOOD )
-      send_flow_mod_add( datapath_id, :match => match, :idle_timeout => 60, :actions => actions )
-      send_packet_out( datapath_id, :packet_in => message, :actions => actions )
+      actions = ActionOutput.new(OFPP_FLOOD)
+      send_flow_mod_add(datapath_id, :match => match, :idle_timeout => 60, :actions => actions)
+      send_packet_out(datapath_id, :packet_in => message, :actions => actions)
     else
-      send_flow_mod_add( datapath_id, :match => match, :idle_timeout => 60 )
+      send_flow_mod_add(datapath_id, :match => match, :idle_timeout => 60)
     end
   end
 
@@ -65,10 +65,10 @@ class MatchCompare < Controller
 
 
   def add_rule action, hash
-    datapath_id = hash.key?( :datapath_id ) && hash.delete( :datapath_id ) || nil
-    log = hash.key?( :log ) && hash.delete( :log ) || false
-    rule = Struct.new( :action, :datapath_id, :match, :log )
-    @rules << rule.new( action, datapath_id, Match.new( hash ), log )
+    datapath_id = hash.key?(:datapath_id) && hash.delete(:datapath_id) || nil
+    log = hash.key?(:log) && hash.delete(:log) || false
+    rule = Struct.new(:action, :datapath_id, :match, :log)
+    @rules << rule.new(action, datapath_id, Match.new(hash), log)
   end
 
 
@@ -79,7 +79,7 @@ class MatchCompare < Controller
       if !each.datapath_id.nil? && datapath_id != each.datapath_id
         next
       end
-      if each.match.compare( match )
+      if each.match.compare(match)
         action = each.action
         log = each.log
         break

@@ -16,46 +16,46 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/process'
 
 
 describe Trema::Process do
   before :each do
-    @pid_file = mock( 'PID file' )
+    @pid_file = mock('PID file')
   end
 
 
   it 'should be instantiated from a PID file' do
-    IO.should_receive( :read ).with( @pid_file ).and_return( "1234\n" )
-    stat = mock( 'stat', :uid => 0 )
-    File.stub!( :stat ).with( @pid_file ).and_return( stat )
+    IO.should_receive(:read).with(@pid_file).and_return("1234\n")
+    stat = mock('stat', :uid => 0)
+    File.stub!(:stat).with(@pid_file).and_return(stat)
 
-    Trema::Process.read( @pid_file )
+    Trema::Process.read(@pid_file)
   end
 
 
   it 'should be killed' do
-    IO.stub!( :read ).with( @pid_file ).and_return( "1234\n" )
-    stat = mock( 'stat', :uid => 1000 )
-    File.stub!( :stat ).with( @pid_file ).and_return( stat )
+    IO.stub!(:read).with(@pid_file).and_return("1234\n")
+    stat = mock('stat', :uid => 1000)
+    File.stub!(:stat).with(@pid_file).and_return(stat)
 
-    process = Trema::Process.read( @pid_file )
-    process.stub!( :` ).and_return( 'ALIVE', '' )
-    process.should_receive( :sh ).with( 'kill 1234 2>/dev/null' )
+    process = Trema::Process.read(@pid_file)
+    process.stub!(:`).and_return('ALIVE', '')
+    process.should_receive(:sh).with('kill 1234 2>/dev/null')
 
     process.kill!
   end
 
 
   it 'should be killed with sudo' do
-    IO.stub!( :read ).with( @pid_file ).and_return( "1234\n" )
-    stat = mock( 'stat', :uid => 0 )
-    File.stub!( :stat ).with( @pid_file ).and_return( stat )
+    IO.stub!(:read).with(@pid_file).and_return("1234\n")
+    stat = mock('stat', :uid => 0)
+    File.stub!(:stat).with(@pid_file).and_return(stat)
 
-    process = Trema::Process.read( @pid_file )
-    process.stub!( :` ).and_return( 'ALIVE', '' )
-    process.should_receive( :sh ).with( 'sudo kill 1234 2>/dev/null' )
+    process = Trema::Process.read(@pid_file)
+    process.stub!(:`).and_return('ALIVE', '')
+    process.should_receive(:sh).with('sudo kill 1234 2>/dev/null')
 
     process.kill!
   end

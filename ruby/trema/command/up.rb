@@ -25,7 +25,7 @@ module Trema
 
 
     def trema_up name
-      switch = find_switch_by_name( name )
+      switch = find_switch_by_name(name)
       if switch
         switch.run
       else

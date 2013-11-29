@@ -27,7 +27,7 @@ module Trema
       def path _path
         @path = _path
         if @name.nil?
-          @name = File.basename( @path )
+          @name = File.basename(@path)
         end
       end
 

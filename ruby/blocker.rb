@@ -50,8 +50,8 @@ class Blocker
 
 
   def self.block
-    lock = File.open( PATH, 'a+' )
-    locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
+    lock = File.open(PATH, 'a+')
+    locked = lock.flock(File::LOCK_EX | File::LOCK_NB)
     unless locked
       lock.close
       fail BlockerError
@@ -60,8 +60,8 @@ class Blocker
 
 
   def self.release
-    File.open( PATH, 'w' ) do | lock |
-      lock.flock( File::LOCK_UN | File::LOCK_NB )
+    File.open(PATH, 'w') do | lock |
+      lock.flock(File::LOCK_UN | File::LOCK_NB)
       lock.close
       File.delete lock.path
     end

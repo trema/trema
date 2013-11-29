@@ -29,7 +29,7 @@ module Trema
         when String
           set_dpid value
         when Integer
-          set_dpid sprintf( '%#x', value )
+          set_dpid sprintf('%#x', value)
         else
           fail "Invalid datapath_id: #{ value }"
         end
@@ -54,15 +54,15 @@ module Trema
 
 
       def set_dpid string
-        @dpid_long = dpid_long_from( string )
+        @dpid_long = dpid_long_from(string)
         @dpid_short = string
         @name = @dpid_short if @name.nil?
       end
 
 
       def dpid_long_from string
-        no_0x = string.gsub( /^0x/, '' )
-        '0' * ( 16 - no_0x.length ) + no_0x
+        no_0x = string.gsub(/^0x/, '')
+        '0' * ( 16 - no_0x.length) + no_0x
       end
     end
   end

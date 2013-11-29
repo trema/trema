@@ -36,7 +36,7 @@ class Trema::Executables
     #
     def compiled?
       @list.each do | each |
-        return false unless FileTest.executable?( __send__ each )
+        return false unless FileTest.executable?(__send__ each)
       end
     end
 
@@ -69,8 +69,8 @@ class Trema::Executables
     # @return [Array] a list of a class method to access each executable program.
     #
     def path path
-      name = File.basename( path ).underscore
-      define_class_method( name ) do
+      name = File.basename(path).underscore
+      define_class_method(name) do
         File.join Trema.objects, path
       end
       add name

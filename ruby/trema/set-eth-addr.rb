@@ -36,7 +36,7 @@ module Trema
     # @private
     #
     def initialize mac_address
-      @mac_address = Mac.new( mac_address )
+      @mac_address = Mac.new(mac_address)
     end
 
 

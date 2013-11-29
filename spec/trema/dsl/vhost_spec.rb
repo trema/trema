@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/vhost'
 
 
@@ -42,7 +42,7 @@ module Trema
 
 
         context "when name is \"Yutaro's host\"" do
-          before { @vhost = Vhost.new( "Yutaro's host" ) }
+          before { @vhost = Vhost.new("Yutaro's host") }
 
           subject { @vhost[ :name ] }
 
@@ -60,7 +60,7 @@ module Trema
 
 
       describe :promisc do
-        before { @vhost = Vhost.new( "Yutaro's host" ) }
+        before { @vhost = Vhost.new("Yutaro's host") }
 
         subject { @vhost[ :promisc ] }
 
@@ -94,14 +94,14 @@ module Trema
 
         context 'when promisc INVALID_VALUE' do
           specify do
-            expect { @vhost.promisc 'INVALID_VALUE' }.to raise_error( Trema::DSL::SyntaxError )
+            expect { @vhost.promisc 'INVALID_VALUE' }.to raise_error(Trema::DSL::SyntaxError)
           end
         end
       end
 
 
       describe :netmask do
-        before { @vhost = Vhost.new( "Yutaro's host" ) }
+        before { @vhost = Vhost.new("Yutaro's host") }
 
         subject { @vhost[ :netmask ] }
 
@@ -118,7 +118,7 @@ module Trema
 
 
       describe :mac do
-        before { @vhost = Vhost.new( "Yutaro's host" ) }
+        before { @vhost = Vhost.new("Yutaro's host") }
 
         subject { @vhost[ :mac ] }
 

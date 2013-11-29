@@ -27,14 +27,14 @@ module Trema
     class Parser
       def parse file_name
         configure do | config |
-          Syntax.new( config ).instance_eval IO.read( file_name ), file_name
+          Syntax.new(config).instance_eval IO.read(file_name), file_name
         end
       end
 
 
       def eval &block
         configure do | config |
-          Syntax.new( config ).instance_eval(&block)
+          Syntax.new(config).instance_eval(&block)
         end
       end
 
@@ -56,7 +56,7 @@ module Trema
           config.switches[ peers[ 0 ] ] << each.name if config.switches[ peers[ 0 ] ]
           config.switches[ peers[ 1 ] ] << each.name_peer if config.switches[ peers[ 1 ] ]
         end
-        Context.new( config ).dump
+        Context.new(config).dump
       end
     end
   end

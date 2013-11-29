@@ -28,7 +28,7 @@ module Trema::Util
   def sh cmd
     ENV[ 'TREMA_HOME' ] = Trema.home
     puts cmd if $verbose
-    unless system( cmd )
+    unless system(cmd)
       fail "Command '#{ cmd }' failed!"
     end
   end
@@ -49,9 +49,9 @@ EOF
 
   def cleanup session
     # [FIXME] Use session.switch_manager
-    sm_pid = File.join( Trema.pid, 'switch_manager.pid' )
-    if FileTest.exist?( sm_pid )
-      Trema::Process.read( sm_pid ).kill!
+    sm_pid = File.join(Trema.pid, 'switch_manager.pid')
+    if FileTest.exist?(sm_pid)
+      Trema::Process.read(sm_pid).kill!
     end
     session.apps.each do | name, app |
       app.shutdown!
@@ -69,8 +69,8 @@ EOF
       netns.shutdown!
     end
 
-    Dir.glob( File.join Trema.pid, '*.pid' ).each do | each |
-      Trema::Process.read( each ).kill!
+    Dir.glob(File.join Trema.pid, '*.pid').each do | each |
+      Trema::Process.read(each).kill!
     end
   end
 
@@ -91,9 +91,9 @@ EOF
 
   def find_app_by_name name
     # [FIXME] Trema apps does not appear in context.apps. why?
-    pid_file = File.join( Trema.pid, "#{ name }.pid" )
-    if FileTest.exist?( pid_file )
-      Trema::Process.read( pid_file )
+    pid_file = File.join(Trema.pid, "#{ name }.pid")
+    if FileTest.exist?(pid_file)
+      Trema::Process.read(pid_file)
     else
       nil
     end

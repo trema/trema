@@ -34,7 +34,7 @@ module Trema
         require 'tempfile'
         require 'trema'
         require 'trema/shell'
-        f = Tempfile.open( 'irbrc' )
+        f = Tempfile.open('irbrc')
         f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home

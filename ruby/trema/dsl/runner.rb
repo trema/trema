@@ -43,21 +43,21 @@ module Trema
 
       def maybe_run_switch_manager
         # FIXME
-        return if FileTest.exists? File.join( Trema.pid, 'switch_manager.pid' )
+        return if FileTest.exists? File.join(Trema.pid, 'switch_manager.pid')
 
         switch_manager =
           if @context.switch_manager && @context.apps.values.size > 0
             last_app = @context.apps.values.last.name
-            if not @context.switch_manager.rule.has_key?( :port_status )
+            if not @context.switch_manager.rule.has_key?(:port_status)
               @context.switch_manager.rule[ :port_status ] = last_app
             end
-            if not @context.switch_manager.rule.has_key?( :packet_in )
+            if not @context.switch_manager.rule.has_key?(:packet_in)
               @context.switch_manager.rule[ :packet_in ] = last_app
             end
-            if not @context.switch_manager.rule.has_key?( :state_notify )
+            if not @context.switch_manager.rule.has_key?(:state_notify)
               @context.switch_manager.rule[ :state_notify ] = last_app
             end
-            if not @context.switch_manager.rule.has_key?( :vendor )
+            if not @context.switch_manager.rule.has_key?(:vendor)
               @context.switch_manager.rule[ :vendor ] = last_app
             end
             @context.switch_manager
@@ -71,7 +71,7 @@ module Trema
               # two or more apps without switch_manager.
               fail "No event routing configured. Use `event' directive to specify event routing."
             end
-            SwitchManager.new( rule, @context.port )
+            SwitchManager.new(rule, @context.port)
           end
         switch_manager.no_flow_cleanup = true if $no_flow_cleanup
         switch_manager.run!
@@ -150,8 +150,8 @@ module Trema
         @context.apps.values[ 0..-2 ].each do | each |
           each.daemonize!
         end
-        trap( 'SIGINT' ) do
-          print( "\nterminated\n" )
+        trap('SIGINT') do
+          print("\nterminated\n")
           exit(0)
         end
         pid = ::Process.fork do

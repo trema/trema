@@ -19,7 +19,7 @@
 require 'trema/network-component'
 require 'trema/path'
 
-$LOAD_PATH.unshift File.join( Trema.vendor_ruby_ifconfig, 'lib' )
+$LOAD_PATH.unshift File.join(Trema.vendor_ruby_ifconfig, 'lib')
 require 'ifconfig'
 
 
@@ -153,7 +153,7 @@ module Trema
     def real_eth
       interfaces = IfconfigWrapper.new.parse.interfaces
       @stanza.peers.each do | each |
-        return each if interfaces.include?( each )
+        return each if interfaces.include?(each)
       end
       fail
     end
@@ -162,7 +162,7 @@ module Trema
     def real_eth?
       interfaces = IfconfigWrapper.new.parse.interfaces
       @stanza.peers.each do | each |
-        return true if interfaces.include?( each )
+        return true if interfaces.include?(each)
       end
       false
     end

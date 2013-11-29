@@ -24,7 +24,7 @@ class ListSwitches < Controller
 
 
   def list_switches_reply dpids
-    info 'switches = %s' % dpids.collect { | each | sprintf( '0x%x', each ) }.join( ', ' )
+    info 'switches = %s' % dpids.collect { | each | sprintf('0x%x', each) }.join(', ')
     shutdown!
   end
 

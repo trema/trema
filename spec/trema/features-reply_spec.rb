@@ -16,13 +16,13 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
 module Trema
   describe FeaturesReply, '.new' do
-    it { expect { subject }.to raise_error( ArgumentError ) }
+    it { expect { subject }.to raise_error(ArgumentError) }
   end
 
 
@@ -37,23 +37,23 @@ module Trema
         :actions => 2047,
         :ports => [ 'port #0', 'port #1', 'port #2' ]
       }
-      FeaturesReply.new( valid_options )
+      FeaturesReply.new(valid_options)
     }
 
-    its( :datapath_id ) { should == 123 }
-    its( :transaction_id ) { should == 1234 }
-    its( :xid ) { should == 1234 }
-    its( :n_buffers ) { should == 256 }
-    its( :n_tables ) { should == 2 }
-    its( :capabilities ) { should == 135 }
-    its( :actions ) { should == 2047 }
-    its( 'ports.size' ) { should == 3 }
+    its(:datapath_id) { should == 123 }
+    its(:transaction_id) { should == 1234 }
+    its(:xid) { should == 1234 }
+    its(:n_buffers) { should == 256 }
+    its(:n_tables) { should == 2 }
+    its(:capabilities) { should == 135 }
+    its(:actions) { should == 2047 }
+    its('ports.size') { should == 3 }
   end
 
 
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do
     subject {
-      FeaturesReply.new( {
+      FeaturesReply.new({
         # :datapath_id => 123,
         :transaction_id => 1234,
         :n_buffers => 256,
@@ -61,15 +61,15 @@ module Trema
         :capabilities => 135,
         :actions => 2047,
         :ports => [ 'port #0', 'port #1', 'port #2' ]
-      } )
+      })
     }
-    it { expect { subject }.to raise_error( ArgumentError, ':datapath_id is a mandatory option' ) }
+    it { expect { subject }.to raise_error(ArgumentError, ':datapath_id is a mandatory option') }
   end
 
 
   describe FeaturesReply, '.new(options...) (No :transaction_id)' do
     subject {
-      FeaturesReply.new( {
+      FeaturesReply.new({
         :datapath_id => 123,
         # :transaction_id => 1234,
         :n_buffers => 256,
@@ -77,9 +77,9 @@ module Trema
         :capabilities => 135,
         :actions => 2047,
         :ports => [ 'port #0', 'port #1', 'port #2' ]
-      } )
+      })
     }
-    it { expect { subject }.to raise_error( ArgumentError, ':transaction_id is a mandatory option' ) }
+    it { expect { subject }.to raise_error(ArgumentError, ':transaction_id is a mandatory option') }
   end
 end
 

@@ -26,10 +26,10 @@ module Trema
 
 
     def trema_port_up switch_name, port
-      switch = find_switch_by_name( switch_name )
+      switch = find_switch_by_name(switch_name)
       fail "unknown switch: #{ switch_name }" if switch.nil?
 
-      error = switch.bring_port_up( port.to_i )
+      error = switch.bring_port_up(port.to_i)
       fail error if $?.exitstatus != 0
     end
   end

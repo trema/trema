@@ -27,9 +27,9 @@ module Trema
       fail 'Not in Trema shell' if $config.nil?
       fail 'No dpid given' if name.nil? && block.nil?
 
-      stanza = DSL::Vswitch.new( name )
+      stanza = DSL::Vswitch.new(name)
       stanza.instance_eval(&block) if block
-      OpenVswitch.new( stanza, $config.port ).restart!
+      OpenVswitch.new(stanza, $config.port).restart!
 
       $context.dump
 

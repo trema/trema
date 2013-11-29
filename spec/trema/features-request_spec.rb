@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -25,11 +25,11 @@ shared_examples_for 'features request message' do
 
   it "should be logged to the switch's log", :sudo => true do
     network {
-      vswitch( 'features-request' ) { datapath_id 0xabc }
-    }.run( FeaturesRequestController ) {
-      controller( 'FeaturesRequestController' ).send_message( 0xabc, subject )
+      vswitch('features-request') { datapath_id 0xabc }
+    }.run(FeaturesRequestController) {
+      controller('FeaturesRequestController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
-      expect( IO.read( File.join( Trema.log, 'openflowd.features-request.log' ) ) ).to include( 'OFPT_FEATURES_REQUEST' )
+      expect(IO.read(File.join(Trema.log, 'openflowd.features-request.log'))).to include('OFPT_FEATURES_REQUEST')
     }
   end
 end
@@ -43,45 +43,45 @@ module Trema
 
 
   describe FeaturesRequest, '.new(nil)' do
-    subject { FeaturesRequest.new( nil ) }
+    subject { FeaturesRequest.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'features request message'
   end
 
 
   describe FeaturesRequest, '.new(transaction_id)' do
-    subject { FeaturesRequest.new( transaction_id ) }
+    subject { FeaturesRequest.new(transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
     context 'when sent to a switch' do
-      let( :transaction_id ) { 123 }
+      let(:transaction_id) { 123 }
       it_should_behave_like 'features request message'
     end
   end
 
 
   describe FeaturesRequest, '.new(:transaction_id => value)' do
-    subject { FeaturesRequest.new( :transaction_id => transaction_id ) }
+    subject { FeaturesRequest.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
     context 'when sent to a switch' do
-      let( :transaction_id ) { 123 }
+      let(:transaction_id) { 123 }
       it_should_behave_like 'features request message'
     end
   end
 
 
   describe FeaturesRequest, '.new(:xid => value)' do
-    subject { FeaturesRequest.new( :xid => xid ) }
+    subject { FeaturesRequest.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
 
     context 'when sent to a switch' do
-      let( :xid ) { 123 }
+      let(:xid) { 123 }
       it_should_behave_like 'features request message'
     end
   end
 
 
   describe FeaturesRequest, '.new("INVALID OPTION")', :nosudo => true do
-    it { expect { FeaturesRequest.new 'INVALID OPTION' }.to raise_error( TypeError ) }
+    it { expect { FeaturesRequest.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
 

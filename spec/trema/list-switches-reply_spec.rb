@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -28,11 +28,11 @@ describe Controller do
         vswitch { datapath_id 0x1 }
         vswitch { datapath_id 0x2 }
         vswitch { datapath_id 0x3 }
-      }.run( ListSwitchesController ) {
-        controller( 'ListSwitchesController' ).should_receive( :list_switches_reply ) do | dpids |
-          expect( dpids ).to eq( [ 0x1, 0x2, 0x3 ] )
+      }.run(ListSwitchesController) {
+        controller('ListSwitchesController').should_receive(:list_switches_reply) do | dpids |
+          expect(dpids).to eq([ 0x1, 0x2, 0x3 ])
         end
-        controller( 'ListSwitchesController' ).send_list_switches_request
+        controller('ListSwitchesController').send_list_switches_request
       }
     end
   end

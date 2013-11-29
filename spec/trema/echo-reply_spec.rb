@@ -16,63 +16,63 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
 module Trema
   describe EchoReply, '.new' do
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its( :user_data ) { should be_nil }
+    its(:user_data) { should be_nil }
   end
 
 
   describe EchoReply, '.new(nil)' do
-    subject { EchoReply.new( nil ) }
+    subject { EchoReply.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its( :user_data ) { should be_nil }
+    its(:user_data) { should be_nil }
   end
 
 
   describe EchoReply, '.new(transaction_id)' do
-    subject { EchoReply.new( transaction_id ) }
+    subject { EchoReply.new(transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
 
 
   describe EchoReply, '.new(:transaction_id => value)' do
-    subject { EchoReply.new( :transaction_id => transaction_id ) }
+    subject { EchoReply.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
 
 
   describe EchoReply, '.new(:xid => value)' do
-    subject { EchoReply.new( :xid => xid ) }
+    subject { EchoReply.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
   end
 
 
   describe EchoReply, '.new(:user_data => value)' do
-    subject { EchoReply.new( :user_data => user_data ) }
+    subject { EchoReply.new(:user_data => user_data) }
     it_should_behave_like 'any Openflow message with user_data'
   end
 
 
   describe EchoReply, '.new(:transaction_id => value, :user_data => value)' do
-    subject { EchoReply.new( :transaction_id => transaction_id, :user_data => user_data ) }
+    subject { EchoReply.new(:transaction_id => transaction_id, :user_data => user_data) }
 
     context 'transaction_id: 123, user_data: "USER DATA"' do
-      let( :transaction_id ) { 123 }
-      let( :user_data ) { 'USER DATA' }
-      its( :transaction_id ) { should == 123 }
-      its( :xid ) { should == 123 }
-      its( :user_data ) { should == 'USER DATA' }
+      let(:transaction_id) { 123 }
+      let(:user_data) { 'USER DATA' }
+      its(:transaction_id) { should == 123 }
+      its(:xid) { should == 123 }
+      its(:user_data) { should == 'USER DATA' }
     end
   end
 
 
   describe EchoReply, '.new("INVALID OPTION")' do
-    it { expect { EchoReply.new 'INVALID OPTION' }.to raise_error( TypeError ) }
+    it { expect { EchoReply.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
 

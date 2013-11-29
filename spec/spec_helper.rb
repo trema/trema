@@ -16,8 +16,8 @@
 #
 
 
-$LOAD_PATH << File.join( File.dirname( __FILE__ ), '..', 'ruby' )
-$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib' )
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'ruby')
+$LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib')
 
 
 require 'rubygems'
@@ -35,8 +35,8 @@ require 'trema/util'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
-Dir[ "#{ File.dirname( __FILE__ ) }/support/**/*.rb" ].each do | each |
-  require File.expand_path( each )
+Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb" ].each do | each |
+  require File.expand_path(each)
 end
 
 
@@ -76,7 +76,7 @@ include Trema::Util
 
 class Network
   def initialize &block
-    @context = Trema::DSL::Parser.new.eval( &block )
+    @context = Trema::DSL::Parser.new.eval(&block)
   end
 
 
@@ -97,14 +97,14 @@ class Network
 
   def trema_run controller_class
     controller = controller_class.new
-    if not controller.is_a?( Trema::Controller )
+    if not controller.is_a?(Trema::Controller)
       fail "#{ controller_class } is not a subclass of Trema::Controller"
     end
-    Trema::DSL::Context.new( @context ).dump
+    Trema::DSL::Context.new(@context).dump
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-    sm = SwitchManager.new( rule, @context.port )
+    sm = SwitchManager.new(rule, @context.port)
     sm.no_flow_cleanup = true
     sm.run!
 
@@ -152,7 +152,7 @@ class Network
     elapsed = 0
     loop do
       fail "Timed out waiting for #{ trema_name }." if elapsed > timeout
-      break if FileTest.exists?( File.join( Trema.pid, "#{ trema_name }.pid" ) )
+      break if FileTest.exists?(File.join(Trema.pid, "#{ trema_name }.pid"))
       sleep 1
       elapsed += 1
     end
@@ -164,7 +164,7 @@ class Network
     elapsed = 0
     loop do
       fail 'Failed to clean up remaining processes.' if elapsed > timeout
-      break if Dir.glob( File.join( Trema.pid, '*.pid' ) ).empty?
+      break if Dir.glob(File.join(Trema.pid, '*.pid')).empty?
       sleep 1
       elapsed += 1
     end

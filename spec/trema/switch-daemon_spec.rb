@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/switch-daemon'
 
 
@@ -29,12 +29,12 @@ module Trema
         :state_notify => 'topology',
         :vendor => 'controller'
       }
-      switch_daemon = SwitchDaemon.new( rule )
+      switch_daemon = SwitchDaemon.new(rule)
 
-      expect( switch_daemon.options ).to include( 'port_status::topology' )
-      expect( switch_daemon.options ).to include( 'packet_in::controller' )
-      expect( switch_daemon.options ).to include( 'state_notify::topology' )
-      expect( switch_daemon.options ).to include( 'vendor::controller' )
+      expect(switch_daemon.options).to include('port_status::topology')
+      expect(switch_daemon.options).to include('packet_in::controller')
+      expect(switch_daemon.options).to include('state_notify::topology')
+      expect(switch_daemon.options).to include('vendor::controller')
     end
 
 
@@ -45,16 +45,16 @@ module Trema
         :state_notify => 'topology0,topology1',
         :vendor => 'controller0,controller1'
       }
-      switch_daemon = SwitchDaemon.new( rule )
+      switch_daemon = SwitchDaemon.new(rule)
 
-      expect( switch_daemon.options ).to include( 'port_status::topology0' )
-      expect( switch_daemon.options ).to include( 'port_status::topology1' )
-      expect( switch_daemon.options ).to include( 'packet_in::controller0' )
-      expect( switch_daemon.options ).to include( 'packet_in::controller1' )
-      expect( switch_daemon.options ).to include( 'state_notify::topology0' )
-      expect( switch_daemon.options ).to include( 'state_notify::topology1' )
-      expect( switch_daemon.options ).to include( 'vendor::controller0' )
-      expect( switch_daemon.options ).to include( 'vendor::controller1' )
+      expect(switch_daemon.options).to include('port_status::topology0')
+      expect(switch_daemon.options).to include('port_status::topology1')
+      expect(switch_daemon.options).to include('packet_in::controller0')
+      expect(switch_daemon.options).to include('packet_in::controller1')
+      expect(switch_daemon.options).to include('state_notify::topology0')
+      expect(switch_daemon.options).to include('state_notify::topology1')
+      expect(switch_daemon.options).to include('vendor::controller0')
+      expect(switch_daemon.options).to include('vendor::controller1')
     end
 
 
@@ -64,11 +64,11 @@ module Trema
         :packet_in => 'controller',
         :state_notify => 'topology'
       }
-      switch_daemon = SwitchDaemon.new( rule )
+      switch_daemon = SwitchDaemon.new(rule)
 
-      expect( switch_daemon.options ).to include( 'port_status::topology' )
-      expect( switch_daemon.options ).to include( 'packet_in::controller' )
-      expect( switch_daemon.options ).to include( 'state_notify::topology' )
+      expect(switch_daemon.options).to include('port_status::topology')
+      expect(switch_daemon.options).to include('packet_in::controller')
+      expect(switch_daemon.options).to include('state_notify::topology')
     end
   end
 end

@@ -37,7 +37,7 @@ class LearningSwitch < Controller
     return if message.macda.reserved?
 
     @fdb.learn message.macsa, message.in_port
-    port_no = @fdb.port_no_of( message.macda )
+    port_no = @fdb.port_no_of(message.macda)
     if port_no
       flow_mod datapath_id, message, port_no
       packet_out datapath_id, message, port_no
@@ -60,8 +60,8 @@ class LearningSwitch < Controller
   def flow_mod datapath_id, message, port_no
     send_flow_mod_add(
       datapath_id,
-      :match => ExactMatch.from( message ),
-      :actions => ActionOutput.new( :port => port_no )
+      :match => ExactMatch.from(message),
+      :actions => ActionOutput.new(:port => port_no)
     )
   end
 
@@ -70,7 +70,7 @@ class LearningSwitch < Controller
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => ActionOutput.new( :port => port_no )
+      :actions => ActionOutput.new(:port => port_no)
     )
   end
 

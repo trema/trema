@@ -47,7 +47,7 @@ module Trema
     # @return [PortStatusModify]
     #
     def initialize options
-      super options.merge( :reason => OFPPR_MODIFY )
+      super options.merge(:reason => OFPPR_MODIFY)
     end
   end
 end

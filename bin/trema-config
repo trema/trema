@@ -19,7 +19,7 @@
 #
 
 
-$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + '/../ruby' ) )
+$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../ruby'))
 
 
 require 'fileutils'
@@ -32,10 +32,10 @@ $opts = OptionParser.new
 FileUtils.cd Trema.home do
   $opts.banner = "Usage: #{ File.basename $0 } [OPTIONS ...]"
 
-  $opts.on( '-c', '--cflags' ) do
+  $opts.on('-c', '--cflags') do
     $cflags = true
   end
-  $opts.on( '-l', '--libs' ) do
+  $opts.on('-l', '--libs') do
     $libs = true
   end
 
@@ -48,7 +48,7 @@ FileUtils.cd Trema.home do
   if $libs
     output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread -lsqlite3 -ldl"
   end
-  print output.join( ' ' )
+  print output.join(' ')
 end
 
 

@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -29,10 +29,10 @@ describe GetConfigReply, '.new( VALID OPTIONS )' do
       :miss_send_len => 1024
     )
   }
-  its ( :datapath_id ) { should == 123 }
-  its ( :transaction_id ) { should == 1234 }
-  its ( :flags ) { should == 1 }
-  its ( :miss_send_len ) { should == 1024 }
+  its ( :datapath_id) { should == 123 }
+  its ( :transaction_id) { should == 1234 }
+  its ( :flags) { should == 1 }
+  its ( :miss_send_len) { should == 1024 }
 end
 
 

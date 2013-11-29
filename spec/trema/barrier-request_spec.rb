@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -25,11 +25,11 @@ shared_examples_for 'barrier request message' do
 
   it "should be logged to the switch's log", :sudo => true do
     network {
-      vswitch( 'barrier-request' ) { datapath_id 0xabc }
-    }.run( BarrierRequestController ) {
-      controller( 'BarrierRequestController' ).send_message( 0xabc, subject )
+      vswitch('barrier-request') { datapath_id 0xabc }
+    }.run(BarrierRequestController) {
+      controller('BarrierRequestController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
-      expect( IO.read( File.join( Trema.log, 'openflowd.barrier-request.log' ) ) ).to include( 'OFPT_BARRIER_REQUEST' )
+      expect(IO.read(File.join(Trema.log, 'openflowd.barrier-request.log'))).to include('OFPT_BARRIER_REQUEST')
     }
   end
 end
@@ -43,44 +43,44 @@ module Trema
 
 
   describe BarrierRequest, '.new(nil)' do
-    subject { BarrierRequest.new( nil ) }
+    subject { BarrierRequest.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'barrier request message'
   end
 
 
   describe BarrierRequest, '.new(transaction_id)' do
-    subject { BarrierRequest.new( transaction_id ) }
+    subject { BarrierRequest.new(transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
     context 'when sent to a switch' do
-      let( :transaction_id ) { 123 }
+      let(:transaction_id) { 123 }
       it_should_behave_like 'barrier request message'
     end
   end
 
 
   describe BarrierRequest, '.new(:transaction_id => value)' do
-    subject { BarrierRequest.new( :transaction_id => transaction_id ) }
+    subject { BarrierRequest.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
     context 'when sent to a switch' do
-      let( :transaction_id ) { 123 }
+      let(:transaction_id) { 123 }
       it_should_behave_like 'barrier request message'
     end
   end
 
 
   describe BarrierRequest, '.new(:xid => value)' do
-    subject { BarrierRequest.new( :xid => xid ) }
+    subject { BarrierRequest.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
     context 'when sent to a switch' do
-      let( :xid ) { 123 }
+      let(:xid) { 123 }
       it_should_behave_like 'barrier request message'
     end
   end
 
 
   describe BarrierRequest, '.new("INVALID OPTION")', :nosudo => true do
-    it { expect { BarrierRequest.new 'INVALID OPTION' }.to raise_error( TypeError ) }
+    it { expect { BarrierRequest.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
 

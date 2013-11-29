@@ -50,12 +50,12 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      if /\.rb\Z/=~ @stanza.fetch( :name )  # ruby?
+      if /\.rb\Z/=~ @stanza.fetch(:name)  # ruby?
         require 'trema'
-        path = @stanza.fetch( :path )
+        path = @stanza.fetch(:path)
         ARGV.replace [ path ]
-        $LOAD_PATH << File.dirname( path )
-        Trema.module_eval IO.read( path )
+        $LOAD_PATH << File.dirname(path)
+        Trema.module_eval IO.read(path)
       else
         App.add self
       end
@@ -88,7 +88,7 @@ module Trema
     # @api public
     #
     def daemonize!
-      sh [ command, '-d', @stanza[ :options ] ].compact.join( ' ' )
+      sh [ command, '-d', @stanza[ :options ] ].compact.join(' ')
       self
     end
 

@@ -1,4 +1,4 @@
-$:.push File.expand_path( '../ruby', __FILE__ )
+$:.push File.expand_path('../ruby', __FILE__)
 require 'trema/version'
 
 
@@ -17,13 +17,13 @@ Gem::Specification.new do | gem |
   gem.homepage = 'http://github.com/trema/trema'
 
   gem.executables = [ 'trema', 'trema-config' ]
-  gem.files = `git ls-files`.split( "\n" )
+  gem.files = `git ls-files`.split("\n")
 
   gem.require_path = 'ruby'
   gem.extensions = [ 'Rakefile' ]
 
   gem.extra_rdoc_files = [ 'README.md' ]
-  gem.test_files = `git ls-files -- {spec,features}/*`.split( "\n" )
+  gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
   gem.add_dependency 'bundler'
   gem.add_dependency 'gli', '~> 2.8.1'

@@ -51,8 +51,8 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      @phost = Phost.new( self )
-      @cli = Cli.new( self )
+      @phost = Phost.new(self)
+      @cli = Cli.new(self)
       @index = Host.instances.size
       Host.add self
     end
@@ -195,8 +195,8 @@ module Trema
     # @api public
     #
     def send_packet dest, options = {}
-      dest_host = if dest.is_a?( String )
-                    vhost( dest )
+      dest_host = if dest.is_a?(String)
+                    vhost(dest)
                   else
                     dest
                   end

@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -28,7 +28,7 @@ end
 module Trema
   class PortStatusController < Controller
     def features_reply dpid, message
-      message.ports.select( &:up? ).each do | each |
+      message.ports.select(&:up?).each do | each |
         port_mod = PortMod.new(
           :port_no => each.number,
           :hw_addr => each.hw_addr,
@@ -49,13 +49,13 @@ module Trema
           vswitch { datapath_id 0xabc }
           vhost 'host'
           link 'host', '0xabc'
-        }.run( PortStatusController ) {
-          controller( 'PortStatusController' ).should_receive( :port_status ).with do | dpid, message |
-            expect( dpid ).to eq( 0xabc )
-            expect( message ).to be_an_instance_of( PortStatusModify )
+        }.run(PortStatusController) {
+          controller('PortStatusController').should_receive(:port_status).with do | dpid, message |
+            expect(dpid).to eq(0xabc)
+            expect(message).to be_an_instance_of(PortStatusModify)
           end
 
-          controller( 'PortStatusController' ).send_message 0xabc, FeaturesRequest.new
+          controller('PortStatusController').send_message 0xabc, FeaturesRequest.new
           sleep 2  # FIXME: wait to receive port_status
         }
       end

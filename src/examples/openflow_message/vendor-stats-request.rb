@@ -52,9 +52,9 @@ class VendorStatsRequestSample < Controller
       0x0,
       0xff,
       0x0, 0x0, 0x0
-    ].pack( 'NC4 nnCC3' )
-    vendor_request = VendorStatsRequest.new( :vendor_id => OVS_VENDOR_ID, :data => data.unpack( 'C*' ) )
-    send_message( datapath_id, vendor_request )
+    ].pack('NC4 nnCC3')
+    vendor_request = VendorStatsRequest.new(:vendor_id => OVS_VENDOR_ID, :data => data.unpack('C*'))
+    send_message(datapath_id, vendor_request)
   end
 end
 

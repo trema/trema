@@ -38,7 +38,7 @@ class TrafficMonitor < Controller
 
     @fdb.learn macsa, message.in_port
     @counter.add macsa, 1, message.total_len
-    out_port = @fdb.lookup( macda )
+    out_port = @fdb.lookup(macda)
     if out_port
       packet_out datapath_id, message, out_port
       flow_mod datapath_id, macsa, macda, out_port
@@ -70,8 +70,8 @@ class TrafficMonitor < Controller
     send_flow_mod_add(
       datapath_id,
       :hard_timeout => 10,
-      :match => Match.new( :dl_src => macsa, :dl_dst => macda ),
-      :actions => ActionOutput.new( out_port )
+      :match => Match.new(:dl_src => macsa, :dl_dst => macda),
+      :actions => ActionOutput.new(out_port)
     )
   end
 
@@ -80,7 +80,7 @@ class TrafficMonitor < Controller
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => ActionOutput.new( out_port )
+      :actions => ActionOutput.new(out_port)
     )
   end
 

@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
@@ -24,15 +24,15 @@ describe VendorAction, 'new(vendor_id)', :type => 'actions' do
   subject { VendorAction.new vendor_id }
 
   context 'with vendor_id (0x00004cff)' do
-    let( :vendor_id ) { 0x00004cff }
-    its( :vendor_id ) { should == 0x00004cff }
+    let(:vendor_id) { 0x00004cff }
+    its(:vendor_id) { should == 0x00004cff }
   end
 
-  it_validates 'option is within range', :vendor_id, 0..( 2 ** 32 - 1 )
+  it_validates 'option is within range', :vendor_id, 0..( 2 ** 32 - 1)
 
   context 'with vendor_id (0x00004cff)' do
-    let( :vendor_id ) { '0x00004cff' }
-    it { expect { subject }.to raise_error( TypeError ) }
+    let(:vendor_id) { '0x00004cff' }
+    it { expect { subject }.to raise_error(TypeError) }
   end
 end
 
@@ -41,27 +41,27 @@ describe VendorAction, '.new(0x00002320, body)', :type => 'actions' do
   subject { VendorAction.new 0x00002320, body }
 
   context 'with body (deadbeef)' do
-    let( :body ) { 'deadbeef' }
-    it { expect { subject }.to raise_error( TypeError ) }
+    let(:body) { 'deadbeef' }
+    it { expect { subject }.to raise_error(TypeError) }
   end
 
   context 'with body 9 octets long' do
-    let( :body ) { [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 ] }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+    let(:body) { [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 ] }
+    it { expect { subject }.to raise_error(ArgumentError) }
   end
 
   context 'when sending a Flow Mod with VendorAction' do
-    let( :body ) { [ 0x00, 0x08, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ] }
+    let(:body) { [ 0x00, 0x08, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ] }
 
     it 'should insert a new flow entry with action (note:54.72.65.6d.61.00)' do
       class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
-      }.run( TestController ) {
-        controller( 'TestController' ).send_flow_mod_add( 0xabc, :actions => subject )
+      }.run(TestController) {
+        controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect( vswitch( '0xabc' ) ).to have( 1 ).flows
-        expect( vswitch( '0xabc' ).flows[ 0 ].actions ).to eq( 'note:54.72.65.6d.61.00' )
+        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows[ 0 ].actions).to eq('note:54.72.65.6d.61.00')
       }
     end
   end

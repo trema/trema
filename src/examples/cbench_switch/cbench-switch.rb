@@ -23,9 +23,9 @@ class CbenchSwitch < Controller
     send_flow_mod_add(
       datapath_id,
       :cookie => 0,
-      :match => ExactMatch.from( message ),
+      :match => ExactMatch.from(message),
       :buffer_id => message.buffer_id,
-      :actions => ActionOutput.new( :port => message.in_port + 1 )
+      :actions => ActionOutput.new(:port => message.in_port + 1)
     )
   end
 end

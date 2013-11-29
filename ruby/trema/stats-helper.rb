@@ -35,7 +35,7 @@ module Trema
     #
     def initialize fields, options
       fields.each do |field|
-        instance_variable_set( "@#{field}", options[field.intern] )
+        instance_variable_set("@#{field}", options[field.intern])
       end
     end
 
@@ -47,7 +47,7 @@ module Trema
     def to_s
       str = super.to_s + "\n"
       instance_variables.sort.each do |var|
-        str += "#{var[1..var.length]}: #{instance_variable_get( var ).to_s}\n"
+        str += "#{var[1..var.length]}: #{instance_variable_get(var).to_s}\n"
       end
       # remove the last newline character
       str[0..-2]

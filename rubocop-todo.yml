@@ -158,9 +158,6 @@ SpaceAroundOperators:
 SpaceInsideBrackets:
   Enabled: false
 
-SpaceInsideParens:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 

@@ -16,7 +16,7 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), '..', '..', 'spec_helper' )
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/runner'
 require 'trema/ordered-hash'
 
@@ -25,16 +25,16 @@ module Trema
   module DSL
     describe Runner do
       before :each do
-        ::Process.stub!( :fork ).and_yield
-        ::Process.stub!( :waitpid )
-        @switch_manager = mock( 'switch manager', :run! => nil )
-        SwitchManager.stub!( :new ).and_return( @switch_manager )
+        ::Process.stub!(:fork).and_yield
+        ::Process.stub!(:waitpid)
+        @switch_manager = mock('switch manager', :run! => nil)
+        SwitchManager.stub!(:new).and_return(@switch_manager)
       end
 
 
       context 'when running' do
         it 'should run switch_manager' do
-          @switch_manager.should_receive( :run! ).once
+          @switch_manager.should_receive(:run!).once
 
           context = mock(
             'context',
@@ -49,18 +49,18 @@ module Trema
             :netnss => {}
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should run packetin_filter' do
           packetin_filter = mock
-          packetin_filter.should_receive( :run! ).once
+          packetin_filter.should_receive(:run!).once
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch_manager', :run! => nil ),
+            :switch_manager => mock('switch_manager', :run! => nil),
             :packetin_filter => packetin_filter,
             :links => {},
             :hosts => {},
@@ -70,27 +70,27 @@ module Trema
             :port => 6633
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should create links' do
-          link0 = mock( 'link0' )
-          link0.should_receive( :delete! ).once
-          link0.should_receive( :enable! ).once
+          link0 = mock('link0')
+          link0.should_receive(:delete!).once
+          link0.should_receive(:enable!).once
 
-          link1 = mock( 'link1' )
-          link1.should_receive( :delete! ).once
-          link1.should_receive( :enable! ).once
+          link1 = mock('link1')
+          link1.should_receive(:delete!).once
+          link1.should_receive(:enable!).once
 
-          link2 = mock( 'link2' )
-          link2.should_receive( :delete! ).once
-          link2.should_receive( :enable! ).once
+          link2 = mock('link2')
+          link2.should_receive(:delete!).once
+          link2.should_receive(:enable!).once
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch manager', :run! => nil ),
+            :switch_manager => mock('switch manager', :run! => nil),
             :packetin_filter => nil,
             :links => { 'link0' => link0, 'link1' => link1, 'link2' => link2 },
             :hosts => {},
@@ -100,40 +100,40 @@ module Trema
             :port => 6633
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should run vhosts' do
-          host0 = mock( 'host0' )
-          host1 = mock( 'host1' )
-          host2 = mock( 'host2' )
+          host0 = mock('host0')
+          host1 = mock('host1')
+          host2 = mock('host2')
 
-          host0.should_receive( :run! ).once
-          host0.should_receive( :add_arp_entry ).with do | arg |
-            expect( arg.size ).to eq( 2 )
-            expect( arg ).to include( host1 )
-            expect( arg ).to include( host2 )
+          host0.should_receive(:run!).once
+          host0.should_receive(:add_arp_entry).with do | arg |
+            expect(arg.size).to eq(2)
+            expect(arg).to include(host1)
+            expect(arg).to include(host2)
           end
 
-          host1.should_receive( :run! ).once
-          host1.should_receive( :add_arp_entry ).with do | arg |
-            expect( arg.size ).to eq( 2 )
-            expect( arg ).to include( host0 )
-            expect( arg ).to include( host2 )
+          host1.should_receive(:run!).once
+          host1.should_receive(:add_arp_entry).with do | arg |
+            expect(arg.size).to eq(2)
+            expect(arg).to include(host0)
+            expect(arg).to include(host2)
           end
 
-          host2.should_receive( :run! ).once
-          host2.should_receive( :add_arp_entry ).with do | arg |
-            expect( arg.size ).to eq( 2 )
-            expect( arg ).to include( host0 )
-            expect( arg ).to include( host1 )
+          host2.should_receive(:run!).once
+          host2.should_receive(:add_arp_entry).with do | arg |
+            expect(arg.size).to eq(2)
+            expect(arg).to include(host0)
+            expect(arg).to include(host1)
           end
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch manager', :run! => nil ),
+            :switch_manager => mock('switch manager', :run! => nil),
             :packetin_filter => nil,
             :links => {},
             :hosts => { 'host0' => host0, 'host1' => host1, 'host2' => host2 },
@@ -143,24 +143,24 @@ module Trema
             :port => 6633
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should run switches' do
-          switch0 = mock( 'switch0' )
-          switch0.should_receive( :run! ).once
+          switch0 = mock('switch0')
+          switch0.should_receive(:run!).once
 
-          switch1 = mock( 'switch1' )
-          switch1.should_receive( :run! ).once
+          switch1 = mock('switch1')
+          switch1.should_receive(:run!).once
 
-          switch2 = mock( 'switch2' )
-          switch2.should_receive( :run! ).once
+          switch2 = mock('switch2')
+          switch2.should_receive(:run!).once
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch manager', :run! => nil ),
+            :switch_manager => mock('switch manager', :run! => nil),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -170,29 +170,29 @@ module Trema
             :port => 6633
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should run apps' do
           apps = OrderedHash.new
 
-          app0 = mock( 'app0', :name => 'app0' )
-          app0.should_receive( :daemonize! ).once.ordered
+          app0 = mock('app0', :name => 'app0')
+          app0.should_receive(:daemonize!).once.ordered
           apps[ 'app0' ] = app0
 
-          app1 = mock( 'app1', :name => 'app1' )
-          app1.should_receive( :daemonize! ).once.ordered
+          app1 = mock('app1', :name => 'app1')
+          app1.should_receive(:daemonize!).once.ordered
           apps[ 'app1' ] = app1
 
-          app2 = mock( 'app2', :name => 'app2' )
-          app2.should_receive( :run! ).once.ordered
+          app2 = mock('app2', :name => 'app2')
+          app2.should_receive(:run!).once.ordered
           apps[ 'app2' ] = app2
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch manager', :run! => nil, :rule => {} ),
+            :switch_manager => mock('switch manager', :run! => nil, :rule => {}),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -201,29 +201,29 @@ module Trema
             :apps => apps
           )
 
-          Runner.new( context ).run
+          Runner.new(context).run
         end
 
 
         it 'should daemonize apps' do
           apps = OrderedHash.new
 
-          app0 = mock( 'app0' )
-          app0.should_receive( :daemonize! ).once.ordered
+          app0 = mock('app0')
+          app0.should_receive(:daemonize!).once.ordered
           apps[ 'app0' ] = app0
 
-          app1 = mock( 'app1' )
-          app1.should_receive( :daemonize! ).once.ordered
+          app1 = mock('app1')
+          app1.should_receive(:daemonize!).once.ordered
           apps[ 'app1' ] = app1
 
-          app2 = mock( 'app2', :name => 'App2' )
-          app2.should_receive( :daemonize! ).once.ordered
+          app2 = mock('app2', :name => 'App2')
+          app2.should_receive(:daemonize!).once.ordered
           apps[ 'app2' ] = app2
 
           context = mock(
             'context',
             :tremashark => nil,
-            :switch_manager => mock( 'switch manager', :run! => nil, :rule => {} ),
+            :switch_manager => mock('switch manager', :run! => nil, :rule => {}),
             :packetin_filter => nil,
             :links => {},
             :hosts => {},
@@ -232,7 +232,7 @@ module Trema
             :apps => apps
           )
 
-          Runner.new( context ).daemonize
+          Runner.new(context).daemonize
         end
       end
     end

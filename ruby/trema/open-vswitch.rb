@@ -89,7 +89,7 @@ module Trema
     # @return [Array]
     #
     def flows
-      Ofctl.new.users_flows( self )
+      Ofctl.new.users_flows(self)
     end
 
 
@@ -114,7 +114,7 @@ module Trema
 
 
     def options
-      default_options.join( ' ' ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
+      default_options.join(' ') + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
 
 
@@ -142,7 +142,7 @@ module Trema
 
 
     def ports_option
-      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join(",") }" ]
     end
 
 

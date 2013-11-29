@@ -39,8 +39,8 @@ module Trema
     # @return [Process] the object that encapsulates the process details.
     #
     def self.read pid_file, name = nil
-      name = File.basename( pid_file.to_s, '.pid' ) if name.nil?
-      return new( pid_file, name )
+      name = File.basename(pid_file.to_s, '.pid') if name.nil?
+      return new(pid_file, name)
     end
 
 
@@ -48,8 +48,8 @@ module Trema
       @name = name
       @pid_file = pid_file
       begin
-        @pid = IO.read( @pid_file ).chomp.to_i
-        @uid = File.stat( @pid_file ).uid
+        @pid = IO.read(@pid_file).chomp.to_i
+        @uid = File.stat(@pid_file).uid
       rescue
         @pid_file = nil
       end

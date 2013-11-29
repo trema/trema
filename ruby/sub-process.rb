@@ -98,9 +98,9 @@ module SubProcess
 
   class Process
     def initialize
-      stdin, stdout, stderr = Array.new( 3 ) { IO.pipe }
-      @child = SubProcess::PipeSet.new( stdin[ 1 ], stdout[ 0 ], stderr[ 0 ] )
-      @parent = SubProcess::PipeSet.new( stdin[ 0 ], stdout[ 1 ], stderr[ 1 ] )
+      stdin, stdout, stderr = Array.new(3) { IO.pipe }
+      @child = SubProcess::PipeSet.new(stdin[ 1 ], stdout[ 0 ], stderr[ 0 ])
+      @parent = SubProcess::PipeSet.new(stdin[ 0 ], stdout[ 1 ], stderr[ 1 ])
     end
 
 
@@ -110,7 +110,7 @@ module SubProcess
 
 
     def popen command, &block
-      @pid = fork_child( command )
+      @pid = fork_child(command)
       # Parent process
       @parent.close
       begin
@@ -153,7 +153,7 @@ module SubProcess
 
 
     def start
-      Thread.new( @io, @method ) do | io, method |
+      Thread.new(@io, @method) do | io, method |
         while io.gets do
           method.call $LAST_READ_LINE
         end
@@ -164,7 +164,7 @@ module SubProcess
 
   class Shell
     def self.open debug_options = {}, &block
-      block.call new( debug_options )
+      block.call new(debug_options)
     end
 
 
@@ -205,7 +205,7 @@ module SubProcess
 
     def exec command, env = { 'LC_ALL' => 'C' }
       on_failure { fail "command #{ command } failed" } unless @on_failure
-      SubProcess::Process.new.popen SubProcess::Command.new( command, env ) do | stdout, stderr |
+      SubProcess::Process.new.popen SubProcess::Command.new(command, env) do | stdout, stderr |
         handle_child_output stdout, stderr
       end.wait
       handle_exitstatus
@@ -219,8 +219,8 @@ module SubProcess
 
 
     def handle_child_output stdout, stderr
-      tout = SubProcess::IoHandlerThread.new( stdout, method( :do_stdout ) ).start
-      terr = SubProcess::IoHandlerThread.new( stderr, method( :do_stderr ) ).start
+      tout = SubProcess::IoHandlerThread.new(stdout, method(:do_stdout)).start
+      terr = SubProcess::IoHandlerThread.new(stderr, method(:do_stderr)).start
       tout.join
       terr.join
     end

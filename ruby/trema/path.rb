@@ -20,7 +20,7 @@ require 'trema/monkey-patch/module'
 
 
 module Trema
-  HOME = File.expand_path( File.join( File.dirname( __FILE__ ), '..', '..' ) )
+  HOME = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
 
   class << self
@@ -30,7 +30,7 @@ module Trema
 
 
     def tmp
-      if ENV.key?( 'TREMA_TMP' )
+      if ENV.key?('TREMA_TMP')
         File.expand_path ENV[ 'TREMA_TMP' ]
       else
         File.join home, 'tmp'
@@ -44,8 +44,8 @@ module Trema
 
 
     def file base, path, name = nil
-      define_class_method( name || File.basename( path ).gsub( '.', '_' ) ) do
-        File.join __send__( base ), path
+      define_class_method(name || File.basename(path).gsub('.', '_')) do
+        File.join __send__(base), path
       end
     end
     alias_method :dir, :file
