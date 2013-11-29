@@ -25,7 +25,7 @@ module Trema
   # An action to output a packet to a port.
   #
   class SendOutPort < Action
-    DEFAULT_MAX_LEN = 2 ** 16 - 1
+    DEFAULT_MAX_LEN = 2**16 - 1
 
 
     # @return [Fixnum] the value of attribute {#max_len}

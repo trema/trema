@@ -234,7 +234,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           expect(message.stats[ 0].packet_count).to eq(2)
           expect(message.stats[ 0]).to respond_to :to_s
         end
-        match = Match.new(:dl_type =>0x800, :nw_proto => 17)
+        match = Match.new(:dl_type => 0x800, :nw_proto => 17)
         controller('FlowStatsController').send_message(
           0xabc,
           FlowStatsRequest.new(:match => match)
@@ -274,7 +274,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           expect(message.stats[ 0].flow_count).to eq(1)
           expect(message.stats[ 0]).to respond_to :to_s
         end
-        match = Match.new(:dl_type =>0x800, :nw_proto => 17)
+        match = Match.new(:dl_type => 0x800, :nw_proto => 17)
         controller('AggregateStatsController').send_message(
           0xabc,
           AggregateStatsRequest.new(:match => match, :table_id => 0xff)

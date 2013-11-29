@@ -43,7 +43,7 @@ module Trema
 
 
       def validate
-        set_dpid name if /\A0x/=~ name
+        set_dpid name if /\A0x/ =~ name
         fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 

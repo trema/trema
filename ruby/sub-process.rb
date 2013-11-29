@@ -66,7 +66,7 @@ module SubProcess
 
     def start
       @env.each_pair do | key, value |
-        ENV[ key]= value
+        ENV[key] = value
       end
       Kernel.exec @command
     end

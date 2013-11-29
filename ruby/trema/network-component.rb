@@ -80,7 +80,7 @@ module Trema
     #
     # @api public
     #
-    def self.each &block
+    def self.each(&block)
       instances.values.each do | each |
         block.call each
       end

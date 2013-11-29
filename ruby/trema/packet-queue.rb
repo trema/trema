@@ -42,7 +42,7 @@ module Trema
 
     # Iterate over each {PacketQueue} item.
     # @return [Array] a list of {PacketQueue} items.
-    def self.each &block
+    def self.each(&block)
       @queues.each do | each |
         block.call each
       end

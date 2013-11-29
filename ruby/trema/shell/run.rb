@@ -27,7 +27,7 @@ module Trema
       assert_trema_is_built
 
       if controller
-        if /\.rb\Z/=~ controller.split.first
+        if /\.rb\Z/ =~ controller.split.first
           require 'trema'
           include Trema
           ARGV.replace controller.split

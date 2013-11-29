@@ -39,16 +39,16 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
       )
 
       FlowRemoved.new(
-        :datapath_id=>2748,
-        :transaction_id=>0,
+        :datapath_id => 2748,
+        :transaction_id => 0,
         :match => match,
         :cookie => 123456789,
         :priority => 65535,
         :reason => 0,
-        :duration_sec=>1,
-        :duration_nsec=>779000000,
-        :idle_timeout=>1,
-        :packet_count=> 6,
+        :duration_sec => 1,
+        :duration_nsec => 779000000,
+        :idle_timeout => 1,
+        :packet_count => 6,
         :byte_count => 256
       )
     end
@@ -86,7 +86,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
     it 'should #flow_removed with valid attributes as per flow mod add' do
       class FlowRemovedController < Controller; end
       match = Match.new(
-        :in_port=> 1,
+        :in_port => 1,
         :dl_src => '00:00:00:00:00:01',
         :dl_dst => '00:00:00:00:00:02',
         :dl_type => 0x800,

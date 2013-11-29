@@ -29,7 +29,7 @@ describe SendOutPort, :type => 'actions' do
       let(:port_number) { 1 }
 
       its(:port_number) { should eq(1) }
-      its(:max_len) { should eq(2 ** 16 - 1) }
+      its(:max_len) { should eq(2**16 - 1) }
       its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=65535') }
     end
 
@@ -59,7 +59,7 @@ describe SendOutPort, :type => 'actions' do
     end
 
 
-    it_validates 'option is within range', :port_number, 0..( 2 ** 16 - 1)
+    it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
   end
 
 
@@ -71,7 +71,7 @@ describe SendOutPort, :type => 'actions' do
       let(:port_number) { 1 }
 
       its(:port_number) { should eq(1) }
-      its(:max_len) { should eq(2 ** 16 - 1) }
+      its(:max_len) { should eq(2**16 - 1) }
       its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=65535') }
     end
   end
@@ -93,7 +93,7 @@ describe SendOutPort, :type => 'actions' do
     context 'with options (:port_number => 1, :max_len => max_len)' do
       let(:options) { { :port_number => 1, :max_len => max_len } }
 
-      it_validates 'option is within range', :max_len, 0..( 2 ** 16 - 1)
+      it_validates 'option is within range', :max_len, 0..( 2**16 - 1)
     end
   end
 end

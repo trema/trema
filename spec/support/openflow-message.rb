@@ -45,13 +45,13 @@ shared_examples_for 'any Openflow message with transaction ID' do
   end
 
   context 'transaction_id: UINT32_MAX', :nosudo => true do
-    let(:transaction_id) { 2 ** 32 - 1 }
-    its(:transaction_id) { should == 2 ** 32 - 1 }
-    its(:xid) { should == 2 ** 32 - 1 }
+    let(:transaction_id) { 2**32 - 1 }
+    its(:transaction_id) { should == 2**32 - 1 }
+    its(:xid) { should == 2**32 - 1 }
   end
 
   context 'transaction_id: UINT32_MAX + 1', :nosudo => true do
-    let(:transaction_id) { 2 ** 32 }
+    let(:transaction_id) { 2**32 }
     it { expect { subject }.to raise_error(ArgumentError, 'Transaction ID must be an unsigned 32-bit integer') }
   end
 end
@@ -76,13 +76,13 @@ shared_examples_for 'any Openflow message with xid' do
   end
 
   context 'xid: UINT32_MAX', :nosudo => true do
-    let(:xid) { 2 ** 32 - 1 }
-    its(:xid) { should == 2 ** 32 - 1 }
-    its(:transaction_id) { should == 2 ** 32 - 1 }
+    let(:xid) { 2**32 - 1 }
+    its(:xid) { should == 2**32 - 1 }
+    its(:transaction_id) { should == 2**32 - 1 }
   end
 
   context 'xid: UINT32_MAX + 1', :nosudo => true do
-    let(:xid) { 2 ** 32 }
+    let(:xid) { 2**32 }
     it { expect { subject }.to raise_error(ArgumentError, 'Transaction ID must be an unsigned 32-bit integer') }
   end
 end
@@ -116,11 +116,11 @@ shared_examples_for 'any OpenFlow message' do | options |
   size = options[ :size]
   case size
     when 8
-      let(:uint_max) { 2 ** 8 - 1 }
+      let(:uint_max) { 2**8 - 1 }
     when 16
-      let(:uint_max) { 2 ** 16 - 1 }
+      let(:uint_max) { 2**16 - 1 }
     when 32
-      let(:uint_max) { 2 ** 32 - 1 }
+      let(:uint_max) { 2**32 - 1 }
   end
 
 

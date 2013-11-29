@@ -35,7 +35,7 @@ class Blocker
   PATH = '/tmp/cruise.lock'
 
 
-  def self.start &code_block
+  def self.start(&code_block)
     begin
       block
       code_block.call

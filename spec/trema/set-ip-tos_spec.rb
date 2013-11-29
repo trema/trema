@@ -28,7 +28,7 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
     its(:type_of_service) { should == 32 }
   end
 
-  it_validates 'option is within range', :type_of_service, 0..( 2 ** 8 - 1)
+  it_validates 'option is within range', :type_of_service, 0..( 2**8 - 1)
 
   context 'with type_of_service (32)' do
     let(:type_of_service) { '32' }

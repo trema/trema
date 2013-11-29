@@ -50,7 +50,7 @@ module Trema
     #
     def initialize stanza
       @stanza = stanza
-      if /\.rb\Z/=~ @stanza.fetch(:name)  # ruby?
+      if /\.rb\Z/ =~ @stanza.fetch(:name)  # ruby?
         require 'trema'
         path = @stanza.fetch(:path)
         ARGV.replace [path]

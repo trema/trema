@@ -32,7 +32,7 @@ end
 
 describe Enqueue, '.new( :port_number => number, :queue_id => 1 )' do
   subject { Enqueue.new :port_number => port_number, :queue_id => 1 }
-  it_validates 'option is within range', :port_number, 0..( 2 ** 16 - 1)
+  it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
 
   context 'when :port_number == 1' do
     let(:port_number) { 1 }
@@ -43,7 +43,7 @@ end
 
 describe Enqueue, '.new( :port_number => 1, :queue_id => number )' do
   subject { Enqueue.new :port_number => 1, :queue_id => queue_id }
-  it_validates 'option is within range', :queue_id, 0..( 2 ** 32 - 1)
+  it_validates 'option is within range', :queue_id, 0..( 2**32 - 1)
 
   context 'when :queue_id == 256' do
     let(:queue_id) { 256 }

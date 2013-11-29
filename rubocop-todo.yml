@@ -143,9 +143,6 @@ Semicolon:
 SpaceAroundEqualsInParameterDefault:
   Enabled: false
 
-SpaceAroundOperators:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 
