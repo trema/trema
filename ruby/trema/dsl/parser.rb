@@ -34,7 +34,7 @@ module Trema
 
       def eval &block
         configure do | config |
-          Syntax.new( config ).instance_eval &block
+          Syntax.new( config ).instance_eval(&block)
         end
       end
 

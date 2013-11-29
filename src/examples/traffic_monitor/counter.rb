@@ -32,7 +32,7 @@ class Counter
 
 
   def each_pair &block
-    @db.each_pair &block
+    @db.each_pair(&block)
   end
 end
 

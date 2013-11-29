@@ -174,7 +174,7 @@ end
 
 
 def network &block
-  Network.new &block
+  Network.new(&block)
 end
 
 

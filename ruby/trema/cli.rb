@@ -87,7 +87,7 @@ module Trema
     def tx_stats
       stat = stats( :tx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( ',' )
+        Trema::Stats.new(*stat.split( ',' ))
       else
         nil
       end
@@ -97,7 +97,7 @@ module Trema
     def rx_stats
       stat = stats( :rx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( ',' )
+        Trema::Stats.new(*stat.split( ',' ))
       else
         Trema::Stats.new nil, nil, nil, nil, 0, 0
       end
