@@ -104,9 +104,6 @@ LeadingCommentSpace:
 LineLength:
   Enabled: false
 
-MethodCallParentheses:
-  Enabled: false
-
 MethodLength:
   Enabled: false
 
