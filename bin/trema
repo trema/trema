@@ -28,6 +28,7 @@ require "gli"
 require "trema/command"
 require "trema/util"
 require "trema/version"
+require "trema/default_openflow_channel_port"
 
 
 class BinTrema
@@ -57,7 +58,7 @@ class BinTrema
       c.desc "Enables Trema wireshark plugin"
       c.switch [ :s, :tremashark ], :negatable => false
 
-      c.desc "Overrides the default openflow channel port"
+      c.desc "Overrides the default openflow channel port #{Trema::DEFAULT_OPENFLOW_CHANNEL_PORT}"
       c.flag [ :p, :port ]
 
       c.desc "Specifies emulated network configuration"

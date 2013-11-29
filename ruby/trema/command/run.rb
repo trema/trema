@@ -16,6 +16,7 @@
 #
 
 
+require "trema/default_openflow_channel_port"
 require "trema/dsl"
 require "trema/util"
 
@@ -27,7 +28,7 @@ module Trema
 
     def trema_run options
       @config_file = options[ :conf ] || nil
-      @openflow_port = options[ :port ] || 6653
+      @openflow_port = options[ :port ] || DEFAULT_OPENFLOW_CHANNEL_PORT
 
       if options[ :daemonize ]
         $run_as_daemon = true
