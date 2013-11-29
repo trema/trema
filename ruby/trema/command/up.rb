@@ -30,7 +30,7 @@ module Trema
         switch.run
       else
         # TODO: support vlink
-        raise "Unknown name: #{ name }"
+        fail "Unknown name: #{ name }"
       end
     end
   end

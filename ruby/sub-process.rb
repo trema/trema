@@ -204,7 +204,7 @@ module SubProcess
 
 
     def exec command, env = { 'LC_ALL' => 'C' }
-      on_failure { raise "command #{ command } failed" } unless @on_failure
+      on_failure { fail "command #{ command } failed" } unless @on_failure
       SubProcess::Process.new.popen SubProcess::Command.new( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end.wait

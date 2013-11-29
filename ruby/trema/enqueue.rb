@@ -58,19 +58,19 @@ module Trema
         @port_number = options[ :port_number ]
         @queue_id = options[ :queue_id ]
         if @port_number.nil?
-          raise ArgumentError, 'Port number is a mandatory option'
+          fail ArgumentError, 'Port number is a mandatory option'
         end
         unless @port_number.unsigned_16bit?
-          raise ArgumentError, 'Port number must be an unsigned 16-bit integer'
+          fail ArgumentError, 'Port number must be an unsigned 16-bit integer'
         end
         if @queue_id.nil?
-          raise ArgumentError, 'Queue ID is a mandatory option'
+          fail ArgumentError, 'Queue ID is a mandatory option'
         end
         unless @queue_id.unsigned_32bit?
-          raise ArgumentError, 'Queue ID must be an unsigned 32-bit integer'
+          fail ArgumentError, 'Queue ID must be an unsigned 32-bit integer'
         end
       else
-        raise 'Invalid option'
+        fail 'Invalid option'
       end
     end
   end

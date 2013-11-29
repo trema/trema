@@ -149,8 +149,8 @@ class BinTrema
       c.flag [ :inc_payload ]
 
       c.action do | global_options, options, args |
-        raise '--source option is mandatory' if options[ :source ].nil?
-        raise '--dest option is mandatory' if options[ :dest ].nil?
+        fail '--source option is mandatory' if options[ :source ].nil?
+        fail '--dest option is mandatory' if options[ :dest ].nil?
 
         trema_send_packets options[ :source ], options[ :dest ], options
       end
@@ -166,8 +166,8 @@ class BinTrema
       c.flag [ :p, :port ]
 
       c.action do | global_options, options, args |
-        raise '--switch option is mandatory' if options[ :switch ].nil?
-        raise '--port option is mandatory' if options[ :port ].nil?
+        fail '--switch option is mandatory' if options[ :switch ].nil?
+        fail '--port option is mandatory' if options[ :port ].nil?
 
         trema_port_up options[ :switch ], options[ :port ]
       end
@@ -183,8 +183,8 @@ class BinTrema
       c.flag [ :p, :port ]
 
       c.action do | global_options, options, args |
-        raise '--switch option is mandatory' if options[ :switch ].nil?
-        raise '--port option is mandatory' if options[ :port ].nil?
+        fail '--switch option is mandatory' if options[ :switch ].nil?
+        fail '--port option is mandatory' if options[ :port ].nil?
 
         trema_port_down options[ :switch ], options[ :port ]
       end

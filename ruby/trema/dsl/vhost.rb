@@ -43,7 +43,7 @@ module Trema
         when 'off', 'no'
           @promisc = false
         else
-          raise SyntaxError, "Unknown option: promisc #{ on_off }"
+          fail SyntaxError, "Unknown option: promisc #{ on_off }"
         end
       end
 

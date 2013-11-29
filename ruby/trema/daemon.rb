@@ -63,7 +63,7 @@ module Trema
 
 
     def run
-      raise "'#{ name }' is already running!" if running?
+      fail "'#{ name }' is already running!" if running?
       run!
     end
 
@@ -91,7 +91,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown
-      raise "'#{ name }' is not running!" if not running?
+      fail "'#{ name }' is not running!" if not running?
       shutdown!
     end
 

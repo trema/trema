@@ -27,7 +27,7 @@ module Trema
       assert_trema_is_built
 
       if host_name && Host[ host_name ].nil?
-        raise "Host '#{ host_name }' is not defined."
+        fail "Host '#{ host_name }' is not defined."
       end
       if host_name
         Cli.new( Host[ host_name ] ).reset_stats

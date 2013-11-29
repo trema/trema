@@ -152,9 +152,6 @@ RescueModifier:
 Semicolon:
   Enabled: false
 
-SignalException:
-  Enabled: false
-
 SpaceAfterComma:
   Enabled: false
 

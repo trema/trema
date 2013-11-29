@@ -43,10 +43,10 @@ module Trema
     #
     def initialize type_of_service
       unless type_of_service.is_a?( Integer )
-        raise TypeError, 'ToS must be an unsigned 8-bit integer'
+        fail TypeError, 'ToS must be an unsigned 8-bit integer'
       end
       unless type_of_service.valid_nw_tos?
-        raise ArgumentError, 'Invalid type_of_service (ToS) value.'
+        fail ArgumentError, 'Invalid type_of_service (ToS) value.'
       end
       @type_of_service = type_of_service
     end

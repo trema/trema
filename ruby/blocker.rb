@@ -54,7 +54,7 @@ class Blocker
     locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
     unless locked
       lock.close
-      raise BlockerError
+      fail BlockerError
     end
   end
 

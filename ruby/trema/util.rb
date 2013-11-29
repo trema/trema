@@ -29,7 +29,7 @@ module Trema::Util
     ENV[ 'TREMA_HOME' ] = Trema.home
     puts cmd if $verbose
     unless system( cmd )
-      raise "Command '#{ cmd }' failed!"
+      fail "Command '#{ cmd }' failed!"
     end
   end
 

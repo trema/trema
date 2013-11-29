@@ -98,7 +98,7 @@ class Network
   def trema_run controller_class
     controller = controller_class.new
     if not controller.is_a?( Trema::Controller )
-      raise "#{ controller_class } is not a subclass of Trema::Controller"
+      fail "#{ controller_class } is not a subclass of Trema::Controller"
     end
     Trema::DSL::Context.new( @context ).dump
 
@@ -151,7 +151,7 @@ class Network
   def wait_until_controller_is_up trema_name, timeout = 10
     elapsed = 0
     loop do
-      raise "Timed out waiting for #{ trema_name }." if elapsed > timeout
+      fail "Timed out waiting for #{ trema_name }." if elapsed > timeout
       break if FileTest.exists?( File.join( Trema.pid, "#{ trema_name }.pid" ) )
       sleep 1
       elapsed += 1
@@ -163,7 +163,7 @@ class Network
   def wait_until_all_pid_files_are_deleted timeout = 12
     elapsed = 0
     loop do
-      raise 'Failed to clean up remaining processes.' if elapsed > timeout
+      fail 'Failed to clean up remaining processes.' if elapsed > timeout
       break if Dir.glob( File.join( Trema.pid, '*.pid' ) ).empty?
       sleep 1
       elapsed += 1

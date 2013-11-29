@@ -86,7 +86,7 @@ module Trema
     #
     def check_mandatory_options queues
       [ :lldp, :packet_in ].each do | each |
-        raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+        fail ":#{ each } is a mandatory option" if queues[ each ].nil?
       end
     end
 

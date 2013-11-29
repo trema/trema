@@ -77,7 +77,7 @@ module Trema
         return
         # return if dead?
       end
-      raise "Failed to shut down #{ @name }"
+      fail "Failed to shut down #{ @name }"
     end
 
 

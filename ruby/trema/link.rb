@@ -155,7 +155,7 @@ module Trema
       @stanza.peers.each do | each |
         return each if interfaces.include?( each )
       end
-      raise
+      fail
     end
 
 

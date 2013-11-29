@@ -69,7 +69,7 @@ module Trema
               rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name, :vendor => app_name }
             else
               # two or more apps without switch_manager.
-              raise "No event routing configured. Use `event' directive to specify event routing."
+              fail "No event routing configured. Use `event' directive to specify event routing."
             end
             SwitchManager.new( rule, @context.port )
           end

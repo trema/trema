@@ -37,7 +37,7 @@ require 'trema/monkey-patch/string'
 
 
 def run command
-  raise "Failed to execute #{ command }" unless system( command )
+  fail "Failed to execute #{ command }" unless system( command )
 end
 
 

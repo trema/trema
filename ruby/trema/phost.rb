@@ -49,7 +49,7 @@ module Trema
     # @return [String] the virtual host's interface name.
     #
     def interface
-      raise "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
+      fail "The link(s) for vhost '#{ name }' is not defined." if @host.interface.nil?
       @host.interface
     end
 

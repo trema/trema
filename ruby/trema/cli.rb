@@ -65,7 +65,7 @@ module Trema
 
     def send_packets dest, options = {}
       if options[ :duration ] && options[ :n_pkts ]
-        raise '--duration and --n_pkts are exclusive.'
+        fail '--duration and --n_pkts are exclusive.'
       end
 
       sh( "#{ Executables.cli } -i #{ @host.interface } send_packets " +

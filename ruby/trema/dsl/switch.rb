@@ -31,7 +31,7 @@ module Trema
         when Integer
           set_dpid sprintf( '%#x', value )
         else
-          raise "Invalid datapath_id: #{ value }"
+          fail "Invalid datapath_id: #{ value }"
         end
       end
       alias_method :datapath_id, :dpid
@@ -44,7 +44,7 @@ module Trema
 
       def validate
         set_dpid name if /\A0x/=~ name
-        raise "Invalid dpid: #{ @name }" if @dpid_short.nil?
+        fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 
 

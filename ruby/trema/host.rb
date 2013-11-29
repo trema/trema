@@ -219,7 +219,7 @@ module Trema
       when :rx
         @cli.rx_stats
       else
-        raise
+        fail
       end
     end
 
