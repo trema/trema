@@ -47,7 +47,7 @@ module Trema
       unless vlan_priority.is_a?( Integer )
         raise TypeError, "VLAN priority must be an unsigned 8-bit Integer"
       end
-      unless ( vlan_priority >= 0 and vlan_priority <= 7 )
+      unless ( vlan_priority >= 0 && vlan_priority <= 7 )
         raise ArgumentError, "Valid VLAN priority values are 0 to 7 inclusive"
       end
       @vlan_priority = vlan_priority

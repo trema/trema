@@ -25,7 +25,7 @@ module Trema
   module Shell
     def vswitch name = nil, &block
       raise "Not in Trema shell" if $config.nil?
-      raise "No dpid given" if name.nil? and block.nil?
+      raise "No dpid given" if name.nil? && block.nil?
 
       stanza = DSL::Vswitch.new( name )
       stanza.instance_eval &block if block

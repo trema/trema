@@ -69,7 +69,7 @@ class Interfaces
 
   def find_by_port_and_ipaddr port, ipaddr
     @list.find do |each|
-      each.port == port and each.ipaddr.to_i == ipaddr.to_i
+      each.port == port && each.ipaddr.to_i == ipaddr.to_i
     end
   end
 
@@ -77,7 +77,7 @@ class Interfaces
     true if macda.broadcast?
 
     interface = find_by_port(port)
-    if not interface.nil? and interface.has?(macda)
+    if not interface.nil? && interface.has?(macda)
       true
     end
   end

@@ -98,7 +98,7 @@ module Trema
       sh "sudo ip link set dev #{ interface } netns #{ name }"
       sh "sudo ip netns exec #{ name } ifconfig lo 127.0.0.1"
       sh "sudo ip netns exec #{ name } ifconfig #{ interface } #{ @stanza[ :ip ] } netmask #{ netmask }" if @stanza[ :ip ]
-      sh "sudo ip netns exec #{ name } route add -net #{ @stanza[ :net ] } gw #{ @stanza[ :gw ] }" if @stanza[ :net ] and @stanza[ :gw ]
+      sh "sudo ip netns exec #{ name } route add -net #{ @stanza[ :net ] } gw #{ @stanza[ :gw ] }" if @stanza[ :net ] && @stanza[ :gw ]
       self
     end
 

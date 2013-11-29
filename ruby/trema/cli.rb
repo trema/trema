@@ -64,7 +64,7 @@ module Trema
 
 
     def send_packets dest, options = {}
-      if options[ :duration ] and options[ :n_pkts ]
+      if options[ :duration ] && options[ :n_pkts ]
         raise "--duration and --n_pkts are exclusive."
       end
 

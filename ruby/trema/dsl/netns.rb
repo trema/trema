@@ -60,7 +60,7 @@ module Trema
 
 
       def route options
-        if options[ :net ].nil? or options[ :gw ].nil?
+        if options[ :net ].nil? || options[ :gw ].nil?
           raise ":net and :gw option is a mandatory"
         end
         @net = options[ :net ]

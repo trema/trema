@@ -269,7 +269,7 @@ class BinTrema
 
       assert_trema_is_built
 
-      if FileTest.exist?( Trema.tmp ) and not FileTest.writable?( Trema.tmp )
+      if FileTest.exist?( Trema.tmp ) && !FileTest.writable?( Trema.tmp )
         # Trema is system widely installed with gem command
         sh "sudo chmod o+w -R #{ Trema.tmp }"
       end

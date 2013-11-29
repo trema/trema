@@ -58,7 +58,7 @@ module Trema
     # @return [Boolean] whether phost is running or not.
     #
     def running?
-      not @host.interface.nil? and super
+      not @host.interface.nil? && super
     end
 
 

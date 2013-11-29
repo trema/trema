@@ -39,7 +39,7 @@ module Trema
         next unless /(.+)=(.+)/=~ each
         name, value = $1, $2
         attr_reader name.to_sym
-        if ( /\A\d+\Z/=~ value ) or ( /\A0x.+\Z/=~ value )
+        if ( /\A\d+\Z/=~ value ) || ( /\A0x.+\Z/=~ value )
           flow.instance_eval "@#{ name }=#{ value }"
         else
           flow.instance_eval "@#{ name }='#{ value }'"
@@ -51,7 +51,7 @@ module Trema
 
     # @return [Boolean] whether a flow is a user registered flow or not.
     def users_flow?
-      not ( ( @actions == "drop" and @priority == 0 ) or
+      not ( ( @actions == "drop" && @priority == 0 ) ||
             @actions == "CONTROLLER:65535" )
     end
   end

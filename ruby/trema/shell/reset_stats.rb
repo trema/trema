@@ -26,7 +26,7 @@ module Trema
     def reset_stats host_name = nil
       assert_trema_is_built
 
-      if host_name and Host[ host_name ].nil?
+      if host_name && Host[ host_name ].nil?
         raise "Host '#{ host_name }' is not defined."
       end
       if host_name
