@@ -33,7 +33,7 @@ module Trema
     #
     # @return [void]
     #
-    def initialize fields, options
+    def initialize(fields, options)
       fields.each do |field|
         instance_variable_set("@#{field}", options[field.intern])
       end

@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def reset_stats host_name = nil
+    def reset_stats(host_name = nil)
       assert_trema_is_built
 
       if host_name && Host[ host_name].nil?

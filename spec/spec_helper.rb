@@ -51,22 +51,22 @@ end
 include Trema
 
 
-def controller name
+def controller(name)
   Trema::App[ name]
 end
 
 
-def vswitch name
+def vswitch(name)
   Trema::OpenflowSwitch[ name]
 end
 
 
-def vhost name
+def vhost(name)
   Trema::Host[ name]
 end
 
 
-def send_packets source, dest, options = {}
+def send_packets(source, dest, options = {})
   Trema::Shell.send_packets source, dest, options
 end
 
@@ -75,12 +75,12 @@ include Trema::Util
 
 
 class Network
-  def initialize &block
+  def initialize(&block)
     @context = Trema::DSL::Parser.new.eval(&block)
   end
 
 
-  def run controller_class, &test
+  def run(controller_class, &test)
     trema_run controller_class
     test.call
   ensure
@@ -93,7 +93,7 @@ class Network
   ################################################################################
 
 
-  def trema_run controller_class
+  def trema_run(controller_class)
     controller = controller_class.new
     if not controller.is_a?(Trema::Controller)
       fail "#{ controller_class } is not a subclass of Trema::Controller"
@@ -137,7 +137,7 @@ class Network
   end
 
 
-  def drop_packets_from_unknown_hosts switch
+  def drop_packets_from_unknown_hosts(switch)
     ofctl = Trema::Ofctl.new
     ofctl.add_flow switch, :priority => 0, :actions => 'drop'
     @context.hosts.each do | name, each |
@@ -146,7 +146,7 @@ class Network
   end
 
 
-  def wait_until_controller_is_up trema_name, timeout = 10
+  def wait_until_controller_is_up(trema_name, timeout = 10)
     elapsed = 0
     loop do
       fail "Timed out waiting for #{ trema_name }." if elapsed > timeout
@@ -158,7 +158,7 @@ class Network
   end
 
 
-  def wait_until_all_pid_files_are_deleted timeout = 12
+  def wait_until_all_pid_files_are_deleted(timeout = 12)
     elapsed = 0
     loop do
       fail 'Failed to clean up remaining processes.' if elapsed > timeout
@@ -171,7 +171,7 @@ class Network
 end
 
 
-def network &block
+def network(&block)
   Network.new(&block)
 end
 

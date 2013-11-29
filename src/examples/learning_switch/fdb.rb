@@ -28,7 +28,7 @@ class ForwardingEntry
   attr_writer :age_max
 
 
-  def initialize mac, port_no, age_max, dpid
+  def initialize(mac, port_no, age_max, dpid)
     @mac = mac
     @port_no = port_no
     @age_max = age_max
@@ -38,7 +38,7 @@ class ForwardingEntry
   end
 
 
-  def update port_no
+  def update(port_no)
     debug "Update: The port number of #{ @mac.to_s } has been changed #{ @port_no } => #{ port_no }"
     @port_no = port_no
     @last_update = Time.now
@@ -65,7 +65,7 @@ class FDB
   end
 
 
-  def port_no_of mac
+  def port_no_of(mac)
     dest = @db[ mac]
     if dest
       dest.port_no
@@ -75,7 +75,7 @@ class FDB
   end
 
 
-  def lookup mac
+  def lookup(mac)
     if dest = @db[ mac]
       [dest.dpid, dest.port_no]
     else
@@ -84,7 +84,7 @@ class FDB
   end
 
 
-  def learn mac, port_no, dpid = nil
+  def learn(mac, port_no, dpid = nil)
     entry = @db[ mac]
     if entry
       entry.update port_no

@@ -25,7 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_port_down switch_name, port
+    def trema_port_down(switch_name, port)
       switch = find_switch_by_name(switch_name)
       fail "unknown switch: #{ switch_name }" if switch.nil?
 

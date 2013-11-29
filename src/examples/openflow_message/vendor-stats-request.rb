@@ -22,12 +22,12 @@ class VendorStatsRequestSample < Controller
   OVS_VENDOR_ID = 0x00002320
   OVSST_FLOW = 0
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     send_vendor_stats_request datapath_id
   end
 
 
-  def stats_reply datapath_id, message
+  def stats_reply(datapath_id, message)
     if message.type == StatsReply::OFPST_VENDOR
       vendor_stats_reply datapath_id, message
     end
@@ -37,14 +37,14 @@ class VendorStatsRequestSample < Controller
   private
 
 
-  def vendor_stats_reply datapath_id, message
+  def vendor_stats_reply(datapath_id, message)
     info '[vendor_stats_reply]'
     info 'vendor_id: 0x%08x' % message.stats.first.vendor_id
     info "data: [#{ message.stats.first.data.map { | n |  "0x%02x" % n }.join ", " }]"
   end
 
 
-  def send_vendor_stats_request datapath_id
+  def send_vendor_stats_request(datapath_id)
     data = [
       OVSST_FLOW,
       0x0, 0x0, 0x0, 0x0,

@@ -17,7 +17,7 @@
 
 
 module Timers
-  def self.included base
+  def self.included(base)
     base.send :include, TimerMethods
     base.send :extend, TimerMethods
   end
@@ -57,25 +57,25 @@ module Timers
     }.call
 
 
-    def add_timer_event handler, interval, event_type
+    def add_timer_event(handler, interval, event_type)
       add_timer handler, interval, event_type
     end
     alias_method :timer_event, :add_timer_event
 
 
-    def delete_timer_event handler
+    def delete_timer_event(handler)
       delete_timer handler
     end
 
 
     # shortcut methods
-    def add_periodic_timer_event handler, interval
+    def add_periodic_timer_event(handler, interval)
       add_timer_event handler, interval, :periodic
     end
     alias_method :periodic_timer_event, :add_periodic_timer_event
 
 
-    def add_oneshot_timer_event handler, interval
+    def add_oneshot_timer_event(handler, interval)
       add_timer_event handler, interval, :oneshot
     end
     alias_method :oneshot_timer_event, :add_oneshot_timer_event

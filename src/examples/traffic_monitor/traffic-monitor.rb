@@ -32,7 +32,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     macsa = message.macsa
     macda = message.macda
 
@@ -48,7 +48,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def flow_removed datapath_id, message
+  def flow_removed(datapath_id, message)
     @counter.add message.match.dl_src, message.packet_count, message.byte_count
   end
 
@@ -66,7 +66,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def flow_mod datapath_id, macsa, macda, out_port
+  def flow_mod(datapath_id, macsa, macda, out_port)
     send_flow_mod_add(
       datapath_id,
       :hard_timeout => 10,
@@ -76,7 +76,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def packet_out datapath_id, message, out_port
+  def packet_out(datapath_id, message, out_port)
     send_packet_out(
       datapath_id,
       :packet_in => message,
@@ -85,7 +85,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def flood datapath_id, message
+  def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end

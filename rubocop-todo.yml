@@ -44,9 +44,6 @@ ConstantName:
 CyclomaticComplexity:
   Enabled: false
 
-DefWithoutParentheses:
-  Enabled: false
-
 Documentation:
   Enabled: false
 

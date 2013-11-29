@@ -28,7 +28,7 @@ class HelloController < Controller
   end
 
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     @count.times do
       send_message datapath_id, Hello.new
     end

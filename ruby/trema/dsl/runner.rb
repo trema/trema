@@ -24,7 +24,7 @@ require 'trema/tremashark'
 module Trema
   module DSL
     class Runner
-      def initialize context
+      def initialize(context)
         @context = context
       end
 

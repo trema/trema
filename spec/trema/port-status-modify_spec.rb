@@ -27,7 +27,7 @@ end
 
 module Trema
   class PortStatusController < Controller
-    def features_reply dpid, message
+    def features_reply(dpid, message)
       message.ports.select(&:up?).each do | each |
         port_mod = PortMod.new(
           :port_no => each.number,

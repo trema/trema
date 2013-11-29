@@ -46,7 +46,7 @@ module Trema
     #
     # @return [PortStatusAdd]
     #
-    def initialize options
+    def initialize(options)
       super options.merge(:reason => OFPPR_ADD)
     end
   end

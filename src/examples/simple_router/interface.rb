@@ -28,52 +28,52 @@ class Interface
   attr_reader :masklen
   attr_reader :port
 
-  def initialize options
+  def initialize(options)
     @port = options[:port]
     @hwaddr = Pio::Mac.new(options[:hwaddr])
     @ipaddr = Pio::IPv4Address.new(options[:ipaddr])
     @masklen = options[:masklen]
   end
 
-  def has? mac
+  def has?(mac)
     mac == hwaddr
   end
 end
 
 class Interfaces
-  def initialize interfaces = []
+  def initialize(interfaces = [])
     @list = []
     interfaces.each do |each|
       @list << Interface.new(each)
     end
   end
 
-  def find_by_port port
+  def find_by_port(port)
     @list.find do |each|
       each.port == port
     end
   end
 
-  def find_by_ipaddr ipaddr
+  def find_by_ipaddr(ipaddr)
     @list.find do |each|
       each.ipaddr.to_i == ipaddr.to_i
     end
   end
 
-  def find_by_prefix ipaddr
+  def find_by_prefix(ipaddr)
     @list.find do |each|
       masklen = each.masklen
       each.ipaddr.mask(masklen).to_s == ipaddr.mask(masklen).to_s
     end
   end
 
-  def find_by_port_and_ipaddr port, ipaddr
+  def find_by_port_and_ipaddr(port, ipaddr)
     @list.find do |each|
       each.port == port && each.ipaddr.to_i == ipaddr.to_i
     end
   end
 
-  def ours? port, macda
+  def ours?(port, macda)
     true if macda.broadcast?
 
     interface = find_by_port(port)

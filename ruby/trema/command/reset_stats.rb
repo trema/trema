@@ -25,7 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_reset_stats name
+    def trema_reset_stats(name)
       host = find_host_by_name(name)
       fail "unknown host: #{ name }" if host.nil?
       Trema::Cli.new(host).reset_stats

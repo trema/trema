@@ -25,7 +25,7 @@ class MatchCompare < Controller
   end
 
 
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     match = ExactMatch.from(message)
     action, log = lookup_rules(datapath_id, match)
     info "action=#{ action }, datapath_id=#{ datapath_id.to_hex }, message={#{ match.to_s }}" if log
@@ -54,17 +54,17 @@ class MatchCompare < Controller
   end
 
 
-  def allow hash = {}
+  def allow(hash = {})
     add_rule :allow, hash
   end
 
 
-  def block hash = {}
+  def block(hash = {})
     add_rule :block, hash
   end
 
 
-  def add_rule action, hash
+  def add_rule(action, hash)
     datapath_id = hash.key?(:datapath_id) && hash.delete(:datapath_id) || nil
     log = hash.key?(:log) && hash.delete(:log) || false
     rule = Struct.new(:action, :datapath_id, :match, :log)
@@ -72,7 +72,7 @@ class MatchCompare < Controller
   end
 
 
-  def lookup_rules datapath_id, match
+  def lookup_rules(datapath_id, match)
     action = :block # default action
     log = false
     @rules.each do | each |

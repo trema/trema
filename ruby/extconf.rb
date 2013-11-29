@@ -27,13 +27,13 @@ dir_config 'trema'
 dir_config 'openflow'
 
 
-def error_exit message
+def error_exit(message)
   $stderr.puts message
   exit false
 end
 
 
-def error_lib_missing lib, package
+def error_lib_missing(lib, package)
   <<-EOF
 ERROR: #{ lib } not found!
 

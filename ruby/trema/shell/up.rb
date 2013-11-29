@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def up name
+    def up(name)
       if OpenflowSwitch[ name].running?
         OpenflowSwitch[ name].restart!
       else

@@ -43,7 +43,7 @@ module Trema
     #
     # @return [HardwareSwitch]
     #
-    def initialize stanza
+    def initialize(stanza)
       stanza.validate
       @name = stanza.name
       @stanza = stanza

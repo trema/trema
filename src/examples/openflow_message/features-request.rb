@@ -20,12 +20,12 @@
 
 
 class FeaturesRequestController < Controller
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     send_message datapath_id, FeaturesRequest.new
   end
 
 
-  def features_reply datapath_id, message
+  def features_reply(datapath_id, message)
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "n_buffers: #{ message.n_buffers }"
@@ -41,7 +41,7 @@ class FeaturesRequestController < Controller
   ##############################################################################
 
 
-  def print_capabilities capabilities
+  def print_capabilities(capabilities)
     info 'capabilities:'
     info '  OFPC_FLOW_STATS' if capabilities & OFPC_FLOW_STATS != 0
     info '  OFPC_TABLE_STATS' if capabilities & OFPC_TABLE_STATS != 0
@@ -54,7 +54,7 @@ class FeaturesRequestController < Controller
   end
 
 
-  def print_actions actions
+  def print_actions(actions)
     info 'actions:'
     info '  OFPAT_OUTPUT' if actions & ( 1 << OFPAT_OUTPUT) != 0
     info '  OFPAT_SET_VLAN_VID' if actions & ( 1 << OFPAT_SET_VLAN_VID) != 0
@@ -72,7 +72,7 @@ class FeaturesRequestController < Controller
   end
 
 
-  def print_ports ports
+  def print_ports(ports)
     info 'ports:'
     ports.each do | each |
       info '  port_no: %u' % each.number

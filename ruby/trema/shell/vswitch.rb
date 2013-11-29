@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def vswitch name = nil, &block
+    def vswitch(name = nil, &block)
       fail 'Not in Trema shell' if $config.nil?
       fail 'No dpid given' if name.nil? && block.nil?
 

@@ -25,7 +25,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_show_stats hostname, tx, rx
+    def trema_show_stats(hostname, tx, rx)
       cli = get_cli(hostname)
 
       unless tx || rx
@@ -41,7 +41,7 @@ module Trema
     ############################################################################
 
 
-    def show_tx_and_rx cli
+    def show_tx_and_rx(cli)
       puts 'Sent packets:'
       cli.show_tx_stats
       puts 'Received packets:'
@@ -49,7 +49,7 @@ module Trema
     end
 
 
-    def get_cli name
+    def get_cli(name)
       host = find_host_by_name(name)
       exit_now! "unknown host: #{ name }" if host.nil?
       Trema::Cli.new host

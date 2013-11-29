@@ -27,12 +27,12 @@ module Trema
       attr_reader :path
 
 
-      def initialize name = nil
+      def initialize(name = nil)
         super name
       end
 
 
-      def file path
+      def file(path)
         @path = path
       end
     end

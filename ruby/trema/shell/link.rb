@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def link peer0, peer1
+    def link(peer0, peer1)
       stanza = DSL::Link.new(peer0, peer1)
       link = Link.new(stanza)
       link.enable!

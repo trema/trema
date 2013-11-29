@@ -17,7 +17,7 @@
 
 
 class PacketInDumper < Controller
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     info 'received a packet_in'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"

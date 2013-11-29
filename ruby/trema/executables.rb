@@ -49,7 +49,7 @@ class Trema::Executables
     #
     # Adds the name to a list.
     #
-    def add name
+    def add(name)
       @list ||= []
       @list << name
     end
@@ -68,7 +68,7 @@ class Trema::Executables
     #
     # @return [Array] a list of a class method to access each executable program.
     #
-    def path path
+    def path(path)
       name = File.basename(path).underscore
       define_class_method(name) do
         File.join Trema.objects, path

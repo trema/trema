@@ -28,13 +28,13 @@ class SwitchMonitor < Controller
   end
 
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     @switches << datapath_id.to_hex
     info "Switch #{ datapath_id.to_hex } is UP"
   end
 
 
-  def switch_disconnected datapath_id
+  def switch_disconnected(datapath_id)
     @switches -= [datapath_id.to_hex]
     info "Switch #{ datapath_id.to_hex } is DOWN"
   end

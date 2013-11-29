@@ -57,7 +57,7 @@ module Trema
     #
     # @api public
     #
-    def self.inherited subclass
+    def self.inherited(subclass)
       subclass.instances ||= OrderedHash.new
     end
 
@@ -102,7 +102,7 @@ module Trema
     #
     # @api public
     #
-    def self.[] name
+    def self.[](name)
       instances[ name]
     end
 
@@ -137,7 +137,7 @@ module Trema
     #
     # @api public
     #
-    def self.add object
+    def self.add(object)
       instances[ object.name] = object
     end
   end

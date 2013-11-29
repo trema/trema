@@ -27,7 +27,7 @@ class PatchPanel < Controller
   end
 
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     @patch.each do | port_a, port_b |
       make_patch datapath_id, port_a, port_b
     end
@@ -37,7 +37,7 @@ class PatchPanel < Controller
   private
 
 
-  def make_patch datapath_id, port_a, port_b
+  def make_patch(datapath_id, port_a, port_b)
     send_flow_mod_add(
       datapath_id,
       :match => Match.new(:in_port => port_a),

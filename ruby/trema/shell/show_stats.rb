@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def show_stats host_name, option
+    def show_stats(host_name, option)
       assert_trema_is_built
 
       fail "Host '#{ host_name }' is not defined." if Host[ host_name].nil?

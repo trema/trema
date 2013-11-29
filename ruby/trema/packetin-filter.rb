@@ -35,7 +35,7 @@ module Trema
     #
     # @api public
     #
-    def initialize queues
+    def initialize(queues)
       check_mandatory_options queues
       @queues = queues
       PacketinFilter.add self
@@ -84,7 +84,7 @@ module Trema
     #
     # @api private
     #
-    def check_mandatory_options queues
+    def check_mandatory_options(queues)
       [:lldp, :packet_in].each do | each |
         fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end

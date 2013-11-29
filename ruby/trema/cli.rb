@@ -35,7 +35,7 @@ module Trema
     attr_reader :n_octets
 
 
-    def initialize ip_dst, tp_dst, ip_src, tp_src, n_pkts, n_octets
+    def initialize(ip_dst, tp_dst, ip_src, tp_src, n_pkts, n_octets)
       @ip_dst = ip_dst
       @tp_dst = tp_dst.to_i
       @ip_src = ip_src
@@ -58,12 +58,12 @@ end
 
 module Trema
   class Cli
-    def initialize host
+    def initialize(host)
       @host = host
     end
 
 
-    def send_packets dest, options = {}
+    def send_packets(dest, options = {})
       if options[ :duration] && options[ :n_pkts]
         fail '--duration and --n_pkts are exclusive.'
       end
@@ -110,7 +110,7 @@ module Trema
     end
 
 
-    def add_arp_entry other
+    def add_arp_entry(other)
       sh "sudo #{ Executables.cli } -i #{ @host.interface } add_arp_entry --ip_addr #{ other.ip } --mac_addr #{ other.mac }"
     end
 
@@ -130,7 +130,7 @@ module Trema
     ################################################################################
 
 
-    def send_packets_options options
+    def send_packets_options(options)
       [
        tp_src(options[ :tp_src] || default_tp_src),
        tp_dst(options[ :tp_dst] || default_tp_dst),
@@ -147,7 +147,7 @@ module Trema
     end
 
 
-    def tp_src value
+    def tp_src(value)
       "--tp_src #{ value }"
     end
 
@@ -157,7 +157,7 @@ module Trema
     end
 
 
-    def tp_dst value
+    def tp_dst(value)
       "--tp_dst #{ value }"
     end
 
@@ -167,7 +167,7 @@ module Trema
     end
 
 
-    def pps value
+    def pps(value)
       "--pps #{ value }"
     end
 
@@ -177,7 +177,7 @@ module Trema
     end
 
 
-    def duration value
+    def duration(value)
       "--duration #{ value }"
     end
 
@@ -187,7 +187,7 @@ module Trema
     end
 
 
-    def length value
+    def length(value)
       "--length #{ value }"
     end
 
@@ -197,7 +197,7 @@ module Trema
     end
 
 
-    def inc_ip_src value
+    def inc_ip_src(value)
       return nil if value.nil?
       if value == true
         '--inc_ip_src'
@@ -207,7 +207,7 @@ module Trema
     end
 
 
-    def inc_ip_dst value
+    def inc_ip_dst(value)
       return nil if value.nil?
       if value == true
         '--inc_ip_dst'
@@ -217,7 +217,7 @@ module Trema
     end
 
 
-    def inc_tp_src value
+    def inc_tp_src(value)
       return nil if value.nil?
       if value == true
         '--inc_tp_src'
@@ -227,7 +227,7 @@ module Trema
     end
 
 
-    def inc_tp_dst value
+    def inc_tp_dst(value)
       return nil if value.nil?
       if value == true
         '--inc_tp_dst'
@@ -237,7 +237,7 @@ module Trema
     end
 
 
-    def inc_payload value
+    def inc_payload(value)
       return nil if value.nil?
       if value == true
         '--inc_payload'
@@ -247,13 +247,13 @@ module Trema
     end
 
 
-    def n_pkts value
+    def n_pkts(value)
       return nil if value.nil?
       "--n_pkts=#{ value }"
     end
 
 
-    def stats type
+    def stats(type)
       `sudo #{ Executables.cli } -i #{ @host.interface } show_stats --#{ type }`
     end
   end

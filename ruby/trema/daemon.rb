@@ -29,12 +29,12 @@ module Trema
       end
 
 
-      def log_file &block
+      def log_file(&block)
         class_variable_set :@@log_file, block
       end
 
 
-      def command &block
+      def command(&block)
         class_variable_set :@@command, block
       end
 
@@ -44,13 +44,13 @@ module Trema
       end
 
 
-      def daemon_id method_id
+      def daemon_id(method_id)
         class_variable_set :@@daemon_id, method_id
       end
     end
 
 
-    def self.included base
+    def self.included(base)
       base.class_eval do
         class_variable_set :@@singleton_daemon, false
         class_variable_set :@@log_file, nil

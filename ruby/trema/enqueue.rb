@@ -53,7 +53,7 @@ module Trema
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
     # @raise [ArgumentError] if queue id is not an unsigned 32-bit integer.
     #
-    def initialize options
+    def initialize(options)
       if options.is_a?(Hash)
         @port_number = options[ :port_number]
         @queue_id = options[ :queue_id]

@@ -19,7 +19,7 @@
 
 
 class CbenchSwitch < Controller
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     send_flow_mod_add(
       datapath_id,
       :cookie => 0,

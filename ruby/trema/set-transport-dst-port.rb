@@ -36,7 +36,7 @@ module Trema
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit Integer.
     # @raise [TypeError] if port_number is not an Integer.
     #
-    def initialize port_number
+    def initialize(port_number)
       super port_number
     end
   end

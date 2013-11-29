@@ -38,7 +38,7 @@ module Trema
     #
     # Creates a new instance of Phost for each virtual host.
     #
-    def initialize host
+    def initialize(host)
       @host = host
     end
 

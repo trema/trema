@@ -43,7 +43,7 @@ module Trema
     # @raise [ArgumentError] if vlan_priority is not within 0 and 7 inclusive.
     # @raise [TypeError] if vlan_priority is not an Integer.
     #
-    def initialize vlan_priority
+    def initialize(vlan_priority)
       unless vlan_priority.is_a?(Integer)
         fail TypeError, 'VLAN priority must be an unsigned 8-bit Integer'
       end

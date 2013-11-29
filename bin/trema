@@ -290,7 +290,7 @@ class BinTrema
   end
 
 
-  def start argv
+  def start(argv)
     run argv
   rescue
     puts $!

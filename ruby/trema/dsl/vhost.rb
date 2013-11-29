@@ -36,7 +36,7 @@ module Trema
       #
       # @api public
       #
-      def promisc on_off
+      def promisc(on_off)
         case on_off.to_s.downcase
         when 'on', 'yes'
           @promisc = true
@@ -58,7 +58,7 @@ module Trema
       #
       # @api public
       #
-      def ip str
+      def ip(str)
         @ip = str
         if @name.nil?
           @name = @ip
@@ -76,7 +76,7 @@ module Trema
       #
       # @api public
       #
-      def netmask str
+      def netmask(str)
         @netmask = str
       end
 
@@ -91,7 +91,7 @@ module Trema
       #
       # @api public
       #
-      def mac str
+      def mac(str)
         @mac = str
       end
     end

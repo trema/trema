@@ -20,7 +20,7 @@
 
 module Trema
   class ExactMatch
-    def self.from message
+    def self.from(message)
       Match.from message
     end
   end

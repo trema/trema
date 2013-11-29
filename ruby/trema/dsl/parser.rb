@@ -25,14 +25,14 @@ require 'trema/dsl/syntax'
 module Trema
   module DSL
     class Parser
-      def parse file_name
+      def parse(file_name)
         configure do | config |
           Syntax.new(config).instance_eval IO.read(file_name), file_name
         end
       end
 
 
-      def eval &block
+      def eval(&block)
         configure do | config |
           Syntax.new(config).instance_eval(&block)
         end
@@ -44,7 +44,7 @@ module Trema
       ################################################################################
 
 
-      def configure &block
+      def configure(&block)
         config = Configuration.new
         block.call config
         Trema::Link.each do | each |

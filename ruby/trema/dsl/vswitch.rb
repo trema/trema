@@ -24,13 +24,13 @@ require 'trema/dsl/switch'
 module Trema
   module DSL
     class Vswitch < Switch
-      def initialize name = nil
+      def initialize(name = nil)
         super name
         @ip = '127.0.0.1'
       end
 
 
-      def ip str
+      def ip(str)
         @ip = str
       end
     end

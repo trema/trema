@@ -31,7 +31,7 @@ module Trema
     # @return [self] the object that holds the parsed key=value fields
     #   as attributes.
     #
-    def self.parse line
+    def self.parse(line)
       flow = new
       # to simplify parsing
       line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/, '/') }

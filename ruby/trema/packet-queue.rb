@@ -27,7 +27,7 @@ module Trema
 
     # Add queue to list.
     # @param [PacketQueue] queue a {PacketQueue} instance.
-    def self.append queue
+    def self.append(queue)
       @queues ||= []
       @queues << queue unless @queues.include?(queue)
     end
@@ -80,7 +80,7 @@ module Trema
     # @option options [Symbol] :len
     #   queue description's length in bytes.
     #
-    def initialize options
+    def initialize(options)
       @queue_id = options[ :queue_id]
       @len = options[ :len]
       @properties = []
@@ -89,7 +89,7 @@ module Trema
 
     # @param [MinRateQueue] queue
     #   a property queue {MinRateQueue} object to append to the properties list.
-    def append queue
+    def append(queue)
       @properties << queue
     end
 
@@ -127,7 +127,7 @@ module Trema
     #   property queue id.
     # @param [Number] len
     #   length in bytes of the property queue.
-    def initialize property, len
+    def initialize(property, len)
       @property = property
       @len = len
     end
@@ -157,7 +157,7 @@ module Trema
     #   the rate value of the mimimum rate queue.
     # @param [PacketQueue] packet_queue
     #   A {PacketQueue} instance to use to save the minimum rate queue.
-    def initialize property, len, rate, packet_queue
+    def initialize(property, len, rate, packet_queue)
       super property, len
       @rate = rate
       packet_queue.append self

@@ -35,7 +35,7 @@ module Trema
     # @option queues [Symbol] :state_notify
     #   the controller(s) to receive state notification messages.
     #
-    def initialize queues
+    def initialize(queues)
       check_mandatory_options queues
       @queues = queues
     end
@@ -62,7 +62,7 @@ module Trema
     #
     # @raise [RuntimeError] if a mandatory option is not found.
     #
-    def check_mandatory_options queues
+    def check_mandatory_options(queues)
       MANDATORY_QUEUES.each do | each |
         fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end
@@ -72,7 +72,7 @@ module Trema
     #
     # @return [Array<String>] an array of controller name strings.
     #
-    def queue queue_type
+    def queue(queue_type)
       return [] unless @queues[ queue_type]
       controllers = @queues[ queue_type].split(',')
       controllers.collect! do | each |

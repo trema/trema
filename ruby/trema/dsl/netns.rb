@@ -36,7 +36,7 @@ module Trema
       #
       # @api public
       #
-      def ip str
+      def ip(str)
         @ip = str
         if @name.nil?
           @name = @ip
@@ -54,12 +54,12 @@ module Trema
       #
       # @api public
       #
-      def netmask str
+      def netmask(str)
         @netmask = str
       end
 
 
-      def route options
+      def route(options)
         if options[ :net].nil? || options[ :gw].nil?
           fail ':net and :gw option is a mandatory'
         end

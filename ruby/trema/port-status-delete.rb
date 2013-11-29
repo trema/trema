@@ -46,7 +46,7 @@ module Trema
     #
     # @return [PortStatusDelete]
     #
-    def initialize options
+    def initialize(options)
       super options.merge(:reason => OFPPR_DELETE)
     end
   end

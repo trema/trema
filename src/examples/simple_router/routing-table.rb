@@ -22,28 +22,28 @@ require 'pio'
 class RoutingTable
   ADDR_LEN = 32
 
-  def initialize route = []
+  def initialize(route = [])
     @db = Array.new(ADDR_LEN + 1) { Hash.new }
     route.each do |each|
       add(each)
     end
   end
 
-  def add options
+  def add(options)
     dest = Pio::IPv4Address.new(options[:destination])
     masklen = options[:masklen]
     prefix = dest.mask(masklen)
     @db[masklen][prefix.to_i] = Pio::IPv4Address.new(options[:nexthop])
   end
 
-  def delete options
+  def delete(options)
     dest = Pio::IPv4Address.new(options[:destination])
     masklen = options[:masklen]
     prefix = dest.mask(masklen)
     @db[masklen].delete(prefix.to_i)
   end
 
-  def lookup dest
+  def lookup(dest)
     (0..ADDR_LEN).reverse_each do |masklen|
       prefix = dest.mask(masklen)
       entry = @db[masklen][prefix.to_i]

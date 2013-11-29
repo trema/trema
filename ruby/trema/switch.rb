@@ -22,12 +22,12 @@ module Trema
     alias_method :datapath_id, :dpid
 
 
-    def self.inherited subclass
+    def self.inherited(subclass)
       at_exit { subclass.new(eval ARGV[ 0]).run! }
     end
 
 
-    def initialize dpid
+    def initialize(dpid)
       @dpid = dpid
     end
 
@@ -42,7 +42,7 @@ module Trema
     end
 
 
-    def features_request xid
+    def features_request(xid)
       send_message FeaturesReply.new(:datapath_id => @dpid, :transaction_id => xid)
     end
   end

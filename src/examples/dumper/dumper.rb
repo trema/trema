@@ -20,19 +20,19 @@
 # Openflow message event dumper.
 #
 class Dumper < Controller
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     info '[switch_ready]'
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
 
 
-  def switch_disconnected datapath_id
+  def switch_disconnected(datapath_id)
     info '[switch_disconnected]'
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
 
 
-  def openflow_error datapath_id, message
+  def openflow_error(datapath_id, message)
     info '[error]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -42,7 +42,7 @@ class Dumper < Controller
   end
 
 
-  def vendor datapath_id, message
+  def vendor(datapath_id, message)
     info '[vendor]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -51,7 +51,7 @@ class Dumper < Controller
   end
 
 
-  def features_reply datapath_id, message
+  def features_reply(datapath_id, message)
     info '[features_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -65,7 +65,7 @@ class Dumper < Controller
   end
 
 
-  def get_config_reply datapath_id, message
+  def get_config_reply(datapath_id, message)
     info '[get_config_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -74,7 +74,7 @@ class Dumper < Controller
   end
 
 
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     info '[packet_in]'
     info "  datapath_id: #{ datapath_id.to_hex }"
     info "  transaction_id: #{ message.transaction_id.to_hex }"
@@ -86,7 +86,7 @@ class Dumper < Controller
   end
 
 
-  def flow_removed datapath_id, message
+  def flow_removed(datapath_id, message)
     info '[flow_removed]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -117,7 +117,7 @@ class Dumper < Controller
   end
 
 
-  def port_status datapath_id, message
+  def port_status(datapath_id, message)
     info '[port_status]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -126,7 +126,7 @@ class Dumper < Controller
   end
 
 
-  def stats_reply datapath_id, message
+  def stats_reply(datapath_id, message)
     info '[stats_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -136,14 +136,14 @@ class Dumper < Controller
   end
 
 
-  def barrier_reply datapath_id, message
+  def barrier_reply(datapath_id, message)
     info '[barrier_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
   end
 
 
-  def queue_get_config_reply datapath_id, message
+  def queue_get_config_reply(datapath_id, message)
     info '[queue_get_config_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
@@ -158,7 +158,7 @@ class Dumper < Controller
   ##############################################################################
 
 
-  def dump_phy_port port
+  def dump_phy_port(port)
     # for testing port-status record the mac address if port.number == 2.
     @hw_addr = port.hw_addr if port.number == 2
     info "port_no: #{ port.number }"
@@ -173,7 +173,7 @@ class Dumper < Controller
   end
 
 
-  def dump_packet_queue queues
+  def dump_packet_queue(queues)
     queues.each do | packet_queue |
       info "queue_id: #{ packet_queue.queue_id.to_hex }"
       info "  len: #{ packet_queue.len }"

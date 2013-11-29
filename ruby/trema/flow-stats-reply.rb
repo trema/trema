@@ -93,7 +93,7 @@ module Trema
     #   @return [FlowStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_FLOW) OpenFlow message.
     #
-    def initialize options
+    def initialize(options)
       super FIELDS, options
     end
   end

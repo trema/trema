@@ -58,7 +58,7 @@ module Trema
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
     # @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
     #
-    def initialize options
+    def initialize(options)
       case options
         when Hash
           @port_number = options[ :port_number] || options[ :port]

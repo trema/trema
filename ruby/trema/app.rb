@@ -48,7 +48,7 @@ module Trema
     #
     # @api public
     #
-    def initialize stanza
+    def initialize(stanza)
       @stanza = stanza
       if /\.rb\Z/ =~ @stanza.fetch(:name)  # ruby?
         require 'trema'

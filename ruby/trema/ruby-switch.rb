@@ -25,7 +25,7 @@ module Trema
     include Trema::Daemon
 
 
-    def initialize stanza
+    def initialize(stanza)
       super stanza
     end
 

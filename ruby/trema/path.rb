@@ -43,7 +43,7 @@ module Trema
     ############################################################################
 
 
-    def file base, path, name = nil
+    def file(base, path, name = nil)
       define_class_method(name || File.basename(path).gsub('.', '_')) do
         File.join __send__(base), path
       end

@@ -26,7 +26,7 @@ module Trema
     include Trema::Util
 
 
-    def trema_run options
+    def trema_run(options)
       @config_file = options[ :conf] || nil
       @openflow_port = options[ :port] || DEFAULT_OPENFLOW_CHANNEL_PORT
 

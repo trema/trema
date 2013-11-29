@@ -44,7 +44,7 @@ module Trema
     #
     # @return [OpenVswitch]
     #
-    def initialize stanza, port = DEFAULT_OPENFLOW_CHANNEL_PORT
+    def initialize(stanza, port = DEFAULT_OPENFLOW_CHANNEL_PORT)
       super stanza
       @port = port
       @interfaces = []
@@ -59,7 +59,7 @@ module Trema
     #
     # @return [Array]
     #
-    def << interface
+    def <<(interface)
       @interfaces << interface
       restart!
       @interfaces
@@ -93,12 +93,12 @@ module Trema
     end
 
 
-    def bring_port_up port_number
+    def bring_port_up(port_number)
       Ofctl.new.bring_port_up self, port_number
     end
 
 
-    def bring_port_down port_number
+    def bring_port_down(port_number)
       Ofctl.new.bring_port_down self, port_number
     end
 

@@ -24,12 +24,12 @@ require 'trema/dsl/switch'
 module Trema
   module DSL
     class CustomSwitch < Switch
-      def initialize name = nil
+      def initialize(name = nil)
         super name
       end
 
 
-      def path filepath
+      def path(filepath)
         @path = filepath
       end
     end

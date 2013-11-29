@@ -26,7 +26,7 @@ class EchoController < Controller
 
 
   class << self
-    def run args
+    def run(args)
       usage unless Example.options_parse args
     end
 
@@ -39,7 +39,7 @@ class EchoController < Controller
   end
 
 
-  def switch_ready msg_datapath_id
+  def switch_ready(msg_datapath_id)
     may_raise_error msg_datapath_id
     send_nr_msgs EchoRequest
   end

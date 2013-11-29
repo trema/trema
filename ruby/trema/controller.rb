@@ -35,7 +35,7 @@ module Trema
     #
     # @private Just a placeholder for YARD.
     #
-    def self.handler name
+    def self.handler(name)
       # Do nothing.
     end
 
@@ -207,7 +207,7 @@ module Trema
     #
     # @private
     #
-    def self.inherited subclass
+    def self.inherited(subclass)
       subclass.new
     end
 

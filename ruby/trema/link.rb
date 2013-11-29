@@ -69,7 +69,7 @@ module Trema
     #
     # @return [Link]
     #
-    def initialize stanza
+    def initialize(stanza)
       @link_id = Link.instances.size
       @stanza = stanza
       if real_eth?

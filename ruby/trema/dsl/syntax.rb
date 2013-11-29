@@ -42,75 +42,75 @@ require 'trema/custom-switch'
 module Trema
   module DSL
     class Syntax
-      def initialize config
+      def initialize(config)
         @config = config
       end
 
 
-      def port number
+      def port(number)
         @config.port = number
       end
 
 
-      def link peer0, peer1
+      def link(peer0, peer1)
         stanza = Trema::DSL::Link.new(peer0, peer1)
         Trema::Link.new(stanza)
       end
 
 
-      def switch name = nil, &block
+      def switch(name = nil, &block)
         stanza = Trema::DSL::Switch.new(name)
         stanza.instance_eval(&block)
         Trema::HardwareSwitch.new(stanza)
       end
 
 
-      def vswitch name = nil, &block
+      def vswitch(name = nil, &block)
         stanza = Trema::DSL::Vswitch.new(name)
         stanza.instance_eval(&block)
         Trema::OpenVswitch.new stanza, @config.port
       end
 
 
-      def rswitch name = nil, &block
+      def rswitch(name = nil, &block)
         stanza = Trema::DSL::Rswitch.new(name)
         stanza.instance_eval(&block)
         Trema::RubySwitch.new(stanza)
       end
 
 
-      def custom_switch name = nil, &block
+      def custom_switch(name = nil, &block)
         stanza = Trema::DSL::CustomSwitch.new(name)
         stanza.instance_eval(&block)
         Trema::CustomSwitch.new stanza
       end
 
 
-      def vhost name = nil, &block
+      def vhost(name = nil, &block)
         stanza = Trema::DSL::Vhost.new(name)
         stanza.instance_eval(&block) if block
         Trema::Host.new(stanza)
       end
 
 
-      def netns name, &block
+      def netns(name, &block)
         stanza = Trema::DSL::Netns.new(name)
         stanza.instance_eval(&block) if block
         Trema::Netns.new(stanza)
       end
 
 
-      def filter rule
+      def filter(rule)
         Trema::PacketinFilter.new(rule)
       end
 
 
-      def event rule
+      def event(rule)
         Trema::SwitchManager.new(rule, @config.port)
       end
 
 
-      def run name = nil, &block
+      def run(name = nil, &block)
         stanza = Trema::DSL::Run.new(name)
         stanza.instance_eval(&block)
         Trema::App.new(stanza)

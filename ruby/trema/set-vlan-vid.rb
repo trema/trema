@@ -42,7 +42,7 @@ module Trema
     # @raise [ArgumentError] if vlan_id not within 1 and 4095 inclusive.
     # @raise [TypeError] if vlan_id is not an Integer.
     #
-    def initialize vlan_id
+    def initialize(vlan_id)
       unless vlan_id.is_a?(Integer)
         fail TypeError, 'VLAN ID argument must be an Integer'
       end

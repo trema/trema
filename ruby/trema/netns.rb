@@ -47,7 +47,7 @@ module Trema
     #
     # @api public
     #
-    def initialize stanza
+    def initialize(stanza)
       @stanza = stanza
       Netns.add self
     end
@@ -63,7 +63,7 @@ module Trema
     #
     # @api public
     #
-    def method_missing message, *args
+    def method_missing(message, *args)
       @stanza.__send__ :[], message
     end
 

@@ -65,7 +65,7 @@ module Trema
     #
     # @return [SwitchManager]
     #
-    def initialize rule, port = nil
+    def initialize(rule, port = nil)
       @rule = rule
       @port = port
       @no_flow_cleanup = false

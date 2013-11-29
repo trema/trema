@@ -23,7 +23,7 @@ require 'trema/dsl'
 
 module Trema
   module Shell
-    def run controller
+    def run(controller)
       assert_trema_is_built
 
       if controller

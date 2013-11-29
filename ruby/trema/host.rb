@@ -49,7 +49,7 @@ module Trema
     #
     # @api public
     #
-    def initialize stanza
+    def initialize(stanza)
       @stanza = stanza
       @phost = Phost.new(self)
       @cli = Cli.new(self)
@@ -68,7 +68,7 @@ module Trema
     #
     # @api public
     #
-    def method_missing message, *args
+    def method_missing(message, *args)
       @stanza.__send__ :[], message
     end
 
@@ -177,7 +177,7 @@ module Trema
     #
     # @api public
     #
-    def add_arp_entry hosts
+    def add_arp_entry(hosts)
       hosts.each do | each |
         @cli.add_arp_entry each
       end
@@ -194,7 +194,7 @@ module Trema
     #
     # @api public
     #
-    def send_packet dest, options = {}
+    def send_packet(dest, options = {})
       dest_host = if dest.is_a?(String)
                     vhost(dest)
                   else
@@ -212,7 +212,7 @@ module Trema
     # @return [Stat]
     #   the object that represents the results of a particular stats type.
     #
-    def stats type
+    def stats(type)
       case type
       when :tx
         @cli.tx_stats

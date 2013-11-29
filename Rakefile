@@ -543,7 +543,7 @@ def cbench_throughput_mode_options
 end
 
 
-def cbench controller, options
+def cbench(controller, options)
   sh "#{ controller }"
   sh "#{ cbench_command } #{ options }"
 ensure
@@ -561,13 +561,13 @@ def cbench_ruby_controller
 end
 
 
-def run_cbench controller
+def run_cbench(controller)
   cbench controller, cbench_latency_mode_options
   cbench controller, cbench_throughput_mode_options
 end
 
 
-def cbench_profile options
+def cbench_profile(options)
   valgrind = 'valgrind --tool=callgrind --trace-children=yes'
   begin
     sh "#{ valgrind } #{ cbench_c_controller }"
@@ -794,7 +794,7 @@ def libtrema_unit_tests
 end
 
 
-def test_c_files test
+def test_c_files(test)
   names = [test.to_s.gsub(/_test$/, '')] + libtrema_unit_tests[ test]
   names.collect do | each |
     if each == :buffer

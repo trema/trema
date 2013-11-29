@@ -38,7 +38,7 @@ module Trema
 
 
 
-      def initialize config
+      def initialize(config)
         @config = config
       end
 
