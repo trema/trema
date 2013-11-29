@@ -34,7 +34,7 @@ module Trema
     def self.parse line
       flow = self.new
       # to simplify parsing
-      line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/,'/') }
+      line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/, '/') }
       line.strip.split( /[,\s]\s*/ ).each do | each |
         next unless /(.+)=(.+)/=~ each
         name, value = $1, $2

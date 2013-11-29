@@ -152,9 +152,6 @@ RescueModifier:
 Semicolon:
   Enabled: false
 
-SpaceAfterComma:
-  Enabled: false
-
 SpaceAroundBlockBraces:
   Enabled: false
 

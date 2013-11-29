@@ -110,9 +110,9 @@ describe Trema::OpenflowError, 'new' do
             n >= 0 && n <= 5
           }
           case message.type
-          when 0,4
-            expect( message.code ).to include( 0,1 )
-          when 1,2
+          when 0, 4
+            expect( message.code ).to include( 0, 1 )
+          when 1, 2
             expect( message.code ).to satisfy { | n |
               n >= 0 && n <= 8
             }
