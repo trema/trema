@@ -47,8 +47,8 @@ module Trema
 
     def ruby
       File.join(
-        RbConfig::CONFIG[ 'bindir' ],
-        RbConfig::CONFIG[ 'ruby_install_name' ] + RbConfig::CONFIG[ 'EXEEXT' ]
+        RbConfig::CONFIG[ 'bindir'],
+        RbConfig::CONFIG[ 'ruby_install_name'] + RbConfig::CONFIG[ 'EXEEXT']
       )
     end
   end

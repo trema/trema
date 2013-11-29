@@ -85,8 +85,8 @@ module Trema
     # @api private
     #
     def check_mandatory_options queues
-      [ :lldp, :packet_in ].each do | each |
-        fail ":#{ each } is a mandatory option" if queues[ each ].nil?
+      [:lldp, :packet_in].each do | each |
+        fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end
     end
 
@@ -99,7 +99,7 @@ module Trema
     # @api private
     #
     def lldp_queue
-      "lldp::#{ @queues[ :lldp ] }"
+      "lldp::#{ @queues[ :lldp] }"
     end
 
 
@@ -111,7 +111,7 @@ module Trema
     # @api private
     #
     def packetin_queue
-      "packet_in::#{ @queues[ :packet_in ] }"
+      "packet_in::#{ @queues[ :packet_in] }"
     end
   end
 end

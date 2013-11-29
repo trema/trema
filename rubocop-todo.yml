@@ -155,9 +155,6 @@ SpaceAroundEqualsInParameterDefault:
 SpaceAroundOperators:
   Enabled: false
 
-SpaceInsideBrackets:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 

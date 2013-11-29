@@ -35,7 +35,7 @@ module Trema
         :n_tables => 2,
         :capabilities => 135,
         :actions => 2047,
-        :ports => [ 'port #0', 'port #1', 'port #2' ]
+        :ports => ['port #0', 'port #1', 'port #2']
       }
       FeaturesReply.new(valid_options)
     }
@@ -60,7 +60,7 @@ module Trema
         :n_tables => 2,
         :capabilities => 135,
         :actions => 2047,
-        :ports => [ 'port #0', 'port #1', 'port #2' ]
+        :ports => ['port #0', 'port #1', 'port #2']
       })
     }
     it { expect { subject }.to raise_error(ArgumentError, ':datapath_id is a mandatory option') }
@@ -76,7 +76,7 @@ module Trema
         :n_tables => 2,
         :capabilities => 135,
         :actions => 2047,
-        :ports => [ 'port #0', 'port #1', 'port #2' ]
+        :ports => ['port #0', 'port #1', 'port #2']
       })
     }
     it { expect { subject }.to raise_error(ArgumentError, ':transaction_id is a mandatory option') }

@@ -97,7 +97,7 @@ module Trema
 
 
     def options
-      opts = [ '--daemonize' ]
+      opts = ['--daemonize']
       opts << "--port=#{ @port }" if @port
       opts
     end

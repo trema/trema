@@ -67,14 +67,14 @@ describe Trema::Util do
     last_session.stub!(:netnss).and_return({})
     Trema::DSL::Context.stub!(:load_current).and_return(last_session)
 
-    pid_files = [ mock('PID file #0'), mock('PID file #1'), mock('PID file #2') ]
+    pid_files = [mock('PID file #0'), mock('PID file #1'), mock('PID file #2')]
     Dir.stub!(:glob).and_return(pid_files)
 
     process = mock('process')
     process.should_receive(:kill!).exactly(3).times
-    Trema::Process.should_receive(:read).with(pid_files[ 0 ]).once.ordered.and_return(process)
-    Trema::Process.should_receive(:read).with(pid_files[ 1 ]).once.ordered.and_return(process)
-    Trema::Process.should_receive(:read).with(pid_files[ 2 ]).once.ordered.and_return(process)
+    Trema::Process.should_receive(:read).with(pid_files[ 0]).once.ordered.and_return(process)
+    Trema::Process.should_receive(:read).with(pid_files[ 1]).once.ordered.and_return(process)
+    Trema::Process.should_receive(:read).with(pid_files[ 2]).once.ordered.and_return(process)
 
     cleanup_current_session
   end

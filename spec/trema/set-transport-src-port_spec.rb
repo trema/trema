@@ -36,7 +36,7 @@ describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
   end
 
   context 'with invalid port_number ([1, 2, 3])' do
-    let(:port_number) { [ 1, 2, 3 ] }
+    let(:port_number) { [1, 2, 3] }
     it { expect { subject }.to raise_error(TypeError) }
   end
 
@@ -51,7 +51,7 @@ describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
-        expect(vswitch('0xabc').flows[ 0 ].actions).to eq('mod_tp_src:5555')
+        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_tp_src:5555')
       }
     end
   end

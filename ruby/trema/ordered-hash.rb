@@ -33,12 +33,12 @@ module Trema
 
 
     def [] key
-      @content[ key ]
+      @content[ key]
     end
 
 
     def []= key, value
-      @content[ key ] = value
+      @content[ key] = value
       unless @keys.include?(key)
         @keys << key
       end
@@ -47,7 +47,7 @@ module Trema
 
     def values
       @keys.map do | each |
-        @content[ each ]
+        @content[ each]
       end
     end
 
@@ -61,7 +61,7 @@ module Trema
 
     def each &block
       @keys.each do | each |
-        block.call each, @content[ each ]
+        block.call each, @content[ each]
       end
     end
   end

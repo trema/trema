@@ -66,7 +66,7 @@ module SubProcess
 
     def start
       @env.each_pair do | key, value |
-        ENV[ key ]= value
+        ENV[ key]= value
       end
       Kernel.exec @command
     end
@@ -87,7 +87,7 @@ module SubProcess
 
 
     def close
-      [ @stdin, @stdout, @stderr ].each do | each |
+      [@stdin, @stdout, @stderr].each do | each |
         unless each.closed?
           each.close
         end
@@ -99,8 +99,8 @@ module SubProcess
   class Process
     def initialize
       stdin, stdout, stderr = Array.new(3) { IO.pipe }
-      @child = SubProcess::PipeSet.new(stdin[ 1 ], stdout[ 0 ], stderr[ 0 ])
-      @parent = SubProcess::PipeSet.new(stdin[ 0 ], stdout[ 1 ], stderr[ 1 ])
+      @child = SubProcess::PipeSet.new(stdin[ 1], stdout[ 0], stderr[ 0])
+      @parent = SubProcess::PipeSet.new(stdin[ 0], stdout[ 1], stderr[ 1])
     end
 
 

@@ -37,9 +37,9 @@ module Trema
       OpenVswitch.new mock('stanza 2', :name => 'vswitch 2', :validate => true)
 
       expect(OpenflowSwitch).to have(3).vswitches
-      expect(OpenflowSwitch[ 'vswitch 0' ]).not_to be_nil
-      expect(OpenflowSwitch[ 'vswitch 1' ]).not_to be_nil
-      expect(OpenflowSwitch[ 'vswitch 2' ]).not_to be_nil
+      expect(OpenflowSwitch[ 'vswitch 0']).not_to be_nil
+      expect(OpenflowSwitch[ 'vswitch 1']).not_to be_nil
+      expect(OpenflowSwitch[ 'vswitch 2']).not_to be_nil
     end
   end
 

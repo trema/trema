@@ -36,7 +36,7 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
   end
 
   context 'with vlan_priority ([4])' do
-    let(:vlan_priority) { [ 4 ] }
+    let(:vlan_priority) { [4] }
     it { expect { subject }.to raise_error(TypeError) }
   end
 
@@ -51,7 +51,7 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
-        expect(vswitch('0xabc').flows[ 0 ].actions).to eq('mod_vlan_pcp:7')
+        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_pcp:7')
       }
     end
   end

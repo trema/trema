@@ -25,7 +25,7 @@ module Trema
 
 
       def initialize peer0, peer1
-        @peers = [ peer0, peer1 ]
+        @peers = [peer0, peer1]
       end
     end
   end

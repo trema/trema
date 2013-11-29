@@ -25,7 +25,7 @@ require 'trema/flow'
 module Trema
   class Ofctl
     def add_flow switch, options
-      actions = options[ :actions ]
+      actions = options[ :actions]
       options.delete :actions
       option_string = options.collect do | k, v |
         "#{ k }=#{ v }"
@@ -35,7 +35,7 @@ module Trema
 
 
     def flows switch
-      dump_flows(switch).split("\n")[ 1..-1 ].collect do | each |
+      dump_flows(switch).split("\n")[ 1..-1].collect do | each |
         Trema::Flow.parse(each)
       end.compact
     end

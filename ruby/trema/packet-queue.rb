@@ -81,8 +81,8 @@ module Trema
     #   queue description's length in bytes.
     #
     def initialize options
-      @queue_id = options[ :queue_id ]
-      @len = options[ :len ]
+      @queue_id = options[ :queue_id]
+      @len = options[ :len]
       @properties = []
     end
 

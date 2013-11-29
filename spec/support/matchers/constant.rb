@@ -6,14 +6,14 @@ RSpec::Matchers.define :have_constant do | const, klass |
   end
 
   failure_message_for_should do | actual |
-    msg = "constant #{ expected[ 0 ] } not defined in #{ actual }"
-    msg += " as a #{ expected[ 1 ] }" unless expected[ 1 ].nil?
+    msg = "constant #{ expected[ 0] } not defined in #{ actual }"
+    msg += " as a #{ expected[ 1] }" unless expected[ 1].nil?
     msg
   end
 
   failure_message_for_should_not do | actual |
-    msg = "constant #{ expected[ 0 ] } is defined in #{ actual }"
-    msg += " as a #{ expected[ 1 ] }" unless expected[ 1 ].nil?
+    msg = "constant #{ expected[ 0] } is defined in #{ actual }"
+    msg += " as a #{ expected[ 1] }" unless expected[ 1].nil?
     msg
   end
 

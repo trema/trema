@@ -142,7 +142,7 @@ module Trema
 
 
     def ports_option
-      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join(",") }" ]
+      @interfaces.empty? ? [] : ["--ports=#{ @interfaces.join(",") }"]
     end
 
 

@@ -23,7 +23,7 @@ module Trema
 
 
     def self.inherited subclass
-      at_exit { subclass.new(eval ARGV[ 0 ]).run! }
+      at_exit { subclass.new(eval ARGV[ 0]).run! }
     end
 
 

@@ -21,7 +21,7 @@ class PatchPanel < Controller
     @patch = []
     File.open('./patch-panel.conf').each_line do | each |
       if /^(\d+)\s+(\d+)$/=~ each
-        @patch << [ $1.to_i, $2.to_i ]
+        @patch << [$1.to_i, $2.to_i]
       end
     end
   end

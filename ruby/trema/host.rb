@@ -84,7 +84,7 @@ module Trema
     # @api public
     #
     def ip
-      stanza_ip = @stanza[ :ip ]
+      stanza_ip = @stanza[ :ip]
       if stanza_ip.nil?
         # FIXME: Find unused addresses
         "192.168.0.#{ @index + 1 }"
@@ -105,7 +105,7 @@ module Trema
     # @api public
     #
     def mac
-      stanza_mac = @stanza[ :mac ]
+      stanza_mac = @stanza[ :mac]
       if stanza_mac.nil?
         "00:00:00:00:00:#{ format "%02x", @index + 1 }"
       else
@@ -125,7 +125,7 @@ module Trema
     # @api public
     #
     def netmask
-      stanza_netmask = @stanza[ :netmask ]
+      stanza_netmask = @stanza[ :netmask]
       if stanza_netmask.nil?
         '255.255.255.255'
       else
@@ -147,7 +147,7 @@ module Trema
     def run!
       @phost.run!
       @cli.set_ip_and_mac_address
-      @cli.enable_promisc if @stanza[ :promisc ]
+      @cli.enable_promisc if @stanza[ :promisc]
       self
     end
 

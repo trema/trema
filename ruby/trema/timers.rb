@@ -29,7 +29,7 @@ module Timers
 
 
       Kernel.send :define_method, :add_timer do | handler, interval, event_type |
-        timer_event_handlers[ handler ] = {
+        timer_event_handlers[ handler] = {
           :interval => interval,
           :rest => interval,
           :event_type => event_type
@@ -39,14 +39,14 @@ module Timers
 
       Kernel.send :define_method, :fire_event do
         timer_event_handlers.each do | handler, data |
-          data[ :rest ] -= 1
-          if data[ :rest ] <= 0
+          data[ :rest] -= 1
+          if data[ :rest] <= 0
             __send__ handler
-            data[ :rest ] = data[ :interval ] if data[ :event_type ] == :periodic
+            data[ :rest] = data[ :interval] if data[ :event_type] == :periodic
           end
         end
         timer_event_handlers.delete_if do | handler, data |
-          data[ :rest ] <= 0 && data[ :event_type ] == :oneshot
+          data[ :rest] <= 0 && data[ :event_type] == :oneshot
         end
       end
 

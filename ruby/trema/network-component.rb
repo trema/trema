@@ -103,7 +103,7 @@ module Trema
     # @api public
     #
     def self.[] name
-      instances[ name ]
+      instances[ name]
     end
 
 
@@ -138,7 +138,7 @@ module Trema
     # @api public
     #
     def self.add object
-      instances[ object.name ] = object
+      instances[ object.name] = object
     end
   end
 end

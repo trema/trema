@@ -43,7 +43,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
 
   context 'when #flow-stats-reply is created' do
     subject do
-      actions = [ ActionOutput.new(:port => 1) ]
+      actions = [ActionOutput.new(:port => 1)]
       match = Match.new
       FlowStatsReply.new(
         :length => 96,
@@ -191,9 +191,9 @@ describe StatsReply, '.new( VALID OPTIONS )' do
         controller('DescStatsController').should_receive(:stats_reply) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(0)
-          expect(message.stats[ 0 ].mfr_desc).to eq('Nicira Networks, Inc.')
-          expect(message.stats[ 0 ].hw_desc).to eq('Open vSwitch')
-          expect(message.stats[ 0 ]).to respond_to :to_s
+          expect(message.stats[ 0].mfr_desc).to eq('Nicira Networks, Inc.')
+          expect(message.stats[ 0].hw_desc).to eq('Open vSwitch')
+          expect(message.stats[ 0]).to respond_to :to_s
         end
 
         controller('DescStatsController').send_message(
@@ -231,8 +231,8 @@ describe StatsReply, '.new( VALID OPTIONS )' do
         controller('FlowStatsController').should_receive(:stats_reply) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(1)
-          expect(message.stats[ 0 ].packet_count).to eq(2)
-          expect(message.stats[ 0 ]).to respond_to :to_s
+          expect(message.stats[ 0].packet_count).to eq(2)
+          expect(message.stats[ 0]).to respond_to :to_s
         end
         match = Match.new(:dl_type =>0x800, :nw_proto => 17)
         controller('FlowStatsController').send_message(
@@ -270,9 +270,9 @@ describe StatsReply, '.new( VALID OPTIONS )' do
         controller('AggregateStatsController').should_receive(:stats_reply) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(2)
-          expect(message.stats[ 0 ].packet_count).to eq(10)
-          expect(message.stats[ 0 ].flow_count).to eq(1)
-          expect(message.stats[ 0 ]).to respond_to :to_s
+          expect(message.stats[ 0].packet_count).to eq(10)
+          expect(message.stats[ 0].flow_count).to eq(1)
+          expect(message.stats[ 0]).to respond_to :to_s
         end
         match = Match.new(:dl_type =>0x800, :nw_proto => 17)
         controller('AggregateStatsController').send_message(
@@ -307,8 +307,8 @@ describe StatsReply, '.new( VALID OPTIONS )' do
         controller('PortStatsController').should_receive(:stats_reply) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(4)
-          expect(message.stats[ 0 ]).to be_an_instance_of(Trema::PortStatsReply)
-          expect(message.stats[ 0 ]).to respond_to :to_s
+          expect(message.stats[ 0]).to be_an_instance_of(Trema::PortStatsReply)
+          expect(message.stats[ 0]).to respond_to :to_s
         end
         controller('PortStatsController').send_message(
           0xabc,
@@ -342,8 +342,8 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(3)
           expect(message.transaction_id).to eq(123)
-          expect(message.stats[ 0 ]).to be_an_instance_of(Trema::TableStatsReply)
-          expect(message.stats[ 0 ]).to respond_to :to_s
+          expect(message.stats[ 0]).to be_an_instance_of(Trema::TableStatsReply)
+          expect(message.stats[ 0]).to respond_to :to_s
         end
         controller('TableStatsController').send_message(
           0xabc,

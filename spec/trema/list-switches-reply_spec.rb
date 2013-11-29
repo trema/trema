@@ -30,7 +30,7 @@ describe Controller do
         vswitch { datapath_id 0x3 }
       }.run(ListSwitchesController) {
         controller('ListSwitchesController').should_receive(:list_switches_reply) do | dpids |
-          expect(dpids).to eq([ 0x1, 0x2, 0x3 ])
+          expect(dpids).to eq([0x1, 0x2, 0x3])
         end
         controller('ListSwitchesController').send_list_switches_request
       }

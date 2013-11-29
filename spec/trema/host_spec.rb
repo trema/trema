@@ -104,7 +104,7 @@ module Trema
           @cli.should_receive(:add_arp_entry).with(@host2)
           @cli.should_receive(:add_arp_entry).with(@host3)
 
-          @host0.add_arp_entry [ @host1, @host2, @host3 ]
+          @host0.add_arp_entry [@host1, @host2, @host3]
         end
       end
     end

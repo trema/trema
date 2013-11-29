@@ -24,7 +24,7 @@ module Trema
   describe Link do
     before :each do
       Trema::Link.instances.clear
-      @stanza = mock('link stanza', :peers => [ 'Virtual Host', 'Virtual Switch' ])
+      @stanza = mock('link stanza', :peers => ['Virtual Host', 'Virtual Switch'])
     end
 
 

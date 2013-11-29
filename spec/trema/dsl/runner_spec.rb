@@ -179,15 +179,15 @@ module Trema
 
           app0 = mock('app0', :name => 'app0')
           app0.should_receive(:daemonize!).once.ordered
-          apps[ 'app0' ] = app0
+          apps[ 'app0'] = app0
 
           app1 = mock('app1', :name => 'app1')
           app1.should_receive(:daemonize!).once.ordered
-          apps[ 'app1' ] = app1
+          apps[ 'app1'] = app1
 
           app2 = mock('app2', :name => 'app2')
           app2.should_receive(:run!).once.ordered
-          apps[ 'app2' ] = app2
+          apps[ 'app2'] = app2
 
           context = mock(
             'context',
@@ -210,15 +210,15 @@ module Trema
 
           app0 = mock('app0')
           app0.should_receive(:daemonize!).once.ordered
-          apps[ 'app0' ] = app0
+          apps[ 'app0'] = app0
 
           app1 = mock('app1')
           app1.should_receive(:daemonize!).once.ordered
-          apps[ 'app1' ] = app1
+          apps[ 'app1'] = app1
 
           app2 = mock('app2', :name => 'App2')
           app2.should_receive(:daemonize!).once.ordered
-          apps[ 'app2' ] = app2
+          apps[ 'app2'] = app2
 
           context = mock(
             'context',

@@ -26,7 +26,7 @@ require 'trema/process'
 
 module Trema::Util
   def sh cmd
-    ENV[ 'TREMA_HOME' ] = Trema.home
+    ENV[ 'TREMA_HOME'] = Trema.home
     puts cmd if $verbose
     unless system(cmd)
       fail "Command '#{ cmd }' failed!"
@@ -101,12 +101,12 @@ EOF
 
 
   def find_switch_by_name name
-    Trema::DSL::Context.load_current.switches[ name ]
+    Trema::DSL::Context.load_current.switches[ name]
   end
 
 
   def find_host_by_name name
-    Trema::DSL::Context.load_current.hosts[ name ]
+    Trema::DSL::Context.load_current.hosts[ name]
   end
 end
 

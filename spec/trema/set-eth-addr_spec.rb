@@ -20,7 +20,7 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 
-[ SetEthSrcAddr, SetEthDstAddr ].each do | klass |
+[SetEthSrcAddr, SetEthDstAddr].each do | klass |
   describe klass, '.new', :type => 'actions' do
     subject { klass.new(mac_address) }
 
@@ -40,12 +40,12 @@ require 'trema'
             controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
             sleep 2
             expect(vswitch('0xabc')).to have(1).flows
-            expect(vswitch('0xabc').flows[ 0 ].actions).to match(/mod_dl_(src|dst):11:22:33:44:55:66/)
+            expect(vswitch('0xabc').flows[ 0].actions).to match(/mod_dl_(src|dst):11:22:33:44:55:66/)
             pending('Test actions as an object using Trema::Switch') do
               expect(vswitch('0xabc')).to have(1).flows
-              expect(vswitch('0xabc').flows[ 0 ]).to have(1).actions
-              expect(vswitch('0xabc').flows[ 0 ].actions[ 0 ]).to be_a(klass)
-              expect(vswitch('0xabc').flows[ 0 ].actions[ 0 ].mac_address.to_s).to eq('11:22:33:44:55:66')
+              expect(vswitch('0xabc').flows[ 0]).to have(1).actions
+              expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
+              expect(vswitch('0xabc').flows[ 0].actions[ 0].mac_address.to_s).to eq('11:22:33:44:55:66')
             end
           }
         end

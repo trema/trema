@@ -12,17 +12,17 @@ Gem::Specification.new do | gem |
 
   gem.license = 'GPL2'
 
-  gem.authors = [ 'Yasuhito Takamiya' ]
-  gem.email = [ 'yasuhito@gmail.com' ]
+  gem.authors = ['Yasuhito Takamiya']
+  gem.email = ['yasuhito@gmail.com']
   gem.homepage = 'http://github.com/trema/trema'
 
-  gem.executables = [ 'trema', 'trema-config' ]
+  gem.executables = ['trema', 'trema-config']
   gem.files = `git ls-files`.split("\n")
 
   gem.require_path = 'ruby'
-  gem.extensions = [ 'Rakefile' ]
+  gem.extensions = ['Rakefile']
 
-  gem.extra_rdoc_files = [ 'README.md' ]
+  gem.extra_rdoc_files = ['README.md']
   gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
   gem.add_dependency 'bundler'

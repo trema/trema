@@ -35,7 +35,7 @@ require 'trema/util'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
-Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb" ].each do | each |
+Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb"].each do | each |
   require File.expand_path(each)
 end
 
@@ -52,17 +52,17 @@ include Trema
 
 
 def controller name
-  Trema::App[ name ]
+  Trema::App[ name]
 end
 
 
 def vswitch name
-  Trema::OpenflowSwitch[ name ]
+  Trema::OpenflowSwitch[ name]
 end
 
 
 def vhost name
-  Trema::Host[ name ]
+  Trema::Host[ name]
 end
 
 
@@ -122,7 +122,7 @@ class Network
       each.up!
     end
     @context.hosts.each do | name, each |
-      each.add_arp_entry @context.hosts.values - [ each ]
+      each.add_arp_entry @context.hosts.values - [each]
     end
 
     @th_controller = Thread.start do

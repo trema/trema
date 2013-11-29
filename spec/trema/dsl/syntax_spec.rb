@@ -38,7 +38,7 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'link' directive" do
-    @context.stub!(:links).and_return([ mock('link') ])
+    @context.stub!(:links).and_return([mock('link')])
     Trema::Link.should_receive(:add).with(an_instance_of(Trema::Link)).once
 
     @syntax.instance_eval do

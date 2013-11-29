@@ -26,8 +26,8 @@ module Example
     def options_parse args
       case args.length
       when 2
-        @datapath_id = args[ 0 ] =~ /^0x/ ? args[ 0 ].hex : args[ 0 ].to_i
-        @count = args[ 1 ].to_i
+        @datapath_id = args[ 0] =~ /^0x/ ? args[ 0].hex : args[ 0].to_i
+        @count = args[ 1].to_i
       else
         return false
       end

@@ -30,7 +30,7 @@ describe Trema::Shell, '.vhost' do
     Trema::Shell.vhost('host1')
 
     expect(Trema::Host).to have(1).host
-    expect(Trema::Host[ 'host1' ].name).to eq('host1')
+    expect(Trema::Host[ 'host1'].name).to eq('host1')
   end
 
 
@@ -43,10 +43,10 @@ describe Trema::Shell, '.vhost' do
     }
 
     expect(Trema::Host).to have(1).host
-    expect(Trema::Host[ 'host1' ].name).to eq('host1')
-    expect(Trema::Host[ 'host1' ].ip).to eq('192.168.100.1')
-    expect(Trema::Host[ 'host1' ].promisc).to be_true
-    expect(Trema::Host[ 'host1' ].mac).to eq('00:00:00:1:1:1')
+    expect(Trema::Host[ 'host1'].name).to eq('host1')
+    expect(Trema::Host[ 'host1'].ip).to eq('192.168.100.1')
+    expect(Trema::Host[ 'host1'].promisc).to be_true
+    expect(Trema::Host[ 'host1'].mac).to eq('00:00:00:1:1:1')
   end
 end
 

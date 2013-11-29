@@ -35,7 +35,7 @@ module Trema
     attr_reader :stanza
 
 
-    command { | app | [ app.command, app.stanza[ :options ] ].compact.join ' ' }
+    command { | app | [app.command, app.stanza[ :options]].compact.join ' ' }
 
 
     #
@@ -53,7 +53,7 @@ module Trema
       if /\.rb\Z/=~ @stanza.fetch(:name)  # ruby?
         require 'trema'
         path = @stanza.fetch(:path)
-        ARGV.replace [ path ]
+        ARGV.replace [path]
         $LOAD_PATH << File.dirname(path)
         Trema.module_eval IO.read(path)
       else
@@ -73,7 +73,7 @@ module Trema
     # @api public
     #
     def name
-      @stanza[ :name ]
+      @stanza[ :name]
     end
 
 
@@ -88,7 +88,7 @@ module Trema
     # @api public
     #
     def daemonize!
-      sh [ command, '-d', @stanza[ :options ] ].compact.join(' ')
+      sh [command, '-d', @stanza[ :options]].compact.join(' ')
       self
     end
 
@@ -101,7 +101,7 @@ module Trema
     # @api private
     #
     def command
-      "#{ @stanza[ :path ] } --name #{ name }"
+      "#{ @stanza[ :path] } --name #{ name }"
     end
   end
 end

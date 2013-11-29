@@ -33,13 +33,13 @@ class MultiLearningSwitch < Controller
 
   def start
     @fdbs = Hash.new do | hash, datapath_id |
-      hash[ datapath_id ] = FDB.new
+      hash[ datapath_id] = FDB.new
     end
   end
 
 
   def packet_in datapath_id, message
-    fdb = @fdbs[ datapath_id ]
+    fdb = @fdbs[ datapath_id]
     fdb.learn message.macsa, message.in_port
     port_no = fdb.port_no_of(message.macda)
     if port_no

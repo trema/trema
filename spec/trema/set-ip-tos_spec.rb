@@ -36,7 +36,7 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
   end
 
   context 'with type_of_service ([32])' do
-    let(:type_of_service) { [ 32 ] }
+    let(:type_of_service) { [32] }
     it { expect { subject }.to raise_error(TypeError) }
   end
 
@@ -56,7 +56,7 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
-        expect(vswitch('0xabc').flows[ 0 ].actions).to eq('mod_nw_tos:4')
+        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_nw_tos:4')
       }
     end
   end

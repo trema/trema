@@ -36,7 +36,7 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
   end
 
   context 'with vlan_id ([1024])' do
-    let(:vlan_id) { [ 1024 ] }
+    let(:vlan_id) { [1024] }
     it { expect { subject }.to raise_error(TypeError) }
   end
 
@@ -51,7 +51,7 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
-        expect(vswitch('0xabc').flows[ 0 ].actions).to eq('mod_vlan_vid:1024')
+        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_vid:1024')
       }
     end
   end

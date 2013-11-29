@@ -75,7 +75,7 @@ module Trema
       if real_eth?
         @name = real_eth
         @name_peer = nil
-        @peers = @stanza.peers - [ real_eth ]
+        @peers = @stanza.peers - [real_eth]
       else
         @name = "trema#{ @link_id }-0"
         @name_peer = "trema#{ @link_id }-1"

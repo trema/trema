@@ -49,12 +49,12 @@ module Trema
         block.call config
         Trema::Link.each do | each |
           peers = each.peers
-          config.hosts[ peers[ 0 ] ].interface = each.name if config.hosts[ peers[ 0 ] ]
-          config.hosts[ peers[ 1 ] ].interface = each.name_peer if config.hosts[ peers[ 1 ] ]
-          config.netnss[ peers[ 0 ] ].interface = each.name if config.netnss[ peers[ 0 ] ]
-          config.netnss[ peers[ 1 ] ].interface = each.name_peer if config.netnss[ peers[ 1 ] ]
-          config.switches[ peers[ 0 ] ] << each.name if config.switches[ peers[ 0 ] ]
-          config.switches[ peers[ 1 ] ] << each.name_peer if config.switches[ peers[ 1 ] ]
+          config.hosts[ peers[ 0]].interface = each.name if config.hosts[ peers[ 0]]
+          config.hosts[ peers[ 1]].interface = each.name_peer if config.hosts[ peers[ 1]]
+          config.netnss[ peers[ 0]].interface = each.name if config.netnss[ peers[ 0]]
+          config.netnss[ peers[ 1]].interface = each.name_peer if config.netnss[ peers[ 1]]
+          config.switches[ peers[ 0]] << each.name if config.switches[ peers[ 0]]
+          config.switches[ peers[ 1]] << each.name_peer if config.switches[ peers[ 1]]
         end
         Context.new(config).dump
       end
