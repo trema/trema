@@ -134,9 +134,6 @@ RedundantBegin:
 RedundantException:
   Enabled: false
 
-RedundantReturn:
-  Enabled: false
-
 RegexpLiteral:
   Enabled: false
 

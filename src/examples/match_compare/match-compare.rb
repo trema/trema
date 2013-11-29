@@ -85,7 +85,7 @@ class MatchCompare < Controller
         break
       end
     end
-    return action, log
+    [action, log]
   end
 end
 

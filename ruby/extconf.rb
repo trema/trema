@@ -34,7 +34,7 @@ end
 
 
 def error_lib_missing lib, package
-  return <<-EOF
+  <<-EOF
 ERROR: #{ lib } not found!
 
 Please install #{ package } with following command:

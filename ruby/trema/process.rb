@@ -40,7 +40,7 @@ module Trema
     #
     def self.read pid_file, name = nil
       name = File.basename(pid_file.to_s, '.pid') if name.nil?
-      return new(pid_file, name)
+      new(pid_file, name)
     end
 
 
