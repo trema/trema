@@ -149,9 +149,6 @@ RescueModifier:
 Semicolon:
   Enabled: false
 
-SpaceAroundBlockBraces:
-  Enabled: false
-
 SpaceAroundEqualsInParameterDefault:
   Enabled: false
 

@@ -69,7 +69,7 @@ describe Trema::DSL::Syntax do
     Trema::Host.should_receive( :add ).with( an_instance_of( Trema::Host ) ).once
 
     @syntax.instance_eval do
-      vhost { }
+      vhost {}
     end
   end
 
@@ -96,7 +96,7 @@ describe Trema::DSL::Syntax do
     Trema::App.should_receive( :add ).with( an_instance_of( Trema::App ) ).once
 
     @syntax.instance_eval do
-      run( 'My App' ) { }
+      run( 'My App' ) {}
     end
   end
 end
