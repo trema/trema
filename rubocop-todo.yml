@@ -125,9 +125,6 @@ ParenthesesAsGroupedExpression:
 PerlBackrefs:
   Enabled: false
 
-RedundantBegin:
-  Enabled: false
-
 RedundantException:
   Enabled: false
 

@@ -36,16 +36,14 @@ class Blocker
 
 
   def self.start(&code_block)
-    begin
-      block
-      code_block.call
-    rescue BlockerError, Errno::EACCES
-      $stderr.puts 'Another process is already running. Please wait for a while.'
-      sleep 10
-      retry
-    ensure
-      release
-    end
+    block
+    code_block.call
+  rescue BlockerError, Errno::EACCES
+    $stderr.puts 'Another process is already running. Please wait for a while.'
+    sleep 10
+    retry
+  ensure
+    release
   end
 
 

@@ -81,11 +81,9 @@ EOF
 
 
   def cleanup_current_session
-    begin
-      cleanup Trema::DSL::Context.load_current
-    ensure
-      FileUtils.rm_f Trema::DSL::Context::PATH
-    end
+    cleanup Trema::DSL::Context.load_current
+  ensure
+    FileUtils.rm_f Trema::DSL::Context::PATH
   end
 
 

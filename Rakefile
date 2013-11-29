@@ -544,12 +544,10 @@ end
 
 
 def cbench controller, options
-  begin
-    sh "#{ controller }"
-    sh "#{ cbench_command } #{ options }"
-  ensure
-    sh './trema killall'
-  end
+  sh "#{ controller }"
+  sh "#{ cbench_command } #{ options }"
+ensure
+  sh './trema killall'
 end
 
 

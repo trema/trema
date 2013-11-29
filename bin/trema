@@ -291,15 +291,13 @@ class BinTrema
 
 
   def start argv
-    begin
-      run argv
-    rescue
-      puts $!
-      $!.backtrace.each do | each |
-        puts each
-      end
-      exit
+    run argv
+  rescue
+    puts $!
+    $!.backtrace.each do | each |
+      puts each
     end
+    exit
   end
 end
 

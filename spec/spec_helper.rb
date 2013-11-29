@@ -81,12 +81,10 @@ class Network
 
 
   def run controller_class, &test
-    begin
-      trema_run controller_class
-      test.call
-    ensure
-      trema_kill
-    end
+    trema_run controller_class
+    test.call
+  ensure
+    trema_kill
   end
 
 
