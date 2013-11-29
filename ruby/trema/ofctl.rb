@@ -18,8 +18,8 @@
 #
 
 
-require "trema/executables"
-require "trema/flow"
+require 'trema/executables'
+require 'trema/flow'
 
 
 module Trema
@@ -29,7 +29,7 @@ module Trema
       options.delete :actions
       option_string = options.collect do | k, v |
         "#{ k }=#{ v }"
-      end.join( "," )
+      end.join( ',' )
       sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.network_device } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
 

@@ -16,12 +16,12 @@
 #
 
 
-require "trema/default_openflow_channel_port"
-require "trema/daemon"
-require "trema/executables"
-require "trema/hardware-switch"
-require "trema/ofctl"
-require "trema/path"
+require 'trema/default_openflow_channel_port'
+require 'trema/daemon'
+require 'trema/executables'
+require 'trema/hardware-switch'
+require 'trema/ofctl'
+require 'trema/path'
 
 
 module Trema
@@ -114,21 +114,21 @@ module Trema
 
 
     def options
-      default_options.join( " " ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
+      default_options.join( ' ' ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
 
 
     def default_options
       [
-       "--detach",
-       "--out-of-band",
-       "--fail=closed",
-       "--inactivity-probe=180",
-       "--rate-limit=40000",
-       "--burst-limit=20000",
+       '--detach',
+       '--out-of-band',
+       '--fail=closed',
+       '--inactivity-probe=180',
+       '--rate-limit=40000',
+       '--burst-limit=20000',
        "--pidfile=#{ pid_file }",
-       "--verbose=ANY:file:dbg",
-       "--verbose=ANY:console:err",
+       '--verbose=ANY:file:dbg',
+       '--verbose=ANY:console:err',
        "--log-file=#{ log_file }",
        "--datapath-id=#{ dpid_long }",
        "--unixctl=#{ unixctl }",

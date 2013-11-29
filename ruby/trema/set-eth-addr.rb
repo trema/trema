@@ -16,8 +16,8 @@
 #
 
 
-require "trema/action"
-require "trema/mac"
+require 'trema/action'
+require 'trema/mac'
 
 
 module Trema

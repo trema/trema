@@ -16,64 +16,64 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/app"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema/app'
 
 
 module Trema
   describe App do
-    context "when running an app" do
-      it "should run without options" do
-        stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
+    context 'when running an app' do
+      it 'should run without options' do
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         app = App.new( stanza )
 
-        app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME" )
+        app.should_receive( :sh ).with( '/usr/bin/tetris --name NAME' )
 
         app.run!
       end
 
 
-      it "should run with options" do
-        stanza = { :path => "/usr/bin/tetris", :name => "NAME", :options => [ "OPTION0", "OPTION1" ] }
+      it 'should run with options' do
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => [ 'OPTION0', 'OPTION1' ] }
         app = App.new( stanza )
 
-        app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME OPTION0 OPTION1" )
+        app.should_receive( :sh ).with( '/usr/bin/tetris --name NAME OPTION0 OPTION1' )
 
         app.run!
       end
     end
 
 
-    context "when daemonizing an app" do
-      it "should daemonize without options" do
-        stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
+    context 'when daemonizing an app' do
+      it 'should daemonize without options' do
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         app = App.new( stanza )
 
-        app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d" )
+        app.should_receive( :sh ).with( '/usr/bin/tetris --name NAME -d' )
 
         app.daemonize!
       end
 
 
-      it "should daemonize with options" do
-        stanza = { :path => "/usr/bin/tetris", :name => "NAME", :options => [ "OPTION0", "OPTION1" ] }
+      it 'should daemonize with options' do
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => [ 'OPTION0', 'OPTION1' ] }
         app = App.new( stanza )
 
-        app.should_receive( :sh ).with( "/usr/bin/tetris --name NAME -d OPTION0 OPTION1" )
+        app.should_receive( :sh ).with( '/usr/bin/tetris --name NAME -d OPTION0 OPTION1' )
 
         app.daemonize!
       end
     end
 
 
-    context "when shutting an app down" do
-      it "should send a signal to kill" do
-        process = mock( "process" )
+    context 'when shutting an app down' do
+      it 'should send a signal to kill' do
+        process = mock( 'process' )
         Trema::Process.stub!( :read ).and_return( process )
 
         process.should_receive( :kill! )
 
-        stanza = { :path => "/usr/bin/tetris", :name => "NAME" }
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         App.new( stanza ).shutdown!
       end
     end

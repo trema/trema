@@ -21,19 +21,19 @@
 #
 class Dumper < Controller
   def switch_ready datapath_id
-    info "[switch_ready]"
+    info '[switch_ready]'
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
 
 
   def switch_disconnected datapath_id
-    info "[switch_disconnected]"
+    info '[switch_disconnected]'
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
 
 
   def openflow_error datapath_id, message
-    info "[error]"
+    info '[error]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
@@ -43,16 +43,16 @@ class Dumper < Controller
 
 
   def vendor datapath_id, message
-    info "[vendor]"
+    info '[vendor]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
-    info "data:"
+    info 'data:'
     info "#{ message.buffer.unpack "H*" }"
   end
 
 
   def features_reply datapath_id, message
-    info "[features_reply]"
+    info '[features_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "n_buffers: #{ message.n_buffers }"
@@ -66,7 +66,7 @@ class Dumper < Controller
 
 
   def get_config_reply datapath_id, message
-    info "[get_config_reply]"
+    info '[get_config_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "flags: #{ message.flags.to_hex }"
@@ -75,7 +75,7 @@ class Dumper < Controller
 
 
   def packet_in datapath_id, message
-    info "[packet_in]"
+    info '[packet_in]'
     info "  datapath_id: #{ datapath_id.to_hex }"
     info "  transaction_id: #{ message.transaction_id.to_hex }"
     info "  buffer_id: #{ message.buffer_id.to_hex }"
@@ -87,11 +87,11 @@ class Dumper < Controller
 
 
   def flow_removed datapath_id, message
-    info "[flow_removed]"
+    info '[flow_removed]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
 
-    info "match:"
+    info 'match:'
     info "  wildcards: #{ message.match.wildcards.to_hex }"
     info "  in_port: #{ message.match.in_port }"
     info "  dl_src: #{ message.match.dl_src }"
@@ -118,7 +118,7 @@ class Dumper < Controller
 
 
   def port_status datapath_id, message
-    info "[port_status]"
+    info '[port_status]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "reason: #{ message.reason.to_hex }"
@@ -127,7 +127,7 @@ class Dumper < Controller
 
 
   def stats_reply datapath_id, message
-    info "[stats_reply]"
+    info '[stats_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
@@ -137,18 +137,18 @@ class Dumper < Controller
 
 
   def barrier_reply datapath_id, message
-    info "[barrier_reply]"
+    info '[barrier_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
   end
 
 
   def queue_get_config_reply datapath_id, message
-    info "[queue_get_config_reply]"
+    info '[queue_get_config_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "port: #{ message.port }"
-    info( "queues:" );
+    info( 'queues:' );
     dump_packet_queue message.queues
   end
 
@@ -177,11 +177,11 @@ class Dumper < Controller
     queues.each do | packet_queue |
       info "queue_id: #{ packet_queue.queue_id.to_hex }"
       info "  len: #{ packet_queue.len }"
-      info "  properties:"
+      info '  properties:'
       packet_queue.properties.each do | prop |
         info "    property: #{ prop.property.to_hex }"
         info "    len: #{ prop.len.to_hex }"
-        info "      rate: %u" % prop.rate if prop.property == PacketQueue::OFPQT_MIN_RATE
+        info '      rate: %u' % prop.rate if prop.property == PacketQueue::OFPQT_MIN_RATE
       end
     end
   end

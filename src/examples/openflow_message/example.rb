@@ -41,7 +41,7 @@ module Example
 
 
   def may_raise_error msg_datapath_id
-    raise ArgumentError, "Given datapath_id does not match configured datapath_id" if msg_datapath_id != Example::datapath_id
+    raise ArgumentError, 'Given datapath_id does not match configured datapath_id' if msg_datapath_id != Example::datapath_id
   end
 
 

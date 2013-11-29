@@ -16,8 +16,8 @@
 #
 
 
-require "trema/monkey-patch/module/class-method"
-require "trema/monkey-patch/module/deprecation"
+require 'trema/monkey-patch/module/class-method'
+require 'trema/monkey-patch/module/deprecation'
 
 
 class Module

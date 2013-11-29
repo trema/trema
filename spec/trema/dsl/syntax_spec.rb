@@ -16,14 +16,14 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/syntax"
-require "trema/packetin-filter"
+require File.join( File.dirname( __FILE__ ), '..', '..', 'spec_helper' )
+require 'trema/dsl/syntax'
+require 'trema/packetin-filter'
 
 
 describe Trema::DSL::Syntax do
   before( :each ) do
-    @context = mock( "context", :port => 6653, :dump_to => nil )
+    @context = mock( 'context', :port => 6653, :dump_to => nil )
     @syntax = Trema::DSL::Syntax.new( @context )
   end
 
@@ -38,11 +38,11 @@ describe Trema::DSL::Syntax do
 
 
   it "should recognize 'link' directive" do
-    @context.stub!( :links ).and_return( [ mock( "link" ) ] )
+    @context.stub!( :links ).and_return( [ mock( 'link' ) ] )
     Trema::Link.should_receive( :add ).with( an_instance_of( Trema::Link ) ).once
 
     @syntax.instance_eval do
-      link "PEER0", "PEER1"
+      link 'PEER0', 'PEER1'
     end
   end
 
@@ -51,7 +51,7 @@ describe Trema::DSL::Syntax do
     Trema::OpenflowSwitch.should_receive( :add ).with( an_instance_of( HardwareSwitch ) ).once
 
     @syntax.instance_eval do
-      switch { dpid "0xabc" }
+      switch { dpid '0xabc' }
     end
   end
 
@@ -60,7 +60,7 @@ describe Trema::DSL::Syntax do
     Trema::OpenflowSwitch.should_receive( :add ).with( an_instance_of( OpenVswitch ) ).once
 
     @syntax.instance_eval do
-      vswitch { dpid "0xabc" }
+      vswitch { dpid '0xabc' }
     end
   end
 
@@ -78,7 +78,7 @@ describe Trema::DSL::Syntax do
     Trema::PacketinFilter.should_receive( :add ).with( an_instance_of( Trema::PacketinFilter ) ).once
 
     @syntax.instance_eval do
-      filter :lldp => "LLDP RULE", :packet_in => "PACKET-IN RULE"
+      filter :lldp => 'LLDP RULE', :packet_in => 'PACKET-IN RULE'
     end
   end
 
@@ -87,7 +87,7 @@ describe Trema::DSL::Syntax do
     Trema::SwitchManager.should_receive( :add ).with( an_instance_of( Trema::SwitchManager ) ).once
 
     @syntax.instance_eval do
-      event "RULE"
+      event 'RULE'
     end
   end
 
@@ -96,7 +96,7 @@ describe Trema::DSL::Syntax do
     Trema::App.should_receive( :add ).with( an_instance_of( Trema::App ) ).once
 
     @syntax.instance_eval do
-      run( "My App" ) { }
+      run( 'My App' ) { }
     end
   end
 end

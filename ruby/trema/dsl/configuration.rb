@@ -16,13 +16,13 @@
 #
 
 
-require "trema/default_openflow_channel_port"
-require "trema/app"
-require "trema/host"
-require "trema/link"
-require "trema/openflow-switch"
-require "trema/packetin-filter"
-require "trema/switch-manager"
+require 'trema/default_openflow_channel_port'
+require 'trema/app'
+require 'trema/host'
+require 'trema/link'
+require 'trema/openflow-switch'
+require 'trema/packetin-filter'
+require 'trema/switch-manager'
 
 
 module Trema

@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl/stanza"
+require 'trema/dsl/stanza'
 
 
 module Trema
@@ -29,7 +29,7 @@ module Trema
         when String
           set_dpid value
         when Integer
-          set_dpid sprintf( "%#x", value )
+          set_dpid sprintf( '%#x', value )
         else
           raise "Invalid datapath_id: #{ value }"
         end
@@ -61,8 +61,8 @@ module Trema
 
 
       def dpid_long_from string
-        no_0x = string.gsub( /^0x/, "" )
-        "0" * ( 16 - no_0x.length ) + no_0x
+        no_0x = string.gsub( /^0x/, '' )
+        '0' * ( 16 - no_0x.length ) + no_0x
       end
     end
   end

@@ -19,16 +19,16 @@
 #
 
 
-$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "..", "ruby" )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), '..', 'ruby' )
 
-require "rubygems"
-require "bundler/setup"
+require 'rubygems'
+require 'bundler/setup'
 
-require "gli"
-require "trema/command"
-require "trema/util"
-require "trema/version"
-require "trema/default_openflow_channel_port"
+require 'gli'
+require 'trema/command'
+require 'trema/util'
+require 'trema/version'
+require 'trema/default_openflow_channel_port'
 
 
 class BinTrema
@@ -38,33 +38,33 @@ class BinTrema
 
 
   def initialize
-    program_desc "Trema command-line tool"
+    program_desc 'Trema command-line tool'
 
 
-    desc "Displays the current runtime version"
+    desc 'Displays the current runtime version'
     version Trema::VERSION
 
 
-    desc "Be verbose"
+    desc 'Be verbose'
     switch [ :v, :verbose ], :negatable => false
 
 
-    desc "Runs a trema application"
-    arg_name "controller"
+    desc 'Runs a trema application'
+    arg_name 'controller'
     command :run do | c |
-      c.desc "Runs as a daemon"
+      c.desc 'Runs as a daemon'
       c.switch [ :d, :daemonize ], :negatable => false
 
-      c.desc "Enables Trema wireshark plugin"
+      c.desc 'Enables Trema wireshark plugin'
       c.switch [ :s, :tremashark ], :negatable => false
 
       c.desc "Overrides the default openflow channel port #{Trema::DEFAULT_OPENFLOW_CHANNEL_PORT}"
       c.flag [ :p, :port ]
 
-      c.desc "Specifies emulated network configuration"
+      c.desc 'Specifies emulated network configuration'
       c.flag [ :c, :conf ]
 
-      c.desc "Disables initial flow cleanup for a connected switch"
+      c.desc 'Disables initial flow cleanup for a connected switch'
       c.switch [ :r, :no_flow_cleanup ], :negatable => false
 
       c.action do | global_options, options, args |
@@ -73,11 +73,11 @@ class BinTrema
     end
 
 
-    desc "Terminates a trema process"
-    arg_name "name"
+    desc 'Terminates a trema process'
+    arg_name 'name'
     command :kill do | c |
       c.action do | global_options, options, args |
-        help_now!( "name is required" ) if args.empty?
+        help_now!( 'name is required' ) if args.empty?
         args.each do | each |
           trema_kill each
         end
@@ -85,8 +85,8 @@ class BinTrema
     end
 
 
-    desc "Starts a killed trema process again"
-    arg_name "name"
+    desc 'Starts a killed trema process again'
+    arg_name 'name'
     command :up do | c |
       c.action do | global_options, options, args |
         trema_up args[ 0 ]
@@ -94,7 +94,7 @@ class BinTrema
     end
 
 
-    desc "Terminates all trema processes"
+    desc 'Terminates all trema processes'
     command :killall do | c |
       c.action do
         trema_killall
@@ -102,55 +102,55 @@ class BinTrema
     end
 
 
-    desc "Sends UDP packets to destination host"
+    desc 'Sends UDP packets to destination host'
     command :send_packets do | c |
-      c.desc "host that sends packets"
+      c.desc 'host that sends packets'
       c.flag [ :s, :source ]
 
-      c.desc "host that receives packets"
+      c.desc 'host that receives packets'
       c.flag [ :d, :dest ]
 
-      c.desc "number of times to increment the IP source address"
+      c.desc 'number of times to increment the IP source address'
       c.default_value nil
       c.flag [ :inc_ip_src ]
 
-      c.desc "number of times to increment the IP destination address"
+      c.desc 'number of times to increment the IP destination address'
       c.default_value nil
       c.flag [ :inc_ip_dst ]
 
-      c.desc "set the initial UDP source port"
+      c.desc 'set the initial UDP source port'
       c.flag [ :tp_src ]
 
-      c.desc "number of times to increment the UDP source port"
+      c.desc 'number of times to increment the UDP source port'
       c.default_value nil
       c.flag [ :inc_tp_src ]
 
-      c.desc "set the initial UDP destination port"
+      c.desc 'set the initial UDP destination port'
       c.flag [ :tp_dst ]
 
-      c.desc "number of times to increment the UDP destination port"
+      c.desc 'number of times to increment the UDP destination port'
       c.default_value nil
       c.flag [ :inc_tp_dst ]
 
-      c.desc "send packet rate - packets per second"
+      c.desc 'send packet rate - packets per second'
       c.flag [ :pps ]
 
-      c.desc "number of packets to send"
+      c.desc 'number of packets to send'
       c.flag [ :n_pkts ]
 
-      c.desc "time duration to send packets"
+      c.desc 'time duration to send packets'
       c.flag [ :duration ]
 
-      c.desc "length of UDP payload"
+      c.desc 'length of UDP payload'
       c.flag [ :length ]
 
-      c.desc "increment UDP payload"
+      c.desc 'increment UDP payload'
       c.default_value nil
       c.flag [ :inc_payload ]
 
       c.action do | global_options, options, args |
-        raise "--source option is mandatory" if options[ :source ].nil?
-        raise "--dest option is mandatory" if options[ :dest ].nil?
+        raise '--source option is mandatory' if options[ :source ].nil?
+        raise '--dest option is mandatory' if options[ :dest ].nil?
 
         trema_send_packets options[ :source ], options[ :dest ], options
       end
@@ -159,15 +159,15 @@ class BinTrema
 
     desc "Brings a switch's specified port up"
     command :port_up do | c |
-      c.desc "switch name"
+      c.desc 'switch name'
       c.flag [ :s, :switch ]
 
-      c.desc "port"
+      c.desc 'port'
       c.flag [ :p, :port ]
 
       c.action do | global_options, options, args |
-        raise "--switch option is mandatory" if options[ :switch ].nil?
-        raise "--port option is mandatory" if options[ :port ].nil?
+        raise '--switch option is mandatory' if options[ :switch ].nil?
+        raise '--port option is mandatory' if options[ :port ].nil?
 
         trema_port_up options[ :switch ], options[ :port ]
       end
@@ -176,38 +176,38 @@ class BinTrema
 
     desc "Brings a switch's specified port down"
     command :port_down do | c |
-      c.desc "switch name"
+      c.desc 'switch name'
       c.flag [ :s, :switch ]
 
-      c.desc "port"
+      c.desc 'port'
       c.flag [ :p, :port ]
 
       c.action do | global_options, options, args |
-        raise "--switch option is mandatory" if options[ :switch ].nil?
-        raise "--port option is mandatory" if options[ :port ].nil?
+        raise '--switch option is mandatory' if options[ :switch ].nil?
+        raise '--port option is mandatory' if options[ :port ].nil?
 
         trema_port_down options[ :switch ], options[ :port ]
       end
     end
 
 
-    desc "Shows stats of packets"
-    arg_name "host"
+    desc 'Shows stats of packets'
+    arg_name 'host'
     command :show_stats do | c |
-      c.desc "Show stats of packets sent"
+      c.desc 'Show stats of packets sent'
       c.switch [ :t, :tx ], :negatable => false
-      c.desc "Show stats of packets received"
+      c.desc 'Show stats of packets received'
       c.switch [ :r, :rx ], :negatable => false
 
       c.action do | global_options, options, args |
-        help_now!( "host is required" ) if args.empty?
+        help_now!( 'host is required' ) if args.empty?
         trema_show_stats args[ 0 ], options[ :tx ], options[ :rx ]
       end
     end
 
 
-    desc "Resets stats of packets"
-    arg_name "hosts..."
+    desc 'Resets stats of packets'
+    arg_name 'hosts...'
     command :reset_stats do | c |
       c.action do | global_options, options, args |
         hosts = args
@@ -221,18 +221,18 @@ class BinTrema
     end
 
 
-    desc "Print all flow entries"
-    arg_name "switches..."
+    desc 'Print all flow entries'
+    arg_name 'switches...'
     command :dump_flows do | c |
       c.action do | global_options, options, args |
-        help_now!( "switches is required" ) if args.empty?
+        help_now!( 'switches is required' ) if args.empty?
         trema_dump_flows args
       end
     end
 
 
-    desc "Opens a new shell in the specified network namespace"
-    arg_name "name"
+    desc 'Opens a new shell in the specified network namespace'
+    arg_name 'name'
     command :netns do | c |
       c.action do | global_options, options, args |
         trema_netns args[ 0 ]
@@ -248,7 +248,7 @@ class BinTrema
     end
 
 
-    desc "Displays the current runtime version"
+    desc 'Displays the current runtime version'
     command :version do | c |
       c.action do
         trema_version

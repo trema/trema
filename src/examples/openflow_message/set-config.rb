@@ -19,7 +19,7 @@
 #
 
 
-require "example"
+require 'example'
 
 
 class SetConfigController < Controller
@@ -34,7 +34,7 @@ class SetConfigController < Controller
 
     def usage
       puts Example.cmd_usage
-      puts "Send count number of set-config messages to datapath_id."
+      puts 'Send count number of set-config messages to datapath_id.'
       exit false
     end
   end

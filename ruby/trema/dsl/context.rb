@@ -16,16 +16,16 @@
 #
 
 
-require "fileutils"
-require "trema/dsl/configuration"
-require "trema/dsl/syntax"
-require "trema/path"
+require 'fileutils'
+require 'trema/dsl/configuration'
+require 'trema/dsl/syntax'
+require 'trema/path'
 
 
 module Trema
   module DSL
     class Context
-      PATH = File.join( Trema.tmp, ".context" )
+      PATH = File.join( Trema.tmp, '.context' )
 
 
       def self.load_current
@@ -52,7 +52,7 @@ module Trema
       # @return [Configuration]
       #
       def dump
-        File.open( PATH, "w" ) do | f |
+        File.open( PATH, 'w' ) do | f |
           f.print Marshal.dump( @config )
         end
         @config

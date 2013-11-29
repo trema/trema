@@ -38,8 +38,8 @@ class VendorStatsRequestSample < Controller
 
 
   def vendor_stats_reply datapath_id, message
-    info "[vendor_stats_reply]"
-    info "vendor_id: 0x%08x" % message.stats.first.vendor_id
+    info '[vendor_stats_reply]'
+    info 'vendor_id: 0x%08x' % message.stats.first.vendor_id
     info "data: [#{ message.stats.first.data.map { | n |  "0x%02x" % n }.join ", " }]"
   end
 
@@ -52,8 +52,8 @@ class VendorStatsRequestSample < Controller
       0x0,
       0xff,
       0x0, 0x0, 0x0
-    ].pack( "NC4 nnCC3" )
-    vendor_request = VendorStatsRequest.new( :vendor_id => OVS_VENDOR_ID, :data => data.unpack( "C*" ) )
+    ].pack( 'NC4 nnCC3' )
+    vendor_request = VendorStatsRequest.new( :vendor_id => OVS_VENDOR_ID, :data => data.unpack( 'C*' ) )
     send_message( datapath_id, vendor_request )
   end
 end

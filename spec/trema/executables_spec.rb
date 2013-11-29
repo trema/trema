@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/executables"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema/executables'
 
 
 describe Trema::Executables do
@@ -35,12 +35,12 @@ describe Trema::Executables do
   its ( :syslog_relay ) { should be_a( String ) }
   its ( :tremashark ) { should be_a( String ) }
 
-  context "when Trema is compiled" do
+  context 'when Trema is compiled' do
     before { FileTest.stub!( :executable? ).and_return( true ) }
     its ( :compiled? ) { should be_true }
   end
 
-  context "when Trema is not compiled" do
+  context 'when Trema is not compiled' do
     before { FileTest.stub!( :executable? ).and_return( false ) }
     its ( :compiled? ) { should be_false }
   end

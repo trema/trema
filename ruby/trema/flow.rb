@@ -51,8 +51,8 @@ module Trema
 
     # @return [Boolean] whether a flow is a user registered flow or not.
     def users_flow?
-      not ( ( @actions == "drop" && @priority == 0 ) ||
-            @actions == "CONTROLLER:65535" )
+      not ( ( @actions == 'drop' && @priority == 0 ) ||
+            @actions == 'CONTROLLER:65535' )
     end
   end
 end

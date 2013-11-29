@@ -18,8 +18,8 @@
 #
 
 
-require "counter"
-require "fdb"
+require 'counter'
+require 'fdb'
 
 
 class TrafficMonitor < Controller

@@ -33,7 +33,7 @@ module Trema
 
 
     def name
-      self.class.to_s.split( "::" ).last
+      self.class.to_s.split( '::' ).last
     end
 
 

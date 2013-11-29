@@ -16,7 +16,7 @@
 #
 
 
-require "trema/network-component"
+require 'trema/network-component'
 
 
 module Trema
@@ -79,7 +79,7 @@ module Trema
     # @api public
     #
     def netmask
-      @stanza[ :netmask ] || "255.255.255.255"
+      @stanza[ :netmask ] || '255.255.255.255'
     end
 
 

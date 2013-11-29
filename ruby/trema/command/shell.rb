@@ -18,8 +18,8 @@
 #
 
 
-require "irb"
-require "trema/util"
+require 'irb'
+require 'trema/util'
 
 
 include Trema::Util
@@ -31,10 +31,10 @@ module Trema
       begin
         undef :kill
 
-        require "tempfile"
-        require "trema"
-        require "trema/shell"
-        f = Tempfile.open( "irbrc" )
+        require 'tempfile'
+        require 'trema'
+        require 'trema/shell'
+        f = Tempfile.open( 'irbrc' )
         f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home

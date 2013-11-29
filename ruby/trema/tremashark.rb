@@ -18,7 +18,7 @@
 #
 
 
-require "trema/executables"
+require 'trema/executables'
 
 
 module Trema

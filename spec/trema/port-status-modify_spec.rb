@@ -16,12 +16,12 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
 describe Trema::PortStatusModify do
-  it_should_behave_like "port status message", :klass => Trema::PortStatusModify
+  it_should_behave_like 'port status message', :klass => Trema::PortStatusModify
 end
 
 
@@ -43,19 +43,19 @@ module Trema
 
 
   describe Controller do
-    context "when one port goes down" do
-      it "should receive port_status (modify)" do
+    context 'when one port goes down' do
+      it 'should receive port_status (modify)' do
         network {
           vswitch { datapath_id 0xabc }
-          vhost "host"
-          link "host", "0xabc"
+          vhost 'host'
+          link 'host', '0xabc'
         }.run( PortStatusController ) {
-          controller( "PortStatusController" ).should_receive( :port_status ).with do | dpid, message |
+          controller( 'PortStatusController' ).should_receive( :port_status ).with do | dpid, message |
             expect( dpid ).to eq( 0xabc )
             expect( message ).to be_an_instance_of( PortStatusModify )
           end
 
-          controller( "PortStatusController" ).send_message 0xabc, FeaturesRequest.new
+          controller( 'PortStatusController' ).send_message 0xabc, FeaturesRequest.new
           sleep 2  # FIXME: wait to receive port_status
         }
       end

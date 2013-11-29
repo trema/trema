@@ -16,11 +16,11 @@
 #
 
 
-require "rubygems"
-require "rspec"
+require 'rubygems'
+require 'rspec'
 
 
-shared_examples_for "any Openflow message with mandatory options" do | options |
+shared_examples_for 'any Openflow message with mandatory options' do | options |
   subject do
     opt_hash = {}
     options[ :options ].each do | each |

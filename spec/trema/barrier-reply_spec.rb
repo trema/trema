@@ -16,19 +16,19 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe BarrierReply, ".new( VALID OPTIONS )" do
+describe BarrierReply, '.new( VALID OPTIONS )' do
   subject { BarrierReply.new( 0xabc, 1234 ) }
   its ( :datapath_id ) { should == 0xabc }
   its( :transaction_id ) { should == 1234 }
 end
 
 
-describe BarrierReply, ".new( MANDATORY OPTIONS MISSING )" do
-  it "should raise ArgumentError" do
+describe BarrierReply, '.new( MANDATORY OPTIONS MISSING )' do
+  it 'should raise ArgumentError' do
     expect {
       BarrierReply.new
     }.to raise_error( ArgumentError )

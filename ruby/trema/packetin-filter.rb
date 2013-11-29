@@ -16,8 +16,8 @@
 #
 
 
-require "trema/executables"
-require "trema/network-component"
+require 'trema/executables'
+require 'trema/network-component'
 
 
 module Trema
@@ -53,7 +53,7 @@ module Trema
     # @api public
     #
     def name
-      "packet-in filter"
+      'packet-in filter'
     end
 
 

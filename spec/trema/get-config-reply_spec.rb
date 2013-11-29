@@ -16,11 +16,11 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe GetConfigReply, ".new( VALID OPTIONS )" do
+describe GetConfigReply, '.new( VALID OPTIONS )' do
   subject {
     GetConfigReply.new(
       :datapath_id => 123,

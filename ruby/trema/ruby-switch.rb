@@ -16,8 +16,8 @@
 #
 
 
-require "rbconfig"
-require "trema/hardware-switch"
+require 'rbconfig'
+require 'trema/hardware-switch'
 
 
 module Trema
@@ -41,14 +41,14 @@ module Trema
 
 
     def libruby
-      File.join Trema.home, "ruby"
+      File.join Trema.home, 'ruby'
     end
 
 
     def ruby
       File.join(
-        RbConfig::CONFIG[ "bindir" ],
-        RbConfig::CONFIG[ "ruby_install_name" ] + RbConfig::CONFIG[ "EXEEXT" ]
+        RbConfig::CONFIG[ 'bindir' ],
+        RbConfig::CONFIG[ 'ruby_install_name' ] + RbConfig::CONFIG[ 'EXEEXT' ]
       )
     end
   end

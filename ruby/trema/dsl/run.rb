@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl/stanza"
+require 'trema/dsl/stanza'
 
 
 module Trema

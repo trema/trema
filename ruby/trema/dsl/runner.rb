@@ -18,7 +18,7 @@
 #
 
 
-require "trema/tremashark"
+require 'trema/tremashark'
 
 
 module Trema
@@ -43,7 +43,7 @@ module Trema
 
       def maybe_run_switch_manager
         # FIXME
-        return if FileTest.exists? File.join( Trema.pid, "switch_manager.pid" )
+        return if FileTest.exists? File.join( Trema.pid, 'switch_manager.pid' )
 
         switch_manager =
           if @context.switch_manager && @context.apps.values.size > 0
@@ -63,7 +63,7 @@ module Trema
             @context.switch_manager
           else
             if @context.apps.values.size == 0
-              rule = { :port_status => "default", :packet_in => "default", :state_notify => "default", :vendor => "default" }
+              rule = { :port_status => 'default', :packet_in => 'default', :state_notify => 'default', :vendor => 'default' }
             elsif @context.apps.values.size == 1
               app_name = @context.apps.values[ 0 ].name
               rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name, :vendor => app_name }
@@ -150,7 +150,7 @@ module Trema
         @context.apps.values[ 0..-2 ].each do | each |
           each.daemonize!
         end
-        trap( "SIGINT" ) do
+        trap( 'SIGINT' ) do
           print( "\nterminated\n" )
           exit(0)
         end

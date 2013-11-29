@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl/switch"
+require 'trema/dsl/switch'
 
 
 module Trema
@@ -26,7 +26,7 @@ module Trema
     class Vswitch < Switch
       def initialize name = nil
         super name
-        @ip = "127.0.0.1"
+        @ip = '127.0.0.1'
       end
 
 

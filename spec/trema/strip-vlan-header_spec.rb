@@ -16,21 +16,21 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe StripVlanHeader, :type => "actions" do
-  context "when sending a Flow Mod with StripVlanHeader" do
-    it "should insert a new flow entry with action (strip_vlan)" do
+describe StripVlanHeader, :type => 'actions' do
+  context 'when sending a Flow Mod with StripVlanHeader' do
+    it 'should insert a new flow entry with action (strip_vlan)' do
       class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        controller( 'TestController' ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "strip_vlan" )
+        expect( vswitch( '0xabc' ) ).to have( 1 ).flows
+        expect( vswitch( '0xabc' ).flows[ 0 ].actions ).to eq( 'strip_vlan' )
       }
     end
   end

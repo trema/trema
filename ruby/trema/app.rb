@@ -16,8 +16,8 @@
 #
 
 
-require "trema/daemon"
-require "trema/network-component"
+require 'trema/daemon'
+require 'trema/network-component'
 
 
 module Trema
@@ -35,7 +35,7 @@ module Trema
     attr_reader :stanza
 
 
-    command { | app | [ app.command, app.stanza[ :options ] ].compact.join " " }
+    command { | app | [ app.command, app.stanza[ :options ] ].compact.join ' ' }
 
 
     #
@@ -51,7 +51,7 @@ module Trema
     def initialize stanza
       @stanza = stanza
       if /\.rb\Z/=~ @stanza.fetch( :name )  # ruby?
-        require "trema"
+        require 'trema'
         path = @stanza.fetch( :path )
         ARGV.replace [ path ]
         $LOAD_PATH << File.dirname( path )
@@ -88,7 +88,7 @@ module Trema
     # @api public
     #
     def daemonize!
-      sh [ command, "-d", @stanza[ :options ] ].compact.join( " " )
+      sh [ command, '-d', @stanza[ :options ] ].compact.join( ' ' )
       self
     end
 

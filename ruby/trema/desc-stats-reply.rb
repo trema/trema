@@ -16,7 +16,7 @@
 #
 
 
-require "trema/stats-helper"
+require 'trema/stats-helper'
 
 
 module Trema

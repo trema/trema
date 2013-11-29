@@ -16,14 +16,14 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/switch-manager"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema/switch-manager'
 
 
 module Trema
   describe SwitchManager do
-    it "should run switch_manager command with proper options" do
-      rule = { :port_status => "topology", :packet_in => "controller", :state_notify => "topology", :vendor => "controller" }
+    it 'should run switch_manager command with proper options' do
+      rule = { :port_status => 'topology', :packet_in => 'controller', :state_notify => 'topology', :vendor => 'controller' }
       switch_manager = SwitchManager.new( rule )
 
       switch_manager.should_receive( :sh ).once.with( /port_status::topology packet_in::controller state_notify::topology vendor::controller$/ )

@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl/switch"
+require 'trema/dsl/switch'
 
 
 module Trema

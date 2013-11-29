@@ -16,8 +16,8 @@
 #
 
 
-require "trema/cli"
-require "trema/util"
+require 'trema/cli'
+require 'trema/util'
 
 
 module Trema
@@ -42,9 +42,9 @@ module Trema
 
 
     def show_tx_and_rx cli
-      puts "Sent packets:"
+      puts 'Sent packets:'
       cli.show_tx_stats
-      puts "Received packets:"
+      puts 'Received packets:'
       cli.show_rx_stats
     end
 

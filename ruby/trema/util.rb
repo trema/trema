@@ -18,15 +18,15 @@
 #
 
 
-require "trema/dsl"
-require "trema/executables"
-require "trema/path"
-require "trema/process"
+require 'trema/dsl'
+require 'trema/executables'
+require 'trema/path'
+require 'trema/process'
 
 
 module Trema::Util
   def sh cmd
-    ENV[ "TREMA_HOME" ] = Trema.home
+    ENV[ 'TREMA_HOME' ] = Trema.home
     puts cmd if $verbose
     unless system( cmd )
       raise "Command '#{ cmd }' failed!"
@@ -49,7 +49,7 @@ EOF
 
   def cleanup session
     # [FIXME] Use session.switch_manager
-    sm_pid = File.join( Trema.pid, "switch_manager.pid" )
+    sm_pid = File.join( Trema.pid, 'switch_manager.pid' )
     if FileTest.exist?( sm_pid )
       Trema::Process.read( sm_pid ).kill!
     end
@@ -69,7 +69,7 @@ EOF
       netns.shutdown!
     end
 
-    Dir.glob( File.join Trema.pid, "*.pid" ).each do | each |
+    Dir.glob( File.join Trema.pid, '*.pid' ).each do | each |
       Trema::Process.read( each ).kill!
     end
   end

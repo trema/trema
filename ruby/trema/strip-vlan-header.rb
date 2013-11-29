@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require 'trema/action'
 
 
 module Trema

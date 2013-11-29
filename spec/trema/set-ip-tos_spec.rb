@@ -16,47 +16,47 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe SetIpTos, ".new( type_of_service )", :type => "actions" do
+describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
   subject { SetIpTos.new( type_of_service ) }
 
-  context "with type_of_service (32)" do
+  context 'with type_of_service (32)' do
     let( :type_of_service ) { 32 }
     its( :type_of_service ) { should == 32 }
   end
 
-  it_validates "option is within range", :type_of_service, 0..( 2 ** 8 - 1 )
+  it_validates 'option is within range', :type_of_service, 0..( 2 ** 8 - 1 )
 
-  context %{with type_of_service ("32")} do
-    let( :type_of_service ) { "32" }
+  context 'with type_of_service (32)' do
+    let( :type_of_service ) { '32' }
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  context %{with type_of_service ([32])} do
+  context 'with type_of_service ([32])' do
     let( :type_of_service ) { [ 32 ] }
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  context "with type_of_service (1)" do
+  context 'with type_of_service (1)' do
     let( :type_of_service ) { 1 }
     it { expect { subject }.to raise_error( ArgumentError ) }
   end
 
-  context "when sending a Flow Mod with SetIpTos" do
+  context 'when sending a Flow Mod with SetIpTos' do
     let( :type_of_service ) { 4 }
 
-    it "should insert a new flow entry with action (mod_nw_tos:4)" do
+    it 'should insert a new flow entry with action (mod_nw_tos:4)' do
       class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        controller( 'TestController' ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_nw_tos:4" )
+        expect( vswitch( '0xabc' ) ).to have( 1 ).flows
+        expect( vswitch( '0xabc' ).flows[ 0 ].actions ).to eq( 'mod_nw_tos:4' )
       }
     end
   end

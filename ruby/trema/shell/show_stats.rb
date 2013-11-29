@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
@@ -29,7 +29,7 @@ module Trema
       raise "Host '#{ host_name }' is not defined." if Host[ host_name ].nil?
       raise "Host '#{ host_name }' is not connected to any link." if Host[ host_name ].interface.nil?
 
-      if option.to_s == "tx"
+      if option.to_s == 'tx'
         Cli.new( Host[ host_name ] ).show_tx_stats
       else
         Cli.new( Host[ host_name ] ).show_rx_stats

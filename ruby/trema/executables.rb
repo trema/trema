@@ -16,9 +16,9 @@
 #
 
 
-require "trema/monkey-patch/module"
-require "trema/monkey-patch/string"
-require "trema/path"
+require 'trema/monkey-patch/module'
+require 'trema/monkey-patch/string'
+require 'trema/path'
 
 
 #
@@ -78,17 +78,17 @@ class Trema::Executables
   end
 
 
-  path "openvswitch/bin/ovs-ofctl"
-  path "openvswitch/bin/ovs-openflowd"
-  path "packetin_filter/packetin_filter"
-  path "phost/cli"
-  path "phost/phost"
-  path "switch_manager/switch"
-  path "switch_manager/switch_manager"
-  path "tremashark/packet_capture"
-  path "tremashark/stdin_relay"
-  path "tremashark/syslog_relay"
-  path "tremashark/tremashark"
+  path 'openvswitch/bin/ovs-ofctl'
+  path 'openvswitch/bin/ovs-openflowd'
+  path 'packetin_filter/packetin_filter'
+  path 'phost/cli'
+  path 'phost/phost'
+  path 'switch_manager/switch'
+  path 'switch_manager/switch_manager'
+  path 'tremashark/packet_capture'
+  path 'tremashark/stdin_relay'
+  path 'tremashark/syslog_relay'
+  path 'tremashark/tremashark'
 end
 
 

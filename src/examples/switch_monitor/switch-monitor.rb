@@ -44,7 +44,7 @@ class SwitchMonitor < Controller
 
 
   def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+    info 'All switches = ' + @switches.sort.join( ', ' )
   end
 end
 

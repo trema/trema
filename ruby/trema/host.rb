@@ -16,9 +16,9 @@
 #
 
 
-require "trema/cli"
-require "trema/phost"
-require "trema/network-component"
+require 'trema/cli'
+require 'trema/phost'
+require 'trema/network-component'
 
 
 module Trema
@@ -127,7 +127,7 @@ module Trema
     def netmask
       stanza_netmask = @stanza[ :netmask ]
       if stanza_netmask.nil?
-        "255.255.255.255"
+        '255.255.255.255'
       else
         stanza_netmask
       end

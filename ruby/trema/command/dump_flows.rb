@@ -16,8 +16,8 @@
 #
 
 
-require "trema/ofctl"
-require "trema/util"
+require 'trema/ofctl'
+require 'trema/util'
 
 
 module Trema

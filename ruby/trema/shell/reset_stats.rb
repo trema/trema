@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema

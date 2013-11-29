@@ -16,21 +16,21 @@
 #
 
 
-$LOAD_PATH << File.join( File.dirname( __FILE__ ), "..", "ruby" )
-$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "..", "vendor", "ruby-ifconfig-1.2", "lib" )
+$LOAD_PATH << File.join( File.dirname( __FILE__ ), '..', 'ruby' )
+$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib' )
 
 
-require "rubygems"
+require 'rubygems'
 
-require "rspec"
-require "rspec/autorun"
-require "pio"
-require "trema"
-require "trema/dsl/configuration"
-require "trema/dsl/context"
-require "trema/ofctl"
-require "trema/shell"
-require "trema/util"
+require 'rspec'
+require 'rspec/autorun'
+require 'pio'
+require 'trema'
+require 'trema/dsl/configuration'
+require 'trema/dsl/context'
+require 'trema/ofctl'
+require 'trema/shell'
+require 'trema/util'
 
 
 # Requires supporting files with custom matchers and macros, etc,
@@ -141,9 +141,9 @@ class Network
 
   def drop_packets_from_unknown_hosts switch
     ofctl = Trema::Ofctl.new
-    ofctl.add_flow switch, :priority => 0, :actions => "drop"
+    ofctl.add_flow switch, :priority => 0, :actions => 'drop'
     @context.hosts.each do | name, each |
-      ofctl.add_flow switch, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
+      ofctl.add_flow switch, :dl_type => '0x0800', :nw_src => each.ip, :priority => 1, :actions => 'controller'
     end
   end
 
@@ -163,8 +163,8 @@ class Network
   def wait_until_all_pid_files_are_deleted timeout = 12
     elapsed = 0
     loop do
-      raise "Failed to clean up remaining processes." if elapsed > timeout
-      break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
+      raise 'Failed to clean up remaining processes.' if elapsed > timeout
+      break if Dir.glob( File.join( Trema.pid, '*.pid' ) ).empty?
       sleep 1
       elapsed += 1
     end

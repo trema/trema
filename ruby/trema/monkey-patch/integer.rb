@@ -16,9 +16,9 @@
 #
 
 
-require "trema/monkey-patch/integer/base-conversions"
-require "trema/monkey-patch/integer/ranges"
-require "trema/monkey-patch/integer/validators"
+require 'trema/monkey-patch/integer/base-conversions'
+require 'trema/monkey-patch/integer/ranges'
+require 'trema/monkey-patch/integer/validators'
 
 
 class Integer

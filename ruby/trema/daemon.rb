@@ -16,9 +16,9 @@
 #
 
 
-require "fileutils"
-require "trema/monkey-patch/string"
-require "trema/process"
+require 'fileutils'
+require 'trema/monkey-patch/string'
+require 'trema/process'
 
 
 module Trema

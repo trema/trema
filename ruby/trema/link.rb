@@ -16,11 +16,11 @@
 #
 
 
-require "trema/network-component"
-require "trema/path"
+require 'trema/network-component'
+require 'trema/path'
 
-$LOAD_PATH.unshift File.join( Trema.vendor_ruby_ifconfig, "lib" )
-require "ifconfig"
+$LOAD_PATH.unshift File.join( Trema.vendor_ruby_ifconfig, 'lib' )
+require 'ifconfig'
 
 
 module Trema

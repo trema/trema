@@ -23,8 +23,8 @@ class VendorActionSampleController < Controller
   OVSAST_NOTE = 8
 
   def switch_ready datapath_id
-    body = [ OVSAST_NOTE, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ].pack( "nC6" )
-    actions = VendorAction.new( OVS_VENDOR_ID, body.unpack( "C*" ) )
+    body = [ OVSAST_NOTE, 0x54, 0x72, 0x65, 0x6d, 0x61, 0x00 ].pack( 'nC6' )
+    actions = VendorAction.new( OVS_VENDOR_ID, body.unpack( 'C*' ) )
     send_flow_mod_modify(
       datapath_id,
       :hard_timeout => 60,

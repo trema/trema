@@ -18,7 +18,7 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
@@ -28,7 +28,7 @@ module Trema
 
       if controller
         if /\.rb\Z/=~ controller.split.first
-          require "trema"
+          require 'trema'
           include Trema
           ARGV.replace controller.split
           $LOAD_PATH << File.dirname( controller )

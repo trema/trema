@@ -18,7 +18,7 @@
 #
 
 
-require "trema/executables"
+require 'trema/executables'
 
 
 module Trema
@@ -65,7 +65,7 @@ module Trema
 
     def send_packets dest, options = {}
       if options[ :duration ] && options[ :n_pkts ]
-        raise "--duration and --n_pkts are exclusive."
+        raise '--duration and --n_pkts are exclusive.'
       end
 
       sh( "#{ Executables.cli } -i #{ @host.interface } send_packets " +
@@ -87,7 +87,7 @@ module Trema
     def tx_stats
       stat = stats( :tx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( "," )
+        Trema::Stats.new *stat.split( ',' )
       else
         nil
       end
@@ -97,7 +97,7 @@ module Trema
     def rx_stats
       stat = stats( :rx ).split( "\n" )[ 1 ]
       if stat
-        Trema::Stats.new *stat.split( "," )
+        Trema::Stats.new *stat.split( ',' )
       else
         Trema::Stats.new nil, nil, nil, nil, 0, 0
       end
@@ -143,7 +143,7 @@ module Trema
        inc_tp_src( options[ :inc_tp_src ] ),
        inc_tp_dst( options[ :inc_tp_dst ] ),
        inc_payload( options[ :inc_payload ] ),
-      ].compact.join( " " )
+      ].compact.join( ' ' )
     end
 
 
@@ -200,7 +200,7 @@ module Trema
     def inc_ip_src value
       return nil if value.nil?
       if value == true
-        "--inc_ip_src"
+        '--inc_ip_src'
       else
         "--inc_ip_src=#{ value }"
       end
@@ -210,7 +210,7 @@ module Trema
     def inc_ip_dst value
       return nil if value.nil?
       if value == true
-        "--inc_ip_dst"
+        '--inc_ip_dst'
       else
         "--inc_ip_dst=#{ value }"
       end
@@ -220,7 +220,7 @@ module Trema
     def inc_tp_src value
       return nil if value.nil?
       if value == true
-        "--inc_tp_src"
+        '--inc_tp_src'
       else
         "--inc_tp_src=#{ value }"
       end
@@ -230,7 +230,7 @@ module Trema
     def inc_tp_dst value
       return nil if value.nil?
       if value == true
-        "--inc_tp_dst"
+        '--inc_tp_dst'
       else
         "--inc_tp_dst=#{ value }"
       end
@@ -240,7 +240,7 @@ module Trema
     def inc_payload value
       return nil if value.nil?
       if value == true
-        "--inc_payload"
+        '--inc_payload'
       else
         "--inc_payload=#{ value }"
       end

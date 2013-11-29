@@ -16,24 +16,24 @@
 #
 
 
-require "bundler"
+require 'bundler'
 begin
   Bundler.setup :default, :development
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
-  $stderr.puts "Run `bundle install` to install missing gems"
+  $stderr.puts 'Run `bundle install` to install missing gems'
   exit e.status_code
 end
 
 
-$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../ruby" ) )
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + '/../../ruby' ) )
 
 
-require "aruba/cucumber"
-require "rspec"
-require "tempfile"
-require "trema/executables"
-require "trema/monkey-patch/string"
+require 'aruba/cucumber'
+require 'rspec'
+require 'tempfile'
+require 'trema/executables'
+require 'trema/monkey-patch/string'
 
 
 def run command
@@ -62,7 +62,7 @@ end
 def count_packets stats
   return 0 if stats.split.size <= 1
   stats.split[ 1..-1 ].inject( 0 ) do | sum, each |
-    sum += each.split( "," )[ 4 ].to_i
+    sum += each.split( ',' )[ 4 ].to_i
   end
 end
 

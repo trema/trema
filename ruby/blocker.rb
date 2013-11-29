@@ -32,7 +32,7 @@ class Blocker
   class BlockerError < RuntimeError; end
 
 
-  PATH = "/tmp/cruise.lock"
+  PATH = '/tmp/cruise.lock'
 
 
   def self.start &code_block
@@ -40,7 +40,7 @@ class Blocker
       block
       code_block.call
     rescue BlockerError, Errno::EACCES
-      $stderr.puts "Another process is already running. Please wait for a while."
+      $stderr.puts 'Another process is already running. Please wait for a while.'
       sleep 10
       retry
     ensure
@@ -50,7 +50,7 @@ class Blocker
 
 
   def self.block
-    lock = File.open( PATH, "a+" )
+    lock = File.open( PATH, 'a+' )
     locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
     unless locked
       lock.close
@@ -60,7 +60,7 @@ class Blocker
 
 
   def self.release
-    File.open( PATH, "w" ) do | lock |
+    File.open( PATH, 'w' ) do | lock |
       lock.flock( File::LOCK_UN | File::LOCK_NB )
       lock.close
       File.delete lock.path

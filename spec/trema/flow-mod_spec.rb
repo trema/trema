@@ -16,44 +16,44 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
 module Trema
-  describe FlowMod, ".new", :nosudo => true do
-    it_should_behave_like "any Openflow message with default transaction ID"
+  describe FlowMod, '.new', :nosudo => true do
+    it_should_behave_like 'any Openflow message with default transaction ID'
   end
 
 
-  describe FlowMod, ".new(nil)", :nosudo => true do
+  describe FlowMod, '.new(nil)', :nosudo => true do
     subject { FlowMod.new( nil ) }
-    it_should_behave_like "any Openflow message with default transaction ID"
+    it_should_behave_like 'any Openflow message with default transaction ID'
   end
 
 
-  describe FlowMod, ".new(transaction_id)", :nosudo => true do
+  describe FlowMod, '.new(transaction_id)', :nosudo => true do
     subject { FlowMod.new( transaction_id ) }
-    it_should_behave_like "any Openflow message with transaction ID"
+    it_should_behave_like 'any Openflow message with transaction ID'
   end
 
 
-  describe FlowMod, ".new(:transaction_id => value)", :nosudo => true do
+  describe FlowMod, '.new(:transaction_id => value)', :nosudo => true do
     subject { FlowMod.new( :transaction_id => transaction_id ) }
-    it_should_behave_like "any Openflow message with transaction ID"
+    it_should_behave_like 'any Openflow message with transaction ID'
   end
 
 
-  describe FlowMod, ".new(:xid => value)", :nosudo => true do
+  describe FlowMod, '.new(:xid => value)', :nosudo => true do
     subject { FlowMod.new( :xid => xid ) }
-    it_should_behave_like "any Openflow message with xid"
+    it_should_behave_like 'any Openflow message with xid'
   end
 
 
-  describe FlowMod, ".new(:command => value)", :nosudo => true do
+  describe FlowMod, '.new(:command => value)', :nosudo => true do
     subject { FlowMod.new( :command => command ) }
 
-    context "command: 0", :nosudo => true do
+    context 'command: 0', :nosudo => true do
       let( :command ) { 0 }
       its( :command ) { should == 0 }
     end
@@ -62,10 +62,10 @@ module Trema
   end
 
 
-  describe FlowMod, ".new(:idle_timeout => value)", :nosudo => true do
+  describe FlowMod, '.new(:idle_timeout => value)', :nosudo => true do
     subject { FlowMod.new( :idle_timeout => idle_timeout ) }
 
-    context "idle_timeout: 0", :nosudo => true do
+    context 'idle_timeout: 0', :nosudo => true do
       let( :idle_timeout ) { 0 }
       its( :idle_timeout ) { should == 0 }
     end
@@ -74,10 +74,10 @@ module Trema
   end
 
 
-  describe FlowMod, ".new(:hard_timeout => value)", :nosudo => true do
+  describe FlowMod, '.new(:hard_timeout => value)', :nosudo => true do
     subject { FlowMod.new( :hard_timeout => hard_timeout ) }
 
-    context "hard_timeout: 0", :nosudo => true do
+    context 'hard_timeout: 0', :nosudo => true do
       let( :hard_timeout ) { 0 }
       its( :hard_timeout ) { should == 0 }
     end
@@ -87,7 +87,7 @@ module Trema
 
 
   describe FlowMod, '.new("INVALID OPTION")', :nosudo => true do
-    it { expect { FlowMod.new "INVALID OPTION" }.to raise_error( TypeError ) }
+    it { expect { FlowMod.new 'INVALID OPTION' }.to raise_error( TypeError ) }
   end
 end
 

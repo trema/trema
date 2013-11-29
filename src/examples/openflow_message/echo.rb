@@ -18,7 +18,7 @@
 #
 
 
-require  "example"
+require  'example'
 
 
 class EchoController < Controller
@@ -33,7 +33,7 @@ class EchoController < Controller
 
     def usage
       puts Example.cmd_usage
-      puts "Send count number of echo requests to datapath_id."
+      puts 'Send count number of echo requests to datapath_id.'
       exit false
     end
   end

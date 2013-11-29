@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), 'spec_helper' )
+require 'trema'
 
 
 describe Trema do

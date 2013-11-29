@@ -18,11 +18,11 @@
 #
 
 
-require "trema/dsl/configuration"
-require "trema/dsl/parser"
-require "trema/dsl/runner"
-require "trema/dsl/syntax"
-require "trema/path"
+require 'trema/dsl/configuration'
+require 'trema/dsl/parser'
+require 'trema/dsl/runner'
+require 'trema/dsl/syntax'
+require 'trema/path'
 
 
 ### Local variables:

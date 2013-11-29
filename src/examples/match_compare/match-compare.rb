@@ -45,7 +45,7 @@ class MatchCompare < Controller
   def add_rules
     dl_type_arp = 0x0806
     dl_type_ipv4 = 0x0800
-    network = "192.168.0.0/16"
+    network = '192.168.0.0/16'
 
     allow :dl_type => dl_type_arp
     allow :dl_type => dl_type_ipv4, :nw_src => network, :log => true

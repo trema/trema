@@ -16,8 +16,8 @@
 #
 
 
-require "trema/dsl/stanza"
-require "trema/dsl/syntax-error"
+require 'trema/dsl/stanza'
+require 'trema/dsl/syntax-error'
 
 
 module Trema
@@ -61,7 +61,7 @@ module Trema
 
       def route options
         if options[ :net ].nil? || options[ :gw ].nil?
-          raise ":net and :gw option is a mandatory"
+          raise ':net and :gw option is a mandatory'
         end
         @net = options[ :net ]
         @gw = options[ :gw ]

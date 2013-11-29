@@ -16,14 +16,14 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/packetin-filter"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema/packetin-filter'
 
 
 module Trema
   describe PacketinFilter do
-    it "should run packetin_filter with proper options" do
-      packetin_filter = PacketinFilter.new( :lldp => "TopologyManager", :packet_in => "OpenFlowPingPong" )
+    it 'should run packetin_filter with proper options' do
+      packetin_filter = PacketinFilter.new( :lldp => 'TopologyManager', :packet_in => 'OpenFlowPingPong' )
       packetin_filter.should_receive( :sh ).once.with( /packetin_filter \-\-daemonize \-\-name=filter lldp::TopologyManager packet_in::OpenFlowPingPong$/ )
 
       packetin_filter.run!

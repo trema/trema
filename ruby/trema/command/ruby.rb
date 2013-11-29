@@ -16,7 +16,7 @@
 #
 
 
-require "trema/util"
+require 'trema/util'
 
 
 module Trema
@@ -25,7 +25,7 @@ module Trema
 
 
     def trema_ruby
-      sh "x-www-browser http://rubydoc.info/github/trema/trema/master/frames"
+      sh 'x-www-browser http://rubydoc.info/github/trema/trema/master/frames'
     end
   end
 end

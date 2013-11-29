@@ -16,8 +16,8 @@
 #
 
 
-require "trema/monkey-patch/integer"
-require "trema/set-transport-port"
+require 'trema/monkey-patch/integer'
+require 'trema/set-transport-port'
 
 
 module Trema

@@ -18,8 +18,8 @@
 #
 
 
-require "trema/dsl/context"
-require "trema/dsl/syntax"
+require 'trema/dsl/context'
+require 'trema/dsl/syntax'
 
 
 module Trema

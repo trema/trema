@@ -16,7 +16,7 @@
 #
 
 
-require "trema/set-transport-port"
+require 'trema/set-transport-port'
 
 
 module Trema

@@ -16,42 +16,42 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe SetVlanPriority, ".new(vlan_priority)", :type => "actions" do
+describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
   subject { SetVlanPriority.new( vlan_priority ) }
 
-  context "with vlan_priority (4)" do
+  context 'with vlan_priority (4)' do
     let( :vlan_priority ) { 4 }
     its( :vlan_priority ) { should == 4 }
   end
 
-  it_validates "option is within range", :vlan_priority, 0..7
+  it_validates 'option is within range', :vlan_priority, 0..7
 
-  context %{with vlan_priority ("4")} do
-    let( :vlan_priority ) { "4" }
+  context 'with vlan_priority (4)' do
+    let( :vlan_priority ) { '4' }
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  context "with vlan_priority ([4])" do
+  context 'with vlan_priority ([4])' do
     let( :vlan_priority ) { [ 4 ] }
     it { expect { subject }.to raise_error( TypeError ) }
   end
 
-  context "when sending a Flow Mod with SetVlanVid" do
+  context 'when sending a Flow Mod with SetVlanVid' do
     let( :vlan_priority ) { 7 }
 
-    it "should insert a new flow with action (mod_vlan_pcp:7)" do
+    it 'should insert a new flow with action (mod_vlan_pcp:7)' do
       class TestController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+        controller( 'TestController' ).send_flow_mod_add( 0xabc, :actions => subject )
         sleep 2
-        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_vlan_pcp:7" )
+        expect( vswitch( '0xabc' ) ).to have( 1 ).flows
+        expect( vswitch( '0xabc' ).flows[ 0 ].actions ).to eq( 'mod_vlan_pcp:7' )
       }
     end
   end

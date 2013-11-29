@@ -16,7 +16,7 @@
 #
 
 
-require "trema/monkey-patch/string/inflectors"
+require 'trema/monkey-patch/string/inflectors'
 
 
 class String

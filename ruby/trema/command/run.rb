@@ -16,9 +16,9 @@
 #
 
 
-require "trema/default_openflow_channel_port"
-require "trema/dsl"
-require "trema/util"
+require 'trema/default_openflow_channel_port'
+require 'trema/dsl'
+require 'trema/util'
 
 
 module Trema
@@ -67,8 +67,8 @@ module Trema
 
       if @config_file
         config = dsl_parser.parse( @config_file )
-      elsif FileTest.exists?( "./trema.conf" )
-        config = dsl_parser.parse( "./trema.conf" )
+      elsif FileTest.exists?( './trema.conf' )
+        config = dsl_parser.parse( './trema.conf' )
       else
         config = Trema::DSL::Configuration.new
       end
@@ -78,7 +78,7 @@ module Trema
       if ARGV[ 0 ]
         controller_file = ARGV[ 0 ].split.first
         if ruby_controller?
-          require "trema"
+          require 'trema'
           Object.__send__ :include, Trema
           ARGV.replace ARGV[ 0 ].split[ 1..-1 ]
           $LOAD_PATH << File.dirname( controller_file )

@@ -16,8 +16,8 @@
 #
 
 
-require "trema/dsl/stanza"
-require "trema/dsl/syntax-error"
+require 'trema/dsl/stanza'
+require 'trema/dsl/syntax-error'
 
 
 module Trema
@@ -38,9 +38,9 @@ module Trema
       #
       def promisc on_off
         case on_off.to_s.downcase
-        when "on", "yes"
+        when 'on', 'yes'
           @promisc = true
-        when "off", "no"
+        when 'off', 'no'
           @promisc = false
         else
           raise SyntaxError, "Unknown option: promisc #{ on_off }"

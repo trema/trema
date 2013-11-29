@@ -16,53 +16,53 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join( File.dirname( __FILE__ ), '..', 'spec_helper' )
+require 'trema'
 
 
-describe Enqueue, ".new( :port_number => 1 )" do
+describe Enqueue, '.new( :port_number => 1 )' do
   it { expect { Enqueue.new( :port_number => 1 ) }.to raise_error( ArgumentError ) }
 end
 
 
-describe Enqueue, ".new( :queue_id => 1 )" do
+describe Enqueue, '.new( :queue_id => 1 )' do
   it { expect { Enqueue.new( :queue_id => 1 ) }.to raise_error( ArgumentError ) }
 end
 
 
-describe Enqueue, ".new( :port_number => number, :queue_id => 1 )" do
+describe Enqueue, '.new( :port_number => number, :queue_id => 1 )' do
   subject { Enqueue.new :port_number => port_number, :queue_id => 1 }
-  it_validates "option is within range", :port_number, 0..( 2 ** 16 - 1 )
+  it_validates 'option is within range', :port_number, 0..( 2 ** 16 - 1 )
 
-  context "when :port_number == 1" do
+  context 'when :port_number == 1' do
     let( :port_number ) { 1 }
     its( :port_number ) { should == 1 }
   end
 end
 
 
-describe Enqueue, ".new( :port_number => 1, :queue_id => number )" do
+describe Enqueue, '.new( :port_number => 1, :queue_id => number )' do
   subject { Enqueue.new :port_number => 1, :queue_id => queue_id }
-  it_validates "option is within range", :queue_id, 0..( 2 ** 32 - 1 )
+  it_validates 'option is within range', :queue_id, 0..( 2 ** 32 - 1 )
 
-  context "when :queue_id == 256" do
+  context 'when :queue_id == 256' do
     let( :queue_id ) { 256 }
     its( :queue_id ) { should == 256 }
   end
 end
 
 
-describe Enqueue, ".new( VALID OPTIONS )" do
-  context "when sending #flow_mod(add) with action set to enqueue" do
-    it "should have a flow with action set to enqueue" do
+describe Enqueue, '.new( VALID OPTIONS )' do
+  context 'when sending #flow_mod(add) with action set to enqueue' do
+    it 'should have a flow with action set to enqueue' do
       class FlowModAddController < Controller; end
       network {
         vswitch { datapath_id 0xabc }
       }.run( FlowModAddController ) {
-        controller( "FlowModAddController" ).send_flow_mod_add( 0xabc, :actions => Enqueue.new( :port_number => 1, :queue_id => 123 ) )
+        controller( 'FlowModAddController' ).send_flow_mod_add( 0xabc, :actions => Enqueue.new( :port_number => 1, :queue_id => 123 ) )
         sleep 2 # FIXME: wait to send_flow_mod
-        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        expect( vswitch( "0xabc" ).flows[0].actions ).to match( /enqueue:1q123/ )
+        expect( vswitch( '0xabc' ) ).to have( 1 ).flows
+        expect( vswitch( '0xabc' ).flows[0].actions ).to match( /enqueue:1q123/ )
       }
     end
   end

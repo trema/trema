@@ -16,8 +16,8 @@
 #
 
 
-require "trema/cli"
-require "trema/util"
+require 'trema/cli'
+require 'trema/util'
 
 
 module Trema
