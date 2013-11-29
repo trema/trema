@@ -31,6 +31,25 @@ Feature: run command
      """
 
   @slow_process
+  Scenario: The --port option can override the default openflow channel port
+    When I run `which trema`
+    When I run `trema -v run ../../objects/examples/learning_switch/learning_switch -c network.conf --port 6633 -d`
+     And wait until "learning_switch" is up
+    Then the output should contain:
+     """
+     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
+     """
+
+  @slow_process
+  Scenario: The -p option can override the default openflow channel port
+    When I run `trema -v run ../../objects/examples/learning_switch/learning_switch -c network.conf -p 6633 -d`
+     And wait until "learning_switch" is up
+    Then the output should contain:
+     """
+     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
+     """
+
+  @slow_process
   Scenario: switch_manager is killed when trema session is closed
     When I run `trema -v run /bin/true -c network.conf`
     Then the output should contain "Shutting down switch_manager..."
