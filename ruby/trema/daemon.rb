@@ -76,7 +76,7 @@ module Trema
       if command_block
         sh command_block.call( self )
       else
-        sh self.__send__( :command )
+        sh __send__( :command )
       end
       wait_until_up
     end
@@ -159,7 +159,7 @@ module Trema
       m = self.class.class_eval do
         class_variable_get( :@@daemon_id ) || :name
       end
-      self.__send__ m
+      __send__ m
     end
 
 

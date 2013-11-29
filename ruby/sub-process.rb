@@ -164,7 +164,7 @@ module SubProcess
 
   class Shell
     def self.open debug_options = {}, &block
-      block.call self.new( debug_options )
+      block.call new( debug_options )
     end
 
 

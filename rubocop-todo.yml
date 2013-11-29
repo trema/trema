@@ -140,9 +140,6 @@ RedundantException:
 RedundantReturn:
   Enabled: false
 
-RedundantSelf:
-  Enabled: false
-
 RegexpLiteral:
   Enabled: false
 

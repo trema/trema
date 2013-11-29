@@ -32,7 +32,7 @@ module Trema
     #   as attributes.
     #
     def self.parse line
-      flow = self.new
+      flow = new
       # to simplify parsing
       line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/, '/') }
       line.strip.split( /[,\s]\s*/ ).each do | each |

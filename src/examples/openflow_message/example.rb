@@ -47,7 +47,7 @@ module Example
 
   def send_nr_msgs kclass
     Example::count.times do
-      self.send_message Example::datapath_id, kclass.new
+      send_message Example::datapath_id, kclass.new
     end
   end
 end
