@@ -534,7 +534,7 @@ end
 
 
 def cbench_latency_mode_options
-  "--switches 1 --loops 10 --delay 1000"
+  "--port 6653 --switches 1 --loops 10 --delay 1000"
 end
 
 
