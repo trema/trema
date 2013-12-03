@@ -31,6 +31,7 @@
 #include "checks.h"
 #include "cmockery_trema.h"
 #include "doubly_linked_list.h"
+#include "external_callback.h"
 #include "hash_table.h"
 #include "event_handler.h"
 #include "messenger.h"
@@ -162,6 +163,27 @@ static uint32_t last_transaction_id;
 /********************************************************************************
  * Mocks.
  ********************************************************************************/
+
+void
+mock_init_external_callback() {
+}
+
+
+void
+mock_finalize_external_callback() {
+}
+
+
+void
+mock_push_external_callback( external_callback_t callback ) {
+  check_expected( callback );
+}
+
+
+void
+mock_run_external_callback() {
+}
+
 
 void
 mock_execute_timer_events( int *next_timeout_usec ) {

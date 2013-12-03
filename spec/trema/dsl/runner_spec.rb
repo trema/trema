@@ -38,7 +38,7 @@ module Trema
 
           context = mock(
             "context",
-            :port => 6633,
+            :port => 6653,
             :tremashark => nil,
             :switch_manager => nil,
             :packetin_filter => nil,

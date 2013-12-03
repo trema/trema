@@ -32,7 +32,7 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
   buffer *flow_mod = create_flow_mod(
     get_transaction_id(),
     match,
-    get_cookie(),
+    0,
     OFPFC_ADD,
     0,
     0,

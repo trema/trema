@@ -23,11 +23,30 @@ Feature: run command
      And wait until "learning_switch" is up
     Then the output should contain:
      """
-     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
+     switch_manager --daemonize --port=6653 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
      """
      And the output should contain:
      """
      learning_switch --name learning_switch -d
+     """
+
+  @slow_process
+  Scenario: The --port option can override the default openflow channel port
+    When I run `which trema`
+    When I run `trema -v run ../../objects/examples/learning_switch/learning_switch -c network.conf --port 6633 -d`
+     And wait until "learning_switch" is up
+    Then the output should contain:
+     """
+     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
+     """
+
+  @slow_process
+  Scenario: The -p option can override the default openflow channel port
+    When I run `trema -v run ../../objects/examples/learning_switch/learning_switch -c network.conf -p 6633 -d`
+     And wait until "learning_switch" is up
+    Then the output should contain:
+     """
+     switch_manager --daemonize --port=6633 -- port_status::learning_switch packet_in::learning_switch state_notify::learning_switch vendor::learning_switch
      """
 
   @slow_process

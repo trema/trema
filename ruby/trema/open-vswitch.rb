@@ -16,6 +16,7 @@
 #
 
 
+require "trema/default_openflow_channel_port"
 require "trema/daemon"
 require "trema/executables"
 require "trema/hardware-switch"
@@ -31,9 +32,6 @@ module Trema
     include Trema::Daemon
 
 
-    DEFAULT_PORT = 6633
-
-
     log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
     command { | vswitch | vswitch.__send__ :command }
 
@@ -46,7 +44,7 @@ module Trema
     #
     # @return [OpenVswitch]
     #
-    def initialize stanza, port = DEFAULT_PORT
+    def initialize stanza, port = DEFAULT_OPENFLOW_CHANNEL_PORT
       super stanza
       @port = port
       @interfaces = []

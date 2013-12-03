@@ -1819,11 +1819,34 @@ validate_features_request( const buffer *message ) {
 
 static int
 validate_phy_port_no( const uint16_t port_no ) {
-  if ( ( port_no == 0 ) || ( ( port_no > OFPP_MAX ) && ( port_no < OFPP_IN_PORT ) ) ) {
+  if ( port_no == OFPP_LOCAL ) {
+    return 0;
+  }
+  if ( ( port_no == 0 ) || ( port_no > OFPP_MAX ) ) {
     return ERROR_INVALID_PORT_NO;
   }
 
   return 0;
+}
+
+
+static int
+validate_in_port_no( const uint16_t port_no ) {
+  if ( ( port_no == OFPP_CONTROLLER ) || ( port_no == OFPP_NONE ) ) {
+     return 0;
+  }
+
+  return validate_phy_port_no( port_no );
+}
+
+
+static int
+validate_out_port_no( const uint16_t port_no ) {
+  if ( port_no >= OFPP_IN_PORT ) {
+    return 0;
+  }
+
+  return validate_phy_port_no( port_no );
 }
 
 
@@ -1990,7 +2013,7 @@ validate_packet_in( const buffer *message ) {
   // packet_in->total_len
   // packet_in->in_port
 
-  ret = validate_phy_port_no( ntohs( packet_in->in_port ) );
+  ret = validate_in_port_no( ntohs( packet_in->in_port ) );
   if ( ret < 0 ) {
     return ret;
   }
@@ -2162,7 +2185,7 @@ validate_packet_out( const buffer *message ) {
 
   packet_out = ( struct ofp_packet_out * ) message->data;
 
-  ret = validate_phy_port_no( ntohs( packet_out->in_port ) );
+  ret = validate_in_port_no( ntohs( packet_out->in_port ) );
   if ( ret < 0 ) {
     return ret;
   }
@@ -2227,11 +2250,9 @@ validate_flow_mod( const buffer *message ) {
 
   if ( ( ntohs( flow_mod->command ) == OFPFC_DELETE )
        || ( ntohs( flow_mod->command ) == OFPFC_DELETE_STRICT ) ) {
-    if ( ntohs( flow_mod->out_port ) != OFPP_NONE ) {
-      ret = validate_phy_port_no( ntohs( flow_mod->out_port ) );
-      if ( ret < 0 ) {
-        return ret;
-      }
+    ret = validate_out_port_no( ntohs( flow_mod->out_port ) );
+    if ( ret < 0 ) {
+      return ret;
     }
   }
 
@@ -2357,7 +2378,7 @@ validate_flow_stats_request( const buffer *message ) {
 
   // flow_stats_request->table_id
 
-  ret = validate_phy_port_no( ntohs( flow_stats_request->out_port ) );
+  ret = validate_out_port_no( ntohs( flow_stats_request->out_port ) );
   if ( ret < 0 ) {
     return ret;
   }
@@ -2403,7 +2424,7 @@ validate_aggregate_stats_request( const buffer *message ) {
 
   // aggregate_stats_request->table_id
 
-  ret = validate_phy_port_no( ntohs( aggregate_stats_request->out_port ) );
+  ret = validate_out_port_no( ntohs( aggregate_stats_request->out_port ) );
   if ( ret < 0 ) {
     return ret;
   }
@@ -3217,7 +3238,7 @@ validate_action_output( const struct ofp_action_output *action ) {
     return ERROR_TOO_LONG_ACTION_OUTPUT;
   }
 
-  ret = validate_phy_port_no( output.port );
+  ret = validate_out_port_no( output.port );
   if ( ret < 0 ) {
     return ret;
   }

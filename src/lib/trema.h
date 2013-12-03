@@ -30,6 +30,7 @@
 #include "etherip.h"
 #include "event_forward_interface.h"
 #include "event_handler.h"
+#include "external_callback.h"
 #include "hash_table.h"
 #include "linked_list.h"
 #include "log.h"

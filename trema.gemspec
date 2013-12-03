@@ -28,7 +28,7 @@ Gem::Specification.new do | gem |
   gem.add_dependency "bundler"
   gem.add_dependency "gli", "~> 2.8.1"
   gem.add_dependency "paper_house", "~> 0.5.0"
-  gem.add_dependency "pio", "~> 0.2.6"
+  gem.add_dependency "pio", "~> 0.3.0"
   gem.add_dependency "rake", "~> 10.1.0"
   gem.add_dependency "rdoc", "~> 4.0.1"
 end

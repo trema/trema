@@ -1,7 +1,7 @@
 /*
- * Trema event handler library.
+ * External callback implementation
  *
- * Copyright (C) 2011 axsh Ltd.
+ * Copyright (C) 2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -18,35 +18,24 @@
  */
 
 
-#ifndef EVENT_HANDLER_H
-#define EVENT_HANDLER_H
+#ifndef EXTERNAL_CALLBACK_H
+#define EXTERNAL_CALLBACK_H
 
 
 #include <sys/types.h>
 #include "bool.h"
 
+typedef void ( *external_callback_t )( void );
 
-typedef void ( *event_fd_callback )( int, void *data );
+extern void ( *init_external_callback )( void );
+extern void ( *finalize_external_callback )( void );
+extern bool ( *push_external_callback )( external_callback_t callback );
+extern void ( *run_external_callback )( void );
 
-extern void ( *init_event_handler )();
-extern void ( *finalize_event_handler )();
-
-extern bool ( *start_event_handler )();
-extern void ( *stop_event_handler )();
-
-extern bool ( *run_event_handler_once )( int timeout_usec );
-
-extern void ( *set_fd_handler )( int fd, event_fd_callback read_callback, void *read_data, event_fd_callback write_callback, void *write_data );
-extern void ( *delete_fd_handler )( int fd );
-
-extern void ( *set_readable )( int fd, bool state );
-extern void ( *set_writable )( int fd, bool state );
-
-extern bool ( *readable )( int fd );
-extern bool ( *writable )( int fd );
+#define set_external_callback( callback ) push_external_callback( callback )
 
 
-#endif // EVENT_HANDLER_H
+#endif // EXTERNAL_CALLBACK_H
 
 
 /*

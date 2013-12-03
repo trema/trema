@@ -526,6 +526,8 @@ confirm_self_dpid_is_registered( const list_element *switches, void *user_data )
   if ( found ) {
     sw_info->state = SWITCH_STATE_COMPLETED;
 
+    finalize_openflow_application_interface();
+
     // notify state and datapath_id to controllers
     service_send_state( sw_info, &sw_info->datapath_id, MESSENGER_OPENFLOW_READY );
     debug( "send ready state" );
@@ -540,31 +542,31 @@ confirm_self_dpid_is_registered( const list_element *switches, void *user_data )
 
 
 static void
-stop_switch( struct switch_info *sw_info ) {
-  if ( sw_info->secure_channel_fd >= 0 ) {
-    close( sw_info->secure_channel_fd );
-    sw_info->secure_channel_fd = -1;
+stop_switch() {
+  if ( switch_info.secure_channel_fd >= 0 ) {
+    close( switch_info.secure_channel_fd );
+    switch_info.secure_channel_fd = -1;
   }
   uint8_t state = MESSENGER_OPENFLOW_DISCONNECTED;
-  if ( sw_info->state == SWITCH_STATE_CONNECTION_FAILED ) {
+  if ( switch_info.state == SWITCH_STATE_CONNECTION_FAILED ) {
     state = MESSENGER_OPENFLOW_FAILD_TO_CONNECT;
   }
-  service_send_state( sw_info, &sw_info->datapath_id, state );
+  service_send_state( &switch_info, &switch_info.datapath_id, state );
   flush_messenger();
 
   // free service name list
-  iterate_list( sw_info->vendor_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->vendor_service_name_list );
-  sw_info->vendor_service_name_list = NULL;
-  iterate_list( sw_info->packetin_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->packetin_service_name_list );
-  sw_info->packetin_service_name_list = NULL;
-  iterate_list( sw_info->portstatus_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->portstatus_service_name_list );
-  sw_info->portstatus_service_name_list = NULL;
-  iterate_list( sw_info->state_service_name_list, xfree_data, NULL );
-  delete_list( sw_info->state_service_name_list );
-  sw_info->state_service_name_list = NULL;
+  iterate_list( switch_info.vendor_service_name_list, xfree_data, NULL );
+  delete_list( switch_info.vendor_service_name_list );
+  switch_info.vendor_service_name_list = NULL;
+  iterate_list( switch_info.packetin_service_name_list, xfree_data, NULL );
+  delete_list( switch_info.packetin_service_name_list );
+  switch_info.packetin_service_name_list = NULL;
+  iterate_list( switch_info.portstatus_service_name_list, xfree_data, NULL );
+  delete_list( switch_info.portstatus_service_name_list );
+  switch_info.portstatus_service_name_list = NULL;
+  iterate_list( switch_info.state_service_name_list, xfree_data, NULL );
+  delete_list( switch_info.state_service_name_list );
+  switch_info.state_service_name_list = NULL;
 
   stop_trema();
 }
@@ -578,7 +580,7 @@ unregistration_timeout( void *user_data ) {
 
   warn( "Unregistration timeout ( datapath id %#" PRIx64 " ).", sw_info->datapath_id );
 
-  stop_switch( sw_info );
+  stop_switch();
 }
 
 
@@ -649,7 +651,7 @@ switch_event_disconnected( struct switch_info *sw_info ) {
   }
   else {
     error( "Failed to send switch list request to switch manager." );
-    stop_switch( sw_info );
+    stop_switch();
   }
 
   return 0;
@@ -661,7 +663,7 @@ unregistration_retry( void *user_data ) {
   struct switch_info *sw_info = user_data;
 
   if ( sw_info->retry_count == 0 ) {
-    stop_switch( sw_info );
+    stop_switch();
     return;
   }
   sw_info->retry_count--;
@@ -673,7 +675,7 @@ unregistration_retry( void *user_data ) {
   }
   else {
     error( "Failed to send switch list request to switch manager." );
-    stop_switch( sw_info );
+    stop_switch();
   }
 }
 
@@ -700,7 +702,8 @@ confirm_self_dpid_is_unregistered( const list_element *switches, void *user_data
   }
   else {
     // The switch has been deleted from the switch list
-    stop_switch( sw_info );
+    finalize_openflow_application_interface();
+    push_external_callback( stop_switch );
   }
 }
 
@@ -881,9 +884,7 @@ static void
 handle_sigterm( int signum ) {
   UNUSED( signum );
 
-  if ( !set_external_callback( stop_switch_daemon ) ) {
-    stop_trema();
-  }
+  push_external_callback( stop_switch_daemon );
 }
 
 

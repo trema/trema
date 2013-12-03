@@ -36,6 +36,9 @@
 #include "event_forward_entry_manipulation.h"
 
 
+#define DEFAULT_TCP_PORT 6653
+
+
 #ifdef UNIT_TESTING
 #define static
 
@@ -133,11 +136,11 @@ void mock_start_trema( void );
 #define get_executable_name mock_get_executable_name
 const char *mock_get_executable_name( void );
 
-#ifdef set_external_callback
-#undef set_external_callback
+#ifdef push_external_callback
+#undef push_external_callback
 #endif
-#define set_external_callback mock_set_external_callback
-void mock_set_external_callback( void ( *callback )( void ) );
+#define push_external_callback mock_push_external_callback
+void mock_push_external_callback( void ( *callback )( void ) );
 
 #endif // UNIT_TESTING
 
@@ -168,7 +171,7 @@ usage() {
     "  -g, --syslog                    output log messages to syslog\n"
     "  -f, --logging_facility=FACILITY set syslog facility\n"
     "  -h, --help                      display this help and exit\n"
-    , get_executable_name(), OFP_TCP_PORT
+    , get_executable_name(), DEFAULT_TCP_PORT
   );
 }
 
@@ -203,8 +206,8 @@ handle_sigchld( int signum ) {
   UNUSED( signum );
 
   // because wait_child() is not signal safe, we call it later.
-  if ( set_external_callback != NULL ) {
-    set_external_callback( wait_child );
+  if ( push_external_callback != NULL ) {
+    push_external_callback( wait_child );
   }
 }
 
@@ -254,7 +257,7 @@ static void
 init_listener_info( struct listener_info *listener_info ) {
   memset( listener_info, 0, sizeof( struct listener_info ) );
   listener_info->switch_daemon = xconcatenate_path( get_trema_home(), SWITCH_MANAGER_PATH );
-  listener_info->listen_port = OFP_TCP_PORT;
+  listener_info->listen_port = DEFAULT_TCP_PORT;
   listener_info->listen_fd = -1;
   create_list( &listener_info->vendor_service_name_list );
   create_list( &listener_info->packetin_service_name_list );
@@ -555,7 +558,20 @@ start_switch_management( void ) {
 
 static void
 stop_switch_management( void ) {
-  // do something here.
+  if ( listener_info.listen_fd > -1 ) {
+    set_readable( listener_info.listen_fd, false );
+    delete_fd_handler( listener_info.listen_fd );
+    listener_info.listen_fd = -1;
+  }
+  stop_trema();
+}
+
+
+static void
+handle_sigterm( int signum ) {
+  UNUSED( signum );
+
+  push_external_callback( stop_switch_management );
 }
 
 
@@ -591,6 +607,12 @@ main( int argc, char *argv[] ) {
   // free returned buffer of get_current_dir_name()
   free( startup_dir );
 
+  struct sigaction signal_exit;
+  memset( &signal_exit, 0, sizeof( struct sigaction ) );
+  signal_exit.sa_handler = handle_sigterm;
+  sigaction( SIGINT, &signal_exit, NULL );
+  sigaction( SIGTERM, &signal_exit, NULL );
+
   catch_sigchild();
 
   // listener start (listen socket binding and listen)
@@ -606,7 +628,6 @@ main( int argc, char *argv[] ) {
   start_trema();
 
   finalize_listener_info( &listener_info );
-  stop_switch_management();
   stop_service_management();
   finalize_dpid_table();
 

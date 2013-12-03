@@ -142,7 +142,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
     its( :tx_packets ) { should == 10 }
     its( :rx_bytes ) { should == 1454 }
     its( :tx_bytes ) { should == 2314 }
-    its ( :rx_dropped ) { should == 1 }
+    its( :rx_dropped ) { should == 1 }
     its( :tx_dropped ) { should == 1 }
     its( :rx_errors ) { should == 1 }
     its( :tx_errors ) { should == 1 }
@@ -178,6 +178,7 @@ describe StatsReply, ".new( VALID OPTIONS )" do
 
     it { should respond_to( :to_s ) }
     its( :vendor_id ) { should == 123 }
+    its( :data ) { should be_nil }
   end
 
 

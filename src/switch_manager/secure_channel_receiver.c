@@ -53,7 +53,12 @@ recv_from_secure_channel( struct switch_info *sw_info ) {
     if ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) {
       return 0;
     }
-    error( "Receive error:%s(%d)", strerror( errno ), errno );
+    if ( errno == ECONNRESET ) {
+      debug( "Connection reset by peer." );
+    }
+    else {
+      error( "Receive error: %s(%d)", strerror( errno ), errno );
+    }
     return -1;
   }
   if ( recv_length == 0 ) {

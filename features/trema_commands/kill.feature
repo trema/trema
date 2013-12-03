@@ -24,22 +24,26 @@ Feature: kill command
   @slow_process
   Scenario: kill a switch
     When I run `trema kill 0x1`
+     And *** sleep 1 ***
     Then the vswitch "0x1" is terminated
 
   @slow_process
   Scenario: kill a host
     When I run `trema kill host1`
+     And *** sleep 1 ***
     Then the vhost "host1" is terminated
 
   @slow_process
   Scenario: kill hosts
     When I run `trema kill host1 host2`
+     And *** sleep 1 ***
     Then the vhost "host1" is terminated
      And the vhost "host2" is terminated
 
   @slow_process
   Scenario: kill a controller
     When I run `trema kill SwitchMonitor`
+     And *** sleep 1 ***
     Then the controller "SwitchMonitor" is terminated
 
   Scenario: no argument

@@ -534,7 +534,7 @@ end
 
 
 def cbench_latency_mode_options
-  "--switches 1 --loops 10 --delay 1000"
+  "--port 6653 --switches 1 --loops 10 --delay 1000"
 end
 
 
@@ -784,6 +784,7 @@ def libtrema_unit_tests
     :byteorder_test => [ :log, :utility, :wrapper, :trema_wrapper ],
     :daemon_test => [ :log, :utility, :wrapper, :trema_wrapper ],
     :ether_test => [ :buffer, :log, :utility, :wrapper, :trema_wrapper ],
+    :external_callback_test => [],
     :messenger_test => [ :doubly_linked_list, :hash_table, :event_handler, :linked_list, :utility, :wrapper, :timer, :log, :trema_wrapper ],
     :openflow_application_interface_test => [ :buffer, :byteorder, :hash_table, :doubly_linked_list, :linked_list, :log, :openflow_message, :packet_info, :stat, :trema_wrapper, :utility, :wrapper ],
     :openflow_message_test => [ :buffer, :byteorder, :linked_list, :log, :packet_info, :utility, :wrapper, :trema_wrapper ],

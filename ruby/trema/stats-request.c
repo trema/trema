@@ -17,6 +17,7 @@
 
 
 #include "trema.h"
+#include "trema-ruby-utils.h"
 #include "ruby.h"
 
 
@@ -259,6 +260,18 @@ stats_queue_id( VALUE self ) {
 static VALUE
 stats_vendor_id( VALUE self ) {
   return rb_iv_get( self, "@vendor_id" );
+}
+
+
+/*
+ * Vendor specific data payload.
+ *
+ * @return [Array] an array of data payload bytes.
+ * @return [nil] vendor specific data not found.
+ */
+static VALUE
+stats_vendor_data( VALUE self ) {
+  return rb_iv_get( self, "@data" );
 }
 
 
@@ -575,7 +588,10 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *
  *   @example
  *     VendorStatsRequest.new
- *     VendorStatsRequest.new( :vendor_id => 123 )
+ *     VendorStatsRequest.new(
+ *       :vendor_id => 123,
+ *       :data => "deadbeef".unpack( "C*" )
+ *     )
  *
  *   @param [Hash] options
  *     the options to create a message with.
@@ -583,6 +599,9 @@ queue_stats_request_init( int argc, VALUE *argv, VALUE self ) {
  *   @option options [Number] :vendor_id
  *     request statistics for a specific vendor_id, otherwise set vendor_id
  *     to a default value of 0x00004cff.
+ *
+ *   @option options [Array] :data
+ *     a String that holds vendor's defined arbitrary length data.
  *
  *   @return [VendorStatsRequest]
  *     an object that encapsulates the +OFPT_STATS_REQUEST(OFPST_VENDOR)+ OpenFlow
@@ -610,6 +629,19 @@ vendor_stats_request_init( int argc, VALUE *argv, VALUE self ) {
   uint32_t *vendor;
   vendor = ( uint32_t * ) stats_request->body;
   *vendor = htonl( get_stats_request_num2uint( self, "@vendor_id" ) );
+
+  VALUE ary = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
+  message->length = offsetof( struct ofp_stats_request, body ) + sizeof( uint32_t );
+  if ( ary != Qnil ) {
+    rb_iv_set( self, "@data", ary );
+    Check_Type( ary, T_ARRAY );
+    uint16_t ary_len = ( uint16_t ) RARRAY_LEN( ary );
+    uint8_t *data = append_back_buffer( message, ary_len );
+    for ( int i = 0; i < ary_len; i++ ) {
+      data[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( ary )[ i ] );
+    }
+  }
+  set_length( message, ( uint16_t ) message->length );
   return self;
 }
 
@@ -671,6 +703,7 @@ Init_stats_request() {
   rb_define_alloc_func( cVendorStatsRequest, vendor_stats_request_alloc );
   rb_define_method( cVendorStatsRequest, "initialize", vendor_stats_request_init, -1 );
   rb_define_method( cVendorStatsRequest, "vendor_id", stats_vendor_id, 0 );
+  rb_define_method( cVendorStatsRequest, "data", stats_vendor_data, 0 );
 }
 
 

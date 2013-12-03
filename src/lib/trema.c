@@ -238,11 +238,11 @@ bool mock_init_timer();
 #define finalize_timer mock_finalize_timer
 bool mock_finalize_timer();
 
-#ifdef set_external_callback
-#undef set_external_callback
+#ifdef push_external_callback
+#undef push_external_callback
 #endif
-#define set_external_callback mock_set_external_callback
-bool mock_set_external_callback( void ( *callback )( void ) );
+#define push_external_callback mock_push_external_callback
+bool mock_push_external_callback( void ( *callback )( void ) );
 
 #ifdef dump_stats
 #undef dump_stats
@@ -507,11 +507,17 @@ ignore_sigpipe() {
 
 
 static void
+set_do_stop_trema_as_external_callback() {
+  push_external_callback( stop_trema );
+}
+
+
+static void
 set_exit_handler() {
   struct sigaction signal_exit;
 
   memset( &signal_exit, 0, sizeof( struct sigaction ) );
-  signal_exit.sa_handler = ( void * ) stop_trema;
+  signal_exit.sa_handler = ( void * ) set_do_stop_trema_as_external_callback;
   sigaction( SIGINT, &signal_exit, NULL );
   sigaction( SIGTERM, &signal_exit, NULL );
 }
@@ -525,7 +531,7 @@ do_restart_log() {
 
 static void
 set_do_restart_log_as_external_callback() {
-  set_external_callback( do_restart_log );
+  push_external_callback( do_restart_log );
 }
 
 
@@ -541,7 +547,7 @@ set_hup_handler() {
 
 static void
 set_dump_stats_as_external_callback() {
-  set_external_callback( dump_stats );
+  push_external_callback( dump_stats );
 }
 
 

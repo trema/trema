@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
-  VERSION = "0.4.6"
+  DEFAULT_OPENFLOW_CHANNEL_PORT = 6653
 end
-
 
 ### Local variables:
 ### mode: Ruby

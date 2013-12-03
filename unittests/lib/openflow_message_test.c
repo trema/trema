@@ -3505,7 +3505,7 @@ test_validate_stats_reply_fails_with_unsupported_stats_type() {
 
 static void
 test_validate_queue_stats_request() {
-  buffer *port_stats_request = create_queue_stats_request( MY_TRANSACTION_ID, NO_FLAGS, OFPP_ALL, OFPQ_ALL );
+  buffer *port_stats_request = create_queue_stats_request( MY_TRANSACTION_ID, NO_FLAGS, 1, OFPQ_ALL );
 
   assert_int_equal( validate_queue_stats_request( port_stats_request ), 0 );
 

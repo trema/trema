@@ -16,6 +16,7 @@
 #
 
 
+require "trema/default_openflow_channel_port"
 require "trema/app"
 require "trema/host"
 require "trema/link"
@@ -97,7 +98,7 @@ module Trema
       # @return [Configuration]
       #
       def initialize
-        @port = 6633
+        @port = DEFAULT_OPENFLOW_CHANNEL_PORT
         @apps = Trema::App.clear
         @hosts = Trema::Host.clear
         @links = Trema::Link.clear

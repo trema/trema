@@ -41,7 +41,7 @@ describe Trema::Shell, ".vswitch" do
 
   context "executed within a shell" do
     before {
-      $config = mock( "config", :port => 6633 )
+      $config = mock( "config", :port => 6653 )
       $context = mock( "context", :dump => true )
     }
     after { Trema::OpenflowSwitch[ "0xabc" ].shutdown! if Trema::OpenflowSwitch[ "0xabc" ] }

@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include "checks.h"
 #include "event_handler.h"
+#include "external_callback.h"
 #include "log.h"
 #include "timer.h"
 
@@ -61,6 +62,30 @@ extern bool mock_add_periodic_event_callback( const time_t seconds, void ( *call
 #define execute_timer_events mock_execute_timer_events
 extern void mock_execute_timer_events( int *next_timeout_usec );
 
+#ifdef init_external_callback
+#undef init_external_callback
+#endif
+#define init_external_callback mock_init_external_callback
+extern void mock_init_external_callback( void );
+
+#ifdef finalize_external_callback
+#undef finalize_external_callback
+#endif
+#define finalize_external_callback mock_finalize_external_callback
+extern void mock_finalize_external_callback( void );
+
+#ifdef push_external_callback
+#undef push_external_callback
+#endif
+#define push_external_callback mock_push_external_callback
+extern void mock_push_external_callback( external_callback_t callback );
+
+#ifdef run_external_callback
+#undef run_external_callback
+#endif
+#define run_external_callback mock_run_external_callback
+extern void mock_run_external_callback( void );
+
 #endif // UNIT_TESTING
 
 
@@ -94,19 +119,19 @@ fd_set current_write_set;
 
 int fd_set_size = 0;
 
-external_callback_t external_callback = ( external_callback_t ) NULL;
-
-
 static void
 _init_event_handler() {
   event_last = event_list;
-  event_handler_state = EVENT_HANDLER_INITIALIZED;
 
   memset( event_list, 0, sizeof( event_fd ) * FD_SETSIZE );
   memset( event_fd_set, 0, sizeof( event_fd * ) * FD_SETSIZE );
 
   FD_ZERO( &event_read_set );
   FD_ZERO( &event_write_set );
+
+  init_external_callback();
+
+  event_handler_state = EVENT_HANDLER_INITIALIZED;
 }
 void ( *init_event_handler )() = _init_event_handler;
 
@@ -120,18 +145,15 @@ _finalize_event_handler() {
   }
 
   event_handler_state = EVENT_HANDLER_FINALIZED;
+
+  finalize_external_callback();
 }
 void ( *finalize_event_handler )() = _finalize_event_handler;
 
 
 static bool
 _run_event_handler_once( int timeout_usec ) {
-  if ( external_callback != NULL ) {
-    external_callback_t callback = external_callback;
-    external_callback = NULL;
-
-    callback();
-  }
+  run_external_callback();
 
   memcpy( &current_read_set, &event_read_set, sizeof( fd_set ) );
   memcpy( &current_write_set, &event_write_set, sizeof( fd_set ) );
@@ -143,6 +165,7 @@ _run_event_handler_once( int timeout_usec ) {
 
   if ( set_count == -1 ) {
     if ( errno == EINTR ) {
+      run_external_callback();
       return true;
     }
     error( "Failed to select ( errno = %s [%d] ).", strerror( errno ), errno );
@@ -151,17 +174,36 @@ _run_event_handler_once( int timeout_usec ) {
   }
   else if ( set_count == 0 ) {
     // timed out
+    run_external_callback();
     return true;
   }
 
-  event_fd *event_itr = event_list;
+  run_external_callback();
 
+  event_fd *event_itr = event_list;
   while ( event_itr < event_last ) {
     event_fd current_event = *event_itr;
 
     if ( FD_ISSET( current_event.fd, &current_write_set ) ) {
       current_event.write_callback( current_event.fd, current_event.write_data );
     }
+
+    // In the rare cases the current fd is closed, a new one is opened
+    // with the same fd and is put in the same location we can just
+    // wait for the next select call.
+    if ( current_event.fd == event_itr->fd ) {
+      event_itr = event_itr + 1;
+    }
+    else {
+      debug( "run_event_handler_once: event fd is changed ( current = %d, new = %d )", current_event.fd, event_itr->fd );
+    }
+  }
+
+  run_external_callback();
+
+  event_itr = event_list;
+  while ( event_itr < event_last ) {
+    event_fd current_event = *event_itr;
 
     if ( FD_ISSET( current_event.fd, &current_read_set ) ) {
       current_event.read_callback( current_event.fd, current_event.read_data );
@@ -177,6 +219,8 @@ _run_event_handler_once( int timeout_usec ) {
       debug( "run_event_handler_once: event fd is changed ( current = %d, new = %d )", current_event.fd, event_itr->fd );
     }
   }
+
+  run_external_callback();
 
   return true;
 }
@@ -365,18 +409,6 @@ _writable( int fd ) {
   return FD_ISSET( fd, &event_write_set );
 }
 bool ( *writable )( int fd ) = _writable;
-
-
-static bool
-_set_external_callback( external_callback_t callback ) {
-  if ( external_callback != NULL ) {
-    return false;
-  }
-
-  external_callback = callback;
-  return true;
-}
-bool ( *set_external_callback )( external_callback_t callback ) = _set_external_callback;
 
 
 /*
