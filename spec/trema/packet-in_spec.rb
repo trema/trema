@@ -45,33 +45,33 @@ describe Trema::PacketIn do
 
   context 'when instance is created' do
     it 'should have valid datapath_id and in_port' do
-      network {
+      network do
         vswitch('test') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'test', 'host1'
         link 'test', 'host2'
-      }.run(PacketInController) {
+      end.run(PacketInController) do
         controller('PacketInController').should_receive(:packet_in) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.datapath_id).to eq(0xabc)
           expect(message.in_port).to be > 0
         end
         send_and_wait
-      }
+      end
     end
 
 
     it 'should have vaild user data' do
-      network {
+      network do
         vswitch('test') { datapath_id 0xabc }
-        vhost('host1') { mac '00:00:00:00:00:01'
-                           ip '192.168.1.1' }
-        vhost('host2') { mac '00:00:00:00:00:02'
-                           ip '192.168.1.2' }
+        vhost('host1') do mac '00:00:00:00:00:01'
+                           ip '192.168.1.1' end
+        vhost('host2') do mac '00:00:00:00:00:02'
+                           ip '192.168.1.2' end
         link 'test', 'host1'
         link 'test', 'host2'
-      }.run(PacketInController) {
+      end.run(PacketInController) do
         controller('PacketInController').should_receive(:packet_in) do | datapath_id, message |
            # packet_in expected to have data portion.
           expect(message.total_len).to be  > 20
@@ -92,19 +92,19 @@ describe Trema::PacketIn do
           expect(message.ipv4_daddr.to_s).to eq('192.168.1.2')
         end
         send_and_wait
-      }
+      end
     end
   end
 
   context 'when reading packet content' do
     it 'should have correct ARP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
         vhost ( 'host2') { mac '00:00:00:00:00:02' }
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -205,17 +205,17 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct RARP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
         vhost ( 'host2') { mac '00:00:00:00:00:02' }
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0xff, 0xff, 0xff, 0xff, 0xff, 0xff, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -316,21 +316,21 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct TCP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') {
+        vhost ( 'host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
-        }
+        end
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -410,21 +410,21 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct UDP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') {
+        vhost ( 'host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
-        }
+        end
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -485,21 +485,21 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct VLAN and ICMPv4 packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') {
+        vhost ( 'host2') do
           ip '192.168.32.1'
           netmask '255.255.255.0'
           mac '00:00:00:00:00:02'
-        }
+        end
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -579,17 +579,17 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct IGMP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x01, 0x00, 0x5e, 0x00, 0x00, 0x01, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -655,17 +655,17 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
 
     it 'should have correct LLDP packet fields' do
-      network {
+      network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
-      }.run(PacketInSendController) {
+      end.run(PacketInSendController) do
         data = [
           0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # src
@@ -700,7 +700,7 @@ describe Trema::PacketIn do
           :actions => Trema::ActionOutput.new(:port => Controller::OFPP_CONTROLLER)
         )
         sleep 2
-      }
+      end
     end
   end
 end

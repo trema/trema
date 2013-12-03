@@ -22,12 +22,12 @@ require 'trema/host'
 
 module Trema
   describe Host do
-    before {
+    before do
       Host.instances.clear
 
       @cli = mock('cli')
       Cli.stub!(:new).and_return(@cli)
-    }
+    end
 
 
     describe :ip do
@@ -92,12 +92,12 @@ module Trema
 
     context 'when #add_arp_entries' do
       describe :cli do
-        before {
+        before do
           @host0 = Host.new(:name => 'HOST 0')
           @host1 = mock('HOST 1')
           @host2 = mock('HOST 2')
           @host3 = mock('HOST 3')
-        }
+        end
 
         it 'should add arp entries' do
           @cli.should_receive(:add_arp_entry).with(@host1)
@@ -112,9 +112,9 @@ module Trema
 
     context 'when #run!' do
       describe :cli do
-        before {
+        before do
           Phost.stub!(:new).and_return(mock('phost', :run! => nil))
-        }
+        end
 
         it 'should set IP and MAC address' do
           @cli.should_receive(:set_ip_and_mac_address)
@@ -138,10 +138,10 @@ module Trema
 
     context 'when #send_packets' do
       describe :cli do
-        before {
+        before do
           @dest = mock('dest')
           @options = mock('options')
-        }
+        end
 
         it 'should send_packets' do
           @cli.should_receive(:send_packets).with(@dest, @options)
@@ -153,10 +153,10 @@ module Trema
 
 
     context 'when getting stats' do
-      before {
+      before do
         @stats = mock('stats')
         @host = Host.new(:name => "Yutaro's host")
-      }
+      end
 
 
       context 'when #tx_stats' do

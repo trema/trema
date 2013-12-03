@@ -24,7 +24,7 @@ module Timers
 
 
   module TimerMethods
-    lambda {
+    lambda do
       timer_event_handlers = {}
 
 
@@ -54,7 +54,7 @@ module Timers
       Kernel.send :define_method, :delete_timer do | handler |
         timer_event_handlers.delete
       end
-    }.call
+    end.call
 
 
     def add_timer_event(handler, interval, event_type)

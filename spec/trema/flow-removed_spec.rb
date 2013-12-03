@@ -69,9 +69,9 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
   context 'when a flow expires' do
     it 'should #flow_removed' do
       class FlowRemovedController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(FlowRemovedController) {
+      end.run(FlowRemovedController) do
         controller('FlowRemovedController').should_receive(:flow_removed)
         controller('FlowRemovedController').send_flow_mod_add(
           0xabc,
@@ -79,7 +79,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
           :send_flow_rem => true
         )
         sleep 2 # FIXME: wait to receive flow_removed
-      }
+      end
     end
 
 
@@ -99,9 +99,9 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :tp_src => 1,
         :tp_dst => 1
       )
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(FlowRemovedController) {
+      end.run(FlowRemovedController) do
         controller('FlowRemovedController').should_receive(:flow_removed) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.match.in_port).to eq(1)
@@ -131,7 +131,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
           :send_flow_rem => true
         )
         sleep 2 # FIXME: wait to receive flow_removed
-      }
+      end
     end
   end
 end

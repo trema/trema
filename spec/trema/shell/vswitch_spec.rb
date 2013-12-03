@@ -32,18 +32,18 @@ describe Trema::Shell, '.vswitch' do
 
 
     it 'should raise' do
-      expect {
+      expect do
         Trema::Shell.vswitch { dpid '0xabc' }
-      }.to raise_error('Not in Trema shell')
+      end.to raise_error('Not in Trema shell')
     end
   end
 
 
   context 'executed within a shell' do
-    before {
+    before do
       $config = mock('config', :port => 6653)
       $context = mock('context', :dump => true)
-    }
+    end
     after { Trema::OpenflowSwitch[ '0xabc'].shutdown! if Trema::OpenflowSwitch[ '0xabc'] }
 
 
@@ -67,9 +67,9 @@ describe Trema::Shell, '.vswitch' do
 
 
     it 'should raise if dpid not given' do
-      expect {
+      expect do
         Trema::Shell.vswitch
-      }.to raise_error('No dpid given')
+      end.to raise_error('No dpid given')
     end
 
 

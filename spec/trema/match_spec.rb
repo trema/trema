@@ -21,7 +21,7 @@ require 'trema'
 
 
 describe Match, '.new' do
-  subject {
+  subject do
     Match.new(
       :in_port => 1,
       :dl_src => '00:00:00:00:00:01',
@@ -36,7 +36,7 @@ describe Match, '.new' do
       :tp_src => 10,
       :tp_dst => 20
     )
-  }
+  end
   its(:in_port) { should == 1 }
   its('dl_src.to_s') { should == '00:00:00:00:00:01' }
   its('dl_dst.to_s') { should == '00:00:00:00:00:02' }

@@ -26,24 +26,24 @@ class SwitchDisconnected < Controller; end
 describe SwitchDisconnected do
   context 'when switch is killed' do
     it 'should receive a switch_disconnected' do
-      network {
+      network do
         vswitch('switch-disconnect') { datapath_id 0xabc }
-      }.run(SwitchDisconnected) {
+      end.run(SwitchDisconnected) do
         controller('SwitchDisconnected').should_receive(:switch_disconnected)
         vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
-      }
+      end
     end
 
 
     it 'should receive a switch_disconnected with valid datapath_id' do
-      network {
+      network do
         vswitch('switch-disconnect') { datapath_id 0xabc }
-      }.run(SwitchDisconnected) {
+      end.run(SwitchDisconnected) do
         controller('SwitchDisconnected').should_receive(:switch_disconnected).with(0xabc)
         vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
-      }
+      end
     end
   end
 end

@@ -24,13 +24,13 @@ shared_examples_for 'echo reply message' do
   class EchoReplyController < Controller; end
 
   it "should be logged to the switch's log", :sudo => true do
-    network {
+    network do
       vswitch('echo') { datapath_id 0xabc }
-    }.run(EchoReplyController) {
+    end.run(EchoReplyController) do
       controller('EchoReplyController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
       expect(IO.read(File.join(Trema.log, 'openflowd.echo.log'))).to include('OFPT_ECHO_REPLY')
-    }
+    end
   end
 end
 

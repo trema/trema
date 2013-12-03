@@ -21,7 +21,7 @@ require 'trema'
 
 
 describe PortMod, '.new( VALID OPTIONS )' do
-  subject {
+  subject do
     PortMod.new(
       :port_no => 2,
       :hw_addr => Mac::new('11:22:33:44:55:66'),
@@ -29,7 +29,7 @@ describe PortMod, '.new( VALID OPTIONS )' do
       :mask => 1,
       :advertise => 0
     )
-  }
+  end
   its(:port_no) { should == 2 }
   its('hw_addr.to_s') { should eq '11:22:33:44:55:66' }
   its(:config) { should == 1 }
@@ -71,14 +71,14 @@ describe PortMod, '.new( VALID OPTIONS )' do
 
 
     it 'should otherwise raise ArgumentError' do
-      expect { PortMod.new(
+      expect do PortMod.new(
                 :port_no => 2,
                 :hw_addr => Array.new(1234),
                 :config => 1,
                 :mask => 1,
                 :advertise => 0
                )
-             }.to raise_error(ArgumentError)
+             end.to raise_error(ArgumentError)
     end
   end
 end

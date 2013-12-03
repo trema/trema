@@ -27,7 +27,7 @@ module Trema
 
 
   describe FeaturesReply, '.new(options...)' do
-    subject {
+    subject do
       valid_options = {
         :datapath_id => 123,
         :transaction_id => 1234,
@@ -38,7 +38,7 @@ module Trema
         :ports => ['port #0', 'port #1', 'port #2']
       }
       FeaturesReply.new(valid_options)
-    }
+    end
 
     its(:datapath_id) { should == 123 }
     its(:transaction_id) { should == 1234 }
@@ -52,7 +52,7 @@ module Trema
 
 
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do
-    subject {
+    subject do
       FeaturesReply.new({
         # :datapath_id => 123,
         :transaction_id => 1234,
@@ -62,13 +62,13 @@ module Trema
         :actions => 2047,
         :ports => ['port #0', 'port #1', 'port #2']
       })
-    }
+    end
     it { expect { subject }.to raise_error(ArgumentError, ':datapath_id is a mandatory option') }
   end
 
 
   describe FeaturesReply, '.new(options...) (No :transaction_id)' do
-    subject {
+    subject do
       FeaturesReply.new({
         :datapath_id => 123,
         # :transaction_id => 1234,
@@ -78,7 +78,7 @@ module Trema
         :actions => 2047,
         :ports => ['port #0', 'port #1', 'port #2']
       })
-    }
+    end
     it { expect { subject }.to raise_error(ArgumentError, ':transaction_id is a mandatory option') }
   end
 end

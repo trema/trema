@@ -38,14 +38,14 @@ describe QueueGetConfigRequest, '.new( VALID OPTIONS )' do
     it 'should #queue_get_config_reply' do
       pending "#queue_get_config_reply is not implemented in #{Trema.vendor_openvswitch}"
       class QueueGetConfigController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(QueueGetConfigController) {
+      end.run(QueueGetConfigController) do
         controller('QueueGetConfigController').should_receive(:queue_get_config_reply)
         queue_get_config_request = QueueGetConfigRequest.new(:transaction_id => 123, :port => 1)
         controller('QueueGetConfigController').send_message(0xabc, queue_get_config_request)
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 end
@@ -53,9 +53,9 @@ end
 
 describe QueueGetConfigRequest, '.new( INVALID OPTIONS )' do
   it 'should raise a TypeError' do
-    expect {
+    expect do
      QueueGetConfigRequest.new 'INVALID OPTIONS'
-    }.to raise_error(TypeError)
+    end.to raise_error(TypeError)
   end
 end
 

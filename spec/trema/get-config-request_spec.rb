@@ -24,13 +24,13 @@ shared_examples_for 'get config request message' do
   class GetConfigRequestController < Controller; end
 
   it "should be logged to the switch's log", :sudo => true do
-    network {
+    network do
       vswitch('get-config-request') { datapath_id 0xabc }
-    }.run(GetConfigRequestController) {
+    end.run(GetConfigRequestController) do
       controller('GetConfigRequestController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
       expect(IO.read(File.join(Trema.log, 'openflowd.get-config-request.log'))).to include('OFPT_GET_CONFIG_REQUEST')
-    }
+    end
   end
 end
 

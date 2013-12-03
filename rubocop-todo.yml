@@ -11,9 +11,6 @@ BlockAlignment:
 BlockNesting:
   Enabled: false
 
-Blocks:
-  Enabled: false
-
 BracesAroundHashParameters:
   Enabled: false
 

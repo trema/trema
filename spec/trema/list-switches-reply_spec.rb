@@ -24,16 +24,16 @@ describe Controller do
   context 'when #list_switches_request is sent' do
     it 'should receive #list_switches_reply' do
       class ListSwitchesController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0x1 }
         vswitch { datapath_id 0x2 }
         vswitch { datapath_id 0x3 }
-      }.run(ListSwitchesController) {
+      end.run(ListSwitchesController) do
         controller('ListSwitchesController').should_receive(:list_switches_reply) do | dpids |
           expect(dpids).to eq([0x1, 0x2, 0x3])
         end
         controller('ListSwitchesController').send_list_switches_request
-      }
+      end
     end
   end
 end

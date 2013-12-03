@@ -40,9 +40,9 @@ describe SendOutPort, :type => 'actions' do
       context "when set as FlowMod's action", :sudo => true do
         it 'should insert a new flow entry with action (output:10)' do
           class TestController < Controller; end
-          network {
+          network do
             vswitch { datapath_id 0xabc }
-          }.run(TestController) {
+          end.run(TestController) do
             controller('TestController').send_flow_mod_add(0xabc, :actions => send_out_port)
             sleep 2
             expect(vswitch('0xabc')).to have(1).flows
@@ -53,7 +53,7 @@ describe SendOutPort, :type => 'actions' do
               expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(SendOutPort)
               expect(vswitch('0xabc').flows[ 0].actions[ 0].port_number).to eq(10)
             end
-          }
+          end
         end
       end
     end

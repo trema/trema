@@ -22,7 +22,7 @@ require File.join(File.dirname(__FILE__), 'repeater-hub')
 
 describe RepeaterHub do
   around do | example |
-    network {
+    network do
       vswitch('switch') { datapath_id '0xabc' }
 
       vhost('host1') { promisc 'on' }
@@ -32,9 +32,9 @@ describe RepeaterHub do
       link 'switch', 'host1'
       link 'switch', 'host2'
       link 'switch', 'host3'
-    }.run(RepeaterHub) {
+    end.run(RepeaterHub) do
       example.run
-    }
+    end
   end
 
 

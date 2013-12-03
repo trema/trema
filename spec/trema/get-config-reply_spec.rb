@@ -21,14 +21,14 @@ require 'trema'
 
 
 describe GetConfigReply, '.new( VALID OPTIONS )' do
-  subject {
+  subject do
     GetConfigReply.new(
       :datapath_id => 123,
       :transaction_id => 1234,
       :flags => 1,
       :miss_send_len => 1024
     )
-  }
+  end
   its ( :datapath_id) { should == 123 }
   its ( :transaction_id) { should == 1234 }
   its ( :flags) { should == 1 }

@@ -45,14 +45,14 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
 
     it 'should insert a new flow with action (mod_vlan_pcp:7)' do
       class TestController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(TestController) {
+      end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
         expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_pcp:7')
-      }
+      end
     end
   end
 end

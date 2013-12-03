@@ -24,13 +24,13 @@ shared_examples_for 'barrier request message' do
   class BarrierRequestController < Controller; end
 
   it "should be logged to the switch's log", :sudo => true do
-    network {
+    network do
       vswitch('barrier-request') { datapath_id 0xabc }
-    }.run(BarrierRequestController) {
+    end.run(BarrierRequestController) do
       controller('BarrierRequestController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
       expect(IO.read(File.join(Trema.log, 'openflowd.barrier-request.log'))).to include('OFPT_BARRIER_REQUEST')
-    }
+    end
   end
 end
 

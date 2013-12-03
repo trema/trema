@@ -185,9 +185,9 @@ describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #stats_request(desc-stats) is sent' do
     it 'should #stats_reply(desc-stats)' do
       class DescStatsController < Controller; end
-      network {
+      network do
         vswitch('desc-stats') { datapath_id 0xabc }
-      }.run(DescStatsController) {
+      end.run(DescStatsController) do
         controller('DescStatsController').should_receive(:stats_reply) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(0)
@@ -201,7 +201,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           DescStatsRequest.new(:transaction_id => 1234)
         )
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 
@@ -209,13 +209,13 @@ describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #stats_request(flow-stats) is sent' do
     it 'should #stats_reply(flow-stats)' do
       class FlowStatsController < Controller; end
-      network {
+      network do
         vswitch('flow-stats') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'flow-stats'
         link 'host2', 'flow-stats'
-      }.run(FlowStatsController) {
+      end.run(FlowStatsController) do
         controller('FlowStatsController').send_flow_mod_add(
           0xabc,
           # match the UDP packet
@@ -240,7 +240,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           FlowStatsRequest.new(:match => match)
         )
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 
@@ -248,13 +248,13 @@ describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #stats_request(aggregate_stats) is sent' do
     it 'should #stats_reply(aggregate-stats) attributes' do
       class AggregateStatsController < Controller; end
-      network {
+      network do
         vswitch('aggregate-stats') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'aggregate-stats'
         link 'host2', 'aggregate-stats'
-      }.run(AggregateStatsController) {
+      end.run(AggregateStatsController) do
         controller('AggregateStatsController').send_flow_mod_add(
           0xabc,
           # match the UDP packet
@@ -280,7 +280,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           AggregateStatsRequest.new(:match => match, :table_id => 0xff)
         )
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 
@@ -288,13 +288,13 @@ describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #stats_request(port-stats) is sent' do
     it 'should #stats_reply(port-stats)' do
       class PortStatsController < Controller; end
-      network {
+      network do
         vswitch('port-stats') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'port-stats'
         link 'host2', 'port-stats'
-      }.run(PortStatsController) {
+      end.run(PortStatsController) do
         controller('PortStatsController').send_flow_mod_add(
           0xabc,
           :match => Match.new(:dl_type => 0x800, :nw_proto => 17),
@@ -315,7 +315,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           PortStatsRequest.new(:port_no => 1)
         )
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 
@@ -323,13 +323,13 @@ describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #stats_request(table-stats) is sent' do
     it 'should #stats_reply(table-stats)' do
       class TableStatsController < Controller; end
-      network {
+      network do
         vswitch('table-stats') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'table-stats'
         link 'host2', 'table-stats'
-      }.run(TableStatsController) {
+      end.run(TableStatsController) do
         controller('TableStatsController').send_flow_mod_add(
           0xabc,
           :actions => ActionOutput.new(:port => TableStatsController::OFPP_FLOOD)
@@ -350,7 +350,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
           TableStatsRequest.new(:transaction_id => 123)
         )
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 end

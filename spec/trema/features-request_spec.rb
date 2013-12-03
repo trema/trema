@@ -24,13 +24,13 @@ shared_examples_for 'features request message' do
   class FeaturesRequestController < Controller; end
 
   it "should be logged to the switch's log", :sudo => true do
-    network {
+    network do
       vswitch('features-request') { datapath_id 0xabc }
-    }.run(FeaturesRequestController) {
+    end.run(FeaturesRequestController) do
       controller('FeaturesRequestController').send_message(0xabc, subject)
       sleep 2 # FIXME: wait to send_message
       expect(IO.read(File.join(Trema.log, 'openflowd.features-request.log'))).to include('OFPT_FEATURES_REQUEST')
-    }
+    end
   end
 end
 

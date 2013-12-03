@@ -45,11 +45,11 @@ module Trema
   describe Controller do
     context 'when one port goes down' do
       it 'should receive port_status (modify)' do
-        network {
+        network do
           vswitch { datapath_id 0xabc }
           vhost 'host'
           link 'host', '0xabc'
-        }.run(PortStatusController) {
+        end.run(PortStatusController) do
           controller('PortStatusController').should_receive(:port_status).with do | dpid, message |
             expect(dpid).to eq(0xabc)
             expect(message).to be_an_instance_of(PortStatusModify)
@@ -57,7 +57,7 @@ module Trema
 
           controller('PortStatusController').send_message 0xabc, FeaturesRequest.new
           sleep 2  # FIXME: wait to receive port_status
-        }
+        end
       end
     end
   end

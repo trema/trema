@@ -29,9 +29,9 @@ end
 
 describe BarrierReply, '.new( MANDATORY OPTIONS MISSING )' do
   it 'should raise ArgumentError' do
-    expect {
+    expect do
       BarrierReply.new
-    }.to raise_error(ArgumentError)
+    end.to raise_error(ArgumentError)
   end
 end
 

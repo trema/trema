@@ -53,34 +53,34 @@ describe 'packet-out' do
 
   context 'when #packet_in' do
     it 'should #packet_out' do
-      network {
+      network do
         vswitch('packet-out') { datapath_id 0xabc }
         vhost 'host1'
         vhost 'host2'
         link 'host1', 'packet-out'
         link 'host2', 'packet-out'
-      }.run(PacketOutController) {
+      end.run(PacketOutController) do
         send_packets 'host2', 'host1'
         sleep 2
         expect(vhost('host1').rx_stats.n_pkts).to eq(1)
-      }
+      end
     end
   end
 
 
   context 'when data argument is string type' do
     it 'should #packet_out' do
-      network {
+      network do
         vswitch('packet-out') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') {
+        vhost ( 'host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
-        }
+        end
         link 'host1', 'packet-out'
         link 'host2', 'packet-out'
-      }.run(PacketOutController) {
+      end.run(PacketOutController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -111,7 +111,7 @@ describe 'packet-out' do
         )
         sleep 2
         expect(vhost('host2').rx_stats.n_pkts).to eq(1)
-      }
+      end
     end
   end
 

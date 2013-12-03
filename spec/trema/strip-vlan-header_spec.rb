@@ -24,14 +24,14 @@ describe StripVlanHeader, :type => 'actions' do
   context 'when sending a Flow Mod with StripVlanHeader' do
     it 'should insert a new flow entry with action (strip_vlan)' do
       class TestController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(TestController) {
+      end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
         expect(vswitch('0xabc').flows[ 0].actions).to eq('strip_vlan')
-      }
+      end
     end
   end
 end

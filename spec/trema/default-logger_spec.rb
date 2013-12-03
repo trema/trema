@@ -22,12 +22,12 @@ require 'trema'
 
 module Trema
   describe DefaultLogger do
-    subject {
+    subject do
       class LoggingObject
         include Trema::DefaultLogger
       end
       LoggingObject.new
-    }
+    end
 
     it { should respond_to :critical }
     it { should respond_to :error }

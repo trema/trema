@@ -45,14 +45,14 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
 
     it 'should insert a new flow entry with action (mod_vlan_vid:1024)' do
       class TestController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(TestController) {
+      end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc')).to have(1).flows
         expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_vid:1024')
-      }
+      end
     end
   end
 end

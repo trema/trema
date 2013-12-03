@@ -56,14 +56,14 @@ describe Enqueue, '.new( VALID OPTIONS )' do
   context 'when sending #flow_mod(add) with action set to enqueue' do
     it 'should have a flow with action set to enqueue' do
       class FlowModAddController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(FlowModAddController) {
+      end.run(FlowModAddController) do
         controller('FlowModAddController').send_flow_mod_add(0xabc, :actions => Enqueue.new(:port_number => 1, :queue_id => 123))
         sleep 2 # FIXME: wait to send_flow_mod
         expect(vswitch('0xabc')).to have(1).flows
         expect(vswitch('0xabc').flows[0].actions).to match(/enqueue:1q123/)
-      }
+      end
     end
   end
 end

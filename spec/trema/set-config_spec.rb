@@ -38,14 +38,14 @@ describe SetConfig, '.new( VALID OPTIONS )' do
   context 'when #set_config is sent' do
     it 'should not #set_config_reply' do
       class SetConfigController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(SetConfigController) {
+      end.run(SetConfigController) do
         set_config = SetConfig.new(:flags => 0, :miss_send_len => 128, :transaction_id => 123)
         controller('SetConfigController').should_not_receive(:set_config_reply)
         controller('SetConfigController').send_message(0xabc, set_config)
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 
@@ -53,9 +53,9 @@ describe SetConfig, '.new( VALID OPTIONS )' do
   context 'when #set_config is sent with flags, miss_send_len set to 0' do
     it 'should #get_config_reply with flags, miss_send_len set to 0' do
       class SetConfigController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run(SetConfigController) {
+      end.run(SetConfigController) do
         controller('SetConfigController').should_receive(:get_config_reply) do | dpid, arg |
           expect(arg.flags).to eq(0)
           expect(arg.miss_send_len).to eq(0)
@@ -65,7 +65,7 @@ describe SetConfig, '.new( VALID OPTIONS )' do
         sleep 2 # FIXME: wait to send_message
         controller('SetConfigController').send_message(0xabc, GetConfigRequest.new)
         sleep 2 # FIXME: wait to send_message
-      }
+      end
     end
   end
 end

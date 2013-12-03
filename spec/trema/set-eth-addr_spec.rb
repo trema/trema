@@ -34,9 +34,9 @@ require 'trema'
       context "when set as FlowMod's action", :sudo => true do
         it 'should insert a new flow with action (mod_dl_{src,dst}:11:22:33:44:55:66)' do
           class TestController < Controller; end
-          network {
+          network do
             vswitch { datapath_id 0xabc }
-          }.run(TestController) {
+          end.run(TestController) do
             controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
             sleep 2
             expect(vswitch('0xabc')).to have(1).flows
@@ -47,7 +47,7 @@ require 'trema'
               expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
               expect(vswitch('0xabc').flows[ 0].actions[ 0].mac_address.to_s).to eq('11:22:33:44:55:66')
             end
-          }
+          end
         end
       end
     end
