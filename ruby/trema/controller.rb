@@ -149,8 +149,100 @@ module Trema
     # @param [StatsReply] message
     #   the Stats Reply message.
     #
+    # NOTE: This handler is available only for next few versions.
+    #
     handler :stats_reply
 
+
+    #
+    # @!method desc_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_DESC request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :desc_stats_reply
+
+
+    #
+    # @!method flow_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_FLOW request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :flow_stats_reply
+
+
+    #
+    # @!method aggregate_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_AGGREGATE request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :aggregate_stats_reply
+
+
+    #
+    # @!method table_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_TABLE request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :table_stats_reply
+
+
+    #
+    # @!method port_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_PORT request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :port_stats_reply
+
+
+    #
+    # @!method queue_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_QUEUE request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :queue_stats_reply
+
+
+    #
+    # @!method vendor_stats_reply( datapath_id, message )
+    #
+    # @abstract Stats Reply message handler corresponding to OFPST_VENDOR request type. Override this to implement a custom handler.
+    #
+    # @param [Integer] datapath_id
+    #   the datapath from which a message is sent.
+    # @param [StatsReply] message
+    #   the Stats Reply message.
+    #
+    handler :vendor_stats_reply
 
     #
     # @!method barrier_reply( datapath_id, message )
