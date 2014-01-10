@@ -58,3 +58,4 @@ aggregated-delegated-ripencc.txt: 7329 prefix(es)
 * `regen_aggregated.sh` -- a helper shell script to regenerate prefix lists for
 the above application (not required to run).
 * `stats-to-cidrs.rb` -- a helper Ruby script for the above script.
+* `aggregated-delegated-*.txt` -- files with IPv4 prefixes

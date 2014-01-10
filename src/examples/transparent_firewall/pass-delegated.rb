@@ -1,6 +1,6 @@
 # A sample transparent firewall, see README.md for more information.
 #
-# Copyright (C) 2013 Denis Ovsienko
+# Copyright (C) 2014 Denis Ovsienko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
