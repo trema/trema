@@ -136,7 +136,7 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
     60,
     0,
     UINT16_MAX,
-    packet_in.buffer_id,
+    UINT32_MAX,
     OFPP_NONE,
     OFPFF_SEND_FLOW_REM,
     actions
@@ -144,18 +144,24 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
   send_openflow_message( packet_in.datapath_id, flow_mod );
   free_buffer( flow_mod );
 
+  buffer *frame = NULL;
+
   if ( packet_in.buffer_id == UINT32_MAX ) {
     buffer *frame = duplicate_buffer( packet_in.data );
     fill_ether_padding( frame );
-    buffer *packet_out = create_packet_out(
-      get_transaction_id(),
-      packet_in.buffer_id,
-      packet_in.in_port,
-      actions,
-      frame
-    );
-    send_openflow_message( packet_in.datapath_id, packet_out );
-    free_buffer( packet_out );
+  }
+
+  buffer *packet_out = create_packet_out(
+    get_transaction_id(),
+    packet_in.buffer_id,
+    packet_in.in_port,
+    actions,
+    frame
+  );
+  send_openflow_message( packet_in.datapath_id, packet_out );
+  free_buffer( packet_out );
+
+  if (frame != NULL) {
     free_buffer( frame );
   }
 
