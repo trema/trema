@@ -1,3 +1,4 @@
+@ruby
 Feature: send_packets command
 
   In order to send/receive packets between virtual hosts

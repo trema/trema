@@ -1,3 +1,4 @@
+@ruby
 Feature: version command
 
   In order to know the current version of Trema

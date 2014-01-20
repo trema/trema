@@ -1,3 +1,4 @@
+@ruby
 Feature: show_stats command
 
   In order to get the stats of sent/received packets

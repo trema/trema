@@ -1,3 +1,4 @@
+@ruby
 Feature: reset_stats command
 
   In order to reset the stats of sent/received packets

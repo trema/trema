@@ -1,3 +1,4 @@
+@ruby
 Feature: port_up command
 
   Use this command to ensure that your controller detects network

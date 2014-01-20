@@ -13,12 +13,12 @@ Feature: "List Switches" sample application
       vswitch { datapath_id 0x4 }
       """
 
+  @slow_process @ruby
+  Scenario: Run "List Switches" Ruby example
+    Given I run `trema run ../../src/examples/list_switches/list-switches.rb -c list_switches.conf`
+    Then the file "../../tmp/log/ListSwitches.log" should contain "switches = 0x1, 0x2, 0x3, 0x4"
+
   @slow_process
   Scenario: Run "List Switches" C example
     Given I run `trema run ../../objects/examples/list_switches/list_switches -c list_switches.conf`
     Then the file "../../tmp/log/list_switches.log" should contain "switches = 0x1, 0x2, 0x3, 0x4"
-
-  @slow_process
-  Scenario: Run "List Switches" Ruby example
-    Given I run `trema run ../../src/examples/list_switches/list-switches.rb -c list_switches.conf`
-    Then the file "../../tmp/log/ListSwitches.log" should contain "switches = 0x1, 0x2, 0x3, 0x4"

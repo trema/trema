@@ -1,3 +1,4 @@
+@ruby
 Feature: killall command
 
   In order to cleanup the previous trema session
