@@ -1,3 +1,4 @@
+@ruby
 Feature: run command
 
   In order to launch trema applications

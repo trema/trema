@@ -4,7 +4,7 @@ Feature: "Patch Panel" sample application
   As a developer using Trema
   I want to execute "Patch Panel" sample application
 
-  @slow_process
+  @slow_process @ruby
   Scenario: Run "Patch Panel" Ruby example
     Given a file named "patch-panel.conf" with:
       """

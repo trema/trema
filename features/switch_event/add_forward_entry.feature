@@ -29,7 +29,7 @@ Feature: Ruby methods for adding switch event forwarding entry
   All the above methods take a result handler as Ruby block, but 
   can be omitted if checking is not necessary.
 
-  @slow_process
+  @slow_process @ruby
   Scenario Outline: add_forward_entry_to_all_switches event_type, trema_name
     Given a file named "network.conf" with:
       """
@@ -84,7 +84,7 @@ Feature: Ruby methods for adding switch event forwarding entry
       | :port_status  | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
       | :state_notify | "AddEntryToAllTest", "new_controller" | "AddEntryToAllTest", "new_controller" |
 
-  @slow_process
+  @slow_process @ruby
   Scenario Outline: add_forward_entry_to_switch dpid, event_type, trema_name
     Given a file named "network.conf" with:
       """
@@ -123,7 +123,7 @@ Feature: Ruby methods for adding switch event forwarding entry
       | :port_status  | "AddEntryToSwitchDaemonTest", "new_controller" |
       | :state_notify | "AddEntryToSwitchDaemonTest", "new_controller" |
 
-  @slow_process
+  @slow_process @ruby
   Scenario Outline: add_forward_entry_to_switch_manager event_type, trema_name
     Given a file named "AddEntryToSwitchManagerTest.rb" with:
       """ruby

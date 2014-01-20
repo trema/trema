@@ -11,7 +11,7 @@ Feature: "Hello Trema!" example
   Background:
     Given I cd to "../../src/examples/hello_trema/"
 
-  @slow_process
+  @slow_process @ruby
   Scenario: Run the Ruby example
     When I run `trema run ./hello-trema.rb -c sample.conf` interactively
     Then the output should contain "Hello 0xabc!" within the timeout period
