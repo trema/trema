@@ -24,8 +24,8 @@ def wait_until_all_pid_files_are_deleted timeout = 12
   loop do
     raise "Failed to clean up remaining processes." if elapsed > timeout
     break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
-    sleep 1
-    elapsed += 1
+    sleep 0.1
+    elapsed += 0.1
   end
   sleep 1
 end
