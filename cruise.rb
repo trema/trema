@@ -313,18 +313,31 @@ def test message
 end
 
 
-def run_unit_test
+def run_unit_tests
   test "Running unit tests ..." do
     sh "bundle exec rake unittests"
+  end
+  measure_coverage
+end
+
+
+def run_rspec
+  test "Running rspec ..." do
     sh "bundle exec rake spec"
   end
   measure_coverage
 end
 
 
-def run_acceptance_test
+def run_ruby_acceptance_tests
   test "Running acceptance tests ..." do
     sh "bundle exec rake features"
+  end
+end
+
+def run_all_acceptance_tests
+  test "Running acceptance tests ..." do
+    sh "bundle exec rake features:all"
   end
 end
 
@@ -341,6 +354,10 @@ end
 
 $options.on( "-a", "--acceptance-test-only" ) do
   $acceptance_test_only = true
+end
+
+$options.on( "-A", "--all" ) do
+  $all = true
 end
 
 $options.separator ""
@@ -369,8 +386,17 @@ Blocker.start do
   $start_time = Time.now
   cd Trema.home do
     init_cruise
-    run_unit_test if not $acceptance_test_only
-    run_acceptance_test if not $unit_test_only
+    if not $acceptance_test_only
+      run_unit_tests if $all
+      run_rspec
+    end
+    if not $unit_test_only
+      if $all
+        run_all_acceptance_tests
+      else
+        run_ruby_acceptance_tests
+      end
+    end
     show_summary if not $acceptance_test_only
   end
 end

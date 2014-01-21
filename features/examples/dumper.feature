@@ -16,7 +16,7 @@ Feature: "Dumper" sample application
       link "dumper", "host2"
       """
 
-  @slow_process @ruby
+  @slow_process @critical @ruby
   Scenario: Run "Dumper" Ruby example
     Given I run `trema run ../../src/examples/dumper/dumper.rb -c dumper.conf -d`
      And wait until "Dumper" is up
