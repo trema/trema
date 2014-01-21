@@ -940,9 +940,15 @@ end
 
 begin
   require "cucumber/rake/task"
+
   task :features => :build_trema
   Cucumber::Rake::Task.new( :features ) do | t |
-    t.cucumber_opts = "features --tags ~@wip"
+    t.cucumber_opts = "--tags @critical --tags ~@wip"
+  end
+
+  task 'features:all' => :build_trema
+  Cucumber::Rake::Task.new( 'features:all' ) do | t |
+    t.cucumber_opts = "--tags ~@wip"
   end
 rescue LoadError
   $stderr.puts $!.to_s

@@ -18,7 +18,7 @@ Feature: send_packets command
       """
     And I run `trema run ../../src/examples/learning_switch/learning-switch.rb -c learning_switch.conf -d`
 
-  @slow_process
+  @slow_process @critical
   Scenario: Sending packets
     When I run `trema send_packets --source host1 --dest host2 --n_pkts=2`
      And I run `trema send_packets --source host2 --dest host1 --n_pkts=1`
