@@ -69,7 +69,9 @@ class LearningSwitch < Controller
   def packet_out datapath_id, message, port_no
     send_packet_out(
       datapath_id,
-      :packet_in => message,
+      :in_port => message.in_port,
+      :buffer_id => 0xffffffff,
+      :data => message.data,
       :actions => ActionOutput.new( :port => port_no )
     )
   end
