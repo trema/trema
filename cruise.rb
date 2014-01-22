@@ -397,7 +397,7 @@ Blocker.start do
         run_ruby_acceptance_tests
       end
     end
-    show_summary if not $acceptance_test_only
+    show_summary if not $acceptance_test_only and $all
   end
 end
 
