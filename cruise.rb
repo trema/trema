@@ -307,7 +307,7 @@ def test message
     begin
       yield
     ensure
-      sh "./trema killall"
+      sh "./trema killall" rescue nil
     end
   end
 end
