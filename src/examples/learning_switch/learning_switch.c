@@ -86,36 +86,35 @@ learn( hash_table *forwarding_db, struct key new_key, uint16_t port_no ) {
   entry->last_update = now();
 }
 
+static void
+send_packet_out( packet_in packet_in, openflow_actions *actions )
+{
+  buffer *frame, *packet_out;
+
+  frame = duplicate_buffer( packet_in.data );
+  fill_ether_padding( frame );
+
+  packet_out = create_packet_out(
+    get_transaction_id(),
+    UINT32_MAX,
+    packet_in.in_port,
+    actions,
+    frame
+  );
+
+  free_buffer( frame );
+  send_openflow_message( packet_in.datapath_id, packet_out );
+  free_buffer( packet_out );
+}
+
 
 static void
 do_flooding( packet_in packet_in ) {
   openflow_actions *actions = create_actions();
   append_action_output( actions, OFPP_FLOOD, UINT16_MAX );
 
-  buffer *packet_out;
-  if ( packet_in.buffer_id == UINT32_MAX ) {
-    buffer *frame = duplicate_buffer( packet_in.data );
-    fill_ether_padding( frame );
-    packet_out = create_packet_out(
-      get_transaction_id(),
-      packet_in.buffer_id,
-      packet_in.in_port,
-      actions,
-      frame
-    );
-    free_buffer( frame );
-  }
-  else {
-    packet_out = create_packet_out(
-      get_transaction_id(),
-      packet_in.buffer_id,
-      packet_in.in_port,
-      actions,
-      NULL
-    );
-  }
-  send_openflow_message( packet_in.datapath_id, packet_out );
-  free_buffer( packet_out );
+  send_packet_out( packet_in, actions );
+
   delete_actions( actions );
 }
 
@@ -136,7 +135,7 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
     60,
     0,
     UINT16_MAX,
-    packet_in.buffer_id,
+    UINT32_MAX,
     OFPP_NONE,
     OFPFF_SEND_FLOW_REM,
     actions
@@ -144,20 +143,7 @@ send_packet( uint16_t destination_port, packet_in packet_in ) {
   send_openflow_message( packet_in.datapath_id, flow_mod );
   free_buffer( flow_mod );
 
-  if ( packet_in.buffer_id == UINT32_MAX ) {
-    buffer *frame = duplicate_buffer( packet_in.data );
-    fill_ether_padding( frame );
-    buffer *packet_out = create_packet_out(
-      get_transaction_id(),
-      packet_in.buffer_id,
-      packet_in.in_port,
-      actions,
-      frame
-    );
-    send_openflow_message( packet_in.datapath_id, packet_out );
-    free_buffer( packet_out );
-    free_buffer( frame );
-  }
+  send_packet_out( packet_in, actions );
 
   delete_actions( actions );
 }
