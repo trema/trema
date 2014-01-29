@@ -326,7 +326,7 @@ task "vendor:cmockery" => Trema.libcmockery_a
 file Trema.libcmockery_a do
   sh "tar xzf #{ Trema.vendor_cmockery }.tar.gz -C #{ Trema.vendor }"
   cd Trema.vendor_cmockery do
-    sh "./configure --prefix=#{ Trema.cmockery }"
+    sh "./configure --disable-shared --prefix=#{ Trema.cmockery }"
     sh "make install"
   end
 end
@@ -824,7 +824,7 @@ libtrema_unit_tests.keys.each do | each |
     task.sources = test_c_files( each ) + [ "unittests/lib/#{ each }.c" ]
     task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
     task.cflags = [ "-DUNIT_TESTING", "--coverage", CFLAGS ]
-    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage --static"
+    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage"
     task.library_dependencies = [
                                  "cmockery",
                                  "sqlite3",
@@ -871,7 +871,7 @@ $tests.each do | _each |
     task.sources = [ "unittests/lib/#{ each }.c", "unittests/cmockery_trema.c" ]
     task.includes = [ Trema.include, Trema.openflow, File.dirname( Trema.cmockery_h ), "unittests" ]
     task.cflags = [ "--coverage", CFLAGS ]
-    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage --static"
+    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage"
     task.library_dependencies = [
                                  "trema",
                                  "cmockery",
