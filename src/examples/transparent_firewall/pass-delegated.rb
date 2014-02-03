@@ -18,12 +18,6 @@
 class PassDelegated < Controller
   add_periodic_timer_event :request_flow_stats, 30
 
-  def prefixes_from_file(filename)
-    ret = IO.readlines(File.join(File.dirname(__FILE__), filename))
-    info "#{filename}: #{ret.size} prefix(es)"
-    ret
-  end
-
   def start
     @prefixes = []
     %w[afrinic apnic arin lacnic ripencc].each do |each|
@@ -51,6 +45,35 @@ class PassDelegated < Controller
     @dpid = nil
   end
 
+  def barrier_reply(dpid, message)
+    return unless dpid == @dpid
+    case @state
+    when :loading then finish_loading
+    when :running then dump_flow_stats
+    else fail
+    end
+  end
+
+  def stats_reply(dpid, message)
+    return unless dpid == @dpid && message.type == StatsReply::OFPST_FLOW
+    message.stats.each do |each|
+      case each.priority
+      when 64_000
+        @stats.push each if each.byte_count > 0
+      when 1000
+        @denied_bytes = each.byte_count
+      end
+    end
+  end
+
+  private
+
+  def prefixes_from_file(filename)
+    ret = IO.readlines(File.join(File.dirname(__FILE__), filename))
+    info "#{filename}: #{ret.size} prefix(es)"
+    ret
+  end
+
   def start_loading
     install_preamble_and_bypass
     info "#{@dpid.to_hex}: bypass ON, loading started"
@@ -61,60 +84,51 @@ class PassDelegated < Controller
     send_message(@dpid, BarrierRequest.new)
   end
 
+  # All flows in place, safe to remove bypass.
+  def finish_loading
+    send_flow_mod_delete(
+                         @dpid, strict: true,
+                         priority: 65_000,
+                         match: Match.new(in_port: @outside_port_no))
+    info sprintf('%s: bypass OFF, loading finished in %.2f second(s)',
+                 @dpid.to_hex,
+                 Time.now - @loading_started)
+    @denied_bytes = 0
+    @state = :running
+  end
+
   def install_preamble_and_bypass
     send_flow_mod_add(
-      @dpid, priority: 65_000,
-             match: Match.new(in_port: @inside_port_no),
-             actions: [SendOutPort.new(@outside_port_no)])
+                      @dpid, priority: 65_000,
+                      match: Match.new(in_port: @inside_port_no),
+                      actions: [SendOutPort.new(@outside_port_no)])
     send_flow_mod_add(
-      @dpid, priority: 65_000,
-             match: Match.new(in_port: @outside_port_no),
-             actions: [SendOutPort.new(@inside_port_no)])
+                      @dpid, priority: 65_000,
+                      match: Match.new(in_port: @outside_port_no),
+                      actions: [SendOutPort.new(@inside_port_no)])
   end
 
   def install_prefixes
     @prefixes.each do |each|
       send_flow_mod_add(
-        @dpid, priority: 64_000,
-               match: Match.new(in_port: @outside_port_no,
-                                dl_type: 0x0800,
-                                nw_src: Pio::IPv4Address.new(each)),
-               actions: [SendOutPort.new(@inside_port_no)])
+                        @dpid, priority: 64_000,
+                        match: Match.new(in_port: @outside_port_no,
+                                         dl_type: 0x0800,
+                                         nw_src: Pio::IPv4Address.new(each)),
+                        actions: [SendOutPort.new(@inside_port_no)])
     end
   end
 
   # Deny any other IPv4 and permit non-IPv4 traffic.
   def install_postamble
     send_flow_mod_add(
-      @dpid, priority: 1_000,
-             match: Match.new(in_port: @outside_port_no, dl_type: 0x0800),
-             actions: [SendOutPort.new(@inspect_port_no)])
+                      @dpid, priority: 1_000,
+                      match: Match.new(in_port: @outside_port_no, dl_type: 0x0800),
+                      actions: [SendOutPort.new(@inspect_port_no)])
     send_flow_mod_add(
-      @dpid, priority: 900,
-             match: Match.new(in_port: @outside_port_no),
-             actions: [SendOutPort.new(@inside_port_no)])
-  end
-
-  def barrier_reply(dpid, message)
-    return unless dpid == @dpid
-    case @state
-    when :loading then finish_loading
-    when :running then dump_flow_stats
-    else fail
-    end
-  end
-
-  # All flows in place, safe to remove bypass.
-  def finish_loading
-    send_flow_mod_delete(
-      @dpid, strict: true,
-             priority: 65_000,
-             match: Match.new(in_port: @outside_port_no))
-    info sprintf('%s: bypass OFF, loading finished in %.2f second(s)',
-                 @dpid.to_hex,
-                 Time.now - @loading_started)
-    @denied_bytes = 0
-    @state = :running
+                      @dpid, priority: 900,
+                      match: Match.new(in_port: @outside_port_no),
+                      actions: [SendOutPort.new(@inside_port_no)])
   end
 
   def dump_top_flows
@@ -144,19 +158,7 @@ class PassDelegated < Controller
     return if @dpid.nil? || @state != :running
     @stats = []
     send_message(
-      @dpid, FlowStatsRequest.new(match: Match.new(in_port: @outside_port_no)))
+                 @dpid, FlowStatsRequest.new(match: Match.new(in_port: @outside_port_no)))
     send_message(@dpid, BarrierRequest.new)
-  end
-
-  def stats_reply(dpid, message)
-    return unless dpid == @dpid && message.type == StatsReply::OFPST_FLOW
-    message.stats.each do |each|
-      case each.priority
-      when 64_000
-        @stats.push each if each.byte_count > 0
-      when 1000
-        @denied_bytes = each.byte_count
-      end
-    end
   end
 end
