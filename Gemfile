@@ -26,7 +26,7 @@ group :development do
   gem 'guard-bundler', '~> 2.0.0' if RUBY_VERSION >= '1.9.0'
   gem 'mime-types', '~> 1.25' if RUBY_VERSION < '1.9.0'
   gem 'mime-types', '~> 2.0' if RUBY_VERSION >= '1.9.0'
-  gem 'rubocop', '~> 0.15.0' if RUBY_VERSION >= '1.9.0'
+  gem 'rubocop', '~> 0.18.1' if RUBY_VERSION >= '1.9.0'
 end
 
 
