@@ -131,7 +131,7 @@ module Trema
        '--verbose=ANY:console:err',
        "--log-file=#{ log_file }",
        "--datapath-id=#{ dpid_long }",
-       "--unixctl=#{ unixctl }",
+       "--unixctl=#{ unixctl }"
       ] + ports_option
     end
 

@@ -65,10 +65,14 @@ describe Trema::PacketIn do
     it 'should have vaild user data' do
       network do
         vswitch('test') { datapath_id 0xabc }
-        vhost('host1') do mac '00:00:00:00:00:01'
-                           ip '192.168.1.1' end
-        vhost('host2') do mac '00:00:00:00:00:02'
-                           ip '192.168.1.2' end
+        vhost('host1') do
+          mac '00:00:00:00:00:01'
+          ip '192.168.1.1'
+        end
+        vhost('host2') do
+          mac '00:00:00:00:00:02'
+          ip '192.168.1.2'
+        end
         link 'test', 'host1'
         link 'test', 'host2'
       end.run(PacketInController) do

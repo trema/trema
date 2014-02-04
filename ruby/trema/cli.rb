@@ -142,7 +142,7 @@ module Trema
        inc_ip_dst(options[ :inc_ip_dst]),
        inc_tp_src(options[ :inc_tp_src]),
        inc_tp_dst(options[ :inc_tp_dst]),
-       inc_payload(options[ :inc_payload]),
+       inc_payload(options[ :inc_payload])
       ].compact.join(' ')
     end
 

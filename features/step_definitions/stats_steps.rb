@@ -16,7 +16,7 @@
 #
 
 
-Then /^the total number of tx packets should be:$/ do | table |
+Then(/^the total number of tx packets should be:$/) do | table |
   sleep 1
   table.hashes[ 0].each_pair do | host, n |
     count_packets(`trema show_stats #{ host } --tx`).should == n.to_i
@@ -24,7 +24,7 @@ Then /^the total number of tx packets should be:$/ do | table |
 end
 
 
-Then /^the total number of rx packets should be:$/ do | table |
+Then(/^the total number of rx packets should be:$/) do | table |
   sleep 1
   table.hashes[ 0].each_pair do | host, n |
     count_packets(`trema show_stats #{ host } --rx`).should == n.to_i

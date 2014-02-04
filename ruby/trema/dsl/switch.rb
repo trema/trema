@@ -27,9 +27,9 @@ module Trema
       def dpid(value)
         case value
         when String
-          set_dpid value
+          self.dpid = value
         when Integer
-          set_dpid sprintf('%#x', value)
+          self.dpid = sprintf('%#x', value)
         else
           fail "Invalid datapath_id: #{ value }"
         end
@@ -43,7 +43,7 @@ module Trema
 
 
       def validate
-        set_dpid name if /\A0x/ =~ name
+        self.dpid = name if /\A0x/ =~ name
         fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 
@@ -53,7 +53,7 @@ module Trema
       ##########################################################################
 
 
-      def set_dpid(string)
+      def dpid=(string)
         @dpid_long = dpid_long_from(string)
         @dpid_short = string
         @name = @dpid_short if @name.nil?
