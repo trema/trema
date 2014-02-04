@@ -16,26 +16,40 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 class PassDelegated < Controller
+  PORTS = {
+    outside: 1,
+    inside: 2,
+    inspect: 3
+  }
+
+  PRIORITIES = {
+    bypass: 65_000,
+    prefix: 64_000,
+    inspect: 1000,
+    non_ipv4: 900
+  }
+
+  PREFIX_FILES = %w[afrinic apnic arin lacnic ripencc].map do |each|
+    "aggregated-delegated-#{each}.txt"
+  end
+
   add_periodic_timer_event :request_flow_stats, 30
 
   def start
-    @prefixes = []
-    %w[afrinic apnic arin lacnic ripencc].each do |each|
-      @prefixes += prefixes_from_file("aggregated-delegated-#{each}.txt")
+    @prefixes = PREFIX_FILES.reduce([]) do |result, each|
+      data = IO.readlines(File.join(File.dirname(__FILE__), each))
+      info "#{each}: #{data.size} prefix(es)"
+      result + data
     end
-    @dpid = nil
   end
 
   def switch_ready(dpid)
-    unless @dpid.nil?
+    if @dpid
       info "#{dpid.to_hex}: ignored"
       return
     end
     @dpid = dpid
     info "#{@dpid.to_hex}: connected"
-    @outside_port_no = 1
-    @inside_port_no = 2
-    @inspect_port_no = 3
     start_loading
   end
 
@@ -46,7 +60,7 @@ class PassDelegated < Controller
   end
 
   def barrier_reply(dpid, message)
-    return unless dpid == @dpid
+    return if dpid != @dpid
     case @state
     when :loading then finish_loading
     when :running then dump_flow_stats
@@ -58,9 +72,9 @@ class PassDelegated < Controller
     return unless dpid == @dpid && message.type == StatsReply::OFPST_FLOW
     message.stats.each do |each|
       case each.priority
-      when 64_000
+      when PRIORITIES[:prefix]
         @stats.push each if each.byte_count > 0
-      when 1000
+      when PRIORITIES[:inspect]
         @denied_bytes = each.byte_count
       end
     end
@@ -68,15 +82,8 @@ class PassDelegated < Controller
 
   private
 
-  def prefixes_from_file(filename)
-    ret = IO.readlines(File.join(File.dirname(__FILE__), filename))
-    info "#{filename}: #{ret.size} prefix(es)"
-    ret
-  end
-
   def start_loading
     install_preamble_and_bypass
-    info "#{@dpid.to_hex}: bypass ON, loading started"
     install_prefixes
     install_postamble
     @state = :loading
@@ -87,58 +94,64 @@ class PassDelegated < Controller
   # All flows in place, safe to remove bypass.
   def finish_loading
     send_flow_mod_delete(
-                         @dpid, strict: true,
-                         priority: 65_000,
-                         match: Match.new(in_port: @outside_port_no))
-    info sprintf('%s: bypass OFF, loading finished in %.2f second(s)',
-                 @dpid.to_hex,
-                 Time.now - @loading_started)
+      @dpid,
+      strict: true,
+      priority: PRIORITIES[:bypass],
+      match: Match.new(in_port: PORTS[:outside]))
+    info '%s: bypass OFF', @dpid.to_hex
+    info('%s: loading finished in %.2f second(s)',
+         @dpid.to_hex, Time.now - @loading_started)
     @denied_bytes = 0
     @state = :running
   end
 
   def install_preamble_and_bypass
     send_flow_mod_add(
-                      @dpid, priority: 65_000,
-                      match: Match.new(in_port: @inside_port_no),
-                      actions: [SendOutPort.new(@outside_port_no)])
+      @dpid,
+      priority: PRIORITIES[:bypass],
+      match: Match.new(in_port: PORTS[:inside]),
+      actions: SendOutPort.new(PORTS[:outside]))
     send_flow_mod_add(
-                      @dpid, priority: 65_000,
-                      match: Match.new(in_port: @outside_port_no),
-                      actions: [SendOutPort.new(@inside_port_no)])
+      @dpid, priority: PRIORITIES[:bypass],
+      match: Match.new(in_port: PORTS[:outside]),
+      actions: SendOutPort.new(PORTS[:inside]))
+    info "#{@dpid.to_hex}: bypass ON"
   end
 
   def install_prefixes
+    info "#{@dpid.to_hex}: loading started"
     @prefixes.each do |each|
       send_flow_mod_add(
-                        @dpid, priority: 64_000,
-                        match: Match.new(in_port: @outside_port_no,
-                                         dl_type: 0x0800,
-                                         nw_src: Pio::IPv4Address.new(each)),
-                        actions: [SendOutPort.new(@inside_port_no)])
+        @dpid, priority: PRIORITIES[:prefix],
+        match: Match.new(in_port: PORTS[:outside],
+                         dl_type: 0x0800,
+                         nw_src: Pio::IPv4Address.new(each)),
+                         actions: SendOutPort.new(PORTS[:inside]))
     end
   end
 
   # Deny any other IPv4 and permit non-IPv4 traffic.
   def install_postamble
     send_flow_mod_add(
-                      @dpid, priority: 1_000,
-                      match: Match.new(in_port: @outside_port_no, dl_type: 0x0800),
-                      actions: [SendOutPort.new(@inspect_port_no)])
+      @dpid,
+      priority: PRIORITIES[:inspect],
+      match: Match.new(in_port: PORTS[:outside], dl_type: 0x0800),
+      actions: SendOutPort.new(PORTS[:inspect]))
     send_flow_mod_add(
-                      @dpid, priority: 900,
-                      match: Match.new(in_port: @outside_port_no),
-                      actions: [SendOutPort.new(@inside_port_no)])
+      @dpid,
+      priority: PRIORITIES[:non_ipv4],
+      match: Match.new(in_port: PORTS[:outside]),
+      actions: SendOutPort.new(PORTS[:inside]))
   end
 
   def dump_top_flows
     return unless @stats.size > 0
     info 'top-10 permitted source prefixes by bytes'
     @stats.first(10).each do |each|
-      info sprintf('%15s/%-2u %u',
-                   each.match.nw_src.to_s,
-                   each.match.nw_src.prefixlen,
-                   each.byte_count)
+      info('%15s/%-2u %u',
+           each.match.nw_src.to_s,
+           each.match.nw_src.prefixlen,
+           each.byte_count)
     end
   end
 
@@ -158,7 +171,8 @@ class PassDelegated < Controller
     return if @dpid.nil? || @state != :running
     @stats = []
     send_message(
-                 @dpid, FlowStatsRequest.new(match: Match.new(in_port: @outside_port_no)))
-    send_message(@dpid, BarrierRequest.new)
+      @dpid,
+      FlowStatsRequest.new(match: Match.new(in_port: PORTS[:outside])))
+    send_message @dpid, BarrierRequest.new
   end
 end
