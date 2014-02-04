@@ -24,8 +24,8 @@ module Trema
       attr_reader :peers
 
 
-      def initialize peer0, peer1
-        @peers = [ peer0, peer1 ]
+      def initialize(peer0, peer1)
+        @peers = [peer0, peer1]
       end
     end
   end

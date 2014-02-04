@@ -23,14 +23,14 @@ class ListSwitches < Controller
   periodic_timer_event :timeout, 30
 
 
-  def list_switches_reply dpids
-    info "switches = %s" % dpids.collect { | each | sprintf( "0x%x", each ) }.join( ", " )
+  def list_switches_reply(dpids)
+    info 'switches = %s' % dpids.collect { | each | sprintf('0x%x', each) }.join(', ')
     shutdown!
   end
 
 
   def timeout
-    error "List switches request timeout."
+    error 'List switches request timeout.'
     shutdown!
   end
 end

@@ -20,7 +20,7 @@
 
 module Trema
   class SwitchDaemon
-    MANDATORY_QUEUES = [ :port_status, :packet_in, :state_notify ]
+    MANDATORY_QUEUES = [:port_status, :packet_in, :state_notify]
 
 
     #
@@ -35,7 +35,7 @@ module Trema
     # @option queues [Symbol] :state_notify
     #   the controller(s) to receive state notification messages.
     #
-    def initialize queues
+    def initialize(queues)
       check_mandatory_options queues
       @queues = queues
     end
@@ -47,7 +47,7 @@ module Trema
     #
     # @return [Array<String>] the switch daemon's options.
     def options
-      all_queues = MANDATORY_QUEUES + [ :vendor ]
+      all_queues = MANDATORY_QUEUES + [:vendor]
       all_queues.collect! do | each |
         queue each
       end.flatten!
@@ -62,9 +62,9 @@ module Trema
     #
     # @raise [RuntimeError] if a mandatory option is not found.
     #
-    def check_mandatory_options queues
+    def check_mandatory_options(queues)
       MANDATORY_QUEUES.each do | each |
-        raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+        fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end
     end
 
@@ -72,9 +72,9 @@ module Trema
     #
     # @return [Array<String>] an array of controller name strings.
     #
-    def queue queue_type
-      return [] unless @queues[ queue_type ]
-      controllers = @queues[ queue_type ].split( "," )
+    def queue(queue_type)
+      return [] unless @queues[ queue_type]
+      controllers = @queues[ queue_type].split(',')
       controllers.collect! do | each |
         "#{ queue_type.to_s }::#{ each }"
       end

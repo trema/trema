@@ -16,17 +16,17 @@
 #
 
 
-require "rubygems"
-require "rspec"
+require 'rubygems'
+require 'rspec'
 
 
-shared_examples_for "port status message" do | options |
+shared_examples_for 'port status message' do | options |
   it_should_behave_like(
-    "any Openflow message with mandatory options",
-    :klass => options[ :klass ],
-    :options => [ { :name => :datapath_id, :alias => :dpid, :sample_value => 0xabc },
-                  { :name => :transaction_id, :alias => :xid, :sample_value => 123 },
-                  { :name => :phy_port, :sample_value => "PHY_PORT" } ]
+    'any Openflow message with mandatory options',
+    :klass => options[ :klass],
+    :options => [{ :name => :datapath_id, :alias => :dpid, :sample_value => 0xabc },
+                 { :name => :transaction_id, :alias => :xid, :sample_value => 123 },
+                 { :name => :phy_port, :sample_value => 'PHY_PORT' }]
   )
 end
 

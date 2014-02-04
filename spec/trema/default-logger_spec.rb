@@ -16,18 +16,18 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
 module Trema
   describe DefaultLogger do
-    subject {
+    subject do
       class LoggingObject
         include Trema::DefaultLogger
       end
       LoggingObject.new
-    }
+    end
 
     it { should respond_to :critical }
     it { should respond_to :error }

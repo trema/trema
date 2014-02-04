@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require 'trema/action'
 
 
 module Trema
@@ -32,11 +32,11 @@ module Trema
     #
     # @private
     #
-    def initialize ip_address
-      unless ip_address.is_a?( String )
-        raise TypeError, "Source IP address must be a String"
+    def initialize(ip_address)
+      unless ip_address.is_a?(String)
+        fail TypeError, 'Source IP address must be a String'
       end
-      @ip_address = IPAddr.new( ip_address )
+      @ip_address = IPAddr.new(ip_address)
     end
 
 

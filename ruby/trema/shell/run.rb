@@ -18,30 +18,30 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
   module Shell
-    def run controller
+    def run(controller)
       assert_trema_is_built
 
       if controller
-        if /\.rb\Z/=~ controller.split.first
-          require "trema"
+        if /\.rb\Z/ =~ controller.split.first
+          require 'trema'
           include Trema
           ARGV.replace controller.split
-          $LOAD_PATH << File.dirname( controller )
+          $LOAD_PATH << File.dirname(controller)
           load controller
         else
           # Assume that the controller is written in C
           stanza = Trema::DSL::Run.new
           stanza.path controller
-          Trema::App.new( stanza )
+          Trema::App.new(stanza)
         end
       end
 
-      runner = DSL::Runner.new( $config )
+      runner = DSL::Runner.new($config)
       runner.maybe_run_switch_manager
       $config.switches.each do | name, switch |
         if switch.running?

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 
-exec File.join( File.dirname( __FILE__ ), "./bin/trema" ), *ARGV
+exec File.join(File.dirname(__FILE__), './bin/trema'), *ARGV
 
 
 ### Local variables:

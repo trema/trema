@@ -24,13 +24,13 @@ class FDB
   end
 
 
-  def lookup mac
-    @db[ mac ]
+  def lookup(mac)
+    @db[ mac]
   end
 
 
-  def learn mac, port_number
-    @db[ mac ] = port_number
+  def learn(mac, port_number)
+    @db[ mac] = port_number
   end
 end
 

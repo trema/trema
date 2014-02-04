@@ -2,21 +2,6 @@
 # The point is for the user to remove these configuration records
 # one by one as the offences are removed from the code base.
 
-Alias:
-  Enabled: false
-
-AlignArray:
-  Enabled: false
-
-AlignHash:
-  Enabled: false
-
-AlignParameters:
-  Enabled: false
-
-AndOr:
-  Enabled: false
-
 AssignmentInCondition:
   Enabled: false
 
@@ -24,9 +9,6 @@ BlockAlignment:
   Enabled: false
 
 BlockNesting:
-  Enabled: false
-
-Blocks:
   Enabled: false
 
 BracesAroundHashParameters:
@@ -57,9 +39,6 @@ ConstantName:
   Enabled: false
 
 CyclomaticComplexity:
-  Enabled: false
-
-DefWithoutParentheses:
   Enabled: false
 
 Documentation:
@@ -113,13 +92,7 @@ IfUnlessModifier:
 IndentationWidth:
   Enabled: false
 
-LeadingCommentSpace:
-  Enabled: false
-
 LineLength:
-  Enabled: false
-
-MethodCallParentheses:
   Enabled: false
 
 MethodLength:
@@ -146,16 +119,7 @@ ParenthesesAsGroupedExpression:
 PerlBackrefs:
   Enabled: false
 
-RedundantBegin:
-  Enabled: false
-
 RedundantException:
-  Enabled: false
-
-RedundantReturn:
-  Enabled: false
-
-RedundantSelf:
   Enabled: false
 
 RegexpLiteral:
@@ -167,43 +131,13 @@ RescueModifier:
 Semicolon:
   Enabled: false
 
-SignalException:
-  Enabled: false
-
-SpaceAfterComma:
-  Enabled: false
-
-SpaceAroundBlockBraces:
-  Enabled: false
-
 SpaceAroundEqualsInParameterDefault:
-  Enabled: false
-
-SpaceAroundOperators:
-  Enabled: false
-
-SpaceInsideBrackets:
-  Enabled: false
-
-SpaceInsideParens:
   Enabled: false
 
 SpecialGlobalVars:
   Enabled: false
 
-StringLiterals:
-  Enabled: false
-
-SymbolName:
-  Enabled: false
-
-Syntax:
-  Enabled: false
-
 TrailingBlankLines:
-  Enabled: false
-
-TrailingWhitespace:
   Enabled: false
 
 TrivialAccessors:

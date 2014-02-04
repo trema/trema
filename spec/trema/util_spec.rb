@@ -16,65 +16,65 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema/dsl/configuration"
-require "trema/dsl/runner"
-require "trema/util"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema/dsl/configuration'
+require 'trema/dsl/runner'
+require 'trema/util'
 
 
 include Trema::Util
 
 
 describe Trema::Util do
-  it "should assert that trema is built" do
-    Trema::Executables.stub!( :compiled? ).and_return( false )
-    $stderr.should_receive( :puts ).with( /^ERROR/ )
-    expect { assert_trema_is_built }.to raise_error( SystemExit )
+  it 'should assert that trema is built' do
+    Trema::Executables.stub!(:compiled?).and_return(false)
+    $stderr.should_receive(:puts).with(/^ERROR/)
+    expect { assert_trema_is_built }.to raise_error(SystemExit)
   end
 
 
-  it "should execute and check the results of a command" do
-    expect { sh "NO SUCH COMMAND" }.to raise_error( "Command 'NO SUCH COMMAND' failed!" )
+  it 'should execute and check the results of a command' do
+    expect { sh 'NO SUCH COMMAND' }.to raise_error("Command 'NO SUCH COMMAND' failed!")
   end
 
 
-  it "should cleanup current session" do
-    apps = { "app 1" => mock( "app 1" ), "app 2" => mock( "app 2" ), "app 3" => mock( "app 3" ) }
+  it 'should cleanup current session' do
+    apps = { 'app 1' => mock('app 1'), 'app 2' => mock('app 2'), 'app 3' => mock('app 3') }
     apps.each do | name, app |
-      app.should_receive( :shutdown! )
+      app.should_receive(:shutdown!)
     end
 
-    switches = { "switch 1" => mock( "switch 1" ), "switch 2" => mock( "switch 2" ), "switch 3" => mock( "switch 3" ) }
+    switches = { 'switch 1' => mock('switch 1'), 'switch 2' => mock('switch 2'), 'switch 3' => mock('switch 3') }
     switches.each do | name, switch |
-      switch.should_receive( :shutdown! )
+      switch.should_receive(:shutdown!)
     end
 
-    hosts = { "host 1" => mock( "host 1" ), "host 2" => mock( "host 2" ), "host 3" => mock( "host 3" ) }
+    hosts = { 'host 1' => mock('host 1'), 'host 2' => mock('host 2'), 'host 3' => mock('host 3') }
     hosts.each do | name, host |
-      host.should_receive( :shutdown! )
+      host.should_receive(:shutdown!)
     end
 
-    links = { "link 1" => mock( "link 1" ), "link 2" => mock( "link 2" ), "link 3" => mock( "link 3" ) }
+    links = { 'link 1' => mock('link 1'), 'link 2' => mock('link 2'), 'link 3' => mock('link 3') }
     links.each do | name, link |
-      link.should_receive( :delete! )
+      link.should_receive(:delete!)
     end
 
-    last_session = mock( "last session" )
-    last_session.stub!( :apps ).and_return( apps )
-    last_session.stub!( :switches ).and_return( switches )
-    last_session.stub!( :hosts ).and_return( hosts )
-    last_session.stub!( :links ).and_return( links )
-    last_session.stub!( :netnss ).and_return( {} )
-    Trema::DSL::Context.stub!( :load_current ).and_return( last_session )
+    last_session = mock('last session')
+    last_session.stub!(:apps).and_return(apps)
+    last_session.stub!(:switches).and_return(switches)
+    last_session.stub!(:hosts).and_return(hosts)
+    last_session.stub!(:links).and_return(links)
+    last_session.stub!(:netnss).and_return({})
+    Trema::DSL::Context.stub!(:load_current).and_return(last_session)
 
-    pid_files = [ mock( "PID file #0" ), mock( "PID file #1" ), mock( "PID file #2" ) ]
-    Dir.stub!( :glob ).and_return( pid_files )
+    pid_files = [mock('PID file #0'), mock('PID file #1'), mock('PID file #2')]
+    Dir.stub!(:glob).and_return(pid_files)
 
-    process = mock( "process" )
-    process.should_receive( :kill! ).exactly( 3 ).times
-    Trema::Process.should_receive( :read ).with( pid_files[ 0 ] ).once.ordered.and_return( process )
-    Trema::Process.should_receive( :read ).with( pid_files[ 1 ] ).once.ordered.and_return( process )
-    Trema::Process.should_receive( :read ).with( pid_files[ 2 ] ).once.ordered.and_return( process )
+    process = mock('process')
+    process.should_receive(:kill!).exactly(3).times
+    Trema::Process.should_receive(:read).with(pid_files[ 0]).once.ordered.and_return(process)
+    Trema::Process.should_receive(:read).with(pid_files[ 1]).once.ordered.and_return(process)
+    Trema::Process.should_receive(:read).with(pid_files[ 2]).once.ordered.and_return(process)
 
     cleanup_current_session
   end

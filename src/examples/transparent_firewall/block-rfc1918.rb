@@ -1,4 +1,3 @@
-# A sample transparent firewall, see README.md for more information.
 #
 # Copyright (C) 2014 Denis Ovsienko
 #
@@ -15,6 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# A sample transparent firewall, see README.md for more information.
 class BlockRFC1918 < Controller
   PORTS = {
     outside: 1,

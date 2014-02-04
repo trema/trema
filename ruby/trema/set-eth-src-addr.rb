@@ -16,7 +16,7 @@
 #
 
 
-require "trema/set-eth-addr"
+require 'trema/set-eth-addr'
 
 
 module Trema

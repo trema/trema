@@ -16,19 +16,19 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
 describe Trema::PortStatusModify do
-  it_should_behave_like "port status message", :klass => Trema::PortStatusModify
+  it_should_behave_like 'port status message', :klass => Trema::PortStatusModify
 end
 
 
 module Trema
   class PortStatusController < Controller
-    def features_reply dpid, message
-      message.ports.select( &:up? ).each do | each |
+    def features_reply(dpid, message)
+      message.ports.select(&:up?).each do | each |
         port_mod = PortMod.new(
           :port_no => each.number,
           :hw_addr => each.hw_addr,
@@ -43,21 +43,21 @@ module Trema
 
 
   describe Controller do
-    context "when one port goes down" do
-      it "should receive port_status (modify)" do
-        network {
+    context 'when one port goes down' do
+      it 'should receive port_status (modify)' do
+        network do
           vswitch { datapath_id 0xabc }
-          vhost "host"
-          link "host", "0xabc"
-        }.run( PortStatusController ) {
-          controller( "PortStatusController" ).should_receive( :port_status ).with do | dpid, message |
-            expect( dpid ).to eq( 0xabc )
-            expect( message ).to be_an_instance_of( PortStatusModify )
+          vhost 'host'
+          link 'host', '0xabc'
+        end.run(PortStatusController) do
+          controller('PortStatusController').should_receive(:port_status).with do | dpid, message |
+            expect(dpid).to eq(0xabc)
+            expect(message).to be_an_instance_of(PortStatusModify)
           end
 
-          controller( "PortStatusController" ).send_message 0xabc, FeaturesRequest.new
+          controller('PortStatusController').send_message 0xabc, FeaturesRequest.new
           sleep 2  # FIXME: wait to receive port_status
-        }
+        end
       end
     end
   end

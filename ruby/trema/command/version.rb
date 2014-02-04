@@ -16,7 +16,7 @@
 #
 
 
-require "trema/version"
+require 'trema/version'
 
 
 module Trema

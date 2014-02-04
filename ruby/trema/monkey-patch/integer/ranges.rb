@@ -34,8 +34,8 @@ module MonkeyPatch
       end
 
 
-      def within_range? nbit
-        ( 0 <= self ) and ( self < 2 ** nbit )
+      def within_range?(nbit)
+        (0 <= self) && (self < 2**nbit)
       end
     end
   end

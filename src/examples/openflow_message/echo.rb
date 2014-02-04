@@ -18,7 +18,7 @@
 #
 
 
-require  "example"
+require  'example'
 
 
 class EchoController < Controller
@@ -26,20 +26,20 @@ class EchoController < Controller
 
 
   class << self
-    def run args
+    def run(args)
       usage unless Example.options_parse args
     end
 
 
     def usage
       puts Example.cmd_usage
-      puts "Send count number of echo requests to datapath_id."
+      puts 'Send count number of echo requests to datapath_id.'
       exit false
     end
   end
 
 
-  def switch_ready msg_datapath_id
+  def switch_ready(msg_datapath_id)
     may_raise_error msg_datapath_id
     send_nr_msgs EchoRequest
   end

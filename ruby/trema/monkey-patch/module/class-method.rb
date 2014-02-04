@@ -19,8 +19,8 @@
 module MonkeyPatch
   module Module
     module ClassMethod
-      def define_class_method name, &block
-        self.extend ::Module.new {
+      def define_class_method(name, &block)
+        extend ::Module.new {
           define_method name.to_s do
             block.call
           end

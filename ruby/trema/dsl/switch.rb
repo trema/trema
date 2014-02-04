@@ -18,33 +18,33 @@
 #
 
 
-require "trema/dsl/stanza"
+require 'trema/dsl/stanza'
 
 
 module Trema
   module DSL
     class Switch < Stanza
-      def dpid value
+      def dpid(value)
         case value
         when String
-          set_dpid value
+          self.dpid = value
         when Integer
-          set_dpid sprintf( "%#x", value )
+          self.dpid = sprintf('%#x', value)
         else
-          raise "Invalid datapath_id: #{ value }"
+          fail "Invalid datapath_id: #{ value }"
         end
       end
-      alias :datapath_id :dpid
+      alias_method :datapath_id, :dpid
 
 
-      def ports str
+      def ports(str)
         @ports = str
       end
 
 
       def validate
-        set_dpid name if /\A0x/=~ name
-        raise "Invalid dpid: #{ @name }" if @dpid_short.nil?
+        self.dpid = name if /\A0x/ =~ name
+        fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 
 
@@ -53,16 +53,16 @@ module Trema
       ##########################################################################
 
 
-      def set_dpid string
-        @dpid_long = dpid_long_from( string )
+      def dpid=(string)
+        @dpid_long = dpid_long_from(string)
         @dpid_short = string
         @name = @dpid_short if @name.nil?
       end
 
 
-      def dpid_long_from string
-        no_0x = string.gsub( /^0x/, "" )
-        "0" * ( 16 - no_0x.length ) + no_0x
+      def dpid_long_from(string)
+        no_0x = string.gsub(/^0x/, '')
+        '0' * ( 16 - no_0x.length) + no_0x
       end
     end
   end

@@ -1,4 +1,3 @@
-# A sample transparent firewall, see README.md for more information.
 #
 # Copyright (C) 2014 Denis Ovsienko
 #
@@ -15,6 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# A sample transparent firewall, see README.md for more information.
 class PassDelegated < Controller
   PORTS = {
     outside: 1,
@@ -113,8 +113,8 @@ class PassDelegated < Controller
       actions: SendOutPort.new(PORTS[:outside]))
     send_flow_mod_add(
       @dpid, priority: PRIORITIES[:bypass],
-      match: Match.new(in_port: PORTS[:outside]),
-      actions: SendOutPort.new(PORTS[:inside]))
+             match: Match.new(in_port: PORTS[:outside]),
+             actions: SendOutPort.new(PORTS[:inside]))
     info "#{@dpid.to_hex}: bypass ON"
   end
 
@@ -123,10 +123,10 @@ class PassDelegated < Controller
     @prefixes.each do |each|
       send_flow_mod_add(
         @dpid, priority: PRIORITIES[:prefix],
-        match: Match.new(in_port: PORTS[:outside],
-                         dl_type: 0x0800,
-                         nw_src: Pio::IPv4Address.new(each)),
-                         actions: SendOutPort.new(PORTS[:inside]))
+               match: Match.new(in_port: PORTS[:outside],
+                                dl_type: 0x0800,
+                                nw_src: Pio::IPv4Address.new(each)),
+               actions: SendOutPort.new(PORTS[:inside]))
     end
   end
 

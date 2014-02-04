@@ -16,9 +16,9 @@
 #
 
 
-require "trema/cli"
-require "trema/phost"
-require "trema/network-component"
+require 'trema/cli'
+require 'trema/phost'
+require 'trema/network-component'
 
 
 module Trema
@@ -49,10 +49,10 @@ module Trema
     #
     # @api public
     #
-    def initialize stanza
+    def initialize(stanza)
       @stanza = stanza
-      @phost = Phost.new( self )
-      @cli = Cli.new( self )
+      @phost = Phost.new(self)
+      @cli = Cli.new(self)
       @index = Host.instances.size
       Host.add self
     end
@@ -68,7 +68,7 @@ module Trema
     #
     # @api public
     #
-    def method_missing message, *args
+    def method_missing(message, *args)
       @stanza.__send__ :[], message
     end
 
@@ -84,7 +84,7 @@ module Trema
     # @api public
     #
     def ip
-      stanza_ip = @stanza[ :ip ]
+      stanza_ip = @stanza[ :ip]
       if stanza_ip.nil?
         # FIXME: Find unused addresses
         "192.168.0.#{ @index + 1 }"
@@ -105,7 +105,7 @@ module Trema
     # @api public
     #
     def mac
-      stanza_mac = @stanza[ :mac ]
+      stanza_mac = @stanza[ :mac]
       if stanza_mac.nil?
         "00:00:00:00:00:#{ format "%02x", @index + 1 }"
       else
@@ -125,9 +125,9 @@ module Trema
     # @api public
     #
     def netmask
-      stanza_netmask = @stanza[ :netmask ]
+      stanza_netmask = @stanza[ :netmask]
       if stanza_netmask.nil?
-        "255.255.255.255"
+        '255.255.255.255'
       else
         stanza_netmask
       end
@@ -147,7 +147,7 @@ module Trema
     def run!
       @phost.run!
       @cli.set_ip_and_mac_address
-      @cli.enable_promisc if @stanza[ :promisc ]
+      @cli.enable_promisc if @stanza[ :promisc]
       self
     end
 
@@ -177,7 +177,7 @@ module Trema
     #
     # @api public
     #
-    def add_arp_entry hosts
+    def add_arp_entry(hosts)
       hosts.each do | each |
         @cli.add_arp_entry each
       end
@@ -194,9 +194,9 @@ module Trema
     #
     # @api public
     #
-    def send_packet dest, options = {}
-      dest_host = if dest.is_a?( String )
-                    vhost( dest )
+    def send_packet(dest, options = {})
+      dest_host = if dest.is_a?(String)
+                    vhost(dest)
                   else
                     dest
                   end
@@ -212,14 +212,14 @@ module Trema
     # @return [Stat]
     #   the object that represents the results of a particular stats type.
     #
-    def stats type
+    def stats(type)
       case type
       when :tx
         @cli.tx_stats
       when :rx
         @cli.rx_stats
       else
-        raise
+        fail
       end
     end
 

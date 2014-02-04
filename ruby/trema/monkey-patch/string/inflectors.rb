@@ -20,23 +20,23 @@ module MonkeyPatch
   module String
     module Inflectors
       def camelize
-        self.split( /[^a-z0-9]/i ).map do | each |
+        split(/[^a-z0-9]/i).map do | each |
           each.capitalize
         end.join
       end
 
 
       def demodulize
-        self.gsub /^.*::/, ''
+        gsub(/^.*::/, '')
       end
 
 
       def underscore
-        word = self.dup
-        word.gsub! /::/, '/'
-        word.gsub! /([A-Z]+)([A-Z][a-z])/,'\1_\2'
-        word.gsub! /([a-z\d])([A-Z])/,'\1_\2'
-        word.tr! "-", "_"
+        word = dup
+        word.gsub!(/::/, '/')
+        word.gsub!(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+        word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
+        word.tr! '-', '_'
         word.downcase!
         word
       end

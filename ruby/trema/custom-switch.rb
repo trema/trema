@@ -16,7 +16,7 @@
 #
 
 
-require "trema/hardware-switch"
+require 'trema/hardware-switch'
 
 
 module Trema
@@ -26,8 +26,8 @@ module Trema
 
     log_file { |vswitch| "customswitch.#{ vswitch.name }.log" }
 
-    
-    def initialize stanza
+
+    def initialize(stanza)
       super stanza
     end
 
@@ -43,7 +43,7 @@ module Trema
 
 
     def path
-      File.join( Trema.home, @stanza[ :path ] )
+      File.join(Trema.home, @stanza[ :path])
     end
   end
 end

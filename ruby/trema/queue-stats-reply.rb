@@ -16,7 +16,7 @@
 #
 
 
-require "trema/stats-helper"
+require 'trema/stats-helper'
 
 
 module Trema
@@ -62,7 +62,7 @@ module Trema
     #   @return [QueueStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_QUEUE) OpenFlow message.
     #
-    def initialize options
+    def initialize(options)
       super FIELDS, options
     end
   end

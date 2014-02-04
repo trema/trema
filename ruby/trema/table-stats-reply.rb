@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-require "trema/stats-helper"
+require 'trema/stats-helper'
 
 
 module Trema
@@ -71,7 +71,7 @@ module Trema
     #   @return [TableStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_TABLE) OpenFlow message.
     #
-    def initialize options
+    def initialize(options)
       super FIELDS, options
     end
   end

@@ -16,8 +16,8 @@
 #
 
 
-require "rubygems"
-require "pio"
+require 'rubygems'
+require 'pio'
 
 
 module Trema

@@ -16,8 +16,8 @@
 #
 
 
-require "trema/action"
-require "trema/mac"
+require 'trema/action'
+require 'trema/mac'
 
 
 module Trema
@@ -35,8 +35,8 @@ module Trema
     #
     # @private
     #
-    def initialize mac_address
-      @mac_address = Mac.new( mac_address )
+    def initialize(mac_address)
+      @mac_address = Mac.new(mac_address)
     end
 
 

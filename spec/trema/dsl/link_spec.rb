@@ -16,26 +16,26 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/link"
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
+require 'trema/dsl/link'
 
 
 module Trema
   module DSL
     describe Link do
-      context %[when parsing "link peerA peerB"] do
-        it %[recognizes "link peerA peerB" directive] do
-          expect { Link.new "Host", "Switch" }.not_to raise_error
+      context 'when parsing "link peerA peerB"' do
+        it 'recognizes "link peerA peerB" directive' do
+          expect { Link.new 'Host', 'Switch' }.not_to raise_error
         end
       end
 
 
-      context "when getting attributes of a link" do
-        it "remembers peers" do
-          link = Link.new( "Host", "Switch" )
-          expect( link.peers.size ).to eq( 2 )
-          expect( link.peers ).to include( "Host" )
-          expect( link.peers ).to include( "Switch" )
+      context 'when getting attributes of a link' do
+        it 'remembers peers' do
+          link = Link.new('Host', 'Switch')
+          expect(link.peers.size).to eq(2)
+          expect(link.peers).to include('Host')
+          expect(link.peers).to include('Switch')
         end
       end
     end
