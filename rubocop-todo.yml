@@ -137,9 +137,6 @@ SpaceAroundEqualsInParameterDefault:
 SpecialGlobalVars:
   Enabled: false
 
-SymbolName:
-  Enabled: false
-
 TrailingBlankLines:
   Enabled: false
 

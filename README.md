@@ -57,7 +57,7 @@ Getting Started
     $ sudo /var/lib/gems/1.8/bin/update_rubygems
 
     (In Fedora 16-19)
-    $ sudo yum install gcc make git ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel glib2-devel
+    $ sudo yum install tar gcc make git ruby rubygems ruby-devel libpcap-devel libsqlite3x-devel glib2-devel
 
 2.Install Trema at the command prompt:
 

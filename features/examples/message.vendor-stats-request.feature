@@ -10,7 +10,7 @@ Feature: "Vendor Stats Request" sample application
       vswitch( "vendor_stats" ) { datapath_id "0xabc" }
       """
 
-  @slow_process
+  @slow_process @ruby
   Scenario: Vendor Stats Request message in Ruby
   Given I run `trema run ../../src/examples/openflow_message/vendor-stats-request.rb -c vendor_stats.conf -d`
    And wait until "VendorStatsRequestSample" is up

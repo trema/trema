@@ -1,3 +1,4 @@
+@ruby
 Feature: help command
 
   In order to understand how to use Trema

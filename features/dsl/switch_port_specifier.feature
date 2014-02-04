@@ -1,4 +1,4 @@
-@wip
+@wip @ruby
 Feature: Switch Port Specifier
   By adding a postfix (`:port#`) to the switch's name found in the `link` directive you can specify the exact port number to be used when the link is created.
 

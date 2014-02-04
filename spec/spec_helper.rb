@@ -151,8 +151,8 @@ class Network
     loop do
       fail "Timed out waiting for #{ trema_name }." if elapsed > timeout
       break if FileTest.exists?(File.join(Trema.pid, "#{ trema_name }.pid"))
-      sleep 1
-      elapsed += 1
+      sleep 0.1
+      elapsed += 0.1
     end
     sleep 1
   end
@@ -163,8 +163,8 @@ class Network
     loop do
       fail 'Failed to clean up remaining processes.' if elapsed > timeout
       break if Dir.glob(File.join(Trema.pid, '*.pid')).empty?
-      sleep 1
-      elapsed += 1
+      sleep 0.1
+      elapsed += 0.1
     end
     sleep 1
   end

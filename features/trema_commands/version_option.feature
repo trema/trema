@@ -1,3 +1,4 @@
+@ruby
 Feature: --version option
 
   Use the --version option to display the current runtime version.

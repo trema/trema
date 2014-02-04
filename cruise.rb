@@ -243,7 +243,7 @@ end
 
 def coverage_threshold_error
   <<-EOF
-#{ banner("ERROR") }
+#{ banner('ERROR') }
 Oops...
 Overall coverage DECREASED to #{ coverage }% !!!
 
@@ -254,7 +254,7 @@ end
 
 def update_coverage_threshold_message
   <<-EOF
-#{ banner("WARNING") }
+#{ banner('WARNING') }
 Congratulations !
 Overall coverage INCREASED to #{ coverage }% !
 
@@ -274,23 +274,25 @@ def show_summary
   puts <<-EOF
 
 
-#{ banner("Coverage details") }
+#{ banner('Coverage details') }
 #{ coverage_ranking }
 
-#{ banner("Summary") }
+#{ banner('Summary') }
 - Total execution time = #{ ( Time.now - $start_time).to_i } seconds
 - Overall coverage = #{ coverage }% (#{ files_not_tested.size }/#{ testees.size } files not yet tested)
 
 
 EOF
 
-  if ( coverage < $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
+  if (coverage < $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
     puts coverage_threshold_error
-    puts; puts
+    puts
+    puts
     exit(-1)
-  elsif ( coverage > $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
+  elsif (coverage > $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
     puts update_coverage_threshold_message
-    puts; puts
+    puts
+    puts
     exit(-1)
   end
 end
@@ -307,24 +309,37 @@ def test(message)
     begin
       yield
     ensure
-      sh './trema killall'
+      sh './trema killall' rescue nil
     end
   end
 end
 
 
-def run_unit_test
+def run_unit_tests
   test 'Running unit tests ...' do
     sh 'bundle exec rake unittests'
+  end
+  measure_coverage
+end
+
+
+def run_rspec
+  test 'Running rspec ...' do
     sh 'bundle exec rake spec'
   end
   measure_coverage
 end
 
 
-def run_acceptance_test
+def run_ruby_acceptance_tests
   test 'Running acceptance tests ...' do
     sh 'bundle exec rake features'
+  end
+end
+
+def run_all_acceptance_tests
+  test 'Running acceptance tests ...' do
+    sh 'bundle exec rake features:all'
   end
 end
 
@@ -341,6 +356,10 @@ end
 
 $options.on('-a', '--acceptance-test-only') do
   $acceptance_test_only = true
+end
+
+$options.on('-A', '--all') do
+  $all = true
 end
 
 $options.separator ''
@@ -369,9 +388,18 @@ Blocker.start do
   $start_time = Time.now
   cd Trema.home do
     init_cruise
-    run_unit_test if not $acceptance_test_only
-    run_acceptance_test if not $unit_test_only
-    show_summary if not $acceptance_test_only
+    if not $acceptance_test_only
+      run_unit_tests if $all
+      run_rspec
+    end
+    if not $unit_test_only
+      if $all
+        run_all_acceptance_tests
+      else
+        run_ruby_acceptance_tests
+      end
+    end
+    show_summary if not $acceptance_test_only && $all
   end
 end
 

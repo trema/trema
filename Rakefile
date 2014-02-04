@@ -64,7 +64,7 @@ CFLAGS = [
   '-Wwrite-strings',
   '-Wconversion',
   '-Wfloat-equal',
-  '-Wpointer-arith',
+  '-Wpointer-arith'
 ]
 CFLAGS << '-Werror' if RUBY_VERSION < '1.9.0'
 
@@ -134,7 +134,7 @@ PaperHouse::ExecutableTask.new :switch_manager do | task |
     'src/switch_manager/event_forward_entry_manipulation.c',
     'src/switch_manager/secure_channel_listener.c',
     'src/switch_manager/switch_manager.c',
-    'src/switch_manager/switch_option.c',
+    'src/switch_manager/switch_option.c'
   ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
@@ -144,7 +144,7 @@ PaperHouse::ExecutableTask.new :switch_manager do | task |
     'sqlite3',
     'pthread',
     'rt',
-    'dl',
+    'dl'
   ]
 end
 
@@ -165,7 +165,7 @@ PaperHouse::ExecutableTask.new :switch_daemon do | task |
     'src/switch_manager/service_interface.c',
     'src/switch_manager/switch.c',
     'src/switch_manager/switch_option.c',
-    'src/switch_manager/xid_table.c',
+    'src/switch_manager/xid_table.c'
   ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
@@ -175,7 +175,7 @@ PaperHouse::ExecutableTask.new :switch_daemon do | task |
     'sqlite3',
     'pthread',
     'rt',
-    'dl',
+    'dl'
   ]
 end
 
@@ -251,7 +251,7 @@ task :vendor => [
   'vendor:oflops',
   'vendor:openflow',
   'vendor:openvswitch',
-  'vendor:phost',
+  'vendor:phost'
 ]
 
 
@@ -292,7 +292,7 @@ PaperHouse::ExecutableTask.new :packetin_filter do | task |
                                'sqlite3',
                                'pthread',
                                'rt',
-                               'dl',
+                               'dl'
                               ]
 end
 
@@ -326,7 +326,7 @@ task 'vendor:cmockery' => Trema.libcmockery_a
 file Trema.libcmockery_a do
   sh "tar xzf #{ Trema.vendor_cmockery }.tar.gz -C #{ Trema.vendor }"
   cd Trema.vendor_cmockery do
-    sh "./configure --prefix=#{ Trema.cmockery }"
+    sh "./configure --disable-shared --prefix=#{ Trema.cmockery }"
     sh 'make install'
   end
 end
@@ -349,7 +349,7 @@ $standalone_examples = [
                         'repeater_hub',
                         'switch_info',
                         'switch_monitor',
-                        'traffic_monitor',
+                        'traffic_monitor'
                        ]
 
 desc 'Build examples.'
@@ -378,7 +378,7 @@ $standalone_examples.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -390,7 +390,7 @@ end
 
 $openflow_switches = [
                       'hello_switch',
-                      'echo_switch',
+                      'echo_switch'
                      ]
 
 task 'examples:openflow_switch' => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
@@ -411,7 +411,7 @@ $openflow_switches.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -426,7 +426,7 @@ $openflow_messages = [
                       'features_request',
                       'hello',
                       'set_config',
-                      'vendor_action',
+                      'vendor_action'
                      ]
 
 task 'examples:openflow_message' => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
@@ -447,7 +447,7 @@ $openflow_messages.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -461,7 +461,7 @@ $switch_event_config = [
                         'add_forward_entry',
                         'delete_forward_entry',
                         'set_forward_entries',
-                        'dump_forward_entries',
+                        'dump_forward_entries'
                        ]
 
 task 'examples:switch_event_config' => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
@@ -482,7 +482,7 @@ $switch_event_config.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -497,7 +497,7 @@ $packetin_filter_config = [
                            'delete_filter',
                            'delete_filter_strict',
                            'dump_filter',
-                           'dump_filter_strict',
+                           'dump_filter_strict'
                           ]
 
 task 'examples:packetin_filter_config' => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
@@ -518,7 +518,7 @@ $packetin_filter_config.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -534,7 +534,7 @@ end
 
 
 def cbench_latency_mode_options
-  '--switches 1 --loops 10 --delay 1000'
+  '--port 6653 --switches 1 --loops 10 --delay 1000'
 end
 
 
@@ -611,7 +611,7 @@ $management_commands = [
                        'application',
                        'echo',
                        'set_logging_level',
-                       'show_stats',
+                       'show_stats'
                       ]
 
 desc 'Build management commands.'
@@ -633,7 +633,7 @@ $management_commands.each do | each |
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -652,7 +652,7 @@ PaperHouse::ExecutableTask.new :tremashark do | task |
   task.sources = [
                   'src/tremashark/pcap_queue.c',
                   'src/tremashark/queue.c',
-                  'src/tremashark/tremashark.c',
+                  'src/tremashark/tremashark.c'
                  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
@@ -675,7 +675,7 @@ PaperHouse::ExecutableTask.new :packet_capture do | task |
   task.target_directory = File.dirname(Trema::Executables.packet_capture)
   task.sources = [
                   'src/tremashark/packet_capture.c',
-                  'src/tremashark/queue.c',
+                  'src/tremashark/queue.c'
                  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
@@ -789,7 +789,7 @@ def libtrema_unit_tests
     :packet_info_test => [:buffer, :log, :utility, :wrapper, :trema_wrapper],
     :stat_test => [:hash_table, :doubly_linked_list, :log, :utility, :wrapper, :trema_wrapper],
     :timer_test => [:log, :utility, :wrapper, :doubly_linked_list, :trema_wrapper],
-    :trema_test => [:utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper],
+    :trema_test => [:utility, :log, :wrapper, :doubly_linked_list, :trema_private, :trema_wrapper]
   }
 end
 
@@ -822,7 +822,7 @@ libtrema_unit_tests.keys.each do | each |
     task.sources = test_c_files(each) + ["unittests/lib/#{ each }.c"]
     task.includes = [Trema.include, Trema.openflow, File.dirname(Trema.cmockery_h), 'unittests']
     task.cflags = ['-DUNIT_TESTING', '--coverage', CFLAGS]
-    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage --static"
+    task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage"
     task.library_dependencies = [
                                  'cmockery',
                                  'sqlite3',
@@ -854,7 +854,7 @@ $tests = [
           'objects/unittests/match_table_test',
           'objects/unittests/message_queue_test',
           'objects/unittests/management_interface_test',
-          'objects/unittests/management_service_interface_test',
+          'objects/unittests/management_service_interface_test'
          ]
 
 task :build_unittests => $tests.map { | each | 'unittests:' + File.basename(each) }
@@ -869,14 +869,14 @@ $tests.each do | _each |
     task.sources = ["unittests/lib/#{ each }.c", 'unittests/cmockery_trema.c']
     task.includes = [Trema.include, Trema.openflow, File.dirname(Trema.cmockery_h), 'unittests']
     task.cflags = ['--coverage', CFLAGS]
-    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage --static"
+    task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage"
     task.library_dependencies = [
                                  'trema',
                                  'cmockery',
                                  'sqlite3',
                                  'pthread',
                                  'rt',
-                                 'dl',
+                                 'dl'
                                 ]
   end
 end
@@ -938,9 +938,15 @@ end
 
 begin
   require 'cucumber/rake/task'
+
   task :features => :build_trema
   Cucumber::Rake::Task.new(:features) do | t |
-    t.cucumber_opts = 'features --tags ~@wip'
+    t.cucumber_opts = '--tags @critical --tags ~@wip'
+  end
+
+  task 'features:all' => :build_trema
+  Cucumber::Rake::Task.new('features:all') do | t |
+    t.cucumber_opts = '--tags ~@wip'
   end
 rescue LoadError
   $stderr.puts $!.to_s
