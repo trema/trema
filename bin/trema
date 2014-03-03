@@ -271,7 +271,7 @@ class BinTrema
 
       if FileTest.exist?(Trema.tmp) && !FileTest.writable?(Trema.tmp)
         # Trema is system widely installed with gem command
-        sh "sudo chmod o+w -R #{ Trema.tmp }"
+        sh "sudo chmod a+w -R #{ Trema.tmp }"
       end
 
       FileUtils.mkdir_p Trema.log
