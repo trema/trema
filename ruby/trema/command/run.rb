@@ -40,7 +40,7 @@ module Trema
         $no_flow_cleanup = true
       end
 
-      need_cleanup = (not running?)
+      need_cleanup = (!running?)
 
       if $run_as_daemon
         Trema::DSL::Runner.new(load_config).daemonize

@@ -988,7 +988,7 @@ begin
     threshold = 10
 
     bad_methods = flog.totals.select do | name, score |
-      ( not ( /##{flog.no_method}$/ =~ name)) && score > threshold
+      !(/##{flog.no_method}$/ =~ name) && score > threshold
     end
     bad_methods.sort do | a, b |
       a[ 1] <=> b[ 1]

@@ -104,9 +104,6 @@ MethodLength:
 MultilineBlockChain:
   Enabled: false
 
-Not:
-  Enabled: false
-
 NumericLiterals:
   Enabled: false
 

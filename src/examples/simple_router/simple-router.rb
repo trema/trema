@@ -80,7 +80,7 @@ class SimpleRouter < Controller
   end
 
   def should_forward?(message)
-    not @interfaces.find_by_ipaddr(message.ipv4_daddr)
+    !@interfaces.find_by_ipaddr(message.ipv4_daddr)
   end
 
   def handle_icmpv4_echo_request(dpid, message)
