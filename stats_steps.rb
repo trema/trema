@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 Then(/^the total number of tx packets should be:$/) do | table |
   sleep 1
   table.hashes[ 0].each_pair do | host, n |
@@ -23,14 +22,12 @@ Then(/^the total number of tx packets should be:$/) do | table |
   end
 end
 
-
 Then(/^the total number of rx packets should be:$/) do | table |
   sleep 1
   table.hashes[ 0].each_pair do | host, n |
     count_packets(`trema show_stats #{ host } --rx`).should == n.to_i
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby
