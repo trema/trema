@@ -98,9 +98,6 @@ NumericLiterals:
 ParameterLists:
   Enabled: false
 
-ParenthesesAroundCondition:
-  Enabled: false
-
 ParenthesesAsGroupedExpression:
   Enabled: false
 

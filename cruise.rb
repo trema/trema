@@ -362,7 +362,7 @@ Blocker.start do
         run_ruby_acceptance_tests
       end
     end
-    show_summary if ((!$acceptance_test_only) && $all)
+    show_summary if (!$acceptance_test_only) && $all
   end
 end
 

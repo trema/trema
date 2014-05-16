@@ -43,7 +43,7 @@ module Trema
       unless vlan_id.is_a?(Integer)
         fail TypeError, 'VLAN ID argument must be an Integer'
       end
-      unless ( vlan_id >= 1 && vlan_id <= 4095)
+      unless  vlan_id >= 1 && vlan_id <= 4095
         fail ArgumentError, 'Valid VLAN ID values between 1 to 4095 inclusive'
       end
       @vlan_id = vlan_id
