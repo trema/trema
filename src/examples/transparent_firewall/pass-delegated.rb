@@ -29,7 +29,7 @@ class PassDelegated < Controller
     non_ipv4: 900
   }
 
-  PREFIX_FILES = %w[afrinic apnic arin lacnic ripencc].map do |each|
+  PREFIX_FILES = %w(afrinic apnic arin lacnic ripencc).map do |each|
     "aggregated-delegated-#{each}.txt"
   end
 

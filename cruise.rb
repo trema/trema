@@ -186,7 +186,7 @@ def gcov(gcda, dir)
     shell.on_stdout do | l |
       file = File.expand_path($1) if /^File '(.*)'/ =~ l
       testee = $c_files[ file]
-      if /^Lines executed:(.*)% of (.*)$/ =~ l && !testee.nil?
+      if /^Lines executed:(.*)% of (.*)$/ =~ l && testee
         testee.coverage = $1.to_f
         testee.lines = $2.to_i
       end
@@ -388,11 +388,11 @@ Blocker.start do
   $start_time = Time.now
   cd Trema.home do
     init_cruise
-    if not $acceptance_test_only
+    unless $acceptance_test_only
       run_unit_tests if $all
       run_rspec
     end
-    if not $unit_test_only
+    unless $unit_test_only
       if $all
         run_all_acceptance_tests
       else

@@ -77,7 +77,7 @@ class Interfaces
     true if macda.broadcast?
 
     interface = find_by_port(port)
-    if not interface.nil? && interface.has?(macda)
+    unless interface.nil? && interface.has?(macda)
       true
     end
   end

@@ -23,6 +23,9 @@ CaseIndentation:
 ClassAndModuleCamelCase:
   Enabled: false
 
+ClassAndModuleChildren:
+  Enabled: false
+
 ClassLength:
   Enabled: false
 
@@ -68,10 +71,10 @@ EndAlignment:
 Eval:
   Enabled: false
 
-FavorSprintf:
+FileName:
   Enabled: false
 
-FavorUnlessOverNegatedIf:
+FormatString:
   Enabled: false
 
 For:
@@ -81,9 +84,6 @@ GlobalVars:
   Enabled: false
 
 HandleExceptions:
-  Enabled: false
-
-HashMethods:
   Enabled: false
 
 HashSyntax:

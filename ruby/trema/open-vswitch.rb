@@ -120,18 +120,18 @@ module Trema
 
     def default_options
       [
-       '--detach',
-       '--out-of-band',
-       '--fail=closed',
-       '--inactivity-probe=180',
-       '--rate-limit=40000',
-       '--burst-limit=20000',
-       "--pidfile=#{ pid_file }",
-       '--verbose=ANY:file:dbg',
-       '--verbose=ANY:console:err',
-       "--log-file=#{ log_file }",
-       "--datapath-id=#{ dpid_long }",
-       "--unixctl=#{ unixctl }"
+        '--detach',
+        '--out-of-band',
+        '--fail=closed',
+        '--inactivity-probe=180',
+        '--rate-limit=40000',
+        '--burst-limit=20000',
+        "--pidfile=#{ pid_file }",
+        '--verbose=ANY:file:dbg',
+        '--verbose=ANY:console:err',
+        "--log-file=#{ log_file }",
+        "--datapath-id=#{ dpid_long }",
+        "--unixctl=#{ unixctl }"
       ] + ports_option
     end
 

@@ -31,7 +31,7 @@ class SimpleRouter < Controller
   end
 
   def packet_in(dpid, message)
-    return if not to_me?(message)
+    return unless to_me?(message)
 
     if message.arp_request?
       handle_arp_request dpid, message
@@ -99,7 +99,7 @@ class SimpleRouter < Controller
     next_hop = resolve_next_hop(message.ipv4_daddr)
 
     interface = @interfaces.find_by_prefix(next_hop)
-    if not interface || interface.port == message.in_port
+    unless interface || interface.port == message.in_port
       return
     end
 

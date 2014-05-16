@@ -18,7 +18,7 @@
 #
 
 
-require  'example'
+require 'example'
 
 
 class EchoController < Controller

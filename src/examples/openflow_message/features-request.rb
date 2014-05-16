@@ -76,7 +76,7 @@ class FeaturesRequestController < Controller
     info 'ports:'
     ports.each do | each |
       info '  port_no: %u' % each.number
-      info "    hw_addr = #{ each.hw_addr.to_s }"
+      info "    hw_addr = #{ each.hw_addr }"
       info "    name = #{ each.name }"
       info "    config = #{ each.config.to_hex }"
       info "    state = #{ each.state.to_hex }"

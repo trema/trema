@@ -34,12 +34,12 @@ class ForwardingEntry
     @age_max = age_max
     @dpid = dpid
     @last_update = Time.now
-    debug "New entry: MAC address = #{ @mac.to_s }, port number = #{ @port_no }"
+    debug "New entry: MAC address = #{ @mac }, port number = #{ @port_no }"
   end
 
 
   def update(port_no)
-    debug "Update: The port number of #{ @mac.to_s } has been changed #{ @port_no } => #{ port_no }"
+    debug "Update: The port number of #{ @mac } has been changed #{ @port_no } => #{ port_no }"
     @port_no = port_no
     @last_update = Time.now
   end
@@ -47,7 +47,7 @@ class ForwardingEntry
 
   def aged_out?
     aged_out = Time.now - @last_update > @age_max
-    debug "Age out: An entry (MAC address = #{ @mac.to_s }, port number = #{ @port_no }) has been aged-out" if aged_out
+    debug "Age out: An entry (MAC address = #{ @mac }, port number = #{ @port_no }) has been aged-out" if aged_out
     aged_out
   end
 end

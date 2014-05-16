@@ -28,7 +28,7 @@ class MatchCompare < Controller
   def packet_in(datapath_id, message)
     match = ExactMatch.from(message)
     action, log = lookup_rules(datapath_id, match)
-    info "action=#{ action }, datapath_id=#{ datapath_id.to_hex }, message={#{ match.to_s }}" if log
+    info "action=#{ action }, datapath_id=#{ datapath_id.to_hex }, message={#{ match }}" if log
     if action == :allow
       actions = ActionOutput.new(OFPP_FLOOD)
       send_flow_mod_add(datapath_id, :match => match, :idle_timeout => 60, :actions => actions)
@@ -76,7 +76,7 @@ class MatchCompare < Controller
     action = :block # default action
     log = false
     @rules.each do | each |
-      if !each.datapath_id.nil? && datapath_id != each.datapath_id
+      if each.datapath_id && datapath_id != each.datapath_id
         next
       end
       if each.match.compare(match)

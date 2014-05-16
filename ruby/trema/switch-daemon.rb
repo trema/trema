@@ -76,7 +76,7 @@ module Trema
       return [] unless @queues[ queue_type]
       controllers = @queues[ queue_type].split(',')
       controllers.collect! do | each |
-        "#{ queue_type.to_s }::#{ each }"
+        "#{ queue_type }::#{ each }"
       end
     end
   end

@@ -20,7 +20,7 @@
 if ARGV.empty?
   system 'rake quality'
 else
-  system %Q{rake quality QUALITY_TARGETS="#{ ARGV.join ' ' }"}
+  system %Q(rake quality QUALITY_TARGETS="#{ ARGV.join ' ' }")
 end
 
 

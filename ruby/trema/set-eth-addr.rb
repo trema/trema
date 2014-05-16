@@ -41,7 +41,7 @@ module Trema
 
 
     def to_s
-      "#{ self.class.to_s }: mac_address=#{ @mac_address }"
+      "#{ self.class }: mac_address=#{ @mac_address }"
     end
   end
 end

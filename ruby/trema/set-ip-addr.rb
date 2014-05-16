@@ -41,7 +41,7 @@ module Trema
 
 
     def to_s
-      "#{ self.class.to_s }: ip_address=#{ @ip_address }"
+      "#{ self.class }: ip_address=#{ @ip_address }"
     end
   end
 end

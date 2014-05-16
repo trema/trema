@@ -48,16 +48,16 @@ module Trema
         switch_manager =
           if @context.switch_manager && @context.apps.values.size > 0
             last_app = @context.apps.values.last.name
-            if not @context.switch_manager.rule.has_key?(:port_status)
+            unless @context.switch_manager.rule.key?(:port_status)
               @context.switch_manager.rule[ :port_status] = last_app
             end
-            if not @context.switch_manager.rule.has_key?(:packet_in)
+            unless @context.switch_manager.rule.key?(:packet_in)
               @context.switch_manager.rule[ :packet_in] = last_app
             end
-            if not @context.switch_manager.rule.has_key?(:state_notify)
+            unless @context.switch_manager.rule.key?(:state_notify)
               @context.switch_manager.rule[ :state_notify] = last_app
             end
-            if not @context.switch_manager.rule.has_key?(:vendor)
+            unless @context.switch_manager.rule.key?(:vendor)
               @context.switch_manager.rule[ :vendor] = last_app
             end
             @context.switch_manager

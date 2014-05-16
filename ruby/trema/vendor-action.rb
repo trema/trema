@@ -58,10 +58,10 @@ module Trema
       unless vendor_id.unsigned_32bit?
         fail ArgumentError, 'Vendor ID must be an unsigned 32-bit integer'
       end
-      if ( not body.nil?) && ( not body.is_a?(Array))
+      if ( body) && ( not body.is_a?(Array))
         fail TypeError, 'Body must be an Array'
       end
-      if ( not body.nil?) && ( body.size % 8 != 0)
+      if ( body) && ( body.size % 8 != 0)
         fail ArgumentError, 'Body length must be a multiple of 8'
       end
 

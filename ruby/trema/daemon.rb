@@ -91,7 +91,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown
-      fail "'#{ name }' is not running!" if not running?
+      fail "'#{ name }' is not running!" unless running?
       shutdown!
     end
 
@@ -118,7 +118,7 @@ module Trema
     # @return [undefined]
     #
     def restart!
-      return if not running?
+      return unless running?
       shutdown!
       sleep 1
       run!
@@ -167,7 +167,7 @@ module Trema
       wait = self.class.class_eval do
         class_variable_get(:@@wait_until_up)
       end
-      return if not wait
+      return unless wait
       loop do
         sleep 0.1
         break if FileTest.exists?(pid_file)

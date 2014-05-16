@@ -95,7 +95,7 @@ class Network
 
   def trema_run(controller_class)
     controller = controller_class.new
-    if not controller.is_a?(Trema::Controller)
+    unless controller.is_a?(Trema::Controller)
       fail "#{ controller_class } is not a subclass of Trema::Controller"
     end
     Trema::DSL::Context.new(@context).dump

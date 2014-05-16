@@ -75,7 +75,7 @@ module Trema
 
 
     def to_s
-      "#{ self.class.to_s }: port_number=#{ @port_number }, max_len=#{ @max_len }"
+      "#{ self.class }: port_number=#{ @port_number }, max_len=#{ @max_len }"
     end
 
 

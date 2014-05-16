@@ -68,7 +68,7 @@ module Trema
         fail '--duration and --n_pkts are exclusive.'
       end
 
-      sh("#{ Executables.cli } -i #{ @host.interface } send_packets " +
+      sh("#{ Executables.cli } -i #{ @host.interface } send_packets " \
           "--ip_src #{ @host.ip } --ip_dst #{ dest.ip } " +
           send_packets_options(options))
     end
@@ -132,17 +132,17 @@ module Trema
 
     def send_packets_options(options)
       [
-       tp_src(options[ :tp_src] || default_tp_src),
-       tp_dst(options[ :tp_dst] || default_tp_dst),
-       pps(options[ :pps] || default_pps),
-       options[ :n_pkts] ? nil : duration(options[ :duration] || default_duration),
-       length(options[ :length] || default_length),
-       n_pkts(options[ :n_pkts]),
-       inc_ip_src(options[ :inc_ip_src]),
-       inc_ip_dst(options[ :inc_ip_dst]),
-       inc_tp_src(options[ :inc_tp_src]),
-       inc_tp_dst(options[ :inc_tp_dst]),
-       inc_payload(options[ :inc_payload])
+        tp_src(options[ :tp_src] || default_tp_src),
+        tp_dst(options[ :tp_dst] || default_tp_dst),
+        pps(options[ :pps] || default_pps),
+        options[ :n_pkts] ? nil : duration(options[ :duration] || default_duration),
+        length(options[ :length] || default_length),
+        n_pkts(options[ :n_pkts]),
+        inc_ip_src(options[ :inc_ip_src]),
+        inc_ip_dst(options[ :inc_ip_dst]),
+        inc_tp_src(options[ :inc_tp_src]),
+        inc_tp_dst(options[ :inc_tp_dst]),
+        inc_payload(options[ :inc_payload])
       ].compact.join(' ')
     end
 

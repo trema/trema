@@ -29,7 +29,7 @@ require 'trema'
       let(:mac_address) { '11:22:33:44:55:66' }
 
       its(:mac_address) { should eq '11:22:33:44:55:66' }
-      its(:to_s) { should eq "#{ klass.to_s }: mac_address=11:22:33:44:55:66" }
+      its(:to_s) { should eq "#{ klass }: mac_address=11:22:33:44:55:66" }
 
       context "when set as FlowMod's action", :sudo => true do
         it 'should insert a new flow with action (mod_dl_{src,dst}:11:22:33:44:55:66)' do

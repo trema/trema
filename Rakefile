@@ -288,11 +288,11 @@ PaperHouse::ExecutableTask.new :packetin_filter do | task |
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
   task.library_dependencies = [
-                               'trema',
-                               'sqlite3',
-                               'pthread',
-                               'rt',
-                               'dl'
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl'
                               ]
 end
 
@@ -340,26 +340,26 @@ CLOBBER.include(Trema.cmockery) if FileTest.exists?(Trema.cmockery)
 ################################################################################
 
 $standalone_examples = [
-                        'cbench_switch',
-                        'dumper',
-                        'learning_switch',
-                        'list_switches',
-                        'multi_learning_switch',
-                        'packet_in',
-                        'repeater_hub',
-                        'switch_info',
-                        'switch_monitor',
-                        'traffic_monitor'
+  'cbench_switch',
+  'dumper',
+  'learning_switch',
+  'list_switches',
+  'multi_learning_switch',
+  'packet_in',
+  'repeater_hub',
+  'switch_info',
+  'switch_monitor',
+  'traffic_monitor'
                        ]
 
 desc 'Build examples.'
 task :examples =>
   $standalone_examples.map { | each | "examples:#{ each }" } +
   [
-   'examples:openflow_switch',
-   'examples:openflow_message',
-   'examples:switch_event_config',
-   'examples:packetin_filter_config'
+    'examples:openflow_switch',
+    'examples:openflow_message',
+    'examples:switch_event_config',
+    'examples:packetin_filter_config'
   ]
 
 $standalone_examples.each do | each |
@@ -374,11 +374,11 @@ $standalone_examples.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -389,8 +389,8 @@ end
 ################################################################################
 
 $openflow_switches = [
-                      'hello_switch',
-                      'echo_switch'
+  'hello_switch',
+  'echo_switch'
                      ]
 
 task 'examples:openflow_switch' => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
@@ -407,11 +407,11 @@ $openflow_switches.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -422,11 +422,11 @@ end
 ################################################################################
 
 $openflow_messages = [
-                      'echo',
-                      'features_request',
-                      'hello',
-                      'set_config',
-                      'vendor_action'
+  'echo',
+  'features_request',
+  'hello',
+  'set_config',
+  'vendor_action'
                      ]
 
 task 'examples:openflow_message' => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
@@ -443,11 +443,11 @@ $openflow_messages.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -458,10 +458,10 @@ end
 ###############################################################################
 
 $switch_event_config = [
-                        'add_forward_entry',
-                        'delete_forward_entry',
-                        'set_forward_entries',
-                        'dump_forward_entries'
+  'add_forward_entry',
+  'delete_forward_entry',
+  'set_forward_entries',
+  'dump_forward_entries'
                        ]
 
 task 'examples:switch_event_config' => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
@@ -478,11 +478,11 @@ $switch_event_config.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -493,11 +493,11 @@ end
 ################################################################################
 
 $packetin_filter_config = [
-                           'add_filter',
-                           'delete_filter',
-                           'delete_filter_strict',
-                           'dump_filter',
-                           'dump_filter_strict'
+  'add_filter',
+  'delete_filter',
+  'delete_filter_strict',
+  'dump_filter',
+  'dump_filter_strict'
                           ]
 
 task 'examples:packetin_filter_config' => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
@@ -514,11 +514,11 @@ $packetin_filter_config.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -608,10 +608,10 @@ end
 ################################################################################
 
 $management_commands = [
-                       'application',
-                       'echo',
-                       'set_logging_level',
-                       'show_stats'
+  'application',
+  'echo',
+  'set_logging_level',
+  'show_stats'
                       ]
 
 desc 'Build management commands.'
@@ -629,11 +629,11 @@ $management_commands.each do | each |
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
     task.library_dependencies = [
-                                 'trema',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end
@@ -650,20 +650,20 @@ PaperHouse::ExecutableTask.new :tremashark do | task |
   task.executable_name = File.basename(Trema::Executables.tremashark)
   task.target_directory = File.dirname(Trema::Executables.tremashark)
   task.sources = [
-                  'src/tremashark/pcap_queue.c',
-                  'src/tremashark/queue.c',
-                  'src/tremashark/tremashark.c'
+    'src/tremashark/pcap_queue.c',
+    'src/tremashark/queue.c',
+    'src/tremashark/tremashark.c'
                  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
   task.library_dependencies = [
-                               'trema',
-                               'sqlite3',
-                               'pthread',
-                               'rt',
-                               'dl',
-                               'pcap'
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl',
+    'pcap'
                               ]
 end
 
@@ -674,19 +674,19 @@ PaperHouse::ExecutableTask.new :packet_capture do | task |
   task.executable_name = File.basename(Trema::Executables.packet_capture)
   task.target_directory = File.dirname(Trema::Executables.packet_capture)
   task.sources = [
-                  'src/tremashark/packet_capture.c',
-                  'src/tremashark/queue.c'
+    'src/tremashark/packet_capture.c',
+    'src/tremashark/queue.c'
                  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
   task.library_dependencies = [
-                               'trema',
-                               'sqlite3',
-                               'pthread',
-                               'rt',
-                               'dl',
-                               'pcap'
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl',
+    'pcap'
                               ]
 end
 
@@ -701,12 +701,12 @@ PaperHouse::ExecutableTask.new :syslog_relay do | task |
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
   task.library_dependencies = [
-                               'trema',
-                               'sqlite3',
-                               'pthread',
-                               'rt',
-                               'dl',
-                               'pcap'
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl',
+    'pcap'
                               ]
 end
 
@@ -721,12 +721,12 @@ PaperHouse::ExecutableTask.new :stdin_relay do | task |
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
   task.library_dependencies = [
-                               'trema',
-                               'sqlite3',
-                               'pthread',
-                               'rt',
-                               'dl',
-                               'pcap'
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl',
+    'pcap'
                               ]
 end
 
@@ -824,12 +824,12 @@ libtrema_unit_tests.keys.each do | each |
     task.cflags = ['-DUNIT_TESTING', '--coverage', CFLAGS]
     task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage"
     task.library_dependencies = [
-                                 'cmockery',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl',
-                                 'pcap'
+      'cmockery',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl',
+      'pcap'
                                 ]
   end
 end
@@ -837,24 +837,24 @@ end
 
 # new unittest
 $tests = [
-          'objects/unittests/buffer_test',
-          'objects/unittests/doubly_linked_list_test',
-          'objects/unittests/ether_test',
-          'objects/unittests/event_forward_interface_test',
-          'objects/unittests/hash_table_test',
-          'objects/unittests/linked_list_test',
-          'objects/unittests/log_test',
-          'objects/unittests/packetin_filter_interface_test',
-          'objects/unittests/packet_info_test',
-          'objects/unittests/packet_parser_test',
-          'objects/unittests/persistent_storage_test',
-          'objects/unittests/trema_private_test',
-          'objects/unittests/utility_test',
-          'objects/unittests/wrapper_test',
-          'objects/unittests/match_table_test',
-          'objects/unittests/message_queue_test',
-          'objects/unittests/management_interface_test',
-          'objects/unittests/management_service_interface_test'
+  'objects/unittests/buffer_test',
+  'objects/unittests/doubly_linked_list_test',
+  'objects/unittests/ether_test',
+  'objects/unittests/event_forward_interface_test',
+  'objects/unittests/hash_table_test',
+  'objects/unittests/linked_list_test',
+  'objects/unittests/log_test',
+  'objects/unittests/packetin_filter_interface_test',
+  'objects/unittests/packet_info_test',
+  'objects/unittests/packet_parser_test',
+  'objects/unittests/persistent_storage_test',
+  'objects/unittests/trema_private_test',
+  'objects/unittests/utility_test',
+  'objects/unittests/wrapper_test',
+  'objects/unittests/match_table_test',
+  'objects/unittests/message_queue_test',
+  'objects/unittests/management_interface_test',
+  'objects/unittests/management_service_interface_test'
          ]
 
 task :build_unittests => $tests.map { | each | 'unittests:' + File.basename(each) }
@@ -871,12 +871,12 @@ $tests.each do | _each |
     task.cflags = ['--coverage', CFLAGS]
     task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage"
     task.library_dependencies = [
-                                 'trema',
-                                 'cmockery',
-                                 'sqlite3',
-                                 'pthread',
-                                 'rt',
-                                 'dl'
+      'trema',
+      'cmockery',
+      'sqlite3',
+      'pthread',
+      'rt',
+      'dl'
                                 ]
   end
 end

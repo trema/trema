@@ -29,7 +29,7 @@ require 'trema'
       let(:ip_address) { '192.168.1.1' }
 
       its('ip_address.to_s') { should == '192.168.1.1' }
-      its(:to_s) { should eq("#{ klass.to_s }: ip_address=192.168.1.1") }
+      its(:to_s) { should eq("#{ klass }: ip_address=192.168.1.1") }
     end
 
 

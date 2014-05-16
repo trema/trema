@@ -29,19 +29,19 @@ class ARPEntry
     @hwaddr = hwaddr
     @age_max = age_max
     @last_updated = Time.now
-    info "New entry: MAC addr = #{ @hwaddr.to_s }, port = #{ @port }"
+    info "New entry: MAC addr = #{ @hwaddr }, port = #{ @port }"
   end
 
   def update(port, hwaddr)
     @port = port
     @hwaddr = hwaddr
     @last_updated = Time.now
-    info "Update entry: MAC addr = #{ @hwaddr.to_s }, port = #{ @port }"
+    info "Update entry: MAC addr = #{ @hwaddr }, port = #{ @port }"
   end
 
   def aged_out?
     aged_out = Time.now - @last_updated > @age_max
-    info "Age out: An ARP entry (MAC address = #{ @hwaddr.to_s }, port number = #{ @port }) has been aged-out" if aged_out
+    info "Age out: An ARP entry (MAC address = #{ @hwaddr }, port number = #{ @port }) has been aged-out" if aged_out
     aged_out
   end
 end
