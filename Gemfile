@@ -13,6 +13,7 @@ end
 group :development do
   gem 'guard', '~> 2.6.1'
   gem 'guard-bundler', '~> 2.0.0'
+  gem 'guard-rspec', '~> 4.2.8'
   gem 'guard-rubocop', '~> 1.1.0'
 end
 

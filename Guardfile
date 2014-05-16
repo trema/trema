@@ -12,3 +12,10 @@ guard :rubocop do
   watch(/.+\.rake$/)
   watch(/(?:.+\/)?\.rubocop\.yml$/) { |m| File.dirname(m[0]) }
 end
+
+guard :rspec do
+  watch(%r{^spec/.+_spec\.rb$})
+  watch(%r{^ruby/trema/(.+)\.rb$})     { |m| "spec/trema/#{m[1]}_spec.rb" }
+  watch('spec/spec_helper.rb')  { "spec" }
+end
+
