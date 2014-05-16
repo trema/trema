@@ -17,9 +17,6 @@ BlockNesting:
 BracesAroundHashParameters:
   Enabled: false
 
-CaseIndentation:
-  Enabled: false
-
 ClassAndModuleCamelCase:
   Enabled: false
 

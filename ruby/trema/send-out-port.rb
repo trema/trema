@@ -56,14 +56,14 @@ module Trema
     #
     def initialize(options)
       case options
-        when Hash
-          @port_number = options[ :port_number] || options[ :port]
-          @max_len = options[ :max_len] || DEFAULT_MAX_LEN
-        when Integer
-          @port_number = options
-          @max_len = DEFAULT_MAX_LEN
-        else
-          fail 'Invalid option'
+      when Hash
+        @port_number = options[ :port_number] || options[ :port]
+        @max_len = options[ :max_len] || DEFAULT_MAX_LEN
+      when Integer
+        @port_number = options
+        @max_len = DEFAULT_MAX_LEN
+      else
+        fail 'Invalid option'
       end
       check_port_number
       check_max_len
