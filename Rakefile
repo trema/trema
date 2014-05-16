@@ -1021,14 +1021,8 @@ rescue LoadError
 end
 
 
-if RUBY_VERSION >= '1.9.0'
-  task :travis => :rubocop
-  task :quality => :rubocop
-  require 'rubocop/rake_task'
-  Rubocop::RakeTask.new do |task|
-    task.patterns = ['ruby/**/*.rb', 'src/**/*.rb', 'bin/*', 'spec/**/*.rb', 'features/**/*.rb', 'Rakefile', 'Gemfile', 'trema.gemspec', 'cruise.rb']
-  end
-end
+task :travis => :rubocop
+task :quality => :rubocop
 
 
 ################################################################################
@@ -1062,8 +1056,4 @@ task :notes do
 end
 
 
-### Local variables:
-### mode: Ruby
-### coding: utf-8-unix
-### indent-tabs-mode: nil
-### End:
+Dir.glob('tasks/*.rake').each { |each| import each }

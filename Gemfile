@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 # Include dependencies from trema.gemspec. DRY!
 gemspec
 
@@ -15,16 +14,13 @@ group :development do
   gem 'flog', '~> 4.2.0'
   gem 'guard', '~> 2.6.1'
   gem 'guard-bundler', '~> 2.0.0'
+  gem 'guard-rubocop', '~> 1.1.0'
   gem 'reek', '~> 1.3.7'
   gem 'relish', '~> 0.7'
   gem 'rspec', '~> 2.14.1'
-  gem 'rubocop', '~> 0.20.1'
   gem 'yard', '~> 0.8.7.4'
 end
 
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8-unix
-### indent-tabs-mode: nil
-### End:
+group :test do
+  gem 'rubocop', '~> 0.20.1', platforms: [:ruby_19, :ruby_20, :ruby_21]
+end
