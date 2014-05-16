@@ -50,9 +50,6 @@ CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-EmptyLinesAroundBody:
-  Enabled: false
-
 EmptyLiteral:
   Enabled: false
 

@@ -17,7 +17,6 @@
 
 module Trema
   class StatsHelper
-
     # Invoked by each StatsReply subclass to assign their instance attributes
     # to a value.
     #

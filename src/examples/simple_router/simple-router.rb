@@ -22,7 +22,6 @@ require 'interface'
 require 'routing-table'
 
 class SimpleRouter < Controller
-
   def start
     load 'simple_router.conf'
     @interfaces = Interfaces.new($interface)

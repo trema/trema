@@ -17,7 +17,6 @@
 
 module Trema
   class Flow
-
     #
     # Parses a text line of OpenFlow switch's dump-flows command into a Flow
     # object's dynamic created attributes. A line consists of multiple
