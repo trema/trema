@@ -109,9 +109,7 @@ module Trema
       sh "sudo #{ Executables.cli } -i #{ @host.interface } enable_promisc"
     end
 
-    ################################################################################
     private
-    ################################################################################
 
     def send_packets_options(options)
       [

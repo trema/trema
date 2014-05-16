@@ -43,9 +43,7 @@ module Trema
         fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 
-      ##########################################################################
       private
-      ##########################################################################
 
       def dpid=(string)
         @dpid_long = dpid_long_from(string)

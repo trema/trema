@@ -31,9 +31,7 @@ module Trema
       "CHIBACH_TMP=#{ Trema.tmp } #{ path } -i #{ dpid_short } > #{ log_file } &"
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def path
       File.join(Trema.home, @stanza[ :path])

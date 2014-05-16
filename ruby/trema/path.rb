@@ -33,9 +33,7 @@ module Trema
       end
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def file(base, path, name = nil)
       define_class_method(name || File.basename(path).gsub('.', '_')) do

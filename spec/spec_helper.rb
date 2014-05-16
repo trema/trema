@@ -76,9 +76,7 @@ class Network
     trema_kill
   end
 
-  ################################################################################
   private
-  ################################################################################
 
   def trema_run(controller_class)
     controller = controller_class.new

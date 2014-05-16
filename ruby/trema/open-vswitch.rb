@@ -93,9 +93,7 @@ module Trema
       Ofctl.new.bring_port_down self, port_number
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def command
       "sudo #{ Executables.ovs_openflowd } #{ options }"

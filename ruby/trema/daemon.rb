@@ -125,9 +125,7 @@ module Trema
       FileTest.exists? pid_file
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def log_file
       log_file_block = self.class.class_eval do

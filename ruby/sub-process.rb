@@ -112,9 +112,7 @@ module SubProcess
       self
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def fork_child(command)
       Kernel.fork do
@@ -189,9 +187,7 @@ module SubProcess
       self
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def handle_child_output(stdout, stderr)
       tout = SubProcess::IoHandlerThread.new(stdout, method(:do_stdout)).start

@@ -73,9 +73,7 @@ module Trema
       "#{ self.class }: port_number=#{ @port_number }, max_len=#{ @max_len }"
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def check_port_number
       if @port_number.nil?

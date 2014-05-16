@@ -33,9 +33,7 @@ class FeaturesRequestController < Controller
     print_ports message.ports
   end
 
-  ##############################################################################
   private
-  ##############################################################################
 
   def print_capabilities(capabilities)
     info 'capabilities:'

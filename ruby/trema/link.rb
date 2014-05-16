@@ -135,9 +135,7 @@ module Trema
       sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def real_eth
       interfaces = IfconfigWrapper.new.parse.interfaces

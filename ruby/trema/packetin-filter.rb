@@ -67,9 +67,7 @@ module Trema
       sh "#{ Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"
     end
 
-    ################################################################################
     private
-    ################################################################################
 
     #
     # Checks mandatory options for packetin_filter command

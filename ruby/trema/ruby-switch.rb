@@ -30,9 +30,7 @@ module Trema
       "#{ ruby } -I#{ libruby } -rtrema -e \"Trema.module_eval IO.read( '#{ @stanza.path }' )\" #{ dpid_short }"
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def libruby
       File.join Trema.home, 'ruby'

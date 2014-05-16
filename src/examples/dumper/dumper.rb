@@ -140,9 +140,7 @@ class Dumper < Controller
     dump_packet_queue message.queues
   end
 
-  ##############################################################################
   private
-  ##############################################################################
 
   def dump_phy_port(port)
     # for testing port-status record the mac address if port.number == 2.

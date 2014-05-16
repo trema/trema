@@ -78,9 +78,7 @@ module Trema
       'switch manager'
     end
 
-    ############################################################################
     private
-    ############################################################################
 
     def command
       "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"

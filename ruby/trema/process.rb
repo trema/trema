@@ -77,9 +77,7 @@ module Trema
       fail "Failed to shut down #{ @name }"
     end
 
-    ################################################################################
     private
-    ################################################################################
 
     #
     # @return [Boolean] whether a process is not alive or not.

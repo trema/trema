@@ -46,9 +46,7 @@ class LearningSwitch < Controller
     @fdb.age
   end
 
-  ##############################################################################
   private
-  ##############################################################################
 
   def flow_mod(datapath_id, message, port_no)
     send_flow_mod_add(
