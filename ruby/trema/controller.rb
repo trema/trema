@@ -27,7 +27,7 @@ module Trema
   #
   class Controller < App
     include DefaultLogger
-    include Timers
+    include Trema::Timers
 
     #
     # @private Just a placeholder for YARD.
