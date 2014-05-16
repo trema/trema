@@ -972,9 +972,9 @@ begin
   require 'yard'
 
   YARD::Rake::YardocTask.new do | t |
-   t.files = ['ruby/trema/**/*.c', 'ruby/trema/**/*.rb']
-   t.options = ['--no-private']
-   t.options << '--debug' << '--verbose' if $trace
+    t.files = ['ruby/trema/**/*.c', 'ruby/trema/**/*.rb']
+    t.options = ['--no-private']
+    t.options << '--debug' << '--verbose' if $trace
   end
 rescue LoadError
   $stderr.puts $!.to_s
