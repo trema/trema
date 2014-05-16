@@ -116,9 +116,6 @@ RescueModifier:
 Semicolon:
   Enabled: false
 
-SpaceAroundEqualsInParameterDefault:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 
