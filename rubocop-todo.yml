@@ -125,9 +125,6 @@ SpaceAroundEqualsInParameterDefault:
 SpecialGlobalVars:
   Enabled: false
 
-TrailingBlankLines:
-  Enabled: false
-
 TrivialAccessors:
   Enabled: false
 
