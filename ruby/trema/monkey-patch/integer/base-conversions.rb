@@ -20,7 +20,7 @@ module MonkeyPatch
   module Integer
     module BaseConversions
       def to_hex
-        "%#x" % self
+        '%#x' % self
       end
     end
   end

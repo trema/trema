@@ -319,7 +319,6 @@ port_compare( VALUE self, VALUE other ) {
  */
 void
 Init_port() {
-  rb_require( "rubygems" );
   rb_require( "pio" );
 
   mTrema = rb_eval_string( "Trema" );

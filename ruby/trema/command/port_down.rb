@@ -16,8 +16,8 @@
 #
 
 
-require "trema/cli"
-require "trema/util"
+require 'trema/cli'
+require 'trema/util'
 
 
 module Trema
@@ -25,12 +25,12 @@ module Trema
     include Trema::Util
 
 
-    def trema_port_down switch_name, port
-      switch = find_switch_by_name( switch_name )
-      raise "unknown switch: #{ switch_name }" if switch.nil?
+    def trema_port_down(switch_name, port)
+      switch = find_switch_by_name(switch_name)
+      fail "unknown switch: #{ switch_name }" if switch.nil?
 
-      error = switch.bring_port_down( port.to_i )
-      raise error if $?.exitstatus != 0
+      error = switch.bring_port_down(port.to_i)
+      fail error if $?.exitstatus != 0
     end
   end
 end

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/set-ip-addr"
+require 'trema/set-ip-addr'
 
 
 module Trema

@@ -18,20 +18,20 @@
 #
 
 
-require "trema/command/dump_flows"
-require "trema/command/kill"
-require "trema/command/killall"
-require "trema/command/netns"
-require "trema/command/port_up"
-require "trema/command/port_down"
-require "trema/command/reset_stats"
-require "trema/command/ruby"
-require "trema/command/run"
-require "trema/command/send_packets"
-require "trema/command/shell"
-require "trema/command/show_stats"
-require "trema/command/up"
-require "trema/command/version"
+require 'trema/command/dump_flows'
+require 'trema/command/kill'
+require 'trema/command/killall'
+require 'trema/command/netns'
+require 'trema/command/port_up'
+require 'trema/command/port_down'
+require 'trema/command/reset_stats'
+require 'trema/command/ruby'
+require 'trema/command/run'
+require 'trema/command/send_packets'
+require 'trema/command/shell'
+require 'trema/command/show_stats'
+require 'trema/command/up'
+require 'trema/command/version'
 
 
 ### Local variables:

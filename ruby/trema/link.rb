@@ -16,11 +16,11 @@
 #
 
 
-require "trema/network-component"
-require "trema/path"
+require 'trema/network-component'
+require 'trema/path'
 
-$LOAD_PATH.unshift File.join( Trema.vendor_ruby_ifconfig, "lib" )
-require "ifconfig"
+$LOAD_PATH.unshift File.join(Trema.vendor_ruby_ifconfig, 'lib')
+require 'ifconfig'
 
 
 module Trema
@@ -69,13 +69,13 @@ module Trema
     #
     # @return [Link]
     #
-    def initialize stanza
+    def initialize(stanza)
       @link_id = Link.instances.size
       @stanza = stanza
       if real_eth?
         @name = real_eth
         @name_peer = nil
-        @peers = @stanza.peers - [ real_eth ]
+        @peers = @stanza.peers - [real_eth]
       else
         @name = "trema#{ @link_id }-0"
         @name_peer = "trema#{ @link_id }-1"
@@ -153,16 +153,16 @@ module Trema
     def real_eth
       interfaces = IfconfigWrapper.new.parse.interfaces
       @stanza.peers.each do | each |
-        return each if interfaces.include?( each )
+        return each if interfaces.include?(each)
       end
-      raise
+      fail
     end
 
 
     def real_eth?
       interfaces = IfconfigWrapper.new.parse.interfaces
       @stanza.peers.each do | each |
-        return true if interfaces.include?( each )
+        return true if interfaces.include?(each)
       end
       false
     end

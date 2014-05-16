@@ -16,12 +16,12 @@
 #
 
 
-require "trema/default_openflow_channel_port"
-require "trema/daemon"
-require "trema/executables"
-require "trema/hardware-switch"
-require "trema/ofctl"
-require "trema/path"
+require 'trema/default_openflow_channel_port'
+require 'trema/daemon'
+require 'trema/executables'
+require 'trema/hardware-switch'
+require 'trema/ofctl'
+require 'trema/path'
 
 
 module Trema
@@ -44,7 +44,7 @@ module Trema
     #
     # @return [OpenVswitch]
     #
-    def initialize stanza, port = DEFAULT_OPENFLOW_CHANNEL_PORT
+    def initialize(stanza, port = DEFAULT_OPENFLOW_CHANNEL_PORT)
       super stanza
       @port = port
       @interfaces = []
@@ -59,7 +59,7 @@ module Trema
     #
     # @return [Array]
     #
-    def << interface
+    def <<(interface)
       @interfaces << interface
       restart!
       @interfaces
@@ -89,16 +89,16 @@ module Trema
     # @return [Array]
     #
     def flows
-      Ofctl.new.users_flows( self )
+      Ofctl.new.users_flows(self)
     end
 
 
-    def bring_port_up port_number
+    def bring_port_up(port_number)
       Ofctl.new.bring_port_up self, port_number
     end
 
 
-    def bring_port_down port_number
+    def bring_port_down(port_number)
       Ofctl.new.bring_port_down self, port_number
     end
 
@@ -114,24 +114,24 @@ module Trema
 
 
     def options
-      default_options.join( " " ) + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
+      default_options.join(' ') + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
 
 
     def default_options
       [
-       "--detach",
-       "--out-of-band",
-       "--fail=closed",
-       "--inactivity-probe=180",
-       "--rate-limit=40000",
-       "--burst-limit=20000",
-       "--pidfile=#{ pid_file }",
-       "--verbose=ANY:file:dbg",
-       "--verbose=ANY:console:err",
-       "--log-file=#{ log_file }",
-       "--datapath-id=#{ dpid_long }",
-       "--unixctl=#{ unixctl }",
+        '--detach',
+        '--out-of-band',
+        '--fail=closed',
+        '--inactivity-probe=180',
+        '--rate-limit=40000',
+        '--burst-limit=20000',
+        "--pidfile=#{ pid_file }",
+        '--verbose=ANY:file:dbg',
+        '--verbose=ANY:console:err',
+        "--log-file=#{ log_file }",
+        "--datapath-id=#{ dpid_long }",
+        "--unixctl=#{ unixctl }"
       ] + ports_option
     end
 
@@ -142,7 +142,7 @@ module Trema
 
 
     def ports_option
-      @interfaces.empty? ? [] : [ "--ports=#{ @interfaces.join( "," ) }" ]
+      @interfaces.empty? ? [] : ["--ports=#{ @interfaces.join(",") }"]
     end
 
 

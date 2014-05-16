@@ -16,10 +16,10 @@
 #
 
 
-require "trema/daemon"
-require "trema/executables"
-require "trema/network-component"
-require "trema/switch-daemon"
+require 'trema/daemon'
+require 'trema/executables'
+require 'trema/network-component'
+require 'trema/switch-daemon'
 
 
 module Trema
@@ -65,7 +65,7 @@ module Trema
     #
     # @return [SwitchManager]
     #
-    def initialize rule, port = nil
+    def initialize(rule, port = nil)
       @rule = rule
       @port = port
       @no_flow_cleanup = false
@@ -82,7 +82,7 @@ module Trema
     # @return [String]
     #
     def name
-      "switch manager"
+      'switch manager'
     end
 
 
@@ -97,15 +97,15 @@ module Trema
 
 
     def options
-      opts = [ "--daemonize" ]
+      opts = ['--daemonize']
       opts << "--port=#{ @port }" if @port
       opts
     end
 
 
     def switch_options
-      opts = SwitchDaemon.new( @rule ).options
-      opts << "--no-flow-cleanup" if @no_flow_cleanup
+      opts = SwitchDaemon.new(@rule).options
+      opts << '--no-flow-cleanup' if @no_flow_cleanup
       opts
     end
   end

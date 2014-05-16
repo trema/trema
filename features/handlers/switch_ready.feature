@@ -22,7 +22,7 @@ Feature: switch_ready handler
   unaware of such details. Users only need to handle the switch-ready
   message.
 
-  @slow_process
+  @slow_process @ruby
   Scenario: switch_ready handler
     Given a file named "switch-ready-detector.rb" with:
     """

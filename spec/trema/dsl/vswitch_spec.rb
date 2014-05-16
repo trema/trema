@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/vswitch"
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
+require 'trema/dsl/vswitch'
 
 
 module Trema
@@ -28,44 +28,44 @@ module Trema
       end
 
 
-      context %[when parsing "vswitch { ... }"] do
-        it %[recognizes "dpid DATAPATH_ID" directive] do
-          expect { @vswitch.dpid "0xabc" }.not_to raise_error
+      context 'when parsing "vswitch { ... }"' do
+        it 'recognizes "dpid DATAPATH_ID" directive' do
+          expect { @vswitch.dpid '0xabc' }.not_to raise_error
         end
 
 
-        it %[recognizes "datapath_id DATAPATH_ID" directive] do
-          expect { @vswitch.datapath_id "0xabc" }.not_to raise_error
+        it 'recognizes "datapath_id DATAPATH_ID" directive' do
+          expect { @vswitch.datapath_id '0xabc' }.not_to raise_error
         end
 
 
-        it %[recognizes "ports PORT_NUMBERS" directive] do
-          expect { @vswitch.ports "0-4" }.not_to raise_error
+        it 'recognizes "ports PORT_NUMBERS" directive' do
+          expect { @vswitch.ports '0-4' }.not_to raise_error
         end
 
 
-        it %[recognizes "ip IP_ADDRESS" directive] do
-          expect { @vswitch.ip "192.168.0.1" }.not_to raise_error
+        it 'recognizes "ip IP_ADDRESS" directive' do
+          expect { @vswitch.ip '192.168.0.1' }.not_to raise_error
         end
       end
 
 
-      context "when getting the attributes of a vswitch" do
-        it "returns its dpid in long format" do
-          @vswitch.dpid "0xabc"
-          expect( @vswitch[ :dpid_long ] ).to eq( "0000000000000abc" )
+      context 'when getting the attributes of a vswitch' do
+        it 'returns its dpid in long format' do
+          @vswitch.dpid '0xabc'
+          expect(@vswitch[ :dpid_long]).to eq('0000000000000abc')
         end
 
 
-        it "returns its dpid in short format" do
-          @vswitch.dpid "0xabc"
-          expect( @vswitch[ :dpid_short ] ).to eq( "0xabc" )
+        it 'returns its dpid in short format' do
+          @vswitch.dpid '0xabc'
+          expect(@vswitch[ :dpid_short]).to eq('0xabc')
         end
 
 
-        it "returns its ip address" do
-          @vswitch.ip "192.168.0.1"
-          expect( @vswitch[ :ip ] ).to eq( "192.168.0.1" )
+        it 'returns its ip address' do
+          @vswitch.ip '192.168.0.1'
+          expect(@vswitch[ :ip]).to eq('192.168.0.1')
         end
       end
     end

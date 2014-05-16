@@ -569,7 +569,6 @@ match_init( int argc, VALUE *argv, VALUE self ) {
  */
 void
 Init_match() {
-  rb_require( "rubygems" );
   rb_require( "pio" );
   mTrema = rb_eval_string( "Trema" );
   cMatch = rb_define_class_under( mTrema, "Match", rb_cObject );

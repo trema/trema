@@ -18,13 +18,13 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
   module Shell
-    def down name
-      OpenflowSwitch[ name ].shutdown!
+    def down(name)
+      OpenflowSwitch[ name].shutdown!
     end
   end
 end

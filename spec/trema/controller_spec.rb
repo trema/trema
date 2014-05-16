@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
 module Trema
@@ -35,7 +35,7 @@ module Trema
     it { should have_constant :OFPP_NONE }
 
 
-    context ".new" do
+    context '.new' do
       subject { Controller.new }
 
       it { should respond_to :critical }

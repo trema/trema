@@ -16,8 +16,8 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "..", "spec_helper" )
-require "trema/dsl/switch"
+require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
+require 'trema/dsl/switch'
 
 
 module Trema
@@ -28,33 +28,33 @@ module Trema
       end
 
 
-      context %[when parsing "switch { ... }"] do
-        it %[recognizes "dpid DATAPATH_ID" directive] do
-          expect { @switch.dpid "0xabc" }.not_to raise_error
+      context 'when parsing "switch { ... }"' do
+        it 'recognizes "dpid DATAPATH_ID" directive' do
+          expect { @switch.dpid '0xabc' }.not_to raise_error
         end
 
 
-        it %[recognizes "datapath_id DATAPATH_ID" directive] do
-          expect { @switch.datapath_id "0xabc" }.not_to raise_error
+        it 'recognizes "datapath_id DATAPATH_ID" directive' do
+          expect { @switch.datapath_id '0xabc' }.not_to raise_error
         end
 
 
-        it %[recognizes "ports PORT_NUMBERS" directive] do
-          expect { @switch.ports "0-4" }.not_to raise_error
+        it 'recognizes "ports PORT_NUMBERS" directive' do
+          expect { @switch.ports '0-4' }.not_to raise_error
         end
       end
 
 
-      context "when getting the attributes of a switch" do
-        it "returns its dpid in long format" do
-          @switch.dpid "0xabc"
-          expect( @switch[ :dpid_long ] ).to eq( "0000000000000abc" )
+      context 'when getting the attributes of a switch' do
+        it 'returns its dpid in long format' do
+          @switch.dpid '0xabc'
+          expect(@switch[ :dpid_long]).to eq('0000000000000abc')
         end
 
 
-        it "returns its dpid in short format" do
-          @switch.dpid "0xabc"
-          expect( @switch[ :dpid_short ] ).to eq( "0xabc" )
+        it 'returns its dpid in short format' do
+          @switch.dpid '0xabc'
+          expect(@switch[ :dpid_short]).to eq('0xabc')
         end
       end
     end

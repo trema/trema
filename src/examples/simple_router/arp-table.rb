@@ -24,24 +24,24 @@ class ARPEntry
   attr_reader :hwaddr
   attr_writer :age_max
 
-  def initialize port, hwaddr, age_max
+  def initialize(port, hwaddr, age_max)
     @port = port
     @hwaddr = hwaddr
     @age_max = age_max
     @last_updated = Time.now
-    info "New entry: MAC addr = #{ @hwaddr.to_s }, port = #{ @port }"
+    info "New entry: MAC addr = #{ @hwaddr }, port = #{ @port }"
   end
 
-  def update port, hwaddr
+  def update(port, hwaddr)
     @port = port
     @hwaddr = hwaddr
     @last_updated = Time.now
-    info "Update entry: MAC addr = #{ @hwaddr.to_s }, port = #{ @port }"
+    info "Update entry: MAC addr = #{ @hwaddr }, port = #{ @port }"
   end
 
   def aged_out?
     aged_out = Time.now - @last_updated > @age_max
-    info "Age out: An ARP entry (MAC address = #{ @hwaddr.to_s }, port number = #{ @port }) has been aged-out" if aged_out
+    info "Age out: An ARP entry (MAC address = #{ @hwaddr }, port number = #{ @port }) has been aged-out" if aged_out
     aged_out
   end
 end
@@ -53,7 +53,7 @@ class ARPTable
     @db = {}
   end
 
-  def update port, ipaddr, hwaddr
+  def update(port, ipaddr, hwaddr)
     entry = @db[ipaddr.to_i]
     if entry
       entry.update(port, hwaddr)
@@ -63,7 +63,7 @@ class ARPTable
     end
   end
 
-  def lookup ipaddr
+  def lookup(ipaddr)
     @db[ipaddr.to_i]
   end
 

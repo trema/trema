@@ -16,71 +16,71 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
 class PacketOutController < Controller
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     send_flow_mod_add(
       datapath_id,
-      :match => Match.from( message ),
-      :actions => Trema::ActionOutput.new( :port => 2 )
+      :match => Match.from(message),
+      :actions => Trema::ActionOutput.new(:port => 2)
     )
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => Trema::ActionOutput.new( :port => 2 )
+      :actions => Trema::ActionOutput.new(:port => 2)
     )
   end
 end
 
 
-describe "packet-out" do
-  context "a controller instance" do
-    it "should respond to #send_packet_out" do
-      expect( PacketOutController.new ).to respond_to(:send_packet_out)
+describe 'packet-out' do
+  context 'a controller instance' do
+    it 'should respond to #send_packet_out' do
+      expect(PacketOutController.new).to respond_to(:send_packet_out)
     end
   end
 
 
-  context "when invoked with no datapath_id" do
-    it "should raise an error" do
+  context 'when invoked with no datapath_id' do
+    it 'should raise an error' do
       expect { PacketOutController.new.send_packet_out }.to raise_error
     end
   end
 
 
-  context "when #packet_in" do
-    it "should #packet_out" do
-      network {
-        vswitch( "packet-out" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost "host2"
-        link "host1", "packet-out"
-        link "host2", "packet-out"
-      }.run( PacketOutController ) {
-        send_packets "host2", "host1"
+  context 'when #packet_in' do
+    it 'should #packet_out' do
+      network do
+        vswitch('packet-out') { datapath_id 0xabc }
+        vhost 'host1'
+        vhost 'host2'
+        link 'host1', 'packet-out'
+        link 'host2', 'packet-out'
+      end.run(PacketOutController) do
+        send_packets 'host2', 'host1'
         sleep 2
-        expect( vhost( "host1" ).rx_stats.n_pkts ).to eq( 1 )
-      }
+        expect(vhost('host1').rx_stats.n_pkts).to eq(1)
+      end
     end
   end
 
 
-  context "when data argument is string type" do
-    it "should #packet_out" do
-      network {
-        vswitch( "packet-out" ) { datapath_id 0xabc }
-        vhost "host1"
-        vhost ( "host2" ) {
-          ip "192.168.0.2"
-          netmask "255.255.0.0"
-          mac "00:00:00:00:00:02"
-        }
-        link "host1", "packet-out"
-        link "host2", "packet-out"
-      }.run( PacketOutController ) {
+  context 'when data argument is string type' do
+    it 'should #packet_out' do
+      network do
+        vswitch('packet-out') { datapath_id 0xabc }
+        vhost 'host1'
+        vhost ( 'host2') do
+          ip '192.168.0.2'
+          netmask '255.255.0.0'
+          mac '00:00:00:00:00:02'
+        end
+        link 'host1', 'packet-out'
+        link 'host2', 'packet-out'
+      end.run(PacketOutController) do
         data = [
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
@@ -103,15 +103,15 @@ describe "packet-out" do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-        ].pack( "C*" )
-        controller( "PacketOutController" ).send_packet_out(
+        ].pack('C*')
+        controller('PacketOutController').send_packet_out(
           0xabc,
           :data => data,
-          :actions => Trema::ActionOutput.new( :port => 1 )
+          :actions => Trema::ActionOutput.new(:port => 1)
         )
         sleep 2
-        expect( vhost( "host2" ).rx_stats.n_pkts ).to eq( 1 )
-      }
+        expect(vhost('host2').rx_stats.n_pkts).to eq(1)
+      end
     end
   end
 

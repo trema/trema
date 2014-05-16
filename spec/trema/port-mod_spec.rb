@@ -16,77 +16,77 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
-describe PortMod, ".new( VALID OPTIONS )" do
-  subject {
+describe PortMod, '.new( VALID OPTIONS )' do
+  subject do
     PortMod.new(
       :port_no => 2,
-      :hw_addr => Mac::new( "11:22:33:44:55:66" ),
+      :hw_addr => Mac::new('11:22:33:44:55:66'),
       :config => 1,
       :mask => 1,
       :advertise => 0
     )
-  }
-  its( :port_no ) { should == 2 }
-  its( "hw_addr.to_s" ) { should eq "11:22:33:44:55:66" }
-  its( :config ) { should == 1 }
-  its( :mask ) { should == 1 }
-  its( :advertise ) { should == 0 }
-  it_should_behave_like "any Openflow message with default transaction ID"
+  end
+  its(:port_no) { should == 2 }
+  its('hw_addr.to_s') { should eq '11:22:33:44:55:66' }
+  its(:config) { should == 1 }
+  its(:mask) { should == 1 }
+  its(:advertise) { should == 0 }
+  it_should_behave_like 'any Openflow message with default transaction ID'
 
 
-  describe "hw_addr" do
-    it "should be a Trema::Mac object" do
-      expect( PortMod.new(
+  describe 'hw_addr' do
+    it 'should be a Trema::Mac object' do
+      expect(PortMod.new(
                :port_no => 2,
-               :hw_addr => Mac::new( "11:22:33:44:55:66" ),
+               :hw_addr => Mac::new('11:22:33:44:55:66'),
                :config => 1,
                :mask => 1,
                :advertise => 0
-             ).hw_addr.to_s ).to eq( "11:22:33:44:55:66" )
+             ).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
 
     it "should be a string('11:22:33:44:55')" do
-      expect( PortMod.new(
+      expect(PortMod.new(
                :port_no => 2,
-               :hw_addr => "11:22:33:44:55:66",
+               :hw_addr => '11:22:33:44:55:66',
                :config => 1,
                :mask => 1,
-               :advertise => 0 ).hw_addr.to_s ).to eq( "11:22:33:44:55:66" )
+               :advertise => 0).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
 
-    it "should be a number(281474976710655)" do
-      expect( PortMod.new(
+    it 'should be a number(281474976710655)' do
+      expect(PortMod.new(
                :port_no => 2,
                :hw_addr => 281474976710655,
                :config => 1,
                :mask => 1,
-               :advertise => 0 ).hw_addr.to_s ).to eq( "ff:ff:ff:ff:ff:ff" )
+               :advertise => 0).hw_addr.to_s).to eq('ff:ff:ff:ff:ff:ff')
     end
 
 
-    it "should otherwise raise ArgumentError" do
-      expect { PortMod.new(
+    it 'should otherwise raise ArgumentError' do
+      expect do PortMod.new(
                 :port_no => 2,
-                :hw_addr => Array.new( 1234 ),
+                :hw_addr => Array.new(1234),
                 :config => 1,
                 :mask => 1,
                 :advertise => 0
                )
-             }.to raise_error( ArgumentError )
+             end.to raise_error(ArgumentError)
     end
   end
 end
 
 
-describe PortMod, "new( MANDATORY OPTIONS MISSING )" do
-  it "should raise ArgumentError" do
-    expect { subject }.to raise_error( ArgumentError, "Port no, hw_addr, config, mask, advertise are mandatory options" )
+describe PortMod, 'new( MANDATORY OPTIONS MISSING )' do
+  it 'should raise ArgumentError' do
+    expect { subject }.to raise_error(ArgumentError, 'Port no, hw_addr, config, mask, advertise are mandatory options')
   end
 end
 

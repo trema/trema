@@ -15,15 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
-require "rubygems"
-require "pio"
-
+require 'pio'
 
 module Trema
   Mac = Pio::Mac
 end
-
 
 ### Local variables:
 ### mode: Ruby

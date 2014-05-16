@@ -24,11 +24,11 @@ class HelloController < Controller
       STDERR.puts "Usage: #{ File.basename __FILE__ } COUNT"
       shutdown!
     end
-    @count = ARGV[ 0 ].to_i
+    @count = ARGV[ 0].to_i
   end
 
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     @count.times do
       send_message datapath_id, Hello.new
     end

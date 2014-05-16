@@ -18,10 +18,10 @@
 #
 
 
-$LOAD_PATH << File.join( File.dirname( __FILE__ ), "../learning_switch/" )
+$LOAD_PATH << File.join(File.dirname(__FILE__), '../learning_switch/')
 
 
-require "fdb"
+require 'fdb'
 
 
 #
@@ -33,15 +33,15 @@ class MultiLearningSwitch < Controller
 
   def start
     @fdbs = Hash.new do | hash, datapath_id |
-      hash[ datapath_id ] = FDB.new
+      hash[ datapath_id] = FDB.new
     end
   end
 
 
-  def packet_in datapath_id, message
-    fdb = @fdbs[ datapath_id ]
+  def packet_in(datapath_id, message)
+    fdb = @fdbs[ datapath_id]
     fdb.learn message.macsa, message.in_port
-    port_no = fdb.port_no_of( message.macda )
+    port_no = fdb.port_no_of(message.macda)
     if port_no
       flow_mod datapath_id, message, port_no
       packet_out datapath_id, message, port_no
@@ -63,25 +63,25 @@ class MultiLearningSwitch < Controller
   ##############################################################################
 
 
-  def flow_mod datapath_id, message, port_no
+  def flow_mod(datapath_id, message, port_no)
     send_flow_mod_add(
       datapath_id,
-      :match => ExactMatch.from( message ),
-      :actions => ActionOutput.new( :port => port_no )
+      :match => ExactMatch.from(message),
+      :actions => ActionOutput.new(:port => port_no)
     )
   end
 
 
-  def packet_out datapath_id, message, port_no
+  def packet_out(datapath_id, message, port_no)
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => ActionOutput.new( :port => port_no )
+      :actions => ActionOutput.new(:port => port_no)
     )
   end
 
 
-  def flood datapath_id, message
+  def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end

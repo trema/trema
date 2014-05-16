@@ -16,11 +16,11 @@
 #
 
 
-require "trema/app"
-require "trema/default-logger"
-require "trema/monkey-patch/integer"
-require "trema/monkey-patch/string"
-require "trema/timers"
+require 'trema/app'
+require 'trema/default-logger'
+require 'trema/monkey-patch/integer'
+require 'trema/monkey-patch/string'
+require 'trema/timers'
 
 
 module Trema
@@ -35,7 +35,7 @@ module Trema
     #
     # @private Just a placeholder for YARD.
     #
-    def self.handler name
+    def self.handler(name)
       # Do nothing.
     end
 
@@ -207,7 +207,7 @@ module Trema
     #
     # @private
     #
-    def self.inherited subclass
+    def self.inherited(subclass)
       subclass.new
     end
 
@@ -228,8 +228,8 @@ module Trema
         ::Process.setsid
         fork do
           STDIN.close
-          STDOUT.reopen "/dev/null", "a"
-          STDERR.reopen "/dev/null", "a"
+          STDOUT.reopen '/dev/null', 'a'
+          STDERR.reopen '/dev/null', 'a'
           self.run!
         end
       end
@@ -242,7 +242,7 @@ module Trema
     # @return [String]
     #
     def name
-      self.class.to_s.split( "::" ).last
+      self.class.to_s.split('::').last
     end
   end
 end

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/openflow-switch"
+require 'trema/openflow-switch'
 
 
 module Trema
@@ -43,7 +43,7 @@ module Trema
     #
     # @return [HardwareSwitch]
     #
-    def initialize stanza
+    def initialize(stanza)
       stanza.validate
       @name = stanza.name
       @stanza = stanza

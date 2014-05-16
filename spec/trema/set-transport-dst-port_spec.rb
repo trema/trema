@@ -16,43 +16,43 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
-describe SetTransportDstPort, "new( port_number )", :type => "actions" do
+describe SetTransportDstPort, 'new( port_number )', :type => 'actions' do
   subject { SetTransportDstPort.new port_number }
 
-  context "with port_number (5555)" do
-    let( :port_number ) { 5555 }
-    its( :port_number ) { should == 5555 }
+  context 'with port_number (5555)' do
+    let(:port_number) { 5555 }
+    its(:port_number) { should == 5555 }
   end
 
-  it_validates "option is within range", :port_number, 0..( 2 ** 16 - 1 )
+  it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
 
-  context %{with invalid port_number ("5555")} do
-    let( :port_number ) { "5555" }
-    it { expect { subject }.to raise_error( TypeError ) }
+  context 'with invalid port_number (5555)' do
+    let(:port_number) { '5555' }
+    it { expect { subject }.to raise_error(TypeError) }
   end
 
-  context %{with invalid port_number ([1, 2, 3])} do
-    let( :port_number ) { [ 1, 2, 3 ] }
-    it { expect { subject }.to raise_error( TypeError ) }
+  context 'with invalid port_number ([1, 2, 3])' do
+    let(:port_number) { [1, 2, 3] }
+    it { expect { subject }.to raise_error(TypeError) }
   end
 
-  context "when sending a Flow Mod with SetTransportDstPort" do
-    let( :port_number ) { 5555 }
+  context 'when sending a Flow Mod with SetTransportDstPort' do
+    let(:port_number) { 5555 }
 
-    it "should insert a new flow entry with action (mod_tp_dst:5555)" do
+    it 'should insert a new flow entry with action (mod_tp_dst:5555)' do
       class TestController < Controller; end
-      network {
+      network do
         vswitch { datapath_id 0xabc }
-      }.run( TestController ) {
-        controller( "TestController" ).send_flow_mod_add( 0xabc, :actions => subject )
+      end.run(TestController) do
+        controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect( vswitch( "0xabc" ) ).to have( 1 ).flows
-        expect( vswitch( "0xabc" ).flows[ 0 ].actions ).to eq( "mod_tp_dst:5555" )
-      }
+        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_tp_dst:5555')
+      end
     end
   end
 end

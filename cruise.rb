@@ -31,18 +31,16 @@ $coverage_threshold = 70.1
 # Load libraries
 ################################################################################
 
-$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/ruby" ) )
+$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/ruby'))
 
-require "rubygems"
-
-require "English"
-require "blocker"
-require "fileutils"
-require "find"
-require "optparse"
-require "stringio"
-require "sub-process"
-require "trema/path"
+require 'English'
+require 'blocker'
+require 'fileutils'
+require 'find'
+require 'optparse'
+require 'stringio'
+require 'sub-process'
+require 'trema/path'
 
 
 include FileUtils
@@ -53,18 +51,18 @@ include FileUtils
 ################################################################################
 
 def path_string
-  paths = ENV[ "PATH" ].split( ":" )
-  paths << Gem::bindir unless paths.include?( Gem::bindir )
-  paths.join ":"
+  paths = ENV[ 'PATH'].split(':')
+  paths << Gem::bindir unless paths.include?(Gem::bindir)
+  paths.join ':'
 end
 
 
-def sh cmd
-  ENV[ "LC_ALL" ] = "C"
-  ENV[ "PATH" ] = path_string
+def sh(cmd)
+  ENV[ 'LC_ALL'] = 'C'
+  ENV[ 'PATH'] = path_string
   puts cmd if $verbose
-  unless system( cmd )
-    raise "Command '#{ cmd }' failed!"
+  unless system(cmd)
+    fail "Command '#{ cmd }' failed!"
   end
 end
 
@@ -81,7 +79,7 @@ class Testee
   attr_writer :lines
 
 
-  def initialize path
+  def initialize(path)
     @path = path
     @lines = 0
     @coverage = 0.0
@@ -89,7 +87,7 @@ class Testee
 
 
   def name
-    File.basename( @path )
+    File.basename(@path)
   end
 
 
@@ -98,15 +96,15 @@ class Testee
 
     n = 0
     in_comment = false
-    File.open( @path, "r" ).each_line do | l |
-      next if /^\s+\/\//=~ l # comments starting with //
-      next if /^\s*$/=~ l # empty lines
-      next if /^\s*\/\*.*\*\//=~l # /* ... */
-      if /^\s*\/\*/=~ l # /*
+    File.open(@path, 'r').each_line do | l |
+      next if /^\s+\/\// =~ l # comments starting with //
+      next if /^\s*$/ =~ l # empty lines
+      next if /^\s*\/\*.*\*\// =~ l # /* ... */
+      if /^\s*\/\*/ =~ l # /*
         in_comment = true
         next
       end
-      if /^\s*\*\//=~ l # */
+      if /^\s*\*\// =~ l # */
         in_comment = false
         next
       end
@@ -122,14 +120,14 @@ class Testee
   end
 
 
-  def coverage= value
+  def coverage=(value)
     if value > @coverage
       @coverage = value
     end
   end
 
 
-  def <=> other
+  def <=>(other)
     @name <=> other.name
   end
 end
@@ -137,7 +135,7 @@ end
 
 def testees
   $c_files.delete_if do | key, value |
-    File.basename( key ) == "trema_wrapper.c"
+    File.basename(key) == 'trema_wrapper.c'
   end
 end
 
@@ -155,38 +153,38 @@ end
 
 
 def lines_total
-  testees.values.inject( 0 ) do | r, each |
+  testees.values.inject(0) do | r, each |
     r += each.lines
   end
 end
 
 
 def lines_tested
-  testees.values.inject( 0 ) do | r, each |
+  testees.values.inject(0) do | r, each |
     r += each.lines_tested
   end
 end
 
 
 def coverage
-  sprintf( "%3.1f", lines_tested / lines_total * 100.0 ).to_f
+  sprintf('%3.1f', lines_tested / lines_total * 100.0).to_f
 end
 
 
 def diff_coverage_threshold
-  sprintf( "%3.1f", ( $coverage_threshold - coverage ).abs ).to_f
+  sprintf('%3.1f', ( $coverage_threshold - coverage).abs).to_f
 end
 
 
-def gcov gcda, dir
+def gcov(gcda, dir)
   file = nil
 
   cmd = "gcov #{ gcda } -o #{ dir } -n"
   SubProcess.create do | shell |
     shell.on_stdout do | l |
-      file = File.expand_path( $1 ) if /^File '(.*)'/=~ l
-      testee = $c_files[ file ]
-      if /^Lines executed:(.*)% of (.*)$/=~ l and not testee.nil?
+      file = File.expand_path($1) if /^File '(.*)'/ =~ l
+      testee = $c_files[ file]
+      if /^Lines executed:(.*)% of (.*)$/ =~ l && testee
         testee.coverage = $1.to_f
         testee.lines = $2.to_i
       end
@@ -195,7 +193,7 @@ def gcov gcda, dir
       $stderr.puts l
     end
     shell.on_failure do
-      raise "'#{ cmd }' failed."
+      fail "'#{ cmd }' failed."
     end
     shell.exec cmd
   end
@@ -203,17 +201,17 @@ end
 
 
 def measure_coverage
-  Find.find( "src/lib", "src/packetin_filter", "src/switch_manager", "src/tremashark", "unittests" ) do | f |
-    if /\.c$/=~ f
-      path = File.expand_path( f )
-      $c_files[ path ] = Testee.new( path )
+  Find.find('src/lib', 'src/packetin_filter', 'src/switch_manager', 'src/tremashark', 'unittests') do | f |
+    if /\.c$/ =~ f
+      path = File.expand_path(f)
+      $c_files[ path] = Testee.new(path)
     end
   end
-  Dir.glob( "unittests/objects/*.gcda" ).each do | each |
-    gcov each, "unittests/objects"
+  Dir.glob('unittests/objects/*.gcda').each do | each |
+    gcov each, 'unittests/objects'
   end
-  Dir.glob( "objects/unittests/*.gcda" ).each do | each |
-    gcov each, "objects/unittests"
+  Dir.glob('objects/unittests/*.gcda').each do | each |
+    gcov each, 'objects/unittests'
   end
 end
 
@@ -222,8 +220,8 @@ end
 # Summaries
 ################################################################################
 
-def banner message
-  return <<-EOF
+def banner(message)
+  <<-EOF
 #{ message }
 ================================================================================
 EOF
@@ -242,8 +240,8 @@ end
 
 
 def coverage_threshold_error
-  return <<-EOF
-#{ banner( "ERROR" ) }
+  <<-EOF
+#{ banner('ERROR') }
 Oops...
 Overall coverage DECREASED to #{ coverage }% !!!
 
@@ -253,8 +251,8 @@ end
 
 
 def update_coverage_threshold_message
-  return <<-EOF
-#{ banner( "WARNING" ) }
+  <<-EOF
+#{ banner('WARNING') }
 Congratulations !
 Overall coverage INCREASED to #{ coverage }% !
 
@@ -274,24 +272,26 @@ def show_summary
   puts <<-EOF
 
 
-#{ banner( "Coverage details" ) }
+#{ banner('Coverage details') }
 #{ coverage_ranking }
 
-#{ banner( "Summary" ) }
-- Total execution time = #{ ( Time.now - $start_time ).to_i } seconds
+#{ banner('Summary') }
+- Total execution time = #{ ( Time.now - $start_time).to_i } seconds
 - Overall coverage = #{ coverage }% (#{ files_not_tested.size }/#{ testees.size } files not yet tested)
 
 
 EOF
 
-  if ( coverage < $coverage_threshold ) and ( diff_coverage_threshold > delta_coverage_threshold )
+  if (coverage < $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
     puts coverage_threshold_error
-    puts; puts
-    exit -1
-  elsif ( coverage > $coverage_threshold ) and ( diff_coverage_threshold > delta_coverage_threshold )
+    puts
+    puts
+    exit(-1)
+  elsif (coverage > $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
     puts update_coverage_threshold_message
-    puts; puts
-    exit -1
+    puts
+    puts
+    exit(-1)
   end
 end
 
@@ -300,31 +300,44 @@ end
 # Tests
 ################################################################################
 
-def test message
+def test(message)
   puts message
   cd Trema.home do
-    sh "bundle exec rake clean"
+    sh 'bundle exec rake clean'
     begin
       yield
     ensure
-      sh "./trema killall"
+      sh './trema killall' rescue nil
     end
   end
 end
 
 
-def run_unit_test
-  test "Running unit tests ..." do
-    sh "bundle exec rake unittests"
-    sh "bundle exec rake spec"
+def run_unit_tests
+  test 'Running unit tests ...' do
+    sh 'bundle exec rake unittests'
   end
   measure_coverage
 end
 
 
-def run_acceptance_test
-  test "Running acceptance tests ..." do
-    sh "bundle exec rake features"
+def run_rspec
+  test 'Running rspec ...' do
+    sh 'bundle exec rake spec'
+  end
+  measure_coverage
+end
+
+
+def run_ruby_acceptance_tests
+  test 'Running acceptance tests ...' do
+    sh 'bundle exec rake features'
+  end
+end
+
+def run_all_acceptance_tests
+  test 'Running acceptance tests ...' do
+    sh 'bundle exec rake features:all'
   end
 end
 
@@ -335,22 +348,26 @@ end
 
 $options = OptionParser.new
 
-$options.on( "-u", "--unit-test-only" ) do
+$options.on('-u', '--unit-test-only') do
   $unit_test_only = true
 end
 
-$options.on( "-a", "--acceptance-test-only" ) do
+$options.on('-a', '--acceptance-test-only') do
   $acceptance_test_only = true
 end
 
-$options.separator ""
+$options.on('-A', '--all') do
+  $all = true
+end
 
-$options.on( "-h", "--help" ) do
+$options.separator ''
+
+$options.on('-h', '--help') do
   puts $options.to_s
   exit
 end
 
-$options.on( "-v", "--verbose" ) do
+$options.on('-v', '--verbose') do
   $verbose = true
 end
 
@@ -359,9 +376,9 @@ $options.parse! ARGV
 
 def init_cruise
   FileUtils.rm_f File.expand_path(File.join(File.dirname(__FILE__), 'Gemfile.lock'))
-  sh "bundle install"
-  sh "bundle update"
-  sh "bundle exec rake clobber"
+  sh 'bundle install'
+  sh 'bundle update'
+  sh 'bundle exec rake clobber'
 end
 
 
@@ -369,9 +386,18 @@ Blocker.start do
   $start_time = Time.now
   cd Trema.home do
     init_cruise
-    run_unit_test if not $acceptance_test_only
-    run_acceptance_test if not $unit_test_only
-    show_summary if not $acceptance_test_only
+    unless $acceptance_test_only
+      run_unit_tests if $all
+      run_rspec
+    end
+    unless $unit_test_only
+      if $all
+        run_all_acceptance_tests
+      else
+        run_ruby_acceptance_tests
+      end
+    end
+    show_summary if ((not $acceptance_test_only) && $all)
   end
 end
 

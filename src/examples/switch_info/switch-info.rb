@@ -19,19 +19,19 @@
 
 
 class SwitchInfo < Controller
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     send_message datapath_id, FeaturesRequest.new
   end
 
 
-  def features_reply datapath_id, message
-    info "datapath_id: %#x" % datapath_id
-    info "transaction_id: %#x" % message.transaction_id
-    info "n_buffers: %u" % message.n_buffers
-    info "n_tables: %u" % message.n_tables
-    info "capabilities: %u" % message.capabilities
-    info "actions: %u" % message.actions
-    info "#ports: %d" % message.ports.size
+  def features_reply(datapath_id, message)
+    info 'datapath_id: %#x' % datapath_id
+    info 'transaction_id: %#x' % message.transaction_id
+    info 'n_buffers: %u' % message.n_buffers
+    info 'n_tables: %u' % message.n_tables
+    info 'capabilities: %u' % message.capabilities
+    info 'actions: %u' % message.actions
+    info '#ports: %d' % message.ports.size
     shutdown!
   end
 end

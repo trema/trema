@@ -15,33 +15,30 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+require 'rspec'
 
-require "rubygems"
-require "rspec"
-
-
-shared_examples_for "option is within range" do | option, range |
+shared_examples_for 'option is within range' do | option, range |
   context "with #{ option } (#{ range })" do
-    let( option ) { range.first }
-    it { expect { subject }.not_to raise_error( ArgumentError ) }
+    let(option) { range.first }
+    it { expect { subject }.not_to raise_error(ArgumentError) }
   end
 
 
   context "with #{ option } (< #{ range.first })" do
-    let( option ) { range.first - 1 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+    let(option) { range.first - 1 }
+    it { expect { subject }.to raise_error(ArgumentError) }
   end
 
 
   context "with #{ option } (> #{ range.last })" do
-    let( option ) { range.last + 1 }
-    it { expect { subject }.to raise_error( ArgumentError ) }
+    let(option) { range.last + 1 }
+    it { expect { subject }.to raise_error(ArgumentError) }
   end
 end
 
 
 RSpec.configure do | config |
-  config.alias_it_should_behave_like_to :it_validates, "it validates"
+  config.alias_it_should_behave_like_to :it_validates, 'it validates'
 end
 
 

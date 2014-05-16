@@ -1,3 +1,4 @@
+@ruby
 Feature: up command
 
   In order to restart killed processes

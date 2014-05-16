@@ -58,7 +58,7 @@ module SubProcess
     attr_reader :env
 
 
-    def initialize command, env = {}
+    def initialize(command, env = {})
       @command = command
       @env = env
     end
@@ -66,7 +66,7 @@ module SubProcess
 
     def start
       @env.each_pair do | key, value |
-        ENV[ key ]= value
+        ENV[key] = value
       end
       Kernel.exec @command
     end
@@ -79,7 +79,7 @@ module SubProcess
     attr_reader :stderr
 
 
-    def initialize stdin, stdout, stderr
+    def initialize(stdin, stdout, stderr)
       @stdin = stdin
       @stdout = stdout
       @stderr = stderr
@@ -87,7 +87,7 @@ module SubProcess
 
 
     def close
-      [ @stdin, @stdout, @stderr ].each do | each |
+      [@stdin, @stdout, @stderr].each do | each |
         unless each.closed?
           each.close
         end
@@ -98,9 +98,9 @@ module SubProcess
 
   class Process
     def initialize
-      stdin, stdout, stderr = Array.new( 3 ) { IO.pipe }
-      @child = SubProcess::PipeSet.new( stdin[ 1 ], stdout[ 0 ], stderr[ 0 ] )
-      @parent = SubProcess::PipeSet.new( stdin[ 0 ], stdout[ 1 ], stderr[ 1 ] )
+      stdin, stdout, stderr = Array.new(3) { IO.pipe }
+      @child = SubProcess::PipeSet.new(stdin[ 1], stdout[ 0], stderr[ 0])
+      @parent = SubProcess::PipeSet.new(stdin[ 0], stdout[ 1], stderr[ 1])
     end
 
 
@@ -109,8 +109,8 @@ module SubProcess
     end
 
 
-    def popen command, &block
-      @pid = fork_child( command )
+    def popen(command, &block)
+      @pid = fork_child(command)
       # Parent process
       @parent.close
       begin
@@ -127,7 +127,7 @@ module SubProcess
     ############################################################################
 
 
-    def fork_child command
+    def fork_child(command)
       Kernel.fork do
         @child.close
         redirect_child_io
@@ -146,14 +146,14 @@ module SubProcess
 
 
   class IoHandlerThread
-    def initialize io, method
+    def initialize(io, method)
       @io = io
       @method = method
     end
 
 
     def start
-      Thread.new( @io, @method ) do | io, method |
+      Thread.new(@io, @method) do | io, method |
         while io.gets do
           method.call $LAST_READ_LINE
         end
@@ -163,12 +163,12 @@ module SubProcess
 
 
   class Shell
-    def self.open debug_options = {}, &block
-      block.call self.new( debug_options )
+    def self.open(debug_options = {}, &block)
+      block.call new(debug_options)
     end
 
 
-    def initialize debug_options
+    def initialize(debug_options)
       @debug_options = debug_options
     end
 
@@ -178,34 +178,34 @@ module SubProcess
     end
 
 
-    def on_stdout &block
+    def on_stdout(&block)
       @on_stdout = block
     end
 
 
-    def on_stderr &block
+    def on_stderr(&block)
       @on_stderr = block
     end
 
 
-    def on_exit &block
+    def on_exit(&block)
       @on_exit = block
     end
 
 
-    def on_success &block
+    def on_success(&block)
       @on_success = block
     end
 
 
-    def on_failure &block
+    def on_failure(&block)
       @on_failure = block
     end
 
 
-    def exec command, env = { "LC_ALL" => "C" }
-      on_failure { raise "command #{ command } failed" } unless @on_failure
-      SubProcess::Process.new.popen SubProcess::Command.new( command, env ) do | stdout, stderr |
+    def exec(command, env = { 'LC_ALL' => 'C' })
+      on_failure { fail "command #{ command } failed" } unless @on_failure
+      SubProcess::Process.new.popen SubProcess::Command.new(command, env) do | stdout, stderr |
         handle_child_output stdout, stderr
       end.wait
       handle_exitstatus
@@ -218,9 +218,9 @@ module SubProcess
     ############################################################################
 
 
-    def handle_child_output stdout, stderr
-      tout = SubProcess::IoHandlerThread.new( stdout, method( :do_stdout ) ).start
-      terr = SubProcess::IoHandlerThread.new( stderr, method( :do_stderr ) ).start
+    def handle_child_output(stdout, stderr)
+      tout = SubProcess::IoHandlerThread.new(stdout, method(:do_stdout)).start
+      terr = SubProcess::IoHandlerThread.new(stderr, method(:do_stderr)).start
       tout.join
       terr.join
     end
@@ -239,14 +239,14 @@ module SubProcess
     end
 
 
-    def do_stdout line
+    def do_stdout(line)
       if @on_stdout
         @on_stdout.call line
       end
     end
 
 
-    def do_stderr line
+    def do_stderr(line)
       if @on_stderr
         @on_stderr.call line
       end
@@ -275,7 +275,7 @@ module SubProcess
   end
 
 
-  def create debug_options = {}, &block
+  def create(debug_options = {}, &block)
     Shell.open debug_options, &block
   end
   module_function :create

@@ -16,25 +16,25 @@
 #
 
 
-require "mkmf"
+require 'mkmf'
 
 
-$CFLAGS = "-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith"
-$LDFLAGS = "-Wl,-Bsymbolic"
+$CFLAGS = '-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith'
+$LDFLAGS = '-Wl,-Bsymbolic'
 
 
-dir_config "trema"
-dir_config "openflow"
+dir_config 'trema'
+dir_config 'openflow'
 
 
-def error_exit message
+def error_exit(message)
   $stderr.puts message
   exit false
 end
 
 
-def error_lib_missing lib, package
-  return <<-EOF
+def error_lib_missing(lib, package)
+  <<-EOF
 ERROR: #{ lib } not found!
 
 Please install #{ package } with following command:
@@ -43,23 +43,23 @@ EOF
 end
 
 
-unless find_library( "pthread", "pthread_create" )
-  error_exit error_lib_missing( "libpthread", "libc6-dev" )
+unless find_library('pthread', 'pthread_create')
+  error_exit error_lib_missing('libpthread', 'libc6-dev')
 end
 
-unless find_library( "rt", "clock_gettime" )
-  error_exit error_lib_missing( "librt", "libc6-dev" )
+unless find_library('rt', 'clock_gettime')
+  error_exit error_lib_missing('librt', 'libc6-dev')
 end
 
-unless find_library( "dl", "dlopen" )
-  error_exit error_lib_missing( "libdl", "libc6-dev" )
+unless find_library('dl', 'dlopen')
+  error_exit error_lib_missing('libdl', 'libc6-dev')
 end
 
-unless find_library( "sqlite3", "sqlite3_open" )
-  error_exit error_lib_missing( "libsqlite3", "libsqlite3-dev" )
+unless find_library('sqlite3', 'sqlite3_open')
+  error_exit error_lib_missing('libsqlite3', 'libsqlite3-dev')
 end
 
-unless find_library( "trema", "create_hello" )
+unless find_library('trema', 'create_hello')
   error_exit <<-EOF
 ERROR: Trema is not compiled yet!
 
@@ -69,8 +69,8 @@ EOF
 end
 
 
-$CFLAGS << " -Werror" # must be added after find_library
-create_makefile "trema", "trema"
+$CFLAGS << ' -Werror' # must be added after find_library
+create_makefile 'trema', 'trema'
 
 
 ### Local variables:

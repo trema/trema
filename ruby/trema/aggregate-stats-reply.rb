@@ -16,7 +16,7 @@
 #
 
 
-require "trema/stats-helper"
+require 'trema/stats-helper'
 
 
 module Trema
@@ -54,7 +54,7 @@ module Trema
     #   @return [AggregateStatsReply]
     #     an object that encapsulates the OFPST_STATS_REPLY(OFPST_AGGREGATE) OpenFlow message.
     #
-    def initialize options
+    def initialize(options)
       super FIELDS, options
     end
   end

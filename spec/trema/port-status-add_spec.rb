@@ -16,12 +16,12 @@
 #
 
 
-require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
-require "trema"
+require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'trema'
 
 
 describe Trema::PortStatusAdd do
-  it_should_behave_like "port status message", :klass => Trema::PortStatusAdd
+  it_should_behave_like 'port status message', :klass => Trema::PortStatusAdd
 end
 
 

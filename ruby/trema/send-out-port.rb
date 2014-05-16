@@ -16,8 +16,8 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require 'trema/action'
+require 'trema/monkey-patch/integer'
 
 
 module Trema
@@ -25,7 +25,7 @@ module Trema
   # An action to output a packet to a port.
   #
   class SendOutPort < Action
-    DEFAULT_MAX_LEN = 2 ** 16 - 1
+    DEFAULT_MAX_LEN = 2**16 - 1
 
 
     # @return [Fixnum] the value of attribute {#max_len}
@@ -58,16 +58,16 @@ module Trema
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
     # @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
     #
-    def initialize options
+    def initialize(options)
       case options
         when Hash
-          @port_number = options[ :port_number ] || options[ :port ]
-          @max_len = options[ :max_len ] || DEFAULT_MAX_LEN
+          @port_number = options[ :port_number] || options[ :port]
+          @max_len = options[ :max_len] || DEFAULT_MAX_LEN
         when Integer
           @port_number = options
           @max_len = DEFAULT_MAX_LEN
         else
-          raise "Invalid option"
+          fail 'Invalid option'
       end
       check_port_number
       check_max_len
@@ -75,7 +75,7 @@ module Trema
 
 
     def to_s
-      "#{ self.class.to_s }: port_number=#{ @port_number }, max_len=#{ @max_len }"
+      "#{ self.class }: port_number=#{ @port_number }, max_len=#{ @max_len }"
     end
 
 
@@ -86,17 +86,17 @@ module Trema
 
     def check_port_number
       if @port_number.nil?
-        raise ArgumentError, "Port number is a mandatory option"
+        fail ArgumentError, 'Port number is a mandatory option'
       end
       unless @port_number.unsigned_16bit?
-        raise ArgumentError, "Port number must be an unsigned 16-bit integer"
+        fail ArgumentError, 'Port number must be an unsigned 16-bit integer'
       end
     end
 
 
     def check_max_len
       unless @max_len.unsigned_16bit?
-        raise ArgumentError, "Max length must be an unsigned 16-bit integer"
+        fail ArgumentError, 'Max length must be an unsigned 16-bit integer'
       end
     end
   end

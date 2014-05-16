@@ -208,7 +208,6 @@ port_mod_advertise( VALUE self ) {
  */
 void
 Init_port_mod() {
-  rb_require( "rubygems" );
   rb_require( "pio" );
 
   mTrema = rb_eval_string( "Trema" );

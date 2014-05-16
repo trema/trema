@@ -18,8 +18,8 @@
 #
 
 
-require "counter"
-require "fdb"
+require 'counter'
+require 'fdb'
 
 
 class TrafficMonitor < Controller
@@ -32,13 +32,13 @@ class TrafficMonitor < Controller
   end
 
 
-  def packet_in datapath_id, message
+  def packet_in(datapath_id, message)
     macsa = message.macsa
     macda = message.macda
 
     @fdb.learn macsa, message.in_port
     @counter.add macsa, 1, message.total_len
-    out_port = @fdb.lookup( macda )
+    out_port = @fdb.lookup(macda)
     if out_port
       packet_out datapath_id, message, out_port
       flow_mod datapath_id, macsa, macda, out_port
@@ -48,7 +48,7 @@ class TrafficMonitor < Controller
   end
 
 
-  def flow_removed datapath_id, message
+  def flow_removed(datapath_id, message)
     @counter.add message.match.dl_src, message.packet_count, message.byte_count
   end
 
@@ -61,31 +61,31 @@ class TrafficMonitor < Controller
   def show_counter
     puts Time.now
     @counter.each_pair do | mac, counter |
-      puts "#{ mac } #{ counter[ :packet_count ] } packets (#{ counter[ :byte_count ] } bytes)"
+      puts "#{ mac } #{ counter[ :packet_count] } packets (#{ counter[ :byte_count] } bytes)"
     end
   end
 
 
-  def flow_mod datapath_id, macsa, macda, out_port
+  def flow_mod(datapath_id, macsa, macda, out_port)
     send_flow_mod_add(
       datapath_id,
       :hard_timeout => 10,
-      :match => Match.new( :dl_src => macsa, :dl_dst => macda ),
-      :actions => ActionOutput.new( out_port )
+      :match => Match.new(:dl_src => macsa, :dl_dst => macda),
+      :actions => ActionOutput.new(out_port)
     )
   end
 
 
-  def packet_out datapath_id, message, out_port
+  def packet_out(datapath_id, message, out_port)
     send_packet_out(
       datapath_id,
       :packet_in => message,
-      :actions => ActionOutput.new( out_port )
+      :actions => ActionOutput.new(out_port)
     )
   end
 
 
-  def flood datapath_id, message
+  def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end

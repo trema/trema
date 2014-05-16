@@ -16,9 +16,9 @@
 #
 
 
-require "trema/default_openflow_channel_port"
-require "trema/dsl"
-require "trema/util"
+require 'trema/default_openflow_channel_port'
+require 'trema/dsl'
+require 'trema/util'
 
 
 module Trema
@@ -26,27 +26,27 @@ module Trema
     include Trema::Util
 
 
-    def trema_run options
-      @config_file = options[ :conf ] || nil
-      @openflow_port = options[ :port ] || DEFAULT_OPENFLOW_CHANNEL_PORT
+    def trema_run(options)
+      @config_file = options[ :conf] || nil
+      @openflow_port = options[ :port] || DEFAULT_OPENFLOW_CHANNEL_PORT
 
-      if options[ :daemonize ]
+      if options[ :daemonize]
         $run_as_daemon = true
       end
-      if options[ :tremashark ]
+      if options[ :tremashark]
         $use_tremashark = true
       end
-      if options[ :no_flow_cleanup ]
+      if options[ :no_flow_cleanup]
         $no_flow_cleanup = true
       end
 
-      need_cleanup = ( not running? )
+      need_cleanup = (not running?)
 
       if $run_as_daemon
-        Trema::DSL::Runner.new( load_config ).daemonize
+        Trema::DSL::Runner.new(load_config).daemonize
       else
         begin
-          Trema::DSL::Runner.new( load_config ).run
+          Trema::DSL::Runner.new(load_config).run
         rescue SystemExit
           # This is OK
         ensure
@@ -66,29 +66,29 @@ module Trema
       dsl_parser = Trema::DSL::Parser.new
 
       if @config_file
-        config = dsl_parser.parse( @config_file )
-      elsif FileTest.exists?( "./trema.conf" )
-        config = dsl_parser.parse( "./trema.conf" )
+        config = dsl_parser.parse(@config_file)
+      elsif FileTest.exists?('./trema.conf')
+        config = dsl_parser.parse('./trema.conf')
       else
         config = Trema::DSL::Configuration.new
       end
 
       config.port = @openflow_port
 
-      if ARGV[ 0 ]
-        controller_file = ARGV[ 0 ].split.first
+      if ARGV[ 0]
+        controller_file = ARGV[ 0].split.first
         if ruby_controller?
-          require "trema"
+          require 'trema'
           Object.__send__ :include, Trema
-          ARGV.replace ARGV[ 0 ].split[ 1..-1 ]
-          $LOAD_PATH << File.dirname( controller_file )
+          ARGV.replace ARGV[0].split[1..-1]
+          $LOAD_PATH << File.dirname(controller_file)
           load controller_file
         else
           # Assume that the controller is written in C
           stanza = Trema::DSL::Run.new
           stanza.path controller_file
-          stanza.options ARGV[ 0 ].split[ 1..-1 ]
-          Trema::App.new( stanza )
+          stanza.options ARGV[0].split[1..-1]
+          Trema::App.new(stanza)
         end
       end
 
@@ -97,7 +97,7 @@ module Trema
 
 
     def ruby_controller?
-      /\.rb\Z/=~ ARGV[ 0 ].split.first
+      /\.rb\Z/ =~ ARGV[0].split.first
     end
   end
 end

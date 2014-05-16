@@ -2487,11 +2487,6 @@ validate_port_stats_request( const buffer *message ) {
 
   port_stats_request = ( struct ofp_port_stats_request * ) stats_request->body;
 
-  ret = validate_phy_port_no( ntohs( port_stats_request->port_no ) );
-  if ( ret < 0 ) {
-    return ret;
-  }
-
   if ( ntohs( port_stats_request->port_no ) > OFPP_MAX
        && ntohs( port_stats_request->port_no ) != OFPP_NONE
        && ntohs( port_stats_request->port_no ) != OFPP_LOCAL ) {

@@ -16,9 +16,9 @@
 #
 
 
-require "trema/monkey-patch/module"
-require "trema/monkey-patch/string"
-require "trema/path"
+require 'trema/monkey-patch/module'
+require 'trema/monkey-patch/string'
+require 'trema/path'
 
 
 #
@@ -36,7 +36,7 @@ class Trema::Executables
     #
     def compiled?
       @list.each do | each |
-        return false unless FileTest.executable?( __send__ each )
+        return false unless FileTest.executable?(__send__ each)
       end
     end
 
@@ -49,7 +49,7 @@ class Trema::Executables
     #
     # Adds the name to a list.
     #
-    def add name
+    def add(name)
       @list ||= []
       @list << name
     end
@@ -68,9 +68,9 @@ class Trema::Executables
     #
     # @return [Array] a list of a class method to access each executable program.
     #
-    def path path
-      name = File.basename( path ).underscore
-      define_class_method( name ) do
+    def path(path)
+      name = File.basename(path).underscore
+      define_class_method(name) do
         File.join Trema.objects, path
       end
       add name
@@ -78,17 +78,17 @@ class Trema::Executables
   end
 
 
-  path "openvswitch/bin/ovs-ofctl"
-  path "openvswitch/bin/ovs-openflowd"
-  path "packetin_filter/packetin_filter"
-  path "phost/cli"
-  path "phost/phost"
-  path "switch_manager/switch"
-  path "switch_manager/switch_manager"
-  path "tremashark/packet_capture"
-  path "tremashark/stdin_relay"
-  path "tremashark/syslog_relay"
-  path "tremashark/tremashark"
+  path 'openvswitch/bin/ovs-ofctl'
+  path 'openvswitch/bin/ovs-openflowd'
+  path 'packetin_filter/packetin_filter'
+  path 'phost/cli'
+  path 'phost/phost'
+  path 'switch_manager/switch'
+  path 'switch_manager/switch_manager'
+  path 'tremashark/packet_capture'
+  path 'tremashark/stdin_relay'
+  path 'tremashark/syslog_relay'
+  path 'tremashark/tremashark'
 end
 
 

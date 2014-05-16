@@ -26,10 +26,10 @@ Feature: "Multi Learning Switch" sample application
       link "multi_learning3", "multi_learning4"
       """
 
-  @slow_process
-  Scenario: Run "Multi Learning Switch" C example
-    Given I run `trema run ../../objects/examples/multi_learning_switch/multi_learning_switch -c multi_learning_switch.conf -d`
-     And wait until "multi_learning_switch" is up
+  @slow_process @ruby
+  Scenario: Run "Multi Learning Switch" Ruby example
+    Given I run `trema run ../../src/examples/multi_learning_switch/multi-learning-switch.rb -c multi_learning_switch.conf -d`
+     And wait until "MultiLearningSwitch" is up
     When I send 2 packets from host1 to host2
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |
@@ -67,9 +67,9 @@ Feature: "Multi Learning Switch" sample application
       |     2 |     2 |     4 |     4 |
 
   @slow_process
-  Scenario: Run "Multi Learning Switch" Ruby example
-    Given I run `trema run ../../src/examples/multi_learning_switch/multi-learning-switch.rb -c multi_learning_switch.conf -d`
-     And wait until "MultiLearningSwitch" is up
+  Scenario: Run "Multi Learning Switch" C example
+    Given I run `trema run ../../objects/examples/multi_learning_switch/multi_learning_switch -c multi_learning_switch.conf -d`
+     And wait until "multi_learning_switch" is up
     When I send 2 packets from host1 to host2
     Then the total number of tx packets should be:
       | host1 | host2 | host3 | host4 |

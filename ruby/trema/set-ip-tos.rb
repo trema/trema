@@ -16,8 +16,8 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require 'trema/action'
+require 'trema/monkey-patch/integer'
 
 
 module Trema
@@ -41,12 +41,12 @@ module Trema
     # @raise [ArgumentError] if type_of_service value is invalid.
     # @raise [TypeError] if type_of_service argument is not an Integer.
     #
-    def initialize type_of_service
-      unless type_of_service.is_a?( Integer )
-        raise TypeError, "ToS must be an unsigned 8-bit integer"
+    def initialize(type_of_service)
+      unless type_of_service.is_a?(Integer)
+        fail TypeError, 'ToS must be an unsigned 8-bit integer'
       end
       unless type_of_service.valid_nw_tos?
-        raise ArgumentError, "Invalid type_of_service (ToS) value."
+        fail ArgumentError, 'Invalid type_of_service (ToS) value.'
       end
       @type_of_service = type_of_service
     end

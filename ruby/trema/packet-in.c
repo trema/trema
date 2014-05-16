@@ -1228,7 +1228,6 @@ packet_in_udp_checksum( VALUE self ) {
  */
 void
 Init_packet_in() {
-  rb_require( "rubygems" );
   rb_require( "pio" );
 
   mTrema = rb_eval_string( "Trema" );

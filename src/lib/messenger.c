@@ -192,7 +192,8 @@ typedef struct send_queue {
 
 #define MESSENGER_RECV_BUFFER 100000
 static const uint32_t messenger_send_queue_length = MESSENGER_RECV_BUFFER * 4;
-static const uint32_t messenger_send_length_for_flush = MESSENGER_RECV_BUFFER;
+static const uint32_t messenger_flush_limit_length = MESSENGER_RECV_BUFFER * 2;
+static const uint32_t messenger_flush_length = MESSENGER_RECV_BUFFER / 4;
 static const uint32_t messenger_bucket_size = MESSENGER_RECV_BUFFER;
 static const uint32_t messenger_recv_queue_length = MESSENGER_RECV_BUFFER * 2;
 static const uint32_t messenger_recv_queue_reserved = MESSENGER_RECV_BUFFER;
@@ -885,10 +886,6 @@ send_queue_connect( send_queue *sq ) {
   set_fd_handler( sq->server_socket, on_send_read, sq, on_send_write, sq );
   set_readable( sq->server_socket, true );
 
-  if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
-    set_writable( sq->server_socket, true );
-  }
-
   debug( "Connection established ( service_name = %s, sun_path = %s, fd = %d ).",
          sq->service_name, sq->server_addr.sun_path, sq->server_socket );
 
@@ -898,6 +895,14 @@ send_queue_connect( send_queue *sq ) {
   }
 
   send_dump_message( MESSENGER_DUMP_SEND_CONNECTED, sq->service_name, NULL, 0 );
+
+  if ( sq->buffer != NULL && sq->buffer->data_length >= sizeof( message_header ) ) {
+    set_writable( sq->server_socket, true );
+    if ( sq->buffer->data_length >= messenger_flush_length &&
+         sq->buffer->data_length < messenger_flush_limit_length ) {
+      on_send_write( sq->server_socket, sq );
+    }
+  }
 
   return 1;
 }
@@ -1101,6 +1106,10 @@ push_message_to_send_queue( const char *service_name, const uint8_t message_type
   }
 
   set_writable( sq->server_socket, true );
+  if ( sq->buffer->data_length >= messenger_flush_length &&
+       sq->buffer->data_length < messenger_flush_limit_length ) {
+    on_send_write( sq->server_socket, sq );
+  }
 
   return true;
 }

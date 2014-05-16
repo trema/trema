@@ -28,14 +28,14 @@ class SwitchMonitor < Controller
   end
 
 
-  def switch_ready datapath_id
+  def switch_ready(datapath_id)
     @switches << datapath_id.to_hex
     info "Switch #{ datapath_id.to_hex } is UP"
   end
 
 
-  def switch_disconnected datapath_id
-    @switches -= [ datapath_id.to_hex ]
+  def switch_disconnected(datapath_id)
+    @switches -= [datapath_id.to_hex]
     info "Switch #{ datapath_id.to_hex } is DOWN"
   end
 
@@ -44,7 +44,7 @@ class SwitchMonitor < Controller
 
 
   def show_switches
-    info "All switches = " + @switches.sort.join( ", " )
+    info 'All switches = ' + @switches.sort.join(', ')
   end
 end
 

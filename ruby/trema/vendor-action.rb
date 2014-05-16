@@ -16,8 +16,8 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require 'trema/action'
+require 'trema/monkey-patch/integer'
 
 
 module Trema
@@ -51,18 +51,18 @@ module Trema
     # @raise [TypeError] if body is not an Array.
     # @raise [ArgumentError] if body length is not a multiple of 8.
     #
-    def initialize vendor_id, body = nil
-      unless vendor_id.is_a?( Integer )
-        raise TypeError, "Vendor ID must be an unsigned 32-bit integer"
+    def initialize(vendor_id, body = nil)
+      unless vendor_id.is_a?(Integer)
+        fail TypeError, 'Vendor ID must be an unsigned 32-bit integer'
       end
       unless vendor_id.unsigned_32bit?
-        raise ArgumentError, "Vendor ID must be an unsigned 32-bit integer"
+        fail ArgumentError, 'Vendor ID must be an unsigned 32-bit integer'
       end
-      if ( not body.nil? ) and ( not body.is_a?( Array ) )
-        raise TypeError, "Body must be an Array"
+      if ( body) && ( not body.is_a?(Array))
+        fail TypeError, 'Body must be an Array'
       end
-      if ( not body.nil? ) and ( body.size % 8 != 0 )
-        raise ArgumentError, "Body length must be a multiple of 8"
+      if ( body) && ( body.size % 8 != 0)
+        fail ArgumentError, 'Body length must be a multiple of 8'
       end
 
       @vendor_id = vendor_id

@@ -18,22 +18,22 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
   module Shell
-    def reset_stats host_name = nil
+    def reset_stats(host_name = nil)
       assert_trema_is_built
 
-      if host_name and Host[ host_name ].nil?
-        raise "Host '#{ host_name }' is not defined."
+      if host_name && Host[ host_name].nil?
+        fail "Host '#{ host_name }' is not defined."
       end
       if host_name
-        Cli.new( Host[ host_name ] ).reset_stats
+        Cli.new(Host[ host_name]).reset_stats
       else
         Host.each do | each |
-          Cli.new( each ).reset_stats
+          Cli.new(each).reset_stats
         end
       end
       true

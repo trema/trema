@@ -18,14 +18,14 @@
 #
 
 
-require "trema/dsl"
+require 'trema/dsl'
 
 
 module Trema
   module Shell
-    def vhost name = nil, &block
-      stanza = DSL::Vhost.new( name )
-      stanza.instance_eval( &block ) if block
+    def vhost(name = nil, &block)
+      stanza = DSL::Vhost.new(name)
+      stanza.instance_eval(&block) if block
       Host.new stanza
       $context.dump
       true

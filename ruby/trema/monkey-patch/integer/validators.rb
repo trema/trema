@@ -22,7 +22,7 @@ module MonkeyPatch
       # nw_tos (IP ToS) value consists of 8 bits, of which only the 6 high-order
       # bits belong to DSCP, the 2 low-order bits must be zero.
       def valid_nw_tos?
-        unsigned_8bit? and self % 4 == 0
+        unsigned_8bit? && self % 4 == 0
       end
     end
   end

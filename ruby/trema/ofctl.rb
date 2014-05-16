@@ -18,45 +18,45 @@
 #
 
 
-require "trema/executables"
-require "trema/flow"
+require 'trema/executables'
+require 'trema/flow'
 
 
 module Trema
   class Ofctl
-    def add_flow switch, options
-      actions = options[ :actions ]
+    def add_flow(switch, options)
+      actions = options[ :actions]
       options.delete :actions
       option_string = options.collect do | k, v |
         "#{ k }=#{ v }"
-      end.join( "," )
+      end.join(',')
       sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.network_device } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
 
 
-    def flows switch
-      dump_flows( switch ).split( "\n" )[ 1..-1 ].collect do | each |
-        Trema::Flow.parse( each )
+    def flows(switch)
+      dump_flows(switch).split("\n")[ 1..-1].collect do | each |
+        Trema::Flow.parse(each)
       end.compact
     end
 
 
-    def users_flows switch
-      flows( switch ).select( &:users_flow? )
+    def users_flows(switch)
+      flows(switch).select(&:users_flow?)
     end
 
 
-    def dump_flows switch
+    def dump_flows(switch)
       `sudo #{ Executables.ovs_ofctl } dump-flows #{ switch.network_device } 2>&1`
     end
 
 
-    def bring_port_up switch, port_number
+    def bring_port_up(switch, port_number)
       `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } up 2>&1`
     end
 
 
-    def bring_port_down switch, port_number
+    def bring_port_down(switch, port_number)
       `sudo #{ Executables.ovs_ofctl } mod-port #{ switch.network_device } #{ port_number } down 2>&1`
     end
   end

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/util"
+require 'trema/util'
 
 
 module Trema
@@ -24,8 +24,8 @@ module Trema
     include Trema::Util
 
 
-    def trema_netns netns
-      sh "sudo ip netns exec #{ netns } #{ ENV[ 'SHELL' ] }"
+    def trema_netns(netns)
+      sh "sudo ip netns exec #{ netns } #{ ENV[ 'SHELL'] }"
     end
   end
 end

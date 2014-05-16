@@ -19,21 +19,21 @@
 module Trema
   class Switch
     attr_reader :dpid
-    alias :datapath_id :dpid
+    alias_method :datapath_id, :dpid
 
 
-    def self.inherited subclass
-      at_exit { subclass.new( eval ARGV[ 0 ] ).run! }
+    def self.inherited(subclass)
+      at_exit { subclass.new(eval ARGV[ 0]).run! }
     end
 
 
-    def initialize dpid
+    def initialize(dpid)
       @dpid = dpid
     end
 
 
     def name
-      self.class.to_s.split( "::" ).last
+      self.class.to_s.split('::').last
     end
 
 
@@ -42,8 +42,8 @@ module Trema
     end
 
 
-    def features_request xid
-      send_message FeaturesReply.new( :datapath_id => @dpid, :transaction_id => xid )
+    def features_request(xid)
+      send_message FeaturesReply.new(:datapath_id => @dpid, :transaction_id => xid)
     end
   end
 end

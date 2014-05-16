@@ -16,9 +16,9 @@
 #
 
 
-require "fileutils"
-require "trema/monkey-patch/string"
-require "trema/process"
+require 'fileutils'
+require 'trema/monkey-patch/string'
+require 'trema/process'
 
 
 module Trema
@@ -29,12 +29,12 @@ module Trema
       end
 
 
-      def log_file &block
+      def log_file(&block)
         class_variable_set :@@log_file, block
       end
 
 
-      def command &block
+      def command(&block)
         class_variable_set :@@command, block
       end
 
@@ -44,13 +44,13 @@ module Trema
       end
 
 
-      def daemon_id method_id
+      def daemon_id(method_id)
         class_variable_set :@@daemon_id, method_id
       end
     end
 
 
-    def self.included base
+    def self.included(base)
       base.class_eval do
         class_variable_set :@@singleton_daemon, false
         class_variable_set :@@log_file, nil
@@ -63,7 +63,7 @@ module Trema
 
 
     def run
-      raise "'#{ name }' is already running!" if running?
+      fail "'#{ name }' is already running!" if running?
       run!
     end
 
@@ -71,12 +71,12 @@ module Trema
     def run!
       FileUtils.rm_f log_file if log_file
       command_block = self.class.class_eval do
-        class_variable_get( :@@command )
+        class_variable_get(:@@command)
       end
       if command_block
-        sh command_block.call( self )
+        sh command_block.call(self)
       else
-        sh self.__send__( :command )
+        sh __send__(:command)
       end
       wait_until_up
     end
@@ -91,7 +91,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown
-      raise "'#{ name }' is not running!" if not running?
+      fail "'#{ name }' is not running!" unless running?
       shutdown!
     end
 
@@ -105,7 +105,7 @@ module Trema
     # @return [undefined]
     #
     def shutdown!
-      Trema::Process.read( pid_file, name ).kill!
+      Trema::Process.read(pid_file, name).kill!
     end
 
 
@@ -118,7 +118,7 @@ module Trema
     # @return [undefined]
     #
     def restart!
-      return if not running?
+      return unless running?
       shutdown!
       sleep 1
       run!
@@ -147,30 +147,30 @@ module Trema
 
     def log_file
       log_file_block = self.class.class_eval do
-        class_variable_get( :@@log_file )
+        class_variable_get(:@@log_file)
       end
       return nil if log_file_block.nil?
-      name = log_file_block.call( self )
+      name = log_file_block.call(self)
       File.join Trema.log, name
     end
 
 
     def daemon_id
       m = self.class.class_eval do
-        class_variable_get( :@@daemon_id ) || :name
+        class_variable_get(:@@daemon_id) || :name
       end
-      self.__send__ m
+      __send__ m
     end
 
 
     def wait_until_up
       wait = self.class.class_eval do
-        class_variable_get( :@@wait_until_up )
+        class_variable_get(:@@wait_until_up)
       end
-      return if not wait
+      return unless wait
       loop do
         sleep 0.1
-        break if FileTest.exists?( pid_file )
+        break if FileTest.exists?(pid_file)
       end
     end
   end

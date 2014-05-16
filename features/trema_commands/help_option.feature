@@ -1,3 +1,4 @@
+@ruby
 Feature: --help option
 
   Use the --help option or just type trema to display the usage of trema command.

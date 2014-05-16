@@ -15,28 +15,28 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+require 'codeclimate-test-reporter'
+CodeClimate::TestReporter.start
 
-$LOAD_PATH << File.join( File.dirname( __FILE__ ), "..", "ruby" )
-$LOAD_PATH.unshift File.expand_path( File.join File.dirname( __FILE__ ), "..", "vendor", "ruby-ifconfig-1.2", "lib" )
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'ruby')
+$LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib')
 
 
-require "rubygems"
-
-require "rspec"
-require "rspec/autorun"
-require "pio"
-require "trema"
-require "trema/dsl/configuration"
-require "trema/dsl/context"
-require "trema/ofctl"
-require "trema/shell"
-require "trema/util"
+require 'rspec'
+require 'rspec/autorun'
+require 'pio'
+require 'trema'
+require 'trema/dsl/configuration'
+require 'trema/dsl/context'
+require 'trema/ofctl'
+require 'trema/shell'
+require 'trema/util'
 
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
-Dir[ "#{ File.dirname( __FILE__ ) }/support/**/*.rb" ].each do | each |
-  require File.expand_path( each )
+Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb"].each do | each |
+  require File.expand_path(each)
 end
 
 
@@ -51,22 +51,22 @@ end
 include Trema
 
 
-def controller name
-  Trema::App[ name ]
+def controller(name)
+  Trema::App[ name]
 end
 
 
-def vswitch name
-  Trema::OpenflowSwitch[ name ]
+def vswitch(name)
+  Trema::OpenflowSwitch[ name]
 end
 
 
-def vhost name
-  Trema::Host[ name ]
+def vhost(name)
+  Trema::Host[ name]
 end
 
 
-def send_packets source, dest, options = {}
+def send_packets(source, dest, options = {})
   Trema::Shell.send_packets source, dest, options
 end
 
@@ -75,18 +75,16 @@ include Trema::Util
 
 
 class Network
-  def initialize &block
-    @context = Trema::DSL::Parser.new.eval( &block )
+  def initialize(&block)
+    @context = Trema::DSL::Parser.new.eval(&block)
   end
 
 
-  def run controller_class, &test
-    begin
-      trema_run controller_class
-      test.call
-    ensure
-      trema_kill
-    end
+  def run(controller_class, &test)
+    trema_run controller_class
+    test.call
+  ensure
+    trema_kill
   end
 
 
@@ -95,16 +93,16 @@ class Network
   ################################################################################
 
 
-  def trema_run controller_class
+  def trema_run(controller_class)
     controller = controller_class.new
-    if not controller.is_a?( Trema::Controller )
-      raise "#{ controller_class } is not a subclass of Trema::Controller"
+    unless controller.is_a?(Trema::Controller)
+      fail "#{ controller_class } is not a subclass of Trema::Controller"
     end
-    Trema::DSL::Context.new( @context ).dump
+    Trema::DSL::Context.new(@context).dump
 
     app_name = controller.name
     rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name }
-    sm = SwitchManager.new( rule, @context.port )
+    sm = SwitchManager.new(rule, @context.port)
     sm.no_flow_cleanup = true
     sm.run!
 
@@ -122,7 +120,7 @@ class Network
       each.up!
     end
     @context.hosts.each do | name, each |
-      each.add_arp_entry @context.hosts.values - [ each ]
+      each.add_arp_entry @context.hosts.values - [each]
     end
 
     @th_controller = Thread.start do
@@ -139,42 +137,42 @@ class Network
   end
 
 
-  def drop_packets_from_unknown_hosts switch
+  def drop_packets_from_unknown_hosts(switch)
     ofctl = Trema::Ofctl.new
-    ofctl.add_flow switch, :priority => 0, :actions => "drop"
+    ofctl.add_flow switch, :priority => 0, :actions => 'drop'
     @context.hosts.each do | name, each |
-      ofctl.add_flow switch, :dl_type => "0x0800", :nw_src => each.ip, :priority => 1, :actions => "controller"
+      ofctl.add_flow switch, :dl_type => '0x0800', :nw_src => each.ip, :priority => 1, :actions => 'controller'
     end
   end
 
 
-  def wait_until_controller_is_up trema_name, timeout = 10
+  def wait_until_controller_is_up(trema_name, timeout = 10)
     elapsed = 0
     loop do
-      raise "Timed out waiting for #{ trema_name }." if elapsed > timeout
-      break if FileTest.exists?( File.join( Trema.pid, "#{ trema_name }.pid" ) )
-      sleep 1
-      elapsed += 1
+      fail "Timed out waiting for #{ trema_name }." if elapsed > timeout
+      break if FileTest.exists?(File.join(Trema.pid, "#{ trema_name }.pid"))
+      sleep 0.1
+      elapsed += 0.1
     end
     sleep 1
   end
 
 
-  def wait_until_all_pid_files_are_deleted timeout = 12
+  def wait_until_all_pid_files_are_deleted(timeout = 12)
     elapsed = 0
     loop do
-      raise "Failed to clean up remaining processes." if elapsed > timeout
-      break if Dir.glob( File.join( Trema.pid, "*.pid" ) ).empty?
-      sleep 1
-      elapsed += 1
+      fail 'Failed to clean up remaining processes.' if elapsed > timeout
+      break if Dir.glob(File.join(Trema.pid, '*.pid')).empty?
+      sleep 0.1
+      elapsed += 0.1
     end
     sleep 1
   end
 end
 
 
-def network &block
-  Network.new &block
+def network(&block)
+  Network.new(&block)
 end
 
 

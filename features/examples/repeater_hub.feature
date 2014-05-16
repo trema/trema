@@ -27,10 +27,10 @@ Feature: "Repeater Hub" sample application
       link "repeater_hub", "host3"
       """
 
-  @slow_process
-  Scenario: Run "Repeater Hub" C example
-    Given I run `trema run ../../objects/examples/repeater_hub/repeater_hub -c repeater_hub.conf -d`
-     And wait until "repeater_hub" is up
+  @slow_process @ruby
+  Scenario: Run "Repeater Hub" Ruby example
+    Given I run `trema run ../../src/examples/repeater_hub/repeater-hub.rb -c repeater_hub.conf -d`
+     And wait until "RepeaterHub" is up
     When I send 1 packet from host1 to host2
      And I run `trema show_stats host1 --tx`
      And I run `trema show_stats host2 --rx`
@@ -40,9 +40,9 @@ Feature: "Repeater Hub" sample application
      And the output from "trema show_stats host3 --rx" should contain "192.168.0.2,1,192.168.0.1,1,1,50"
 
   @slow_process
-  Scenario: Run "Repeater Hub" Ruby example
-    Given I run `trema run ../../src/examples/repeater_hub/repeater-hub.rb -c repeater_hub.conf -d`
-     And wait until "RepeaterHub" is up
+  Scenario: Run "Repeater Hub" C example
+    Given I run `trema run ../../objects/examples/repeater_hub/repeater_hub -c repeater_hub.conf -d`
+     And wait until "repeater_hub" is up
     When I send 1 packet from host1 to host2
      And I run `trema show_stats host1 --tx`
      And I run `trema show_stats host2 --rx`

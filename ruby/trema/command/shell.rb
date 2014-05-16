@@ -18,8 +18,8 @@
 #
 
 
-require "irb"
-require "trema/util"
+require 'irb'
+require 'trema/util'
 
 
 include Trema::Util
@@ -28,25 +28,23 @@ include Trema::Util
 module Trema
   module Command
     def shell
-      begin
-        undef :kill
+      undef :kill
 
-        require "tempfile"
-        require "trema"
-        require "trema/shell"
-        f = Tempfile.open( "irbrc" )
-        f.print <<EOF
+      require 'tempfile'
+      require 'trema'
+      require 'trema/shell'
+      f = Tempfile.open('irbrc')
+      f.print <<EOF
 include Trema::Shell
 ENV[ "TREMA_HOME" ] = Trema.home
 $config = Trema::DSL::Configuration.new
 $context = Trema::DSL::Context.new( $config )
 EOF
-        f.close
-        load f.path
-        IRB.start
-      ensure
-        cleanup $config
-      end
+      f.close
+      load f.path
+      IRB.start
+    ensure
+      cleanup $config
     end
   end
 end

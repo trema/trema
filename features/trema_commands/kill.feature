@@ -1,3 +1,4 @@
+@ruby
 Feature: kill command
 
   In order to test event handling or just kill unwanted processes

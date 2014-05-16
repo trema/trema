@@ -16,8 +16,8 @@
 #
 
 
-require "trema/executables"
-require "trema/network-component"
+require 'trema/executables'
+require 'trema/network-component'
 
 
 module Trema
@@ -35,7 +35,7 @@ module Trema
     #
     # @api public
     #
-    def initialize queues
+    def initialize(queues)
       check_mandatory_options queues
       @queues = queues
       PacketinFilter.add self
@@ -53,7 +53,7 @@ module Trema
     # @api public
     #
     def name
-      "packet-in filter"
+      'packet-in filter'
     end
 
 
@@ -84,9 +84,9 @@ module Trema
     #
     # @api private
     #
-    def check_mandatory_options queues
-      [ :lldp, :packet_in ].each do | each |
-        raise ":#{ each } is a mandatory option" if queues[ each ].nil?
+    def check_mandatory_options(queues)
+      [:lldp, :packet_in].each do | each |
+        fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end
     end
 
@@ -99,7 +99,7 @@ module Trema
     # @api private
     #
     def lldp_queue
-      "lldp::#{ @queues[ :lldp ] }"
+      "lldp::#{ @queues[ :lldp] }"
     end
 
 
@@ -111,7 +111,7 @@ module Trema
     # @api private
     #
     def packetin_queue
-      "packet_in::#{ @queues[ :packet_in ] }"
+      "packet_in::#{ @queues[ :packet_in] }"
     end
   end
 end
