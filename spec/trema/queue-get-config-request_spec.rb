@@ -49,7 +49,7 @@ end
 describe QueueGetConfigRequest, '.new( INVALID OPTIONS )' do
   it 'should raise a TypeError' do
     expect do
-     QueueGetConfigRequest.new 'INVALID OPTIONS'
+      QueueGetConfigRequest.new 'INVALID OPTIONS'
     end.to raise_error(TypeError)
   end
 end
