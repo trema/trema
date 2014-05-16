@@ -65,14 +65,15 @@ describe PortMod, '.new( VALID OPTIONS )' do
     end
 
     it 'should otherwise raise ArgumentError' do
-      expect do PortMod.new(
-                :port_no => 2,
-                :hw_addr => Array.new(1234),
-                :config => 1,
-                :mask => 1,
-                :advertise => 0
-               )
-             end.to raise_error(ArgumentError)
+      expect do
+        PortMod.new(
+                    :port_no => 2,
+                    :hw_addr => Array.new(1234),
+                    :config => 1,
+                    :mask => 1,
+                    :advertise => 0
+                    )
+      end.to raise_error(ArgumentError)
     end
   end
 end

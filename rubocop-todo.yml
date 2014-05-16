@@ -8,9 +8,6 @@ Encoding:
 AssignmentInCondition:
   Enabled: false
 
-BlockAlignment:
-  Enabled: false
-
 BlockNesting:
   Enabled: false
 
