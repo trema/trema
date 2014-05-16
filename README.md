@@ -2,7 +2,7 @@ Welcome to Trema
 ================
 
 [![Gem Version](https://badge.fury.io/rb/trema.png)](http://badge.fury.io/rb/trema)
-[![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
+[![Build Status](http://img.shields.io/travis/trema/trema/develop.svg?style=flat)][travis]
 [![Code Climate](http://img.shields.io/codeclimate/github/trema/trema.svg?style=flat)][codeclimate]
 [![Coverage Status](http://img.shields.io/codeclimate/coverage/github/trema/trema.svg?style=flat)][codeclimate]
 [![Dependency Status](http://img.shields.io/gemnasium/trema/trema.svg?style=flat)][gemnasium]
@@ -23,6 +23,7 @@ emulates an OpenFlow-based network and end-hosts is provided for
 testing your own controllers. For debugging, a wireshark plug-in to
 diagnose internal data-flows among functional modules is provided.
 
+[travis]: http://travis-ci.org/trema/trema
 [codeclimate]: https://codeclimate.com/github/trema/trema
 [gemnasium]: https://gemnasium.com/trema/trema
 [gitter]: https://gitter.im/trema/trema
