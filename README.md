@@ -4,7 +4,7 @@ Welcome to Trema
 [![Gem Version](https://badge.fury.io/rb/trema.png)](http://badge.fury.io/rb/trema)
 [![Build Status](https://secure.travis-ci.org/trema/trema.png?branch=develop)](http://travis-ci.org/trema/trema)
 [![Code Climate](https://codeclimate.com/github/trema/trema.png)](https://codeclimate.com/github/trema/trema)
-[![Dependency Status](https://gemnasium.com/trema/trema.png)](https://gemnasium.com/trema/trema)
+[![Dependency Status](http://img.shields.io/gemnasium/trema/trema.svg?style=flat)][gemnasium]
 
 Trema is a OpenFlow controller framework that includes everything
 needed to create OpenFlow controllers in Ruby and C.
@@ -21,6 +21,7 @@ emulates an OpenFlow-based network and end-hosts is provided for
 testing your own controllers. For debugging, a wireshark plug-in to
 diagnose internal data-flows among functional modules is provided.
 
+[gemnasium]: https://gemnasium.com/trema/trema
 
 Supported Platforms
 -------------------
