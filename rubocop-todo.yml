@@ -47,9 +47,6 @@ Documentation:
 EmptyLiteral:
   Enabled: false
 
-EndAlignment:
-  Enabled: false
-
 Eval:
   Enabled: false
 
