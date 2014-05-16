@@ -101,9 +101,6 @@ RegexpLiteral:
 RescueModifier:
   Enabled: false
 
-Semicolon:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 

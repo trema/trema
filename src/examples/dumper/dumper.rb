@@ -136,7 +136,7 @@ class Dumper < Controller
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "port: #{ message.port }"
-    info('queues:');
+    info('queues:')
     dump_packet_queue message.queues
   end
 
