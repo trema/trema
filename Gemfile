@@ -22,5 +22,6 @@ group :development do
 end
 
 group :test do
+  gem 'codeclimate-test-reporter', require: nil
   gem 'rubocop', '~> 0.20.1', platforms: [:ruby_19, :ruby_20, :ruby_21]
 end

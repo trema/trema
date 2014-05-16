@@ -15,10 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
-require 'rubygems'
 require 'rspec'
-
 
 shared_examples_for 'option is within range' do | option, range |
   context "with #{ option } (#{ range })" do

@@ -15,10 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
-require 'rubygems'
 require 'rspec'
-
 
 shared_examples_for 'any Openflow message with default transaction ID' do
   its(:transaction_id) { should be_unsigned_32bit }

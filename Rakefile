@@ -19,7 +19,6 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/ruby'))
 
 
-require 'rubygems'
 require 'rake'
 require 'trema/executables'
 require 'trema/path'
