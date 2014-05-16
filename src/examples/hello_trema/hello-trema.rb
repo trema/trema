@@ -15,13 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class HelloTrema < Controller
   def switch_ready(datapath_id)
     info 'Hello %#x!' % datapath_id
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

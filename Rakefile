@@ -15,14 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/ruby'))
-
 
 require 'rake'
 require 'trema/executables'
 require 'trema/path'
-
 
 task :default => :build_trema
 
@@ -45,10 +42,8 @@ task :build_trema => [
   :examples
 ]
 
-
 require 'paper_house'
 require 'trema/version'
-
 
 CFLAGS = [
   '-g',
@@ -67,7 +62,6 @@ CFLAGS = [
 ]
 CFLAGS << '-Werror' if RUBY_VERSION < '1.9.0'
 
-
 desc 'Build Trema C library (static library).'
 task 'libtrema:static' => 'vendor:openflow'
 PaperHouse::StaticLibraryTask.new 'libtrema:static' do | task |
@@ -77,7 +71,6 @@ PaperHouse::StaticLibraryTask.new 'libtrema:static' do | task |
   task.cflags = CFLAGS
   task.includes = [Trema.openflow]
 end
-
 
 desc 'Build Trema C library (coverage).'
 task 'libtrema:gcov' => ['vendor:openflow']
@@ -89,7 +82,6 @@ PaperHouse::StaticLibraryTask.new 'libtrema:gcov' do | task |
   task.cflags = ['--coverage'] + CFLAGS
 end
 
-
 desc 'Build Trema C library (shared library).'
 task 'libtrema:shared' => 'vendor:openflow'
 PaperHouse::SharedLibraryTask.new 'libtrema:shared' do | task |
@@ -100,7 +92,6 @@ PaperHouse::SharedLibraryTask.new 'libtrema:shared' do | task |
   task.includes = [Trema.openflow]
   task.cflags = CFLAGS
 end
-
 
 desc 'Build Trema Ruby library.'
 task 'rubylib' => 'libtrema:static'
@@ -121,7 +112,6 @@ PaperHouse::RubyExtensionTask.new 'rubylib' do | task |
     'm'
   ]
 end
-
 
 desc 'Build switch manager.'
 task :switch_manager => 'libtrema:static'
@@ -146,7 +136,6 @@ PaperHouse::ExecutableTask.new :switch_manager do | task |
     'dl'
   ]
 end
-
 
 desc 'Build switch daemon.'
 task :switch_daemon => 'libtrema:static'
@@ -178,7 +167,6 @@ PaperHouse::ExecutableTask.new :switch_daemon do | task |
   ]
 end
 
-
 ################################################################################
 # Extract OpenFlow reference implementation
 ################################################################################
@@ -192,7 +180,6 @@ directory Trema.objects
 
 CLOBBER.include(Trema.vendor_openflow) if FileTest.exists?(Trema.vendor_openflow)
 CLOBBER.include(File.join(Trema.objects, 'openflow')) if FileTest.exists?(File.join(Trema.objects, 'openflow'))
-
 
 ################################################################################
 # Build phost
@@ -241,7 +228,6 @@ end
 CLEAN.include phost_clean_targets
 CLOBBER.include(Trema.phost) if FileTest.exists?(Trema.phost)
 
-
 ################################################################################
 # Build vendor/*
 ################################################################################
@@ -252,7 +238,6 @@ task :vendor => [
   'vendor:openvswitch',
   'vendor:phost'
 ]
-
 
 ################################################################################
 # Build Open vSwitch
@@ -270,7 +255,6 @@ end
 
 CLEAN.include(Trema.vendor_openvswitch) if FileTest.exists?(Trema.vendor_openvswitch)
 CLOBBER.include(Trema.openvswitch) if FileTest.exists?(Trema.openvswitch)
-
 
 ################################################################################
 # Build packetin filter
@@ -295,7 +279,6 @@ PaperHouse::ExecutableTask.new :packetin_filter do | task |
                               ]
 end
 
-
 ################################################################################
 # Build oflops
 ################################################################################
@@ -316,7 +299,6 @@ end
 CLEAN.include(Trema.oflops) if FileTest.exists?(Trema.oflops)
 CLOBBER.include(Trema.vendor_oflops) if FileTest.exists?(Trema.vendor_oflops)
 
-
 ################################################################################
 # cmockery
 ################################################################################
@@ -332,7 +314,6 @@ end
 
 CLEAN.include(Trema.vendor_cmockery) if FileTest.exists?(Trema.vendor_cmockery)
 CLOBBER.include(Trema.cmockery) if FileTest.exists?(Trema.cmockery)
-
 
 ################################################################################
 # Build examples
@@ -382,7 +363,6 @@ $standalone_examples.each do | each |
   end
 end
 
-
 ################################################################################
 # Build openflow switches
 ################################################################################
@@ -414,7 +394,6 @@ $openflow_switches.each do | each |
                                 ]
   end
 end
-
 
 ################################################################################
 # Build openflow messages
@@ -451,7 +430,6 @@ $openflow_messages.each do | each |
   end
 end
 
-
 ###############################################################################
 # Build switch_event_config
 ###############################################################################
@@ -485,7 +463,6 @@ $switch_event_config.each do | each |
                                 ]
   end
 end
-
 
 ################################################################################
 # Build packetin_filter_config
@@ -522,7 +499,6 @@ $packetin_filter_config.each do | each |
   end
 end
 
-
 ################################################################################
 # Run cbench benchmarks
 ################################################################################
@@ -531,16 +507,13 @@ def cbench_command
   File.join Trema.objects, 'oflops/bin/cbench'
 end
 
-
 def cbench_latency_mode_options
   '--port 6653 --switches 1 --loops 10 --delay 1000'
 end
 
-
 def cbench_throughput_mode_options
   cbench_latency_mode_options + ' --throughput'
 end
-
 
 def cbench(controller, options)
   sh "#{ controller }"
@@ -549,22 +522,18 @@ ensure
   sh './trema killall'
 end
 
-
 def cbench_c_controller
   './trema run ./objects/examples/cbench_switch/cbench_switch -d'
 end
-
 
 def cbench_ruby_controller
   './trema run src/examples/cbench_switch/cbench-switch.rb -d'
 end
 
-
 def run_cbench(controller)
   cbench controller, cbench_latency_mode_options
   cbench controller, cbench_throughput_mode_options
 end
-
 
 def cbench_profile(options)
   valgrind = 'valgrind --tool=callgrind --trace-children=yes'
@@ -578,29 +547,24 @@ end
 
 CLEAN.include FileList[ 'callgrind.out.*']
 
-
 desc 'Run the c cbench switch controller to benchmark'
 task 'cbench' => 'cbench:ruby'
-
 
 desc 'Run the c cbench switch controller to benchmark'
 task 'cbench:c' => :default do
   run_cbench cbench_c_controller
 end
 
-
 desc 'Run the ruby cbench switch controller to benchmark'
 task 'cbench:ruby' => :default do
   run_cbench cbench_ruby_controller
 end
-
 
 desc 'Run cbench with profiling enabled.'
 task 'cbench:profile' => :default do
   cbench_profile cbench_latency_mode_options
   cbench_profile cbench_throughput_mode_options
 end
-
 
 ################################################################################
 # Build management commands
@@ -637,7 +601,6 @@ $management_commands.each do | each |
   end
 end
 
-
 ################################################################################
 # Tremashark
 ################################################################################
@@ -666,7 +629,6 @@ PaperHouse::ExecutableTask.new :tremashark do | task |
                               ]
 end
 
-
 task :packet_capture => 'libtrema:static'
 
 PaperHouse::ExecutableTask.new :packet_capture do | task |
@@ -689,7 +651,6 @@ PaperHouse::ExecutableTask.new :packet_capture do | task |
                               ]
 end
 
-
 task :syslog_relay => 'libtrema:static'
 
 PaperHouse::ExecutableTask.new :syslog_relay do | task |
@@ -709,7 +670,6 @@ PaperHouse::ExecutableTask.new :syslog_relay do | task |
                               ]
 end
 
-
 task :stdin_relay => 'libtrema:static'
 
 PaperHouse::ExecutableTask.new :stdin_relay do | task |
@@ -728,7 +688,6 @@ PaperHouse::ExecutableTask.new :stdin_relay do | task |
     'pcap'
                               ]
 end
-
 
 $packet_openflow_so = File.join(Trema.vendor_openflow_git, 'utilities', 'wireshark_dissectors', 'openflow', 'packet-openflow.so')
 $wireshark_plugins_dir = File.join(File.expand_path('~'), '.wireshark', 'plugins')
@@ -751,7 +710,6 @@ task :openflow_wireshark_plugin => $wireshark_plugin
 
 CLEAN.include(Trema.vendor_openflow_git) if FileTest.exists?(Trema.vendor_openflow_git)
 
-
 ################################################################################
 # Maintenance Tasks
 ################################################################################
@@ -762,7 +720,6 @@ rescue LoadError
   $stderr.puts $!.to_s
 end
 
-
 ################################################################################
 # Relish
 ################################################################################
@@ -770,7 +727,6 @@ end
 task :relish do
   sh 'relish push trema/trema'
 end
-
 
 ################################################################################
 # C Unit tests.
@@ -792,7 +748,6 @@ def libtrema_unit_tests
   }
 end
 
-
 def test_c_files(test)
   names = [test.to_s.gsub(/_test$/, '')] + libtrema_unit_tests[ test]
   names.collect do | each |
@@ -805,7 +760,6 @@ def test_c_files(test)
     end
   end.flatten
 end
-
 
 directory 'objects/unittests'
 
@@ -832,7 +786,6 @@ libtrema_unit_tests.keys.each do | each |
                                 ]
   end
 end
-
 
 # new unittest
 $tests = [
@@ -880,7 +833,6 @@ $tests.each do | _each |
   end
 end
 
-
 desc 'Run unittests'
 task :unittests => [:build_old_unittests, :build_unittests] do
   Dir.glob('unittests/objects/*_test').each do | each |
@@ -889,13 +841,11 @@ task :unittests => [:build_old_unittests, :build_unittests] do
   end
 end
 
-
 ################################################################################
 # Tests
 ################################################################################
 
 task :travis => [:clobber, :build_trema, 'spec:travis']
-
 
 begin
   require 'rspec/core'
@@ -915,14 +865,12 @@ begin
     task.rspec_opts = '--tag type:actions --format documentation --color'
   end
 
-
   task 'spec:travis' => :build_trema
   RSpec::Core::RakeTask.new('spec:travis') do | task |
     task.verbose = $trace
     task.pattern = FileList[ 'spec/trema/hello_spec.rb', 'spec/trema/echo-*_spec.rb']
     task.rspec_opts = '--tag ~sudo --format documentation --color'
   end
-
 
   task :rcov => :build_trema
   RSpec::Core::RakeTask.new(:rcov) do | spec |
@@ -933,7 +881,6 @@ begin
 rescue LoadError
   $stderr.puts $!.to_s
 end
-
 
 begin
   require 'cucumber/rake/task'
@@ -951,17 +898,14 @@ rescue LoadError
   $stderr.puts $!.to_s
 end
 
-
 ################################################################################
 # Code Quality Tasks
 ################################################################################
 
 $ruby_sources = FileList[ 'ruby/**/*.rb', 'src/**/*.rb']
 
-
 desc 'Enforce Ruby code quality with static analysis of code'
 task :quality => [:reek, :flog, :flay]
-
 
 begin
   require 'reek/rake/task'
@@ -976,7 +920,6 @@ begin
 rescue LoadError
   $stderr.puts $!.to_s
 end
-
 
 begin
   require 'flog'
@@ -1003,7 +946,6 @@ rescue LoadError
   $stderr.puts $!.to_s
 end
 
-
 begin
   require 'flay'
   require 'flay_task'
@@ -1019,10 +961,8 @@ rescue LoadError
   $stderr.puts $!.to_s
 end
 
-
 task :travis => :rubocop
 task :quality => :rubocop
-
 
 ################################################################################
 # YARD
@@ -1040,7 +980,6 @@ rescue LoadError
   $stderr.puts $!.to_s
 end
 
-
 ################################################################################
 # TODO, FIXME etc.
 ################################################################################
@@ -1053,6 +992,5 @@ task :notes do
     system "find ruby spec features -name '*.rb' | xargs grep -n #{ each }"
   end
 end
-
 
 Dir.glob('tasks/*.rake').each { |each| import each }

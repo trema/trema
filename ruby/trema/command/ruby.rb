@@ -15,21 +15,17 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_ruby
       sh 'x-www-browser http://rubydoc.info/github/trema/trema/master/frames'
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

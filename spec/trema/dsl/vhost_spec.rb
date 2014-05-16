@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/vhost'
-
 
 module Trema
   module DSL
@@ -40,7 +38,6 @@ module Trema
           end
         end
 
-
         context "when name is \"Yutaro's host\"" do
           before { @vhost = Vhost.new("Yutaro's host") }
 
@@ -58,7 +55,6 @@ module Trema
         end
       end
 
-
       describe :promisc do
         before { @vhost = Vhost.new("Yutaro's host") }
 
@@ -70,13 +66,11 @@ module Trema
           it { should be_false }
         end
 
-
         context 'when promisc no' do
           before { @vhost.promisc 'no' }
 
           it { should be_false }
         end
-
 
         context 'when promisc on' do
           before { @vhost.promisc 'on' }
@@ -84,13 +78,11 @@ module Trema
           it { should be_true }
         end
 
-
         context 'when promisc yes' do
           before { @vhost.promisc 'yes' }
 
           it { should be_true }
         end
-
 
         context 'when promisc INVALID_VALUE' do
           specify do
@@ -98,7 +90,6 @@ module Trema
           end
         end
       end
-
 
       describe :netmask do
         before { @vhost = Vhost.new("Yutaro's host") }
@@ -115,7 +106,6 @@ module Trema
           it { should == '255.255.255.0' }
         end
       end
-
 
       describe :mac do
         before { @vhost = Vhost.new("Yutaro's host") }
@@ -135,7 +125,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

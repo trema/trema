@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/executables'
 require 'trema/network-component'
-
 
 module Trema
   #
@@ -41,7 +39,6 @@ module Trema
       PacketinFilter.add self
     end
 
-
     #
     # Returns the name of packetin filter
     #
@@ -55,7 +52,6 @@ module Trema
     def name
       'packet-in filter'
     end
-
 
     #
     # Starts a packetin filter process
@@ -71,11 +67,9 @@ module Trema
       sh "#{ Executables.packetin_filter } --daemonize --name=filter #{ lldp_queue } #{ packetin_queue }"
     end
 
-
     ################################################################################
     private
     ################################################################################
-
 
     #
     # Checks mandatory options for packetin_filter command
@@ -90,7 +84,6 @@ module Trema
       end
     end
 
-
     #
     # The lldp option of packetin_filter command
     #
@@ -101,7 +94,6 @@ module Trema
     def lldp_queue
       "lldp::#{ @queues[ :lldp] }"
     end
-
 
     #
     # The packetin option of packetin_filter command
@@ -115,7 +107,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

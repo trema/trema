@@ -17,13 +17,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'irb'
 require 'trema/util'
 
-
 include Trema::Util
-
 
 module Trema
   module Command
@@ -48,7 +45,6 @@ EOF
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

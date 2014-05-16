@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/process'
-
 
 describe Trema::Process do
   before :each do
     @pid_file = mock('PID file')
   end
-
 
   it 'should be instantiated from a PID file' do
     IO.should_receive(:read).with(@pid_file).and_return("1234\n")
@@ -33,7 +30,6 @@ describe Trema::Process do
 
     Trema::Process.read(@pid_file)
   end
-
 
   it 'should be killed' do
     IO.stub!(:read).with(@pid_file).and_return("1234\n")
@@ -47,7 +43,6 @@ describe Trema::Process do
     process.kill!
   end
 
-
   it 'should be killed with sudo' do
     IO.stub!(:read).with(@pid_file).and_return("1234\n")
     stat = mock('stat', :uid => 0)
@@ -60,7 +55,6 @@ describe Trema::Process do
     process.kill!
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

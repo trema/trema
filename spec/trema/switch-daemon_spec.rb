@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/switch-daemon'
-
 
 module Trema
   describe SwitchDaemon do
@@ -36,7 +34,6 @@ module Trema
       expect(switch_daemon.options).to include('state_notify::topology')
       expect(switch_daemon.options).to include('vendor::controller')
     end
-
 
     it 'should be initialized with options which have multiple controllers' do
       rule = {
@@ -57,7 +54,6 @@ module Trema
       expect(switch_daemon.options).to include('vendor::controller1')
     end
 
-
     it 'should be initialized without vendor options' do
       rule = {
         :port_status => 'topology',
@@ -72,7 +68,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

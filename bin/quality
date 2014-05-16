@@ -16,13 +16,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 if ARGV.empty?
   system 'rake quality'
 else
   system %Q(rake quality QUALITY_TARGETS="#{ ARGV.join ' ' }")
 end
-
 
 ### Local variables:
 ### mode: Ruby

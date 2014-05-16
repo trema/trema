@@ -18,14 +18,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../ruby'))
-
 
 require 'fileutils'
 require 'optparse'
 require 'trema/path'
-
 
 $opts = OptionParser.new
 
@@ -50,7 +47,6 @@ FileUtils.cd Trema.home do
   end
   print output.join(' ')
 end
-
 
 ### Local variables:
 ### mode: Ruby

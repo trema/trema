@@ -18,14 +18,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 #
 # Guard Trema codebase's coverage from dropping below the following
 # threshold.
 #
 
 $coverage_threshold = 70.1
-
 
 ################################################################################
 # Load libraries
@@ -42,9 +40,7 @@ require 'stringio'
 require 'sub-process'
 require 'trema/path'
 
-
 include FileUtils
-
 
 ################################################################################
 # Helper methods
@@ -56,7 +52,6 @@ def path_string
   paths.join ':'
 end
 
-
 def sh(cmd)
   ENV[ 'LC_ALL'] = 'C'
   ENV[ 'PATH'] = path_string
@@ -66,18 +61,15 @@ def sh(cmd)
   end
 end
 
-
 ################################################################################
 # Code coverage (gcov)
 ################################################################################
 
 $c_files = {}
 
-
 class Testee
   attr_reader :coverage
   attr_writer :lines
-
 
   def initialize(path)
     @path = path
@@ -85,11 +77,9 @@ class Testee
     @coverage = 0.0
   end
 
-
   def name
     File.basename(@path)
   end
-
 
   def lines
     return @lines if @lines != 0
@@ -114,11 +104,9 @@ class Testee
     n
   end
 
-
   def lines_tested
     @lines * @coverage / 100.0
   end
-
 
   def coverage=(value)
     if value > @coverage
@@ -126,12 +114,10 @@ class Testee
     end
   end
 
-
   def <=>(other)
     @name <=> other.name
   end
 end
-
 
 def testees
   $c_files.delete_if do | key, value |
@@ -139,18 +125,15 @@ def testees
   end
 end
 
-
 def files_tested
   testees.values.select do | each |
     each.coverage != 0.0
   end
 end
 
-
 def files_not_tested
   testees.values - files_tested
 end
-
 
 def lines_total
   testees.values.inject(0) do | r, each |
@@ -158,23 +141,19 @@ def lines_total
   end
 end
 
-
 def lines_tested
   testees.values.inject(0) do | r, each |
     r += each.lines_tested
   end
 end
 
-
 def coverage
   sprintf('%3.1f', lines_tested / lines_total * 100.0).to_f
 end
 
-
 def diff_coverage_threshold
   sprintf('%3.1f', ( $coverage_threshold - coverage).abs).to_f
 end
-
 
 def gcov(gcda, dir)
   file = nil
@@ -199,7 +178,6 @@ def gcov(gcda, dir)
   end
 end
 
-
 def measure_coverage
   Find.find('src/lib', 'src/packetin_filter', 'src/switch_manager', 'src/tremashark', 'unittests') do | f |
     if /\.c$/ =~ f
@@ -215,7 +193,6 @@ def measure_coverage
   end
 end
 
-
 ################################################################################
 # Summaries
 ################################################################################
@@ -227,7 +204,6 @@ def banner(message)
 EOF
 end
 
-
 def coverage_ranking
   summary = StringIO.new
   testees.values.sort_by do | each |
@@ -238,7 +214,6 @@ def coverage_ranking
   summary.string
 end
 
-
 def coverage_threshold_error
   <<-EOF
 #{ banner('ERROR') }
@@ -248,7 +223,6 @@ Overall coverage DECREASED to #{ coverage }% !!!
 IMPROVE the ratio and re-run #{ $0 }.
 EOF
 end
-
 
 def update_coverage_threshold_message
   <<-EOF
@@ -262,11 +236,9 @@ Update the $coverage_threshold line at the top of #{ $0 }:
 EOF
 end
 
-
 def delta_coverage_threshold
   0.1
 end
-
 
 def show_summary
   puts <<-EOF
@@ -295,7 +267,6 @@ EOF
   end
 end
 
-
 ################################################################################
 # Tests
 ################################################################################
@@ -312,7 +283,6 @@ def test(message)
   end
 end
 
-
 def run_unit_tests
   test 'Running unit tests ...' do
     sh 'bundle exec rake unittests'
@@ -320,14 +290,12 @@ def run_unit_tests
   measure_coverage
 end
 
-
 def run_rspec
   test 'Running rspec ...' do
     sh 'bundle exec rake spec'
   end
   measure_coverage
 end
-
 
 def run_ruby_acceptance_tests
   test 'Running acceptance tests ...' do
@@ -340,7 +308,6 @@ def run_all_acceptance_tests
     sh 'bundle exec rake features:all'
   end
 end
-
 
 ################################################################################
 # Main
@@ -373,14 +340,12 @@ end
 
 $options.parse! ARGV
 
-
 def init_cruise
   FileUtils.rm_f File.expand_path(File.join(File.dirname(__FILE__), 'Gemfile.lock'))
   sh 'bundle install'
   sh 'bundle update'
   sh 'bundle exec rake clobber'
 end
-
 
 Blocker.start do
   $start_time = Time.now
@@ -400,7 +365,6 @@ Blocker.start do
     show_summary if ((!$acceptance_test_only) && $all)
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

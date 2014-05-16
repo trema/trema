@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/dsl/switch'
 require 'trema/hardware-switch'
-
 
 module Trema
   describe HardwareSwitch, 'dpid = 0xabc' do
@@ -29,23 +27,19 @@ module Trema
       @switch = HardwareSwitch.new(stanza)
     end
 
-
     it 'should return its name' do
       expect(@switch.name).to eq('0xabc')
     end
 
-
     it 'should return dpid in long format' do
       expect(@switch.dpid_long).to eq('0000000000000abc')
     end
-
 
     it 'should return dpid in short format' do
       expect(@switch.dpid_short).to eq('0xabc')
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 [SetEthSrcAddr, SetEthDstAddr].each do | klass |
   describe klass, '.new', :type => 'actions' do
     subject { klass.new(mac_address) }
-
 
     context 'with "11:22:33:44:55:66"' do
       let(:mac_address) { '11:22:33:44:55:66' }
@@ -53,7 +50,6 @@ require 'trema'
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class PacketInDumper < Controller
   def packet_in(datapath_id, message)
     info 'received a packet_in'
@@ -28,7 +27,6 @@ class PacketInDumper < Controller
     info "data: #{ message.data.unpack "H*" }"
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

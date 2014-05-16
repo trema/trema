@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/host'
-
 
 module Trema
   describe Host do
@@ -29,7 +27,6 @@ module Trema
       Cli.stub!(:new).and_return(@cli)
     end
 
-
     describe :ip do
       context 'when ip is omitted' do
         before { @stanza = {} }
@@ -38,7 +35,6 @@ module Trema
 
         it { should == '192.168.0.1' }
       end
-
 
       context "when ip \"192.168.100.100\"" do
         before { @stanza = { :ip => '192.168.100.100' } }
@@ -49,7 +45,6 @@ module Trema
       end
     end
 
-
     describe :mac do
       context 'when mac is omitted' do
         before { @stanza = {} }
@@ -58,7 +53,6 @@ module Trema
 
         it { should == '00:00:00:00:00:01' }
       end
-
 
       context "when mac \"00:00:00:aa:bb:cc\"" do
         before { @stanza = { :mac => '00:00:00:aa:bb:cc' } }
@@ -69,7 +63,6 @@ module Trema
       end
     end
 
-
     describe :netmask do
       context 'when netmask is omitted' do
         before { @stanza = {} }
@@ -79,7 +72,6 @@ module Trema
         it { should == '255.255.255.255' }
       end
 
-
       context "when netmask \"255.255.0.0\"" do
         before { @stanza = { :netmask => '255.255.0.0' } }
 
@@ -88,7 +80,6 @@ module Trema
         it { should == '255.255.0.0' }
       end
     end
-
 
     context 'when #add_arp_entries' do
       describe :cli do
@@ -109,7 +100,6 @@ module Trema
       end
     end
 
-
     context 'when #run!' do
       describe :cli do
         before do
@@ -122,7 +112,6 @@ module Trema
           Host.new(:name => "Yutaro's host").run!
         end
 
-
         context 'when promisc on' do
           before { @cli.stub!(:set_ip_and_mac_address) }
 
@@ -134,7 +123,6 @@ module Trema
         end
       end
     end
-
 
     context 'when #send_packets' do
       describe :cli do
@@ -151,13 +139,11 @@ module Trema
       end
     end
 
-
     context 'when getting stats' do
       before do
         @stats = mock('stats')
         @host = Host.new(:name => "Yutaro's host")
       end
-
 
       context 'when #tx_stats' do
         describe :cli do
@@ -168,7 +154,6 @@ module Trema
           end
         end
       end
-
 
       context 'when #rx_stats' do
         describe :cli do
@@ -182,7 +167,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

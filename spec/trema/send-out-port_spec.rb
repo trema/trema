@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe SendOutPort, :type => 'actions' do
   describe '#new(port_number)' do
     subject(:send_out_port) { SendOutPort.new(port_number) }
-
 
     context 'with port_number (1)' do
       let(:port_number) { 1 }
@@ -32,7 +29,6 @@ describe SendOutPort, :type => 'actions' do
       its(:max_len) { should eq(2**16 - 1) }
       its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=65535') }
     end
-
 
     context 'with port_number (10)' do
       let(:port_number) { 10 }
@@ -58,14 +54,11 @@ describe SendOutPort, :type => 'actions' do
       end
     end
 
-
     it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
   end
 
-
   describe '#new(:port_number => value)' do
     subject { SendOutPort.new(:port_number => port_number) }
-
 
     context 'with option (:port_number => 1)' do
       let(:port_number) { 1 }
@@ -76,10 +69,8 @@ describe SendOutPort, :type => 'actions' do
     end
   end
 
-
   describe '#new(:port_number => value1, :max_len => value2)' do
     subject { SendOutPort.new(options) }
-
 
     context 'with options (:port_number => 1, :max_len => 256)' do
       let(:options) { { :port_number => 1, :max_len => 256 } }
@@ -89,7 +80,6 @@ describe SendOutPort, :type => 'actions' do
       its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=256') }
     end
 
-
     context 'with options (:port_number => 1, :max_len => max_len)' do
       let(:options) { { :port_number => 1, :max_len => max_len } }
 
@@ -97,7 +87,6 @@ describe SendOutPort, :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

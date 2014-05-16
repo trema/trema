@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe PortStatus do
@@ -29,7 +27,6 @@ module Trema
     it { should have_constant :OFPPR_MODIFY }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

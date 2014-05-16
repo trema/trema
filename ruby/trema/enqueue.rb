@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/monkey-patch/integer'
-
 
 module Trema
   #
@@ -28,7 +26,6 @@ module Trema
   class Enqueue < Action
     attr_reader :port_number
     attr_reader :queue_id
-
 
     #
     # Creates an action to enqueue the packet on the specified queue
@@ -75,10 +72,8 @@ module Trema
     end
   end
 
-
   ActionEnqueue = Enqueue
 end
-
 
 ### Local variables:
 ### mode: Ruby

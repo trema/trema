@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Controller do
   context 'when #list_switches_request is sent' do
@@ -37,7 +35,6 @@ describe Controller do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

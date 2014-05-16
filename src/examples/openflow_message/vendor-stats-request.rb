@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class VendorStatsRequestSample < Controller
   OVS_VENDOR_ID = 0x00002320
   OVSST_FLOW = 0
@@ -26,23 +25,19 @@ class VendorStatsRequestSample < Controller
     send_vendor_stats_request datapath_id
   end
 
-
   def stats_reply(datapath_id, message)
     if message.type == StatsReply::OFPST_VENDOR
       vendor_stats_reply datapath_id, message
     end
   end
 
-
   private
-
 
   def vendor_stats_reply(datapath_id, message)
     info '[vendor_stats_reply]'
     info 'vendor_id: 0x%08x' % message.stats.first.vendor_id
     info "data: [#{ message.stats.first.data.map { | n |  "0x%02x" % n }.join ", " }]"
   end
-
 
   def send_vendor_stats_request(datapath_id)
     data = [
@@ -57,7 +52,6 @@ class VendorStatsRequestSample < Controller
     send_message(datapath_id, vendor_request)
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

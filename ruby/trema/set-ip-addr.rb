@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
-
 
 module Trema
   #
@@ -27,7 +25,6 @@ module Trema
     # @return [IPAddr] the object that holds {#ip_address}'s
     #   internal representation.
     attr_reader :ip_address
-
 
     #
     # @private
@@ -39,13 +36,11 @@ module Trema
       @ip_address = IPAddr.new(ip_address)
     end
 
-
     def to_s
       "#{ self.class }: ip_address=#{ @ip_address }"
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

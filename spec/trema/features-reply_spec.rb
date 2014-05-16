@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe FeaturesReply, '.new' do
     it { expect { subject }.to raise_error(ArgumentError) }
   end
-
 
   describe FeaturesReply, '.new(options...)' do
     subject do
@@ -50,7 +47,6 @@ module Trema
     its('ports.size') { should == 3 }
   end
 
-
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do
     subject do
       FeaturesReply.new({
@@ -65,7 +61,6 @@ module Trema
     end
     it { expect { subject }.to raise_error(ArgumentError, ':datapath_id is a mandatory option') }
   end
-
 
   describe FeaturesReply, '.new(options...) (No :transaction_id)' do
     subject do
@@ -82,7 +77,6 @@ module Trema
     it { expect { subject }.to raise_error(ArgumentError, ':transaction_id is a mandatory option') }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

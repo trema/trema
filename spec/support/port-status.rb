@@ -27,7 +27,6 @@ shared_examples_for 'port status message' do | options |
   )
 end
 
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

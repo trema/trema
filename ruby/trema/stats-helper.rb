@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   class StatsHelper
-
 
     # Invoked by each StatsReply subclass to assign their instance attributes
     # to a value.
@@ -39,7 +37,6 @@ module Trema
       end
     end
 
-
     #
     # @return [String]
     #   an alphabetically sorted text of attribute name/value pairs.
@@ -54,7 +51,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

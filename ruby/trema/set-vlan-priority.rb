@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
-
 
 module Trema
   #
@@ -26,7 +24,6 @@ module Trema
   class SetVlanPriority < Action
     # @return [Fixnum] the value of attribute {#vlan_priority}
     attr_reader :vlan_priority
-
 
     #
     # Creates an action to modify the VLAN priority of a
@@ -54,10 +51,8 @@ module Trema
     end
   end
 
-
   ActionSetVlanPcp = SetVlanPriority
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe Vendor, '.new' do
@@ -27,25 +25,21 @@ module Trema
     its ( :data) { should be_nil }
   end
 
-
   describe Vendor, '.new(nil)' do
     it_should_behave_like 'any Openflow message with default transaction ID'
     its ( :vendor) { should == 0 }
     its ( :data) { should be_nil }
   end
 
-
   describe Vendor, '.new(:transaction_id => value)' do
     subject { Vendor.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
 
-
   describe Vendor, '.new(:xid => value)' do
     subject { Vendor.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
   end
-
 
   describe Vendor, '.new(:vendor_id => value)', :nosudo => true do
     subject { Vendor.new(:vendor => vendor) }
@@ -54,7 +48,6 @@ module Trema
     its ( :data) { should be_nil }
   end
 
-
   describe Vendor, '.new(:data => value)', :nosudo => true do
     subject { Vendor.new(:data => data) }
     let(:data) { 'VENDOR DATA'.unpack('C*') }
@@ -62,12 +55,10 @@ module Trema
     its ( :vendor) { should == 0 }
   end
 
-
   describe Vendor, '.new("INVALID OPTION")', :nosudo => true do
     it { expect { Vendor.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

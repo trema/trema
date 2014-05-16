@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/configuration'
-
 
 module Trema
   module DSL
@@ -26,7 +24,6 @@ module Trema
       before :each do
         @context = Configuration.new
       end
-
 
       context 'when parsing trema configurations' do
         it 'should remember apps' do
@@ -43,7 +40,6 @@ module Trema
           expect(@context.apps[ 'app #2'].name).to eq('app #2')
         end
 
-
         it 'should remember hosts' do
           expect(@context).to have(0).hosts
 
@@ -57,7 +53,6 @@ module Trema
           expect(@context.hosts[ 'host #1'].name).to eq('host #1')
           expect(@context.hosts[ 'host #2'].name).to eq('host #2')
         end
-
 
         it 'should remember links' do
           expect(@context).to have(0).links
@@ -73,7 +68,6 @@ module Trema
           expect(@context.links[ 'link #2'].name).to eq('link #2')
         end
 
-
         it 'should remember filter settings' do
           expect(@context.packetin_filter).to be_nil
 
@@ -83,7 +77,6 @@ module Trema
           expect(@context.packetin_filter).to eq(packetin_filter)
         end
 
-
         it 'should remember switch manager' do
           expect(@context.switch_manager).to be_nil
 
@@ -92,7 +85,6 @@ module Trema
 
           expect(@context.switch_manager).to eq(switch_manager)
         end
-
 
         it 'should remember switches' do
           expect(@context).to have(0).switches
@@ -111,7 +103,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

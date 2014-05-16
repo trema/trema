@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/monkey-patch/integer'
-
 
 module Trema
   #
@@ -27,7 +25,6 @@ module Trema
   class SetIpTos < Action
     # @return [Fixnum] the value of attribute {#type_of_service}
     attr_reader :type_of_service
-
 
     #
     # Creates an action to modify the IP ToS/DSCP field of a packet.
@@ -52,10 +49,8 @@ module Trema
     end
   end
 
-
   ActionSetNwTos = SetIpTos
 end
-
 
 ### Local variables:
 ### mode: Ruby

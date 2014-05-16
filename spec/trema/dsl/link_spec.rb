@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/link'
-
 
 module Trema
   module DSL
@@ -28,7 +26,6 @@ module Trema
           expect { Link.new 'Host', 'Switch' }.not_to raise_error
         end
       end
-
 
       context 'when getting attributes of a link' do
         it 'remembers peers' do
@@ -41,7 +38,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

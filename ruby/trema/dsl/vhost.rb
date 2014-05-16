@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/stanza'
 require 'trema/dsl/syntax-error'
-
 
 module Trema
   module DSL
@@ -47,7 +45,6 @@ module Trema
         end
       end
 
-
       #
       # Set IP address
       #
@@ -65,7 +62,6 @@ module Trema
         end
       end
 
-
       #
       # Set netmask
       #
@@ -79,7 +75,6 @@ module Trema
       def netmask(str)
         @netmask = str
       end
-
 
       #
       # Set MAC address
@@ -97,7 +92,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

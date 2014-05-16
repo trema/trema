@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 #
 # Openflow message event dumper.
 #
@@ -25,12 +24,10 @@ class Dumper < Controller
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
 
-
   def switch_disconnected(datapath_id)
     info '[switch_disconnected]'
     info "  datapath_id: #{ datapath_id.to_hex }"
   end
-
 
   def openflow_error(datapath_id, message)
     info '[error]'
@@ -41,7 +38,6 @@ class Dumper < Controller
     info "data: #{ message.data.unpack "H*" }"
   end
 
-
   def vendor(datapath_id, message)
     info '[vendor]'
     info "datapath_id: #{ datapath_id.to_hex }"
@@ -49,7 +45,6 @@ class Dumper < Controller
     info 'data:'
     info "#{ message.buffer.unpack "H*" }"
   end
-
 
   def features_reply(datapath_id, message)
     info '[features_reply]'
@@ -64,7 +59,6 @@ class Dumper < Controller
     end
   end
 
-
   def get_config_reply(datapath_id, message)
     info '[get_config_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
@@ -72,7 +66,6 @@ class Dumper < Controller
     info "flags: #{ message.flags.to_hex }"
     info "miss_send_len: #{ message.miss_send_len }"
   end
-
 
   def packet_in(datapath_id, message)
     info '[packet_in]'
@@ -84,7 +77,6 @@ class Dumper < Controller
     info "  reason: #{ message.reason.to_hex }"
     info "  data: #{ message.data.unpack "H*" }"
   end
-
 
   def flow_removed(datapath_id, message)
     info '[flow_removed]'
@@ -116,7 +108,6 @@ class Dumper < Controller
     info "byte_count: #{ message.byte_count.to_hex }"
   end
 
-
   def port_status(datapath_id, message)
     info '[port_status]'
     info "datapath_id: #{ datapath_id.to_hex }"
@@ -124,7 +115,6 @@ class Dumper < Controller
     info "reason: #{ message.reason.to_hex }"
     dump_phy_port message.phy_port
   end
-
 
   def stats_reply(datapath_id, message)
     info '[stats_reply]'
@@ -135,13 +125,11 @@ class Dumper < Controller
     message.stats.each { | each | info each.to_s }
   end
 
-
   def barrier_reply(datapath_id, message)
     info '[barrier_reply]'
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
   end
-
 
   def queue_get_config_reply(datapath_id, message)
     info '[queue_get_config_reply]'
@@ -152,11 +140,9 @@ class Dumper < Controller
     dump_packet_queue message.queues
   end
 
-
   ##############################################################################
   private
   ##############################################################################
-
 
   def dump_phy_port(port)
     # for testing port-status record the mac address if port.number == 2.
@@ -172,7 +158,6 @@ class Dumper < Controller
     info "  peer: #{ port.peer.to_hex }"
   end
 
-
   def dump_packet_queue(queues)
     queues.each do | packet_queue |
       info "queue_id: #{ packet_queue.queue_id.to_hex }"
@@ -186,7 +171,6 @@ class Dumper < Controller
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

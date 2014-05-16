@@ -15,14 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/default_openflow_channel_port'
 require 'trema/daemon'
 require 'trema/executables'
 require 'trema/hardware-switch'
 require 'trema/ofctl'
 require 'trema/path'
-
 
 module Trema
   #
@@ -31,10 +29,8 @@ module Trema
   class OpenVswitch < HardwareSwitch
     include Trema::Daemon
 
-
     log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
     command { | vswitch | vswitch.__send__ :command }
-
 
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}
@@ -50,7 +46,6 @@ module Trema
       @interfaces = []
     end
 
-
     #
     # Add a network interface used for a virtual port
     #
@@ -65,7 +60,6 @@ module Trema
       @interfaces
     end
 
-
     #
     # Returns the network device name associated with the datapath's
     # local port
@@ -79,7 +73,6 @@ module Trema
       "vsw_#{ @stanza.fetch :dpid_short }"
     end
 
-
     #
     # Returns flow entries
     #
@@ -92,31 +85,25 @@ module Trema
       Ofctl.new.users_flows(self)
     end
 
-
     def bring_port_up(port_number)
       Ofctl.new.bring_port_up self, port_number
     end
-
 
     def bring_port_down(port_number)
       Ofctl.new.bring_port_down self, port_number
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def command
       "sudo #{ Executables.ovs_openflowd } #{ options }"
     end
 
-
     def options
       default_options.join(' ') + " netdev@#{ network_device } tcp:#{ ip }:#{ @port }"
     end
-
 
     def default_options
       [
@@ -135,23 +122,19 @@ module Trema
       ] + ports_option
     end
 
-
     def ip
       @stanza.fetch :ip
     end
 
-
     def ports_option
       @interfaces.empty? ? [] : ["--ports=#{ @interfaces.join(",") }"]
     end
-
 
     def unixctl
       File.join Trema.sock, "ovs-openflowd.#{ name }.ctl"
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

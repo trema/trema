@@ -15,12 +15,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/daemon'
 require 'trema/executables'
 require 'trema/network-component'
 require 'trema/switch-daemon'
-
 
 module Trema
   #
@@ -29,10 +27,8 @@ module Trema
   class SwitchManager < NetworkComponent
     include Trema::Daemon
 
-
     singleton_daemon
     command { | sm | sm.__send__ :command }
-
 
     #
     # Event forwarding rule
@@ -44,7 +40,6 @@ module Trema
     #
     attr_accessor :rule
 
-
     #
     # Do not cleanup the flow table of switches on startup
     #
@@ -54,7 +49,6 @@ module Trema
     # @return [Bool]
     #
     attr_accessor :no_flow_cleanup
-
 
     #
     # Creates a switch manager controller
@@ -72,7 +66,6 @@ module Trema
       SwitchManager.add self
     end
 
-
     #
     # Returns the name of switch manager
     #
@@ -85,23 +78,19 @@ module Trema
       'switch manager'
     end
 
-
     ############################################################################
     private
     ############################################################################
 
-
     def command
       "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"
     end
-
 
     def options
       opts = ['--daemonize']
       opts << "--port=#{ @port }" if @port
       opts
     end
-
 
     def switch_options
       opts = SwitchDaemon.new(@rule).options
@@ -110,7 +99,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

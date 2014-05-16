@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
-
 
 module Trema
   #
@@ -26,7 +24,6 @@ module Trema
   class SetVlanVid < Action
     # @return [Fixnum] the value of attribute {#vlan_id}
     attr_reader :vlan_id
-
 
     #
     # Creates an action to modify the VLAN ID of a packet. The VLAN ID
@@ -53,10 +50,8 @@ module Trema
     end
   end
 
-
   ActionSetVlanVid = SetVlanVid
 end
-
 
 ### Local variables:
 ### mode: Ruby

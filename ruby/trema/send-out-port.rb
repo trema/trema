@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/monkey-patch/integer'
-
 
 module Trema
   #
@@ -27,12 +25,10 @@ module Trema
   class SendOutPort < Action
     DEFAULT_MAX_LEN = 2**16 - 1
 
-
     # @return [Fixnum] the value of attribute {#max_len}
     attr_reader :max_len
     # @return [Fixnum] the value of attribute {#port_number}
     attr_reader :port_number
-
 
     #
     # Creates an action to output a packet to a port.
@@ -73,16 +69,13 @@ module Trema
       check_max_len
     end
 
-
     def to_s
       "#{ self.class }: port_number=#{ @port_number }, max_len=#{ @max_len }"
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def check_port_number
       if @port_number.nil?
@@ -93,7 +86,6 @@ module Trema
       end
     end
 
-
     def check_max_len
       unless @max_len.unsigned_16bit?
         fail ArgumentError, 'Max length must be an unsigned 16-bit integer'
@@ -101,10 +93,8 @@ module Trema
     end
   end
 
-
   ActionOutput = SendOutPort
 end
-
 
 ### Local variables:
 ### mode: Ruby

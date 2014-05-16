@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/app'
-
 
 module Trema
   describe App do
@@ -32,7 +30,6 @@ module Trema
         app.run!
       end
 
-
       it 'should run with options' do
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => ['OPTION0', 'OPTION1'] }
         app = App.new(stanza)
@@ -42,7 +39,6 @@ module Trema
         app.run!
       end
     end
-
 
     context 'when daemonizing an app' do
       it 'should daemonize without options' do
@@ -54,7 +50,6 @@ module Trema
         app.daemonize!
       end
 
-
       it 'should daemonize with options' do
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => ['OPTION0', 'OPTION1'] }
         app = App.new(stanza)
@@ -64,7 +59,6 @@ module Trema
         app.daemonize!
       end
     end
-
 
     context 'when shutting an app down' do
       it 'should send a signal to kill' do
@@ -79,7 +73,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

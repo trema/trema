@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe QueueGetConfigRequest, '.new( OPTIONAL OPTION MISSING )' do
   its(:port) { should == 1 }
   it_should_behave_like 'any Openflow message with default transaction ID'
 end
-
 
 describe QueueGetConfigRequest, '.new( VALID OPTIONS )' do
   subject { QueueGetConfigRequest.new(:transaction_id => transaction_id, :port => port) }
@@ -32,7 +29,6 @@ describe QueueGetConfigRequest, '.new( VALID OPTIONS )' do
   let(:port) { 2 }
   it_should_behave_like 'any OpenFlow message with transaction_id option'
   it_should_behave_like 'any OpenFlow message with port option'
-
 
   context 'when #queue_get_config_request is sent' do
     it 'should #queue_get_config_reply' do
@@ -50,7 +46,6 @@ describe QueueGetConfigRequest, '.new( VALID OPTIONS )' do
   end
 end
 
-
 describe QueueGetConfigRequest, '.new( INVALID OPTIONS )' do
   it 'should raise a TypeError' do
     expect do
@@ -58,7 +53,6 @@ describe QueueGetConfigRequest, '.new( INVALID OPTIONS )' do
     end.to raise_error(TypeError)
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

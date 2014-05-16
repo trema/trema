@@ -17,11 +17,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Example
   class << self
     attr_accessor :count, :datapath_id
-
 
     def options_parse(args)
       case args.length
@@ -33,17 +31,14 @@ module Example
       end
     end
 
-
     def cmd_usage
       "Usage: #{ File.basename __FILE__ } datapath_id, count"
     end
   end
 
-
   def may_raise_error(msg_datapath_id)
     fail ArgumentError, 'Given datapath_id does not match configured datapath_id' if msg_datapath_id != Example::datapath_id
   end
-
 
   def send_nr_msgs(kclass)
     Example::count.times do
@@ -51,7 +46,6 @@ module Example
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -17,11 +17,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   class SwitchDaemon
     MANDATORY_QUEUES = [:port_status, :packet_in, :state_notify]
-
 
     #
     # Creates a new abstract representation of SwitchDaemon instance
@@ -40,7 +38,6 @@ module Trema
       @queues = queues
     end
 
-
     #
     # Constructs switch daemon's options associating one or more controller
     # name to a queue name.
@@ -53,11 +50,9 @@ module Trema
       end.flatten!
     end
 
-
     ################################################################################
     private
     ################################################################################
-
 
     #
     # @raise [RuntimeError] if a mandatory option is not found.
@@ -67,7 +62,6 @@ module Trema
         fail ":#{ each } is a mandatory option" if queues[ each].nil?
       end
     end
-
 
     #
     # @return [Array<String>] an array of controller name strings.
@@ -81,7 +75,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

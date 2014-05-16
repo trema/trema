@@ -51,18 +51,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module SubProcess
   class Command
     attr_reader :command
     attr_reader :env
 
-
     def initialize(command, env = {})
       @command = command
       @env = env
     end
-
 
     def start
       @env.each_pair do | key, value |
@@ -72,19 +69,16 @@ module SubProcess
     end
   end
 
-
   class PipeSet
     attr_reader :stdin
     attr_reader :stdout
     attr_reader :stderr
-
 
     def initialize(stdin, stdout, stderr)
       @stdin = stdin
       @stdout = stdout
       @stderr = stderr
     end
-
 
     def close
       [@stdin, @stdout, @stderr].each do | each |
@@ -95,7 +89,6 @@ module SubProcess
     end
   end
 
-
   class Process
     def initialize
       stdin, stdout, stderr = Array.new(3) { IO.pipe }
@@ -103,11 +96,9 @@ module SubProcess
       @parent = SubProcess::PipeSet.new(stdin[ 0], stdout[ 1], stderr[ 1])
     end
 
-
     def wait
       ::Process.wait @pid
     end
-
 
     def popen(command, &block)
       @pid = fork_child(command)
@@ -121,11 +112,9 @@ module SubProcess
       self
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def fork_child(command)
       Kernel.fork do
@@ -135,7 +124,6 @@ module SubProcess
       end
     end
 
-
     def redirect_child_io
       STDIN.reopen @parent.stdin
       STDOUT.reopen @parent.stdout
@@ -144,13 +132,11 @@ module SubProcess
     end
   end
 
-
   class IoHandlerThread
     def initialize(io, method)
       @io = io
       @method = method
     end
-
 
     def start
       Thread.new(@io, @method) do | io, method |
@@ -161,47 +147,38 @@ module SubProcess
     end
   end
 
-
   class Shell
     def self.open(debug_options = {}, &block)
       block.call new(debug_options)
     end
 
-
     def initialize(debug_options)
       @debug_options = debug_options
     end
-
 
     def child_status
       $CHILD_STATUS
     end
 
-
     def on_stdout(&block)
       @on_stdout = block
     end
-
 
     def on_stderr(&block)
       @on_stderr = block
     end
 
-
     def on_exit(&block)
       @on_exit = block
     end
-
 
     def on_success(&block)
       @on_success = block
     end
 
-
     def on_failure(&block)
       @on_failure = block
     end
-
 
     def exec(command, env = { 'LC_ALL' => 'C' })
       on_failure { fail "command #{ command } failed" } unless @on_failure
@@ -212,11 +189,9 @@ module SubProcess
       self
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def handle_child_output(stdout, stderr)
       tout = SubProcess::IoHandlerThread.new(stdout, method(:do_stdout)).start
@@ -225,9 +200,7 @@ module SubProcess
       terr.join
     end
 
-
     # run hooks ################################################################
-
 
     def handle_exitstatus
       do_exit
@@ -238,13 +211,11 @@ module SubProcess
       end
     end
 
-
     def do_stdout(line)
       if @on_stdout
         @on_stdout.call line
       end
     end
-
 
     def do_stderr(line)
       if @on_stderr
@@ -252,20 +223,17 @@ module SubProcess
       end
     end
 
-
     def do_failure
       if @on_failure
         @on_failure.call
       end
     end
 
-
     def do_success
       if @on_success
         @on_success.call
       end
     end
-
 
     def do_exit
       if @on_exit
@@ -274,13 +242,11 @@ module SubProcess
     end
   end
 
-
   def create(debug_options = {}, &block)
     Shell.open debug_options, &block
   end
   module_function :create
 end
-
 
 ### Local variables:
 ### mode: Ruby

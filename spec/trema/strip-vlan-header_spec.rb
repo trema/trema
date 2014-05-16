@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe StripVlanHeader, :type => 'actions' do
   context 'when sending a Flow Mod with StripVlanHeader' do
@@ -35,7 +33,6 @@ describe StripVlanHeader, :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe PortMod, '.new( VALID OPTIONS )' do
   subject do
@@ -37,7 +35,6 @@ describe PortMod, '.new( VALID OPTIONS )' do
   its(:advertise) { should == 0 }
   it_should_behave_like 'any Openflow message with default transaction ID'
 
-
   describe 'hw_addr' do
     it 'should be a Trema::Mac object' do
       expect(PortMod.new(
@@ -49,7 +46,6 @@ describe PortMod, '.new( VALID OPTIONS )' do
              ).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
-
     it "should be a string('11:22:33:44:55')" do
       expect(PortMod.new(
                :port_no => 2,
@@ -59,7 +55,6 @@ describe PortMod, '.new( VALID OPTIONS )' do
                :advertise => 0).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
-
     it 'should be a number(281474976710655)' do
       expect(PortMod.new(
                :port_no => 2,
@@ -68,7 +63,6 @@ describe PortMod, '.new( VALID OPTIONS )' do
                :mask => 1,
                :advertise => 0).hw_addr.to_s).to eq('ff:ff:ff:ff:ff:ff')
     end
-
 
     it 'should otherwise raise ArgumentError' do
       expect do PortMod.new(
@@ -83,13 +77,11 @@ describe PortMod, '.new( VALID OPTIONS )' do
   end
 end
 
-
 describe PortMod, 'new( MANDATORY OPTIONS MISSING )' do
   it 'should raise ArgumentError' do
     expect { subject }.to raise_error(ArgumentError, 'Port no, hw_addr, config, mask, advertise are mandatory options')
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

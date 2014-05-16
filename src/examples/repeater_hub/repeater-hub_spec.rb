@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', '..', 'spec', 'spec_helper')
 require File.join(File.dirname(__FILE__), 'repeater-hub')
-
 
 describe RepeaterHub do
   around do | example |
@@ -37,7 +35,6 @@ describe RepeaterHub do
     end
   end
 
-
   context 'when host1 sends one packet to host2' do
     it 'should #packet_in' do
       controller('RepeaterHub').should_receive(:packet_in)
@@ -46,14 +43,12 @@ describe RepeaterHub do
       sleep 2 # FIXME: wait to send_packets
     end
 
-
     it 'should #send_flow_mod_add' do
       controller('RepeaterHub').should_receive(:send_flow_mod_add)
 
       send_packets 'host1', 'host2'
       sleep 2 # FIXME: wait to send_packets
     end
-
 
     describe 'switch' do
       before { send_packets 'host1', 'host2' }
@@ -63,7 +58,6 @@ describe RepeaterHub do
       it { should have(1).flows }
       its('flows.first.actions') { should == 'FLOOD' }
     end
-
 
     describe 'host' do
       before { send_packets 'host1', 'host2' }
@@ -81,7 +75,6 @@ describe RepeaterHub do
       end
     end
   end
-
 
   context 'when host1 sends one more packet after the first packet' do
     before { send_packets 'host1', 'host2' }
@@ -98,7 +91,6 @@ describe RepeaterHub do
       send_packets 'host1', 'host2'
     end
 
-
     describe 'switch' do
       before { send_packets 'host1', 'host2' }
 
@@ -107,7 +99,6 @@ describe RepeaterHub do
       it { should have(1).flows }
       its('flows.first.actions') { should == 'FLOOD' }
     end
-
 
     describe 'host' do
       before { send_packets 'host1', 'host2' }
@@ -125,7 +116,6 @@ describe RepeaterHub do
       end
     end
   end
-
 
   context 'when host1 sends 100 packets to host2' do
     describe 'host' do
@@ -145,7 +135,6 @@ describe RepeaterHub do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

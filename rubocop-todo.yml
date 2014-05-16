@@ -50,12 +50,6 @@ CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-EmptyLineBetweenDefs:
-  Enabled: false
-
-EmptyLines:
-  Enabled: false
-
 EmptyLinesAroundAccessModifier:
   Enabled: false
 

@@ -17,22 +17,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   module DSL
     class Stanza
       attr_reader :name
 
-
       def initialize(name = nil)
         @name = name
       end
 
-
       def [](attribute)
         instance_variable_get "@#{ attribute }".intern
       end
-
 
       def fetch(attribute)
         v = self[ attribute]
@@ -42,7 +38,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

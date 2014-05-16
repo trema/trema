@@ -15,46 +15,38 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe Hello, '.new' do
     it_should_behave_like 'any Openflow message with default transaction ID'
   end
 
-
   describe Hello, '.new(nil)' do
     subject { Hello.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
   end
-
 
   describe Hello, '.new(transaction_id)' do
     subject { Hello.new(transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
 
-
   describe Hello, '.new(:transaction_id => value)' do
     subject { Hello.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
-
 
   describe Hello, '.new(:xid => value)' do
     subject { Hello.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
   end
 
-
   describe Hello, '.new("INVALID OPTION")' do
     it { expect { Hello.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

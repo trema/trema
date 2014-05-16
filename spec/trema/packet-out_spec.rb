@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 class PacketOutController < Controller
   def packet_in(datapath_id, message)
@@ -35,7 +33,6 @@ class PacketOutController < Controller
   end
 end
 
-
 describe 'packet-out' do
   context 'a controller instance' do
     it 'should respond to #send_packet_out' do
@@ -43,13 +40,11 @@ describe 'packet-out' do
     end
   end
 
-
   context 'when invoked with no datapath_id' do
     it 'should raise an error' do
       expect { PacketOutController.new.send_packet_out }.to raise_error
     end
   end
-
 
   context 'when #packet_in' do
     it 'should #packet_out' do
@@ -66,7 +61,6 @@ describe 'packet-out' do
       end
     end
   end
-
 
   context 'when data argument is string type' do
     it 'should #packet_out' do
@@ -116,7 +110,6 @@ describe 'packet-out' do
   end
 
 end
-
 
 ### Local variables:
 ### mode: Ruby

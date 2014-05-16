@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/switch'
-
 
 module Trema
   module DSL
@@ -28,14 +26,12 @@ module Trema
         super name
       end
 
-
       def path(filepath)
         @path = filepath
       end
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

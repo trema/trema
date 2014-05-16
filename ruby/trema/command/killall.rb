@@ -15,21 +15,17 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_killall
       cleanup_current_session
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

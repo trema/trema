@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/monkey-patch/module'
 require 'trema/monkey-patch/string'
 require 'trema/path'
-
 
 #
 # Holds a list of executables found in Trema.objects directory.
@@ -40,11 +38,9 @@ class Trema::Executables
       end
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     #
     # Adds the name to a list.
@@ -53,7 +49,6 @@ class Trema::Executables
       @list ||= []
       @list << name
     end
-
 
     #
     # Defines a class method that returns the full path name of an executable
@@ -77,7 +72,6 @@ class Trema::Executables
     end
   end
 
-
   path 'openvswitch/bin/ovs-ofctl'
   path 'openvswitch/bin/ovs-openflowd'
   path 'packetin_filter/packetin_filter'
@@ -90,7 +84,6 @@ class Trema::Executables
   path 'tremashark/syslog_relay'
   path 'tremashark/tremashark'
 end
-
 
 ### Local variables:
 ### mode: Ruby

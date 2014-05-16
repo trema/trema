@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/switch'
-
 
 module Trema
   module DSL
@@ -29,14 +27,12 @@ module Trema
         @ip = '127.0.0.1'
       end
 
-
       def ip(str)
         @ip = str
       end
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

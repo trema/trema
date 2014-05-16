@@ -15,39 +15,31 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/hardware-switch'
-
 
 module Trema
   class CustomSwitch < HardwareSwitch
     include Trema::Daemon
 
-
     log_file { |vswitch| "customswitch.#{ vswitch.name }.log" }
-
 
     def initialize(stanza)
       super stanza
     end
 
-
     def command
       "CHIBACH_TMP=#{ Trema.tmp } #{ path } -i #{ dpid_short } > #{ log_file } &"
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def path
       File.join(Trema.home, @stanza[ :path])
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

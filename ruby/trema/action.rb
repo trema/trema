@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   #
   # A base action class just for defining a meta-type for all action
@@ -24,7 +23,6 @@ module Trema
   class Action
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

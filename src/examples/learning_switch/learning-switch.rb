@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'fdb'
-
 
 #
 # A OpenFlow controller class that emulates a layer-2 switch.
@@ -27,11 +25,9 @@ require 'fdb'
 class LearningSwitch < Controller
   add_timer_event :age_fdb, 5, :periodic
 
-
   def start
     @fdb = FDB.new
   end
-
 
   def packet_in(datapath_id, message)
     return if message.macda.reserved?
@@ -46,16 +42,13 @@ class LearningSwitch < Controller
     end
   end
 
-
   def age_fdb
     @fdb.age
   end
 
-
   ##############################################################################
   private
   ##############################################################################
-
 
   def flow_mod(datapath_id, message, port_no)
     send_flow_mod_add(
@@ -64,7 +57,6 @@ class LearningSwitch < Controller
       :actions => ActionOutput.new(:port => port_no)
     )
   end
-
 
   def packet_out(datapath_id, message, port_no)
     send_packet_out(
@@ -76,12 +68,10 @@ class LearningSwitch < Controller
     )
   end
 
-
   def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

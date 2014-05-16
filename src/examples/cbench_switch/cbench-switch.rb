@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class CbenchSwitch < Controller
   def packet_in(datapath_id, message)
     send_flow_mod_add(
@@ -29,7 +28,6 @@ class CbenchSwitch < Controller
     )
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

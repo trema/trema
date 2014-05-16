@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/cli'
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_show_stats(hostname, tx, rx)
       cli = get_cli(hostname)
@@ -35,11 +32,9 @@ module Trema
       cli.show_rx_stats if rx
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def show_tx_and_rx(cli)
       puts 'Sent packets:'
@@ -48,7 +43,6 @@ module Trema
       cli.show_rx_stats
     end
 
-
     def get_cli(name)
       host = find_host_by_name(name)
       exit_now! "unknown host: #{ name }" if host.nil?
@@ -56,7 +50,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

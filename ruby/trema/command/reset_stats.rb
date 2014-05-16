@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/cli'
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_reset_stats(name)
       host = find_host_by_name(name)
@@ -32,7 +29,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

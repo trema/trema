@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class PatchPanel < Controller
   def start
     @patch = []
@@ -26,16 +25,13 @@ class PatchPanel < Controller
     end
   end
 
-
   def switch_ready(datapath_id)
     @patch.each do | port_a, port_b |
       make_patch datapath_id, port_a, port_b
     end
   end
 
-
   private
-
 
   def make_patch(datapath_id, port_a, port_b)
     send_flow_mod_add(
@@ -50,7 +46,6 @@ class PatchPanel < Controller
     )
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

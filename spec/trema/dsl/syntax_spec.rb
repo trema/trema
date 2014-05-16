@@ -15,18 +15,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/syntax'
 require 'trema/packetin-filter'
-
 
 describe Trema::DSL::Syntax do
   before(:each) do
     @context = mock('context', :port => 6653, :dump_to => nil)
     @syntax = Trema::DSL::Syntax.new(@context)
   end
-
 
   it "should recognize 'port' directive" do
     @context.should_receive(:port=).with(1234).once
@@ -35,7 +32,6 @@ describe Trema::DSL::Syntax do
       port 1234
     end
   end
-
 
   it "should recognize 'link' directive" do
     @context.stub!(:links).and_return([mock('link')])
@@ -46,7 +42,6 @@ describe Trema::DSL::Syntax do
     end
   end
 
-
   it "should recognize 'switch' directive" do
     Trema::OpenflowSwitch.should_receive(:add).with(an_instance_of(HardwareSwitch)).once
 
@@ -54,7 +49,6 @@ describe Trema::DSL::Syntax do
       switch { dpid '0xabc' }
     end
   end
-
 
   it "should recognize 'vswitch' directive" do
     Trema::OpenflowSwitch.should_receive(:add).with(an_instance_of(OpenVswitch)).once
@@ -64,7 +58,6 @@ describe Trema::DSL::Syntax do
     end
   end
 
-
   it "should recognize 'vhost' directive" do
     Trema::Host.should_receive(:add).with(an_instance_of(Trema::Host)).once
 
@@ -72,7 +65,6 @@ describe Trema::DSL::Syntax do
       vhost {}
     end
   end
-
 
   it "should recognize 'filter' directive" do
     Trema::PacketinFilter.should_receive(:add).with(an_instance_of(Trema::PacketinFilter)).once
@@ -82,7 +74,6 @@ describe Trema::DSL::Syntax do
     end
   end
 
-
   it "should recognize 'event' directive" do
     Trema::SwitchManager.should_receive(:add).with(an_instance_of(Trema::SwitchManager)).once
 
@@ -90,7 +81,6 @@ describe Trema::DSL::Syntax do
       event 'RULE'
     end
   end
-
 
   it "should recognize 'run' directive" do
     Trema::App.should_receive(:add).with(an_instance_of(Trema::App)).once
@@ -100,7 +90,6 @@ describe Trema::DSL::Syntax do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

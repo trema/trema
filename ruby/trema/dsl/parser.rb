@@ -17,10 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/context'
 require 'trema/dsl/syntax'
-
 
 module Trema
   module DSL
@@ -31,18 +29,15 @@ module Trema
         end
       end
 
-
       def eval(&block)
         configure do | config |
           Syntax.new(config).instance_eval(&block)
         end
       end
 
-
       ################################################################################
       private
       ################################################################################
-
 
       def configure(&block)
         config = Configuration.new
@@ -61,7 +56,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

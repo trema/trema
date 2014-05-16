@@ -15,13 +15,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
-
 class SwitchDisconnected < Controller; end
-
 
 describe SwitchDisconnected do
   context 'when switch is killed' do
@@ -35,7 +32,6 @@ describe SwitchDisconnected do
       end
     end
 
-
     it 'should receive a switch_disconnected with valid datapath_id' do
       network do
         vswitch('switch-disconnect') { datapath_id 0xabc }
@@ -47,7 +43,6 @@ describe SwitchDisconnected do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

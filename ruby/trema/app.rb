@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/daemon'
 require 'trema/network-component'
-
 
 module Trema
   #
@@ -27,16 +25,13 @@ module Trema
   class App < NetworkComponent
     include Trema::Daemon
 
-
     #
     # @return [Trema::DSL::Stanza] a map of key-value pair settings
     #   for trema's dsl run{} syntax.
     #
     attr_reader :stanza
 
-
     command { | app | [app.command, app.stanza[ :options]].compact.join ' ' }
-
 
     #
     # Creates a new Trema application from {Trema::DSL::Run}
@@ -61,7 +56,6 @@ module Trema
       end
     end
 
-
     #
     # Returns the name of application
     #
@@ -75,7 +69,6 @@ module Trema
     def name
       @stanza[ :name]
     end
-
 
     #
     # Runs as a daemon
@@ -92,7 +85,6 @@ module Trema
       self
     end
 
-
     #
     # Returns application's command to execute
     #
@@ -105,7 +97,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

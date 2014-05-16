@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/app'
 require 'trema/dsl/link'
 require 'trema/dsl/netns'
@@ -38,7 +37,6 @@ require 'trema/ruby-switch'
 require 'trema/switch-manager'
 require 'trema/custom-switch'
 
-
 module Trema
   module DSL
     class Syntax
@@ -46,17 +44,14 @@ module Trema
         @config = config
       end
 
-
       def port(number)
         @config.port = number
       end
-
 
       def link(peer0, peer1)
         stanza = Trema::DSL::Link.new(peer0, peer1)
         Trema::Link.new(stanza)
       end
-
 
       def switch(name = nil, &block)
         stanza = Trema::DSL::Switch.new(name)
@@ -64,13 +59,11 @@ module Trema
         Trema::HardwareSwitch.new(stanza)
       end
 
-
       def vswitch(name = nil, &block)
         stanza = Trema::DSL::Vswitch.new(name)
         stanza.instance_eval(&block)
         Trema::OpenVswitch.new stanza, @config.port
       end
-
 
       def rswitch(name = nil, &block)
         stanza = Trema::DSL::Rswitch.new(name)
@@ -78,13 +71,11 @@ module Trema
         Trema::RubySwitch.new(stanza)
       end
 
-
       def custom_switch(name = nil, &block)
         stanza = Trema::DSL::CustomSwitch.new(name)
         stanza.instance_eval(&block)
         Trema::CustomSwitch.new stanza
       end
-
 
       def vhost(name = nil, &block)
         stanza = Trema::DSL::Vhost.new(name)
@@ -92,23 +83,19 @@ module Trema
         Trema::Host.new(stanza)
       end
 
-
       def netns(name, &block)
         stanza = Trema::DSL::Netns.new(name)
         stanza.instance_eval(&block) if block
         Trema::Netns.new(stanza)
       end
 
-
       def filter(rule)
         Trema::PacketinFilter.new(rule)
       end
 
-
       def event(rule)
         Trema::SwitchManager.new(rule, @config.port)
       end
-
 
       def run(name = nil, &block)
         stanza = Trema::DSL::Run.new(name)
@@ -119,7 +106,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

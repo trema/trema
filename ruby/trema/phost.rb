@@ -17,10 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/daemon'
 require 'trema/executables'
-
 
 module Trema
   #
@@ -29,11 +27,9 @@ module Trema
   class Phost
     include Trema::Daemon
 
-
     command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -n #{ phost.name } -D" }
     wait_until_up
     daemon_id :name
-
 
     #
     # Creates a new instance of Phost for each virtual host.
@@ -41,7 +37,6 @@ module Trema
     def initialize(host)
       @host = host
     end
-
 
     #
     # @raise [RuntimeError] if no interface defined for virtual host.
@@ -53,7 +48,6 @@ module Trema
       @host.interface
     end
 
-
     #
     # @return [Boolean] whether phost is running or not.
     #
@@ -61,13 +55,11 @@ module Trema
       @host.interface && super
     end
 
-
     def name
       @host.name
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

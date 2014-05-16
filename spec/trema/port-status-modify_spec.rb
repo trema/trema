@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Trema::PortStatusModify do
   it_should_behave_like 'port status message', :klass => Trema::PortStatusModify
 end
-
 
 module Trema
   class PortStatusController < Controller
@@ -40,7 +37,6 @@ module Trema
       end
     end
   end
-
 
   describe Controller do
     context 'when one port goes down' do
@@ -62,7 +58,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

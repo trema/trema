@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe VendorAction, 'new(vendor_id)', :type => 'actions' do
   subject { VendorAction.new vendor_id }
@@ -35,7 +33,6 @@ describe VendorAction, 'new(vendor_id)', :type => 'actions' do
     it { expect { subject }.to raise_error(TypeError) }
   end
 end
-
 
 describe VendorAction, '.new(0x00002320, body)', :type => 'actions' do
   subject { VendorAction.new 0x00002320, body }
@@ -66,7 +63,6 @@ describe VendorAction, '.new(0x00002320, body)', :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,13 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/app'
 require 'trema/default-logger'
 require 'trema/monkey-patch/integer'
 require 'trema/monkey-patch/string'
 require 'trema/timers'
-
 
 module Trema
   #
@@ -31,14 +29,12 @@ module Trema
     include DefaultLogger
     include Timers
 
-
     #
     # @private Just a placeholder for YARD.
     #
     def self.handler(name)
       # Do nothing.
     end
-
 
     #
     # @!method switch_ready( datapath_id )
@@ -50,7 +46,6 @@ module Trema
     #
     handler :switch_ready
 
-
     #
     # @!method switch_disconnected( datapath_id )
     #
@@ -61,8 +56,6 @@ module Trema
     #
     handler :switch_disconnected
 
-
-
     #
     # @!method list_switches_reply( datapath_ids )
     #
@@ -72,7 +65,6 @@ module Trema
     #   the datapath IDs of connected OpenFlow switches.
     #
     handler :list_switches_reply
-
 
     #
     # @!method packet_in( datapath_id, message )
@@ -86,7 +78,6 @@ module Trema
     #
     handler :packet_in
 
-
     #
     # @!method flow_removed( datapath_id, message )
     #
@@ -98,7 +89,6 @@ module Trema
     #   the Flow Removed message.
     #
     handler :flow_removed
-
 
     #
     # @!method port_status( datapath_id, message )
@@ -112,7 +102,6 @@ module Trema
     #
     handler :port_status
 
-
     #
     # @!method openflow_error( datapath_id, message )
     #
@@ -124,7 +113,6 @@ module Trema
     #   the OpenFlow Error message.
     #
     handler :openflow_error
-
 
     #
     # @!method features_reply( datapath_id, message )
@@ -138,7 +126,6 @@ module Trema
     #
     handler :features_reply
 
-
     #
     # @!method stats_reply( datapath_id, message )
     #
@@ -150,7 +137,6 @@ module Trema
     #   the Stats Reply message.
     #
     handler :stats_reply
-
 
     #
     # @!method barrier_reply( datapath_id, message )
@@ -164,7 +150,6 @@ module Trema
     #
     handler :barrier_reply
 
-
     #
     # @!method get_config_reply( datapath_id, message )
     #
@@ -176,7 +161,6 @@ module Trema
     #   the Get Config Reply message.
     #
     handler :get_config_reply
-
 
     #
     # @!method queue_get_config_reply( datapath_id, message )
@@ -190,7 +174,6 @@ module Trema
     #
     handler :queue_get_config_reply
 
-
     #
     # @!method vendor( datapath_id, message )
     #
@@ -203,7 +186,6 @@ module Trema
     #
     handler :vendor
 
-
     #
     # @private
     #
@@ -211,14 +193,12 @@ module Trema
       subclass.new
     end
 
-
     #
     # @private
     #
     def initialize
       App.add self
     end
-
 
     #
     # Run as a daemon.
@@ -235,7 +215,6 @@ module Trema
       end
     end
 
-
     #
     # Name of the controller.
     #
@@ -246,7 +225,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

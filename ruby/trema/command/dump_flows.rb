@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/ofctl'
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_dump_flows(switches)
       switches.each do | each |
@@ -34,7 +31,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

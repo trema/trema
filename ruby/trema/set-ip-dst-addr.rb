@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/set-ip-addr'
-
 
 module Trema
   #
@@ -41,10 +39,8 @@ module Trema
     #
   end
 
-
   ActionSetNwDst = SetIpDstAddr
 end
-
 
 ### Local variables:
 ### mode: Ruby

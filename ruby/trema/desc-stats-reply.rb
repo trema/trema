@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class DescStatsReply < StatsHelper
     FIELDS = %w(mfr_desc hw_desc sw_desc serial_num dp_desc )
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Descriptive information about a vswitch.
     # A user would not explicitly instantiate a {DescStatsReply} object but
@@ -66,7 +63,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

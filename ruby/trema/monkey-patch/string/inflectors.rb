@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module MonkeyPatch
   module String
     module Inflectors
@@ -25,11 +24,9 @@ module MonkeyPatch
         end.join
       end
 
-
       def demodulize
         gsub(/^.*::/, '')
       end
-
 
       def underscore
         word = dup
@@ -43,7 +40,6 @@ module MonkeyPatch
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

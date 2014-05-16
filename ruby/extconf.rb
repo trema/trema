@@ -15,23 +15,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'mkmf'
-
 
 $CFLAGS = '-g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith'
 $LDFLAGS = '-Wl,-Bsymbolic'
 
-
 dir_config 'trema'
 dir_config 'openflow'
-
 
 def error_exit(message)
   $stderr.puts message
   exit false
 end
-
 
 def error_lib_missing(lib, package)
   <<-EOF
@@ -41,7 +36,6 @@ Please install #{ package } with following command:
 % sudo apt-get install #{ package }
 EOF
 end
-
 
 unless find_library('pthread', 'pthread_create')
   error_exit error_lib_missing('libpthread', 'libc6-dev')
@@ -68,10 +62,8 @@ Please try the following command:
 EOF
 end
 
-
 $CFLAGS << ' -Werror' # must be added after find_library
 create_makefile 'trema', 'trema'
-
 
 ### Local variables:
 ### mode: Ruby

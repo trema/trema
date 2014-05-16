@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/network-component'
-
 
 module Trema
   #
@@ -36,7 +34,6 @@ module Trema
     #
     attr_accessor :interface
 
-
     #
     # Creates a new Trema netns from {DSL::Netns}
     #
@@ -52,7 +49,6 @@ module Trema
       Netns.add self
     end
 
-
     #
     # Define netns attribute accessors
     #
@@ -67,7 +63,6 @@ module Trema
       @stanza.__send__ :[], message
     end
 
-
     #
     # Returns netmask
     #
@@ -81,7 +76,6 @@ module Trema
     def netmask
       @stanza[ :netmask] || '255.255.255.255'
     end
-
 
     #
     # Runs a netns process
@@ -102,7 +96,6 @@ module Trema
       self
     end
 
-
     #
     # Kills running netns
     #
@@ -118,7 +111,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

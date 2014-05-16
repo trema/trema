@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module MonkeyPatch
   module Module
     module ClassMethod
@@ -29,7 +28,6 @@ module MonkeyPatch
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

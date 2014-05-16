@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class HelloController < Controller
   def start
     if ARGV.size != 1
@@ -27,14 +26,12 @@ class HelloController < Controller
     @count = ARGV[ 0].to_i
   end
 
-
   def switch_ready(datapath_id)
     @count.times do
       send_message datapath_id, Hello.new
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

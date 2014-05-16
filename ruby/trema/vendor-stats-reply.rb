@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class VendorStatsReply < StatsHelper
     FIELDS = %w(vendor_id data)
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Vendor statistics reply.
     # A user would not explicitly instantiate a {VendorStatsReply} object but would
@@ -55,7 +52,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl'
-
 
 module Trema
   module Shell
@@ -33,7 +31,6 @@ module Trema
     module_function :vhost
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

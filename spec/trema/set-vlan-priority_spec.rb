@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
   subject { SetVlanPriority.new(vlan_priority) }
@@ -56,7 +54,6 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

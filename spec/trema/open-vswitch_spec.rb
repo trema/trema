@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/open-vswitch'
-
 
 module Trema
   describe OpenflowSwitch do
@@ -43,7 +41,6 @@ module Trema
     end
   end
 
-
   describe OpenVswitch, 'dpid = 0xabc' do
     subject do
       stanza = { :dpid_short => '0xabc', :dpid_long => '0000000000000abc', :ip => '127.0.0.1' }
@@ -51,7 +48,6 @@ module Trema
       stanza.stub!(:name).and_return(name)
       OpenVswitch.new stanza
     end
-
 
     context 'when its name is not set' do
       let(:name) { '0xabc' }
@@ -62,7 +58,6 @@ module Trema
       its(:network_device) { should == 'vsw_0xabc' }
     end
 
-
     context 'when its name is set' do
       let(:name) { 'Otosan Switch' }
 
@@ -71,7 +66,6 @@ module Trema
       its(:dpid_long) { should == '0000000000000abc' }
       its(:network_device) { should == 'vsw_0xabc' }
     end
-
 
     context 'when getting its flows' do
       let(:name) { '0xabc' }
@@ -85,7 +79,6 @@ module Trema
         subject.flows
       end
     end
-
 
     context 'when running it' do
       let(:name) { '0xabc' }
@@ -112,7 +105,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

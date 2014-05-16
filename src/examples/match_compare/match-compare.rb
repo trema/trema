@@ -17,13 +17,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class MatchCompare < Controller
   def start
     @rules = []
     add_rules
   end
-
 
   def packet_in(datapath_id, message)
     match = ExactMatch.from(message)
@@ -38,9 +36,7 @@ class MatchCompare < Controller
     end
   end
 
-
   private
-
 
   def add_rules
     dl_type_arp = 0x0806
@@ -53,16 +49,13 @@ class MatchCompare < Controller
     block :log => true
   end
 
-
   def allow(hash = {})
     add_rule :allow, hash
   end
 
-
   def block(hash = {})
     add_rule :block, hash
   end
-
 
   def add_rule(action, hash)
     datapath_id = hash.key?(:datapath_id) && hash.delete(:datapath_id) || nil
@@ -70,7 +63,6 @@ class MatchCompare < Controller
     rule = Struct.new(:action, :datapath_id, :match, :log)
     @rules << rule.new(action, datapath_id, Match.new(hash), log)
   end
-
 
   def lookup_rules(datapath_id, match)
     action = :block # default action
@@ -88,7 +80,6 @@ class MatchCompare < Controller
     [action, log]
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

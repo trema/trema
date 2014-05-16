@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe EchoReply, '.new' do
@@ -26,37 +24,31 @@ module Trema
     its(:user_data) { should be_nil }
   end
 
-
   describe EchoReply, '.new(nil)' do
     subject { EchoReply.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
     its(:user_data) { should be_nil }
   end
 
-
   describe EchoReply, '.new(transaction_id)' do
     subject { EchoReply.new(transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
-
 
   describe EchoReply, '.new(:transaction_id => value)' do
     subject { EchoReply.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
   end
 
-
   describe EchoReply, '.new(:xid => value)' do
     subject { EchoReply.new(:xid => xid) }
     it_should_behave_like 'any Openflow message with xid'
   end
 
-
   describe EchoReply, '.new(:user_data => value)' do
     subject { EchoReply.new(:user_data => user_data) }
     it_should_behave_like 'any Openflow message with user_data'
   end
-
 
   describe EchoReply, '.new(:transaction_id => value, :user_data => value)' do
     subject { EchoReply.new(:transaction_id => transaction_id, :user_data => user_data) }
@@ -70,12 +62,10 @@ module Trema
     end
   end
 
-
   describe EchoReply, '.new("INVALID OPTION")' do
     it { expect { EchoReply.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

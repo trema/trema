@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/mac'
-
 
 module Trema
   #
@@ -31,7 +29,6 @@ module Trema
     #
     attr_reader :mac_address
 
-
     #
     # @private
     #
@@ -39,13 +36,11 @@ module Trema
       @mac_address = Mac.new(mac_address)
     end
 
-
     def to_s
       "#{ self.class }: mac_address=#{ @mac_address }"
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -17,12 +17,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl'
 require 'trema/executables'
 require 'trema/path'
 require 'trema/process'
-
 
 module Trema::Util
   def sh(cmd)
@@ -32,7 +30,6 @@ module Trema::Util
       fail "Command '#{ cmd }' failed!"
     end
   end
-
 
   def assert_trema_is_built
     unless Trema::Executables.compiled?
@@ -45,7 +42,6 @@ EOF
       exit false
     end
   end
-
 
   def cleanup(session)
     # [FIXME] Use session.switch_manager
@@ -74,18 +70,15 @@ EOF
     end
   end
 
-
   def running?
     FileTest.exists? Trema::DSL::Context::PATH
   end
-
 
   def cleanup_current_session
     cleanup Trema::DSL::Context.load_current
   ensure
     FileUtils.rm_f Trema::DSL::Context::PATH
   end
-
 
   def find_app_by_name(name)
     # [FIXME] Trema apps does not appear in context.apps. why?
@@ -97,17 +90,14 @@ EOF
     end
   end
 
-
   def find_switch_by_name(name)
     Trema::DSL::Context.load_current.switches[ name]
   end
-
 
   def find_host_by_name(name)
     Trema::DSL::Context.load_current.hosts[ name]
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

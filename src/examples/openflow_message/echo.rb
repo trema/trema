@@ -17,19 +17,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'example'
-
 
 class EchoController < Controller
   include Example
-
 
   class << self
     def run(args)
       usage unless Example.options_parse args
     end
-
 
     def usage
       puts Example.cmd_usage
@@ -38,16 +34,13 @@ class EchoController < Controller
     end
   end
 
-
   def switch_ready(msg_datapath_id)
     may_raise_error msg_datapath_id
     send_nr_msgs EchoRequest
   end
 end
 
-
 EchoController.run ARGV
-
 
 ### Local variables:
 ### mode: Ruby

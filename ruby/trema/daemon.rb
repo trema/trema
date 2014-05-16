@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'fileutils'
 require 'trema/monkey-patch/string'
 require 'trema/process'
-
 
 module Trema
   module Daemon
@@ -28,27 +26,22 @@ module Trema
         class_variable_set :@@singleton_daemon, true
       end
 
-
       def log_file(&block)
         class_variable_set :@@log_file, block
       end
-
 
       def command(&block)
         class_variable_set :@@command, block
       end
 
-
       def wait_until_up
         class_variable_set :@@wait_until_up, true
       end
-
 
       def daemon_id(method_id)
         class_variable_set :@@daemon_id, method_id
       end
     end
-
 
     def self.included(base)
       base.class_eval do
@@ -61,12 +54,10 @@ module Trema
       base.extend ClassMethods
     end
 
-
     def run
       fail "'#{ name }' is already running!" if running?
       run!
     end
-
 
     def run!
       FileUtils.rm_f log_file if log_file
@@ -81,7 +72,6 @@ module Trema
       wait_until_up
     end
 
-
     #
     # Kills running daemon process
     #
@@ -95,7 +85,6 @@ module Trema
       shutdown!
     end
 
-
     #
     # Kills running daemon process. Errors are ignored.
     #
@@ -107,7 +96,6 @@ module Trema
     def shutdown!
       Trema::Process.read(pid_file, name).kill!
     end
-
 
     #
     # Restarts running daemon process
@@ -124,7 +112,6 @@ module Trema
       run!
     end
 
-
     def pid_file
       prefix = self.class.name.demodulize.underscore
       if self.class.class_eval { class_variable_get :@@singleton_daemon }
@@ -134,16 +121,13 @@ module Trema
       end
     end
 
-
     def running?
       FileTest.exists? pid_file
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def log_file
       log_file_block = self.class.class_eval do
@@ -154,14 +138,12 @@ module Trema
       File.join Trema.log, name
     end
 
-
     def daemon_id
       m = self.class.class_eval do
         class_variable_get(:@@daemon_id) || :name
       end
       __send__ m
     end
-
 
     def wait_until_up
       wait = self.class.class_eval do
@@ -175,7 +157,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

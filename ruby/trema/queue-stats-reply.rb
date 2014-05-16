@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class QueueStatsReply < StatsHelper
     FIELDS = %w(port_no queue_id tx_bytes tx_packets tx_errors)
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Queue statistics for a port.
     # A user would not explicitly instantiate a {QueueStatsReply} object but
@@ -67,7 +64,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

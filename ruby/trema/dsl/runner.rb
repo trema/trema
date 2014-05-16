@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/tremashark'
-
 
 module Trema
   module DSL
@@ -28,18 +26,15 @@ module Trema
         @context = context
       end
 
-
       def run
         maybe_run_trema_services
         maybe_run_apps
       end
 
-
       def daemonize
         maybe_run_trema_services
         maybe_daemonize_apps
       end
-
 
       def maybe_run_switch_manager
         # FIXME
@@ -77,11 +72,9 @@ module Trema
         switch_manager.run!
       end
 
-
       ################################################################################
       private
       ################################################################################
-
 
       def maybe_run_trema_services
         maybe_run_tremashark
@@ -93,16 +86,13 @@ module Trema
         maybe_run_netnss
       end
 
-
       def maybe_run_tremashark
         Trema::Tremashark.new.run if $use_tremashark
       end
 
-
       def maybe_run_packetin_filter
         @context.packetin_filter.run! if @context.packetin_filter
       end
-
 
       def maybe_create_links
         maybe_delete_links # Fool proof
@@ -111,20 +101,17 @@ module Trema
         end
       end
 
-
       def maybe_delete_links
         @context.links.each do | name, link |
           link.delete!
         end
       end
 
-
       def maybe_run_hosts
         @context.hosts.each do | name, host |
           host.run!
         end
       end
-
 
       def maybe_run_switches
         @context.switches.each do | name, switch |
@@ -136,13 +123,11 @@ module Trema
         end
       end
 
-
       def maybe_run_netnss
         @context.netnss.each do | name, netns |
           netns.run!
         end
       end
-
 
       def maybe_run_apps
         return if @context.apps.values.empty?
@@ -160,7 +145,6 @@ module Trema
         ::Process.waitpid pid
       end
 
-
       def maybe_daemonize_apps
         @context.apps.each do | name, app |
           app.daemonize!
@@ -169,7 +153,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

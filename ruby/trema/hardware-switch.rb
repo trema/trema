@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/openflow-switch'
-
 
 module Trema
   #
@@ -34,7 +32,6 @@ module Trema
     #
     attr_reader :name
 
-
     #
     # Creates a new HardwareSwitch from {DSL::Switch}
     #
@@ -50,7 +47,6 @@ module Trema
       OpenflowSwitch.add self
     end
 
-
     #
     # Returns datapath id in long format
     #
@@ -62,7 +58,6 @@ module Trema
     def dpid_long
       @stanza.fetch :dpid_long
     end
-
 
     #
     # Returns datapath id prefixed with "0x"
@@ -77,7 +72,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

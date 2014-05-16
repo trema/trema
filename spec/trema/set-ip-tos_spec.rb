@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
   subject { SetIpTos.new(type_of_service) }
@@ -61,7 +59,6 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

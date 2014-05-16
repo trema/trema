@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/run'
-
 
 module Trema
   module DSL
@@ -27,18 +25,15 @@ module Trema
         @run = Run.new
       end
 
-
       context 'when parsing "run { ... }"' do
         it 'recognizes "path COMMAND_PATH" directive' do
           expect { @run.path '/usr/bin/tremario' }.not_to raise_error
         end
 
-
         it 'recognizes "options OPTIONS..." directive' do
           expect { @run.options '--verbose', '--color' }.not_to raise_error
         end
       end
-
 
       context 'when getting the attributes of an run' do
         it 'returns its name' do
@@ -46,12 +41,10 @@ module Trema
           expect(@run[ :name]).to eq('tremario')
         end
 
-
         it 'returns its path' do
           @run.path '/usr/bin/tremario'
           expect(@run[ :path]).to eq('/usr/bin/tremario')
         end
-
 
         it 'returns its options' do
           @run.options '--verbose', '--color'
@@ -63,7 +56,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

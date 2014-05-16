@@ -14,17 +14,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Trema::PacketIn do
   def send_and_wait
     send_packets 'host1', 'host2'
     sleep 2
   end
-
 
   class PacketInController < Controller; end
 
@@ -60,7 +57,6 @@ describe Trema::PacketIn do
         send_and_wait
       end
     end
-
 
     it 'should have vaild user data' do
       network do
@@ -464,7 +460,6 @@ describe Trema::PacketIn do
           expect(message.icmpv4?).to be_false
           expect(message.igmp?).to be_false
 
-
           expect(message.ipv4_version).to eq(4)
           expect(message.ipv4_ihl).to eq(5)
           expect(message.ipv4_tos).to eq(0)
@@ -508,7 +503,6 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x02, # dst
           0x00, 0x00, 0x00, 0x00, 0x00, 0x01, # src
           # vlan tag
-
 
           0x81, 0x00, # tpid
           0x0f, 0x9f, # tci
@@ -708,7 +702,6 @@ describe Trema::PacketIn do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

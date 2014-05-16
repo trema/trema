@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe QueueGetConfigReply, '.new( VALID OPTIONS )' do
   subject do
@@ -39,13 +37,11 @@ describe QueueGetConfigReply, '.new( VALID OPTIONS )' do
   its(:transaction_id) { should == 123 }
 end
 
-
 describe PacketQueue, '.new( VALID OPTIONS )' do
   subject { PacketQueue.new(:queue_id => 123, :len => 64) }
   its(:queue_id) { should == 123 }
   its(:len) { should == 64 }
 end
-
 
 describe MinRateQueue, '.new( VALID OPTIONS )' do
   subject do
@@ -56,7 +52,6 @@ describe MinRateQueue, '.new( VALID OPTIONS )' do
   its(:len) { should == 64 }
   its(:rate) { should == 1024 }
 end
-
 
 ### Local variables:
 ### mode: Ruby

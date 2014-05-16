@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 shared_examples_for 'barrier request message' do
   class BarrierRequestController < Controller; end
@@ -34,20 +32,17 @@ shared_examples_for 'barrier request message' do
   end
 end
 
-
 module Trema
   describe BarrierRequest, '.new' do
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'barrier request message'
   end
 
-
   describe BarrierRequest, '.new(nil)' do
     subject { BarrierRequest.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'barrier request message'
   end
-
 
   describe BarrierRequest, '.new(transaction_id)' do
     subject { BarrierRequest.new(transaction_id) }
@@ -58,7 +53,6 @@ module Trema
     end
   end
 
-
   describe BarrierRequest, '.new(:transaction_id => value)' do
     subject { BarrierRequest.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
@@ -67,7 +61,6 @@ module Trema
       it_should_behave_like 'barrier request message'
     end
   end
-
 
   describe BarrierRequest, '.new(:xid => value)' do
     subject { BarrierRequest.new(:xid => xid) }
@@ -78,12 +71,10 @@ module Trema
     end
   end
 
-
   describe BarrierRequest, '.new("INVALID OPTION")', :nosudo => true do
     it { expect { BarrierRequest.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

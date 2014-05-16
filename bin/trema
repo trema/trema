@@ -18,7 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'ruby')
 
 require 'rubygems'
@@ -30,24 +29,19 @@ require 'trema/util'
 require 'trema/version'
 require 'trema/default_openflow_channel_port'
 
-
 class BinTrema
   include Trema::Command
   include Trema::Util
   include GLI::App
 
-
   def initialize
     program_desc 'Trema command-line tool'
-
 
     desc 'Displays the current runtime version'
     version Trema::VERSION
 
-
     desc 'Be verbose'
     switch [:v, :verbose], :negatable => false
-
 
     desc 'Runs a trema application'
     arg_name 'controller'
@@ -72,7 +66,6 @@ class BinTrema
       end
     end
 
-
     desc 'Terminates a trema process'
     arg_name 'name'
     command :kill do | c |
@@ -84,7 +77,6 @@ class BinTrema
       end
     end
 
-
     desc 'Starts a killed trema process again'
     arg_name 'name'
     command :up do | c |
@@ -93,14 +85,12 @@ class BinTrema
       end
     end
 
-
     desc 'Terminates all trema processes'
     command :killall do | c |
       c.action do
         trema_killall
       end
     end
-
 
     desc 'Sends UDP packets to destination host'
     command :send_packets do | c |
@@ -156,7 +146,6 @@ class BinTrema
       end
     end
 
-
     desc "Brings a switch's specified port up"
     command :port_up do | c |
       c.desc 'switch name'
@@ -172,7 +161,6 @@ class BinTrema
         trema_port_up options[ :switch], options[ :port]
       end
     end
-
 
     desc "Brings a switch's specified port down"
     command :port_down do | c |
@@ -190,7 +178,6 @@ class BinTrema
       end
     end
 
-
     desc 'Shows stats of packets'
     arg_name 'host'
     command :show_stats do | c |
@@ -204,7 +191,6 @@ class BinTrema
         trema_show_stats args[ 0], options[ :tx], options[ :rx]
       end
     end
-
 
     desc 'Resets stats of packets'
     arg_name 'hosts...'
@@ -220,7 +206,6 @@ class BinTrema
       end
     end
 
-
     desc 'Print all flow entries'
     arg_name 'switches...'
     command :dump_flows do | c |
@@ -230,7 +215,6 @@ class BinTrema
       end
     end
 
-
     desc 'Opens a new shell in the specified network namespace'
     arg_name 'name'
     command :netns do | c |
@@ -239,14 +223,12 @@ class BinTrema
       end
     end
 
-
     desc "Opens in your browser Trema's Ruby API documentation"
     command :ruby do | c |
       c.action do
         trema_ruby
       end
     end
-
 
     desc 'Displays the current runtime version'
     command :version do | c |
@@ -255,9 +237,7 @@ class BinTrema
       end
     end
 
-
     GLI::Commands::Help.skips_pre = false
-
 
     pre do | global, command, options, args |
       $verbose = global[ :verbose]
@@ -281,14 +261,12 @@ class BinTrema
       true
     end
 
-
     on_error do | exception |
       # Error logic here
       # return false to skip default error handling
       true
     end
   end
-
 
   def start(argv)
     run argv
@@ -301,9 +279,7 @@ class BinTrema
   end
 end
 
-
 exit BinTrema.new.start(ARGV)
-
 
 ### Local variables:
 ### mode: Ruby

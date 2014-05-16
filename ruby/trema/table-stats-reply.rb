@@ -17,13 +17,11 @@
 
 require 'trema/stats-helper'
 
-
 module Trema
   class TableStatsReply < StatsHelper
     FIELDS = %w(table_id name wildcards max_entries ) +
       %w(active_count lookup_count matched_count)
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Information about tables that a switch supports. A switch may choose to
     # maintain a single table that can store both wildcard and exact match flows.
@@ -76,7 +74,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

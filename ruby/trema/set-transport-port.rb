@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/monkey-patch/integer'
-
 
 module Trema
   #
@@ -27,7 +25,6 @@ module Trema
   class SetTransportPort < Action
     # @return [Fixnum] the value of attribute {#port_number}
     attr_reader :port_number
-
 
     #
     # @private
@@ -44,7 +41,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

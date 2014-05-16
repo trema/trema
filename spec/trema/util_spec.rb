@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/dsl/configuration'
 require 'trema/dsl/runner'
 require 'trema/util'
 
-
 include Trema::Util
-
 
 describe Trema::Util do
   it 'should assert that trema is built' do
@@ -32,11 +29,9 @@ describe Trema::Util do
     expect { assert_trema_is_built }.to raise_error(SystemExit)
   end
 
-
   it 'should execute and check the results of a command' do
     expect { sh 'NO SUCH COMMAND' }.to raise_error("Command 'NO SUCH COMMAND' failed!")
   end
-
 
   it 'should cleanup current session' do
     apps = { 'app 1' => mock('app 1'), 'app 2' => mock('app 2'), 'app 3' => mock('app 3') }
@@ -79,7 +74,6 @@ describe Trema::Util do
     cleanup_current_session
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

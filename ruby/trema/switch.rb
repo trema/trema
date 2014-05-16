@@ -15,39 +15,32 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   class Switch
     attr_reader :dpid
     alias_method :datapath_id, :dpid
 
-
     def self.inherited(subclass)
       at_exit { subclass.new(eval ARGV[ 0]).run! }
     end
-
 
     def initialize(dpid)
       @dpid = dpid
     end
 
-
     def name
       self.class.to_s.split('::').last
     end
 
-
     def controller_connected
       send_message Hello.new
     end
-
 
     def features_request(xid)
       send_message FeaturesReply.new(:datapath_id => @dpid, :transaction_id => xid)
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

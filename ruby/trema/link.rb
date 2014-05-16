@@ -15,13 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/network-component'
 require 'trema/path'
 
 $LOAD_PATH.unshift File.join(Trema.vendor_ruby_ifconfig, 'lib')
 require 'ifconfig'
-
 
 module Trema
   #
@@ -38,7 +36,6 @@ module Trema
     #
     attr_reader :name
 
-
     #
     # Returns the name of link peer interface
     #
@@ -49,7 +46,6 @@ module Trema
     #
     attr_reader :name_peer
 
-
     #
     # Returns the configuration names of link peers
     #
@@ -59,7 +55,6 @@ module Trema
     # @return [Array]
     #
     attr_reader :peers
-
 
     #
     # Creates a new Trema link from {DSL::Link}
@@ -84,7 +79,6 @@ module Trema
       Link.add self
     end
 
-
     #
     # Adds a virtual link
     #
@@ -100,7 +94,6 @@ module Trema
       sh "sudo /sbin/sysctl -w net.ipv6.conf.#{ @name_peer }.disable_ipv6=1 >/dev/null 2>&1"
     end
 
-
     #
     # Ups the peer interfaces of a virtual link
     #
@@ -115,7 +108,6 @@ module Trema
       sh "sudo /sbin/ifconfig #{ @name_peer } up"
     end
 
-
     #
     # Creates and enables a virtual link
     #
@@ -128,7 +120,6 @@ module Trema
       add!
       up!
     end
-
 
     #
     # Deletes a virtual link
@@ -144,11 +135,9 @@ module Trema
       sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def real_eth
       interfaces = IfconfigWrapper.new.parse.interfaces
@@ -157,7 +146,6 @@ module Trema
       end
       fail
     end
-
 
     def real_eth?
       interfaces = IfconfigWrapper.new.parse.interfaces
@@ -168,7 +156,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

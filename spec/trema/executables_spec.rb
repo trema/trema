@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/executables'
-
 
 describe Trema::Executables do
   subject { Trema::Executables }
@@ -45,7 +43,6 @@ describe Trema::Executables do
     its ( :compiled?) { should be_false }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe StatsReply, '.new( VALID OPTIONS )' do
   context 'when #desc-stats-reply is created' do
@@ -39,7 +37,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its ( :serial_num) { should eq('1234') }
     its ( :dp_desc) { should eq('nec01') }
   end
-
 
   context 'when #flow-stats-reply is created' do
     subject do
@@ -76,7 +73,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its ( :actions) { should_not be_empty }
   end
 
-
   context 'when aggregate-stats-reply is created' do
     subject do
       AggregateStatsReply.new(
@@ -91,7 +87,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:byte_count) { should == 128 }
     its ( :flow_count) { should == 10 }
   end
-
 
   context 'when table-stats-reply is created' do
     subject do
@@ -115,7 +110,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:lookup_count) { should == 4 }
     its(:matched_count) { should == 1 }
   end
-
 
   context 'when port-stats-reply is created' do
     subject do
@@ -152,7 +146,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:collisions) { should == 1 }
   end
 
-
   context 'when queue-stats-reply is created' do
     subject do
       QueueStatsReply.new(
@@ -172,7 +165,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:tx_errors) { should  == 5 }
   end
 
-
   context 'when vendor-stats-reply is created' do
     subject { VendorStatsReply.new(:vendor_id => 123) }
 
@@ -180,7 +172,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:vendor_id) { should == 123 }
     its(:data) { should be_nil }
   end
-
 
   context 'when #stats_request(desc-stats) is sent' do
     it 'should #stats_reply(desc-stats)' do
@@ -204,7 +195,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
       end
     end
   end
-
 
   context 'when #stats_request(flow-stats) is sent' do
     it 'should #stats_reply(flow-stats)' do
@@ -243,7 +233,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
       end
     end
   end
-
 
   context 'when #stats_request(aggregate_stats) is sent' do
     it 'should #stats_reply(aggregate-stats) attributes' do
@@ -284,7 +273,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     end
   end
 
-
   context 'when #stats_request(port-stats) is sent' do
     it 'should #stats_reply(port-stats)' do
       class PortStatsController < Controller; end
@@ -318,7 +306,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
       end
     end
   end
-
 
   context 'when #stats_request(table-stats) is sent' do
     it 'should #stats_reply(table-stats)' do
@@ -354,7 +341,6 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

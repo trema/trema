@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/cli'
 require 'trema/dsl'
 require 'trema/util'
 
-
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_send_packets(source_name, dest_name, options)
       source = find_host_by_name(source_name)
@@ -37,7 +34,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

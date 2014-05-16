@@ -15,14 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   module DSL
     class SyntaxError < StandardError
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

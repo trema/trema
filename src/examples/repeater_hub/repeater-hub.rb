@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class RepeaterHub < Controller
   def packet_in(datapath_id, message)
     send_flow_mod_add(
@@ -32,7 +31,6 @@ class RepeaterHub < Controller
     )
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

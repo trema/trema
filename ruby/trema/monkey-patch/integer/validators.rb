@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module MonkeyPatch
   module Integer
     module Validators
@@ -27,7 +26,6 @@ module MonkeyPatch
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

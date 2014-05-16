@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class VendorActionSampleController < Controller
   OVS_VENDOR_ID = 0x00002320
   OVSAST_NOTE = 8
@@ -34,7 +33,6 @@ class VendorActionSampleController < Controller
     )
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

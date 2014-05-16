@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema/link'
-
 
 module Trema
   describe Link do
@@ -27,12 +25,10 @@ module Trema
       @stanza = mock('link stanza', :peers => ['Virtual Host', 'Virtual Switch'])
     end
 
-
     context 'when creating/deleting a link' do
       before :each do
         @link = Link.new(@stanza)
       end
-
 
       it 'executes ip and ifconfig command' do
         @link.should_receive(:sh).once.ordered.with('sudo ip link add name trema0-0 type veth peer name trema0-1')
@@ -44,7 +40,6 @@ module Trema
         @link.enable!
       end
 
-
       it 'executes ip and ifconfig command' do
         @link.should_receive(:sh).once.with('sudo ip link delete trema0-0 2>/dev/null')
 
@@ -53,7 +48,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

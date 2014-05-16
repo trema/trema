@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/default_openflow_channel_port'
 require 'trema/dsl'
 require 'trema/util'
 
-
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_run(options)
       @config_file = options[ :conf] || nil
@@ -55,11 +52,9 @@ module Trema
       end
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def load_config
       config = nil
@@ -95,13 +90,11 @@ module Trema
       config
     end
 
-
     def ruby_controller?
       /\.rb\Z/ =~ ARGV[0].split.first
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

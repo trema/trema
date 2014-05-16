@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'bundler'
 begin
   Bundler.setup :default, :development
@@ -25,9 +24,7 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
-
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../../ruby'))
-
 
 require 'aruba/cucumber'
 require 'rspec'
@@ -35,27 +32,22 @@ require 'tempfile'
 require 'trema/executables'
 require 'trema/monkey-patch/string'
 
-
 def run(command)
   fail "Failed to execute #{ command }" unless system(command)
 end
-
 
 def ps_entry_of(name)
   `ps -ef | grep -w "#{ name } " | grep -v grep`
 end
 
-
 def cucumber_log(name)
   File.join Trema.log, name
 end
-
 
 def new_tmp_log
   system "rm #{ Trema.log }/tmp.*" # cleanup
   `mktemp --tmpdir=#{ Trema.log }`.chomp
 end
-
 
 # show_stats output format:
 # ip_dst,tp_dst,ip_src,tp_src,n_pkts,n_octets
@@ -65,7 +57,6 @@ def count_packets(stats)
     sum += each.split(',')[ 4].to_i
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

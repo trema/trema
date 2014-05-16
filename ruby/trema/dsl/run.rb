@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/stanza'
-
 
 module Trema
   module DSL
@@ -31,14 +29,12 @@ module Trema
         end
       end
 
-
       def options(*_options)
         @options = _options
       end
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

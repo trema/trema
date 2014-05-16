@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 [SetIpSrcAddr, SetIpDstAddr].each do | klass |
   describe klass, '#new(ip_address)', :type => 'actions' do
     subject { klass.new(ip_address) }
-
 
     context 'with ip_address (192.168.1.1)' do
       let(:ip_address) { '192.168.1.1' }
@@ -31,7 +28,6 @@ require 'trema'
       its('ip_address.to_s') { should == '192.168.1.1' }
       its(:to_s) { should eq("#{ klass }: ip_address=192.168.1.1") }
     end
-
 
     context 'with ip_address (192.168.1.10)' do
       let(:ip_address) { '192.168.1.10' }
@@ -57,13 +53,11 @@ require 'trema'
       end
     end
 
-
     context 'with invalid ip_address (1000.1000.1000.1000)' do
       let(:ip_address) { '1000.1000.1000.1000' }
 
       it { expect { subject }.to raise_error(ArgumentError) }
     end
-
 
     context 'with invalid ip_address ([1, 2, 3])' do
       let(:ip_address) { [1, 2, 3] }
@@ -72,7 +66,6 @@ require 'trema'
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
   context 'when an instance is created' do
@@ -65,7 +63,6 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
     its ( :byte_count) { should == 256 }
   end
 
-
   context 'when a flow expires' do
     it 'should #flow_removed' do
       class FlowRemovedController < Controller; end
@@ -81,7 +78,6 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         sleep 2 # FIXME: wait to receive flow_removed
       end
     end
-
 
     it 'should #flow_removed with valid attributes as per flow mod add' do
       class FlowRemovedController < Controller; end
@@ -135,7 +131,6 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -17,9 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/dsl/stanza'
-
 
 module Trema
   module DSL
@@ -36,29 +34,24 @@ module Trema
       end
       alias_method :datapath_id, :dpid
 
-
       def ports(str)
         @ports = str
       end
-
 
       def validate
         self.dpid = name if /\A0x/ =~ name
         fail "Invalid dpid: #{ @name }" if @dpid_short.nil?
       end
 
-
       ##########################################################################
       private
       ##########################################################################
-
 
       def dpid=(string)
         @dpid_long = dpid_long_from(string)
         @dpid_short = string
         @name = @dpid_short if @name.nil?
       end
-
 
       def dpid_long_from(string)
         no_0x = string.gsub(/^0x/, '')
@@ -67,7 +60,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

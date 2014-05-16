@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Trema::PortStatusDelete do
   it_should_behave_like 'port status message', :klass => Trema::PortStatusDelete
 end
-
 
 ### Local variables:
 ### mode: Ruby

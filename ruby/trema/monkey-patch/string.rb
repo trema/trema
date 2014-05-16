@@ -15,14 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/monkey-patch/string/inflectors'
-
 
 class String
   include MonkeyPatch::String::Inflectors
 end
-
 
 ### Local variables:
 ### mode: Ruby

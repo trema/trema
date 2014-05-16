@@ -17,20 +17,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'counter'
 require 'fdb'
 
-
 class TrafficMonitor < Controller
   periodic_timer_event :show_counter, 10
-
 
   def start
     @counter = Counter.new
     @fdb = FDB.new
   end
-
 
   def packet_in(datapath_id, message)
     macsa = message.macsa
@@ -47,16 +43,13 @@ class TrafficMonitor < Controller
     end
   end
 
-
   def flow_removed(datapath_id, message)
     @counter.add message.match.dl_src, message.packet_count, message.byte_count
   end
 
-
   ##############################################################################
   private
   ##############################################################################
-
 
   def show_counter
     puts Time.now
@@ -64,7 +57,6 @@ class TrafficMonitor < Controller
       puts "#{ mac } #{ counter[ :packet_count] } packets (#{ counter[ :byte_count] } bytes)"
     end
   end
-
 
   def flow_mod(datapath_id, macsa, macda, out_port)
     send_flow_mod_add(
@@ -75,7 +67,6 @@ class TrafficMonitor < Controller
     )
   end
 
-
   def packet_out(datapath_id, message, out_port)
     send_packet_out(
       datapath_id,
@@ -84,12 +75,10 @@ class TrafficMonitor < Controller
     )
   end
 
-
   def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

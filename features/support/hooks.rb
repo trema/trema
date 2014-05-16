@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/path'
-
 
 def wait_until_all_pid_files_are_deleted(timeout = 12)
   elapsed = 0
@@ -30,25 +28,21 @@ def wait_until_all_pid_files_are_deleted(timeout = 12)
   sleep 1
 end
 
-
 Before do
   @aruba_timeout_seconds = 10
   run 'trema killall'
   wait_until_all_pid_files_are_deleted
 end
 
-
 Before('@slow_process') do
   @aruba_io_wait_seconds = 1
 end
-
 
 After do
   run 'trema killall'
   wait_until_all_pid_files_are_deleted
   processes.clear
 end
-
 
 ### Local variables:
 ### mode: Ruby

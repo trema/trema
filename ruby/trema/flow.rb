@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   class Flow
-
 
     #
     # Parses a text line of OpenFlow switch's dump-flows command into a Flow
@@ -48,7 +46,6 @@ module Trema
       flow
     end
 
-
     # @return [Boolean] whether a flow is a user registered flow or not.
     def users_flow?
       !((@actions == 'drop' && @priority == 0) ||
@@ -56,7 +53,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

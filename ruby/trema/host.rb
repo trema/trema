@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/cli'
 require 'trema/phost'
 require 'trema/network-component'
-
 
 module Trema
   #
@@ -37,7 +35,6 @@ module Trema
     # @api public
     #
     attr_accessor :interface
-
 
     #
     # Creates a new Trema host from {DSL::Vhost}
@@ -57,7 +54,6 @@ module Trema
       Host.add self
     end
 
-
     #
     # Define host attribute accessors
     #
@@ -71,7 +67,6 @@ module Trema
     def method_missing(message, *args)
       @stanza.__send__ :[], message
     end
-
 
     #
     # Returns IP address
@@ -93,7 +88,6 @@ module Trema
       end
     end
 
-
     #
     # Returns MAC address
     #
@@ -112,7 +106,6 @@ module Trema
         stanza_mac
       end
     end
-
 
     #
     # Returns netmask
@@ -133,7 +126,6 @@ module Trema
       end
     end
 
-
     #
     # Runs a host process
     #
@@ -151,7 +143,6 @@ module Trema
       self
     end
 
-
     #
     # Kills running host
     #
@@ -165,7 +156,6 @@ module Trema
     def shutdown!
       @phost.shutdown!
     end
-
 
     #
     # Add arp entries of <code>hosts</code>
@@ -182,7 +172,6 @@ module Trema
         @cli.add_arp_entry each
       end
     end
-
 
     #
     # Send packets to <code>dest</code>
@@ -203,7 +192,6 @@ module Trema
       @cli.send_packets dest_host, options
     end
 
-
     #
     # Check stats type and delegate processing.
     #
@@ -223,7 +211,6 @@ module Trema
       end
     end
 
-
     #
     # Returns tx stats
     #
@@ -237,7 +224,6 @@ module Trema
     def tx_stats
       @cli.tx_stats
     end
-
 
     #
     # Returns rx stats
@@ -254,7 +240,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

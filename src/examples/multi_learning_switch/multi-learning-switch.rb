@@ -17,12 +17,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 $LOAD_PATH << File.join(File.dirname(__FILE__), '../learning_switch/')
 
-
 require 'fdb'
-
 
 #
 # A OpenFlow controller class that emulates multiple layer-2 switches.
@@ -30,13 +27,11 @@ require 'fdb'
 class MultiLearningSwitch < Controller
   add_timer_event :age_fdbs, 5, :periodic
 
-
   def start
     @fdbs = Hash.new do | hash, datapath_id |
       hash[ datapath_id] = FDB.new
     end
   end
-
 
   def packet_in(datapath_id, message)
     fdb = @fdbs[ datapath_id]
@@ -50,18 +45,15 @@ class MultiLearningSwitch < Controller
     end
   end
 
-
   def age_fdbs
     @fdbs.each_value do | each |
       each.age
     end
   end
 
-
   ##############################################################################
   private
   ##############################################################################
-
 
   def flow_mod(datapath_id, message, port_no)
     send_flow_mod_add(
@@ -71,7 +63,6 @@ class MultiLearningSwitch < Controller
     )
   end
 
-
   def packet_out(datapath_id, message, port_no)
     send_packet_out(
       datapath_id,
@@ -80,12 +71,10 @@ class MultiLearningSwitch < Controller
     )
   end
 
-
   def flood(datapath_id, message)
     packet_out datapath_id, message, OFPP_FLOOD
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

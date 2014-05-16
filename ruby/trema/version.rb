@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   VERSION = '0.4.7'.freeze
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/set-eth-addr'
-
 
 module Trema
   #
@@ -41,10 +39,8 @@ module Trema
     #
   end
 
-
   ActionSetDlSrc = SetEthSrcAddr
 end
-
 
 ### Local variables:
 ### mode: Ruby

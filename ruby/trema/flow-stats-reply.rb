@@ -15,16 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class FlowStatsReply < StatsHelper
     FIELDS = %w(length table_id match duration_sec duration_nsec) +
       %w(priority idle_timeout hard_timeout cookie packet_count byte_count actions)
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Flow counters for one or more matched flows.
     # A user would not explicitly instantiate a {FlowStatsReply} object but
@@ -98,7 +95,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

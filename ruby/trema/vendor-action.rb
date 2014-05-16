@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/action'
 require 'trema/monkey-patch/integer'
-
 
 module Trema
   #
@@ -32,7 +30,6 @@ module Trema
     attr_reader :body
     # @return [Integer] the value of attribute {#vendor_id}
     attr_reader :vendor_id
-
 
     #
     # Creates an action to set vendor specific extensions.
@@ -70,10 +67,8 @@ module Trema
     end
   end
 
-
   ActionVendor = VendorAction
 end
-
 
 ### Local variables:
 ### mode: Ruby

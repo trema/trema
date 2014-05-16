@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Trema::OpenflowError, 'new' do
   context 'when #port_mod with an invalid(port_no) is sent' do
@@ -44,7 +42,6 @@ describe Trema::OpenflowError, 'new' do
       end
     end
   end
-
 
   context 'when #port_mod with an invalid(hw_addr) is sent' do
     it 'should receive #error(type=Error::OFPET_PORT_MOD_FAILED,code=Error::OFPPMFC_BAD_HW_ADDR)' do
@@ -74,7 +71,6 @@ describe Trema::OpenflowError, 'new' do
     end
   end
 
-
   context 'when #flow_mod(add) message with an invalid(action_port) is sent' do
     it 'should receive #error(type=Error::OFPET_BAD_ACTION,code=Error::OFPBAC_BAD_OUT_PORT)' do
       class OpenflowErrorController < Controller; end
@@ -95,7 +91,6 @@ describe Trema::OpenflowError, 'new' do
       end
     end
   end
-
 
   context 'when an unsupported message is sent' do
     it 'should receive an openflow error with valid attributes' do
@@ -132,7 +127,6 @@ describe Trema::OpenflowError, 'new' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

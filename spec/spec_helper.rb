@@ -21,7 +21,6 @@ CodeClimate::TestReporter.start
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'ruby')
 $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib')
 
-
 require 'rspec'
 require 'rspec/autorun'
 require 'pio'
@@ -32,13 +31,11 @@ require 'trema/ofctl'
 require 'trema/shell'
 require 'trema/util'
 
-
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
 Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb"].each do | each |
   require File.expand_path(each)
 end
-
 
 RSpec.configure do | config |
   config.expect_with :rspec do | c |
@@ -47,38 +44,30 @@ RSpec.configure do | config |
   end
 end
 
-
 include Trema
-
 
 def controller(name)
   Trema::App[ name]
 end
 
-
 def vswitch(name)
   Trema::OpenflowSwitch[ name]
 end
-
 
 def vhost(name)
   Trema::Host[ name]
 end
 
-
 def send_packets(source, dest, options = {})
   Trema::Shell.send_packets source, dest, options
 end
 
-
 include Trema::Util
-
 
 class Network
   def initialize(&block)
     @context = Trema::DSL::Parser.new.eval(&block)
   end
-
 
   def run(controller_class, &test)
     trema_run controller_class
@@ -87,11 +76,9 @@ class Network
     trema_kill
   end
 
-
   ################################################################################
   private
   ################################################################################
-
 
   def trema_run(controller_class)
     controller = controller_class.new
@@ -129,13 +116,11 @@ class Network
     wait_until_controller_is_up app_name
   end
 
-
   def trema_kill
     cleanup_current_session
     @th_controller.join if @th_controller
     wait_until_all_pid_files_are_deleted
   end
-
 
   def drop_packets_from_unknown_hosts(switch)
     ofctl = Trema::Ofctl.new
@@ -144,7 +129,6 @@ class Network
       ofctl.add_flow switch, :dl_type => '0x0800', :nw_src => each.ip, :priority => 1, :actions => 'controller'
     end
   end
-
 
   def wait_until_controller_is_up(trema_name, timeout = 10)
     elapsed = 0
@@ -156,7 +140,6 @@ class Network
     end
     sleep 1
   end
-
 
   def wait_until_all_pid_files_are_deleted(timeout = 12)
     elapsed = 0
@@ -170,11 +153,9 @@ class Network
   end
 end
 
-
 def network(&block)
   Network.new(&block)
 end
-
 
 ### Local variables:
 ### mode: Ruby

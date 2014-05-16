@@ -27,13 +27,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class Blocker
   class BlockerError < RuntimeError; end
 
-
   PATH = '/tmp/cruise.lock'
-
 
   def self.start(&code_block)
     block
@@ -46,7 +43,6 @@ class Blocker
     release
   end
 
-
   def self.block
     lock = File.open(PATH, 'a+')
     locked = lock.flock(File::LOCK_EX | File::LOCK_NB)
@@ -56,7 +52,6 @@ class Blocker
     end
   end
 
-
   def self.release
     File.open(PATH, 'w') do | lock |
       lock.flock(File::LOCK_UN | File::LOCK_NB)
@@ -65,7 +60,6 @@ class Blocker
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

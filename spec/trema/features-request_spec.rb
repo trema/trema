@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 shared_examples_for 'features request message' do
   class FeaturesRequestController < Controller; end
@@ -34,20 +32,17 @@ shared_examples_for 'features request message' do
   end
 end
 
-
 module Trema
   describe FeaturesRequest, '.new' do
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'features request message'
   end
 
-
   describe FeaturesRequest, '.new(nil)' do
     subject { FeaturesRequest.new(nil) }
     it_should_behave_like 'any Openflow message with default transaction ID'
     it_should_behave_like 'features request message'
   end
-
 
   describe FeaturesRequest, '.new(transaction_id)' do
     subject { FeaturesRequest.new(transaction_id) }
@@ -58,7 +53,6 @@ module Trema
     end
   end
 
-
   describe FeaturesRequest, '.new(:transaction_id => value)' do
     subject { FeaturesRequest.new(:transaction_id => transaction_id) }
     it_should_behave_like 'any Openflow message with transaction ID'
@@ -67,7 +61,6 @@ module Trema
       it_should_behave_like 'features request message'
     end
   end
-
 
   describe FeaturesRequest, '.new(:xid => value)' do
     subject { FeaturesRequest.new(:xid => xid) }
@@ -79,12 +72,10 @@ module Trema
     end
   end
 
-
   describe FeaturesRequest, '.new("INVALID OPTION")', :nosudo => true do
     it { expect { FeaturesRequest.new 'INVALID OPTION' }.to raise_error(TypeError) }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

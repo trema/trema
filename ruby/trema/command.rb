@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/command/dump_flows'
 require 'trema/command/kill'
 require 'trema/command/killall'
@@ -32,7 +31,6 @@ require 'trema/command/shell'
 require 'trema/command/show_stats'
 require 'trema/command/up'
 require 'trema/command/version'
-
 
 ### Local variables:
 ### mode: Ruby

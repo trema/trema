@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
   subject { SetTransportSrcPort.new port_number }
@@ -56,7 +54,6 @@ describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

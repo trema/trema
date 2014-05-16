@@ -18,12 +18,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class FeaturesRequestController < Controller
   def switch_ready(datapath_id)
     send_message datapath_id, FeaturesRequest.new
   end
-
 
   def features_reply(datapath_id, message)
     info "datapath_id: #{ datapath_id.to_hex }"
@@ -35,11 +33,9 @@ class FeaturesRequestController < Controller
     print_ports message.ports
   end
 
-
   ##############################################################################
   private
   ##############################################################################
-
 
   def print_capabilities(capabilities)
     info 'capabilities:'
@@ -52,7 +48,6 @@ class FeaturesRequestController < Controller
     info '  OFPC_QUEUE_STATS' if capabilities & OFPC_QUEUE_STATS != 0
     info '  OFPC_ARP_MATCH_IP' if capabilities & OFPC_ARP_MATCH_IP != 0
   end
-
 
   def print_actions(actions)
     info 'actions:'
@@ -71,7 +66,6 @@ class FeaturesRequestController < Controller
     info '  OFPAT_VENDOR' if actions & OFPAT_VENDOR != 0
   end
 
-
   def print_ports(ports)
     info 'ports:'
     ports.each do | each |
@@ -87,7 +81,6 @@ class FeaturesRequestController < Controller
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

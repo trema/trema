@@ -23,12 +23,10 @@ shared_examples_for 'option is within range' do | option, range |
     it { expect { subject }.not_to raise_error(ArgumentError) }
   end
 
-
   context "with #{ option } (< #{ range.first })" do
     let(option) { range.first - 1 }
     it { expect { subject }.to raise_error(ArgumentError) }
   end
-
 
   context "with #{ option } (> #{ range.last })" do
     let(option) { range.last + 1 }
@@ -36,11 +34,9 @@ shared_examples_for 'option is within range' do | option, range |
   end
 end
 
-
 RSpec.configure do | config |
   config.alias_it_should_behave_like_to :it_validates, 'it validates'
 end
-
 
 ### Local variables:
 ### mode: Ruby

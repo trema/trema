@@ -15,14 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/util'
-
 
 module Trema
   module Command
     include Trema::Util
-
 
     def trema_up(name)
       switch = find_switch_by_name(name)
@@ -35,7 +32,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

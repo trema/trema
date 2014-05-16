@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe Controller do
@@ -34,7 +32,6 @@ module Trema
     it { should have_constant :OFPP_LOCAL }
     it { should have_constant :OFPP_NONE }
 
-
     context '.new' do
       subject { Controller.new }
 
@@ -47,7 +44,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

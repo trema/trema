@@ -18,12 +18,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 Dir.chdir File.dirname(__FILE__) do
   result = system("bundle exec rake #{ ARGV.join ' ' }")
   abort "#{ $0 } aborted!" unless result
 end
-
 
 ### Local variables:
 ### mode: Ruby

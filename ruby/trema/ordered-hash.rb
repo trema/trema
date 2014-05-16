@@ -15,27 +15,22 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 module Trema
   class OrderedHash
     attr_reader :keys
-
 
     def initialize
       @keys = Array.new
       @content = Hash.new
     end
 
-
     def size
       @content.size
     end
 
-
     def [](key)
       @content[ key]
     end
-
 
     def []=(key, value)
       @content[ key] = value
@@ -44,20 +39,17 @@ module Trema
       end
     end
 
-
     def values
       @keys.map do | each |
         @content[ each]
       end
     end
 
-
     def clear
       @keys.clear
       @content.clear
       self
     end
-
 
     def each(&block)
       @keys.each do | each |
@@ -66,7 +58,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

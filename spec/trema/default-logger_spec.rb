@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 module Trema
   describe DefaultLogger do
@@ -37,7 +35,6 @@ module Trema
     it { should respond_to :debug }
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

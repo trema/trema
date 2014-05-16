@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class PortStatsReply < StatsHelper
@@ -25,7 +23,6 @@ module Trema
       %w(tx_bytes rx_dropped tx_dropped rx_errors tx_errors) +
       %w(rx_frame_err rx_over_err rx_crc_err collisions )
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Port counters or errors for one or more physical ports.
     # A user would not explicitly instantiate a {PortStatsReply} object but would
@@ -100,7 +97,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

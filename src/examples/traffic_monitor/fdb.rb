@@ -17,23 +17,19 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class FDB
   def initialize
     @db = {}
   end
 
-
   def lookup(mac)
     @db[ mac]
   end
-
 
   def learn(mac, port_number)
     @db[ mac] = port_number
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

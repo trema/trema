@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/switch'
-
 
 module Trema
   module DSL
@@ -27,30 +25,25 @@ module Trema
         @switch = Switch.new
       end
 
-
       context 'when parsing "switch { ... }"' do
         it 'recognizes "dpid DATAPATH_ID" directive' do
           expect { @switch.dpid '0xabc' }.not_to raise_error
         end
 
-
         it 'recognizes "datapath_id DATAPATH_ID" directive' do
           expect { @switch.datapath_id '0xabc' }.not_to raise_error
         end
-
 
         it 'recognizes "ports PORT_NUMBERS" directive' do
           expect { @switch.ports '0-4' }.not_to raise_error
         end
       end
 
-
       context 'when getting the attributes of a switch' do
         it 'returns its dpid in long format' do
           @switch.dpid '0xabc'
           expect(@switch[ :dpid_long]).to eq('0000000000000abc')
         end
-
 
         it 'returns its dpid in short format' do
           @switch.dpid '0xabc'
@@ -60,7 +53,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

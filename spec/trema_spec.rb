@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), 'spec_helper')
 require 'trema'
-
 
 describe Trema do
   it { should have_constant :OFPC_FLOW_STATS }
@@ -85,7 +83,6 @@ describe Trema do
   it { should have_constant :OFPQOFC_BAD_QUEUE }
   it { should have_constant :OFPQOFC_EPERM }
 end
-
 
 ### Local variables:
 ### mode: Ruby

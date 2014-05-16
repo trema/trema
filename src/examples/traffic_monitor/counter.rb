@@ -17,12 +17,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 class Counter
   def initialize
     @db = {}
   end
-
 
   def add(mac, packet_count, byte_count)
     @db[ mac] ||= { :packet_count => 0, :byte_count => 0 }
@@ -30,12 +28,10 @@ class Counter
     @db[ mac][ :byte_count] += byte_count
   end
 
-
   def each_pair(&block)
     @db.each_pair(&block)
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

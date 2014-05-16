@@ -1,7 +1,6 @@
 $:.push File.expand_path('../ruby', __FILE__)
 require 'trema/version'
 
-
 Gem::Specification.new do | gem |
   gem.name = 'trema'
   gem.version = Trema::VERSION
@@ -32,7 +31,6 @@ Gem::Specification.new do | gem |
   gem.add_dependency 'rake'
   gem.add_dependency 'rdoc', '~> 4.1.1'
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,18 +15,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/monkey-patch/integer/base-conversions'
 require 'trema/monkey-patch/integer/ranges'
 require 'trema/monkey-patch/integer/validators'
-
 
 class Integer
   include MonkeyPatch::Integer::BaseConversions
   include MonkeyPatch::Integer::Ranges
   include MonkeyPatch::Integer::Validators
 end
-
 
 ### Local variables:
 ### mode: Ruby

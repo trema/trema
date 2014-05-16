@@ -24,7 +24,6 @@ module Trema
       attr_accessor :queues
     end
 
-
     # Add queue to list.
     # @param [PacketQueue] queue a {PacketQueue} instance.
     def self.append(queue)
@@ -32,13 +31,11 @@ module Trema
       @queues << queue unless @queues.include?(queue)
     end
 
-
     # @return [Array]
     #   an array of {PacketQueue} objects.
     def self.queues
       @queues
     end
-
 
     # Iterate over each {PacketQueue} item.
     # @return [Array] a list of {PacketQueue} items.
@@ -48,7 +45,6 @@ module Trema
       end
     end
   end
-
 
   class PacketQueue
     # No property for queue.
@@ -72,7 +68,6 @@ module Trema
     #   the value of attribute properties.
     attr_accessor :properties
 
-
     # @overload initialize(options={})
     # @param [Hash] options ths options hash.
     # @option options [Symbol] :queue_id
@@ -86,13 +81,11 @@ module Trema
       @properties = []
     end
 
-
     # @param [MinRateQueue] queue
     #   a property queue {MinRateQueue} object to append to the properties list.
     def append(queue)
       @properties << queue
     end
-
 
     # @return [String]
     #   text representation of {PacketQueue}'s attributes and all its properties
@@ -105,7 +98,6 @@ module Trema
       str
     end
   end
-
 
   class QueueProperty
     # Property queue id.
@@ -120,7 +112,6 @@ module Trema
     #   the value of attribute len.
     attr_accessor :len
 
-
     # Each queue is described by a set of properties, each of a specific type and
     # configuration.
     # @param [Number] property
@@ -132,7 +123,6 @@ module Trema
       @len = len
     end
 
-
     # @return [String]
     #  text representation of its attributes (property,len).
     def to_s
@@ -140,13 +130,11 @@ module Trema
     end
   end
 
-
   class MinRateQueue < QueueProperty
     # the rate value of the minimum rate queue.
     # @return [Number]
     #   the value of attribute rate.
     attr_accessor :rate
-
 
     # An object that encapsulates the minimum rate queue property description.
     # @param [Number] property
@@ -164,7 +152,6 @@ module Trema
       Trema::PacketQueues.append packet_queue
     end
 
-
     # @return [String]
     #  text representation of rate prefixed by property and length attributes.
     def to_s
@@ -172,7 +159,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

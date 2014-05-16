@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe SetConfig, 'new( OPTIONAL OPTION MISSING )' do
   its(:flags) { should == 0 }
@@ -26,14 +24,12 @@ describe SetConfig, 'new( OPTIONAL OPTION MISSING )' do
   it_should_behave_like 'any Openflow message with default transaction ID'
 end
 
-
 describe SetConfig, '.new( VALID OPTIONS )' do
   subject { SetConfig.new(:flags => 1, :miss_send_len => 256, :transaction_id => transaction_id) }
   let(:transaction_id) { 123 }
   its(:flags) { should  == 1 }
   its(:miss_send_len) { should == 256 }
   it_should_behave_like 'any OpenFlow message with transaction_id option'
-
 
   context 'when #set_config is sent' do
     it 'should not #set_config_reply' do
@@ -48,7 +44,6 @@ describe SetConfig, '.new( VALID OPTIONS )' do
       end
     end
   end
-
 
   context 'when #set_config is sent with flags, miss_send_len set to 0' do
     it 'should #get_config_reply with flags, miss_send_len set to 0' do
@@ -69,7 +64,6 @@ describe SetConfig, '.new( VALID OPTIONS )' do
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

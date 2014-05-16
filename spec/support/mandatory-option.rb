@@ -30,7 +30,6 @@ shared_examples_for 'any Openflow message with mandatory options' do | options |
     let(each[ :name]) { each[ :sample_value] }
   end
 
-
   options[ :options].each do | each |
     context "with :#{ each[ :name] } (#{ each[ :sample_value] })" do
       let(each[ :name]) { each[ :sample_value] }
@@ -44,7 +43,6 @@ shared_examples_for 'any Openflow message with mandatory options' do | options |
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe Match, '.new' do
   subject do
@@ -53,7 +51,6 @@ describe Match, '.new' do
   its(:tp_dst) { should == 20 }
   its(:to_s) { should == 'wildcards = 0x20000(nw_dst(8)), in_port = 1, dl_src = 00:00:00:00:00:01, dl_dst = 00:00:00:00:00:02, dl_vlan = 0xffff, dl_vlan_pcp = 0, dl_type = 0x800, nw_tos = 0, nw_proto = 17, nw_src = 192.168.0.1/32, nw_dst = 192.168.0.0/24, tp_src = 10, tp_dst = 20' }
 end
-
 
 describe Match, '.compare' do
   it 'Should match' do
@@ -102,7 +99,6 @@ describe Match, '.compare' do
     expect(pattern.compare(tester)).to be_false
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

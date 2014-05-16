@@ -15,10 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
-
 
 describe GetConfigReply, '.new( VALID OPTIONS )' do
   subject do
@@ -34,7 +32,6 @@ describe GetConfigReply, '.new( VALID OPTIONS )' do
   its ( :flags) { should == 1 }
   its ( :miss_send_len) { should == 1024 }
 end
-
 
 ### Local variables:
 ### mode: Ruby

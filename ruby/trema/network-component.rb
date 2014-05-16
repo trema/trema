@@ -15,9 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/ordered-hash'
-
 
 module Trema
   #
@@ -40,7 +38,6 @@ module Trema
       attr_accessor :instances
     end
 
-
     #
     # Called implicitly when inherited
     #
@@ -61,12 +58,9 @@ module Trema
       subclass.instances ||= OrderedHash.new
     end
 
-
-
     def self.clear
       instances.clear
     end
-
 
     #
     # Iterates over the list of instances
@@ -85,7 +79,6 @@ module Trema
         block.call each
       end
     end
-
 
     #
     # Looks up a instance DB by its name
@@ -106,7 +99,6 @@ module Trema
       instances[ name]
     end
 
-
     #
     # Returns the number of instances.
     #
@@ -120,7 +112,6 @@ module Trema
     def self.size
       instances.values.size
     end
-
 
     #
     # Inserts a object to instance DB
@@ -142,7 +133,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

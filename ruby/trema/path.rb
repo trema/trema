@@ -15,19 +15,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/monkey-patch/module'
-
 
 module Trema
   HOME = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-
 
   class << self
     def home
       HOME
     end
-
 
     def tmp
       if ENV.key?('TREMA_TMP')
@@ -37,11 +33,9 @@ module Trema
       end
     end
 
-
     ############################################################################
     private
     ############################################################################
-
 
     def file(base, path, name = nil)
       define_class_method(name || File.basename(path).gsub('.', '_')) do
@@ -50,7 +44,6 @@ module Trema
     end
     alias_method :dir, :file
   end
-
 
   dir :home, 'objects'
   dir :home, 'ruby'
@@ -76,7 +69,6 @@ module Trema
   file :cmockery, 'lib/libcmockery.a'
   file :openflow, 'openflow.h'
 end
-
 
 ### Local variables:
 ### mode: Ruby

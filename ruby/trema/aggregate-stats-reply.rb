@@ -15,15 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require 'trema/stats-helper'
-
 
 module Trema
   class AggregateStatsReply < StatsHelper
     FIELDS = %w(packet_count byte_count flow_count)
     FIELDS.each { |field| attr_reader field.intern }
-
 
     # Aggregate counters for flows.
     # A user would not explicitly instantiate a {AggregateStatsReply} object but
@@ -59,7 +56,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby

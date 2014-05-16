@@ -15,11 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require 'trema/dsl/runner'
 require 'trema/ordered-hash'
-
 
 module Trema
   module DSL
@@ -30,7 +28,6 @@ module Trema
         @switch_manager = mock('switch manager', :run! => nil)
         SwitchManager.stub!(:new).and_return(@switch_manager)
       end
-
 
       context 'when running' do
         it 'should run switch_manager' do
@@ -52,7 +49,6 @@ module Trema
           Runner.new(context).run
         end
 
-
         it 'should run packetin_filter' do
           packetin_filter = mock
           packetin_filter.should_receive(:run!).once
@@ -72,7 +68,6 @@ module Trema
 
           Runner.new(context).run
         end
-
 
         it 'should create links' do
           link0 = mock('link0')
@@ -102,7 +97,6 @@ module Trema
 
           Runner.new(context).run
         end
-
 
         it 'should run vhosts' do
           host0 = mock('host0')
@@ -146,7 +140,6 @@ module Trema
           Runner.new(context).run
         end
 
-
         it 'should run switches' do
           switch0 = mock('switch0')
           switch0.should_receive(:run!).once
@@ -172,7 +165,6 @@ module Trema
 
           Runner.new(context).run
         end
-
 
         it 'should run apps' do
           apps = OrderedHash.new
@@ -203,7 +195,6 @@ module Trema
 
           Runner.new(context).run
         end
-
 
         it 'should daemonize apps' do
           apps = OrderedHash.new
@@ -238,7 +229,6 @@ module Trema
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby
