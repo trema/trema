@@ -19,4 +19,9 @@ branches:
     - develop
 
 notifications:
-  webhooks: http://trema-hubot.herokuapp.com/hubot/travis?room=1
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/ca7b2e631cab5cddce0d
+    on_success: always
+    on_failure: always
+    on_start: always
