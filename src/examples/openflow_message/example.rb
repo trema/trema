@@ -37,12 +37,12 @@ module Example
   end
 
   def may_raise_error(msg_datapath_id)
-    fail ArgumentError, 'Given datapath_id does not match configured datapath_id' if msg_datapath_id != Example::datapath_id
+    fail ArgumentError, 'Given datapath_id does not match configured datapath_id' if msg_datapath_id != Example.datapath_id
   end
 
   def send_nr_msgs(kclass)
-    Example::count.times do
-      send_message Example::datapath_id, kclass.new
+    Example.count.times do
+      send_message Example.datapath_id, kclass.new
     end
   end
 end

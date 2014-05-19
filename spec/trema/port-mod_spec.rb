@@ -22,7 +22,7 @@ describe PortMod, '.new( VALID OPTIONS )' do
   subject do
     PortMod.new(
       :port_no => 2,
-      :hw_addr => Mac::new('11:22:33:44:55:66'),
+      :hw_addr => Mac.new('11:22:33:44:55:66'),
       :config => 1,
       :mask => 1,
       :advertise => 0
@@ -39,7 +39,7 @@ describe PortMod, '.new( VALID OPTIONS )' do
     it 'should be a Trema::Mac object' do
       expect(PortMod.new(
                :port_no => 2,
-               :hw_addr => Mac::new('11:22:33:44:55:66'),
+               :hw_addr => Mac.new('11:22:33:44:55:66'),
                :config => 1,
                :mask => 1,
                :advertise => 0

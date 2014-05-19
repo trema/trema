@@ -48,7 +48,7 @@ include FileUtils
 
 def path_string
   paths = ENV[ 'PATH'].split(':')
-  paths << Gem::bindir unless paths.include?(Gem::bindir)
+  paths << Gem.bindir unless paths.include?(Gem.bindir)
   paths.join ':'
 end
 

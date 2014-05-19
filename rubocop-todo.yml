@@ -32,9 +32,6 @@ ClassVars:
 CollectionMethods:
   Enabled: false
 
-ColonMethodCall:
-  Enabled: false
-
 ConstantName:
   Enabled: false
 
