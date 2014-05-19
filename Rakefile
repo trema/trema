@@ -731,29 +731,6 @@ begin
     task.pattern = FileList[ 'spec/trema/hello_spec.rb', 'spec/trema/echo-*_spec.rb']
     task.rspec_opts = '--tag ~sudo --format documentation --color'
   end
-
-  task :rcov => :build_trema
-  RSpec::Core::RakeTask.new(:rcov) do | spec |
-    spec.pattern = 'spec/**/*_spec.rb'
-    spec.rcov = true
-    spec.rcov_opts = %w(-x gems)
-  end
-rescue LoadError
-  $stderr.puts $!.to_s
-end
-
-begin
-  require 'cucumber/rake/task'
-
-  task :features => :build_trema
-  Cucumber::Rake::Task.new(:features) do | t |
-    t.cucumber_opts = '--tags @critical --tags ~@wip'
-  end
-
-  task 'features:all' => :build_trema
-  Cucumber::Rake::Task.new('features:all') do | t |
-    t.cucumber_opts = '--tags ~@wip'
-  end
 rescue LoadError
   $stderr.puts $!.to_s
 end
