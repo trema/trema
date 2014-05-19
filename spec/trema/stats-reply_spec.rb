@@ -31,11 +31,11 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     end
 
     it { should respond_to(:to_s) }
-    its ( :mfr_desc) { should eq('NEC Corporation') }
-    its ( :hw_desc) { should eq('no hardware description') }
-    its ( :sw_desc) { should eq('version xx.xx') }
-    its ( :serial_num) { should eq('1234') }
-    its ( :dp_desc) { should eq('nec01') }
+    its(:mfr_desc) { should eq('NEC Corporation') }
+    its(:hw_desc) { should eq('no hardware description') }
+    its(:sw_desc) { should eq('version xx.xx') }
+    its(:serial_num) { should eq('1234') }
+    its(:dp_desc) { should eq('nec01') }
   end
 
   context 'when #flow-stats-reply is created' do
@@ -59,18 +59,18 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     end
 
     it { should respond_to(:to_s) }
-    its ( :length) { should == 96 }
-    its ( :table_id) { should == 0 }
-    its ( :match) { should be_an_instance_of Match }
-    its ( :duration_sec) { should == 3 }
-    its ( :duration_nsec) { should == 106000000 }
-    its ( :priority) { should == 65535 }
-    its ( :idle_timeout) { should == 0 }
-    its ( :hard_timeout) { should == 0 }
-    its ( :cookie) { should == 866942928268820481 }
-    its ( :packet_count) { should == 2 }
-    its ( :byte_count) { should == 128 }
-    its ( :actions) { should_not be_empty }
+    its(:length) { should == 96 }
+    its(:table_id) { should == 0 }
+    its(:match) { should be_an_instance_of Match }
+    its(:duration_sec) { should == 3 }
+    its(:duration_nsec) { should == 106000000 }
+    its(:priority) { should == 65535 }
+    its(:idle_timeout) { should == 0 }
+    its(:hard_timeout) { should == 0 }
+    its(:cookie) { should == 866942928268820481 }
+    its(:packet_count) { should == 2 }
+    its(:byte_count) { should == 128 }
+    its(:actions) { should_not be_empty }
   end
 
   context 'when aggregate-stats-reply is created' do
@@ -85,7 +85,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     it { should respond_to(:to_s) }
     its(:packet_count) { should == 2 }
     its(:byte_count) { should == 128 }
-    its ( :flow_count) { should == 10 }
+    its(:flow_count) { should == 10 }
   end
 
   context 'when table-stats-reply is created' do

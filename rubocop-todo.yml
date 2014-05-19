@@ -86,9 +86,6 @@ NumericLiterals:
 ParameterLists:
   Enabled: false
 
-ParenthesesAsGroupedExpression:
-  Enabled: false
-
 PerlBackrefs:
   Enabled: false
 

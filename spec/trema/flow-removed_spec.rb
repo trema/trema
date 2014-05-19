@@ -50,17 +50,17 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :byte_count => 256
       )
     end
-    its ( :datapath_id) { should == 2748 }
-    its ( :transaction_id) { should == 0 }
-    its ( :match) { should be_instance_of(Match) }
-    its ( :cookie) { should == 123456789 }
-    its ( :priority) { should == 65535 }
-    its ( :reason) { should == 0 }
-    its ( :duration_sec) { should == 1 }
-    its ( :duration_nsec) { should == 779000000 }
-    its ( :idle_timeout) { should == 1 }
-    its ( :packet_count) { should == 6 }
-    its ( :byte_count) { should == 256 }
+    its(:datapath_id) { should == 2748 }
+    its(:transaction_id) { should == 0 }
+    its(:match) { should be_instance_of(Match) }
+    its(:cookie) { should == 123456789 }
+    its(:priority) { should == 65535 }
+    its(:reason) { should == 0 }
+    its(:duration_sec) { should == 1 }
+    its(:duration_nsec) { should == 779000000 }
+    its(:idle_timeout) { should == 1 }
+    its(:packet_count) { should == 6 }
+    its(:byte_count) { should == 256 }
   end
 
   context 'when a flow expires' do

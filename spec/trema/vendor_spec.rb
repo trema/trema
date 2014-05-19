@@ -21,14 +21,14 @@ require 'trema'
 module Trema
   describe Vendor, '.new' do
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its ( :vendor) { should == 0 }
-    its ( :data) { should be_nil }
+    its(:vendor) { should == 0 }
+    its(:data) { should be_nil }
   end
 
   describe Vendor, '.new(nil)' do
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its ( :vendor) { should == 0 }
-    its ( :data) { should be_nil }
+    its(:vendor) { should == 0 }
+    its(:data) { should be_nil }
   end
 
   describe Vendor, '.new(:transaction_id => value)' do
@@ -45,14 +45,14 @@ module Trema
     subject { Vendor.new(:vendor => vendor) }
     let(:vendor) { 0xdeadbeef }
     its(:vendor) { should == 0xdeadbeef }
-    its ( :data) { should be_nil }
+    its(:data) { should be_nil }
   end
 
   describe Vendor, '.new(:data => value)', :nosudo => true do
     subject { Vendor.new(:data => data) }
     let(:data) { 'VENDOR DATA'.unpack('C*') }
     its(:data) { should == [86, 69, 78, 68, 79, 82, 32, 68, 65, 84, 65] }
-    its ( :vendor) { should == 0 }
+    its(:vendor) { should == 0 }
   end
 
   describe Vendor, '.new("INVALID OPTION")', :nosudo => true do

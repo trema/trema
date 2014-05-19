@@ -101,7 +101,7 @@ describe Trema::PacketIn do
       network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') { mac '00:00:00:00:00:02' }
+        vhost('host2') { mac '00:00:00:00:00:02' }
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
       end.run(PacketInSendController) do
@@ -212,7 +212,7 @@ describe Trema::PacketIn do
       network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') { mac '00:00:00:00:00:02' }
+        vhost('host2') { mac '00:00:00:00:00:02' }
         link 'host1', 'packet-in'
         link 'host2', 'packet-in'
       end.run(PacketInSendController) do
@@ -323,7 +323,7 @@ describe Trema::PacketIn do
       network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') do
+        vhost('host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
@@ -417,7 +417,7 @@ describe Trema::PacketIn do
       network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') do
+        vhost('host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
@@ -491,7 +491,7 @@ describe Trema::PacketIn do
       network do
         vswitch('packet-in') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') do
+        vhost('host2') do
           ip '192.168.32.1'
           netmask '255.255.255.0'
           mac '00:00:00:00:00:02'

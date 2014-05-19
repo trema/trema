@@ -67,7 +67,7 @@ describe 'packet-out' do
       network do
         vswitch('packet-out') { datapath_id 0xabc }
         vhost 'host1'
-        vhost ( 'host2') do
+        vhost('host2') do
           ip '192.168.0.2'
           netmask '255.255.0.0'
           mac '00:00:00:00:00:02'
