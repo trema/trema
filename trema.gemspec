@@ -15,7 +15,7 @@ Gem::Specification.new do | gem |
   gem.email = ['yasuhito@gmail.com']
   gem.homepage = 'http://github.com/trema/trema'
 
-  gem.executables = ['trema', 'trema-config']
+  gem.executables = %w(trema trema-config)
   gem.files = `git ls-files`.split("\n")
 
   gem.require_path = 'ruby'

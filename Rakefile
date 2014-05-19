@@ -102,15 +102,7 @@ PaperHouse::RubyExtensionTask.new 'rubylib' do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = ['-Wl,-Bsymbolic', "-L#{ Trema.lib }"]
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl',
-    'crypt',
-    'm'
-  ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl crypt m)
 end
 
 desc 'Build switch manager.'
@@ -128,13 +120,7 @@ PaperHouse::ExecutableTask.new :switch_manager do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl'
-  ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl)
 end
 
 desc 'Build switch daemon.'
@@ -158,13 +144,7 @@ PaperHouse::ExecutableTask.new :switch_daemon do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl'
-  ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl)
 end
 
 ################################################################################
@@ -270,13 +250,7 @@ PaperHouse::ExecutableTask.new :packetin_filter do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl'
-                              ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl)
 end
 
 ################################################################################
@@ -319,18 +293,7 @@ CLOBBER.include(Trema.cmockery) if FileTest.exists?(Trema.cmockery)
 # Build examples
 ################################################################################
 
-$standalone_examples = [
-  'cbench_switch',
-  'dumper',
-  'learning_switch',
-  'list_switches',
-  'multi_learning_switch',
-  'packet_in',
-  'repeater_hub',
-  'switch_info',
-  'switch_monitor',
-  'traffic_monitor'
-                       ]
+$standalone_examples = %w(cbench_switch dumper learning_switch list_switches multi_learning_switch packet_in repeater_hub switch_info switch_monitor traffic_monitor)
 
 desc 'Build examples.'
 task :examples =>
@@ -353,13 +316,7 @@ $standalone_examples.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -367,10 +324,7 @@ end
 # Build openflow switches
 ################################################################################
 
-$openflow_switches = [
-  'hello_switch',
-  'echo_switch'
-                     ]
+$openflow_switches = %w(hello_switch echo_switch)
 
 task 'examples:openflow_switch' => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
 
@@ -385,13 +339,7 @@ $openflow_switches.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -399,13 +347,7 @@ end
 # Build openflow messages
 ################################################################################
 
-$openflow_messages = [
-  'echo',
-  'features_request',
-  'hello',
-  'set_config',
-  'vendor_action'
-                     ]
+$openflow_messages = %w(echo features_request hello set_config vendor_action)
 
 task 'examples:openflow_message' => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
 
@@ -420,13 +362,7 @@ $openflow_messages.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -434,12 +370,7 @@ end
 # Build switch_event_config
 ###############################################################################
 
-$switch_event_config = [
-  'add_forward_entry',
-  'delete_forward_entry',
-  'set_forward_entries',
-  'dump_forward_entries'
-                       ]
+$switch_event_config = %w(add_forward_entry delete_forward_entry set_forward_entries dump_forward_entries)
 
 task 'examples:switch_event_config' => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
 
@@ -454,13 +385,7 @@ $switch_event_config.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -468,13 +393,7 @@ end
 # Build packetin_filter_config
 ################################################################################
 
-$packetin_filter_config = [
-  'add_filter',
-  'delete_filter',
-  'delete_filter_strict',
-  'dump_filter',
-  'dump_filter_strict'
-                          ]
+$packetin_filter_config = %w(add_filter delete_filter delete_filter_strict dump_filter dump_filter_strict)
 
 task 'examples:packetin_filter_config' => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
 
@@ -489,13 +408,7 @@ $packetin_filter_config.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -570,12 +483,7 @@ end
 # Build management commands
 ################################################################################
 
-$management_commands = [
-  'application',
-  'echo',
-  'set_logging_level',
-  'show_stats'
-                      ]
+$management_commands = %w(application echo set_logging_level show_stats)
 
 desc 'Build management commands.'
 task :management_commands => $management_commands.map { | each | "management:#{ each }" }
@@ -591,13 +499,7 @@ $management_commands.each do | each |
     task.includes = [Trema.include, Trema.openflow]
     task.cflags = CFLAGS
     task.ldflags = "-L#{ Trema.lib }"
-    task.library_dependencies = [
-      'trema',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema sqlite3 pthread rt dl)
   end
 end
 
@@ -619,14 +521,7 @@ PaperHouse::ExecutableTask.new :tremashark do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl',
-    'pcap'
-                              ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl pcap)
 end
 
 task :packet_capture => 'libtrema:static'
@@ -641,14 +536,7 @@ PaperHouse::ExecutableTask.new :packet_capture do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl',
-    'pcap'
-                              ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl pcap)
 end
 
 task :syslog_relay => 'libtrema:static'
@@ -660,14 +548,7 @@ PaperHouse::ExecutableTask.new :syslog_relay do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl',
-    'pcap'
-                              ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl pcap)
 end
 
 task :stdin_relay => 'libtrema:static'
@@ -679,14 +560,7 @@ PaperHouse::ExecutableTask.new :stdin_relay do | task |
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
-  task.library_dependencies = [
-    'trema',
-    'sqlite3',
-    'pthread',
-    'rt',
-    'dl',
-    'pcap'
-                              ]
+  task.library_dependencies = %w(trema sqlite3 pthread rt dl pcap)
 end
 
 $packet_openflow_so = File.join(Trema.vendor_openflow_git, 'utilities', 'wireshark_dissectors', 'openflow', 'packet-openflow.so')
@@ -776,14 +650,7 @@ libtrema_unit_tests.keys.each do | each |
     task.includes = [Trema.include, Trema.openflow, File.dirname(Trema.cmockery_h), 'unittests']
     task.cflags = ['-DUNIT_TESTING', '--coverage', CFLAGS]
     task.ldflags = "-DUNIT_TESTING -L#{ File.dirname Trema.libcmockery_a } --coverage"
-    task.library_dependencies = [
-      'cmockery',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl',
-      'pcap'
-                                ]
+    task.library_dependencies = %w(cmockery sqlite3 pthread rt dl pcap)
   end
 end
 
@@ -822,14 +689,7 @@ $tests.each do | _each |
     task.includes = [Trema.include, Trema.openflow, File.dirname(Trema.cmockery_h), 'unittests']
     task.cflags = ['--coverage', CFLAGS]
     task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage"
-    task.library_dependencies = [
-      'trema',
-      'cmockery',
-      'sqlite3',
-      'pthread',
-      'rt',
-      'dl'
-                                ]
+    task.library_dependencies = %w(trema cmockery sqlite3 pthread rt dl)
   end
 end
 
@@ -876,7 +736,7 @@ begin
   RSpec::Core::RakeTask.new(:rcov) do | spec |
     spec.pattern = 'spec/**/*_spec.rb'
     spec.rcov = true
-    spec.rcov_opts = ['-x', 'gems']
+    spec.rcov_opts = %w(-x gems)
   end
 rescue LoadError
   $stderr.puts $!.to_s
@@ -970,7 +830,7 @@ task :quality => :rubocop
 
 desc 'Print list of notes.'
 task :notes do
-  keywords = ['TODO', 'FIXME', 'XXX']
+  keywords = %w(TODO FIXME XXX)
   keywords.each do | each |
     system "find src unittests -name '*.c' | xargs grep -n #{ each }"
     system "find ruby spec features -name '*.rb' | xargs grep -n #{ each }"

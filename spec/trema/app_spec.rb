@@ -31,7 +31,7 @@ module Trema
       end
 
       it 'should run with options' do
-        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => ['OPTION0', 'OPTION1'] }
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => %w(OPTION0 OPTION1) }
         app = App.new(stanza)
 
         app.should_receive(:sh).with('/usr/bin/tetris --name NAME OPTION0 OPTION1')
@@ -51,7 +51,7 @@ module Trema
       end
 
       it 'should daemonize with options' do
-        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => ['OPTION0', 'OPTION1'] }
+        stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => %w(OPTION0 OPTION1) }
         app = App.new(stanza)
 
         app.should_receive(:sh).with('/usr/bin/tetris --name NAME -d OPTION0 OPTION1')

@@ -115,6 +115,3 @@ WhileUntilDo:
 
 WhileUntilModifier:
   Enabled: false
-
-WordArray:
-  Enabled: false
