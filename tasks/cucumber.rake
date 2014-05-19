@@ -18,4 +18,3 @@ rescue LoadError
     $stderr.puts 'Cucumber is disabled'
   end
 end
-
