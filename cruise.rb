@@ -137,13 +137,13 @@ end
 
 def lines_total
   testees.values.inject(0) do | r, each |
-    r += each.lines
+    r + each.lines
   end
 end
 
 def lines_tested
   testees.values.inject(0) do | r, each |
-    r += each.lines_tested
+    r + each.lines_tested
   end
 end
 

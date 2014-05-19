@@ -103,6 +103,3 @@ SpecialGlobalVars:
 
 TrivialAccessors:
   Enabled: false
-
-UselessAssignment:
-  Enabled: false
