@@ -138,9 +138,7 @@ module SubProcess
 
     def start
       Thread.new(@io, @method) do | io, method |
-        while io.gets do
-          method.call $LAST_READ_LINE
-        end
+        method.call $LAST_READ_LINE while io.gets
       end
     end
   end

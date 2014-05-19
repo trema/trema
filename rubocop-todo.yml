@@ -112,6 +112,3 @@ UselessAssignment:
 
 WhileUntilDo:
   Enabled: false
-
-WhileUntilModifier:
-  Enabled: false
