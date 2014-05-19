@@ -109,6 +109,3 @@ TrivialAccessors:
 
 UselessAssignment:
   Enabled: false
-
-WhileUntilDo:
-  Enabled: false
