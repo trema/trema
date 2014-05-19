@@ -705,7 +705,7 @@ end
 # Tests
 ################################################################################
 
-task :travis => [:clobber, :build_trema, 'spec:travis']
+task :travis => [:clobber, :build_trema, 'spec:travis', :rubocop]
 
 begin
   require 'rspec/core'
@@ -757,72 +757,6 @@ begin
 rescue LoadError
   $stderr.puts $!.to_s
 end
-
-################################################################################
-# Code Quality Tasks
-################################################################################
-
-$ruby_sources = FileList[ 'ruby/**/*.rb', 'src/**/*.rb']
-
-desc 'Enforce Ruby code quality with static analysis of code'
-task :quality => [:reek, :flog, :flay]
-
-begin
-  require 'reek/rake/task'
-
-  Reek::Rake::Task.new do | t |
-    t.fail_on_error = false
-    t.verbose = false
-    t.ruby_opts = ['-rubygems']
-    t.reek_opts = '--quiet'
-    t.source_files = $ruby_sources
-  end
-rescue LoadError
-  $stderr.puts $!.to_s
-end
-
-begin
-  require 'flog'
-
-  desc 'Analyze for code complexity'
-  task :flog do
-    flog = Flog.new(:continue => true)
-    flog.flog(*$ruby_sources)
-    threshold = 10
-
-    bad_methods = flog.totals.select do | name, score |
-      !(/##{flog.no_method}$/ =~ name) && score > threshold
-    end
-    bad_methods.sort do | a, b |
-      a[ 1] <=> b[ 1]
-    end.reverse.each do | name, score |
-      puts '%8.1f: %s' % [score, name]
-    end
-    unless bad_methods.empty?
-      $stderr.puts "#{ bad_methods.size } methods have a flog complexity > #{ threshold }"
-    end
-  end
-rescue LoadError
-  $stderr.puts $!.to_s
-end
-
-begin
-  require 'flay'
-  require 'flay_task'
-
-  FlayTask.new do | t |
-    t.dirs = $ruby_sources.collect do | each |
-      each[ /[^\/]+/]
-    end.uniq
-    t.threshold = 0
-    t.verbose = true
-  end
-rescue LoadError
-  $stderr.puts $!.to_s
-end
-
-task :travis => :rubocop
-task :quality => :rubocop
 
 ################################################################################
 # TODO, FIXME etc.
