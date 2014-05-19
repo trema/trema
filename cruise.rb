@@ -87,9 +87,9 @@ class Testee
     n = 0
     in_comment = false
     File.open(@path, 'r').each_line do | l |
-      next if /^\s+\/\// =~ l # comments starting with //
+      next if %r{^\s+//} =~ l # comments starting with //
       next if /^\s*$/ =~ l # empty lines
-      next if /^\s*\/\*.*\*\// =~ l # /* ... */
+      next if %r{^\s*/\*.*\*/} =~ l # /* ... */
       if /^\s*\/\*/ =~ l # /*
         in_comment = true
         next
