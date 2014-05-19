@@ -132,7 +132,9 @@ module Trema
     def delete!
       return if real_eth?
       # FIXME: do not rescue nil
-      sh "sudo ip link delete #{ @name } 2>/dev/null" rescue nil
+      sh "sudo ip link delete #{ @name } 2>/dev/null"
+    rescue
+      :ok
     end
 
     private

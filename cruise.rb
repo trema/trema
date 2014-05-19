@@ -271,6 +271,12 @@ end
 # Tests
 ################################################################################
 
+def killall
+  sh './trema killall'
+rescue
+  :ok
+end
+
 def test(message)
   puts message
   cd Trema.home do
@@ -278,7 +284,7 @@ def test(message)
     begin
       yield
     ensure
-      sh './trema killall' rescue nil
+      killall
     end
   end
 end

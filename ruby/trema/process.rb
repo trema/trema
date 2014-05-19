@@ -66,10 +66,14 @@ module Trema
       return if dead?
       puts "Shutting down #{ @name }..." if $verbose
       10.times do
-        if @uid == 0
-          sh "sudo kill #{ @pid } 2>/dev/null" rescue nil
-        else
-          sh "kill #{ @pid } 2>/dev/null" rescue nil
+        begin
+          if @uid == 0
+            sh "sudo kill #{ @pid } 2>/dev/null"
+          else
+            sh "kill #{ @pid } 2>/dev/null"
+          end
+        rescue
+          :ok
         end
         return
         # return if dead?

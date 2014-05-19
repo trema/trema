@@ -98,9 +98,6 @@ RedundantException:
 RegexpLiteral:
   Enabled: false
 
-RescueModifier:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 
