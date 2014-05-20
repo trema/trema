@@ -49,9 +49,7 @@ class SimpleRouter < Controller
     return true if message.macda.broadcast?
 
     interface = @interfaces.find_by_port(message.in_port)
-    if interface && interface.has?(message.macda)
-      return true
-    end
+    true if interface && interface.has?(message.macda)
   end
 
   def handle_arp_request(dpid, message)
@@ -98,10 +96,7 @@ class SimpleRouter < Controller
     next_hop = resolve_next_hop(message.ipv4_daddr)
 
     interface = @interfaces.find_by_prefix(next_hop)
-    unless interface || interface.port == message.in_port
-      return
-    end
-
+    return unless interface || interface.port == message.in_port
     arp_entry = @arp_table.lookup(next_hop)
     if arp_entry
       macsa = interface.hwaddr

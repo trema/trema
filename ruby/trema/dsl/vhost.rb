@@ -57,9 +57,7 @@ module Trema
       #
       def ip(str)
         @ip = str
-        if @name.nil?
-          @name = @ip
-        end
+        @name = @ip if @name.nil?
       end
 
       #

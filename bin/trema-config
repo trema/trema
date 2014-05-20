@@ -39,9 +39,7 @@ FileUtils.cd Trema.home do
   $opts.parse! ARGV
 
   output = []
-  if $cflags
-    output << "-I#{ Trema.home }/src/lib -I#{ Trema.openflow }"
-  end
+  output << "-I#{ Trema.home }/src/lib -I#{ Trema.openflow }" if $cflags
   if $libs
     output << "-L#{ Trema.objects }/lib -ltrema -lrt -lpthread -lsqlite3 -ldl"
   end

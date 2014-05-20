@@ -26,20 +26,16 @@ module Trema
       link = Link.new(stanza)
       link.enable!
 
-      if OpenflowSwitch[ peer0]
-        OpenflowSwitch[ peer0] << link.name
-      end
-      if OpenflowSwitch[ peer1]
-        OpenflowSwitch[ peer1] << link.name_peer
-      end
+      OpenflowSwitch[peer0] << link.name if OpenflowSwitch[peer0]
+      OpenflowSwitch[peer1] << link.name_peer if OpenflowSwitch[peer1]
 
-      if Host[ peer0]
-        Host[ peer0].interface = link.name
-        Host[ peer0].run!
+      if Host[peer0]
+        Host[peer0].interface = link.name
+        Host[peer0].run!
       end
-      if Host[ peer1]
-        Host[ peer1].interface = link.name_peer
-        Host[ peer1].run!
+      if Host[peer1]
+        Host[peer1].interface = link.name_peer
+        Host[peer1].run!
       end
 
       $context.dump

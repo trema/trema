@@ -25,9 +25,7 @@ module Trema
     def trema_show_stats(hostname, tx, rx)
       cli = get_cli(hostname)
 
-      unless tx || rx
-        show_tx_and_rx cli
-      end
+      show_tx_and_rx cli unless tx || rx
       cli.show_tx_stats if tx
       cli.show_rx_stats if rx
     end

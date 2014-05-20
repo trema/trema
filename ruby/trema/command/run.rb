@@ -27,15 +27,9 @@ module Trema
       @config_file = options[ :conf] || nil
       @openflow_port = options[ :port] || DEFAULT_OPENFLOW_CHANNEL_PORT
 
-      if options[ :daemonize]
-        $run_as_daemon = true
-      end
-      if options[ :tremashark]
-        $use_tremashark = true
-      end
-      if options[ :no_flow_cleanup]
-        $no_flow_cleanup = true
-      end
+      $run_as_daemon = true if options[ :daemonize]
+      $use_tremashark = true if options[ :tremashark]
+      $no_flow_cleanup = true if options[ :no_flow_cleanup]
 
       need_cleanup = (!running?)
 

@@ -22,9 +22,7 @@ module Trema
     include Trema::Util
 
     def trema_kill(name)
-      unless maybe_kill(name)
-        exit_now! "unknown name: #{ name }"
-      end
+      exit_now! "unknown name: #{ name }" unless maybe_kill(name)
     end
 
     private

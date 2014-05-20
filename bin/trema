@@ -197,9 +197,7 @@ class BinTrema
     command :reset_stats do | c |
       c.action do | global_options, options, args |
         hosts = args
-        if hosts.empty?
-          hosts = Trema::DSL::Context.load_current.hosts.keys
-        end
+        hosts = Trema::DSL::Context.load_current.hosts.keys if hosts.empty?
         hosts.each do | each |
           trema_reset_stats each
         end

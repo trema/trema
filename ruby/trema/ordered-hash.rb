@@ -34,9 +34,7 @@ module Trema
 
     def []=(key, value)
       @content[ key] = value
-      unless @keys.include?(key)
-        @keys << key
-      end
+      @keys << key unless @keys.include?(key)
     end
 
     def values

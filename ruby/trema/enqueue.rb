@@ -60,9 +60,7 @@ module Trema
         unless @port_number.unsigned_16bit?
           fail ArgumentError, 'Port number must be an unsigned 16-bit integer'
         end
-        if @queue_id.nil?
-          fail ArgumentError, 'Queue ID is a mandatory option'
-        end
+        fail ArgumentError, 'Queue ID is a mandatory option' if @queue_id.nil?
         unless @queue_id.unsigned_32bit?
           fail ArgumentError, 'Queue ID must be an unsigned 32-bit integer'
         end

@@ -24,9 +24,7 @@ module Trema
     class Run < Stanza
       def path(_path)
         @path = _path
-        if @name.nil?
-          @name = File.basename(@path)
-        end
+        @name = File.basename(@path) if @name.nil?
       end
 
       def options(*_options)

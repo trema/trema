@@ -68,9 +68,7 @@ class MatchCompare < Controller
     action = :block # default action
     log = false
     @rules.each do | each |
-      if each.datapath_id && datapath_id != each.datapath_id
-        next
-      end
+      next if each.datapath_id && datapath_id != each.datapath_id
       if each.match.compare(match)
         action = each.action
         log = each.log

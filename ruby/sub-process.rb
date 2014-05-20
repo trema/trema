@@ -82,9 +82,7 @@ module SubProcess
 
     def close
       [@stdin, @stdout, @stderr].each do | each |
-        unless each.closed?
-          each.close
-        end
+        each.close unless each.closed?
       end
     end
   end
@@ -206,33 +204,23 @@ module SubProcess
     end
 
     def do_stdout(line)
-      if @on_stdout
-        @on_stdout.call line
-      end
+      @on_stdout.call line if @on_stdout
     end
 
     def do_stderr(line)
-      if @on_stderr
-        @on_stderr.call line
-      end
+      @on_stderr.call line if @on_stderr
     end
 
     def do_failure
-      if @on_failure
-        @on_failure.call
-      end
+      @on_failure.call if @on_failure
     end
 
     def do_success
-      if @on_success
-        @on_success.call
-      end
+      @on_success.call if @on_success
     end
 
     def do_exit
-      if @on_exit
-        @on_exit.call
-      end
+      @on_exit.call if @on_exit
     end
   end
 

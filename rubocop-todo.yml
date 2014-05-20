@@ -65,9 +65,6 @@ HandleExceptions:
 HashSyntax:
   Enabled: false
 
-IfUnlessModifier:
-  Enabled: false
-
 LineLength:
   Enabled: false
 

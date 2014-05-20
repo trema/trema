@@ -47,18 +47,16 @@ include FileUtils
 ################################################################################
 
 def path_string
-  paths = ENV[ 'PATH'].split(':')
+  paths = ENV['PATH'].split(':')
   paths << Gem.bindir unless paths.include?(Gem.bindir)
   paths.join ':'
 end
 
 def sh(cmd)
-  ENV[ 'LC_ALL'] = 'C'
-  ENV[ 'PATH'] = path_string
+  ENV['LC_ALL'] = 'C'
+  ENV['PATH'] = path_string
   puts cmd if $verbose
-  unless system(cmd)
-    fail "Command '#{ cmd }' failed!"
-  end
+  fail "Command '#{cmd}' failed!" unless system(cmd)
 end
 
 ################################################################################
@@ -109,9 +107,7 @@ class Testee
   end
 
   def coverage=(value)
-    if value > @coverage
-      @coverage = value
-    end
+    @coverage = value if value > @coverage
   end
 
   def <=>(other)

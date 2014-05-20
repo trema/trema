@@ -26,9 +26,7 @@ module Trema::Util
   def sh(cmd)
     ENV[ 'TREMA_HOME'] = Trema.home
     puts cmd if $verbose
-    unless system(cmd)
-      fail "Command '#{ cmd }' failed!"
-    end
+    fail "Command '#{ cmd }' failed!" unless system(cmd)
   end
 
   def assert_trema_is_built
@@ -46,9 +44,7 @@ EOF
   def cleanup(session)
     # [FIXME] Use session.switch_manager
     sm_pid = File.join(Trema.pid, 'switch_manager.pid')
-    if FileTest.exist?(sm_pid)
-      Trema::Process.read(sm_pid).kill!
-    end
+    Trema::Process.read(sm_pid).kill! if FileTest.exist?(sm_pid)
     session.apps.each do | name, app |
       app.shutdown!
     end
