@@ -388,7 +388,7 @@ describe Trema::PacketIn do
           expect(message.tcp_offset).to eq(5)
           expect(message.tcp_flags).to eq(0)
           expect(message.tcp_window).to eq(0)
-          expect(message.tcp_checksum).to eq(11910) # 0x2e86
+          expect(message.tcp_checksum).to eq(11_910) # 0x2e86
           expect(message.tcp_urgent).to eq(0)
 
           expect(message.arp_oper).to be_nil

@@ -24,7 +24,7 @@ describe Match, '.new' do
       :in_port => 1,
       :dl_src => '00:00:00:00:00:01',
       :dl_dst => '00:00:00:00:00:02',
-      :dl_vlan => 65535,
+      :dl_vlan => 65_535,
       :dl_vlan_pcp => 0,
       :dl_type => 0x800,
       :nw_tos => 0,
@@ -38,7 +38,7 @@ describe Match, '.new' do
   its(:in_port) { should == 1 }
   its('dl_src.to_s') { should == '00:00:00:00:00:01' }
   its('dl_dst.to_s') { should == '00:00:00:00:00:02' }
-  its(:dl_vlan) { should == 65535 }
+  its(:dl_vlan) { should == 65_535 }
   its(:dl_vlan_pcp) { should == 0 }
   its(:dl_type) { should == 0x800 }
   its(:nw_tos) { should == 0 }
@@ -58,7 +58,7 @@ describe Match, '.compare' do
       :in_port => 1,
       :dl_src => '00:00:00:00:00:01',
       :dl_dst => '00:00:00:00:00:02',
-      :dl_vlan => 65535,
+      :dl_vlan => 65_535,
       :dl_vlan_pcp => 0,
       :dl_type => 0x800,
       :nw_tos => 0,
@@ -81,7 +81,7 @@ describe Match, '.compare' do
       :in_port => 1,
       :dl_src => '00:00:00:00:00:01',
       :dl_dst => '00:00:00:00:00:02',
-      :dl_vlan => 65535,
+      :dl_vlan => 65_535,
       :dl_vlan_pcp => 0,
       :dl_type => 0x800,
       :nw_tos => 0,

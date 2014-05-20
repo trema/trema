@@ -47,11 +47,11 @@ describe StatsReply, '.new( VALID OPTIONS )' do
         :table_id => 0,
         :match => match,
         :duration_sec => 3,
-        :duration_nsec => 106000000,
-        :priority => 65535,
+        :duration_nsec => 106_000_000,
+        :priority => 65_535,
         :idle_timeout => 0,
         :hard_timeout => 0,
-        :cookie => 866942928268820481,
+        :cookie => 866_942_928_268_820_481,
         :packet_count => 2,
         :byte_count => 128,
         :actions => actions
@@ -63,11 +63,11 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     its(:table_id) { should == 0 }
     its(:match) { should be_an_instance_of Match }
     its(:duration_sec) { should == 3 }
-    its(:duration_nsec) { should == 106000000 }
-    its(:priority) { should == 65535 }
+    its(:duration_nsec) { should == 106_000_000 }
+    its(:priority) { should == 65_535 }
     its(:idle_timeout) { should == 0 }
     its(:hard_timeout) { should == 0 }
-    its(:cookie) { should == 866942928268820481 }
+    its(:cookie) { should == 866_942_928_268_820_481 }
     its(:packet_count) { should == 2 }
     its(:byte_count) { should == 128 }
     its(:actions) { should_not be_empty }
@@ -93,8 +93,8 @@ describe StatsReply, '.new( VALID OPTIONS )' do
       TableStatsReply.new(
         :table_id => 1,
         :name => 'classifier',
-        :wildcards => 4194303,
-        :max_entries => 1048576,
+        :wildcards => 4_194_303,
+        :max_entries => 1_048_576,
         :active_count => 4,
         :lookup_count => 4,
         :matched_count => 1
@@ -104,8 +104,8 @@ describe StatsReply, '.new( VALID OPTIONS )' do
     it { should respond_to(:to_s) }
     its(:table_id) { should == 1 }
     its(:name) { should eq('classifier') }
-    its(:wildcards) { should == 4194303 }
-    its(:max_entries) { should == 1048576 }
+    its(:wildcards) { should == 4_194_303 }
+    its(:max_entries) { should == 1_048_576 }
     its(:active_count) { should == 4 }
     its(:lookup_count) { should == 4 }
     its(:matched_count) { should == 1 }

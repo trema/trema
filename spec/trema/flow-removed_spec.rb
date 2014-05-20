@@ -25,7 +25,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :in_port => 1,
         :dl_src => '00:00:00:00:00:01',
         :dl_dst => '00:00:00:00:00:02',
-        :dl_vlan => 65535,
+        :dl_vlan => 65_535,
         :dl_vlan_pcp => 0,
         :dl_type => 0x800,
         :nw_tos => 0,
@@ -40,11 +40,11 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :datapath_id => 2748,
         :transaction_id => 0,
         :match => match,
-        :cookie => 123456789,
-        :priority => 65535,
+        :cookie => 123_456_789,
+        :priority => 65_535,
         :reason => 0,
         :duration_sec => 1,
-        :duration_nsec => 779000000,
+        :duration_nsec => 779_000_000,
         :idle_timeout => 1,
         :packet_count => 6,
         :byte_count => 256
@@ -53,11 +53,11 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
     its(:datapath_id) { should == 2748 }
     its(:transaction_id) { should == 0 }
     its(:match) { should be_instance_of(Match) }
-    its(:cookie) { should == 123456789 }
-    its(:priority) { should == 65535 }
+    its(:cookie) { should == 123_456_789 }
+    its(:priority) { should == 65_535 }
     its(:reason) { should == 0 }
     its(:duration_sec) { should == 1 }
-    its(:duration_nsec) { should == 779000000 }
+    its(:duration_nsec) { should == 779_000_000 }
     its(:idle_timeout) { should == 1 }
     its(:packet_count) { should == 6 }
     its(:byte_count) { should == 256 }
@@ -86,7 +86,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :dl_src => '00:00:00:00:00:01',
         :dl_dst => '00:00:00:00:00:02',
         :dl_type => 0x800,
-        :dl_vlan => 65535,
+        :dl_vlan => 65_535,
         :dl_vlan_pcp => 0,
         :nw_tos => 0,
         :nw_proto => 17,
@@ -104,7 +104,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
           expect(message.match.dl_src.to_s).to eq('00:00:00:00:00:01')
           expect(message.match.dl_dst.to_s).to eq('00:00:00:00:00:02')
           expect(message.match.dl_type).to eq(0x800)
-          expect(message.match.dl_vlan).to eq(65535)
+          expect(message.match.dl_vlan).to eq(65_535)
           expect(message.match.dl_vlan_pcp).to eq(0)
           expect(message.match.nw_tos).to eq(0)
           expect(message.match.nw_proto).to eq(17)
@@ -112,7 +112,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
           expect(Pio::IPv4Address.new(message.match.nw_dst).to_s).to eq('192.168.0.2')
           expect(message.match.tp_src).to eq(1)
           expect(message.match.tp_dst).to eq(1)
-          expect(message.cookie).to eq(123456789)
+          expect(message.cookie).to eq(123_456_789)
           expect(message.idle_timeout).to eq(1)
           expect(message.reason).to eq(0)
           expect(message.duration_sec).to be >= 1
@@ -122,7 +122,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         controller('FlowRemovedController').send_flow_mod_add(
           0xabc,
           :match => match,
-          :cookie => 123456789,
+          :cookie => 123_456_789,
           :idle_timeout => 1,
           :send_flow_rem => true
         )

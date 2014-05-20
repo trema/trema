@@ -77,9 +77,6 @@ MethodLength:
 MultilineBlockChain:
   Enabled: false
 
-NumericLiterals:
-  Enabled: false
-
 ParameterLists:
   Enabled: false
 

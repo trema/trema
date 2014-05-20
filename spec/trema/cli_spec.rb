@@ -54,12 +54,12 @@ module Trema
 
       it 'should send_packets (tp_src = 60000)' do
         @cli.should_receive(:sh).with(/cli -i trema-0 send_packets --ip_src 192.168.0.1 --ip_dst 192.168.0.2 --tp_src 60000 --tp_dst 1 --pps 1 --duration 1 --length 22$/)
-        @cli.send_packets(@dest, :tp_src => 60000)
+        @cli.send_packets(@dest, :tp_src => 60_000)
       end
 
       it 'should send_packets (tp_dst = 10000)' do
         @cli.should_receive(:sh).with(/cli -i trema-0 send_packets --ip_src 192.168.0.1 --ip_dst 192.168.0.2 --tp_src 1 --tp_dst 10000 --pps 1 --duration 1 --length 22$/)
-        @cli.send_packets(@dest, :tp_dst => 10000)
+        @cli.send_packets(@dest, :tp_dst => 10_000)
       end
 
       it 'should send packets (inc_tp_src)' do
@@ -94,7 +94,7 @@ module Trema
 
       it 'should send_packets (inc_tp_dst = 65534)' do
         @cli.should_receive(:sh).with(/cli -i trema-0 send_packets --ip_src 192.168.0.1 --ip_dst 192.168.0.2 --tp_src 1 --tp_dst 1 --pps 1 --duration 1 --length 22 --inc_tp_dst=65534$/)
-        @cli.send_packets(@dest, :inc_tp_dst => 65534)
+        @cli.send_packets(@dest, :inc_tp_dst => 65_534)
       end
 
       it 'should send_packets (inc_payload)' do

@@ -58,7 +58,7 @@ describe PortMod, '.new( VALID OPTIONS )' do
     it 'should be a number(281474976710655)' do
       expect(PortMod.new(
                :port_no => 2,
-               :hw_addr => 281474976710655,
+               :hw_addr => 281_474_976_710_655,
                :config => 1,
                :mask => 1,
                :advertise => 0).hw_addr.to_s).to eq('ff:ff:ff:ff:ff:ff')
