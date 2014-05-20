@@ -20,8 +20,8 @@ module Trema
     attr_reader :keys
 
     def initialize
-      @keys = Array.new
-      @content = Hash.new
+      @keys = []
+      @content = {}
     end
 
     def size

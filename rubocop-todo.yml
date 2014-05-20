@@ -41,9 +41,6 @@ CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-EmptyLiteral:
-  Enabled: false
-
 Eval:
   Enabled: false
 
