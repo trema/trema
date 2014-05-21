@@ -77,9 +77,6 @@ ParameterLists:
 PerlBackrefs:
   Enabled: false
 
-RedundantException:
-  Enabled: false
-
 SpecialGlobalVars:
   Enabled: false
 
