@@ -16,7 +16,7 @@
 #
 
 module Trema
-  module Timers
+  module Timer
     def self.included(base)
       base.send :include, TimerMethods
       base.send :extend, TimerMethods

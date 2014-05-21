@@ -3,19 +3,17 @@
 
 guard :bundler do
   watch('Gemfile')
-  # Uncomment next line if your Gemfile contains the `gemspec' command.
   watch(/^.+\.gemspec/)
 end
 
-guard :rubocop do
+guard :rubocop, all_on_start: false do
   watch(/.+\.rb$/)
   watch(/.+\.rake$/)
   watch(/(?:.+\/)?\.rubocop\.yml$/) { |m| File.dirname(m[0]) }
 end
 
-guard :rspec do
-  watch(%r{^spec/.+_spec\.rb$})
-  watch(%r{^ruby/trema/(.+)\.rb$})     { |m| "spec/trema/#{m[1]}_spec.rb" }
-  watch('spec/spec_helper.rb')  { "spec" }
+guard :rspec, cmd: 'bundle exec rspec --tag ~sudo' do
+  watch(/^spec\/.+_spec\.rb$/)
+  watch(%r{^ruby/trema/(.+)\.rb$}) { |m| "spec/trema/#{m[1]}_spec.rb" }
+  # watch('spec/spec_helper.rb') { 'spec' }
 end
-
