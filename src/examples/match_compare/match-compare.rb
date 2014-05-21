@@ -67,13 +67,12 @@ class MatchCompare < Controller
   def lookup_rules(datapath_id, match)
     action = :block # default action
     log = false
-    @rules.each do | each |
+    @rules.each do |each|
       next if each.datapath_id && datapath_id != each.datapath_id
-      if each.match.compare(match)
-        action = each.action
-        log = each.log
-        break
-      end
+      next unless each.match.compare(match)
+      action = each.action
+      log = each.log
+      break
     end
     [action, log]
   end

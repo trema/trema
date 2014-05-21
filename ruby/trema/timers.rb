@@ -35,19 +35,18 @@ module Trema
         end
 
         Kernel.send :define_method, :fire_event do
-          timer_event_handlers.each do | handler, data |
-            data[ :rest] -= 1
-            if data[ :rest] <= 0
-              __send__ handler
-              data[ :rest] = data[ :interval] if data[ :event_type] == :periodic
-            end
+          timer_event_handlers.each do |handler, data|
+            data[:rest] -= 1
+            next if data[:rest] > 0
+            __send__ handler
+            data[:rest] = data[:interval] if data[:event_type] == :periodic
           end
-          timer_event_handlers.delete_if do | handler, data |
+          timer_event_handlers.delete_if do | _handler, data |
             data[ :rest] <= 0 && data[ :event_type] == :oneshot
           end
         end
 
-        Kernel.send :define_method, :delete_timer do | handler |
+        Kernel.send :define_method, :delete_timer do | _handler |
           timer_event_handlers.delete
         end
       end.call

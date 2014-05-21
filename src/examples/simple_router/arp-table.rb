@@ -68,7 +68,7 @@ class ARPTable
   end
 
   def age
-    @db.delete_if do |ipaddr, entry|
+    @db.delete_if do |_ipaddr, entry|
       entry.aged_out?
     end
   end

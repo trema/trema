@@ -98,7 +98,7 @@ module SubProcess
       ::Process.wait @pid
     end
 
-    def popen(command, &block)
+    def popen(command, &_block)
       @pid = fork_child(command)
       # Parent process
       @parent.close

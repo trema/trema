@@ -24,7 +24,7 @@ class PacketInDumper < Controller
     info "total_len: #{ message.total_len }"
     info "in_port: #{ message.in_port }"
     info "reason: #{ message.reason.to_hex }"
-    info "data: #{ message.data.unpack "H*" }"
+    info "data: #{ message.data.unpack 'H*' }"
   end
 end
 

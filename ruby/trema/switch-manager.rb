@@ -81,7 +81,7 @@ module Trema
     private
 
     def command
-      "#{ Executables.switch_manager } #{ options.join " " } -- #{ switch_options.join " " }"
+      "#{ Executables.switch_manager } #{ options.join ' ' } -- #{ switch_options.join ' ' }"
     end
 
     def options

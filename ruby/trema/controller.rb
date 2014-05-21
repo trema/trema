@@ -32,7 +32,7 @@ module Trema
     #
     # @private Just a placeholder for YARD.
     #
-    def self.handler(name)
+    def self.handler(_name)
       # Do nothing.
     end
 

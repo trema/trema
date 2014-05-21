@@ -43,7 +43,7 @@ class TrafficMonitor < Controller
     end
   end
 
-  def flow_removed(datapath_id, message)
+  def flow_removed(_datapath_id, message)
     @counter.add message.match.dl_src, message.packet_count, message.byte_count
   end
 

@@ -42,7 +42,7 @@ class BlockRFC1918 < Controller
     @dpid = nil
   end
 
-  def barrier_reply(dpid, message)
+  def barrier_reply(dpid, _message)
     return if dpid != @dpid
     info "#{@dpid.to_hex}: loading finished"
   end

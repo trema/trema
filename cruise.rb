@@ -116,7 +116,7 @@ class Testee
 end
 
 def testees
-  $c_files.delete_if do | key, value |
+  $c_files.delete_if do | key, _value |
     File.basename(key) == 'trema_wrapper.c'
   end
 end
@@ -175,11 +175,10 @@ def gcov(gcda, dir)
 end
 
 def measure_coverage
-  Find.find('src/lib', 'src/packetin_filter', 'src/switch_manager', 'src/tremashark', 'unittests') do | f |
-    if /\.c$/ =~ f
-      path = File.expand_path(f)
-      $c_files[ path] = Testee.new(path)
-    end
+  Find.find('src/lib', 'src/packetin_filter', 'src/switch_manager', 'src/tremashark', 'unittests') do |f|
+    next unless /\.c$/ =~ f
+    path = File.expand_path(f)
+    $c_files[ path] = Testee.new(path)
   end
   Dir.glob('unittests/objects/*.gcda').each do | each |
     gcov each, 'unittests/objects'

@@ -94,35 +94,35 @@ module Trema
 
       def maybe_create_links
         maybe_delete_links # Fool proof
-        @context.links.each do | name, link |
+        @context.links.each do | _name, link |
           link.enable!
         end
       end
 
       def maybe_delete_links
-        @context.links.each do | name, link |
+        @context.links.each do | _name, link |
           link.delete!
         end
       end
 
       def maybe_run_hosts
-        @context.hosts.each do | name, host |
+        @context.hosts.each do | _name, host |
           host.run!
         end
       end
 
       def maybe_run_switches
-        @context.switches.each do | name, switch |
+        @context.switches.each do | _name, switch |
           switch.run!
         end
 
-        @context.hosts.each do | name, host |
+        @context.hosts.each do | _name, host |
           host.add_arp_entry @context.hosts.values - [host]
         end
       end
 
       def maybe_run_netnss
-        @context.netnss.each do | name, netns |
+        @context.netnss.each do | _name, netns |
           netns.run!
         end
       end
@@ -144,7 +144,7 @@ module Trema
       end
 
       def maybe_daemonize_apps
-        @context.apps.each do | name, app |
+        @context.apps.each do | _name, app |
           app.daemonize!
         end
       end

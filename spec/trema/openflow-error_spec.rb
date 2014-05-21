@@ -99,7 +99,7 @@ describe Trema::OpenflowError, 'new' do
         vswitch('error-request') { datapath_id 0xabc }
       end.run(OpenflowController) do
         queue_get_config_request = Trema::QueueGetConfigRequest.new(:port => 1)
-        controller('OpenflowController').should_receive(:openflow_error) do | datapath_id, message |
+        controller('OpenflowController').should_receive(:openflow_error) do | _datapath_id, message |
           expect(message.datapath_id).to eq(0xabc)
           expect(message.type).to satisfy { | n |
             n >= 0 && n <= 5

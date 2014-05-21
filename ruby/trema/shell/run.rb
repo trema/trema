@@ -41,7 +41,7 @@ module Trema
 
       runner = DSL::Runner.new($config)
       runner.maybe_run_switch_manager
-      $config.switches.each do | name, switch |
+      $config.switches.each do | _name, switch |
         if switch.running?
           switch.restart!
         else

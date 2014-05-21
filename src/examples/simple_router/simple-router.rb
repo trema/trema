@@ -56,10 +56,9 @@ class SimpleRouter < Controller
     port = message.in_port
     daddr = message.arp_tpa
     interface = @interfaces.find_by_port_and_ipaddr(port, daddr)
-    if interface
-      arp_reply = create_arp_reply_from(message, interface.hwaddr)
-      packet_out dpid, arp_reply, SendOutPort.new(interface.port)
-    end
+    return unless interface
+    arp_reply = create_arp_reply_from(message, interface.hwaddr)
+    packet_out dpid, arp_reply, SendOutPort.new(interface.port)
   end
 
   def handle_arp_reply(message)
@@ -134,7 +133,7 @@ class SimpleRouter < Controller
     )
   end
 
-  def handle_unresolved_packet(dpid, message, interface, ipaddr)
+  def handle_unresolved_packet(dpid, _message, interface, ipaddr)
     arp_request = create_arp_request_from(interface, ipaddr)
     packet_out dpid, arp_request, SendOutPort.new(interface.port)
   end

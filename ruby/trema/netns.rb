@@ -59,7 +59,7 @@ module Trema
     #
     # @api public
     #
-    def method_missing(message, *args)
+    def method_missing(message, *_args)
       @stanza.__send__ :[], message
     end
 

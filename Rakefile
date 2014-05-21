@@ -678,14 +678,14 @@ $tests = [
 
 task :build_unittests => $tests.map { | each | 'unittests:' + File.basename(each) }
 
-$tests.each do | _each |
-  each = File.basename(_each)
+$tests.each do |each|
+  test = File.basename(each)
 
-  task "unittests:#{ each }" => ['libtrema:gcov', 'vendor:cmockery']
-  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
-    task.executable_name = each.to_s
+  task "unittests:#{test}" => ['libtrema:gcov', 'vendor:cmockery']
+  PaperHouse::ExecutableTask.new "unittests:#{test}" do |task|
+    task.executable_name = test.to_s
     task.target_directory = File.join(Trema.home, 'unittests/objects')
-    task.sources = ["unittests/lib/#{ each }.c", 'unittests/cmockery_trema.c']
+    task.sources = ["unittests/lib/#{test}.c", 'unittests/cmockery_trema.c']
     task.includes = [Trema.include, Trema.openflow, File.dirname(Trema.cmockery_h), 'unittests']
     task.cflags = ['--coverage', CFLAGS]
     task.ldflags = "-L#{ File.dirname Trema.libcmockery_a } -Lobjects/unittests --coverage"

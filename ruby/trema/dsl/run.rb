@@ -22,13 +22,13 @@ require 'trema/dsl/stanza'
 module Trema
   module DSL
     class Run < Stanza
-      def path(_path)
-        @path = _path
+      def path(path)
+        @path = path
         @name = File.basename(@path) if @name.nil?
       end
 
-      def options(*_options)
-        @options = _options
+      def options(*options)
+        @options = options
       end
     end
   end

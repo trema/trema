@@ -50,7 +50,7 @@ module Trema
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do
     subject do
       FeaturesReply.new({
-        # :datapath_id => 123,
+                          # :datapath_id => 123,
                           :transaction_id => 1234,
                           :n_buffers => 256,
                           :n_tables => 2,
@@ -66,7 +66,7 @@ module Trema
     subject do
       FeaturesReply.new({
                           :datapath_id => 123,
-        # :transaction_id => 1234,
+                          # :transaction_id => 1234,
                           :n_buffers => 256,
                           :n_tables => 2,
                           :capabilities => 135,

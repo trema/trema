@@ -35,7 +35,7 @@ class Dumper < Controller
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
     info "code: #{ message.code.to_hex }"
-    info "data: #{ message.data.unpack "H*" }"
+    info "data: #{ message.data.unpack 'H*' }"
   end
 
   def vendor(datapath_id, message)
@@ -43,7 +43,7 @@ class Dumper < Controller
     info "datapath_id: #{ datapath_id.to_hex }"
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info 'data:'
-    info "#{ message.buffer.unpack "H*" }"
+    info "#{ message.buffer.unpack 'H*' }"
   end
 
   def features_reply(datapath_id, message)
@@ -75,7 +75,7 @@ class Dumper < Controller
     info "  total_len: #{ message.total_len }"
     info "  in_port: #{ message.in_port }"
     info "  reason: #{ message.reason.to_hex }"
-    info "  data: #{ message.data.unpack "H*" }"
+    info "  data: #{ message.data.unpack 'H*' }"
   end
 
   def flow_removed(datapath_id, message)

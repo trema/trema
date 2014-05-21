@@ -64,7 +64,7 @@ module Trema
     #
     # @api public
     #
-    def method_missing(message, *args)
+    def method_missing(message, *_args)
       @stanza.__send__ :[], message
     end
 
@@ -101,7 +101,7 @@ module Trema
     def mac
       stanza_mac = @stanza[ :mac]
       if stanza_mac.nil?
-        "00:00:00:00:00:#{ format "%02x", @index + 1 }"
+        "00:00:00:00:00:#{ format '%02x', @index + 1 }"
       else
         stanza_mac
       end

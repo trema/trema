@@ -13,7 +13,7 @@ end
 group :development do
   gem 'guard', '~> 2.6.1'
   gem 'guard-bundler', '~> 2.0.0'
-  gem 'guard-rspec', '~> 4.2.8'
+  gem 'guard-rspec', '~> 4.2.9'
   gem 'guard-rubocop', '~> 1.1.0'
 end
 
@@ -25,5 +25,5 @@ group :test do
   gem 'flog', '~> 4.2.0'
   gem 'reek', '~> 1.3.7'
   gem 'rspec', '~> 2.14.1'
-  gem 'rubocop', '~> 0.20.1', platforms: [:ruby_19, :ruby_20, :ruby_21]
+  gem 'rubocop', '~> 0.22.0', platforms: [:ruby_19, :ruby_20, :ruby_21]
 end

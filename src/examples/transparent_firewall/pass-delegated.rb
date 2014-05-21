@@ -59,7 +59,7 @@ class PassDelegated < Controller
     @dpid = nil
   end
 
-  def barrier_reply(dpid, message)
+  def barrier_reply(dpid, _message)
     return if dpid != @dpid
     case @state
     when :loading then finish_loading

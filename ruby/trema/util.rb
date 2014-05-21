@@ -30,34 +30,33 @@ module Trema::Util
   end
 
   def assert_trema_is_built
-    unless Trema::Executables.compiled?
-      $stderr.puts <<-EOF
+    return if Trema::Executables.compiled?
+    $stderr.puts <<-EOF
 ERROR: Trema is not compiled yet!
 
 Please try the following command:
 % ./build.rb
 EOF
-      exit false
-    end
+    exit false
   end
 
   def cleanup(session)
     # [FIXME] Use session.switch_manager
     sm_pid = File.join(Trema.pid, 'switch_manager.pid')
     Trema::Process.read(sm_pid).kill! if FileTest.exist?(sm_pid)
-    session.apps.each do | name, app |
+    session.apps.each do | _name, app |
       app.shutdown!
     end
-    session.switches.each do | name, switch |
+    session.switches.each do | _name, switch |
       switch.shutdown!
     end
-    session.hosts.each do | name, host |
+    session.hosts.each do | _name, host |
       host.shutdown!
     end
-    session.links.each do | name, link |
+    session.links.each do | _name, link |
       link.delete!
     end
-    session.netnss.each do | name, netns |
+    session.netnss.each do | _name, netns |
       netns.shutdown!
     end
 
