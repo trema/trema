@@ -74,8 +74,5 @@ MultilineBlockChain:
 ParameterLists:
   Enabled: false
 
-PerlBackrefs:
-  Enabled: false
-
 TrivialAccessors:
   Enabled: false

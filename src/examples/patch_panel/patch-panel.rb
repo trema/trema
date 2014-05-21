@@ -19,7 +19,7 @@ class PatchPanel < Controller
   def start
     @patch = []
     File.open('./patch-panel.conf').each_line do | each |
-      @patch << [$1.to_i, $2.to_i] if /^(\d+)\s+(\d+)$/ =~ each
+      @patch << [Regexp.last_match[1].to_i, Regexp.last_match[2].to_i] if /^(\d+)\s+(\d+)$/ =~ each
     end
   end
 

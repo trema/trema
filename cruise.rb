@@ -157,11 +157,11 @@ def gcov(gcda, dir)
   cmd = "gcov #{ gcda } -o #{ dir } -n"
   SubProcess.create do | shell |
     shell.on_stdout do | l |
-      file = File.expand_path($1) if /^File '(.*)'/ =~ l
+      file = File.expand_path(Regexp.last_match[1]) if /^File '(.*)'/ =~ l
       testee = $c_files[ file]
       if /^Lines executed:(.*)% of (.*)$/ =~ l && testee
-        testee.coverage = $1.to_f
-        testee.lines = $2.to_i
+        testee.coverage = Regexp.last_match[1].to_f
+        testee.lines = Regexp.last_match[2].to_i
       end
     end
     shell.on_stderr do | l |

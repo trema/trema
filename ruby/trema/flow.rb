@@ -34,7 +34,7 @@ module Trema
       line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/, '/') }
       line.strip.split(/[,\s]\s*/).each do | each |
         next unless /(.+)=(.+)/ =~ each
-        name, value = $1, $2
+        name, value = Regexp.last_match[1], Regexp.last_match[2]
         attr_reader name.to_sym
         if (/\A\d+\Z/ =~ value) || (/\A0x.+\Z/ =~ value)
           flow.instance_eval "@#{ name }=#{ value }"
