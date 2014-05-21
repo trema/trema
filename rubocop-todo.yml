@@ -11,9 +11,6 @@ AssignmentInCondition:
 BlockNesting:
   Enabled: false
 
-BracesAroundHashParameters:
-  Enabled: false
-
 ClassAndModuleCamelCase:
   Enabled: false
 

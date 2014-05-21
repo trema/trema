@@ -49,30 +49,29 @@ module Trema
 
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do
     subject do
-      FeaturesReply.new({
-                          # :datapath_id => 123,
-                          :transaction_id => 1234,
-                          :n_buffers => 256,
-                          :n_tables => 2,
-                          :capabilities => 135,
-                          :actions => 2047,
-                          :ports => ['port #0', 'port #1', 'port #2']
-      })
+      FeaturesReply.new(
+                        # :datapath_id => 123,
+                        :transaction_id => 1234,
+                        :n_buffers => 256,
+                        :n_tables => 2,
+                        :capabilities => 135,
+                        :actions => 2047,
+                        :ports => ['port #0', 'port #1', 'port #2']
+                        )
     end
     it { expect { subject }.to raise_error(ArgumentError, ':datapath_id is a mandatory option') }
   end
 
   describe FeaturesReply, '.new(options...) (No :transaction_id)' do
     subject do
-      FeaturesReply.new({
-                          :datapath_id => 123,
-                          # :transaction_id => 1234,
-                          :n_buffers => 256,
-                          :n_tables => 2,
-                          :capabilities => 135,
-                          :actions => 2047,
-                          :ports => ['port #0', 'port #1', 'port #2']
-      })
+      FeaturesReply.new(:datapath_id => 123,
+                        # :transaction_id => 1234,
+                        :n_buffers => 256,
+                        :n_tables => 2,
+                        :capabilities => 135,
+                        :actions => 2047,
+                        :ports => ['port #0', 'port #1', 'port #2']
+                        )
     end
     it { expect { subject }.to raise_error(ArgumentError, ':transaction_id is a mandatory option') }
   end
