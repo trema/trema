@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # A syntax sugar class for creating an exact match object.
 #

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # killall command of Trema shell.
 #

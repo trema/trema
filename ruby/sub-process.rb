@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Spawns a process and connects pipes to its stdout/stderr and obtain
 # its exit code.

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # reset_stats command of Trema shell.
 #

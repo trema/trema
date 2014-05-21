@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # A simple openflow controller for benchmarking.
 #

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Forwarding database (FDB) of layer-2 switch.
 #

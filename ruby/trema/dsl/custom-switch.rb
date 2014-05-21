@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # The syntax definition of custom_switch { ... } stanza in Trema DSL.
 #

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # A router implementation in Trema
 #

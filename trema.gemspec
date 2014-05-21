@@ -1,3 +1,4 @@
+# encoding: utf-8
 $LOAD_PATH.push File.expand_path('../ruby', __FILE__)
 require 'trema/version'
 

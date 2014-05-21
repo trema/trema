@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # vhost command of Trema shell.
 #

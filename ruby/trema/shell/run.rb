@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # run command of Trema shell.
 #

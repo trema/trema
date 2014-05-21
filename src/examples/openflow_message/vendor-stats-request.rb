@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # "Vendor Stats Request" sample application
 #

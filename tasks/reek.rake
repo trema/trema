@@ -1,3 +1,4 @@
+# encoding: utf-8
 begin
   require 'reek/rake/task'
 

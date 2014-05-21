@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Copyright (C) 2008-2013 NEC Corporation
 #

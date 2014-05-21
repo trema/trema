@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # send_packets command of Trema shell.
 #

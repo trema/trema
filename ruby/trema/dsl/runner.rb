@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Runs DSL objects in right order.
 #

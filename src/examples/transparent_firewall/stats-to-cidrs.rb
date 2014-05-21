@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-
+# encoding: utf-8
+#
 # This helper scripts translates stdin in RIR Statistics Exchange Format [1]
 # or NRO Extended Stats Format [2] into stdout in "dotted-quad/masklen" CIDR
 # format (one CIDR block per line). It processes only assigned/allocated IPv4

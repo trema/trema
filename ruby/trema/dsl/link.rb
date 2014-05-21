@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Network link between hosts and switches of Trema network DSL.
 #

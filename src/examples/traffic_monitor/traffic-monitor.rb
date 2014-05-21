@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Simple layer-2 switch with traffic monitoring.
 #

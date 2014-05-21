@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # A test example program to send a OFPT_HELLO message.
 #

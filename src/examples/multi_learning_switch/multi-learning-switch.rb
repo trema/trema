@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Learning switch application that supports multiple switches
 #

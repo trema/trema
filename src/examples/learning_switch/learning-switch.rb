@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Simple learning switch application in Ruby
 #

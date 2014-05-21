@@ -1,3 +1,4 @@
+# encoding: utf-8
 begin
   require 'rubocop/rake_task'
   Rubocop::RakeTask.new

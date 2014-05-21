@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # show_stats command of Trema shell.
 #

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Common extendable functionality for all openflow message examples.
 #

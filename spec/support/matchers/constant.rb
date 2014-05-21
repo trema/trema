@@ -1,3 +1,4 @@
+# encoding: utf-8
 RSpec::Matchers.define :have_constant do | const, klass |
   match do | owner |
     const_defined = owner.const_defined?(const)

@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Sample of the Match.compre
 #
