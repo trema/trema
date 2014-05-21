@@ -705,8 +705,6 @@ end
 # Tests
 ################################################################################
 
-task :travis => [:clobber, :build_trema, 'spec:travis', :rubocop]
-
 begin
   require 'rspec/core'
   require 'rspec/core/rake_task'
