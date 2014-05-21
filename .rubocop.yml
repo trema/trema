@@ -1,1 +1,14 @@
+AllCops:
+  Include:
+    - Gemfile
+    - Rakefile
+    - bin/*
+    - cruise.rb
+    - features/**/*.rb
+    - ruby/**/*.rb
+    - spec/**/*.rb
+    - src/**/*.rb
+    - tasks/*.rake
+    - trema.gemspec
+
 inherit_from: rubocop-todo.yml

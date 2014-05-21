@@ -7,8 +7,13 @@ guard :bundler do
 end
 
 guard :rubocop, all_on_start: false do
+  watch('Rakefile')
+  watch('Gemfile')
+  watch('Guardfile')
+  watch('trema.gemspec')
   watch(/.+\.rb$/)
   watch(/.+\.rake$/)
+  watch('rubocop-todo.yml') { '.' }
   watch(/(?:.+\/)?\.rubocop\.yml$/) { |m| File.dirname(m[0]) }
 end
 
