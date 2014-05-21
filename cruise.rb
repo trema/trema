@@ -215,7 +215,7 @@ def coverage_threshold_error
 Oops...
 Overall coverage DECREASED to #{ coverage }% !!!
 
-IMPROVE the ratio and re-run #{ $0 }.
+IMPROVE the ratio and re-run #{ $PROGRAM_NAME }.
 EOF
 end
 
@@ -225,7 +225,7 @@ def update_coverage_threshold_message
 Congratulations !
 Overall coverage INCREASED to #{ coverage }% !
 
-Update the $coverage_threshold line at the top of #{ $0 }:
+Update the $coverage_threshold line at the top of #{ $PROGRAM_NAME }:
 
   $coverage_threshold = #{ coverage }
 EOF

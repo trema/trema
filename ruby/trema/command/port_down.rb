@@ -27,7 +27,7 @@ module Trema
       fail "unknown switch: #{ switch_name }" if switch.nil?
 
       error = switch.bring_port_down(port.to_i)
-      fail error if $?.exitstatus != 0
+      fail error if $CHILD_STATUS.exitstatus != 0
     end
   end
 end

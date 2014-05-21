@@ -591,7 +591,7 @@ CLEAN.include(Trema.vendor_openflow_git) if FileTest.exists?(Trema.vendor_openfl
 begin
   require 'bundler/gem_tasks'
 rescue LoadError
-  $stderr.puts $!.to_s
+  $stderr.puts $ERROR_INFO.to_s
 end
 
 ################################################################################
@@ -732,7 +732,7 @@ begin
     task.rspec_opts = '--tag ~sudo --format documentation --color'
   end
 rescue LoadError
-  $stderr.puts $!.to_s
+  $stderr.puts $ERROR_INFO.to_s
 end
 
 ################################################################################

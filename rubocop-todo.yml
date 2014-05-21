@@ -77,8 +77,5 @@ ParameterLists:
 PerlBackrefs:
   Enabled: false
 
-SpecialGlobalVars:
-  Enabled: false
-
 TrivialAccessors:
   Enabled: false

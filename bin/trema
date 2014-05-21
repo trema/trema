@@ -269,8 +269,8 @@ class BinTrema
   def start(argv)
     run argv
   rescue
-    puts $!
-    $!.backtrace.each do | each |
+    puts $ERROR_INFO
+    $ERROR_INFO.backtrace.each do | each |
       puts each
     end
     exit

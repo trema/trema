@@ -27,7 +27,7 @@ require 'trema/path'
 $opts = OptionParser.new
 
 FileUtils.cd Trema.home do
-  $opts.banner = "Usage: #{ File.basename $0 } [OPTIONS ...]"
+  $opts.banner = "Usage: #{ File.basename $PROGRAM_NAME } [OPTIONS ...]"
 
   $opts.on('-c', '--cflags') do
     $cflags = true

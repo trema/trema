@@ -20,7 +20,7 @@
 
 Dir.chdir File.dirname(__FILE__) do
   result = system("bundle exec rake #{ ARGV.join ' ' }")
-  abort "#{ $0 } aborted!" unless result
+  abort "#{ $PROGRAM_NAME } aborted!" unless result
 end
 
 ### Local variables:
