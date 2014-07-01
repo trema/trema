@@ -23,7 +23,7 @@ module Trema
   describe Tremashark do
     it 'should run tremashark command with proper options' do
       tremashark = Tremashark.new
-      tremashark.should_receive(:sh).once.with(/tremashark \-\-daemonize$/)
+      expect(tremashark).to receive(:sh).once.with(/tremashark \-\-daemonize$/)
 
       tremashark.run
     end

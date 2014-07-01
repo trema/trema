@@ -23,7 +23,7 @@ module Trema
   describe PacketinFilter do
     it 'should run packetin_filter with proper options' do
       packetin_filter = PacketinFilter.new(:lldp => 'TopologyManager', :packet_in => 'OpenFlowPingPong')
-      packetin_filter.should_receive(:sh).once.with(/packetin_filter \-\-daemonize \-\-name=filter lldp::TopologyManager packet_in::OpenFlowPingPong$/)
+      expect(packetin_filter).to receive(:sh).once.with(/packetin_filter \-\-daemonize \-\-name=filter lldp::TopologyManager packet_in::OpenFlowPingPong$/)
 
       packetin_filter.run!
     end

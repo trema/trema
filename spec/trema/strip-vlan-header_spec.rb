@@ -28,7 +28,7 @@ describe StripVlanHeader, :type => 'actions' do
       end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows.size).to eq(1)
         expect(vswitch('0xabc').flows[ 0].actions).to eq('strip_vlan')
       end
     end

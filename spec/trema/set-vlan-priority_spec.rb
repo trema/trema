@@ -24,7 +24,11 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
 
   context 'with vlan_priority (4)' do
     let(:vlan_priority) { 4 }
-    its(:vlan_priority) { should == 4 }
+
+    describe '#vlan_priority' do
+      subject { super().vlan_priority }
+      it { is_expected.to eq(4) }
+    end
   end
 
   it_validates 'option is within range', :vlan_priority, 0..7
@@ -49,7 +53,7 @@ describe SetVlanPriority, '.new(vlan_priority)', :type => 'actions' do
       end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows.size).to eq(1)
         expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_pcp:7')
       end
     end

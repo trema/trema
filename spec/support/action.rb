@@ -21,7 +21,7 @@ require 'rspec'
 shared_examples_for 'option is within range' do | option, range |
   context "with #{ option } (#{ range })" do
     let(option) { range.first }
-    it { expect { subject }.not_to raise_error(ArgumentError) }
+    it { expect { subject }.not_to raise_error }
   end
 
   context "with #{ option } (< #{ range.first })" do

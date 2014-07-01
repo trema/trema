@@ -20,7 +20,10 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 describe QueueGetConfigRequest, '.new( OPTIONAL OPTION MISSING )' do
-  its(:port) { should == 1 }
+  describe '#port' do
+    subject { super().port }
+    it { is_expected.to eq(1) }
+  end
   it_should_behave_like 'any Openflow message with default transaction ID'
 end
 
@@ -33,12 +36,12 @@ describe QueueGetConfigRequest, '.new( VALID OPTIONS )' do
 
   context 'when #queue_get_config_request is sent' do
     it 'should #queue_get_config_reply' do
-      pending "#queue_get_config_reply is not implemented in #{Trema.vendor_openvswitch}"
+      skip "#queue_get_config_reply is not implemented in #{Trema.vendor_openvswitch}"
       class QueueGetConfigController < Controller; end
       network do
         vswitch { datapath_id 0xabc }
       end.run(QueueGetConfigController) do
-        controller('QueueGetConfigController').should_receive(:queue_get_config_reply)
+        expect(controller('QueueGetConfigController')).to receive(:queue_get_config_reply)
         queue_get_config_request = QueueGetConfigRequest.new(:transaction_id => 123, :port => 1)
         controller('QueueGetConfigController').send_message(0xabc, queue_get_config_request)
         sleep 2 # FIXME: wait to send_message

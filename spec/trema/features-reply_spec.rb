@@ -38,14 +38,48 @@ module Trema
       FeaturesReply.new(valid_options)
     end
 
-    its(:datapath_id) { should == 123 }
-    its(:transaction_id) { should == 1234 }
-    its(:xid) { should == 1234 }
-    its(:n_buffers) { should == 256 }
-    its(:n_tables) { should == 2 }
-    its(:capabilities) { should == 135 }
-    its(:actions) { should == 2047 }
-    its('ports.size') { should == 3 }
+    describe '#datapath_id' do
+      subject { super().datapath_id }
+      it { is_expected.to eq(123) }
+    end
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(1234) }
+    end
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(1234) }
+    end
+
+    describe '#n_buffers' do
+      subject { super().n_buffers }
+      it { is_expected.to eq(256) }
+    end
+
+    describe '#n_tables' do
+      subject { super().n_tables }
+      it { is_expected.to eq(2) }
+    end
+
+    describe '#capabilities' do
+      subject { super().capabilities }
+      it { is_expected.to eq(135) }
+    end
+
+    describe '#actions' do
+      subject { super().actions }
+      it { is_expected.to eq(2047) }
+    end
+
+    describe '#ports' do
+      subject { super().ports }
+      describe '#size' do
+        subject { super().size }
+        it { is_expected.to eq(3) }
+      end
+    end
   end
 
   describe FeaturesReply, '.new(options...) (No :datapath_id)' do

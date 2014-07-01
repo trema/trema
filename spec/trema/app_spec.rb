@@ -26,7 +26,7 @@ module Trema
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         app = App.new(stanza)
 
-        app.should_receive(:sh).with('/usr/bin/tetris --name NAME')
+        expect(app).to receive(:sh).with('/usr/bin/tetris --name NAME')
 
         app.run!
       end
@@ -35,7 +35,7 @@ module Trema
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => %w(OPTION0 OPTION1) }
         app = App.new(stanza)
 
-        app.should_receive(:sh).with('/usr/bin/tetris --name NAME OPTION0 OPTION1')
+        expect(app).to receive(:sh).with('/usr/bin/tetris --name NAME OPTION0 OPTION1')
 
         app.run!
       end
@@ -46,7 +46,7 @@ module Trema
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         app = App.new(stanza)
 
-        app.should_receive(:sh).with('/usr/bin/tetris --name NAME -d')
+        expect(app).to receive(:sh).with('/usr/bin/tetris --name NAME -d')
 
         app.daemonize!
       end
@@ -55,7 +55,7 @@ module Trema
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME', :options => %w(OPTION0 OPTION1) }
         app = App.new(stanza)
 
-        app.should_receive(:sh).with('/usr/bin/tetris --name NAME -d OPTION0 OPTION1')
+        expect(app).to receive(:sh).with('/usr/bin/tetris --name NAME -d OPTION0 OPTION1')
 
         app.daemonize!
       end
@@ -63,10 +63,10 @@ module Trema
 
     context 'when shutting an app down' do
       it 'should send a signal to kill' do
-        process = mock('process')
-        Trema::Process.stub!(:read).and_return(process)
+        process = double('process')
+        allow(Trema::Process).to receive(:read).and_return(process)
 
-        process.should_receive(:kill!)
+        expect(process).to receive(:kill!)
 
         stanza = { :path => '/usr/bin/tetris', :name => 'NAME' }
         App.new(stanza).shutdown!

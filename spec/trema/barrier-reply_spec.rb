@@ -21,8 +21,16 @@ require 'trema'
 
 describe BarrierReply, '.new( VALID OPTIONS )' do
   subject { BarrierReply.new(0xabc, 1234) }
-  its(:datapath_id) { should == 0xabc }
-  its(:transaction_id) { should == 1234 }
+
+  describe '#datapath_id' do
+    subject { super().datapath_id }
+    it { is_expected.to eq(0xabc) }
+  end
+
+  describe '#transaction_id' do
+    subject { super().transaction_id }
+    it { is_expected.to eq(1234) }
+  end
 end
 
 describe BarrierReply, '.new( MANDATORY OPTIONS MISSING )' do

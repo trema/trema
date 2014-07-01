@@ -26,8 +26,18 @@ require 'trema'
     context 'with ip_address (192.168.1.1)' do
       let(:ip_address) { '192.168.1.1' }
 
-      its('ip_address.to_s') { should == '192.168.1.1' }
-      its(:to_s) { should eq("#{ klass }: ip_address=192.168.1.1") }
+      describe '#ip_address' do
+        subject { super().ip_address }
+        describe '#to_s' do
+          subject { super().to_s }
+          it { is_expected.to eq('192.168.1.1') }
+        end
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq("#{ klass }: ip_address=192.168.1.1") }
+      end
     end
 
     context 'with ip_address (192.168.1.10)' do
@@ -41,14 +51,13 @@ require 'trema'
           end.run(TestController) do
             controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
             sleep 2
-            expect(vswitch('0xabc')).to have(1).flows
+            expect(vswitch('0xabc').flows.size).to eq(1)
             expect(vswitch('0xabc').flows[ 0].actions).to match(/mod_nw_(src|dst):192.168.1.10/)
-            pending('Test actions as an object using Trema::Switch') do
-              expect(vswitch('0xabc')).to have(1).flows
-              expect(vswitch('0xabc').flows[ 0]).to have(1).actions
-              expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
-              expect(vswitch('0xabc').flows[ 0].actions[ 0].ip_address.to_s).to eq('192.168.1.10')
-            end
+            pending('Test actions as an object using Trema::Switch')
+            expect(vswitch('0xabc').flows.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0].ip_address.to_s).to eq('192.168.1.10')
           end
         end
       end

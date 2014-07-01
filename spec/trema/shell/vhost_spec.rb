@@ -21,13 +21,13 @@ require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 describe Trema::Shell, '.vhost' do
   before do
     Trema::Host.clear
-    $context = mock('context', :dump => true)
+    $context = double('context', :dump => true)
   end
 
   it 'should create a new vhost if name given' do
     Trema::Shell.vhost('host1')
 
-    expect(Trema::Host).to have(1).host
+    expect(Trema::Host.size).to eq(1)
     expect(Trema::Host[ 'host1'].name).to eq('host1')
   end
 
@@ -39,10 +39,10 @@ describe Trema::Shell, '.vhost' do
       mac '00:00:00:1:1:1'
     end
 
-    expect(Trema::Host).to have(1).host
+    expect(Trema::Host.size).to eq(1)
     expect(Trema::Host[ 'host1'].name).to eq('host1')
     expect(Trema::Host[ 'host1'].ip).to eq('192.168.100.1')
-    expect(Trema::Host[ 'host1'].promisc).to be_true
+    expect(Trema::Host[ 'host1'].promisc).to be_truthy
     expect(Trema::Host[ 'host1'].mac).to eq('00:00:00:1:1:1')
   end
 end

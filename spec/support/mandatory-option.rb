@@ -34,8 +34,16 @@ shared_examples_for 'any Openflow message with mandatory options' do | options |
   options[ :options].each do | each |
     context "with :#{ each[ :name] } (#{ each[ :sample_value] })" do
       let(each[ :name]) { each[ :sample_value] }
-      its(each[ :name]) { should == each[ :sample_value] }
-      its(each[ :alias]) { should == each[ :sample_value] } if each[ :alias]
+
+      describe each[ :name] do
+        subject { super().send(each[ :name]) }
+        it { is_expected.to eq(each[ :sample_value]) }
+      end
+
+      describe each[ :alias] do
+        subject { super().send(each[ :alias]) }
+        it { is_expected.to eq(each[ :sample_value]) }
+      end if each[ :alias]
     end
 
     context "without :#{ each[ :name] }" do

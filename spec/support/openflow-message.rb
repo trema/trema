@@ -19,8 +19,15 @@
 require 'rspec'
 
 shared_examples_for 'any Openflow message with default transaction ID' do
-  its(:transaction_id) { should be_unsigned_32bit }
-  its(:xid) { should be_unsigned_32bit }
+  describe '#transaction_id' do
+    subject { super().transaction_id }
+    it { is_expected.to be_unsigned_32bit }
+  end
+
+  describe '#xid' do
+    subject { super().xid }
+    it { is_expected.to be_unsigned_32bit }
+  end
 end
 
 shared_examples_for 'any Openflow message with transaction ID' do
@@ -31,20 +38,44 @@ shared_examples_for 'any Openflow message with transaction ID' do
 
   context 'transaction_id: 0', :nosudo => true do
     let(:transaction_id) { 0 }
-    its(:transaction_id) { should == 0 }
-    its(:xid) { should == 0 }
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(0) }
+    end
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(0) }
+    end
   end
 
   context 'transaction_id: 123', :nosudo => true do
     let(:transaction_id) { 123 }
-    its(:transaction_id) { should == 123 }
-    its(:xid) { should == 123 }
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(123) }
+    end
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(123) }
+    end
   end
 
   context 'transaction_id: UINT32_MAX', :nosudo => true do
     let(:transaction_id) { 2**32 - 1 }
-    its(:transaction_id) { should == 2**32 - 1 }
-    its(:xid) { should == 2**32 - 1 }
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(2**32 - 1) }
+    end
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(2**32 - 1) }
+    end
   end
 
   context 'transaction_id: UINT32_MAX + 1', :nosudo => true do
@@ -61,20 +92,44 @@ shared_examples_for 'any Openflow message with xid' do
 
   context 'xid: 0', :nosudo => true do
     let(:xid) { 0 }
-    its(:xid) { should == 0 }
-    its(:transaction_id) { should == 0 }
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(0) }
+    end
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(0) }
+    end
   end
 
   context 'xid: 123', :nosudo => true do
     let(:xid) { 123 }
-    its(:xid) { should == 123 }
-    its(:transaction_id) { should == 123 }
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(123) }
+    end
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(123) }
+    end
   end
 
   context 'xid: UINT32_MAX', :nosudo => true do
     let(:xid) { 2**32 - 1 }
-    its(:xid) { should == 2**32 - 1 }
-    its(:transaction_id) { should == 2**32 - 1 }
+
+    describe '#xid' do
+      subject { super().xid }
+      it { is_expected.to eq(2**32 - 1) }
+    end
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(2**32 - 1) }
+    end
   end
 
   context 'xid: UINT32_MAX + 1', :nosudo => true do
@@ -86,13 +141,21 @@ end
 shared_examples_for 'any Openflow message with user_data' do
   context 'user_data: nil', :nosudo => true do
     let(:user_data) { nil }
-    its(:user_data) { should be_nil }
+
+    describe '#user_data' do
+      subject { super().user_data }
+      it { is_expected.to be_nil }
+    end
     it_should_behave_like 'any Openflow message with default transaction ID'
   end
 
   context 'user_data: "USER DATA"', :nosudo => true do
     let(:user_data) { 'USER DATA' }
-    its(:user_data) { should == 'USER DATA' }
+
+    describe '#user_data' do
+      subject { super().user_data }
+      it { is_expected.to eq('USER DATA') }
+    end
     it_should_behave_like 'any Openflow message with default transaction ID'
   end
 
@@ -124,17 +187,29 @@ shared_examples_for 'any OpenFlow message' do | options |
 
   context "when its #{ name } is zero" do
     let(option) { 0 }
-    its(option) { should == 0 }
+
+    describe option do
+      subject { super().send(option) }
+      it { is_expected.to eq(0) }
+    end
   end
 
   context "when its #{ name } is 123" do
     let(option) { 123 }
-    its(option) { should == 123 }
+
+    describe option do
+      subject { super().send(option) }
+      it { is_expected.to eq(123) }
+    end
   end
 
   context "when its #{ name } is UINT#{ size }MAX" do
     let(option) { uint_max }
-    its(option) { should == uint_max }
+
+    describe option do
+      subject { super().send(option) }
+      it { is_expected.to eq(uint_max) }
+    end
   end
 
   context "when its #{ name } is UINT#{ size }_MAX + 1" do

@@ -20,16 +20,31 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
 describe SetConfig, 'new( OPTIONAL OPTION MISSING )' do
-  its(:flags) { should == 0 }
-  its(:miss_send_len) { should == 128 }
+  describe '#flags' do
+    subject { super().flags }
+    it { is_expected.to eq(0) }
+  end
+
+  describe '#miss_send_len' do
+    subject { super().miss_send_len }
+    it { is_expected.to eq(128) }
+  end
   it_should_behave_like 'any Openflow message with default transaction ID'
 end
 
 describe SetConfig, '.new( VALID OPTIONS )' do
   subject { SetConfig.new(:flags => 1, :miss_send_len => 256, :transaction_id => transaction_id) }
   let(:transaction_id) { 123 }
-  its(:flags) { should  == 1 }
-  its(:miss_send_len) { should == 256 }
+
+  describe '#flags' do
+    subject { super().flags }
+    it { is_expected.to  eq(1) }
+  end
+
+  describe '#miss_send_len' do
+    subject { super().miss_send_len }
+    it { is_expected.to eq(256) }
+  end
   it_should_behave_like 'any OpenFlow message with transaction_id option'
 
   context 'when #set_config is sent' do
@@ -39,7 +54,7 @@ describe SetConfig, '.new( VALID OPTIONS )' do
         vswitch { datapath_id 0xabc }
       end.run(SetConfigController) do
         set_config = SetConfig.new(:flags => 0, :miss_send_len => 128, :transaction_id => 123)
-        controller('SetConfigController').should_not_receive(:set_config_reply)
+        expect(controller('SetConfigController')).not_to receive(:set_config_reply)
         controller('SetConfigController').send_message(0xabc, set_config)
         sleep 2 # FIXME: wait to send_message
       end
@@ -52,7 +67,7 @@ describe SetConfig, '.new( VALID OPTIONS )' do
       network do
         vswitch { datapath_id 0xabc }
       end.run(SetConfigController) do
-        controller('SetConfigController').should_receive(:get_config_reply) do | _dpid, arg |
+        expect(controller('SetConfigController')).to receive(:get_config_reply) do | _dpid, arg |
           expect(arg.flags).to eq(0)
           expect(arg.miss_send_len).to eq(0)
         end

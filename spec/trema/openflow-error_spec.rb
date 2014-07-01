@@ -33,7 +33,7 @@ describe Trema::OpenflowError, 'new' do
           :mask => 1,
           :advertise => 0
         )
-        controller('OpenflowErrorController').should_receive(:openflow_error) do | datapath_id, message |
+        expect(controller('OpenflowErrorController')).to receive(:openflow_error) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(Error::OFPET_PORT_MOD_FAILED)
           expect(message.code).to eq(Error::OFPPMFC_BAD_PORT)
@@ -61,7 +61,7 @@ describe Trema::OpenflowError, 'new' do
           :mask => 1,
           :advertise => 0
         )
-        controller('OpenflowErrorController').should_receive(:openflow_error) do | datapath_id, message |
+        expect(controller('OpenflowErrorController')).to receive(:openflow_error) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(Error::OFPET_PORT_MOD_FAILED)
           expect(message.code).to eq(Error::OFPPMFC_BAD_HW_ADDR)
@@ -82,7 +82,7 @@ describe Trema::OpenflowError, 'new' do
         link 'host1', 'error-port'
         link 'host2', 'error-port'
       end.run(OpenflowErrorController) do
-        controller('OpenflowErrorController').should_receive(:openflow_error) do | datapath_id, message |
+        expect(controller('OpenflowErrorController')).to receive(:openflow_error) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.type).to eq(Error::OFPET_BAD_ACTION)
           expect(message.code).to eq(Error::OFPBAC_BAD_OUT_PORT)
@@ -100,7 +100,7 @@ describe Trema::OpenflowError, 'new' do
         vswitch('error-request') { datapath_id 0xabc }
       end.run(OpenflowController) do
         queue_get_config_request = Trema::QueueGetConfigRequest.new(:port => 1)
-        controller('OpenflowController').should_receive(:openflow_error) do | _datapath_id, message |
+        expect(controller('OpenflowController')).to receive(:openflow_error) do | _datapath_id, message |
           expect(message.datapath_id).to eq(0xabc)
           expect(message.type).to satisfy { | n |
             n >= 0 && n <= 5
