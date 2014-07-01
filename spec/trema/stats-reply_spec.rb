@@ -342,7 +342,7 @@ describe StatsReply, '.new( VALID OPTIONS )' do
 
     describe '#tx_errors' do
       subject { super().tx_errors }
-      it { is_expected.to  eq(5) }
+      it { is_expected.to eq(5) }
     end
   end
 

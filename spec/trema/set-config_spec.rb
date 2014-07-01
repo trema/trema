@@ -38,7 +38,7 @@ describe SetConfig, '.new( VALID OPTIONS )' do
 
   describe '#flags' do
     subject { super().flags }
-    it { is_expected.to  eq(1) }
+    it { is_expected.to eq(1) }
   end
 
   describe '#miss_send_len' do
