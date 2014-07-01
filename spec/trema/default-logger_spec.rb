@@ -28,12 +28,12 @@ module Trema
       LoggingObject.new
     end
 
-    it { should respond_to :critical }
-    it { should respond_to :error }
-    it { should respond_to :warn }
-    it { should respond_to :notice }
-    it { should respond_to :info }
-    it { should respond_to :debug }
+    it { is_expected.to respond_to :critical }
+    it { is_expected.to respond_to :error }
+    it { is_expected.to respond_to :warn }
+    it { is_expected.to respond_to :notice }
+    it { is_expected.to respond_to :info }
+    it { is_expected.to respond_to :debug }
   end
 end
 

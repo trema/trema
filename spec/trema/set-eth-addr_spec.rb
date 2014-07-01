@@ -26,8 +26,15 @@ require 'trema'
     context 'with "11:22:33:44:55:66"' do
       let(:mac_address) { '11:22:33:44:55:66' }
 
-      its(:mac_address) { should eq '11:22:33:44:55:66' }
-      its(:to_s) { should eq "#{ klass }: mac_address=11:22:33:44:55:66" }
+      describe '#mac_address' do
+        subject { super().mac_address }
+        it { is_expected.to eq '11:22:33:44:55:66' }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq "#{ klass }: mac_address=11:22:33:44:55:66" }
+      end
 
       context "when set as FlowMod's action", :sudo => true do
         it 'should insert a new flow with action (mod_dl_{src,dst}:11:22:33:44:55:66)' do
@@ -37,14 +44,13 @@ require 'trema'
           end.run(TestController) do
             controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
             sleep 2
-            expect(vswitch('0xabc')).to have(1).flows
+            expect(vswitch('0xabc').flows.size).to eq(1)
             expect(vswitch('0xabc').flows[ 0].actions).to match(/mod_dl_(src|dst):11:22:33:44:55:66/)
-            pending('Test actions as an object using Trema::Switch') do
-              expect(vswitch('0xabc')).to have(1).flows
-              expect(vswitch('0xabc').flows[ 0]).to have(1).actions
-              expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
-              expect(vswitch('0xabc').flows[ 0].actions[ 0].mac_address.to_s).to eq('11:22:33:44:55:66')
-            end
+            pending('Test actions as an object using Trema::Switch')
+            expect(vswitch('0xabc').flows.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0].mac_address.to_s).to eq('11:22:33:44:55:66')
           end
         end
       end

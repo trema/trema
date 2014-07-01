@@ -29,13 +29,13 @@ module Trema
           subject { @vhost[ :name] }
 
           context 'and IP address empty' do
-            it { should be_nil }
+            it { is_expected.to be_nil }
           end
 
           context 'and IP address is 192.168.100.100' do
             before { @vhost.ip '192.168.100.100' }
 
-            specify { should == '192.168.100.100' }
+            specify { is_expected.to eq('192.168.100.100') }
           end
         end
 
@@ -45,13 +45,13 @@ module Trema
           subject { @vhost[ :name] }
 
           context 'and ip address empty' do
-            it { should == "Yutaro's host" }
+            it { is_expected.to eq("Yutaro's host") }
           end
 
           context 'and ip address 192.168.100.100' do
             before { @vhost.ip '192.168.100.100' }
 
-            it { should == "Yutaro's host" }
+            it { is_expected.to eq("Yutaro's host") }
           end
         end
       end
@@ -64,25 +64,25 @@ module Trema
         context 'when promisc off' do
           before { @vhost.promisc 'off' }
 
-          it { should be_false }
+          it { is_expected.to be_falsey }
         end
 
         context 'when promisc no' do
           before { @vhost.promisc 'no' }
 
-          it { should be_false }
+          it { is_expected.to be_falsey }
         end
 
         context 'when promisc on' do
           before { @vhost.promisc 'on' }
 
-          it { should be_true }
+          it { is_expected.to be_truthy }
         end
 
         context 'when promisc yes' do
           before { @vhost.promisc 'yes' }
 
-          it { should be_true }
+          it { is_expected.to be_truthy }
         end
 
         context 'when promisc INVALID_VALUE' do
@@ -98,13 +98,13 @@ module Trema
         subject { @vhost[ :netmask] }
 
         context 'when netmask empty' do
-          it { should be_nil }
+          it { is_expected.to be_nil }
         end
 
         context 'when netmask is 255.255.255.0' do
           before { @vhost.netmask '255.255.255.0' }
 
-          it { should == '255.255.255.0' }
+          it { is_expected.to eq('255.255.255.0') }
         end
       end
 
@@ -114,13 +114,13 @@ module Trema
         subject { @vhost[ :mac] }
 
         context 'when mac empty' do
-          it { should be_nil }
+          it { is_expected.to be_nil }
         end
 
         context 'when mac is 00:00:00:01:00:01' do
           before { @vhost.mac '00:00:00:01:00:01' }
 
-          it { should == '00:00:00:01:00:01' }
+          it { is_expected.to eq('00:00:00:01:00:01') }
         end
       end
     end

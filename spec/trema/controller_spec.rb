@@ -23,25 +23,25 @@ module Trema
   describe Controller do
     subject { Controller }
 
-    it { should have_constant :OFPP_MAX }
-    it { should have_constant :OFPP_IN_PORT }
-    it { should have_constant :OFPP_TABLE }
-    it { should have_constant :OFPP_NORMAL }
-    it { should have_constant :OFPP_FLOOD }
-    it { should have_constant :OFPP_ALL }
-    it { should have_constant :OFPP_CONTROLLER }
-    it { should have_constant :OFPP_LOCAL }
-    it { should have_constant :OFPP_NONE }
+    it { is_expected.to have_constant :OFPP_MAX }
+    it { is_expected.to have_constant :OFPP_IN_PORT }
+    it { is_expected.to have_constant :OFPP_TABLE }
+    it { is_expected.to have_constant :OFPP_NORMAL }
+    it { is_expected.to have_constant :OFPP_FLOOD }
+    it { is_expected.to have_constant :OFPP_ALL }
+    it { is_expected.to have_constant :OFPP_CONTROLLER }
+    it { is_expected.to have_constant :OFPP_LOCAL }
+    it { is_expected.to have_constant :OFPP_NONE }
 
     context '.new' do
       subject { Controller.new }
 
-      it { should respond_to :critical }
-      it { should respond_to :error }
-      it { should respond_to :warn }
-      it { should respond_to :notice }
-      it { should respond_to :info }
-      it { should respond_to :debug }
+      it { is_expected.to respond_to :critical }
+      it { is_expected.to respond_to :error }
+      it { is_expected.to respond_to :warn }
+      it { is_expected.to respond_to :notice }
+      it { is_expected.to respond_to :info }
+      it { is_expected.to respond_to :debug }
     end
   end
 end

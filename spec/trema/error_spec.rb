@@ -41,9 +41,21 @@ module Trema
   describe Error, '.new(:type => value, :code => value)' do
     subject { Error.new(:type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE) }
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its(:error_type) { should == OFPET_BAD_REQUEST }
-    its(:code) { should == OFPBRC_BAD_TYPE }
-    its(:data) { should be_nil }
+
+    describe '#error_type' do
+      subject { super().error_type }
+      it { is_expected.to eq(OFPET_BAD_REQUEST) }
+    end
+
+    describe '#code' do
+      subject { super().code }
+      it { is_expected.to eq(OFPBRC_BAD_TYPE) }
+    end
+
+    describe '#data' do
+      subject { super().data }
+      it { is_expected.to be_nil }
+    end
   end
 
   describe Error, '.new(:type => value, :code => value, :transaction_id => value)' do
@@ -59,9 +71,21 @@ module Trema
   describe Error, '.new(:type => value, :code => value, :data => value)' do
     subject { Error.new(:type => OFPET_BAD_REQUEST, :code => OFPBRC_BAD_TYPE, :data => 'deadbeef') }
     it_should_behave_like 'any Openflow message with default transaction ID'
-    its(:error_type) { should == OFPET_BAD_REQUEST }
-    its(:code) { should == OFPBRC_BAD_TYPE }
-    its(:data) { should == 'deadbeef' }
+
+    describe '#error_type' do
+      subject { super().error_type }
+      it { is_expected.to eq(OFPET_BAD_REQUEST) }
+    end
+
+    describe '#code' do
+      subject { super().code }
+      it { is_expected.to eq(OFPBRC_BAD_TYPE) }
+    end
+
+    describe '#data' do
+      subject { super().data }
+      it { is_expected.to eq('deadbeef') }
+    end
   end
 end
 

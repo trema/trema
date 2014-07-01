@@ -29,11 +29,34 @@ describe PortMod, '.new( VALID OPTIONS )' do
       :advertise => 0
     )
   end
-  its(:port_no) { should == 2 }
-  its('hw_addr.to_s') { should eq '11:22:33:44:55:66' }
-  its(:config) { should == 1 }
-  its(:mask) { should == 1 }
-  its(:advertise) { should == 0 }
+
+  describe '#port_no' do
+    subject { super().port_no }
+    it { is_expected.to eq(2) }
+  end
+
+  describe '#hw_addr' do
+    subject { super().hw_addr }
+    describe '#to_s' do
+      subject { super().to_s }
+      it { is_expected.to eq '11:22:33:44:55:66' }
+    end
+  end
+
+  describe '#config' do
+    subject { super().config }
+    it { is_expected.to eq(1) }
+  end
+
+  describe '#mask' do
+    subject { super().mask }
+    it { is_expected.to eq(1) }
+  end
+
+  describe '#advertise' do
+    subject { super().advertise }
+    it { is_expected.to eq(0) }
+  end
   it_should_behave_like 'any Openflow message with default transaction ID'
 
   describe 'hw_addr' do

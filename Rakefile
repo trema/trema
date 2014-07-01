@@ -451,7 +451,7 @@ PaperHouse::ExecutableTask.new :tremashark do | task |
     'src/tremashark/pcap_queue.c',
     'src/tremashark/queue.c',
     'src/tremashark/tremashark.c'
-                 ]
+  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
@@ -466,7 +466,7 @@ PaperHouse::ExecutableTask.new :packet_capture do | task |
   task.sources = [
     'src/tremashark/packet_capture.c',
     'src/tremashark/queue.c'
-                 ]
+  ]
   task.includes = [Trema.include, Trema.openflow]
   task.cflags = CFLAGS
   task.ldflags = "-L#{ Trema.lib }"
@@ -608,7 +608,7 @@ $tests = [
   'objects/unittests/message_queue_test',
   'objects/unittests/management_interface_test',
   'objects/unittests/management_service_interface_test'
-         ]
+]
 
 task :build_unittests => $tests.map { | each | 'unittests:' + File.basename(each) }
 

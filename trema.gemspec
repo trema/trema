@@ -25,12 +25,34 @@ Gem::Specification.new do | gem |
   gem.extra_rdoc_files = ['README.md']
   gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
-  gem.add_dependency 'bundler'
-  gem.add_dependency 'gli', '~> 2.10.0'
-  gem.add_dependency 'paper_house', '~> 0.6.0'
-  gem.add_dependency 'pio', '~> 0.7.0'
+  gem.add_dependency 'gli', '~> 2.11.0'
+  gem.add_dependency 'paper_house', '~> 0.6.2'
+  gem.add_dependency 'pio', '~> 0.8.1'
   gem.add_dependency 'rake'
   gem.add_dependency 'rdoc', '~> 4.1.1'
+
+  # Docs
+  gem.add_development_dependency 'relish', '~> 0.7'
+  gem.add_development_dependency 'yard', '~> 0.8.7.4'
+
+  # Guard
+  gem.add_development_dependency 'bundler'
+  gem.add_development_dependency 'guard', '~> 2.6.1'
+  gem.add_development_dependency 'guard-bundler', '~> 2.0.0'
+  gem.add_development_dependency 'guard-rspec', '~> 4.2.10'
+  gem.add_development_dependency 'guard-rubocop', '~> 1.1.0'
+  gem.add_development_dependency 'pry', '~> 0.10.0'
+
+  # Test
+  gem.add_development_dependency 'aruba', '~> 0.6.0'
+  gem.add_development_dependency 'codeclimate-test-reporter'
+  gem.add_development_dependency 'cucumber', '~> 1.3.15'
+  gem.add_development_dependency 'flay', '~> 2.5.0'
+  gem.add_development_dependency 'flog', '~> 4.2.1'
+  gem.add_development_dependency 'fuubar', '~> 1.3.3'
+  gem.add_development_dependency 'reek', '~> 1.3.7'
+  gem.add_development_dependency 'rspec', '~> 3.0.0'
+  gem.add_development_dependency 'rubocop', '~> 0.24.0'
 end
 
 ### Local variables:

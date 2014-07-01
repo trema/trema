@@ -28,10 +28,26 @@ describe GetConfigReply, '.new( VALID OPTIONS )' do
       :miss_send_len => 1024
     )
   end
-  its(:datapath_id) { should == 123 }
-  its(:transaction_id) { should == 1234 }
-  its(:flags) { should == 1 }
-  its(:miss_send_len) { should == 1024 }
+
+  describe '#datapath_id' do
+    subject { super().datapath_id }
+    it { is_expected.to eq(123) }
+  end
+
+  describe '#transaction_id' do
+    subject { super().transaction_id }
+    it { is_expected.to eq(1234) }
+  end
+
+  describe '#flags' do
+    subject { super().flags }
+    it { is_expected.to eq(1) }
+  end
+
+  describe '#miss_send_len' do
+    subject { super().miss_send_len }
+    it { is_expected.to eq(1024) }
+  end
 end
 
 ### Local variables:

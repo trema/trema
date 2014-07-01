@@ -27,26 +27,26 @@ describe Trema::Port do
 
   it 'should check the port up' do
     port = Trema::Port.new(:config => 0, :state => 0)
-    expect(port.up?).to be_true
-    expect(port.down?).to be_false
+    expect(port.up?).to be_truthy
+    expect(port.down?).to be_falsey
   end
 
   it 'should check the port down(config=0,state=1)' do
     port = Trema::Port.new(:config => 0, :state => 1)
-    expect(port.up?).to be_false
-    expect(port.down?).to be_true
+    expect(port.up?).to be_falsey
+    expect(port.down?).to be_truthy
   end
 
   it 'should check the port down(config=1,state=0)' do
     port = Trema::Port.new(:config => 1, :state => 0)
-    expect(port.up?).to be_false
-    expect(port.down?).to be_true
+    expect(port.up?).to be_falsey
+    expect(port.down?).to be_truthy
   end
 
   it 'should check the port down(config=1,state=1)' do
     port = Trema::Port.new(:config => 1, :state => 1)
-    expect(port.up?).to be_false
-    expect(port.down?).to be_true
+    expect(port.up?).to be_falsey
+    expect(port.down?).to be_truthy
   end
 end
 

@@ -37,14 +37,14 @@ describe Trema::Shell, '.vswitch' do
 
   context 'executed within a shell' do
     before do
-      $config = mock('config', :port => 6653)
-      $context = mock('context', :dump => true)
+      $config = double('config', :port => 6653)
+      $context = double('context', :dump => true)
     end
     after { Trema::OpenflowSwitch[ '0xabc'].shutdown! if Trema::OpenflowSwitch[ '0xabc'] }
 
     it 'should create a new vswitch if name given' do
       Trema::Shell.vswitch { dpid '0xabc' }
-      expect(Trema::OpenflowSwitch).to have(1).switch
+      expect(Trema::OpenflowSwitch.size).to eq(1)
       expect(Trema::OpenflowSwitch[ '0xabc'].name).to eq('0xabc')
       expect(Trema::OpenflowSwitch[ '0xabc'].dpid_short).to eq('0xabc')
       expect(Trema::OpenflowSwitch[ '0xabc'].dpid_long).to eq('0000000000000abc')
@@ -53,7 +53,7 @@ describe Trema::Shell, '.vswitch' do
     it 'should create a new vswitch if dpid given' do
       Trema::Shell.vswitch '0xabc'
 
-      expect(Trema::OpenflowSwitch).to have(1).switch
+      expect(Trema::OpenflowSwitch.size).to eq(1)
       expect(Trema::OpenflowSwitch[ '0xabc'].name).to eq('0xabc')
       expect(Trema::OpenflowSwitch[ '0xabc'].dpid_short).to eq('0xabc')
       expect(Trema::OpenflowSwitch[ '0xabc'].dpid_long).to eq('0000000000000abc')

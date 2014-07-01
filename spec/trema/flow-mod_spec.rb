@@ -49,7 +49,11 @@ module Trema
 
     context 'command: 0', :nosudo => true do
       let(:command) { 0 }
-      its(:command) { should == 0 }
+
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(0) }
+      end
     end
 
     # TODO: boundary test.
@@ -60,7 +64,11 @@ module Trema
 
     context 'idle_timeout: 0', :nosudo => true do
       let(:idle_timeout) { 0 }
-      its(:idle_timeout) { should == 0 }
+
+      describe '#idle_timeout' do
+        subject { super().idle_timeout }
+        it { is_expected.to eq(0) }
+      end
     end
 
     # TODO: boundary test.
@@ -71,7 +79,11 @@ module Trema
 
     context 'hard_timeout: 0', :nosudo => true do
       let(:hard_timeout) { 0 }
-      its(:hard_timeout) { should == 0 }
+
+      describe '#hard_timeout' do
+        subject { super().hard_timeout }
+        it { is_expected.to eq(0) }
+      end
     end
 
     # TODO: boundary test.

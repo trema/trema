@@ -27,7 +27,7 @@ describe SwitchDisconnected do
       network do
         vswitch('switch-disconnect') { datapath_id 0xabc }
       end.run(SwitchDisconnected) do
-        controller('SwitchDisconnected').should_receive(:switch_disconnected)
+        expect(controller('SwitchDisconnected')).to receive(:switch_disconnected)
         vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
       end
@@ -37,7 +37,7 @@ describe SwitchDisconnected do
       network do
         vswitch('switch-disconnect') { datapath_id 0xabc }
       end.run(SwitchDisconnected) do
-        controller('SwitchDisconnected').should_receive(:switch_disconnected).with(0xabc)
+        expect(controller('SwitchDisconnected')).to receive(:switch_disconnected).with(0xabc)
         vswitch('switch-disconnect').shutdown!
         sleep 3 # FIXME: wait to shutdown
       end

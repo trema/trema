@@ -26,9 +26,20 @@ describe SendOutPort, :type => 'actions' do
     context 'with port_number (1)' do
       let(:port_number) { 1 }
 
-      its(:port_number) { should eq(1) }
-      its(:max_len) { should eq(2**16 - 1) }
-      its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=65535') }
+      describe '#port_number' do
+        subject { super().port_number }
+        it { is_expected.to eq(1) }
+      end
+
+      describe '#max_len' do
+        subject { super().max_len }
+        it { is_expected.to eq(2**16 - 1) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq('Trema::SendOutPort: port_number=1, max_len=65535') }
+      end
     end
 
     context 'with port_number (10)' do
@@ -42,14 +53,13 @@ describe SendOutPort, :type => 'actions' do
           end.run(TestController) do
             controller('TestController').send_flow_mod_add(0xabc, :actions => send_out_port)
             sleep 2
-            expect(vswitch('0xabc')).to have(1).flows
+            expect(vswitch('0xabc').flows.size).to eq(1)
             expect(vswitch('0xabc').flows[ 0].actions).to eq('output:10')
-            pending('Test actions as an object using Trema::Switch') do
-              expect(vswitch('0xabc')).to have(1).flows
-              expect(vswitch('0xabc').flows[ 0]).to have(1).actions
-              expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(SendOutPort)
-              expect(vswitch('0xabc').flows[ 0].actions[ 0].port_number).to eq(10)
-            end
+            pending('Test actions as an object using Trema::Switch')
+            expect(vswitch('0xabc').flows.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions.size).to eq(1)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(SendOutPort)
+            expect(vswitch('0xabc').flows[ 0].actions[ 0].port_number).to eq(10)
           end
         end
       end
@@ -64,9 +74,20 @@ describe SendOutPort, :type => 'actions' do
     context 'with option (:port_number => 1)' do
       let(:port_number) { 1 }
 
-      its(:port_number) { should eq(1) }
-      its(:max_len) { should eq(2**16 - 1) }
-      its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=65535') }
+      describe '#port_number' do
+        subject { super().port_number }
+        it { is_expected.to eq(1) }
+      end
+
+      describe '#max_len' do
+        subject { super().max_len }
+        it { is_expected.to eq(2**16 - 1) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq('Trema::SendOutPort: port_number=1, max_len=65535') }
+      end
     end
   end
 
@@ -76,9 +97,20 @@ describe SendOutPort, :type => 'actions' do
     context 'with options (:port_number => 1, :max_len => 256)' do
       let(:options) { { :port_number => 1, :max_len => 256 } }
 
-      its(:port_number) { should eq(1) }
-      its(:max_len) { should eq(256) }
-      its(:to_s) { should eq('Trema::SendOutPort: port_number=1, max_len=256') }
+      describe '#port_number' do
+        subject { super().port_number }
+        it { is_expected.to eq(1) }
+      end
+
+      describe '#max_len' do
+        subject { super().max_len }
+        it { is_expected.to eq(256) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq('Trema::SendOutPort: port_number=1, max_len=256') }
+      end
     end
 
     context 'with options (:port_number => 1, :max_len => max_len)' do

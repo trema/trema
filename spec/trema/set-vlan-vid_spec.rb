@@ -24,7 +24,11 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
 
   context 'with vlan_id (1024)' do
     let(:vlan_id) { 1024 }
-    its(:vlan_id) { should == 1024 }
+
+    describe '#vlan_id' do
+      subject { super().vlan_id }
+      it { is_expected.to eq(1024) }
+    end
   end
 
   it_validates 'option is within range', :vlan_id, 1..4095
@@ -49,7 +53,7 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
       end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows.size).to eq(1)
         expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_vid:1024')
       end
     end

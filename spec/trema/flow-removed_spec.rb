@@ -51,17 +51,61 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
         :byte_count => 256
       )
     end
-    its(:datapath_id) { should == 2748 }
-    its(:transaction_id) { should == 0 }
-    its(:match) { should be_instance_of(Match) }
-    its(:cookie) { should == 123_456_789 }
-    its(:priority) { should == 65_535 }
-    its(:reason) { should == 0 }
-    its(:duration_sec) { should == 1 }
-    its(:duration_nsec) { should == 779_000_000 }
-    its(:idle_timeout) { should == 1 }
-    its(:packet_count) { should == 6 }
-    its(:byte_count) { should == 256 }
+
+    describe '#datapath_id' do
+      subject { super().datapath_id }
+      it { is_expected.to eq(2748) }
+    end
+
+    describe '#transaction_id' do
+      subject { super().transaction_id }
+      it { is_expected.to eq(0) }
+    end
+
+    describe '#match' do
+      subject { super().match }
+      it { is_expected.to be_instance_of(Match) }
+    end
+
+    describe '#cookie' do
+      subject { super().cookie }
+      it { is_expected.to eq(123_456_789) }
+    end
+
+    describe '#priority' do
+      subject { super().priority }
+      it { is_expected.to eq(65_535) }
+    end
+
+    describe '#reason' do
+      subject { super().reason }
+      it { is_expected.to eq(0) }
+    end
+
+    describe '#duration_sec' do
+      subject { super().duration_sec }
+      it { is_expected.to eq(1) }
+    end
+
+    describe '#duration_nsec' do
+      subject { super().duration_nsec }
+      it { is_expected.to eq(779_000_000) }
+    end
+
+    describe '#idle_timeout' do
+      subject { super().idle_timeout }
+      it { is_expected.to eq(1) }
+    end
+
+    describe '#packet_count' do
+      subject { super().packet_count }
+      it { is_expected.to eq(6) }
+    end
+
+    describe '#byte_count' do
+      subject { super().byte_count }
+      it { is_expected.to eq(256) }
+    end
   end
 
   context 'when a flow expires' do
@@ -70,7 +114,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
       network do
         vswitch { datapath_id 0xabc }
       end.run(FlowRemovedController) do
-        controller('FlowRemovedController').should_receive(:flow_removed)
+        expect(controller('FlowRemovedController')).to receive(:flow_removed)
         controller('FlowRemovedController').send_flow_mod_add(
           0xabc,
           :idle_timeout => 1,
@@ -99,7 +143,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
       network do
         vswitch { datapath_id 0xabc }
       end.run(FlowRemovedController) do
-        controller('FlowRemovedController').should_receive(:flow_removed) do | datapath_id, message |
+        expect(controller('FlowRemovedController')).to receive(:flow_removed) do | datapath_id, message |
           expect(datapath_id).to eq(0xabc)
           expect(message.match.in_port).to eq(1)
           expect(message.match.dl_src.to_s).to eq('00:00:00:00:00:01')

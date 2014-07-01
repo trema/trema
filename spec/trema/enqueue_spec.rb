@@ -33,7 +33,11 @@ describe Enqueue, '.new( :port_number => number, :queue_id => 1 )' do
 
   context 'when :port_number == 1' do
     let(:port_number) { 1 }
-    its(:port_number) { should == 1 }
+
+    describe '#port_number' do
+      subject { super().port_number }
+      it { is_expected.to eq(1) }
+    end
   end
 end
 
@@ -43,7 +47,11 @@ describe Enqueue, '.new( :port_number => 1, :queue_id => number )' do
 
   context 'when :queue_id == 256' do
     let(:queue_id) { 256 }
-    its(:queue_id) { should == 256 }
+
+    describe '#queue_id' do
+      subject { super().queue_id }
+      it { is_expected.to eq(256) }
+    end
   end
 end
 
@@ -56,7 +64,7 @@ describe Enqueue, '.new( VALID OPTIONS )' do
       end.run(FlowModAddController) do
         controller('FlowModAddController').send_flow_mod_add(0xabc, :actions => Enqueue.new(:port_number => 1, :queue_id => 123))
         sleep 2 # FIXME: wait to send_flow_mod
-        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows.size).to eq(1)
         expect(vswitch('0xabc').flows[0].actions).to match(/enqueue:1q123/)
       end
     end

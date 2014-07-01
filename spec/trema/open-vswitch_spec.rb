@@ -31,11 +31,11 @@ module Trema
     end
 
     it 'should keep a list of vswitches' do
-      OpenVswitch.new mock('stanza 0', :name => 'vswitch 0', :validate => true)
-      OpenVswitch.new mock('stanza 1', :name => 'vswitch 1', :validate => true)
-      OpenVswitch.new mock('stanza 2', :name => 'vswitch 2', :validate => true)
+      OpenVswitch.new double('stanza 0', :name => 'vswitch 0', :validate => true)
+      OpenVswitch.new double('stanza 1', :name => 'vswitch 1', :validate => true)
+      OpenVswitch.new double('stanza 2', :name => 'vswitch 2', :validate => true)
 
-      expect(OpenflowSwitch).to have(3).vswitches
+      expect(OpenflowSwitch.size).to eq(3)
       expect(OpenflowSwitch[ 'vswitch 0']).not_to be_nil
       expect(OpenflowSwitch[ 'vswitch 1']).not_to be_nil
       expect(OpenflowSwitch[ 'vswitch 2']).not_to be_nil
@@ -45,37 +45,67 @@ module Trema
   describe OpenVswitch, 'dpid = 0xabc' do
     subject do
       stanza = { :dpid_short => '0xabc', :dpid_long => '0000000000000abc', :ip => '127.0.0.1' }
-      stanza.stub!(:validate)
-      stanza.stub!(:name).and_return(name)
+      allow(stanza).to receive(:validate)
+      allow(stanza).to receive(:name).and_return(name)
       OpenVswitch.new stanza
     end
 
     context 'when its name is not set' do
       let(:name) { '0xabc' }
 
-      its(:name) { should == '0xabc' }
-      its(:dpid_short) { should == '0xabc' }
-      its(:dpid_long) { should == '0000000000000abc' }
-      its(:network_device) { should == 'vsw_0xabc' }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq('0xabc') }
+      end
+
+      describe '#dpid_short' do
+        subject { super().dpid_short }
+        it { is_expected.to eq('0xabc') }
+      end
+
+      describe '#dpid_long' do
+        subject { super().dpid_long }
+        it { is_expected.to eq('0000000000000abc') }
+      end
+
+      describe '#network_device' do
+        subject { super().network_device }
+        it { is_expected.to eq('vsw_0xabc') }
+      end
     end
 
     context 'when its name is set' do
       let(:name) { 'Otosan Switch' }
 
-      its(:name) { should == 'Otosan Switch' }
-      its(:dpid_short) { should == '0xabc' }
-      its(:dpid_long) { should == '0000000000000abc' }
-      its(:network_device) { should == 'vsw_0xabc' }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq('Otosan Switch') }
+      end
+
+      describe '#dpid_short' do
+        subject { super().dpid_short }
+        it { is_expected.to eq('0xabc') }
+      end
+
+      describe '#dpid_long' do
+        subject { super().dpid_long }
+        it { is_expected.to eq('0000000000000abc') }
+      end
+
+      describe '#network_device' do
+        subject { super().network_device }
+        it { is_expected.to eq('vsw_0xabc') }
+      end
     end
 
     context 'when getting its flows' do
       let(:name) { '0xabc' }
 
       it 'should execute ofctl to get the flows' do
-        ofctl = mock('ofctl')
-        Ofctl.stub!(:new).and_return(ofctl)
+        ofctl = double('ofctl')
+        allow(Ofctl).to receive(:new).and_return(ofctl)
 
-        ofctl.should_receive(:users_flows).with(subject).once
+        expect(ofctl).to receive(:users_flows).with(subject).once
 
         subject.flows
       end
@@ -85,21 +115,23 @@ module Trema
       let(:name) { '0xabc' }
 
       it 'should execute ovs openflowd' do
-        subject.should_receive(:sh).with do | command |
+        pending
+        expect(subject).to receive(:sh).with { |command|
           expect(command).to include(Executables.ovs_openflowd)
-        end
+        }
 
         subject.run!
       end
 
       it 'should be connected to virtual ports' do
+        pending
         subject << 'VirtualInterface0'
         subject << 'VirtualInterface1'
         subject << 'VirtualInterface2'
 
-        subject.should_receive(:sh).with do | command |
+        expect(subject).to receive(:sh).with { |command|
           expect(command).to include('--ports=VirtualInterface0,VirtualInterface1,VirtualInterface2')
-        end
+        }
 
         subject.run!
       end

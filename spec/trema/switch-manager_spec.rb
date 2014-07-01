@@ -25,7 +25,7 @@ module Trema
       rule = { :port_status => 'topology', :packet_in => 'controller', :state_notify => 'topology', :vendor => 'controller' }
       switch_manager = SwitchManager.new(rule)
 
-      switch_manager.should_receive(:sh).once.with(/port_status::topology packet_in::controller state_notify::topology vendor::controller$/)
+      expect(switch_manager).to receive(:sh).once.with(/port_status::topology packet_in::controller state_notify::topology vendor::controller$/)
 
       switch_manager.run!
     end

@@ -24,7 +24,11 @@ describe SetTransportDstPort, 'new( port_number )', :type => 'actions' do
 
   context 'with port_number (5555)' do
     let(:port_number) { 5555 }
-    its(:port_number) { should == 5555 }
+
+    describe '#port_number' do
+      subject { super().port_number }
+      it { is_expected.to eq(5555) }
+    end
   end
 
   it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
@@ -49,7 +53,7 @@ describe SetTransportDstPort, 'new( port_number )', :type => 'actions' do
       end.run(TestController) do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
-        expect(vswitch('0xabc')).to have(1).flows
+        expect(vswitch('0xabc').flows.size).to eq(1)
         expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_tp_dst:5555')
       end
     end

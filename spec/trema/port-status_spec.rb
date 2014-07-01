@@ -23,9 +23,9 @@ module Trema
   describe PortStatus do
     subject { PortStatus }
 
-    it { should have_constant :OFPPR_ADD }
-    it { should have_constant :OFPPR_DELETE }
-    it { should have_constant :OFPPR_MODIFY }
+    it { is_expected.to have_constant :OFPPR_ADD }
+    it { is_expected.to have_constant :OFPPR_DELETE }
+    it { is_expected.to have_constant :OFPPR_MODIFY }
   end
 end
 
