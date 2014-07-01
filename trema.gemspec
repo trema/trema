@@ -37,7 +37,6 @@ Gem::Specification.new do | gem |
 
   # Guard
   gem.add_development_dependency 'bundler'
-  gem.add_development_dependency 'byebug', '~> 3.1.2'
   gem.add_development_dependency 'guard', '~> 2.6.1'
   gem.add_development_dependency 'guard-bundler', '~> 2.0.0'
   gem.add_development_dependency 'guard-rspec', '~> 4.2.10'
