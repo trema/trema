@@ -100,6 +100,8 @@ module Trema
         end
 
         it 'should run vhosts' do
+          pending
+
           host0 = double('host0')
           host1 = double('host1')
           host2 = double('host2')

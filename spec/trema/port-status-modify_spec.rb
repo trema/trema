@@ -47,6 +47,7 @@ module Trema
           vhost 'host'
           link 'host', '0xabc'
         end.run(PortStatusController) do
+          pending
           expect(controller('PortStatusController')).to receive(:port_status).with { | dpid, message |
             expect(dpid).to eq(0xabc)
             expect(message).to be_an_instance_of(PortStatusModify)

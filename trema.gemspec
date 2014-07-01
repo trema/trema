@@ -52,7 +52,7 @@ Gem::Specification.new do | gem |
   gem.add_development_dependency 'flog', '~> 4.2.1'
   gem.add_development_dependency 'fuubar', '~> 1.3.3'
   gem.add_development_dependency 'reek', '~> 1.3.7'
-  gem.add_development_dependency 'rspec', '~> 2.99'
+  gem.add_development_dependency 'rspec', '~> 3.0.0'
   gem.add_development_dependency 'rubocop', '~> 0.24.0'
 end
 

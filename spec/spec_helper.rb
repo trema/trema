@@ -23,7 +23,6 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'ruby')
 $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'vendor', 'ruby-ifconfig-1.2', 'lib')
 
 require 'rspec'
-require 'rspec/autorun'
 require 'pio'
 require 'trema'
 require 'trema/dsl/configuration'
