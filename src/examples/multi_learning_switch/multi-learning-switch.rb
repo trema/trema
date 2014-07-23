@@ -18,8 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-$LOAD_PATH << File.join(File.dirname(__FILE__), '../learning_switch/')
-
 require 'fdb'
 
 #
