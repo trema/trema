@@ -24,8 +24,6 @@
   - packet_in.feature
   - dumper.feature
   - repeater_hub.feature
-  - learning_switch.feature
-  - multi_learning_switch.feature
   - openflow_message.hello.feature
   - openflow_message.echo.feature
   - openflow_message.features_request.feature

@@ -294,7 +294,7 @@ CLOBBER.include(Trema.cmockery) if FileTest.exists?(Trema.cmockery)
 # Build examples
 ################################################################################
 
-$standalone_examples = %w(cbench_switch dumper list_switches multi_learning_switch packet_in repeater_hub switch_info switch_monitor traffic_monitor)
+$standalone_examples = %w(cbench_switch dumper list_switches packet_in repeater_hub switch_info switch_monitor traffic_monitor)
 
 desc 'Build examples.'
 task :examples =>
