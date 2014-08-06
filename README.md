@@ -86,6 +86,7 @@ sample code project is executable source example of how to write a
 OpenFlow controller using Trema Ruby API.
 
 * [trema/hello_trema](https://github.com/trema/hello_trema)
+* [trema/learning_switch](https://github.com/trema/learning_switch)
 
 
 Ruby API
