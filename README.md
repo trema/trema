@@ -78,6 +78,16 @@ Getting Started
 * The [Programming Trema Article (in Japanese)](http://gihyo.jp/dev/serial/01/openflow_sd/0007).
 
 
+Sample Code
+-----------
+
+Study sample code for implementation examples of Trema features. Each
+sample code project is executable source example of how to write a
+OpenFlow controller using Trema Ruby API.
+
+* [trema/hello_trema](https://github.com/trema/hello_trema)
+
+
 Ruby API
 --------
 
