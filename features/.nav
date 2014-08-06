@@ -16,7 +16,6 @@
 - dsl:
   - switch_port_specifier.feature
 - examples:
-  - hello_trema.feature
   - list_switches.feature
   - switch_monitor.feature
   - switch_info.feature

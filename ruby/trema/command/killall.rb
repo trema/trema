@@ -24,6 +24,15 @@ module Trema
 
     def trema_killall
       cleanup_current_session
+
+      elapsed = 0
+      loop do
+        fail 'Failed to clean up remaining processes.' if elapsed > 12
+        break if Dir.glob(File.join(Trema.pid, '*.pid')).empty?
+        sleep 0.1
+        elapsed += 0.1
+      end
+      sleep 1
     end
   end
 end
