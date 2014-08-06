@@ -21,6 +21,7 @@
 
 $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), '..', 'ruby')
 
+require 'pio'
 require 'gli'
 require 'trema/command'
 require 'trema/util'
