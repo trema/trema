@@ -214,7 +214,6 @@ CLOBBER.include(Trema.phost) if FileTest.exists?(Trema.phost)
 ################################################################################
 
 task :vendor => [
-  'vendor:oflops',
   'vendor:openflow',
   'vendor:openvswitch',
   'vendor:phost'
@@ -255,26 +254,6 @@ PaperHouse::ExecutableTask.new :packetin_filter do | task |
 end
 
 ################################################################################
-# Build oflops
-################################################################################
-
-def cbench_command
-  File.join Trema.objects, 'oflops/bin/cbench'
-end
-
-task 'vendor:oflops' => cbench_command
-file cbench_command => Trema.openflow_h do
-  sh "tar xzf #{ Trema.vendor_oflops }.tar.gz -C #{ Trema.vendor }"
-  cd Trema.vendor_oflops do
-    sh "./configure --prefix=#{ Trema.oflops } --with-openflow-src-dir=#{ Trema.vendor_openflow }"
-    sh 'make install'
-  end
-end
-
-CLEAN.include(Trema.oflops) if FileTest.exists?(Trema.oflops)
-CLOBBER.include(Trema.vendor_oflops) if FileTest.exists?(Trema.vendor_oflops)
-
-################################################################################
 # cmockery
 ################################################################################
 
@@ -294,7 +273,7 @@ CLOBBER.include(Trema.cmockery) if FileTest.exists?(Trema.cmockery)
 # Build examples
 ################################################################################
 
-$standalone_examples = %w(cbench_switch dumper list_switches packet_in repeater_hub switch_info switch_monitor traffic_monitor)
+$standalone_examples = %w(dumper list_switches packet_in repeater_hub switch_info switch_monitor traffic_monitor)
 
 desc 'Build examples.'
 task :examples =>
