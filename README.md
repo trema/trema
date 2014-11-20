@@ -87,6 +87,7 @@ OpenFlow controller using Trema Ruby API.
 
 * [trema/hello_trema](https://github.com/trema/hello_trema)
 * [trema/learning_switch](https://github.com/trema/learning_switch)
+* [trema/cbench](https://github.com/trema/cbench)
 
 
 Ruby API
