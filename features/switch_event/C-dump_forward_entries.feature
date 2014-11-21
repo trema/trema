@@ -37,7 +37,7 @@ Feature: C function example command "dump_forward_entries"
         -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
       """
 
-  @slow_process
+  @wip @slow_process
   Scenario Outline: Dump Switch Manager's event forwarding entries for each event type
     Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
@@ -52,7 +52,7 @@ Feature: C function example command "dump_forward_entries"
       | port_status  |
       | state_notify |
 
-  @slow_process
+  @wip @slow_process
   Scenario Outline: Dump Switch Daemon's event forwarding entries for each event type on each switch
     Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
