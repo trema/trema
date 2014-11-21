@@ -1,4 +1,4 @@
-@ruby
+@wip @ruby
 Feature: dump_flows command
 
   In order to inspect all flow entries in a Trema virtual switch

@@ -39,7 +39,7 @@ Feature: C function example command "delete_forward_entry"
         -t, --type={vendor,packet_in,port_status,state_notify} Specify event type.
       """
 
-  @slow_process
+  @wip @slow_process
   Scenario Outline: Delete 'RepeaterHub' from All Switch Manager/Daemon's event forwarding entries of packet_in
     Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
@@ -54,7 +54,7 @@ Feature: C function example command "delete_forward_entry"
       | SW 0x1 | -s 0x1 |
       | SW 0x2 | -s 0x2 |
 
-  @slow_process
+  @wip @slow_process
   Scenario Outline: Delete 'RepeaterHub' only from Switch Manager's event forwarding entries of packet_in
     Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up
@@ -69,7 +69,7 @@ Feature: C function example command "delete_forward_entry"
       | 0x1    |
       | 0x2    |
 
-  @slow_process
+  @wip @slow_process
   Scenario Outline: Delete 'RepeaterHub' only from Switch Daemon 0x1's event forwarding entries of packet_in
     Given I successfully run `trema run ../repeater_hub/repeater-hub.rb -c network.conf -d`
     And wait until "RepeaterHub" is up

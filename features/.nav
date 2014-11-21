@@ -22,7 +22,6 @@
   - patch_panel.feature
   - packet_in.feature
   - dumper.feature
-  - repeater_hub.feature
   - openflow_message.hello.feature
   - openflow_message.echo.feature
   - openflow_message.features_request.feature
