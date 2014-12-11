@@ -25,7 +25,7 @@ Gem::Specification.new do | gem |
   gem.extra_rdoc_files = ['README.md']
   gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
-  gem.add_dependency 'gli', '~> 2.11.0'
+  gem.add_dependency 'gli', '~> 2.12.0'
   gem.add_dependency 'paper_house', '~> 0.6.2'
   gem.add_dependency 'pio', '~> 0.8.1'
   gem.add_dependency 'rake'
