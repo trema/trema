@@ -44,7 +44,7 @@ for rir in afrinic apnic arin lacnic ripencc; do
 	afile=aggregated-delegated-$rir.txt
 	if [ ! -s $dfile -o $FORCE -eq 1 ]; then
 		[ -s $dfile ] && rm -f $dfile
-		lftpget ftp://ftp.ripe.net/pub/stats/$rir/$dfile
+		$FETCH ftp://ftp.ripe.net/pub/stats/$rir/$dfile
 	fi
 	if [ ! -s $afile -o $dfile -nt $afile ]; then
 		cat $dfile | ./stats-to-cidrs.rb | aggregate > $afile
