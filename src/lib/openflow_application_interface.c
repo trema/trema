@@ -1247,14 +1247,7 @@ handle_queue_get_config_reply( const uint64_t datapath_id, buffer *data ) {
     return;
   }
 
-  if ( queues_length > 0 ) {
-    create_list( &queues_head );
-  }
-  else {
-    critical( "No queues found." );
-    assert( 0 );
-  }
-
+  create_list( &queues_head );
   packet_queue = ( struct ofp_packet_queue * ) queue_get_config_reply->queues;
 
   while ( queues_length > 0 ) {
