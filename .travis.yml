@@ -11,7 +11,6 @@ env:
     - secure: "roJa3FuYA6gLdV0vtUe1GyuAU2WQ+E+jraT9QeKKHRQSU2TKYgeJ7MmxG3vSpIoZsHEdmrZh0UVTrMO436UHAG5V+qbSmP2gld0vSI2qDQ2dXbNoAIVUHex2oCDTa5OC0sJbz9W8Yrd0XoTY0O5gObPn6QfTzAHKgPz7ZC9bBwo="
 
 rvm:
-  - 1.9.3
   - 2.0.0
   - 2.1.0
   - ruby-head
