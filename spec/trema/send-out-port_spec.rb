@@ -54,18 +54,18 @@ describe SendOutPort, :type => 'actions' do
             controller('TestController').send_flow_mod_add(0xabc, :actions => send_out_port)
             sleep 2
             expect(vswitch('0xabc').flows.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions).to eq('output:10')
+            expect(vswitch('0xabc').flows[0].actions).to eq('output:10')
             pending('Test actions as an object using Trema::Switch')
             expect(vswitch('0xabc').flows.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(SendOutPort)
-            expect(vswitch('0xabc').flows[ 0].actions[ 0].port_number).to eq(10)
+            expect(vswitch('0xabc').flows[0].actions.size).to eq(1)
+            expect(vswitch('0xabc').flows[0].actions[0]).to be_a(SendOutPort)
+            expect(vswitch('0xabc').flows[0].actions[0].port_number).to eq(10)
           end
         end
       end
     end
 
-    it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
+    it_validates 'option is within range', :port_number, 0..(2**16 - 1)
   end
 
   describe '#new(:port_number => value)' do
@@ -116,7 +116,7 @@ describe SendOutPort, :type => 'actions' do
     context 'with options (:port_number => 1, :max_len => max_len)' do
       let(:options) { { :port_number => 1, :max_len => max_len } }
 
-      it_validates 'option is within range', :max_len, 0..( 2**16 - 1)
+      it_validates 'option is within range', :max_len, 0..(2**16 - 1)
     end
   end
 end

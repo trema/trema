@@ -22,7 +22,7 @@ module Trema
     alias_method :datapath_id, :dpid
 
     def self.inherited(subclass)
-      at_exit { subclass.new(eval ARGV[ 0]).run! }
+      at_exit { subclass.new(eval ARGV[0]).run! }
     end
 
     def initialize(dpid)

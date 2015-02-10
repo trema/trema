@@ -27,8 +27,8 @@ module Trema
       lambda do
         timer_event_handlers = {}
 
-        Kernel.send :define_method, :add_timer do | handler, interval, event_type |
-          timer_event_handlers[ handler] = {
+        Kernel.send :define_method, :add_timer do |handler, interval, event_type|
+          timer_event_handlers[handler] = {
             :interval => interval,
             :rest => interval,
             :event_type => event_type
@@ -42,12 +42,12 @@ module Trema
             __send__ handler
             data[:rest] = data[:interval] if data[:event_type] == :periodic
           end
-          timer_event_handlers.delete_if do | _handler, data |
-            data[ :rest] <= 0 && data[ :event_type] == :oneshot
+          timer_event_handlers.delete_if do |_handler, data|
+            data[:rest] <= 0 && data[:event_type] == :oneshot
           end
         end
 
-        Kernel.send :define_method, :delete_timer do | _handler |
+        Kernel.send :define_method, :delete_timer do |_handler|
           timer_event_handlers.delete
         end
       end.call

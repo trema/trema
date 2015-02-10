@@ -55,7 +55,7 @@ class Dumper < Controller
     info "n_tables: #{ message.n_tables }"
     info "capabilities: #{ message.capabilities.to_hex }"
     info "actions: #{ message.actions.to_hex }"
-    message.ports.each do | each |
+    message.ports.each do |each|
       dump_phy_port each
     end
   end
@@ -123,7 +123,7 @@ class Dumper < Controller
     info "transaction_id: #{ message.transaction_id.to_hex }"
     info "type: #{ message.type.to_hex }"
     info "flags: #{ message.flags.to_hex }"
-    message.stats.each { | each | info each.to_s }
+    message.stats.each { |each| info each.to_s }
   end
 
   def barrier_reply(datapath_id, message)
@@ -158,11 +158,11 @@ class Dumper < Controller
   end
 
   def dump_packet_queue(queues)
-    queues.each do | packet_queue |
+    queues.each do |packet_queue|
       info "queue_id: #{ packet_queue.queue_id.to_hex }"
       info "  len: #{ packet_queue.len }"
       info '  properties:'
-      packet_queue.properties.each do | prop |
+      packet_queue.properties.each do |prop|
         info "    property: #{ prop.property.to_hex }"
         info "    len: #{ prop.len.to_hex }"
         info '      rate: %u' % prop.rate if prop.property == PacketQueue::OFPQT_MIN_RATE

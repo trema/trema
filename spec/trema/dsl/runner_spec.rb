@@ -107,21 +107,21 @@ module Trema
           host2 = double('host2')
 
           expect(host0).to receive(:run!).once
-          expect(host0).to receive(:add_arp_entry).with { | arg |
+          expect(host0).to receive(:add_arp_entry).with { |arg|
             expect(arg.size).to eq(2)
             expect(arg).to include(host1)
             expect(arg).to include(host2)
           }
 
           expect(host1).to receive(:run!).once
-          expect(host1).to receive(:add_arp_entry).with { | arg |
+          expect(host1).to receive(:add_arp_entry).with { |arg|
             expect(arg.size).to eq(2)
             expect(arg).to include(host0)
             expect(arg).to include(host2)
           }
 
           expect(host2).to receive(:run!).once
-          expect(host2).to receive(:add_arp_entry).with { | arg |
+          expect(host2).to receive(:add_arp_entry).with { |arg|
             expect(arg.size).to eq(2)
             expect(arg).to include(host0)
             expect(arg).to include(host1)
@@ -174,15 +174,15 @@ module Trema
 
           app0 = double('app0', :name => 'app0')
           expect(app0).to receive(:daemonize!).once.ordered
-          apps[ 'app0'] = app0
+          apps['app0'] = app0
 
           app1 = double('app1', :name => 'app1')
           expect(app1).to receive(:daemonize!).once.ordered
-          apps[ 'app1'] = app1
+          apps['app1'] = app1
 
           app2 = double('app2', :name => 'app2')
           expect(app2).to receive(:run!).once.ordered
-          apps[ 'app2'] = app2
+          apps['app2'] = app2
 
           context = double(
             'context',
@@ -204,15 +204,15 @@ module Trema
 
           app0 = double('app0')
           expect(app0).to receive(:daemonize!).once.ordered
-          apps[ 'app0'] = app0
+          apps['app0'] = app0
 
           app1 = double('app1')
           expect(app1).to receive(:daemonize!).once.ordered
-          apps[ 'app1'] = app1
+          apps['app1'] = app1
 
           app2 = double('app2', :name => 'App2')
           expect(app2).to receive(:daemonize!).once.ordered
-          apps[ 'app2'] = app2
+          apps['app2'] = app2
 
           context = double(
             'context',

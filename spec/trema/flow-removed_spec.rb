@@ -143,7 +143,7 @@ describe Trema::FlowRemoved, '.new( VALID OPTIONS )' do
       network do
         vswitch { datapath_id 0xabc }
       end.run(FlowRemovedController) do
-        expect(controller('FlowRemovedController')).to receive(:flow_removed) do | datapath_id, message |
+        expect(controller('FlowRemovedController')).to receive(:flow_removed) do |datapath_id, message|
           expect(datapath_id).to eq(0xabc)
           expect(message.match.in_port).to eq(1)
           expect(message.match.dl_src.to_s).to eq('00:00:00:00:00:01')

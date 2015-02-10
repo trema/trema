@@ -47,17 +47,17 @@ module Trema
       context 'when getting the attributes of a vswitch' do
         it 'returns its dpid in long format' do
           @vswitch.dpid '0xabc'
-          expect(@vswitch[ :dpid_long]).to eq('0000000000000abc')
+          expect(@vswitch[:dpid_long]).to eq('0000000000000abc')
         end
 
         it 'returns its dpid in short format' do
           @vswitch.dpid '0xabc'
-          expect(@vswitch[ :dpid_short]).to eq('0xabc')
+          expect(@vswitch[:dpid_short]).to eq('0xabc')
         end
 
         it 'returns its ip address' do
           @vswitch.ip '192.168.0.1'
-          expect(@vswitch[ :ip]).to eq('192.168.0.1')
+          expect(@vswitch[:ip]).to eq('192.168.0.1')
         end
       end
     end

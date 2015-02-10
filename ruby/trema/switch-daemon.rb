@@ -46,7 +46,7 @@ module Trema
     # @return [Array<String>] the switch daemon's options.
     def options
       all_queues = MANDATORY_QUEUES + [:vendor]
-      all_queues.collect! do | each |
+      all_queues.collect! do |each|
         queue each
       end.flatten!
     end
@@ -57,8 +57,8 @@ module Trema
     # @raise [RuntimeError] if a mandatory option is not found.
     #
     def check_mandatory_options(queues)
-      MANDATORY_QUEUES.each do | each |
-        fail ":#{ each } is a mandatory option" if queues[ each].nil?
+      MANDATORY_QUEUES.each do |each|
+        fail ":#{ each } is a mandatory option" if queues[each].nil?
       end
     end
 
@@ -66,9 +66,9 @@ module Trema
     # @return [Array<String>] an array of controller name strings.
     #
     def queue(queue_type)
-      return [] unless @queues[ queue_type]
-      controllers = @queues[ queue_type].split(',')
-      controllers.collect! do | each |
+      return [] unless @queues[queue_type]
+      controllers = @queues[queue_type].split(',')
+      controllers.collect! do |each|
         "#{ queue_type }::#{ each }"
       end
     end

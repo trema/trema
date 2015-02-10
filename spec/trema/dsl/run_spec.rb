@@ -39,19 +39,19 @@ module Trema
       context 'when getting the attributes of an run' do
         it 'returns its name' do
           @run.path '/usr/bin/tremario'
-          expect(@run[ :name]).to eq('tremario')
+          expect(@run[:name]).to eq('tremario')
         end
 
         it 'returns its path' do
           @run.path '/usr/bin/tremario'
-          expect(@run[ :path]).to eq('/usr/bin/tremario')
+          expect(@run[:path]).to eq('/usr/bin/tremario')
         end
 
         it 'returns its options' do
           @run.options '--verbose', '--color'
-          expect(@run[ :options].size).to eq(2)
-          expect(@run[ :options]).to include('--verbose')
-          expect(@run[ :options]).to include('--color')
+          expect(@run[:options].size).to eq(2)
+          expect(@run[:options]).to include('--verbose')
+          expect(@run[:options]).to include('--color')
         end
       end
     end

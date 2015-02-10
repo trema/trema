@@ -34,7 +34,7 @@ class Trema::Executables
     #   file names that are.
     #
     def compiled?
-      @list.each do | each |
+      @list.each do |each|
         return false unless FileTest.executable?(__send__ each)
       end
     end

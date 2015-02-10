@@ -25,13 +25,13 @@ module Trema
     def reset_stats(host_name = nil)
       assert_trema_is_built
 
-      if host_name && Host[ host_name].nil?
+      if host_name && Host[host_name].nil?
         fail "Host '#{ host_name }' is not defined."
       end
       if host_name
-        Cli.new(Host[ host_name]).reset_stats
+        Cli.new(Host[host_name]).reset_stats
       else
-        Host.each do | each |
+        Host.each do |each|
           Cli.new(each).reset_stats
         end
       end

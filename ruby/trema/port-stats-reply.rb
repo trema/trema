@@ -21,8 +21,8 @@ require 'trema/stats-helper'
 module Trema
   class PortStatsReply < StatsHelper
     FIELDS = %w(port_no rx_packets tx_packets rx_bytes) +
-      %w(tx_bytes rx_dropped tx_dropped rx_errors tx_errors) +
-      %w(rx_frame_err rx_over_err rx_crc_err collisions )
+             %w(tx_bytes rx_dropped tx_dropped rx_errors tx_errors) +
+             %w(rx_frame_err rx_over_err rx_crc_err collisions )
     FIELDS.each { |field| attr_reader field.intern }
 
     # Port counters or errors for one or more physical ports.

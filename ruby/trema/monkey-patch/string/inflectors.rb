@@ -20,9 +20,7 @@ module MonkeyPatch
   module String
     module Inflectors
       def camelize
-        split(/[^a-z0-9]/i).map do | each |
-          each.capitalize
-        end.join
+        split(/[^a-z0-9]/i).map(&:capitalize).join
       end
 
       def demodulize

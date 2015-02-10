@@ -165,10 +165,10 @@ shared_examples_for 'any Openflow message with user_data' do
   end
 end
 
-shared_examples_for 'any OpenFlow message' do | options |
-  option = options[ :option]
-  name = options[ :name]
-  size = options[ :size]
+shared_examples_for 'any OpenFlow message' do |options|
+  option = options[:option]
+  name = options[:name]
+  size = options[:size]
   case size
   when 8
     let(:uint_max) { 2**8 - 1 }

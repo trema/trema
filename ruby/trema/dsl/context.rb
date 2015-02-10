@@ -47,7 +47,7 @@ module Trema
       # @return [Configuration]
       #
       def dump
-        File.open(PATH, 'w') do | f |
+        File.open(PATH, 'w') do |f|
           f.print Marshal.dump(@config)
         end
         @config

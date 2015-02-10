@@ -54,7 +54,7 @@ class Blocker
   end
 
   def self.release
-    File.open(PATH, 'w') do | lock |
+    File.open(PATH, 'w') do |lock|
       lock.flock(File::LOCK_UN | File::LOCK_NB)
       lock.close
       File.delete lock.path

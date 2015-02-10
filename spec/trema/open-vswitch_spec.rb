@@ -21,7 +21,7 @@ require 'trema/open-vswitch'
 
 module Trema
   describe OpenflowSwitch do
-    around do | example |
+    around do |example|
       begin
         OpenflowSwitch.clear
         example.run
@@ -36,9 +36,9 @@ module Trema
       OpenVswitch.new double('stanza 2', :name => 'vswitch 2', :validate => true)
 
       expect(OpenflowSwitch.size).to eq(3)
-      expect(OpenflowSwitch[ 'vswitch 0']).not_to be_nil
-      expect(OpenflowSwitch[ 'vswitch 1']).not_to be_nil
-      expect(OpenflowSwitch[ 'vswitch 2']).not_to be_nil
+      expect(OpenflowSwitch['vswitch 0']).not_to be_nil
+      expect(OpenflowSwitch['vswitch 1']).not_to be_nil
+      expect(OpenflowSwitch['vswitch 2']).not_to be_nil
     end
   end
 

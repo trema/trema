@@ -62,40 +62,40 @@ describe PortMod, '.new( VALID OPTIONS )' do
   describe 'hw_addr' do
     it 'should be a Trema::Mac object' do
       expect(PortMod.new(
-               :port_no => 2,
-               :hw_addr => Mac.new('11:22:33:44:55:66'),
-               :config => 1,
-               :mask => 1,
-               :advertise => 0
+        :port_no => 2,
+        :hw_addr => Mac.new('11:22:33:44:55:66'),
+        :config => 1,
+        :mask => 1,
+        :advertise => 0
              ).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
     it "should be a string('11:22:33:44:55')" do
       expect(PortMod.new(
-               :port_no => 2,
-               :hw_addr => '11:22:33:44:55:66',
-               :config => 1,
-               :mask => 1,
-               :advertise => 0).hw_addr.to_s).to eq('11:22:33:44:55:66')
+        :port_no => 2,
+        :hw_addr => '11:22:33:44:55:66',
+        :config => 1,
+        :mask => 1,
+        :advertise => 0).hw_addr.to_s).to eq('11:22:33:44:55:66')
     end
 
     it 'should be a number(281474976710655)' do
       expect(PortMod.new(
-               :port_no => 2,
-               :hw_addr => 281_474_976_710_655,
-               :config => 1,
-               :mask => 1,
-               :advertise => 0).hw_addr.to_s).to eq('ff:ff:ff:ff:ff:ff')
+        :port_no => 2,
+        :hw_addr => 281_474_976_710_655,
+        :config => 1,
+        :mask => 1,
+        :advertise => 0).hw_addr.to_s).to eq('ff:ff:ff:ff:ff:ff')
     end
 
     it 'should otherwise raise ArgumentError' do
       expect do
         PortMod.new(
-                    :port_no => 2,
-                    :hw_addr => Array.new(1234),
-                    :config => 1,
-                    :mask => 1,
-                    :advertise => 0
+          :port_no => 2,
+          :hw_addr => Array.new(1234),
+          :config => 1,
+          :mask => 1,
+          :advertise => 0
                     )
       end.to raise_error(ArgumentError)
     end

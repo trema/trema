@@ -54,7 +54,7 @@ describe SetVlanVid, '.new(vlan_id)', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc').flows.size).to eq(1)
-        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_vlan_vid:1024')
+        expect(vswitch('0xabc').flows[0].actions).to eq('mod_vlan_vid:1024')
       end
     end
   end

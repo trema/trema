@@ -53,8 +53,8 @@ module Trema
     #
     def initialize(options)
       if options.is_a?(Hash)
-        @port_number = options[ :port_number]
-        @queue_id = options[ :queue_id]
+        @port_number = options[:port_number]
+        @queue_id = options[:queue_id]
         if @port_number.nil?
           fail ArgumentError, 'Port number is a mandatory option'
         end

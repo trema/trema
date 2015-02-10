@@ -29,14 +29,14 @@ describe Trema::PacketIn do
   class PacketInSendController < Controller
     def packet_in(datapath_id, message)
       send_flow_mod_add(
-                        datapath_id,
-                        :match => Match.from(message),
-                        :actions => Trema::ActionOutput.new(:port => 2)
+        datapath_id,
+        :match => Match.from(message),
+        :actions => Trema::ActionOutput.new(:port => 2)
                         )
       send_packet_out(
-                      datapath_id,
-                      :packet_in => message,
-                      :actions => Trema::ActionOutput.new(:port => 2)
+        datapath_id,
+        :packet_in => message,
+        :actions => Trema::ActionOutput.new(:port => 2)
                       )
     end
   end
@@ -50,7 +50,7 @@ describe Trema::PacketIn do
         link 'test', 'host1'
         link 'test', 'host2'
       end.run(PacketInController) do
-        expect(controller('PacketInController')).to receive(:packet_in) do | datapath_id, message |
+        expect(controller('PacketInController')).to receive(:packet_in) do |datapath_id, message|
           expect(datapath_id).to eq(0xabc)
           expect(message.datapath_id).to eq(0xabc)
           expect(message.in_port).to be > 0
@@ -73,7 +73,7 @@ describe Trema::PacketIn do
         link 'test', 'host1'
         link 'test', 'host2'
       end.run(PacketInController) do
-        expect(controller('PacketInController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInController')).to receive(:packet_in) do |_datapath_id, message|
           # packet_in expected to have data portion.
           expect(message.total_len).to be  > 20
           expect(message.data).to be_instance_of(String)
@@ -127,7 +127,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_truthy
@@ -238,7 +238,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_falsey
@@ -358,7 +358,7 @@ describe Trema::PacketIn do
           0x00, 0x00, # urgent pointer
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_falsey
@@ -449,7 +449,7 @@ describe Trema::PacketIn do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_falsey
@@ -529,7 +529,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_truthy
           expect(message.arp?).to be_falsey
@@ -614,7 +614,7 @@ describe Trema::PacketIn do
           0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,
           0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_falsey
@@ -680,7 +680,7 @@ describe Trema::PacketIn do
           0xa5, 0xa5, 0xa5, 0xa5, 0xa5, 0xa5,
           0xa5, 0xa5, 0xa5, 0xa5, 0xa5
         ].pack('C*')
-        expect(controller('PacketInSendController')).to receive(:packet_in) do | _datapath_id, message |
+        expect(controller('PacketInSendController')).to receive(:packet_in) do |_datapath_id, message|
           expect(message.in_port).to be > 0
           expect(message.vtag?).to be_falsey
           expect(message.arp?).to be_falsey

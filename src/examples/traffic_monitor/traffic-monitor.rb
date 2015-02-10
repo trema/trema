@@ -52,8 +52,8 @@ class TrafficMonitor < Controller
 
   def show_counter
     puts Time.now
-    @counter.each_pair do | mac, counter |
-      puts "#{ mac } #{ counter[ :packet_count] } packets (#{ counter[ :byte_count] } bytes)"
+    @counter.each_pair do |mac, counter|
+      puts "#{ mac } #{ counter[:packet_count] } packets (#{ counter[:byte_count] } bytes)"
     end
   end
 

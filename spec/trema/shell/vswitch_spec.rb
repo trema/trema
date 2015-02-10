@@ -19,7 +19,7 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 
 describe Trema::Shell, '.vswitch' do
-  around do | example |
+  around do |example|
     Trema::OpenflowSwitch.clear
     example.run
     Trema::OpenflowSwitch.clear
@@ -40,23 +40,23 @@ describe Trema::Shell, '.vswitch' do
       $config = double('config', :port => 6653)
       $context = double('context', :dump => true)
     end
-    after { Trema::OpenflowSwitch[ '0xabc'].shutdown! if Trema::OpenflowSwitch[ '0xabc'] }
+    after { Trema::OpenflowSwitch['0xabc'].shutdown! if Trema::OpenflowSwitch['0xabc'] }
 
     it 'should create a new vswitch if name given' do
       Trema::Shell.vswitch { dpid '0xabc' }
       expect(Trema::OpenflowSwitch.size).to eq(1)
-      expect(Trema::OpenflowSwitch[ '0xabc'].name).to eq('0xabc')
-      expect(Trema::OpenflowSwitch[ '0xabc'].dpid_short).to eq('0xabc')
-      expect(Trema::OpenflowSwitch[ '0xabc'].dpid_long).to eq('0000000000000abc')
+      expect(Trema::OpenflowSwitch['0xabc'].name).to eq('0xabc')
+      expect(Trema::OpenflowSwitch['0xabc'].dpid_short).to eq('0xabc')
+      expect(Trema::OpenflowSwitch['0xabc'].dpid_long).to eq('0000000000000abc')
     end
 
     it 'should create a new vswitch if dpid given' do
       Trema::Shell.vswitch '0xabc'
 
       expect(Trema::OpenflowSwitch.size).to eq(1)
-      expect(Trema::OpenflowSwitch[ '0xabc'].name).to eq('0xabc')
-      expect(Trema::OpenflowSwitch[ '0xabc'].dpid_short).to eq('0xabc')
-      expect(Trema::OpenflowSwitch[ '0xabc'].dpid_long).to eq('0000000000000abc')
+      expect(Trema::OpenflowSwitch['0xabc'].name).to eq('0xabc')
+      expect(Trema::OpenflowSwitch['0xabc'].dpid_short).to eq('0xabc')
+      expect(Trema::OpenflowSwitch['0xabc'].dpid_long).to eq('0000000000000abc')
     end
 
     it 'should raise if dpid not given' do

@@ -19,7 +19,7 @@
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 require 'trema'
 
-[SetIpSrcAddr, SetIpDstAddr].each do | klass |
+[SetIpSrcAddr, SetIpDstAddr].each do |klass|
   describe klass, '#new(ip_address)', :type => 'actions' do
     subject { klass.new(ip_address) }
 
@@ -52,12 +52,12 @@ require 'trema'
             controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
             sleep 2
             expect(vswitch('0xabc').flows.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions).to match(/mod_nw_(src|dst):192.168.1.10/)
+            expect(vswitch('0xabc').flows[0].actions).to match(/mod_nw_(src|dst):192.168.1.10/)
             pending('Test actions as an object using Trema::Switch')
             expect(vswitch('0xabc').flows.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions.size).to eq(1)
-            expect(vswitch('0xabc').flows[ 0].actions[ 0]).to be_a(klass)
-            expect(vswitch('0xabc').flows[ 0].actions[ 0].ip_address.to_s).to eq('192.168.1.10')
+            expect(vswitch('0xabc').flows[0].actions.size).to eq(1)
+            expect(vswitch('0xabc').flows[0].actions[0]).to be_a(klass)
+            expect(vswitch('0xabc').flows[0].actions[0].ip_address.to_s).to eq('192.168.1.10')
           end
         end
       end

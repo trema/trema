@@ -29,7 +29,7 @@ module Trema
     include Trema::Daemon
 
     singleton_daemon
-    command { | sm | sm.__send__ :command }
+    command { |sm| sm.__send__ :command }
 
     #
     # Event forwarding rule

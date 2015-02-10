@@ -41,7 +41,7 @@ module Trema
     # Iterate over each {PacketQueue} item.
     # @return [Array] a list of {PacketQueue} items.
     def self.each(&block)
-      @queues.each do | each |
+      @queues.each do |each|
         block.call each
       end
     end
@@ -77,8 +77,8 @@ module Trema
     #   queue description's length in bytes.
     #
     def initialize(options)
-      @queue_id = options[ :queue_id]
-      @len = options[ :len]
+      @queue_id = options[:queue_id]
+      @len = options[:len]
       @properties = []
     end
 
@@ -93,7 +93,7 @@ module Trema
     #   queue object's attributes.
     def to_s
       str = "queue_id: #{@queue_id} len: #{@len} "
-      @properties.each do | each |
+      @properties.each do |each|
         str += each.to_s
       end
       str

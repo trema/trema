@@ -36,9 +36,9 @@ module Trema
 
           expect(@context.apps.size).to eq(3)
 
-          expect(@context.apps[ 'app #0'].name).to eq('app #0')
-          expect(@context.apps[ 'app #1'].name).to eq('app #1')
-          expect(@context.apps[ 'app #2'].name).to eq('app #2')
+          expect(@context.apps['app #0'].name).to eq('app #0')
+          expect(@context.apps['app #1'].name).to eq('app #1')
+          expect(@context.apps['app #2'].name).to eq('app #2')
         end
 
         it 'should remember hosts' do
@@ -50,9 +50,9 @@ module Trema
 
           expect(@context.hosts.size).to eq(3)
 
-          expect(@context.hosts[ 'host #0'].name).to eq('host #0')
-          expect(@context.hosts[ 'host #1'].name).to eq('host #1')
-          expect(@context.hosts[ 'host #2'].name).to eq('host #2')
+          expect(@context.hosts['host #0'].name).to eq('host #0')
+          expect(@context.hosts['host #1'].name).to eq('host #1')
+          expect(@context.hosts['host #2'].name).to eq('host #2')
         end
 
         it 'should remember links' do
@@ -64,9 +64,9 @@ module Trema
 
           expect(@context.links.size).to eq(3)
 
-          expect(@context.links[ 'link #0'].name).to eq('link #0')
-          expect(@context.links[ 'link #1'].name).to eq('link #1')
-          expect(@context.links[ 'link #2'].name).to eq('link #2')
+          expect(@context.links['link #0'].name).to eq('link #0')
+          expect(@context.links['link #1'].name).to eq('link #1')
+          expect(@context.links['link #2'].name).to eq('link #2')
         end
 
         it 'should remember filter settings' do
@@ -96,9 +96,9 @@ module Trema
 
           expect(@context.switches.size).to eq(3)
 
-          expect(@context.switches[ 'switch #0'].name).to eq('switch #0')
-          expect(@context.switches[ 'switch #1'].name).to eq('switch #1')
-          expect(@context.switches[ 'switch #2'].name).to eq('switch #2')
+          expect(@context.switches['switch #0'].name).to eq('switch #0')
+          expect(@context.switches['switch #1'].name).to eq('switch #1')
+          expect(@context.switches['switch #2'].name).to eq('switch #2')
         end
       end
     end

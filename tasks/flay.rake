@@ -3,7 +3,7 @@ begin
   require 'flay'
   require 'flay_task'
 
-  FlayTask.new do | t |
+  FlayTask.new do |t|
     t.dirs = FileList['ruby/**/*.rb', 'src/**/*.rb'].map do |each|
       each[/[^\/]+/]
     end.uniq

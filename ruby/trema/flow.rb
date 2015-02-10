@@ -32,8 +32,8 @@ module Trema
     def self.parse(line)
       flow = new
       # to simplify parsing
-      line.sub!(/actions=.*,.*$/) { | match | match.gsub(/,/, '/') }
-      line.strip.split(/[,\s]\s*/).each do | each |
+      line.sub!(/actions=.*,.*$/) { |match| match.gsub(/,/, '/') }
+      line.strip.split(/[,\s]\s*/).each do |each|
         next unless /(.+)=(.+)/ =~ each
         name, value = Regexp.last_match[1], Regexp.last_match[2]
         attr_reader name.to_sym

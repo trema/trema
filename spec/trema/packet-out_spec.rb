@@ -109,7 +109,6 @@ describe 'packet-out' do
       end
     end
   end
-
 end
 
 ### Local variables:

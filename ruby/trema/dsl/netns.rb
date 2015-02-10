@@ -55,11 +55,11 @@ module Trema
       end
 
       def route(options)
-        if options[ :net].nil? || options[ :gw].nil?
+        if options[:net].nil? || options[:gw].nil?
           fail ':net and :gw option is a mandatory'
         end
-        @net = options[ :net]
-        @gw = options[ :gw]
+        @net = options[:net]
+        @gw = options[:gw]
       end
     end
   end

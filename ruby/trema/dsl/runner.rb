@@ -45,23 +45,23 @@ module Trema
           if @context.switch_manager && @context.apps.values.size > 0
             last_app = @context.apps.values.last.name
             unless @context.switch_manager.rule.key?(:port_status)
-              @context.switch_manager.rule[ :port_status] = last_app
+              @context.switch_manager.rule[:port_status] = last_app
             end
             unless @context.switch_manager.rule.key?(:packet_in)
-              @context.switch_manager.rule[ :packet_in] = last_app
+              @context.switch_manager.rule[:packet_in] = last_app
             end
             unless @context.switch_manager.rule.key?(:state_notify)
-              @context.switch_manager.rule[ :state_notify] = last_app
+              @context.switch_manager.rule[:state_notify] = last_app
             end
             unless @context.switch_manager.rule.key?(:vendor)
-              @context.switch_manager.rule[ :vendor] = last_app
+              @context.switch_manager.rule[:vendor] = last_app
             end
             @context.switch_manager
           else
             if @context.apps.values.size == 0
               rule = { :port_status => 'default', :packet_in => 'default', :state_notify => 'default', :vendor => 'default' }
             elsif @context.apps.values.size == 1
-              app_name = @context.apps.values[ 0].name
+              app_name = @context.apps.values[0].name
               rule = { :port_status => app_name, :packet_in => app_name, :state_notify => app_name, :vendor => app_name }
             else
               # two or more apps without switch_manager.
@@ -95,35 +95,35 @@ module Trema
 
       def maybe_create_links
         maybe_delete_links # Fool proof
-        @context.links.each do | _name, link |
+        @context.links.each do |_name, link|
           link.enable!
         end
       end
 
       def maybe_delete_links
-        @context.links.each do | _name, link |
+        @context.links.each do |_name, link|
           link.delete!
         end
       end
 
       def maybe_run_hosts
-        @context.hosts.each do | _name, host |
+        @context.hosts.each do |_name, host|
           host.run!
         end
       end
 
       def maybe_run_switches
-        @context.switches.each do | _name, switch |
+        @context.switches.each do |_name, switch|
           switch.run!
         end
 
-        @context.hosts.each do | _name, host |
+        @context.hosts.each do |_name, host|
           host.add_arp_entry @context.hosts.values - [host]
         end
       end
 
       def maybe_run_netnss
-        @context.netnss.each do | _name, netns |
+        @context.netnss.each do |_name, netns|
           netns.run!
         end
       end
@@ -131,9 +131,7 @@ module Trema
       def maybe_run_apps
         return if @context.apps.values.empty?
 
-        @context.apps.values[ 0..-2].each do | each |
-          each.daemonize!
-        end
+        @context.apps.values[0..-2].each(&:daemonize!)
         trap('SIGINT') do
           print("\nterminated\n")
           exit(0)
@@ -145,7 +143,7 @@ module Trema
       end
 
       def maybe_daemonize_apps
-        @context.apps.each do | _name, app |
+        @context.apps.each do |_name, app|
           app.daemonize!
         end
       end

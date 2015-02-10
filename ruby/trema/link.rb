@@ -142,7 +142,7 @@ module Trema
 
     def real_eth
       interfaces = IfconfigWrapper.new.parse.interfaces
-      @stanza.peers.each do | each |
+      @stanza.peers.each do |each|
         return each if interfaces.include?(each)
       end
       fail
@@ -150,7 +150,7 @@ module Trema
 
     def real_eth?
       interfaces = IfconfigWrapper.new.parse.interfaces
-      @stanza.peers.each do | each |
+      @stanza.peers.each do |each|
         return true if interfaces.include?(each)
       end
       false

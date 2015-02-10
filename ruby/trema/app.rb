@@ -32,7 +32,7 @@ module Trema
     #
     attr_reader :stanza
 
-    command { | app | [app.command, app.stanza[ :options]].compact.join ' ' }
+    command { |app| [app.command, app.stanza[:options]].compact.join ' ' }
 
     #
     # Creates a new Trema application from {Trema::DSL::Run}
@@ -68,7 +68,7 @@ module Trema
     # @api public
     #
     def name
-      @stanza[ :name]
+      @stanza[:name]
     end
 
     #
@@ -82,7 +82,7 @@ module Trema
     # @api public
     #
     def daemonize!
-      sh [command, '-d', @stanza[ :options]].compact.join(' ')
+      sh [command, '-d', @stanza[:options]].compact.join(' ')
       self
     end
 
@@ -94,7 +94,7 @@ module Trema
     # @api private
     #
     def command
-      "#{ @stanza[ :path] } --name #{ name }"
+      "#{ @stanza[:path] } --name #{ name }"
     end
   end
 end

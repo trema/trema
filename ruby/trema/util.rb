@@ -25,7 +25,7 @@ require 'trema/process'
 
 module Trema::Util
   def sh(cmd)
-    ENV[ 'TREMA_HOME'] = Trema.home
+    ENV['TREMA_HOME'] = Trema.home
     puts cmd if $verbose
     fail "Command '#{ cmd }' failed!" unless system(cmd)
   end
@@ -45,23 +45,23 @@ EOF
     # [FIXME] Use session.switch_manager
     sm_pid = File.join(Trema.pid, 'switch_manager.pid')
     Trema::Process.read(sm_pid).kill! if FileTest.exist?(sm_pid)
-    session.apps.each do | _name, app |
+    session.apps.each do |_name, app|
       app.shutdown!
     end
-    session.switches.each do | _name, switch |
+    session.switches.each do |_name, switch|
       switch.shutdown!
     end
-    session.hosts.each do | _name, host |
+    session.hosts.each do |_name, host|
       host.shutdown!
     end
-    session.links.each do | _name, link |
+    session.links.each do |_name, link|
       link.delete!
     end
-    session.netnss.each do | _name, netns |
+    session.netnss.each do |_name, netns|
       netns.shutdown!
     end
 
-    Dir.glob(File.join Trema.pid, '*.pid').each do | each |
+    Dir.glob(File.join Trema.pid, '*.pid').each do |each|
       Trema::Process.read(each).kill!
     end
   end
@@ -87,11 +87,11 @@ EOF
   end
 
   def find_switch_by_name(name)
-    Trema::DSL::Context.load_current.switches[ name]
+    Trema::DSL::Context.load_current.switches[name]
   end
 
   def find_host_by_name(name)
-    Trema::DSL::Context.load_current.hosts[ name]
+    Trema::DSL::Context.load_current.hosts[name]
   end
 end
 

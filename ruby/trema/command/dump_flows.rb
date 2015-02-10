@@ -24,7 +24,7 @@ module Trema
     include Trema::Util
 
     def trema_dump_flows(switches)
-      switches.each do | each |
+      switches.each do |each|
         switch = find_switch_by_name(each)
         exit_now! "No switch named `#{ each }` found!" if switch.nil?
         puts Trema::Ofctl.new.dump_flows(switch)

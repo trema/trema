@@ -25,13 +25,13 @@ module Trema
   module DSL
     class Parser
       def parse(file_name)
-        configure do | config |
+        configure do |config|
           Syntax.new(config).instance_eval IO.read(file_name), file_name
         end
       end
 
       def eval(&block)
-        configure do | config |
+        configure do |config|
           Syntax.new(config).instance_eval(&block)
         end
       end
@@ -41,14 +41,14 @@ module Trema
       def configure(&block)
         config = Configuration.new
         block.call config
-        Trema::Link.each do | each |
+        Trema::Link.each do |each|
           peers = each.peers
-          config.hosts[ peers[ 0]].interface = each.name if config.hosts[ peers[ 0]]
-          config.hosts[ peers[ 1]].interface = each.name_peer if config.hosts[ peers[ 1]]
-          config.netnss[ peers[ 0]].interface = each.name if config.netnss[ peers[ 0]]
-          config.netnss[ peers[ 1]].interface = each.name_peer if config.netnss[ peers[ 1]]
-          config.switches[ peers[ 0]] << each.name if config.switches[ peers[ 0]]
-          config.switches[ peers[ 1]] << each.name_peer if config.switches[ peers[ 1]]
+          config.hosts[peers[0]].interface = each.name if config.hosts[peers[0]]
+          config.hosts[peers[1]].interface = each.name_peer if config.hosts[peers[1]]
+          config.netnss[peers[0]].interface = each.name if config.netnss[peers[0]]
+          config.netnss[peers[1]].interface = each.name_peer if config.netnss[peers[1]]
+          config.switches[peers[0]] << each.name if config.switches[peers[0]]
+          config.switches[peers[1]] << each.name_peer if config.switches[peers[1]]
         end
         Context.new(config).dump
       end

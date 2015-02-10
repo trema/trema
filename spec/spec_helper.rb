@@ -33,12 +33,12 @@ require 'trema/util'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
-Dir[ "#{ File.dirname(__FILE__) }/support/**/*.rb"].each do | each |
+Dir["#{ File.dirname(__FILE__) }/support/**/*.rb"].each do |each|
   require File.expand_path(each)
 end
 
-RSpec.configure do | config |
-  config.expect_with :rspec do | c |
+RSpec.configure do |config|
+  config.expect_with :rspec do |c|
     # Ensure that 'expect' is used and disable 'should' for consistency
     c.syntax = :expect
   end
@@ -47,15 +47,15 @@ end
 include Trema
 
 def controller(name)
-  Trema::App[ name]
+  Trema::App[name]
 end
 
 def vswitch(name)
-  Trema::OpenflowSwitch[ name]
+  Trema::OpenflowSwitch[name]
 end
 
 def vhost(name)
-  Trema::Host[ name]
+  Trema::Host[name]
 end
 
 def send_packets(source, dest, options = {})
@@ -91,20 +91,20 @@ class Network
     sm.no_flow_cleanup = true
     sm.run!
 
-    @context.links.each do | _name, each |
+    @context.links.each do |_name, each|
       each.add!
     end
-    @context.hosts.each do | _name, each |
+    @context.hosts.each do |_name, each|
       each.run!
     end
-    @context.switches.each do | _name, each |
+    @context.switches.each do |_name, each|
       each.run!
       drop_packets_from_unknown_hosts each
     end
-    @context.links.each do | _name, each |
+    @context.links.each do |_name, each|
       each.up!
     end
-    @context.hosts.each do | _name, each |
+    @context.hosts.each do |_name, each|
       each.add_arp_entry @context.hosts.values - [each]
     end
 
@@ -123,7 +123,7 @@ class Network
   def drop_packets_from_unknown_hosts(switch)
     ofctl = Trema::Ofctl.new
     ofctl.add_flow switch, :priority => 0, :actions => 'drop'
-    @context.hosts.each do | _name, each |
+    @context.hosts.each do |_name, each|
       ofctl.add_flow switch, :dl_type => '0x0800', :nw_src => each.ip, :priority => 1, :actions => 'controller'
     end
   end

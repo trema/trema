@@ -32,7 +32,7 @@ module Trema
       end
 
       def fetch(attribute)
-        v = self[ attribute]
+        v = self[attribute]
         fail "#{ attribute } is not set" if v.nil?
         v
       end

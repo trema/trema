@@ -31,7 +31,7 @@ describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
     end
   end
 
-  it_validates 'option is within range', :port_number, 0..( 2**16 - 1)
+  it_validates 'option is within range', :port_number, 0..(2**16 - 1)
 
   context 'with invalid port_number (5555)' do
     let(:port_number) { '5555' }
@@ -54,7 +54,7 @@ describe SetTransportSrcPort, 'new( port_number )', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc').flows.size).to eq(1)
-        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_tp_src:5555')
+        expect(vswitch('0xabc').flows[0].actions).to eq('mod_tp_src:5555')
       end
     end
   end

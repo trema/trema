@@ -21,7 +21,7 @@ require 'trema/stats-helper'
 module Trema
   class TableStatsReply < StatsHelper
     FIELDS = %w(table_id name wildcards max_entries ) +
-      %w(active_count lookup_count matched_count)
+             %w(active_count lookup_count matched_count)
     FIELDS.each { |field| attr_reader field.intern }
 
     # Information about tables that a switch supports. A switch may choose to

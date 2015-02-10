@@ -35,7 +35,7 @@ module Trema
     private
 
     def path
-      File.join(Trema.home, @stanza[ :path])
+      File.join(Trema.home, @stanza[:path])
     end
   end
 end

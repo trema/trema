@@ -76,7 +76,7 @@ module Trema
     # @api public
     #
     def self.each(&block)
-      instances.values.each do | each |
+      instances.values.each do |each|
         block.call each
       end
     end
@@ -97,7 +97,7 @@ module Trema
     # @api public
     #
     def self.[](name)
-      instances[ name]
+      instances[name]
     end
 
     #
@@ -130,7 +130,7 @@ module Trema
     # @api public
     #
     def self.add(object)
-      instances[ object.name] = object
+      instances[object.name] = object
     end
   end
 end

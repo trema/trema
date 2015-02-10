@@ -75,7 +75,7 @@ module Trema
     # @api public
     #
     def netmask
-      @stanza[ :netmask] || '255.255.255.255'
+      @stanza[:netmask] || '255.255.255.255'
     end
 
     #
@@ -92,8 +92,8 @@ module Trema
       sh "sudo ip netns add #{ name }"
       sh "sudo ip link set dev #{ interface } netns #{ name }"
       sh "sudo ip netns exec #{ name } ifconfig lo 127.0.0.1"
-      sh "sudo ip netns exec #{ name } ifconfig #{ interface } #{ @stanza[ :ip] } netmask #{ netmask }" if @stanza[ :ip]
-      sh "sudo ip netns exec #{ name } route add -net #{ @stanza[ :net] } gw #{ @stanza[ :gw] }" if @stanza[ :net] && @stanza[ :gw]
+      sh "sudo ip netns exec #{ name } ifconfig #{ interface } #{ @stanza[:ip] } netmask #{ netmask }" if @stanza[:ip]
+      sh "sudo ip netns exec #{ name } route add -net #{ @stanza[:net] } gw #{ @stanza[:gw] }" if @stanza[:net] && @stanza[:gw]
       self
     end
 

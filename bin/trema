@@ -44,7 +44,7 @@ class BinTrema
 
     desc 'Runs a trema application'
     arg_name 'controller'
-    command :run do | c |
+    command :run do |c|
       c.desc 'Runs as a daemon'
       c.switch [:d, :daemonize], :negatable => false
 
@@ -60,17 +60,17 @@ class BinTrema
       c.desc 'Disables initial flow cleanup for a connected switch'
       c.switch [:r, :no_flow_cleanup], :negatable => false
 
-      c.action do | _global_options, options, _args |
+      c.action do |_global_options, options, _args|
         trema_run options
       end
     end
 
     desc 'Terminates a trema process'
     arg_name 'name'
-    command :kill do | c |
-      c.action do | _global_options, _options, args |
+    command :kill do |c|
+      c.action do |_global_options, _options, args|
         help_now!('name is required') if args.empty?
-        args.each do | each |
+        args.each do |each|
           trema_kill each
         end
       end
@@ -78,21 +78,21 @@ class BinTrema
 
     desc 'Starts a killed trema process again'
     arg_name 'name'
-    command :up do | c |
-      c.action do | _global_options, _options, args |
-        trema_up args[ 0]
+    command :up do |c|
+      c.action do |_global_options, _options, args|
+        trema_up args[0]
       end
     end
 
     desc 'Terminates all trema processes'
-    command :killall do | c |
+    command :killall do |c|
       c.action do
         trema_killall
       end
     end
 
     desc 'Sends UDP packets to destination host'
-    command :send_packets do | c |
+    command :send_packets do |c|
       c.desc 'host that sends packets'
       c.flag [:s, :source]
 
@@ -137,67 +137,67 @@ class BinTrema
       c.default_value nil
       c.flag [:inc_payload]
 
-      c.action do | _global_options, options, _args |
-        fail '--source option is mandatory' if options[ :source].nil?
-        fail '--dest option is mandatory' if options[ :dest].nil?
+      c.action do |_global_options, options, _args|
+        fail '--source option is mandatory' if options[:source].nil?
+        fail '--dest option is mandatory' if options[:dest].nil?
 
-        trema_send_packets options[ :source], options[ :dest], options
+        trema_send_packets options[:source], options[:dest], options
       end
     end
 
     desc "Brings a switch's specified port up"
-    command :port_up do | c |
+    command :port_up do |c|
       c.desc 'switch name'
       c.flag [:s, :switch]
 
       c.desc 'port'
       c.flag [:p, :port]
 
-      c.action do | _global_options, options, _args |
-        fail '--switch option is mandatory' if options[ :switch].nil?
-        fail '--port option is mandatory' if options[ :port].nil?
+      c.action do |_global_options, options, _args|
+        fail '--switch option is mandatory' if options[:switch].nil?
+        fail '--port option is mandatory' if options[:port].nil?
 
-        trema_port_up options[ :switch], options[ :port]
+        trema_port_up options[:switch], options[:port]
       end
     end
 
     desc "Brings a switch's specified port down"
-    command :port_down do | c |
+    command :port_down do |c|
       c.desc 'switch name'
       c.flag [:s, :switch]
 
       c.desc 'port'
       c.flag [:p, :port]
 
-      c.action do | _global_options, options, _args |
-        fail '--switch option is mandatory' if options[ :switch].nil?
-        fail '--port option is mandatory' if options[ :port].nil?
+      c.action do |_global_options, options, _args|
+        fail '--switch option is mandatory' if options[:switch].nil?
+        fail '--port option is mandatory' if options[:port].nil?
 
-        trema_port_down options[ :switch], options[ :port]
+        trema_port_down options[:switch], options[:port]
       end
     end
 
     desc 'Shows stats of packets'
     arg_name 'host'
-    command :show_stats do | c |
+    command :show_stats do |c|
       c.desc 'Show stats of packets sent'
       c.switch [:t, :tx], :negatable => false
       c.desc 'Show stats of packets received'
       c.switch [:r, :rx], :negatable => false
 
-      c.action do | _global_options, options, args |
+      c.action do |_global_options, options, args|
         help_now!('host is required') if args.empty?
-        trema_show_stats args[ 0], options[ :tx], options[ :rx]
+        trema_show_stats args[0], options[:tx], options[:rx]
       end
     end
 
     desc 'Resets stats of packets'
     arg_name 'hosts...'
-    command :reset_stats do | c |
-      c.action do | _global_options, _options, args |
+    command :reset_stats do |c|
+      c.action do |_global_options, _options, args|
         hosts = args
         hosts = Trema::DSL::Context.load_current.hosts.keys if hosts.empty?
-        hosts.each do | each |
+        hosts.each do |each|
           trema_reset_stats each
         end
       end
@@ -205,8 +205,8 @@ class BinTrema
 
     desc 'Print all flow entries'
     arg_name 'switches...'
-    command :dump_flows do | c |
-      c.action do | _global_options, _options, args |
+    command :dump_flows do |c|
+      c.action do |_global_options, _options, args|
         help_now!('switches is required') if args.empty?
         trema_dump_flows args
       end
@@ -214,21 +214,21 @@ class BinTrema
 
     desc 'Opens a new shell in the specified network namespace'
     arg_name 'name'
-    command :netns do | c |
-      c.action do | _global_options, _options, args |
-        trema_netns args[ 0]
+    command :netns do |c|
+      c.action do |_global_options, _options, args|
+        trema_netns args[0]
       end
     end
 
     desc "Opens in your browser Trema's Ruby API documentation"
-    command :ruby do | c |
+    command :ruby do |c|
       c.action do
         trema_ruby
       end
     end
 
     desc 'Displays the current runtime version'
-    command :version do | c |
+    command :version do |c|
       c.action do
         trema_version
       end
@@ -236,10 +236,10 @@ class BinTrema
 
     GLI::Commands::Help.skips_pre = false
 
-    pre do | global, _command, _options, _args |
-      $verbose = global[ :verbose]
+    pre do |global, _command, _options, _args|
+      $verbose = global[:verbose]
 
-      if global[ :version]
+      if global[:version]
         trema_version
         exit_now! nil, 0
       end
@@ -258,7 +258,7 @@ class BinTrema
       true
     end
 
-    on_error do | _exception |
+    on_error do |_exception|
       # Error logic here
       # return false to skip default error handling
       true
@@ -269,7 +269,7 @@ class BinTrema
     run argv
   rescue
     puts $ERROR_INFO
-    $ERROR_INFO.backtrace.each do | each |
+    $ERROR_INFO.backtrace.each do |each|
       puts each
     end
     exit

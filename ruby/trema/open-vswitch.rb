@@ -30,8 +30,8 @@ module Trema
   class OpenVswitch < HardwareSwitch
     include Trema::Daemon
 
-    log_file { | vswitch | "openflowd.#{ vswitch.name }.log" }
-    command { | vswitch | vswitch.__send__ :command }
+    log_file { |vswitch| "openflowd.#{ vswitch.name }.log" }
+    command { |vswitch| vswitch.__send__ :command }
 
     #
     # Creates a new Open vSwitch from {DSL::Vswitch}

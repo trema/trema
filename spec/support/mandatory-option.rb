@@ -18,37 +18,37 @@
 
 require 'rspec'
 
-shared_examples_for 'any Openflow message with mandatory options' do | options |
+shared_examples_for 'any Openflow message with mandatory options' do |options|
   subject do
     opt_hash = {}
-    options[ :options].each do | each |
-      opt_hash[ each[ :name]] = __send__(each[ :name])
+    options[:options].each do |each|
+      opt_hash[each[:name]] = __send__(each[:name])
     end
-    options[ :klass].new(opt_hash)
+    options[:klass].new(opt_hash)
   end
 
-  options[ :options].each do | each |
-    let(each[ :name]) { each[ :sample_value] }
+  options[:options].each do |each|
+    let(each[:name]) { each[:sample_value] }
   end
 
-  options[ :options].each do | each |
-    context "with :#{ each[ :name] } (#{ each[ :sample_value] })" do
-      let(each[ :name]) { each[ :sample_value] }
+  options[:options].each do |each|
+    context "with :#{ each[:name] } (#{ each[:sample_value] })" do
+      let(each[:name]) { each[:sample_value] }
 
-      describe each[ :name] do
-        subject { super().send(each[ :name]) }
-        it { is_expected.to eq(each[ :sample_value]) }
+      describe each[:name] do
+        subject { super().send(each[:name]) }
+        it { is_expected.to eq(each[:sample_value]) }
       end
 
-      describe each[ :alias] do
-        subject { super().send(each[ :alias]) }
-        it { is_expected.to eq(each[ :sample_value]) }
-      end if each[ :alias]
+      describe each[:alias] do
+        subject { super().send(each[:alias]) }
+        it { is_expected.to eq(each[:sample_value]) }
+      end if each[:alias]
     end
 
-    context "without :#{ each[ :name] }" do
-      let(each[ :name]) { nil }
-      it { expect { subject }.to raise_error(ArgumentError, ":#{ each[ :name] } is a mandatory option") }
+    context "without :#{ each[:name] }" do
+      let(each[:name]) { nil }
+      it { expect { subject }.to raise_error(ArgumentError, ":#{ each[:name] } is a mandatory option") }
     end
   end
 end

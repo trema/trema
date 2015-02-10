@@ -63,7 +63,7 @@ module SubProcess
     end
 
     def start
-      @env.each_pair do | key, value |
+      @env.each_pair do |key, value|
         ENV[key] = value
       end
       Kernel.exec @command
@@ -82,7 +82,7 @@ module SubProcess
     end
 
     def close
-      [@stdin, @stdout, @stderr].each do | each |
+      [@stdin, @stdout, @stderr].each do |each|
         each.close unless each.closed?
       end
     end
@@ -91,8 +91,8 @@ module SubProcess
   class Process
     def initialize
       stdin, stdout, stderr = Array.new(3) { IO.pipe }
-      @child = SubProcess::PipeSet.new(stdin[ 1], stdout[ 0], stderr[ 0])
-      @parent = SubProcess::PipeSet.new(stdin[ 0], stdout[ 1], stderr[ 1])
+      @child = SubProcess::PipeSet.new(stdin[1], stdout[0], stderr[0])
+      @parent = SubProcess::PipeSet.new(stdin[0], stdout[1], stderr[1])
     end
 
     def wait
@@ -136,7 +136,7 @@ module SubProcess
     end
 
     def start
-      Thread.new(@io, @method) do | io, method |
+      Thread.new(@io, @method) do |io, method|
         method.call $LAST_READ_LINE while io.gets
       end
     end
@@ -177,7 +177,7 @@ module SubProcess
 
     def exec(command, env = { 'LC_ALL' => 'C' })
       on_failure { fail "command #{ command } failed" } unless @on_failure
-      SubProcess::Process.new.popen SubProcess::Command.new(command, env) do | stdout, stderr |
+      SubProcess::Process.new.popen SubProcess::Command.new(command, env) do |stdout, stderr|
         handle_child_output stdout, stderr
       end.wait
       handle_exitstatus

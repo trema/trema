@@ -26,7 +26,7 @@ end
 module Trema
   class PortStatusController < Controller
     def features_reply(dpid, message)
-      message.ports.select(&:up?).each do | each |
+      message.ports.select(&:up?).each do |each|
         port_mod = PortMod.new(
           :port_no => each.number,
           :hw_addr => each.hw_addr,
@@ -48,7 +48,7 @@ module Trema
           link 'host', '0xabc'
         end.run(PortStatusController) do
           pending
-          expect(controller('PortStatusController')).to receive(:port_status).with { | dpid, message |
+          expect(controller('PortStatusController')).to receive(:port_status).with { |dpid, message|
             expect(dpid).to eq(0xabc)
             expect(message).to be_an_instance_of(PortStatusModify)
           }

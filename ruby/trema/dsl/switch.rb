@@ -54,7 +54,7 @@ module Trema
 
       def dpid_long_from(string)
         no_0x = string.gsub(/^0x/, '')
-        '0' * ( 16 - no_0x.length) + no_0x
+        '0' * (16 - no_0x.length) + no_0x
       end
     end
   end

@@ -25,12 +25,12 @@ module Trema
     include Trema::Util
 
     def trema_run(options)
-      @config_file = options[ :conf] || nil
-      @openflow_port = options[ :port] || DEFAULT_OPENFLOW_CHANNEL_PORT
+      @config_file = options[:conf] || nil
+      @openflow_port = options[:port] || DEFAULT_OPENFLOW_CHANNEL_PORT
 
-      $run_as_daemon = true if options[ :daemonize]
-      $use_tremashark = true if options[ :tremashark]
-      $no_flow_cleanup = true if options[ :no_flow_cleanup]
+      $run_as_daemon = true if options[:daemonize]
+      $use_tremashark = true if options[:tremashark]
+      $no_flow_cleanup = true if options[:no_flow_cleanup]
 
       need_cleanup = (!running?)
 
@@ -63,8 +63,8 @@ module Trema
 
       config.port = @openflow_port
 
-      if ARGV[ 0]
-        controller_file = ARGV[ 0].split.first
+      if ARGV[0]
+        controller_file = ARGV[0].split.first
         if ruby_controller?
           require 'trema'
           Object.__send__ :include, Trema

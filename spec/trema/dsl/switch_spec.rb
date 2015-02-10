@@ -43,12 +43,12 @@ module Trema
       context 'when getting the attributes of a switch' do
         it 'returns its dpid in long format' do
           @switch.dpid '0xabc'
-          expect(@switch[ :dpid_long]).to eq('0000000000000abc')
+          expect(@switch[:dpid_long]).to eq('0000000000000abc')
         end
 
         it 'returns its dpid in short format' do
           @switch.dpid '0xabc'
-          expect(@switch[ :dpid_short]).to eq('0xabc')
+          expect(@switch[:dpid_short]).to eq('0xabc')
         end
       end
     end

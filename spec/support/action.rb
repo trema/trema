@@ -18,7 +18,7 @@
 
 require 'rspec'
 
-shared_examples_for 'option is within range' do | option, range |
+shared_examples_for 'option is within range' do |option, range|
   context "with #{ option } (#{ range })" do
     let(option) { range.first }
     it { expect { subject }.not_to raise_error }
@@ -35,7 +35,7 @@ shared_examples_for 'option is within range' do | option, range |
   end
 end
 
-RSpec.configure do | config |
+RSpec.configure do |config|
   config.alias_it_should_behave_like_to :it_validates, 'it validates'
 end
 

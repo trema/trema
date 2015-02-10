@@ -28,7 +28,7 @@ module Trema
   class Phost
     include Trema::Daemon
 
-    command { | phost | "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -n #{ phost.name } -D" }
+    command { |phost| "sudo #{ Executables.phost } -i #{ phost.interface } -p #{ Trema.pid } -l #{ Trema.log } -n #{ phost.name } -D" }
     wait_until_up
     daemon_id :name
 

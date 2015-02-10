@@ -24,16 +24,16 @@ require 'trema/flow'
 module Trema
   class Ofctl
     def add_flow(switch, options)
-      actions = options[ :actions]
+      actions = options[:actions]
       options.delete :actions
-      option_string = options.collect do | k, v |
+      option_string = options.collect do |k, v|
         "#{ k }=#{ v }"
       end.join(',')
       sh "sudo #{ Executables.ovs_ofctl } add-flow #{ switch.network_device } #{ option_string },actions=#{ actions } 2>/dev/null"
     end
 
     def flows(switch)
-      dump_flows(switch).split("\n")[ 1..-1].collect do | each |
+      dump_flows(switch).split("\n")[1..-1].collect do |each|
         Trema::Flow.parse(each)
       end.compact
     end

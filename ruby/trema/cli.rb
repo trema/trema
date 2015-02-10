@@ -58,7 +58,7 @@ module Trema
     end
 
     def send_packets(dest, options = {})
-      if options[ :duration] && options[ :n_pkts]
+      if options[:duration] && options[:n_pkts]
         fail '--duration and --n_pkts are exclusive.'
       end
 
@@ -76,7 +76,7 @@ module Trema
     end
 
     def tx_stats
-      stat = stats(:tx).split("\n")[ 1]
+      stat = stats(:tx).split("\n")[1]
       if stat
         Trema::Stats.new(*stat.split(','))
       else
@@ -85,7 +85,7 @@ module Trema
     end
 
     def rx_stats
-      stat = stats(:rx).split("\n")[ 1]
+      stat = stats(:rx).split("\n")[1]
       if stat
         Trema::Stats.new(*stat.split(','))
       else
@@ -114,17 +114,17 @@ module Trema
 
     def send_packets_options(options)
       [
-        tp_src(options[ :tp_src] || default_tp_src),
-        tp_dst(options[ :tp_dst] || default_tp_dst),
-        pps(options[ :pps] || default_pps),
-        options[ :n_pkts] ? nil : duration(options[ :duration] || default_duration),
-        length(options[ :length] || default_length),
-        n_pkts(options[ :n_pkts]),
-        inc_ip_src(options[ :inc_ip_src]),
-        inc_ip_dst(options[ :inc_ip_dst]),
-        inc_tp_src(options[ :inc_tp_src]),
-        inc_tp_dst(options[ :inc_tp_dst]),
-        inc_payload(options[ :inc_payload])
+        tp_src(options[:tp_src] || default_tp_src),
+        tp_dst(options[:tp_dst] || default_tp_dst),
+        pps(options[:pps] || default_pps),
+        options[:n_pkts] ? nil : duration(options[:duration] || default_duration),
+        length(options[:length] || default_length),
+        n_pkts(options[:n_pkts]),
+        inc_ip_src(options[:inc_ip_src]),
+        inc_ip_dst(options[:inc_ip_dst]),
+        inc_tp_src(options[:inc_tp_src]),
+        inc_tp_dst(options[:inc_tp_dst]),
+        inc_payload(options[:inc_payload])
       ].compact.join(' ')
     end
 

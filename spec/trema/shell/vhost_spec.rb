@@ -28,7 +28,7 @@ describe Trema::Shell, '.vhost' do
     Trema::Shell.vhost('host1')
 
     expect(Trema::Host.size).to eq(1)
-    expect(Trema::Host[ 'host1'].name).to eq('host1')
+    expect(Trema::Host['host1'].name).to eq('host1')
   end
 
   it 'should take ip, netmask, promisc, and mac option' do
@@ -40,10 +40,10 @@ describe Trema::Shell, '.vhost' do
     end
 
     expect(Trema::Host.size).to eq(1)
-    expect(Trema::Host[ 'host1'].name).to eq('host1')
-    expect(Trema::Host[ 'host1'].ip).to eq('192.168.100.1')
-    expect(Trema::Host[ 'host1'].promisc).to be_truthy
-    expect(Trema::Host[ 'host1'].mac).to eq('00:00:00:1:1:1')
+    expect(Trema::Host['host1'].name).to eq('host1')
+    expect(Trema::Host['host1'].ip).to eq('192.168.100.1')
+    expect(Trema::Host['host1'].promisc).to be_truthy
+    expect(Trema::Host['host1'].mac).to eq('00:00:00:1:1:1')
   end
 end
 

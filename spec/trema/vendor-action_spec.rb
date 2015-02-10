@@ -31,7 +31,7 @@ describe VendorAction, 'new(vendor_id)', :type => 'actions' do
     end
   end
 
-  it_validates 'option is within range', :vendor_id, 0..( 2**32 - 1)
+  it_validates 'option is within range', :vendor_id, 0..(2**32 - 1)
 
   context 'with vendor_id (0x00004cff)' do
     let(:vendor_id) { '0x00004cff' }
@@ -63,7 +63,7 @@ describe VendorAction, '.new(0x00002320, body)', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc').flows.size).to eq(1)
-        expect(vswitch('0xabc').flows[ 0].actions).to eq('note:54.72.65.6d.61.00')
+        expect(vswitch('0xabc').flows[0].actions).to eq('note:54.72.65.6d.61.00')
       end
     end
   end

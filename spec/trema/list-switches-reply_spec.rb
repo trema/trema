@@ -28,7 +28,7 @@ describe Controller do
         vswitch { datapath_id 0x2 }
         vswitch { datapath_id 0x3 }
       end.run(ListSwitchesController) do
-        expect(controller('ListSwitchesController')).to receive(:list_switches_reply) do | dpids |
+        expect(controller('ListSwitchesController')).to receive(:list_switches_reply) do |dpids|
           expect(dpids).to eq([0x1, 0x2, 0x3])
         end
         controller('ListSwitchesController').send_list_switches_request

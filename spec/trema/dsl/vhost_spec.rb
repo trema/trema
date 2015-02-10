@@ -26,7 +26,7 @@ module Trema
         context 'when name empty' do
           before { @vhost = Vhost.new }
 
-          subject { @vhost[ :name] }
+          subject { @vhost[:name] }
 
           context 'and IP address empty' do
             it { is_expected.to be_nil }
@@ -42,7 +42,7 @@ module Trema
         context "when name is \"Yutaro's host\"" do
           before { @vhost = Vhost.new("Yutaro's host") }
 
-          subject { @vhost[ :name] }
+          subject { @vhost[:name] }
 
           context 'and ip address empty' do
             it { is_expected.to eq("Yutaro's host") }
@@ -59,7 +59,7 @@ module Trema
       describe :promisc do
         before { @vhost = Vhost.new("Yutaro's host") }
 
-        subject { @vhost[ :promisc] }
+        subject { @vhost[:promisc] }
 
         context 'when promisc off' do
           before { @vhost.promisc 'off' }
@@ -95,7 +95,7 @@ module Trema
       describe :netmask do
         before { @vhost = Vhost.new("Yutaro's host") }
 
-        subject { @vhost[ :netmask] }
+        subject { @vhost[:netmask] }
 
         context 'when netmask empty' do
           it { is_expected.to be_nil }
@@ -111,7 +111,7 @@ module Trema
       describe :mac do
         before { @vhost = Vhost.new("Yutaro's host") }
 
-        subject { @vhost[ :mac] }
+        subject { @vhost[:mac] }
 
         context 'when mac empty' do
           it { is_expected.to be_nil }

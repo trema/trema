@@ -31,7 +31,7 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
     end
   end
 
-  it_validates 'option is within range', :type_of_service, 0..( 2**8 - 1)
+  it_validates 'option is within range', :type_of_service, 0..(2**8 - 1)
 
   context 'with type_of_service (32)' do
     let(:type_of_service) { '32' }
@@ -59,7 +59,7 @@ describe SetIpTos, '.new( type_of_service )', :type => 'actions' do
         controller('TestController').send_flow_mod_add(0xabc, :actions => subject)
         sleep 2
         expect(vswitch('0xabc').flows.size).to eq(1)
-        expect(vswitch('0xabc').flows[ 0].actions).to eq('mod_nw_tos:4')
+        expect(vswitch('0xabc').flows[0].actions).to eq('mod_nw_tos:4')
       end
     end
   end

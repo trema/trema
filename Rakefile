@@ -65,7 +65,7 @@ CFLAGS << '-Werror' if RUBY_VERSION < '1.9.0'
 
 desc 'Build Trema C library (static library).'
 task 'libtrema:static' => 'vendor:openflow'
-PaperHouse::StaticLibraryTask.new 'libtrema:static' do | task |
+PaperHouse::StaticLibraryTask.new 'libtrema:static' do |task|
   task.library_name = 'libtrema'
   task.target_directory = Trema.lib
   task.sources = "#{ Trema.include }/*.c"
@@ -75,7 +75,7 @@ end
 
 desc 'Build Trema C library (coverage).'
 task 'libtrema:gcov' => ['vendor:openflow']
-PaperHouse::StaticLibraryTask.new 'libtrema:gcov' do | task |
+PaperHouse::StaticLibraryTask.new 'libtrema:gcov' do |task|
   task.library_name = 'libtrema'
   task.target_directory = "#{ Trema.home }/objects/unittests"
   task.sources = "#{ Trema.include }/*.c"
@@ -85,7 +85,7 @@ end
 
 desc 'Build Trema C library (shared library).'
 task 'libtrema:shared' => 'vendor:openflow'
-PaperHouse::SharedLibraryTask.new 'libtrema:shared' do | task |
+PaperHouse::SharedLibraryTask.new 'libtrema:shared' do |task|
   task.library_name = 'libtrema'
   task.target_directory = Trema.lib
   task.version = Trema::VERSION
@@ -96,7 +96,7 @@ end
 
 desc 'Build Trema Ruby library.'
 task 'rubylib' => 'libtrema:static'
-PaperHouse::RubyExtensionTask.new 'rubylib' do | task |
+PaperHouse::RubyExtensionTask.new 'rubylib' do |task|
   task.library_name = 'trema'
   task.target_directory = Trema.ruby
   task.sources = "#{ Trema.ruby }/trema/*.c"
@@ -109,7 +109,7 @@ end
 desc 'Build switch manager.'
 task :switch_manager => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :switch_manager do | task |
+PaperHouse::ExecutableTask.new :switch_manager do |task|
   task.target_directory = File.dirname(Trema::Executables.switch_manager)
   task.sources = [
     'src/switch_manager/dpid_table.c',
@@ -127,7 +127,7 @@ end
 desc 'Build switch daemon.'
 task :switch_daemon => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :switch_daemon do | task |
+PaperHouse::ExecutableTask.new :switch_daemon do |task|
   task.executable_name = File.basename(Trema::Executables.switch)
   task.target_directory = File.dirname(Trema::Executables.switch)
   task.sources = [
@@ -173,7 +173,7 @@ def phost_src
 end
 
 def phost_objects
-  FileList[ File.join(phost_src, '*.o')]
+  FileList[File.join(phost_src, '*.o')]
 end
 
 def phost_vendor_binary
@@ -185,7 +185,7 @@ def phost_cli_vendor_binary
 end
 
 def phost_clean_targets
-  ( phost_objects + [phost_vendor_binary, phost_cli_vendor_binary]).select do | each |
+  (phost_objects + [phost_vendor_binary, phost_cli_vendor_binary]).select do |each|
     FileTest.exists? each
   end
 end
@@ -243,7 +243,7 @@ CLOBBER.include(Trema.openvswitch) if FileTest.exists?(Trema.openvswitch)
 desc 'Build packetin filter.'
 task :packetin_filter => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :packetin_filter do | task |
+PaperHouse::ExecutableTask.new :packetin_filter do |task|
   task.executable_name = File.basename(Trema::Executables.packetin_filter)
   task.target_directory = File.dirname(Trema::Executables.packetin_filter)
   task.sources = ['src/packetin_filter/*.c']
@@ -277,19 +277,19 @@ $standalone_examples = %w(dumper list_switches packet_in switch_info traffic_mon
 
 desc 'Build examples.'
 task :examples =>
-  $standalone_examples.map { | each | "examples:#{ each }" } +
-  [
-    'examples:openflow_switch',
-    'examples:openflow_message',
-    'examples:switch_event_config',
-    'examples:packetin_filter_config'
-  ]
+  $standalone_examples.map { |each| "examples:#{ each }" } +
+    [
+      'examples:openflow_switch',
+      'examples:openflow_message',
+      'examples:switch_event_config',
+      'examples:packetin_filter_config'
+    ]
 
-$standalone_examples.each do | each |
+$standalone_examples.each do |each|
   name = "examples:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'examples', each)
     task.sources = ["src/examples/#{ each }/*.c"]
@@ -306,13 +306,13 @@ end
 
 $openflow_switches = %w(hello_switch echo_switch)
 
-task 'examples:openflow_switch' => $openflow_switches.map { | each | "examples:openflow_switch:#{ each }" }
+task 'examples:openflow_switch' => $openflow_switches.map { |each| "examples:openflow_switch:#{ each }" }
 
-$openflow_switches.each do | each |
+$openflow_switches.each do |each|
   name = "examples:openflow_switch:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'examples', 'openflow_switch')
     task.sources = ["src/examples/openflow_switch/#{ each }.c"]
@@ -329,13 +329,13 @@ end
 
 $openflow_messages = %w(echo features_request hello set_config vendor_action)
 
-task 'examples:openflow_message' => $openflow_messages.map { | each | "examples:openflow_message:#{ each }" }
+task 'examples:openflow_message' => $openflow_messages.map { |each| "examples:openflow_message:#{ each }" }
 
-$openflow_messages.each do | each |
+$openflow_messages.each do |each|
   name = "examples:openflow_message:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'examples', 'openflow_message')
     task.sources = ["src/examples/openflow_message/#{ each }.c"]
@@ -352,13 +352,13 @@ end
 
 $switch_event_config = %w(add_forward_entry delete_forward_entry set_forward_entries dump_forward_entries)
 
-task 'examples:switch_event_config' => $switch_event_config.map { | each | "examples:switch_event_config:#{ each }" }
+task 'examples:switch_event_config' => $switch_event_config.map { |each| "examples:switch_event_config:#{ each }" }
 
-$switch_event_config.each do | each |
+$switch_event_config.each do |each|
   name = "examples:switch_event_config:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'examples', 'switch_event_config')
     task.sources = ["src/examples/switch_event_config/#{ each }.c"]
@@ -375,13 +375,13 @@ end
 
 $packetin_filter_config = %w(add_filter delete_filter delete_filter_strict dump_filter dump_filter_strict)
 
-task 'examples:packetin_filter_config' => $packetin_filter_config.map { | each | "examples:packetin_filter_config:#{ each }" }
+task 'examples:packetin_filter_config' => $packetin_filter_config.map { |each| "examples:packetin_filter_config:#{ each }" }
 
-$packetin_filter_config.each do | each |
+$packetin_filter_config.each do |each|
   name = "examples:packetin_filter_config:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'examples', 'packetin_filter_config')
     task.sources = ["src/examples/packetin_filter_config/#{ each }.c", 'src/examples/packetin_filter_config/utils.c']
@@ -399,13 +399,13 @@ end
 $management_commands = %w(application echo set_logging_level show_stats)
 
 desc 'Build management commands.'
-task :management_commands => $management_commands.map { | each | "management:#{ each }" }
+task :management_commands => $management_commands.map { |each| "management:#{ each }" }
 
-$management_commands.each do | each |
+$management_commands.each do |each|
   name = "management:#{ each }"
 
   task name => 'libtrema:static'
-  PaperHouse::ExecutableTask.new name do | task |
+  PaperHouse::ExecutableTask.new name do |task|
     task.executable_name = each
     task.target_directory = File.join(Trema.objects, 'management')
     task.sources = ["src/management/#{ each }.c"]
@@ -423,7 +423,7 @@ end
 desc 'Build tremashark.'
 task :tremashark => [:packet_capture, :syslog_relay, :stdin_relay, :openflow_wireshark_plugin, 'libtrema:static']
 
-PaperHouse::ExecutableTask.new :tremashark do | task |
+PaperHouse::ExecutableTask.new :tremashark do |task|
   task.executable_name = File.basename(Trema::Executables.tremashark)
   task.target_directory = File.dirname(Trema::Executables.tremashark)
   task.sources = [
@@ -439,7 +439,7 @@ end
 
 task :packet_capture => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :packet_capture do | task |
+PaperHouse::ExecutableTask.new :packet_capture do |task|
   task.executable_name = File.basename(Trema::Executables.packet_capture)
   task.target_directory = File.dirname(Trema::Executables.packet_capture)
   task.sources = [
@@ -454,7 +454,7 @@ end
 
 task :syslog_relay => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :syslog_relay do | task |
+PaperHouse::ExecutableTask.new :syslog_relay do |task|
   task.executable_name = File.basename(Trema::Executables.syslog_relay)
   task.target_directory = File.dirname(Trema::Executables.syslog_relay)
   task.sources = ['src/tremashark/syslog_relay.c']
@@ -466,7 +466,7 @@ end
 
 task :stdin_relay => 'libtrema:static'
 
-PaperHouse::ExecutableTask.new :stdin_relay do | task |
+PaperHouse::ExecutableTask.new :stdin_relay do |task|
   task.executable_name = File.basename(Trema::Executables.stdin_relay)
   task.target_directory = File.dirname(Trema::Executables.stdin_relay)
   task.sources = ['src/tremashark/stdin_relay.c']
@@ -536,8 +536,8 @@ def libtrema_unit_tests
 end
 
 def test_c_files(test)
-  names = [test.to_s.gsub(/_test$/, '')] + libtrema_unit_tests[ test]
-  names.collect do | each |
+  names = [test.to_s.gsub(/_test$/, '')] + libtrema_unit_tests[test]
+  names.collect do |each|
     if each == :buffer
       ['src/lib/buffer.c', 'unittests/buffer_stubs.c']
     elsif each == :wrapper
@@ -550,10 +550,10 @@ end
 
 directory 'objects/unittests'
 
-task :build_old_unittests => libtrema_unit_tests.keys.map { | each | "unittests:#{ each }" }
+task :build_old_unittests => libtrema_unit_tests.keys.map { |each| "unittests:#{ each }" }
 
-libtrema_unit_tests.keys.each do | each |
-  PaperHouse::ExecutableTask.new "unittests:#{ each }" do | task |
+libtrema_unit_tests.keys.each do |each|
+  PaperHouse::ExecutableTask.new "unittests:#{ each }" do |task|
     name = "unittests:#{ each }"
     task name => ['vendor:cmockery', 'vendor:openflow', 'objects/unittests']
 
@@ -589,7 +589,7 @@ $tests = [
   'objects/unittests/management_service_interface_test'
 ]
 
-task :build_unittests => $tests.map { | each | 'unittests:' + File.basename(each) }
+task :build_unittests => $tests.map { |each| 'unittests:' + File.basename(each) }
 
 $tests.each do |each|
   test = File.basename(each)
@@ -608,7 +608,7 @@ end
 
 desc 'Run unittests'
 task :unittests => [:build_old_unittests, :build_unittests] do
-  Dir.glob('unittests/objects/*_test').each do | each |
+  Dir.glob('unittests/objects/*_test').each do |each|
     puts "Running #{ each }..."
     sh each
   end
@@ -621,7 +621,7 @@ end
 desc 'Print list of notes.'
 task :notes do
   keywords = %w(TODO FIXME XXX)
-  keywords.each do | each |
+  keywords.each do |each|
     system "find src unittests -name '*.c' | xargs grep -n #{ each }"
     system "find ruby spec features -name '*.rb' | xargs grep -n #{ each }"
   end

@@ -85,7 +85,7 @@ class Testee
 
     n = 0
     in_comment = false
-    File.open(@path, 'r').each_line do | l |
+    File.open(@path, 'r').each_line do |l|
       next if %r{^\s+//} =~ l # comments starting with //
       next if /^\s*$/ =~ l # empty lines
       next if %r{^\s*/\*.*\*/} =~ l # /* ... */
@@ -117,13 +117,13 @@ class Testee
 end
 
 def testees
-  $c_files.delete_if do | key, _value |
+  $c_files.delete_if do |key, _value|
     File.basename(key) == 'trema_wrapper.c'
   end
 end
 
 def files_tested
-  testees.values.select do | each |
+  testees.values.select do |each|
     each.coverage != 0.0
   end
 end
@@ -133,13 +133,13 @@ def files_not_tested
 end
 
 def lines_total
-  testees.values.inject(0) do | r, each |
+  testees.values.inject(0) do |r, each|
     r + each.lines
   end
 end
 
 def lines_tested
-  testees.values.inject(0) do | r, each |
+  testees.values.inject(0) do |r, each|
     r + each.lines_tested
   end
 end
@@ -149,23 +149,23 @@ def coverage
 end
 
 def diff_coverage_threshold
-  sprintf('%3.1f', ( $coverage_threshold - coverage).abs).to_f
+  sprintf('%3.1f', ($coverage_threshold - coverage).abs).to_f
 end
 
 def gcov(gcda, dir)
   file = nil
 
   cmd = "gcov #{ gcda } -o #{ dir } -n"
-  SubProcess.create do | shell |
-    shell.on_stdout do | l |
+  SubProcess.create do |shell|
+    shell.on_stdout do |l|
       file = File.expand_path(Regexp.last_match[1]) if /^File '(.*)'/ =~ l
-      testee = $c_files[ file]
+      testee = $c_files[file]
       if /^Lines executed:(.*)% of (.*)$/ =~ l && testee
         testee.coverage = Regexp.last_match[1].to_f
         testee.lines = Regexp.last_match[2].to_i
       end
     end
-    shell.on_stderr do | l |
+    shell.on_stderr do |l|
       $stderr.puts l
     end
     shell.on_failure do
@@ -179,12 +179,12 @@ def measure_coverage
   Find.find('src/lib', 'src/packetin_filter', 'src/switch_manager', 'src/tremashark', 'unittests') do |f|
     next unless /\.c$/ =~ f
     path = File.expand_path(f)
-    $c_files[ path] = Testee.new(path)
+    $c_files[path] = Testee.new(path)
   end
-  Dir.glob('unittests/objects/*.gcda').each do | each |
+  Dir.glob('unittests/objects/*.gcda').each do |each|
     gcov each, 'unittests/objects'
   end
-  Dir.glob('objects/unittests/*.gcda').each do | each |
+  Dir.glob('objects/unittests/*.gcda').each do |each|
     gcov each, 'objects/unittests'
   end
 end
@@ -202,9 +202,7 @@ end
 
 def coverage_ranking
   summary = StringIO.new
-  testees.values.sort_by do | each |
-    each.coverage
-  end.each do | each |
+  testees.values.sort_by(&:coverage).each do |each|
     summary.printf "  %45s (%4s LoC): %5.1f%%\n", each.name, each.lines, each.coverage
   end
   summary.string
@@ -244,18 +242,18 @@ def show_summary
 #{ coverage_ranking }
 
 #{ banner('Summary') }
-- Total execution time = #{ ( Time.now - $start_time).to_i } seconds
+- Total execution time = #{ (Time.now - $start_time).to_i } seconds
 - Overall coverage = #{ coverage }% (#{ files_not_tested.size }/#{ testees.size } files not yet tested)
 
 
 EOF
 
-  if (coverage < $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
+  if (coverage < $coverage_threshold) && (diff_coverage_threshold > delta_coverage_threshold)
     puts coverage_threshold_error
     puts
     puts
     exit(-1)
-  elsif (coverage > $coverage_threshold) && ( diff_coverage_threshold > delta_coverage_threshold)
+  elsif (coverage > $coverage_threshold) && (diff_coverage_threshold > delta_coverage_threshold)
     puts update_coverage_threshold_message
     puts
     puts
