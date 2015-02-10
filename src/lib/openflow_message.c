@@ -3114,7 +3114,7 @@ validate_queue_get_config_reply( const buffer *message ) {
   assert( message != NULL );
 
   ret = validate_header( message, OFPT_QUEUE_GET_CONFIG_REPLY,
-                         sizeof( struct ofp_queue_get_config_reply ) + sizeof( struct ofp_packet_queue ),
+                         sizeof( struct ofp_queue_get_config_reply ),
                          UINT16_MAX );
   if ( ret < 0 ) {
     return ret;
