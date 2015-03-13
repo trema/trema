@@ -1,7 +1,7 @@
 # rubocop:disable LineLength
 
 Then(/^the number of packets sent from "(.*?)" should be:$/) do |host_name, table|
-  command = "trema show_stats #{host_name} -S ."
+  command = "trema show_stats #{host_name}"
   step "I successfully run `#{command}`"
 
   result = {}
@@ -26,7 +26,7 @@ Then(/^the number of packets sent from "(.*?)" should be:$/) do |host_name, tabl
 end
 
 Then(/^the number of packets received by "(.*?)" should be:$/) do |host_name, table|
-  command = "trema show_stats #{host_name} -S ."
+  command = "trema show_stats #{host_name}"
   step "I successfully run `#{command}`"
 
   result = {}
