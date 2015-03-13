@@ -1,0 +1,19 @@
+language: ruby
+
+script: bundle exec rake
+
+bundler_args: --without development
+
+rvm:
+  - 2.0
+  - 2.1
+  - 2.2
+  - ruby-head
+
+before_install:
+  - gem update bundler
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+  fast_finish: true
