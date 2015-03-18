@@ -1,10 +1,12 @@
+# rubocop:disable LineLength
+
 require 'rack/test'
-require 'routing_switch/api'
+require 'routing_switch/rest_api'
 
 World(Rack::Test::Methods)
 
 def app
-  RoutingSwitch::Api
+  RoutingSwitch::RestApi
 end
 
 Given(/^I send and accept JSON$/) do
@@ -13,13 +15,23 @@ Given(/^I send and accept JSON$/) do
 end
 
 Given(/^I send a GET request for "([^\"]*)"$/) do |path|
-  get path
+  in_current_dir { get path }
+end
+
+Given(/^I send a POST request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
+  in_current_dir { post path, Object.instance_eval(body) }
+end
+
+Given(/^I send a DELETE request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
+  in_current_dir { delete path, Object.instance_eval(body) }
 end
 
 Then(/^the response should be "([^\"]*)"$/) do |status|
   expect(last_response.status).to eq(status.to_i)
 end
 
-Then(/^the JSON response should be an empty array$/) do
-  expect(JSON.parse(last_response.body)).to eq([])
+Then(/^the JSON response should be:$/) do |json|
+  expect(JSON.parse(last_response.body)).to eq(JSON.parse(json))
 end
+
+# rubocop:enable LineLength
