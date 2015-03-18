@@ -1,7 +1,6 @@
 begin
   require 'yard'
   YARD::Rake::YardocTask.new do |t|
-    t.files = ['lib/**/*.rb']
     t.options = ['--no-private']
     t.options << '--debug' << '--verbose' if verbose == true
   end
