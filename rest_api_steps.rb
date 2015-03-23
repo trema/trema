@@ -1,13 +1,8 @@
 # rubocop:disable LineLength
 
 require 'rack/test'
-require 'routing_switch/rest_api'
 
 World(Rack::Test::Methods)
-
-def app
-  RoutingSwitch::RestApi
-end
 
 Given(/^I send and accept JSON$/) do
   header 'Accept', 'application/json'
