@@ -25,6 +25,10 @@ Then(/^the response should be "([^\"]*)"$/) do |status|
   expect(last_response.status).to eq(status.to_i)
 end
 
+Then(/^the JSON response should be "([^\"]*)"$/) do |json|
+  expect(JSON.parse(last_response.body)).to eq(JSON.parse(json))
+end
+
 Then(/^the JSON response should be:$/) do |json|
   expect(JSON.parse(last_response.body)).to eq(JSON.parse(json))
 end
