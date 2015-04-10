@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
 
   gem.authors = ['Yasuhito Takamiya']
   gem.email = ['yasuhito@gmail.com']
-  gem.homepage = 'http://github.com/trema/trema_ruby'
+  gem.homepage = 'http://github.com/trema/trema'
 
   gem.executables = %w(trema)
   gem.files = `git ls-files`.split("\n")
