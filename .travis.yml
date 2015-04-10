@@ -5,7 +5,7 @@ script: bundle exec rake travis
 before_install:
   - gem update bundler
 
- bundler_args: --without development
+bundler_args: --without development
 
 rvm:
   - 2.0
