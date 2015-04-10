@@ -1,32 +1,25 @@
 language: ruby
+cache: bundler
+sudo: false
+
+script: bundle exec rake travis
 
 before_install:
- - gem update bundler
- - sudo apt-get update -qq
- - sudo apt-get install libpcap-dev -qq
+  - gem update bundler
+
 bundler_args: --without development
 
-env:
-  global:
-    - secure: "roJa3FuYA6gLdV0vtUe1GyuAU2WQ+E+jraT9QeKKHRQSU2TKYgeJ7MmxG3vSpIoZsHEdmrZh0UVTrMO436UHAG5V+qbSmP2gld0vSI2qDQ2dXbNoAIVUHex2oCDTa5OC0sJbz9W8Yrd0XoTY0O5gObPn6QfTzAHKgPz7ZC9bBwo="
-
 rvm:
-  - 2.0.0
-  - 2.1.0
+  - 2.0
+  - 2.1
+  - 2.2
   - ruby-head
-
-branches:
-  only:
-    - master
-    - develop
 
 matrix:
   allow_failures:
-    - rvm: 2.1.0
+    - rvm: 2.1
     - rvm: ruby-head
   fast_finish: true
-
-script: bundle exec rake travis
 
 notifications:
   webhooks:
@@ -35,3 +28,7 @@ notifications:
     on_success: always
     on_failure: always
     on_start: always
+
+env:
+  global:
+    - secure: "roJa3FuYA6gLdV0vtUe1GyuAU2WQ+E+jraT9QeKKHRQSU2TKYgeJ7MmxG3vSpIoZsHEdmrZh0UVTrMO436UHAG5V+qbSmP2gld0vSI2qDQ2dXbNoAIVUHex2oCDTa5OC0sJbz9W8Yrd0XoTY0O5gObPn6QfTzAHKgPz7ZC9bBwo="

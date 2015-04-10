@@ -30,6 +30,8 @@ module Trema
       c.switch [:d, :daemonize], negatable: false
       c.desc 'Specifies emulated network configuration'
       c.flag [:c, :conf]
+      c.desc 'Use OpenFlow1.3'
+      c.switch :openflow13, default_value: false
 
       c.desc 'Location to put pid files'
       c.flag [:P, :pid_dir], default_value: Trema::DEFAULT_PID_DIR
@@ -42,6 +44,8 @@ module Trema
         Phut.pid_dir = options[:pid_dir]
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
+        require 'pio/open_flow13' if options[:openflow13]
+        require 'trema/switch'
         Trema::Command.new.run(args, global_options.merge(options))
       end
     end
