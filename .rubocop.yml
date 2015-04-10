@@ -1,14 +1,17 @@
 AllCops:
   Include:
-    - Gemfile
-    - Rakefile
-    - bin/*
-    - cruise.rb
-    - features/**/*.rb
-    - ruby/**/*.rb
-    - spec/**/*.rb
-    - src/**/*.rb
+    - ./*.conf
+    - ./Gemfile
+    - ./Guardfile
+    - ./Rakefile
     - tasks/*.rake
-    - trema.gemspec
+  Exclude:
+    - bin/*
+    - tmp/**/*
+    - vendor/**/*
 
-inherit_from: rubocop-todo.yml
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/DotPosition:
+  EnforcedStyle: trailing
