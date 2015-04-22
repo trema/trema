@@ -23,8 +23,8 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bundler', '~> 1.9.1'
   gem.add_dependency 'gli', '~> 2.13.0'
-  gem.add_dependency 'phut', '~> 0.4.0'
-  gem.add_dependency 'pio', '~> 0.18.2'
+  gem.add_dependency 'phut', '~> 0.5.0'
+  gem.add_dependency 'pio', '~> 0.20.0'
   gem.add_dependency 'rake'
 
   # Docs

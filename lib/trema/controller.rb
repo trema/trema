@@ -5,7 +5,6 @@ require 'socket'
 require 'trema/command'
 require 'trema/logger'
 require 'trema/monkey_patch/integer'
-require 'trema/switch'
 
 module Trema
   # The base class of Trema controller. Subclass and override handlers
@@ -187,7 +186,7 @@ module Trema
     # The default handler for echo request messages.
     # Override this to implement a custom handler.
     def echo_request(datapath_id, message)
-      echo_reply = Echo::Reply.new(message.xid)
+      echo_reply = Echo::Reply.new(xid: message.xid)
       send_message datapath_id, echo_reply
     end
 

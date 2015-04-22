@@ -65,7 +65,7 @@ module Trema
 
     def read_openflow_binary
       header_binary = drain(OPENFLOW_HEADER_LENGTH)
-      header = OpenFlow::OpenFlowHeader.read(header_binary)
+      header = OpenFlowHeaderParser.read(header_binary)
       body_binary = drain(header.message_length - OPENFLOW_HEADER_LENGTH)
       fail if (header_binary + body_binary).length != header.message_length
       [header.message_type, header_binary + body_binary]
