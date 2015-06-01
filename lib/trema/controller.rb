@@ -82,7 +82,7 @@ module Trema
     include Pio
 
     SWITCH = {}
-    DEFAULT_TCP_PORT = 6633
+    DEFAULT_TCP_PORT = 6653
 
     # @return [Logger]
     attr_reader :logger
