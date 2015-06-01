@@ -104,12 +104,13 @@ module Trema
     # rubocop:enable TrivialAccessors
 
     # @private
-    def self.create
-      @controller_klass.new
+    def self.create(port_number = DEFAULT_TCP_PORT)
+      @controller_klass.new(port_number)
     end
 
     # @private
-    def initialize
+    def initialize(port_number = DEFAULT_TCP_PORT)
+      @port_number = port_number
       @threads = []
       @logger = Logger.new(name)
       @logger.level = Controller.logging_level
@@ -124,7 +125,7 @@ module Trema
         File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
       @drb = DRb::DRbServer.new 'drbunix:' + drb_socket_file, self
       maybe_send_handler :start, args
-      socket = TCPServer.open('<any>', DEFAULT_TCP_PORT)
+      socket = TCPServer.open('<any>', @port_number)
       start_timers
       loop { start_switch_thread(socket.accept) }
     end

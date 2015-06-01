@@ -24,7 +24,8 @@ module Trema
         options[:verbose] ? ::Logger::DEBUG : ::Logger::INFO
       $LOAD_PATH.unshift File.expand_path(File.dirname(@args.first))
       load @args.first
-      @controller = Controller.create
+      port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
+      @controller = Controller.create(port_number)
 
       trap_signals
       create_pid_file

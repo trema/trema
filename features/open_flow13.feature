@@ -6,7 +6,7 @@ Feature: OpenFlow1.3
       | TREMA_PID_DIR    | .     |
       | TREMA_SOCKET_DIR | .     |
 
-  @sudo @announce
+  @sudo
   Scenario: trema run with --openflow13 option
     Given a file named "null_controller.rb" with:
       """
