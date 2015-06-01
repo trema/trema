@@ -33,6 +33,9 @@ module Trema
       c.desc 'Use OpenFlow1.3'
       c.switch :openflow13, default_value: false
 
+      c.desc 'Overrides the default openflow channel port'
+      c.flag [:p, :port]
+
       c.desc 'Location to put pid files'
       c.flag [:P, :pid_dir], default_value: Trema::DEFAULT_PID_DIR
       c.desc 'Location to put log files'
