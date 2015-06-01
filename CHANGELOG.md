@@ -2,8 +2,5 @@
 
 ## develop (unreleased)
 
-### New features
-
 ### Changes
-
-### Bugs fixed
+* [#383](https://github.com/trema/trema/pull/383): Use the IANA-assigned port 6653 by default.
