@@ -3,20 +3,29 @@ require 'phut'
 
 # OpenFlow controller programming framework.
 module Trema
-  def self.socket_dir
-    Phut.socket_dir
-  end
-
-  def self.trema_process(socket_dir = Phut.socket_dir, check = false)
+  def self.trema_process(controller_name, socket_dir)
     Phut.socket_dir = socket_dir
-    path = File.expand_path(File.join Phut.socket_dir, 'trema.ctl')
-    if check && !FileTest.socket?(path)
-      fail "Socket file #{path} does not exist."
+    socket_path = File.join(Phut.socket_dir, "trema.#{controller_name}.ctl")
+    unless FileTest.socket?(socket_path)
+      fail %(Controller process "#{controller_name}" does not exist.)
     end
-    DRbObject.new_with_uri('drbunix:' + path)
+    DRbObject.new_with_uri('drbunix:' + socket_path)
   end
 
-  def self.controller_process(socket_dir)
-    trema_process(socket_dir).controller
+  def self.trema_processes(socket_dir = Phut.socket_dir)
+    Phut.socket_dir = socket_dir
+    Dir.glob(File.join Phut.socket_dir, 'trema.*.ctl').map do |each|
+      DRbObject.new_with_uri('drbunix:' + each)
+    end
+  end
+
+  def self.fetch(name, socket_dir)
+    trema_processes(socket_dir).each do |trema|
+      begin
+        return trema.fetch(name)
+      rescue
+        next
+      end
+    end
   end
 end
