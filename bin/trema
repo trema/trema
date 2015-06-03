@@ -167,23 +167,15 @@ module Trema
       end
     end
 
-    desc 'Stops a vswitch or vhost'
+    desc 'Stops a vswitch or a vhost'
     arg_name 'name'
     command :stop do |c|
       c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        help_now!('name is required') if args.empty?
-        Trema.trema_processes(options[:socket_dir]).each do |trema|
-          args.each do |each|
-            begin
-              trema.kill each
-            rescue
-              next
-            end
-          end
-        end
+        help_now! if args.size != 1
+        Trema.fetch(args[0], options[:socket_dir]).stop
       end
     end
 

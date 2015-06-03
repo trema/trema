@@ -27,5 +27,6 @@ module Trema
         next
       end
     end
+    fail %("#{name}" does not exist.)
   end
 end
