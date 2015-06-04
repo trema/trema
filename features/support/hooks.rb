@@ -8,6 +8,6 @@ Before('@sudo') do
 end
 
 After do
-  run 'trema killall'
+  run 'trema killall --all'
   sleep 5
 end
