@@ -61,7 +61,7 @@ module Trema
 
       c.action do |_global_options, options, args|
         args.each do |each|
-          puts(Trema.trema_process(options[:socket_dir]).fetch(each).dump_flows)
+          puts Trema.fetch(each, options.fetch(:socket_dir)).dump_flows
         end
       end
     end
@@ -81,8 +81,7 @@ module Trema
       c.action do |_global_options, options, _args|
         fail '--source option is mandatory' if options[:source].nil?
         fail '--dest option is mandatory' if options[:dest].nil?
-        dest =
-          Trema.trema_process(options[:socket_dir]).fetch(options.fetch(:dest))
+        dest = Trema.fetch(options.fetch(:dest), options.fetch(:socket_dir))
         Phut::VhostDaemon.
           process(options.fetch(:source), options.fetch(:socket_dir)).
           send_packets(dest, options.fetch(:npackets).to_i)
@@ -136,8 +135,13 @@ module Trema
       c.action do |_global_options, options, _args|
         fail '--switch option is mandatory' if options[:switch].nil?
         fail '--port option is mandatory' if options[:port].nil?
-        Trema.trema_process(options[:socket_dir]).
-          port_up(options[:switch], options[:port].to_i)
+        Trema.trema_processes(options[:socket_dir]).each do |trema|
+          begin
+            trema.port_up(options[:switch], options[:port].to_i)
+          rescue
+            next
+          end
+        end
       end
     end
 
@@ -153,22 +157,25 @@ module Trema
       c.action do |_global_options, options, _args|
         fail '--switch option is mandatory' if options[:switch].nil?
         fail '--port option is mandatory' if options[:port].nil?
-        Trema.trema_process(options[:socket_dir]).
-          port_down(options[:switch], options[:port].to_i)
+        Trema.trema_processes(options[:socket_dir]).each do |trema|
+          begin
+            trema.port_down(options[:switch], options[:port].to_i)
+          rescue
+            next
+          end
+        end
       end
     end
 
-    desc 'Terminates a trema process'
+    desc 'Stops a vswitch or a vhost'
     arg_name 'name'
-    command :kill do |c|
+    command :stop do |c|
       c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        help_now!('name is required') if args.empty?
-        args.each do |each|
-          Trema.trema_process(options[:socket_dir]).kill each
-        end
+        help_now! if args.size != 1
+        Trema.fetch(args[0], options[:socket_dir]).stop
       end
     end
 
@@ -179,34 +186,39 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        help_now!('endpoint1 and endpoint2 is required') if args.size < 2
-        args.each do |_each|
-          Trema.trema_process(options[:socket_dir]).delete_link(*args)
-        end
+        help_now! if args.size != 2
+        Trema.fetch(args, options[:socket_dir]).stop
       end
     end
 
-    desc 'Starts a killed trema process again'
+    desc 'Starts the stopped vswitch or vhost again'
     arg_name 'name'
-    command :up do |c|
+    command :start do |c|
       c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        args.each do |each|
-          Trema.trema_process(options[:socket_dir]).up each
-        end
+        help_now! if args.size != 1
+        Trema.fetch(args[0], options[:socket_dir]).run
       end
     end
 
     desc 'Terminates all trema processes'
+    arg_name 'controller_name'
     command :killall do |c|
-      c.desc 'Location to put socket files'
+      c.desc 'Kill all known trema processes'
+      c.switch :all, default_value: false, negatable: false
+      c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
-      c.action do |_global_options, options, _args|
+      c.action do |_global_options, options, args|
         begin
-          Trema.trema_process(options[:socket_dir], true).killall
+          if options[:all]
+            Trema.trema_processes(options[:socket_dir]).each(&:killall)
+          else
+            help_now! if args.size != 1
+            Trema.trema_process(args[0], options[:socket_dir]).killall
+          end
         rescue DRb::DRbConnError
           true # OK (trema process exitted).
         end

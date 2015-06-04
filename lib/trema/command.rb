@@ -4,8 +4,9 @@ module Trema
   # trema command
   # rubocop:disable ClassLength
   class Command
-    def self.unix_domain_socket(check = false)
-      path = File.expand_path(File.join Phut.socket_dir, 'trema.ctl')
+    def self.unix_domain_socket(name = nil, check = false)
+      file_name = name ? "trema.#{name}.ctl" : 'trema.ctl'
+      path = File.expand_path(File.join Phut.socket_dir, file_name)
       if check && !FileTest.socket?(path)
         fail "Socket file #{path} does not exist."
       end
@@ -111,7 +112,7 @@ module Trema
     def start_controller_and_drb_threads
       @controller_thread = Thread.new { @controller.run @args[1..-1] }
       @controller_thread.abort_on_exception = true
-      DRb.start_service Command.unix_domain_socket, self
+      DRb.start_service Command.unix_domain_socket(@controller.name), self
       DRb.thread.join
     rescue
       killall

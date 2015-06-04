@@ -130,7 +130,6 @@ module Trema
       loop { start_switch_thread(socket.accept) }
     end
 
-    # @private
     def name
       self.class.name
     end
