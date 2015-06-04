@@ -16,6 +16,7 @@ Feature: trema run cleanup on failure
       link '0xabc', 'host2'
       """
 
+  @sudo
   Scenario: NameError in config file
     Given a file named "invalid_trema.conf" with:
       """
