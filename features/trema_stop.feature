@@ -28,7 +28,7 @@ Feature: trema stop command
   @sudo
   Scenario: stop switch_name
     When I successfully run `trema stop 0xabc`
-    And I successfully run `sleep 5`
+    And I successfully run `sleep 10`
     Then the file "SwitchDisconnectedController.log" should contain:
       """
       Switch 0xabc is disconnected.
