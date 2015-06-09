@@ -212,15 +212,21 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        begin
-          if options[:all]
-            Trema.trema_processes(options[:socket_dir]).each(&:killall)
-          else
-            help_now! if args.size != 1
-            Trema.trema_process(args[0], options[:socket_dir]).killall
+        if options[:all]
+          Trema.trema_processes(options[:socket_dir]).each do |each|
+            begin
+              each.killall
+            rescue DRb::DRbConnError
+              true # OK (trema process exitted).
+            end
           end
-        rescue DRb::DRbConnError
-          true # OK (trema process exitted).
+        else
+          help_now! if args.size != 1
+          begin
+            Trema.trema_process(args[0], options[:socket_dir]).killall
+          rescue DRb::DRbConnError
+            true # OK (trema process exitted).
+          end
         end
       end
     end
