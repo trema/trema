@@ -6,19 +6,12 @@ Welcome to Trema
 [![Coverage Status](http://img.shields.io/codeclimate/coverage/github/trema/trema.svg?style=flat)][codeclimate]
 [![Dependency Status](http://img.shields.io/gemnasium/trema/trema.svg?style=flat)][gemnasium]
 
-Trema is a OpenFlow controller framework that includes everything
-needed to create OpenFlow controllers in Ruby.
-
-This distribution includes all the source code of Trema you need to
-develop your own OpenFlow controllers. The source tree includes basic
-libraries and functional modules that work as an interface to OpenFlow
-switches.
-
-Several sample applications developed on top of Trema are also
-provided, so you can run them as a sample of OpenFlow
-controllers. Additionally, a simple but powerful framework that
-emulates an OpenFlow-based network and end-hosts is provided for
-testing your own controllers.
+Trema is an OpenFlow controller programming framework that provides
+everything needed to create OpenFlow controllers in Ruby. It provides
+a high-level OpenFlow library and also a network emulator that can
+create OpenFlow-based networks for testing on your PC. This
+self-contained environment helps streamlines the entire process of
+development and testing.
 
 [travis]: http://travis-ci.org/trema/trema
 [codeclimate]: https://codeclimate.com/github/trema/trema
