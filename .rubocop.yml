@@ -1,1 +1,17 @@
-inherit_from: rubocop-todo.yml
+AllCops:
+  Include:
+    - ./*.conf
+    - ./Gemfile
+    - ./Guardfile
+    - ./Rakefile
+    - tasks/*.rake
+  Exclude:
+    - bin/*
+    - tmp/**/*
+    - vendor/**/*
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/DotPosition:
+  EnforcedStyle: trailing

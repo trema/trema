@@ -1,8 +1,0 @@
-This directory includes a OpenFlow controller that emulates a repeater
-hub. It repeats any ethernet frames from one port to other ports.
-
-# How to Run
-
-  % ./trema run -c ./src/examples/repeater_hub/repeater_hub.conf
-
-Enjoy!
