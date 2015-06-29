@@ -97,11 +97,9 @@ module Trema
     end
 
     # @private
-    # rubocop:disable TrivialAccessors
     def self.inherited(subclass)
       @controller_klass = subclass
     end
-    # rubocop:enable TrivialAccessors
 
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT)
