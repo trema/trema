@@ -54,9 +54,7 @@ module Trema
       end
     end
 
-    # rubocop:disable AbcSize
     # rubocop:disable CyclomaticComplexity
-    # rubocop:disable PerceivedComplexity
     def killall
       @controller.logger.debug 'Shutting down...' if @controller
       @controller.stop
@@ -68,8 +66,6 @@ module Trema
       exit 0 if @daemon
     end
     # rubocop:enable CyclomaticComplexity
-    # rubocop:enable AbcSize
-    # rubocop:enable PerceivedComplexity
 
     def up(name)
       @phut.fetch(name).run
