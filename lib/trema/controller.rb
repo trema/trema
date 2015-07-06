@@ -21,13 +21,44 @@ module Trema
       def to_hash
         {
           command: :add,
+          priority: @user_options[:priority] || 0,
           transaction_id: rand(0xffffffff),
+          idle_timeout: @user_options[:idle_timeout] || 0,
           hard_timeout: @user_options[:hard_timeout] || 0,
           buffer_id: @user_options[:buffer_id] || 0xffffffff,
           match: @user_options.fetch(:match),
           actions: @user_options[:actions] || []
         }
       end
+    end
+
+    # Pio::FlowMod.new argument (OpenFlow 1.3)
+    class FlowModAdd13Option
+      def initialize(user_options)
+        @user_options = user_options
+      end
+
+      # rubocop:disable MethodLength
+      # rubocop:disable CyclomaticComplexity
+      # rubocop:disable PerceivedComplexity
+      def to_hash
+        {
+          command: :add,
+          priority: @user_options[:priority] || 0,
+          transaction_id: rand(0xffffffff),
+          idle_timeout: @user_options[:idle_timeout] || 0,
+          hard_timeout: @user_options[:hard_timeout] || 0,
+          buffer_id: @user_options[:buffer_id] || 0xffffffff,
+          match: @user_options.fetch(:match),
+          table_id: @user_options[:table_id] || 0,
+          flags: @user_options[:flags] || [],
+          instructions: @user_options[:instructions] || [],
+          actions: @user_options[:actions] || []
+        }
+      end
+      # rubocop:enable MethodLength
+      # rubocop:enable CyclomaticComplexity
+      # rubocop:enable PerceivedComplexity
     end
 
     # Pio::FlowMod.new argument
@@ -140,7 +171,15 @@ module Trema
     # @!group OpenFlow Message
 
     def send_flow_mod_add(datapath_id, options)
-      flow_mod = FlowMod.new(FlowModAddOption.new(options).to_hash)
+      flow_mod =
+        case Pio::OpenFlow::VERSION
+        when 1
+          FlowMod.new(FlowModAddOption.new(options).to_hash)
+        when 4
+          FlowMod.new(FlowModAdd13Option.new(options).to_hash)
+        else
+          fail "Unsupported OpenFlow version: #{Pio::OpenFlow::VERSION}"
+        end
       send_message datapath_id, flow_mod
     end
 
