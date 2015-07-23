@@ -290,6 +290,8 @@ module Trema
       case message
       when Echo::Request
         maybe_send_handler :echo_request, datapath_id, message
+      when Echo::Reply
+        maybe_send_handler :echo_reply, datapath_id, message
       when Features::Reply
         maybe_send_handler :features_reply, datapath_id, message
       when PacketIn
