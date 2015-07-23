@@ -45,3 +45,14 @@ Feature: trema run command
     And I run `sleep 5`
     Then the file "SwitchReady.log" should contain "Hello 0xabc!"
 
+  @sudo
+  Scenario: trema run empty file and error
+    Given a file named "empty.rb" with:
+      """
+      """
+    When I run `trema -v run empty.rb`
+    Then the exit status should not be 0
+    And the stderr should contain:
+      """
+      No controller class is defined.
+      """

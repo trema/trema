@@ -134,6 +134,7 @@ module Trema
 
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT)
+      fail 'No controller class is defined.' unless @controller_klass
       @controller_klass.new(port_number)
     end
 
