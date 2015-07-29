@@ -53,14 +53,38 @@ module Trema
 
     def exchange_echo_messages
       write Echo::Request.new
-      fail 'Failed to exchange Echo messages' unless read.is_a?(Echo::Reply)
+      loop do
+        message = read
+        if message.is_a?(Echo::Reply)
+          break
+        else
+          handle_early message 'Failed to exchange Echo messages'
+        end
+      end
     end
 
     def exchange_features_messages
       write Features::Request.new
-      @features_reply = read
-      return if @features_reply.is_a?(Features::Reply)
-      fail 'Failed to exchange Features messages'
+      loop do
+        message = read
+        if message.is_a?(Features::Reply)
+          @features_reply = message
+          break
+        else
+          handle_early message 'Failed to exchange Features messages'
+        end
+      end
+    end
+
+    def handle_early(message, fail_message)
+      case message
+      when Echo::Request
+        write Echo::Reply.new xid: message.xid
+      when PacketIn, FlowRemoved, PortStatus
+        return
+      else
+        fail fail_message
+      end
     end
 
     def read_openflow_binary
