@@ -7,15 +7,6 @@ module Trema
 
     OPENFLOW_HEADER_LENGTH = 8
 
-    OPENFLOW_MESSAGE_PARSER = {
-      OpenFlow::HELLO => Hello,
-      OpenFlow::ECHO_REQUEST => Echo::Request,
-      OpenFlow::ECHO_REPLY => Echo::Reply,
-      OpenFlow::FEATURES_REPLY => Features::Reply,
-      OpenFlow::PACKET_IN => PacketIn,
-      OpenFlow::PORT_STATUS => PortStatus
-    }
-
     def initialize(socket)
       @socket = socket
     end
@@ -38,10 +29,7 @@ module Trema
     end
 
     def read
-      message_type, binary = read_openflow_binary
-      OPENFLOW_MESSAGE_PARSER.fetch(message_type).read(binary)
-    rescue KeyError
-      raise "Unknown OpenFlow message (message_type = #{message_type})."
+      OpenFlow.read read_openflow_binary
     end
 
     private
@@ -53,14 +41,38 @@ module Trema
 
     def exchange_echo_messages
       write Echo::Request.new
-      fail 'Failed to exchange Echo messages' unless read.is_a?(Echo::Reply)
+      loop do
+        message = read
+        if message.is_a?(Echo::Reply)
+          break
+        else
+          handle_early message 'Failed to exchange Echo messages'
+        end
+      end
     end
 
     def exchange_features_messages
       write Features::Request.new
-      @features_reply = read
-      return if @features_reply.is_a?(Features::Reply)
-      fail 'Failed to exchange Features messages'
+      loop do
+        message = read
+        if message.is_a?(Features::Reply)
+          @features_reply = message
+          break
+        else
+          handle_early message 'Failed to exchange Features messages'
+        end
+      end
+    end
+
+    def handle_early(message, fail_message)
+      case message
+      when Echo::Request
+        write Echo::Reply.new xid: message.xid
+      when PacketIn, FlowRemoved, PortStatus
+        return
+      else
+        fail fail_message
+      end
     end
 
     def read_openflow_binary
@@ -68,7 +80,7 @@ module Trema
       header = OpenFlowHeaderParser.read(header_binary)
       body_binary = drain(header.message_length - OPENFLOW_HEADER_LENGTH)
       fail if (header_binary + body_binary).length != header.message_length
-      [header.message_type, header_binary + body_binary]
+      header_binary + body_binary
     end
 
     def drain(length)

@@ -3,6 +3,11 @@
 ## develop (unreleased)
 
 
+## 0.5.0 (8/2/2015)
+### Changes
+* [#392](https://github.com/trema/trema/pull/392): Allow packet_in, etc during startup.
+
+
 ## 0.4.8 (6/29/2015)
 ### Changes
 * [#384](https://github.com/trema/trema/pull/384): Add trema run --port (-p) option to override the default OpenFlow channel listen port.
