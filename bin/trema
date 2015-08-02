@@ -4,6 +4,7 @@ $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'drb/drb'
 require 'gli'
 require 'phut'
+require 'pio'
 require 'rake'
 require 'trema'
 
@@ -47,7 +48,7 @@ module Trema
         Phut.pid_dir = options[:pid_dir]
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
-        require 'pio/open_flow13' if options[:openflow13]
+        Pio::OpenFlow.switch_version 'OpenFlow13' if options[:openflow13]
         require 'trema/switch'
         Trema::Command.new.run(args, global_options.merge(options))
       end

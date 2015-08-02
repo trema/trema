@@ -173,13 +173,13 @@ module Trema
 
     def send_flow_mod_add(datapath_id, options)
       flow_mod =
-        case Pio::OpenFlow::VERSION
-        when 1
+        case Pio::OpenFlow.version
+        when 'OpenFlow10'
           FlowMod.new(FlowModAddOption.new(options).to_hash)
-        when 4
+        when 'OpenFlow13'
           FlowMod.new(FlowModAdd13Option.new(options).to_hash)
         else
-          fail "Unsupported OpenFlow version: #{Pio::OpenFlow::VERSION}"
+          fail "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"
         end
       send_message datapath_id, flow_mod
     end
