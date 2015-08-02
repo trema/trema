@@ -1,7 +1,12 @@
 # Changelog
 
 ## develop (unreleased)
-* [#392](https://github.com/trema/trema/pull/392): Allow packet_in, etc during startup
+
+
+## 0.5.0 (8/2/2015)
+### Changes
+* [#392](https://github.com/trema/trema/pull/392): Allow packet_in, etc during startup.
+
 
 ## 0.4.8 (6/29/2015)
 ### Changes
