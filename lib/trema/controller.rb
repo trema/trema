@@ -309,6 +309,8 @@ module Trema
         else
           fail "Invalid Port Status message: #{message.inspect}"
         end
+      when Barrier::Reply
+        maybe_send_handler :barrier_reply, datapath_id, message
       else
         fail "Unknown OpenFlow message: #{message.inspect}"
       end

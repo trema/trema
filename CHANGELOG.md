@@ -1,6 +1,8 @@
 # Changelog
 
 ## develop (unreleased)
+### New features
+* [#398](https://github.com/trema/trema/pull/398): Add `Trema::Controller#barrier_reply` handler.
 
 
 ## 0.5.1 (8/4/2015)
