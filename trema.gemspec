@@ -24,7 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'bundler', '~> 1.10.6'
   gem.add_dependency 'gli', '~> 2.13.1'
   gem.add_dependency 'phut', '~> 0.6.6'
-  gem.add_dependency 'pio', '~> 0.24.0'
+  gem.add_dependency 'pio', '~> 0.24.1'
   gem.add_dependency 'rake'
 
   # Docs
