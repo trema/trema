@@ -7,7 +7,7 @@ Feature: Trema::Controller#echo_reply handler
       | TREMA_SOCKET_DIR | .     |
 
   @sudo
-  Scenario: the default port
+  Scenario: invoke Trema::Controller#echo_reply handler
     Given a file named "echo_reply.rb" with:
       """
       class EchoReply < Trema::Controller
