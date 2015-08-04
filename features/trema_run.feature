@@ -46,6 +46,20 @@ Feature: trema run command
     Then the file "SwitchReady.log" should contain "Hello 0xabc!"
 
   @sudo
+  Scenario: trema run with --openflow13 option
+    Given a file named "null_controller.rb" with:
+      """
+      class NullController < Trema::Controller; end
+      """
+    And a file named "trema.conf" with:
+      """
+      vswitch { datapath_id 0xabc }
+      """
+    When I successfully run `trema -v run null_controller.rb --openflow13 -c trema.conf -d`
+    And I run `sleep 5`
+    Then the output should contain "protocols=OpenFlow13"
+
+  @sudo
   Scenario: trema run empty file and error
     Given a file named "empty.rb" with:
       """
