@@ -3,6 +3,10 @@ require 'pio'
 module Trema
   # OpenFlow switch.
   class Switch
+    attr_reader :error_message
+
+    class InitError < StandardError; end
+
     include Pio
 
     OPENFLOW_HEADER_LENGTH = 8
@@ -35,45 +39,40 @@ module Trema
     private
 
     def exchange_hello_messages
-      fail 'Failed to exchange Hello messages' unless read.is_a?(Hello)
       write Hello.new
+      expect_receiving Hello
     end
 
     def exchange_echo_messages
       write Echo::Request.new
-      loop do
-        message = read
-        if message.is_a?(Echo::Reply)
-          break
-        else
-          handle_early message 'Failed to exchange Echo messages'
-        end
-      end
+      expect_receiving Echo::Reply
     end
 
     def exchange_features_messages
       write Features::Request.new
+      @features_reply = expect_receiving(Features::Reply)
+    end
+
+    # rubocop:disable MethodLength
+    def expect_receiving(expected_message_klass)
       loop do
         message = read
-        if message.is_a?(Features::Reply)
-          @features_reply = message
-          break
+        case message
+        when expected_message_klass
+          return message
+        when Echo::Request
+          write Echo::Reply.new(xid: message.xid)
+        when PacketIn, PortStatus # , FlowRemoved (not implemented yet)
+          return
+        when OpenFlow10::Error::HelloFailed, OpenFlow13::Error::HelloFailed
+          @error_message = message
+          fail InitError, message.description
         else
-          handle_early message 'Failed to exchange Features messages'
+          fail "Failed to receive #{expected_message_klass} message"
         end
       end
     end
-
-    def handle_early(message, fail_message)
-      case message
-      when Echo::Request
-        write Echo::Reply.new xid: message.xid
-      when PacketIn, FlowRemoved, PortStatus
-        return
-      else
-        fail fail_message
-      end
-    end
+    # rubocop:enable MethodLength
 
     def read_openflow_binary
       header_binary = drain(OPENFLOW_HEADER_LENGTH)
