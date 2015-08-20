@@ -6,6 +6,26 @@ Given(/^I use OpenFlow 1\.3$/) do
   @open_flow_version = :open_flow13
 end
 
+Given(/^a socket directory named "([^"]*)"$/) do |socket_directory|
+  step %(a directory named "#{socket_directory}")
+  ENV['TREMA_SOCKET_DIR'] = socket_directory
+end
+
+Then(/^a socket file named "([^"]*)" should exist$/) do |socket_file|
+  cd('.') do
+    expect(FileTest.socket?(socket_file)).to be_truthy
+  end
+end
+
+When(/^I trema run "([^"]*)"$/) do |controller_file|
+  controller_path = if controller_file.include?('/')
+                      File.join '..', '..', controller_file
+                    else
+                      controller_file
+                    end
+  step %(I run `trema run #{controller_path} -d`)
+end
+
 # rubocop:disable LineLength
 When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/) do |controller_file, interactive, configuration_file|
   open_flow_option = @open_flow_version == :open_flow13 ? ' --openflow13' : ''
@@ -36,3 +56,7 @@ Then(/^the log file "([^"]*)" should contain following messages:$/) do |log_file
   end
 end
 # rubocop:enable LineLength
+
+Then(/^the command returns immediately$/) do
+  # noop
+end
