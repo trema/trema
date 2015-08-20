@@ -7,6 +7,8 @@ require 'trema/logger'
 require 'trema/monkey_patch/integer'
 
 module Trema
+  class NoControllerDefined < StandardError; end
+
   # The base class of Trema controller. Subclass and override handlers
   # to implement a custom OpenFlow controller.
   #
@@ -134,7 +136,9 @@ module Trema
 
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT)
-      fail 'No controller class is defined.' unless @controller_klass
+      unless @controller_klass
+        fail NoControllerDefined, 'No controller class is defined.'
+      end
       @controller_klass.new(port_number)
     end
 
