@@ -7,7 +7,8 @@ Feature: hello_failed handler
 
   @sudo
   Scenario: invoke hello_failed handler
-    Given a file named "hello_fails.rb" with:
+    Given I use OpenFlow 1.0
+    And a file named "hello_fails.rb" with:
       """
       module Trema
         class Switch
@@ -27,13 +28,13 @@ Feature: hello_failed handler
         end
       end
       """
-    When I successfully run `trema -v run hello_fails.rb -c trema.conf -d`
-    And I run `sleep 5`
+    When I trema run "hello_fails.rb" with the configuration "trema.conf"
     Then the file "HelloFails.log" should contain "Hello failed."
 
   @sudo
   Scenario: invoke hello_failed handler (OpenFlow 1.3)
-    Given a file named "hello_fails.rb" with:
+    Given I use OpenFlow 1.3
+    And a file named "hello_fails.rb" with:
       """
       module Trema
         class Switch
@@ -53,6 +54,5 @@ Feature: hello_failed handler
         end
       end
       """
-    When I successfully run `trema -v run hello_fails.rb -c trema.conf --openflow13 -d`
-    And I run `sleep 5`
+    When I trema run "hello_fails.rb" with the configuration "trema.conf"
     Then the file "HelloFails.log" should contain "Hello failed."

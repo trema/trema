@@ -9,7 +9,12 @@ end
 # rubocop:disable LineLength
 When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/) do |controller_file, interactive, configuration_file|
   open_flow_option = @open_flow_version == :open_flow13 ? ' --openflow13' : ''
-  run_arguments = "#{File.join '..', '..', controller_file}#{open_flow_option} -c #{configuration_file}"
+  controller_path = if controller_file.include?('/')
+                      File.join '..', '..', controller_file
+                    else
+                      controller_file
+                    end
+  run_arguments = "#{controller_path}#{open_flow_option} -c #{configuration_file}"
   if interactive
     step %(I run `trema run #{run_arguments}` interactively)
   else
