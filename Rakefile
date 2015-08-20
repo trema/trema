@@ -1,3 +1,5 @@
+RELISH_PROJECT = 'trema/trema'
+
 task default: [:test, :quality]
 task test: [:spec, :cucumber]
 task quality: [:rubocop, :reek]

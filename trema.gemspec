@@ -23,11 +23,10 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bundler', '~> 1.10.6'
   gem.add_dependency 'gli', '~> 2.13.1'
-  gem.add_dependency 'phut', '~> 0.6.6'
-  gem.add_dependency 'pio', '~> 0.24.2'
   gem.add_dependency 'rake'
 
   # Docs
+  gem.add_development_dependency 'relish', '~> 0.7.1'
   gem.add_development_dependency 'yard', '~> 0.8.7.6'
 
   # Test
