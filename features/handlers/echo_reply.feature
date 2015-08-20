@@ -1,4 +1,4 @@
-Feature: Trema::Controller#echo_reply handler
+Feature: echo_reply handler
   Background:
     Given I set the environment variables to:
       | variable         | value |
@@ -7,7 +7,7 @@ Feature: Trema::Controller#echo_reply handler
       | TREMA_SOCKET_DIR | .     |
 
   @sudo
-  Scenario: invoke Trema::Controller#echo_reply handler
+  Scenario: invoke echo_reply handler
     Given a file named "echo_reply.rb" with:
       """
       class EchoReply < Trema::Controller

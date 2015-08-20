@@ -11,7 +11,7 @@ Feature: hello_failed handler
       """
 
   @sudo
-  Scenario: hello_failed handler invoked
+  Scenario: invoke hello_failed handler
     Given a file named "hello_fails.rb" with:
       """
       module Trema
@@ -36,7 +36,7 @@ Feature: hello_failed handler
     Then the file "HelloFails.log" should contain "Hello failed."
 
   @sudo
-  Scenario: hello_failed handler invoked (OpenFlow 1.3)
+  Scenario: invoke hello_failed handler (OpenFlow 1.3)
     Given a file named "hello_fails.rb" with:
       """
       module Trema
