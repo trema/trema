@@ -1,11 +1,4 @@
 Feature: echo_reply handler
-  Background:
-    Given I set the environment variables to:
-      | variable         | value |
-      | TREMA_LOG_DIR    | .     |
-      | TREMA_PID_DIR    | .     |
-      | TREMA_SOCKET_DIR | .     |
-
   @sudo
   Scenario: invoke echo_reply handler
     Given a file named "echo_reply.rb" with:

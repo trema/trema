@@ -1,11 +1,6 @@
 Feature: hello_failed handler
   Background:
-    Given I set the environment variables to:
-      | variable         | value |
-      | TREMA_LOG_DIR    | .     |
-      | TREMA_PID_DIR    | .     |
-      | TREMA_SOCKET_DIR | .     |
-    And a file named "trema.conf" with:
+    Given a file named "trema.conf" with:
       """
       vswitch { datapath_id 0xabc }
       """
@@ -18,6 +13,7 @@ Feature: hello_failed handler
         class Switch
           private
 
+          # force trema to send Hello1.3 on startup.
           def exchange_hello_messages
             write Pio::OpenFlow13::Hello.new
             expect_receiving Hello
@@ -43,6 +39,7 @@ Feature: hello_failed handler
         class Switch
           private
 
+          # force trema to send Hello1.0 on startup.
           def exchange_hello_messages
             write Pio::OpenFlow10::Hello.new
             expect_receiving Hello
