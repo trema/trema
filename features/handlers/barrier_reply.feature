@@ -1,7 +1,7 @@
 Feature: barrier_reply handler
   Background:
     Given a file named "barrier_reply.rb" with:
-      """
+      """ruby
       class BarrierReply < Trema::Controller
         def switch_ready(dpid)
           send_message dpid, Barrier::Request.new
@@ -13,7 +13,7 @@ Feature: barrier_reply handler
       end
       """
     And a file named "trema.conf" with:
-      """
+      """ruby
       vswitch { datapath_id 0xabc }
       """
 

@@ -8,8 +8,6 @@ require 'pio'
 require 'rake'
 require 'trema'
 
-ENV['GLI_DEBUG'] = 'true'
-
 # OpenFlow controller framework.
 module Trema
   # trema command.
@@ -233,6 +231,18 @@ module Trema
     end
 
     default_command :help
+
+    on_error do |e|
+      case e
+      when OptionParser::ParseError,
+        Trema::NoControllerDefined,
+        Phut::OpenVswitch::AlreadyRunning
+        true
+      else
+        # show backtrace
+        fail e
+      end
+    end
 
     exit run(ARGV)
   end

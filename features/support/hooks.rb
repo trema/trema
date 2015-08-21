@@ -11,6 +11,6 @@ Before('@sudo') do
 end
 
 After do
-  run 'trema killall --all'
+  run "trema killall --all -S #{ENV['TREMA_SOCKET_DIR']}"
   sleep 5
 end

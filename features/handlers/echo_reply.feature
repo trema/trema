@@ -1,7 +1,7 @@
 Feature: echo_reply handler
   Background:
     Given a file named "echo_reply.rb" with:
-      """
+      """ruby
       class EchoReply < Trema::Controller
         def switch_ready(dpid)
           send_message dpid, Echo::Request.new
@@ -13,7 +13,7 @@ Feature: echo_reply handler
       end
       """
     And a file named "trema.conf" with:
-      """
+      """ruby
       vswitch { datapath_id 0xabc }
       """
 

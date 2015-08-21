@@ -1,12 +1,7 @@
-Feature: trema stop command
+Feature: stop
   Background:
-    Given I set the environment variables to:
-      | variable         | value |
-      | TREMA_LOG_DIR    | .     |
-      | TREMA_PID_DIR    | .     |
-      | TREMA_SOCKET_DIR | .     |
-    And a file named "switch_disconnected_controller.rb" with:
-      """
+    Given a file named "switch_disconnected_controller.rb" with:
+      """ruby
       class SwitchDisconnectedController < Trema::Controller
         def switch_disconnected(dpid)
           logger.info "Switch #{dpid.to_hex} is disconnected."
@@ -14,7 +9,7 @@ Feature: trema stop command
       end
       """
     And a file named "trema.conf" with:
-      """
+      """ruby
       vswitch { datapath_id 0xabc }
 
       vhost('host1') { ip '192.168.0.1' }
@@ -23,10 +18,10 @@ Feature: trema stop command
       link '0xabc', 'host1'
       link '0xabc', 'host2'
       """
-    And I run `trema run switch_disconnected_controller.rb -c trema.conf -d`
+    And I trema run "switch_disconnected_controller.rb" with the configuration "trema.conf"
 
   @sudo
-  Scenario: stop switch_name
+  Scenario: stop a switch
     When I successfully run `trema stop 0xabc`
     And I successfully run `sleep 10`
     Then the file "SwitchDisconnectedController.log" should contain:
@@ -35,7 +30,7 @@ Feature: trema stop command
       """
 
   @sudo
-  Scenario: stop host_name
+  Scenario: stop a host
     When I successfully run `trema stop host1`
     And I successfully run `sleep 5`
     Then the file "vhost.host1.pid" should not exist

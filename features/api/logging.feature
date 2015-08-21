@@ -1,11 +1,4 @@
 Feature: logging
-  Background:
-    Given I set the environment variables to:
-      | variable         | value |
-      | TREMA_LOG_DIR    | .     |
-      | TREMA_PID_DIR    | .     |
-      | TREMA_SOCKET_DIR | .     |
-
   @sudo
   Scenario: controller, vhost and vswitch creates log files
     Given a file named "hello.rb" with:
@@ -48,6 +41,7 @@ Feature: logging
       | NullController.log     |
       | vhost.host1.log        |
 
+  @sudo
   Scenario: run multiple controllers, and each have its own log file
     Given a file named "two_controllers.rb" with:
       """
