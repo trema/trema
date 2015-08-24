@@ -30,6 +30,7 @@
   - send_flow_mod_add.feature
 
 - handlers:
+  - start.feature
   - echo_reply.feature
   - switch_ready.feature
   - barrier_reply.feature
