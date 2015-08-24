@@ -33,5 +33,6 @@
   - start.feature
   - echo_reply.feature
   - switch_ready.feature
+  - packet_in.feature
   - barrier_reply.feature
   - hello_failed.feature
