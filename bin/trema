@@ -35,6 +35,9 @@ module Trema
       c.desc 'Overrides the default openflow channel port'
       c.flag [:p, :port]
 
+      c.desc 'Set logging level'
+      c.flag [:l, :logging_level], default_value: :info
+
       c.desc 'Location to put pid files'
       c.flag [:P, :pid_dir], default_value: Trema::DEFAULT_PID_DIR
       c.desc 'Location to put log files'
@@ -236,7 +239,9 @@ module Trema
       case e
       when OptionParser::ParseError,
         Trema::NoControllerDefined,
-        Phut::OpenVswitch::AlreadyRunning
+        Trema::InvalidLoggingLevel,
+        Phut::OpenVswitch::AlreadyRunning,
+        GLI::UnknownCommandArgument
         true
       else
         # show backtrace

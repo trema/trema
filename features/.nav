@@ -5,6 +5,7 @@
   - socket_dir_option.feature
   - conf_option.feature
   - daemonize_option.feature
+  - logging_level_option.feature
   - openflow13_option.feature
   - port_option.feature
 
@@ -24,6 +25,13 @@
 - trema_delete_link (trema delete_link command):
   - delete_link.feature (basic usage)
   - socket_dir_option.feature
+
+- logger:
+  - debug.feature
+  - info.feature
+  - warn.feature
+  - error.feature
+  - fatal.feature
 
 - api (controller API):
   - logging.feature
