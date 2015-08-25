@@ -26,6 +26,16 @@ When(/^I trema run "([^"]*)"$/) do |controller_file|
   step %(I run `trema run #{controller_path} -d`)
 end
 
+When(/^I trema run "([^"]*)" interactively$/) do |controller_file|
+  controller_path = if controller_file.include?('/')
+                      File.join '..', '..', controller_file
+                    else
+                      controller_file
+                    end
+  step %(I run `trema run #{controller_path}` interactively)
+  step %(I successfully run `sleep 3`)
+end
+
 # rubocop:disable LineLength
 When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/) do |controller_file, interactive, configuration_file|
   open_flow_option = @open_flow_version == :open_flow13 ? ' --openflow13' : ''
