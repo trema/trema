@@ -45,13 +45,6 @@ module Trema
       c.desc 'Location to put socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
-      c.desc 'SSL private key file path'
-      c.flag [:ctl_privkey]
-      c.desc 'SSL certification file path'
-      c.flag [:ctl_cert]
-      c.desc 'SSL CA file path'
-      c.flag [:ca_certs]
-
       c.action do |global_options, options, args|
         Phut.pid_dir = options[:pid_dir]
         Phut.log_dir = options[:log_dir]
