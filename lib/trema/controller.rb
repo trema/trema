@@ -5,6 +5,7 @@ require 'socket'
 require 'trema/command'
 require 'trema/logger'
 require 'trema/monkey_patch/integer'
+require 'openssl'
 
 module Trema
   class NoControllerDefined < StandardError; end
@@ -110,9 +111,13 @@ module Trema
 
     class << self
       attr_accessor :logging_level
+      attr_accessor :ctl_privkey
+      attr_accessor :ctl_cert
+      attr_accessor :ca_certs
     end
 
     include Pio
+    include OpenSSL
 
     SWITCH = {}
     DEFAULT_TCP_PORT = 6653
@@ -159,7 +164,21 @@ module Trema
         File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
       @drb = DRb::DRbServer.new 'drbunix:' + drb_socket_file, self
       maybe_send_handler :start, args
-      socket = TCPServer.open('<any>', @port_number)
+
+      if Controller.ctl_privkey == nil || Controller.ctl_cert == nil ||
+         Controller.ca_certs == nil
+        socket = TCPServer.open('<any>', @port_number)
+        logger.debug "TCP socket"
+      else
+        ctx = SSL::SSLContext.new(:TLSv1_server)
+        ctx.cert = X509::Certificate.new(File.read(Controller.ctl_cert))
+        ctx.key = PKey::RSA.new(File.read(Controller.ctl_privkey))
+        ctx.ca_file = Controller.ca_certs
+        socket = SSL::SSLServer.new(TCPServer.open('<any>', @port_number), ctx)
+        logger.debug "SSL socket: ctl_privkey=#{Controller.ctl_privkey}," +
+          "ctl_cert=#{Controller.ctl_cert},ca_certs=#{Controller.ca_certs}"
+      end
+
       start_timers
       loop { start_switch_thread(socket.accept) }
     end
