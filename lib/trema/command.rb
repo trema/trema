@@ -35,6 +35,9 @@ module Trema
         raise(InvalidLoggingLevel,
               "Invalid logging level: #{options[:logging_level]}")
       end
+      Controller.ctl_privkey = options[:ctl_privkey]
+      Controller.ctl_cert = options[:ctl_cert]
+      Controller.ca_certs = options[:ca_certs]
 
       $LOAD_PATH.unshift File.expand_path(File.dirname(@args.first))
       load @args.first
