@@ -156,6 +156,26 @@ module Trema
     end
 
     # @private
+    # Return if SSL required
+    def ssl_required
+      !(Controller.ctl_privkey.nil? || Controller.ctl_cert.nil? ||
+        Controller.ca_certs.nil?)
+    end
+
+    # @private
+    # Get TCP/SSL server socket
+    def open_socket
+      socket = TCPServer.open('<any>', @port_number)
+      return socket unless ssl_required
+
+      ctx = SSL::SSLContext.new(:TLSv1_server)
+      ctx.cert = X509::Certificate.new(File.read(Controller.ctl_cert))
+      ctx.key = PKey::RSA.new(File.read(Controller.ctl_privkey))
+      ctx.ca_file = Controller.ca_certs
+      SSL::SSLServer.new(socket, ctx)
+    end
+
+    # @private
     # Starts this controller. Usually you do not need to invoke
     # explicitly, because this is called implicitly by "trema run"
     # command.
@@ -165,19 +185,7 @@ module Trema
       @drb = DRb::DRbServer.new 'drbunix:' + drb_socket_file, self
       maybe_send_handler :start, args
 
-      if Controller.ctl_privkey.nil? || Controller.ctl_cert.nil? ||
-         Controller.ca_certs.nil?
-        socket = TCPServer.open('<any>', @port_number)
-        logger.debug 'TCP socket'
-      else
-        ctx = SSL::SSLContext.new(:TLSv1_server)
-        ctx.cert = X509::Certificate.new(File.read(Controller.ctl_cert))
-        ctx.key = PKey::RSA.new(File.read(Controller.ctl_privkey))
-        ctx.ca_file = Controller.ca_certs
-        socket = SSL::SSLServer.new(TCPServer.open('<any>', @port_number), ctx)
-        logger.debug "SSL socket: ctl_privkey=#{Controller.ctl_privkey}," \
-          "ctl_cert=#{Controller.ctl_cert},ca_certs=#{Controller.ca_certs}"
-      end
+      socket = open_socket
 
       start_timers
       loop { start_switch_thread(socket.accept) }
