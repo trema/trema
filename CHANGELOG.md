@@ -1,8 +1,13 @@
 # Changelog
 
 ## develop (unreleased)
+
+
+## 0.6.0 (9/9/2015)
 ### New features
 * [#398](https://github.com/trema/trema/pull/398): Add `Trema::Controller#barrier_reply` handler.
+* [#400](https://github.com/trema/trema/pull/400): Add `Trema::Controller#hello_failed` handler.
+* [#404](https://github.com/trema/trema/pull/404): Add `--logging_level` option to trema run command.
 
 
 ## 0.5.1 (8/4/2015)
