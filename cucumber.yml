@@ -1,0 +1,7 @@
+<%
+std_opts = "--format progress features --tags ~@wip --no-source -r features"
+wip_opts = "--color -r features --tags @wip"
+%>
+default: <%= std_opts %>
+wip: --wip <%= wip_opts %> features
+none: --format pretty

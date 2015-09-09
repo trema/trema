@@ -7,6 +7,8 @@ require 'trema/logger'
 require 'trema/monkey_patch/integer'
 
 module Trema
+  class NoControllerDefined < StandardError; end
+
   # The base class of Trema controller. Subclass and override handlers
   # to implement a custom OpenFlow controller.
   #
@@ -134,7 +136,9 @@ module Trema
 
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT)
-      fail 'No controller class is defined.' unless @controller_klass
+      unless @controller_klass
+        fail NoControllerDefined, 'No controller class is defined.'
+      end
       @controller_klass.new(port_number)
     end
 
@@ -268,8 +272,16 @@ module Trema
     end
 
     def create_and_register_new_switch(socket)
-      switch = Switch.new(socket).init
+      switch = Switch.new(socket)
+      switch.init
       SWITCH[switch.datapath_id] = switch
+    rescue Switch::InitError
+      error_message = switch.error_message
+      case error_message
+      when OpenFlow10::Error::HelloFailed, OpenFlow13::Error::HelloFailed
+        maybe_send_handler :hello_failed, error_message
+        raise $ERROR_INFO
+      end
     end
 
     def unregister_switch(datapath_id)
@@ -309,6 +321,8 @@ module Trema
         else
           fail "Invalid Port Status message: #{message.inspect}"
         end
+      when Barrier::Reply
+        maybe_send_handler :barrier_reply, datapath_id, message
       else
         fail "Unknown OpenFlow message: #{message.inspect}"
       end

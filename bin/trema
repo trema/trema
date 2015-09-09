@@ -8,8 +8,6 @@ require 'pio'
 require 'rake'
 require 'trema'
 
-ENV['GLI_DEBUG'] = 'true'
-
 # OpenFlow controller framework.
 module Trema
   # trema command.
@@ -36,6 +34,9 @@ module Trema
 
       c.desc 'Overrides the default openflow channel port'
       c.flag [:p, :port]
+
+      c.desc 'Set logging level'
+      c.flag [:l, :logging_level], default_value: :info
 
       c.desc 'Location to put pid files'
       c.flag [:P, :pid_dir], default_value: Trema::DEFAULT_PID_DIR
@@ -233,6 +234,20 @@ module Trema
     end
 
     default_command :help
+
+    on_error do |e|
+      case e
+      when OptionParser::ParseError,
+        Trema::NoControllerDefined,
+        Trema::InvalidLoggingLevel,
+        Phut::OpenVswitch::AlreadyRunning,
+        GLI::UnknownCommandArgument
+        true
+      else
+        # show backtrace
+        fail e
+      end
+    end
 
     exit run(ARGV)
   end
