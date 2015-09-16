@@ -1,6 +1,9 @@
 # Changelog
 
 ## develop (unreleased)
+
+
+## 0.7.0 (9/16/2015)
 ### New features
 * [#408](https://github.com/trema/trema/pull/408): Add `Trema::Controller#description_stats_reply` handler.
 
