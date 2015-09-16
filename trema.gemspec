@@ -23,8 +23,8 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bundler', '~> 1.10.6'
   gem.add_dependency 'gli', '~> 2.13.2'
-  gem.add_dependency 'phut', '~> 0.6.9'
-  gem.add_dependency 'pio', '~> 0.26.0'
+  gem.add_dependency 'phut', '~> 0.6.10'
+  gem.add_dependency 'pio', '~> 0.27.0'
   gem.add_dependency 'rake'
 
   # Docs
@@ -39,5 +39,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'reek', '~> 3.3.1'
   gem.add_development_dependency 'rspec', '~> 3.3.0'
   gem.add_development_dependency 'rspec-given', '~> 3.7.1'
-  gem.add_development_dependency 'rubocop', '~> 0.34.0'
+  gem.add_development_dependency 'rubocop', '~> 0.34.1'
 end
