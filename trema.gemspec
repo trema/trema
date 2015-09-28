@@ -36,8 +36,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.4.8'
   gem.add_development_dependency 'coveralls', '~> 0.8.2'
   gem.add_development_dependency 'cucumber', '~> 2.0.2'
-  gem.add_development_dependency 'reek', '~> 3.3.1'
+  gem.add_development_dependency 'reek', '~> 3.4.1'
   gem.add_development_dependency 'rspec', '~> 3.3.0'
   gem.add_development_dependency 'rspec-given', '~> 3.7.1'
-  gem.add_development_dependency 'rubocop', '~> 0.34.1'
+  gem.add_development_dependency 'rubocop', '~> 0.34.2'
 end
