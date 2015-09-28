@@ -3,6 +3,11 @@
 ## develop (unreleased)
 
 
+## 0.7.1 (9/28/2015)
+### Changes
+* Pio 0.27.1 (fixes [trema/pio#238](https://github.com/trema/pio/issues/238))
+
+
 ## 0.7.0 (9/16/2015)
 ### New features
 * [#408](https://github.com/trema/trema/pull/408): Add `Trema::Controller#description_stats_reply` handler.
