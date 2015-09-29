@@ -1,6 +1,8 @@
 # Changelog
 
 ## develop (unreleased)
+### New features
+* [#409](https://github.com/trema/trema/pull/409): Support rubies installed using apt.
 
 
 ## 0.7.1 (9/28/2015)
