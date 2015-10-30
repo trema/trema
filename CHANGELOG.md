@@ -1,6 +1,9 @@
 # Changelog
 
 ## develop (unreleased)
+
+
+## 0.8.0 (10/30/2015)
 ### New features
 * [#409](https://github.com/trema/trema/pull/409): Support rubies installed using apt.
 * [#414](https://github.com/trema/trema/pull/414): Add netns command.
