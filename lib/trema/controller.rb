@@ -54,8 +54,7 @@ module Trema
           match: @user_options.fetch(:match),
           table_id: @user_options[:table_id] || 0,
           flags: @user_options[:flags] || [],
-          instructions: @user_options[:instructions] || [],
-          actions: @user_options[:actions] || []
+          instructions: @user_options[:instructions] || []
         }
       end
       # rubocop:enable MethodLength
@@ -228,7 +227,7 @@ module Trema
     # The default handler for echo request messages.
     # Override this to implement a custom handler.
     def echo_request(datapath_id, message)
-      echo_reply = Echo::Reply.new(xid: message.xid)
+      echo_reply = Echo::Reply.new(transaction_id: message.xid)
       send_message datapath_id, echo_reply
     end
 

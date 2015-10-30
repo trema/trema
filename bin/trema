@@ -233,6 +233,14 @@ module Trema
       end
     end
 
+    desc 'Opens a new shell in the specified network namespace'
+    arg_name 'name'
+    command :netns do |c|
+      c.action do |global_options, options, args|
+        system "sudo ip netns exec #{args[0]} #{ENV['SHELL']}"
+      end
+    end
+
     default_command :help
 
     on_error do |e|

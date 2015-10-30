@@ -62,7 +62,7 @@ Feature: start
       error: vhost "host1" is already running!
       """
 
-  @sudo @announce-output
+  @sudo
   Scenario: start NO_SUCH_NAME
     When I run `trema start NO_SUCH_NAME`
     Then the exit status should not be 0

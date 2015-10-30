@@ -3,6 +3,7 @@
 ## develop (unreleased)
 ### New features
 * [#409](https://github.com/trema/trema/pull/409): Support rubies installed using apt.
+* [#414](https://github.com/trema/trema/pull/414): Add netns command.
 
 
 ## 0.7.1 (9/28/2015)
