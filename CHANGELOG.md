@@ -3,6 +3,12 @@
 ## develop (unreleased)
 
 
+## 0.8.1 (11/5/2015)
+### Changes
+* Pio 0.28.1
+* Phut 0.7.1
+
+
 ## 0.8.0 (10/30/2015)
 ### New features
 * [#409](https://github.com/trema/trema/pull/409): Support rubies installed using apt.
