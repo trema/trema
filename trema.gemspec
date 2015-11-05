@@ -23,7 +23,8 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bundler', '~> 1.10.6'
   gem.add_dependency 'gli', '~> 2.13.2'
-  gem.add_dependency 'pio', '~> 0.28.0'
+  gem.add_dependency 'phut', '~> 0.7.1'
+  gem.add_dependency 'pio', '~> 0.28.1'
 
   # Docs
   gem.add_development_dependency 'relish', '~> 0.7.1'
