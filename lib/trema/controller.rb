@@ -74,7 +74,7 @@ module Trema
           transaction_id: rand(0xffffffff),
           buffer_id: @user_options[:buffer_id] || 0xffffffff,
           match: @user_options.fetch(:match),
-          out_port: @user_options[:out_port] || 0xffff
+          out_port: @user_options[:out_port] || 0xffffffff
         }
       end
     end
