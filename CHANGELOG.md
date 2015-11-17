@@ -1,6 +1,9 @@
 # Changelog
 
 ## develop (unreleased)
+### Changes
+* Pio 0.30.0
+* Phut 0.7.3
 
 
 ## 0.8.2 (11/11/2015)
