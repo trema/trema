@@ -3,6 +3,12 @@
 ## develop (unreleased)
 
 
+## 0.8.3 (11/17/2015)
+### Changes
+* Pio 0.30.0
+* Phut 0.7.3
+
+
 ## 0.8.2 (11/11/2015)
 ### Bugs fixed
 * Fix default out_port (OpenFlow 1.3)
