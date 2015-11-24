@@ -36,3 +36,13 @@ Feature: netns
     And I type "ip addr"
     And I type "exit"
     Then the stdout should contain "192.168.1.2"
+
+  @sudo
+  Scenario: netns namespece command
+    When I run `trema run simple_hub.rb -c simple_hub.conf -d`
+    Then the following argument on "trema netns host1" should contain output:
+      |argument              |output                                                 |
+      |ip addr show host1    |192.168.1.2                                            |
+      |"ping -c1 192.168.1.3"|1 packets transmitted, 1 received, 0% packet loss, time|
+      |"ip addr \| grep 127" |127.0.0.1                                              |
+      |ls $PWD               |simple_hub.conf                                        |
