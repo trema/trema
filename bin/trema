@@ -239,8 +239,7 @@ module Trema
       c.action do |global_options, options, args|
         command_args = args[1..-1]
         if command_args && command_args.size > 0
-          command = "\"#{command_args.join(' ')}\""
-          system "sudo ip netns exec #{args[0]} #{ENV['SHELL']} -c #{command}"
+          system "sudo ip netns exec #{args[0]} #{command_args.join(' ')}"
         else
           system "sudo ip netns exec #{args[0]} #{ENV['SHELL']}"
         end
