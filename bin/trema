@@ -256,6 +256,8 @@ module Trema
         Phut::OpenVswitch::AlreadyRunning,
         GLI::UnknownCommandArgument
         true
+      when Interrupt
+        exit false
       else
         # show backtrace
         fail e
