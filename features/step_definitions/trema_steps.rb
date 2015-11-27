@@ -70,3 +70,12 @@ end
 Then(/^the command returns immediately$/) do
   # noop
 end
+
+# rubocop:disable LineLength
+Then(/^the following argument on "([^"]*)" should contain output:$/) do |command, table|
+  table.hashes.each do |row|
+    step %(I run `#{command} #{row['argument']}`)
+    step %(the stdout should contain "#{row['output']}")
+  end
+end
+# rubocop:enable LineLength
