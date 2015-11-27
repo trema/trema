@@ -28,18 +28,17 @@ Feature: netns
       link 'simple_hub', 'host1'
       link 'simple_hub', 'host2'
       """
+    And I trema run "simple_hub.rb" with the configuration "simple_hub.conf"
 
   @sudo
   Scenario: netns namespece
-    When I run `trema run simple_hub.rb -c simple_hub.conf -d`
-    And I run `trema netns host1` interactively
+    When I run `trema netns host1` interactively
     And I type "ip addr"
     And I type "exit"
     Then the stdout should contain "192.168.1.2"
 
   @sudo
   Scenario: netns namespece command
-    When I run `trema run simple_hub.rb -c simple_hub.conf -d`
     Then the following argument on "trema netns host1" should contain output:
       |argument              |output                                                 |
       |ip addr show host1    |192.168.1.2                                            |
