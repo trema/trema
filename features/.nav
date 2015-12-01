@@ -26,6 +26,9 @@
   - delete_link.feature (basic usage)
   - socket_dir_option.feature
 
+- trema_netns (trema netns command):
+  - netns.feature (basic usage)
+
 - logger:
   - debug.feature
   - info.feature
