@@ -49,7 +49,7 @@ module Trema
         Phut.pid_dir = options[:pid_dir]
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
-        Pio::OpenFlow.switch_version 'OpenFlow13' if options[:openflow13]
+        Pio::OpenFlow.switch_version('OpenFlow13') if options[:openflow13]
         require 'trema/switch'
         Trema::Command.new.run(args, global_options.merge(options))
       end
@@ -101,10 +101,10 @@ module Trema
 
         stats = Phut::VhostDaemon.process(args[0], options[:socket_dir]).stats
 
-        dests = stats[:tx].map { |each| each.ip_destination_address.to_s }.uniq
+        dests = stats[:tx].map { |each| each.destination_ip_address.to_s }.uniq
         txstats = dests.map do |each|
-          all = stats[:tx].select { |pkt| pkt.ip_destination_address == each }
-          "#{all.first.ip_source_address} -> #{each} = " \
+          all = stats[:tx].select { |pkt| pkt.destination_ip_address == each }
+          "#{all.first.source_ip_address} -> #{each} = " \
           "#{all.size} packet#{all.size > 1 ? 's' : ''}"
         end
         unless txstats.empty?
@@ -112,10 +112,10 @@ module Trema
           txstats.each { |each| puts "  #{each}" }
         end
 
-        sources = stats[:rx].map { |each| each.ip_source_address.to_s }.uniq
+        sources = stats[:rx].map { |each| each.source_ip_address.to_s }.uniq
         rxstats = sources.map do |each|
-          all = stats[:rx].select { |pkt| pkt.ip_source_address == each }
-          "#{each} -> #{all.first.ip_destination_address} = " \
+          all = stats[:rx].select { |pkt| pkt.source_ip_address == each }
+          "#{each} -> #{all.first.destination_ip_address} = " \
           "#{all.size} packet#{all.size > 1 ? 's' : ''}"
         end
         unless rxstats.empty?

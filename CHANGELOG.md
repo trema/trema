@@ -3,6 +3,11 @@
 ## develop (unreleased)
 
 
+## 0.8.4 (11/30/2015)
+### Bugs fixed
+* Fix NoMethodError.
+
+
 ## 0.8.3 (11/17/2015)
 ### Changes
 * Pio 0.30.0
