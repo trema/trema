@@ -233,11 +233,16 @@ module Trema
       end
     end
 
-    desc 'Opens a new shell in the specified network namespace'
-    arg_name 'name'
+    desc 'Opens a new shell or runs a command in the specified network namespace'
+    arg_name 'name [command]'
     command :netns do |c|
       c.action do |global_options, options, args|
-        system "sudo ip netns exec #{args[0]} #{ENV['SHELL']}"
+        command_args = args[1..-1]
+        if command_args && command_args.size > 0
+          system "sudo ip netns exec #{args[0]} #{command_args.join(' ')}"
+        else
+          system "sudo ip netns exec #{args[0]} #{ENV['SHELL']}"
+        end
       end
     end
 
@@ -251,6 +256,8 @@ module Trema
         Phut::OpenVswitch::AlreadyRunning,
         GLI::UnknownCommandArgument
         true
+      when Interrupt
+        exit false
       else
         # show backtrace
         fail e
