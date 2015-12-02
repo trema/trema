@@ -26,6 +26,12 @@ When(/^I trema run "([^"]*)"$/) do |controller_file|
   step %(I run `trema run #{controller_path} -d`)
 end
 
+Given(/^I trema run "([^"]*)" with args "([^"]*)"$/) do |controller, args|
+  controller_path = File.join('..', '..', controller)
+  step %(I successfully run `trema run #{controller_path} #{args}`)
+  step %(I successfully run `sleep 10`)
+end
+
 # rubocop:disable LineLength
 When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/) do |controller_file, interactive, configuration_file|
   open_flow_option = @open_flow_version == :open_flow13 ? ' --openflow13' : ''
@@ -40,12 +46,17 @@ When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/
   else
     step %(I successfully run `trema run #{run_arguments} -d`)
   end
-  step %(I successfully run `sleep 3`)
+  step %(I successfully run `sleep 10`)
 end
 # rubocop:enable LineLength
 
 When(/^I trema killall "([^"]*)"$/) do |controller_name|
   step %(I successfully run `trema killall #{controller_name}`)
+end
+
+When(/^I delete the link between "([^"]*)" and "([^"]*)"$/) do |peer1, peer2|
+  step %(I successfully run `trema delete_link #{peer1} #{peer2}`)
+  step %(I successfully run `sleep 3`)
 end
 
 # rubocop:disable LineLength

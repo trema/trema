@@ -5,7 +5,7 @@ Then(/^the number of packets sent from "(.*?)" should be:$/) do |host_name, tabl
   step "I run `#{command}`"
 
   result = {}
-  in_current_dir do
+  cd('.') do
     output_from(command).split("\n").each do |each|
       case each
       when /Packets sent/
@@ -29,10 +29,12 @@ Then(/^the number of packets received by "(.*?)" should be:$/) do |host_name, ta
   command = "trema show_stats #{host_name}"
   step "I run `#{command}`"
 
+  output = aruba.command_monitor.find(Aruba.platform.detect_ruby(command)).output
+
   result = Hash.new(0)
-  in_current_dir do
+  cd('.') do
     received = false
-    output_from(command).split("\n").each do |each|
+    output.split("\n").each do |each|
       case each
       when /Packets sent/
         next
@@ -59,7 +61,7 @@ Then(/^the total number of received packets should be:$/) do |table|
     step "I run `#{command}`"
 
     result = 0
-    in_current_dir do
+    cd('.') do
       received = false
       output_from(command).split("\n").each do |each|
         case each
