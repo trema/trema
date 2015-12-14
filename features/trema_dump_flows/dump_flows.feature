@@ -19,9 +19,5 @@ Feature: dump_flows
       vswitch { datapath_id 0xabc }
       """
     And I trema run "hello.rb" with the configuration "trema.conf"
-    And I successfully run `sleep 10`
     When I successfully run `trema dump_flows 0xabc -S.`
-    Then the output should contain:
-      """
-      NXAST_FLOW reply
-      """
+    Then the output should match /^NXST_FLOW reply \(xid=0x.+\)/
