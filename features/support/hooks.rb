@@ -3,14 +3,11 @@ Before do
 end
 
 Before('@sudo') do
-  ENV['TREMA_LOG_DIR'] = '.'
-  ENV['TREMA_PID_DIR'] = '.'
-  ENV['TREMA_SOCKET_DIR'] = '.'
   fail 'sudo authentication failed' unless system 'sudo -v'
-  @aruba_timeout_seconds = 10
+  @aruba_timeout_seconds = 15
 end
 
 After do
-  run "trema killall --all -S #{ENV['TREMA_SOCKET_DIR']}"
-  sleep 5
+  run 'trema killall --all -S .'
+  sleep 10
 end

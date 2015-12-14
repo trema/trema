@@ -59,9 +59,10 @@ module Trema
     arg_name 'switches...'
     command :dump_flows do |c|
       c.desc 'Location to put socket files'
-      c.flag [:S, :socket_dir], default_value: Phut.socket_dir
+      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
+        Phut.socket_dir = options[:socket_dir]
         args.each do |each|
           puts Trema.fetch(each, options.fetch(:socket_dir)).dump_flows
         end
