@@ -3,7 +3,12 @@ Feature: -c (--conf) option
   -c (--conf) option specifies emulated network configuration
 
   Background:
-    Given a file named "hello.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "hello.rb" with:
       """ruby
       class Hello < Trema::Controller
         def switch_ready(dpid)

@@ -3,7 +3,12 @@ Feature: -p (--port) option
   -p (--port) option overrides the default openflow channel port.
 
   Background:
-    Given a file named "switch_ready.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "switch_ready.rb" with:
       """ruby
       class SwitchReady < Trema::Controller
         def switch_ready(dpid)
