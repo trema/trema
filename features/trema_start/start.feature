@@ -1,6 +1,11 @@
 Feature: start
   Background:
-    Given a file named "switch_ready_controller.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "switch_ready_controller.rb" with:
       """ruby
       class SwitchReadyController < Trema::Controller
         def start(_args)
