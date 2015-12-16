@@ -2,6 +2,13 @@ Feature: -S (--socket_dir) option
 
   -S (--socket_dir) option specifies the location to find socket files
 
+  Background:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+
   @sudo
   Scenario: -S option
     Given a file named "null_controller.rb" with:
