@@ -17,6 +17,7 @@ Feature: Trema::Controller#logger.warn
   @sudo
   Scenario: the default logging level
     When I trema run "hello.rb" interactively
+    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "WARN -- : Konnichi Wa"
@@ -24,7 +25,7 @@ Feature: Trema::Controller#logger.warn
   @sudo
   Scenario: --logging_level warn
     When I run `trema run hello.rb --logging_level warn` interactively
-    And I run `sleep 3`
+    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "WARN -- : Konnichi Wa"
@@ -32,7 +33,7 @@ Feature: Trema::Controller#logger.warn
   @sudo
   Scenario: -v
     When I run `trema -v run hello.rb` interactively
-    And I run `sleep 3`
+    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "WARN -- : Konnichi Wa"
@@ -40,7 +41,7 @@ Feature: Trema::Controller#logger.warn
   @sudo
   Scenario: --verbose
     When I run `trema --verbose run hello.rb` interactively
-    And I run `sleep 3`
+    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "WARN -- : Konnichi Wa"

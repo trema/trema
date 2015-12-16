@@ -32,6 +32,10 @@ Given(/^I trema run "([^"]*)" with args "([^"]*)"$/) do |controller, args|
   step %(I successfully run `sleep 10`)
 end
 
+When(/^I trema run "([^"]*)" interactively$/) do |controller_file|
+  step %(I run `trema run #{controller_file}` interactively)
+end
+
 # rubocop:disable LineLength
 When(/^I trema run "([^"]*)"( interactively)? with the configuration "([^"]*)"$/) do |controller_file, interactive, configuration_file|
   open_flow_option = @open_flow_version == :open_flow13 ? ' --openflow13' : ''
@@ -70,4 +74,8 @@ end
 
 Then(/^the command returns immediately$/) do
   # noop
+end
+
+When /^sleep (\d+)$/ do |time|
+  sleep time.to_i
 end
