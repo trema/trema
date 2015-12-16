@@ -1,6 +1,11 @@
 Feature: switch_disconnected handler
   Background:
-    Given a file named "switch_disconnected.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "switch_disconnected.rb" with:
       """ruby
       class SwitchDisconnected < Trema::Controller
         def switch_disconnected(dpid)
