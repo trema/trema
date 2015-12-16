@@ -1,6 +1,11 @@
 Feature: send_flow_mod_add
   Background:
-    Given a file named "trema.conf" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "trema.conf" with:
       """
       vswitch { datapath_id 0xabc }
       """
