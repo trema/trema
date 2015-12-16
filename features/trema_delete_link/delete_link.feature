@@ -1,4 +1,11 @@
 Feature: delete_link
+  Background:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+
   @sudo
   Scenario: trema delete_link 0xabc host1
     Given a file named "packet_in_controller.rb" with:
