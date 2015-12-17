@@ -26,7 +26,7 @@ Feature: packet_in handler
       """
 
     And I successfully run `trema run packet_in_controller.rb -c trema.conf -d`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema send_packets --source host1 --dest host2`
     Then the file "PacketInController.log" should contain "new packet_in (dpid = 0xabc)"
 
@@ -49,6 +49,6 @@ Feature: packet_in handler
       end
       """
     And I successfully run `trema run packet_in_controller.rb -c trema.conf --openflow13 -d`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema send_packets --source host1 --dest host2`
     Then the file "PacketInController.log" should contain "new packet_in (dpid = 0xabc)"

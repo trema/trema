@@ -22,7 +22,7 @@ Feature: -l (--logging_level) option
   @sudo
   Scenario: --logging_level debug
     When I run `trema run hello.rb --logging_level debug -d`
-    And I run `sleep 3`
+    And sleep 3
     And the file "Hello.log" should contain "DEBUG -- : Konnichi Wa"
 
   @sudo

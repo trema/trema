@@ -15,14 +15,14 @@ Feature: -S (--socket_dir) option
   @sudo
   Scenario: -S option
     When I successfully run `trema run null_controller.rb -S . -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a socket file named "NullController.ctl" should exist
     And a socket file named "trema.NullController.ctl" should exist
 
   @sudo
   Scenario: --socket_dir option
     When I successfully run `trema run null_controller.rb --socket_dir . -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a socket file named "NullController.ctl" should exist
     And a socket file named "trema.NullController.ctl" should exist
 

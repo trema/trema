@@ -33,9 +33,9 @@ Feature: start
   @sudo
   Scenario: stop and start a switch
     Given I successfully run `trema stop 0xabc`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema start 0xabc`
-    And I successfully run `sleep 10`
+    And sleep 10
     Then the file "SwitchReadyController.log" should contain:
       """
       Switch 0xabc connected again.
@@ -44,9 +44,9 @@ Feature: start
   @sudo
   Scenario: stop and start host_name
     Given I successfully run `trema stop host1`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema start host1`
-    And I successfully run `sleep 10`
+    And sleep 10
     Then the file named "vhost.host1.pid" should exist
 
   @sudo

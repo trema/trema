@@ -27,11 +27,11 @@ Feature: -p (--port) option
   @sudo
   Scenario: -p option
     When I successfully run `trema run -p 1234 switch_ready.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "SwitchReady.log" should contain "connected to port 1234"
 
   @sudo
   Scenario: --port option
     When I successfully run `trema run --port 1234 switch_ready.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "SwitchReady.log" should contain "connected to port 1234"

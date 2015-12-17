@@ -24,13 +24,13 @@ Feature: -c (--conf) option
   @sudo
   Scenario: -c option
     When I successfully run `trema run hello.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "Hello.log" should contain "Hello 0xabc!"
 
   @sudo
   Scenario: --conf option
     When I successfully run `trema run hello.rb --conf trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "Hello.log" should contain "Hello 0xabc!"
 
   @sudo

@@ -28,7 +28,7 @@ Feature: stop
   @sudo
   Scenario: stop a switch
     When I successfully run `trema stop 0xabc`
-    And I successfully run `sleep 10`
+    And sleep 10
     Then the file "SwitchDisconnectedController.log" should contain:
       """
       Switch 0xabc is disconnected.
@@ -37,7 +37,7 @@ Feature: stop
   @sudo
   Scenario: stop a host
     When I successfully run `trema stop host1`
-    And I successfully run `sleep 5`
+    And sleep 5
     Then the file "vhost.host1.pid" should not exist
 
   @sudo

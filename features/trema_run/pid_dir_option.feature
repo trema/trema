@@ -16,14 +16,14 @@ Feature: -P (--pid_dir) option
   Scenario: -P option
     Given a directory named "pid"
     When I successfully run `trema run null_controller.rb -P pid -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a file named "pid/NullController.pid" should exist
 
   @sudo
   Scenario: --pid_dir option
     Given a directory named "pid"
     When I successfully run `trema run null_controller.rb --pid_dir pid -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a file named "pid/NullController.pid" should exist
 
   @sudo

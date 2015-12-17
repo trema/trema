@@ -16,14 +16,14 @@ Feature: -L (--log_dir) option
   Scenario: -L option
     Given a directory named "log"
     When I successfully run `trema run null_controller.rb -L log -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a file named "log/NullController.log" should exist
 
   @sudo
   Scenario: --log_dir option
     Given a directory named "log"
     When I successfully run `trema run null_controller.rb --log_dir log -d`
-    And I run `sleep 3`
+    And sleep 3
     Then a file named "log/NullController.log" should exist
 
   @sudo
