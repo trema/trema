@@ -3,6 +3,12 @@
 ## develop (unreleased)
 
 
+## 0.9.0 (12/17/2015)
+### New features
+* [#415](https://github.com/trema/trema/pull/415): Add `trema netns [command]` command.
+* [#416](https://github.com/trema/trema/pull/416): dump_flows supports OpenFlow 1.3
+
+
 ## 0.8.4 (11/30/2015)
 ### Bugs fixed
 * Fix NoMethodError.
