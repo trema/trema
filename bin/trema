@@ -62,10 +62,7 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        Trema.fetch(args.first, options.fetch(:socket_dir)).
-          dump_flows.each_line do |each|
-            puts each.lstrip unless /^(NXST|OFPST)_FLOW reply/=~ each
-          end
+        puts Trema.fetch(args.first, options.fetch(:socket_dir)).dump_flows
       end
     end
 

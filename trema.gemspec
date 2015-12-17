@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bundler', '~> 1.11.2'
   gem.add_dependency 'gli', '~> 2.13.4'
-  gem.add_dependency 'phut', '~> 0.7.5'
+  # gem.add_dependency 'phut', '~> 0.7.5'
   gem.add_dependency 'pio', '~> 0.30.0'
 
   # Docs
