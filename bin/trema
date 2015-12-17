@@ -58,7 +58,7 @@ module Trema
     desc 'Print all flow entries'
     arg_name 'switches...'
     command :dump_flows do |c|
-      c.desc 'Location to put socket files'
+      c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|

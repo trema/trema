@@ -19,31 +19,31 @@ Feature: dump_flows
       """
     And a file named "trema.conf" with:
       """ruby
-      vswitch { datapath_id 0xabc }
+      vswitch('of_switch') { datapath_id 0xabc }
       """
 
   @sudo
   Scenario: dump_flows (no flow entries)
     Given I trema run "noop_controller.rb" with the configuration "trema.conf"
-    When I successfully run `trema dump_flows 0xabc`
-    Then the output from "trema dump_flows 0xabc" should not contain "actions=drop"
+    When I successfully run `trema dump_flows of_switch`
+    Then the output from "trema dump_flows of_switch" should not contain "actions=drop"
 
   @sudo
   Scenario: dump_flows (one flow entry)
     Given I trema run "flow_mod_controller.rb" with the configuration "trema.conf"
-    When I successfully run `trema dump_flows 0xabc`
-    Then the output from "trema dump_flows 0xabc" should contain "actions=drop"
+    When I successfully run `trema dump_flows of_switch`
+    Then the output from "trema dump_flows of_switch" should contain "actions=drop"
 
   @sudo
   Scenario: dump_flows OpenFlow 1.3 (no flow entries)
     Given I use OpenFlow 1.3
     And I trema run "noop_controller.rb" with the configuration "trema.conf"
-    When I successfully run `trema dump_flows 0xabc`
-    Then the output from "trema dump_flows 0xabc" should not contain "actions=drop"
+    When I successfully run `trema dump_flows of_switch`
+    Then the output from "trema dump_flows of_switch" should not contain "actions=drop"
 
   @sudo
   Scenario: dump_flows OpenFlow 1.3 (one flow entry)
     Given I use OpenFlow 1.3
     And I trema run "flow_mod_controller.rb" with the configuration "trema.conf"
-    When I successfully run `trema dump_flows 0xabc`
-    Then the output from "trema dump_flows 0xabc" should contain "actions=drop"
+    When I successfully run `trema dump_flows of_switch`
+    Then the output from "trema dump_flows of_switch" should contain "actions=drop"
