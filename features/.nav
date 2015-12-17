@@ -9,6 +9,9 @@
   - openflow13_option.feature
   - port_option.feature
 
+- trema_dump_flows (trema dump_flows command):
+  - dump_flows.feature
+
 - trema_killall (trema killall command):
   - killall.feature (basic usage)
   - all_option.feature
