@@ -56,16 +56,16 @@ module Trema
     end
 
     desc 'Print all flow entries'
-    arg_name 'switches...'
+    arg_name 'switch'
     command :dump_flows do |c|
       c.desc 'Location to find socket files'
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        Phut.socket_dir = options[:socket_dir]
-        args.each do |each|
-          puts Trema.fetch(each, options.fetch(:socket_dir)).dump_flows
-        end
+        Trema.fetch(args.first, options.fetch(:socket_dir)).
+          dump_flows.each_line do |each|
+            puts each.lstrip unless /^(NXST|OFPST)_FLOW reply/=~ each
+          end
       end
     end
 
