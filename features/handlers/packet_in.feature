@@ -1,6 +1,11 @@
 Feature: packet_in handler
   Background:
-    Given a file named "trema.conf" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "trema.conf" with:
       """ruby
       vswitch { datapath_id 0xabc }
       vhost('host1') { ip '192.168.0.1' }
@@ -21,7 +26,7 @@ Feature: packet_in handler
       """
 
     And I successfully run `trema run packet_in_controller.rb -c trema.conf -d`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema send_packets --source host1 --dest host2`
     Then the file "PacketInController.log" should contain "new packet_in (dpid = 0xabc)"
 
@@ -44,6 +49,6 @@ Feature: packet_in handler
       end
       """
     And I successfully run `trema run packet_in_controller.rb -c trema.conf --openflow13 -d`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema send_packets --source host1 --dest host2`
     Then the file "PacketInController.log" should contain "new packet_in (dpid = 0xabc)"

@@ -9,18 +9,18 @@ begin
   end
 
   Given(/^I send a GET request for "([^\"]*)"$/) do |path|
-    in_current_dir { get path }
+    cd('.') { get path }
   end
 
   # rubocop:disable LineLength
   Given(/^I send a POST request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
-    in_current_dir { post path, Object.instance_eval(body) }
+    cd('.') { post path, Object.instance_eval(body) }
   end
   # rubocop:enable LineLength
 
   # rubocop:disable LineLength
   Given(/^I send a DELETE request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
-    in_current_dir { delete path, Object.instance_eval(body) }
+    cd('.') { delete path, Object.instance_eval(body) }
   end
   # rubocop:enable LineLength
 

@@ -1,6 +1,11 @@
 Feature: hello_failed handler
   Background:
-    Given a file named "hello_fails.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "hello_fails.rb" with:
       """ruby
       require 'version_mismatch'
 
