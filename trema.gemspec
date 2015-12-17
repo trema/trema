@@ -21,8 +21,8 @@ Gem::Specification.new do |gem|
 
   gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
-  gem.add_dependency 'bundler', '~> 1.10.6'
-  gem.add_dependency 'gli', '~> 2.13.2'
+  gem.add_dependency 'bundler', '~> 1.11.2'
+  gem.add_dependency 'gli', '~> 2.13.4'
   # gem.add_dependency 'phut', '~> 0.7.4'
   gem.add_dependency 'pio', '~> 0.30.0'
 
@@ -33,11 +33,11 @@ Gem::Specification.new do |gem|
   # Test
   gem.add_development_dependency 'aruba', '~> 0.11.2'
   gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.4.8'
-  gem.add_development_dependency 'coveralls', '~> 0.8.3'
+  gem.add_development_dependency 'coveralls', '~> 0.8.10'
   gem.add_development_dependency 'cucumber', '~> 2.1.0'
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'reek', '~> 3.5.0'
-  gem.add_development_dependency 'rspec', '~> 3.3.0'
+  gem.add_development_dependency 'reek', '~> 3.7.1'
+  gem.add_development_dependency 'rspec', '~> 3.4.0'
   gem.add_development_dependency 'rspec-given', '~> 3.7.1'
-  gem.add_development_dependency 'rubocop', '~> 0.34.2'
+  gem.add_development_dependency 'rubocop', '~> 0.35.1'
 end
