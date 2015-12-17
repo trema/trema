@@ -1,4 +1,11 @@
 Feature: logging
+  Background:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+
   @sudo
   Scenario: controller, vhost and vswitch creates log files
     Given a file named "hello.rb" with:
@@ -16,7 +23,7 @@ Feature: logging
       link '0xabc', '192.168.0.1'
       """
     When I successfully run `trema run hello.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the following files should exist:
       | Hello.log              |
       | vhost.192.168.0.1.log  |
@@ -36,7 +43,7 @@ Feature: logging
       link '0xabc', 'host1'
       """
     When I successfully run `trema run null_controller.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the following files should exist:
       | NullController.log     |
       | vhost.host1.log        |
@@ -59,7 +66,7 @@ Feature: logging
       end
       """
     When I successfully run `trema run two_controllers.rb -d`
-    And I run `sleep 3`
+    And sleep 3
     Then the following files should exist:
       | ParentController.log |
       | ChildController.log  |

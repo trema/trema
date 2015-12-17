@@ -1,6 +1,11 @@
 Feature: barrier_reply handler
   Background:
-    Given a file named "barrier_reply.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "barrier_reply.rb" with:
       """ruby
       class BarrierReply < Trema::Controller
         def switch_ready(dpid)

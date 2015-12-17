@@ -1,6 +1,11 @@
 Feature: description_stats_reply handler
   Background:
-    Given a file named "description_stats_reply.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "description_stats_reply.rb" with:
       """ruby
       class DescriptionStatsReply < Trema::Controller
         def switch_ready(dpid)

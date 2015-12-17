@@ -1,6 +1,11 @@
 Feature: start
   Background:
-    Given a file named "switch_ready_controller.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "switch_ready_controller.rb" with:
       """ruby
       class SwitchReadyController < Trema::Controller
         def start(_args)
@@ -28,9 +33,9 @@ Feature: start
   @sudo
   Scenario: stop and start a switch
     Given I successfully run `trema stop 0xabc`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema start 0xabc`
-    And I successfully run `sleep 10`
+    And sleep 10
     Then the file "SwitchReadyController.log" should contain:
       """
       Switch 0xabc connected again.
@@ -39,9 +44,9 @@ Feature: start
   @sudo
   Scenario: stop and start host_name
     Given I successfully run `trema stop host1`
-    And I successfully run `sleep 3`
+    And sleep 3
     When I successfully run `trema start host1`
-    And I successfully run `sleep 10`
+    And sleep 10
     Then the file named "vhost.host1.pid" should exist
 
   @sudo

@@ -4,7 +4,12 @@ Feature: --all option
 
   @sudo
   Scenario: killall --all
-    Given a file named "null_controller.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "null_controller.rb" with:
       """ruby
       class NullController < Trema::Controller; end
       """

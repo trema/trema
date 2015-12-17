@@ -3,7 +3,12 @@ Feature: --openflow13 option
   Use --openflow13 option to enable OpenFlow 1.3
 
   Background:
-    Given a file named "openflow_version.rb" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "openflow_version.rb" with:
       """ruby
       class OpenflowVersion < Trema::Controller
         def switch_ready(dpid)
@@ -23,17 +28,17 @@ Feature: --openflow13 option
   @sudo
   Scenario: --openflow13 option
     When I successfully run `trema run openflow_version.rb --openflow13 -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "OpenflowVersion.log" should contain "ofp_version = 4"
 
   @sudo
   Scenario: --no-openflow13 option
     When I successfully run `trema run openflow_version.rb --no-openflow13 -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "OpenflowVersion.log" should contain "ofp_version = 1"
 
   @sudo
   Scenario: the default OpenFlow version is 1.0
     When I successfully run `trema run openflow_version.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "OpenflowVersion.log" should contain "ofp_version = 1"

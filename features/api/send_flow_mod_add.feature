@@ -1,6 +1,11 @@
 Feature: send_flow_mod_add
   Background:
-    Given a file named "trema.conf" with:
+    Given I set the environment variables to:
+      | variable         | value |
+      | TREMA_LOG_DIR    | .     |
+      | TREMA_PID_DIR    | .     |
+      | TREMA_SOCKET_DIR | .     |
+    And a file named "trema.conf" with:
       """
       vswitch { datapath_id 0xabc }
       """
@@ -29,7 +34,7 @@ Feature: send_flow_mod_add
       end
       """
     When I successfully run `trema run flow_mod_controller10.rb -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "FlowModController10.log" should contain "Sent a FlowMod successfully"
 
   @sudo
@@ -57,6 +62,6 @@ Feature: send_flow_mod_add
       end
       """
     When I successfully run `trema run flow_mod_controller13.rb --openflow13 -c trema.conf -d`
-    And I run `sleep 5`
+    And sleep 5
     Then the file "FlowModController13.log" should contain "Sent a FlowMod successfully"
 
