@@ -154,9 +154,6 @@ module Trema
     # explicitly, because this is called implicitly by "trema run"
     # command.
     def run(args)
-      drb_socket_file =
-        File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
-      @drb = DRb::DRbServer.new 'drbunix:' + drb_socket_file, self
       maybe_send_handler :start, args
       socket = TCPServer.open('<any>', @port_number)
       start_timers
@@ -168,7 +165,6 @@ module Trema
     end
 
     def stop
-      @drb.stop_service if @drb
       @threads.map(&:kill)
     end
 
