@@ -11,6 +11,7 @@ require 'trema'
 # OpenFlow controller framework.
 module Trema
   # trema command.
+  # rubocop:disable ModuleLength
   module App
     extend GLI::App
 
@@ -231,10 +232,11 @@ module Trema
       end
     end
 
+    # rubocop:disable LineLength
     desc 'Opens a new shell or runs a command in the specified network namespace'
     arg_name 'name [command]'
     command :netns do |c|
-      c.action do |global_options, options, args|
+      c.action do |_global_options, _options, args|
         command_args = args[1..-1]
         if command_args && command_args.size > 0
           system "sudo ip netns exec #{args[0]} #{command_args.join(' ')}"
@@ -243,6 +245,7 @@ module Trema
         end
       end
     end
+    # rubocop:enable LineLength
 
     default_command :help
 
@@ -264,4 +267,5 @@ module Trema
 
     exit run(ARGV)
   end
+  # rubocop:enable ModuleLength
 end
