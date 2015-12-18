@@ -6,9 +6,8 @@ module Trema
   # trema command
   # rubocop:disable ClassLength
   class Command
-    def self.unix_domain_socket(name = nil, check = false)
-      file_name = name ? "trema.#{name}.ctl" : 'trema.ctl'
-      path = File.expand_path(File.join Phut.socket_dir, file_name)
+    def self.unix_domain_socket(name, check = false)
+      path = File.expand_path(File.join Phut.socket_dir, "#{name}.ctl")
       if check && !FileTest.socket?(path)
         fail "Socket file #{path} does not exist."
       end
