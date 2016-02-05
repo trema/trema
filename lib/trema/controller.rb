@@ -113,7 +113,7 @@ module Trema
 
     include Pio
 
-    SWITCH = {}
+    SWITCH = {} # rubocop:disable MutableConstant
     DEFAULT_TCP_PORT = 6653
 
     # @return [Logger]
@@ -136,7 +136,7 @@ module Trema
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT)
       unless @controller_klass
-        fail NoControllerDefined, 'No controller class is defined.'
+        raise NoControllerDefined, 'No controller class is defined.'
       end
       @controller_klass.new(port_number)
     end
@@ -178,7 +178,7 @@ module Trema
         when 'OpenFlow13'
           FlowMod.new(FlowModAdd13Option.new(options).to_hash)
         else
-          fail "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"
+          raise "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"
         end
       send_message datapath_id, flow_mod
     end
@@ -314,14 +314,14 @@ module Trema
         when :modify
           maybe_send_handler :port_modify, datapath_id, message
         else
-          fail "Invalid Port Status message: #{message.inspect}"
+          raise "Invalid Port Status message: #{message.inspect}"
         end
       when Barrier::Reply
         maybe_send_handler :barrier_reply, datapath_id, message
       when DescriptionStats::Reply
         maybe_send_handler :description_stats_reply, datapath_id, message
       else
-        fail "Unknown OpenFlow message: #{message.inspect}"
+        raise "Unknown OpenFlow message: #{message.inspect}"
       end
     end
     # rubocop:enable MethodLength

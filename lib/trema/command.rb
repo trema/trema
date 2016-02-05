@@ -7,9 +7,9 @@ module Trema
   # rubocop:disable ClassLength
   class Command
     def self.unix_domain_socket(name, check = false)
-      path = File.expand_path(File.join Phut.socket_dir, "#{name}.ctl")
+      path = File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
       if check && !FileTest.socket?(path)
-        fail "Socket file #{path} does not exist."
+        raise "Socket file #{path} does not exist."
       end
       'drbunix:' + path
     end
@@ -165,7 +165,7 @@ module Trema
     # rubocop:enable MethodLength
 
     def create_pid_file
-      fail "#{name} is already running." if running?
+      raise "#{name} is already running." if running?
       update_pid_file
     end
 

@@ -54,7 +54,7 @@ Feature: -c (--conf) option
       """
     When I run `trema run null_controller.rb -c invalid_trema.conf`
     Then the exit status should not be 0
-    Then the output should contain "uninitialized constant Phut::Syntax::Baz (NameError)"
+    Then the output should match /uninitialized constant .*::Baz \(NameError\)/
 
   @sudo
   Scenario: SyntaxError

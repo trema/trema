@@ -7,15 +7,15 @@ module Trema
     Phut.socket_dir = socket_dir
     socket_path = File.join(Phut.socket_dir, "#{controller_name}.ctl")
     unless FileTest.socket?(socket_path)
-      fail %(Controller process "#{controller_name}" does not exist.)
+      raise %(Controller process "#{controller_name}" does not exist.)
     end
     DRbObject.new_with_uri('drbunix:' + socket_path)
   end
 
   def self.trema_processes(socket_dir = Phut.socket_dir)
     Phut.socket_dir = socket_dir
-    all = Dir.glob(File.join Phut.socket_dir, '*.ctl')
-    vhosts = Dir.glob(File.join Phut.socket_dir, 'vhost.*.ctl')
+    all = Dir.glob(File.join(Phut.socket_dir, '*.ctl'))
+    vhosts = Dir.glob(File.join(Phut.socket_dir, 'vhost.*.ctl'))
     (all - vhosts).map { |each| DRbObject.new_with_uri("drbunix:#{each}") }
   end
 
@@ -27,6 +27,6 @@ module Trema
         next
       end
     end
-    fail %("#{name}" does not exist.)
+    raise %("#{name}" does not exist.)
   end
 end

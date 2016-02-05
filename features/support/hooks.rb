@@ -3,7 +3,7 @@ Before do
 end
 
 Before('@sudo') do
-  fail 'sudo authentication failed' unless system 'sudo -v'
+  raise 'sudo authentication failed' unless system 'sudo -v'
   @aruba_timeout_seconds = 15
 end
 
