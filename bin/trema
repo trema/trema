@@ -124,6 +124,16 @@ module Trema
       end
     end
 
+    desc 'Reset stats of packets'
+    command :reset_stats do |c|
+      c.desc 'Location to find socket files'
+      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+      c.action do |_global_options, options, _args|
+        Trema.vhosts(options[:socket_dir]).each(&:reset_stats)
+      end
+    end
+
     desc "Brings a switch's specified port up"
     command :port_up do |c|
       c.desc 'switch name'
