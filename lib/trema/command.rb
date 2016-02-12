@@ -118,9 +118,9 @@ module Trema
     # rubocop:enable MethodLength
 
     def start_controller_and_drb_threads
+      DRb.start_service Command.unix_domain_socket(@controller.name), self
       @controller_thread = Thread.new { @controller.run @args[1..-1] }
       @controller_thread.abort_on_exception = true
-      DRb.start_service Command.unix_domain_socket(@controller.name), self
       DRb.thread.join
     rescue
       killall
