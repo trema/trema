@@ -6,9 +6,9 @@ AllCops:
     - ./Rakefile
     - tasks/*.rake
   Exclude:
-    - bin/*
     - tmp/**/*
     - vendor/**/*
+    - !ruby/regexp /bin\/(?:(?!trema).)*$/
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes

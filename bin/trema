@@ -80,8 +80,8 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
-        fail '--source option is mandatory' if options[:source].nil?
-        fail '--dest option is mandatory' if options[:dest].nil?
+        raise '--source option is mandatory' if options[:source].nil?
+        raise '--dest option is mandatory' if options[:dest].nil?
         dest = Trema.fetch(options.fetch(:dest), options.fetch(:socket_dir))
         Phut::VhostDaemon.
           process(options.fetch(:source), options.fetch(:socket_dir)).
@@ -144,8 +144,8 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
-        fail '--switch option is mandatory' if options[:switch].nil?
-        fail '--port option is mandatory' if options[:port].nil?
+        raise '--switch option is mandatory' if options[:switch].nil?
+        raise '--port option is mandatory' if options[:port].nil?
         Trema.trema_processes(options[:socket_dir]).each do |trema|
           begin
             trema.port_up(options[:switch], options[:port].to_i)
@@ -166,8 +166,8 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
-        fail '--switch option is mandatory' if options[:switch].nil?
-        fail '--port option is mandatory' if options[:port].nil?
+        raise '--switch option is mandatory' if options[:switch].nil?
+        raise '--port option is mandatory' if options[:port].nil?
         Trema.trema_processes(options[:socket_dir]).each do |trema|
           begin
             trema.port_down(options[:switch], options[:port].to_i)
@@ -248,7 +248,7 @@ module Trema
     command :netns do |c|
       c.action do |_global_options, _options, args|
         command_args = args[1..-1]
-        if command_args && command_args.size > 0
+        if command_args && !command_args.empty?
           system "sudo ip netns exec #{args[0]} #{command_args.join(' ')}"
         else
           system "sudo ip netns exec #{args[0]} #{ENV['SHELL']}"
@@ -271,7 +271,7 @@ module Trema
         exit false
       else
         # show backtrace
-        fail e
+        raise e
       end
     end
 
