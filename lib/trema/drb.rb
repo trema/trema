@@ -19,6 +19,12 @@ module Trema
     (all - vhosts).map { |each| DRbObject.new_with_uri("drbunix:#{each}") }
   end
 
+  def self.vhosts(socket_dir = Phut.socket_dir)
+    Phut.socket_dir = socket_dir
+    vhosts = Dir.glob(File.join(Phut.socket_dir, 'vhost.*.ctl'))
+    vhosts.map { |each| DRbObject.new_with_uri("drbunix:#{each}") }
+  end
+
   def self.fetch(name, socket_dir)
     trema_processes(socket_dir).each do |trema|
       begin
