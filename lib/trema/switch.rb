@@ -23,10 +23,10 @@ module Trema
     end
 
     def datapath_id
-      fail 'Switch is not initialized.' unless @features_reply
+      raise 'Switch is not initialized.' unless @features_reply
       @features_reply.datapath_id
     end
-    alias_method :dpid, :datapath_id
+    alias dpid datapath_id
 
     def write(message)
       @socket.write message.to_binary
@@ -68,7 +68,7 @@ module Trema
           @error_message = message
           fail InitError, message.description
         else
-          fail "Failed to receive #{expected_message_klass} message"
+          raise "Failed to receive #{expected_message_klass} message"
         end
       end
     end
@@ -78,7 +78,7 @@ module Trema
       header_binary = drain(OPENFLOW_HEADER_LENGTH)
       header = OpenFlowHeaderParser.read(header_binary)
       body_binary = drain(header.message_length - OPENFLOW_HEADER_LENGTH)
-      fail if (header_binary + body_binary).length != header.message_length
+      raise if (header_binary + body_binary).length != header.message_length
       header_binary + body_binary
     end
 

@@ -26,10 +26,10 @@ Feature: -l (--logging_level) option
     And the file "Hello.log" should contain "DEBUG -- : Konnichi Wa"
 
   @sudo
-  Scenario: "Invalid logging level" error
+  Scenario: "Invalid log level" error
     When I run `trema run hello.rb --logging_level hoge -d`
     Then the exit status should not be 0
     And the stderr should contain:
       """
-      Invalid logging level: hoge
+      Invalid log level: hoge
       """

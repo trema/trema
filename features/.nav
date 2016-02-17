@@ -1,16 +1,16 @@
 - trema_run (trema run command):
   - run.feature (basic usage)
+  - conf_option.feature
+  - daemonize_option.feature
+  - openflow13_option.feature
   - log_dir_option.feature
   - pid_dir_option.feature
   - socket_dir_option.feature
-  - conf_option.feature
-  - daemonize_option.feature
   - logging_level_option.feature
-  - openflow13_option.feature
   - port_option.feature
 
 - trema_dump_flows (trema dump_flows command):
-  - dump_flows.feature
+  - dump_flows.feature (basic usage)
 
 - trema_killall (trema killall command):
   - killall.feature (basic usage)
@@ -38,6 +38,7 @@
   - warn.feature
   - error.feature
   - fatal.feature
+  - unknown.feature
 
 - api (controller API):
   - logging.feature

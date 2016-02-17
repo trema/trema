@@ -107,13 +107,9 @@ module Trema
       # rubocop:enable MethodLength
     end
 
-    class << self
-      attr_accessor :logging_level
-    end
-
     include Pio
 
-    SWITCH = {}
+    SWITCH = {} # rubocop:disable MutableConstant
     DEFAULT_TCP_PORT = 6653
 
     # @return [Logger]
@@ -134,19 +130,21 @@ module Trema
     end
 
     # @private
-    def self.create(port_number = DEFAULT_TCP_PORT)
+    def self.create(port_number = DEFAULT_TCP_PORT,
+                    logging_level = ::Logger::INFO)
       unless @controller_klass
-        fail NoControllerDefined, 'No controller class is defined.'
+        raise NoControllerDefined, 'No controller class is defined.'
       end
-      @controller_klass.new(port_number)
+      @controller_klass.new(port_number, logging_level)
     end
 
     # @private
-    def initialize(port_number = DEFAULT_TCP_PORT)
+    def initialize(port_number = DEFAULT_TCP_PORT,
+                   logging_level = ::Logger::INFO)
       @port_number = port_number
       @threads = []
       @logger = Logger.new(name)
-      @logger.level = Controller.logging_level
+      @logger.level = logging_level
     end
 
     # @private
@@ -154,9 +152,6 @@ module Trema
     # explicitly, because this is called implicitly by "trema run"
     # command.
     def run(args)
-      drb_socket_file =
-        File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
-      @drb = DRb::DRbServer.new 'drbunix:' + drb_socket_file, self
       maybe_send_handler :start, args
       socket = TCPServer.open('<any>', @port_number)
       start_timers
@@ -168,7 +163,6 @@ module Trema
     end
 
     def stop
-      @drb.stop_service if @drb
       @threads.map(&:kill)
     end
 
@@ -182,7 +176,7 @@ module Trema
         when 'OpenFlow13'
           FlowMod.new(FlowModAdd13Option.new(options).to_hash)
         else
-          fail "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"
+          raise "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"
         end
       send_message datapath_id, flow_mod
     end
@@ -318,14 +312,14 @@ module Trema
         when :modify
           maybe_send_handler :port_modify, datapath_id, message
         else
-          fail "Invalid Port Status message: #{message.inspect}"
+          raise "Invalid Port Status message: #{message.inspect}"
         end
       when Barrier::Reply
         maybe_send_handler :barrier_reply, datapath_id, message
       when DescriptionStats::Reply
         maybe_send_handler :description_stats_reply, datapath_id, message
       else
-        fail "Unknown OpenFlow message: #{message.inspect}"
+        raise "Unknown OpenFlow message: #{message.inspect}"
       end
     end
     # rubocop:enable MethodLength

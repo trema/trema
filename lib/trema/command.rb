@@ -1,16 +1,13 @@
 require 'English'
 
 module Trema
-  class InvalidLoggingLevel < StandardError; end
-
   # trema command
   # rubocop:disable ClassLength
   class Command
-    def self.unix_domain_socket(name = nil, check = false)
-      file_name = name ? "trema.#{name}.ctl" : 'trema.ctl'
-      path = File.expand_path(File.join Phut.socket_dir, file_name)
+    def self.unix_domain_socket(name, check = false)
+      path = File.expand_path(File.join(Phut.socket_dir, "#{name}.ctl"))
       if check && !FileTest.socket?(path)
-        fail "Socket file #{path} does not exist."
+        raise "Socket file #{path} does not exist."
       end
       'drbunix:' + path
     end
@@ -22,24 +19,11 @@ module Trema
     def run(args, options)
       @args = args
       @daemon = options[:daemonize]
-
-      begin
-        Controller.logging_level =
-          { debug: ::Logger::DEBUG,
-            info: ::Logger::INFO,
-            warn: ::Logger::WARN,
-            error: ::Logger::ERROR,
-            fatal: ::Logger::FATAL }.fetch(options[:logging_level].to_sym)
-        Controller.logging_level = ::Logger::DEBUG if options[:verbose]
-      rescue KeyError
-        raise(InvalidLoggingLevel,
-              "Invalid logging level: #{options[:logging_level]}")
-      end
-
       $LOAD_PATH.unshift File.expand_path(File.dirname(@args.first))
       load @args.first
       port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
-      @controller = Controller.create(port_number)
+      @controller =
+        Controller.create(port_number, options.fetch(:logging_level))
 
       trap_signals
       create_pid_file
@@ -119,9 +103,9 @@ module Trema
     # rubocop:enable MethodLength
 
     def start_controller_and_drb_threads
+      DRb.start_service Command.unix_domain_socket(@controller.name), self
       @controller_thread = Thread.new { @controller.run @args[1..-1] }
       @controller_thread.abort_on_exception = true
-      DRb.start_service Command.unix_domain_socket(@controller.name), self
       DRb.thread.join
     rescue
       killall
@@ -166,7 +150,7 @@ module Trema
     # rubocop:enable MethodLength
 
     def create_pid_file
-      fail "#{name} is already running." if running?
+      raise "#{name} is already running." if running?
       update_pid_file
     end
 
