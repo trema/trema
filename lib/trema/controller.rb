@@ -107,10 +107,6 @@ module Trema
       # rubocop:enable MethodLength
     end
 
-    class << self
-      attr_accessor :logging_level
-    end
-
     include Pio
 
     SWITCH = {} # rubocop:disable MutableConstant
@@ -134,19 +130,21 @@ module Trema
     end
 
     # @private
-    def self.create(port_number = DEFAULT_TCP_PORT)
+    def self.create(port_number = DEFAULT_TCP_PORT,
+                    logging_level = ::Logger::INFO)
       unless @controller_klass
         raise NoControllerDefined, 'No controller class is defined.'
       end
-      @controller_klass.new(port_number)
+      @controller_klass.new(port_number, logging_level)
     end
 
     # @private
-    def initialize(port_number = DEFAULT_TCP_PORT)
+    def initialize(port_number = DEFAULT_TCP_PORT,
+                   logging_level = ::Logger::INFO)
       @port_number = port_number
       @threads = []
       @logger = Logger.new(name)
-      @logger.level = Controller.logging_level
+      @logger.level = logging_level
     end
 
     # @private

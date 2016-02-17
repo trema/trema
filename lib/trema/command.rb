@@ -1,8 +1,6 @@
 require 'English'
 
 module Trema
-  class InvalidLoggingLevel < StandardError; end
-
   # trema command
   # rubocop:disable ClassLength
   class Command
@@ -21,24 +19,11 @@ module Trema
     def run(args, options)
       @args = args
       @daemon = options[:daemonize]
-
-      begin
-        Controller.logging_level =
-          { debug: ::Logger::DEBUG,
-            info: ::Logger::INFO,
-            warn: ::Logger::WARN,
-            error: ::Logger::ERROR,
-            fatal: ::Logger::FATAL }.fetch(options[:logging_level].to_sym)
-        Controller.logging_level = ::Logger::DEBUG if options[:verbose]
-      rescue KeyError
-        raise(InvalidLoggingLevel,
-              "Invalid logging level: #{options[:logging_level]}")
-      end
-
       $LOAD_PATH.unshift File.expand_path(File.dirname(@args.first))
       load @args.first
       port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
-      @controller = Controller.create(port_number)
+      @controller =
+        Controller.create(port_number, options.fetch(:logging_level))
 
       trap_signals
       create_pid_file
