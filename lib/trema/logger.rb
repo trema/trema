@@ -11,6 +11,10 @@ module Trema
       end
     end
 
+    def unknown(message)
+      output :unknown, message
+    end
+
     def fatal(message)
       output :fatal, message
     end

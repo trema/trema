@@ -38,6 +38,7 @@
   - warn.feature
   - error.feature
   - fatal.feature
+  - unknown.feature
 
 - api (controller API):
   - logging.feature

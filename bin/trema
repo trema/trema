@@ -57,7 +57,9 @@ module Trema
               info: ::Logger::INFO,
               warn: ::Logger::WARN,
               error: ::Logger::ERROR,
-              fatal: ::Logger::FATAL }.fetch(options[:logging_level].to_sym)
+              fatal: ::Logger::FATAL,
+              unknown: ::Logger::UNKNOWN
+            }.fetch(options[:logging_level].to_sym)
           options[:logging_level] = ::Logger::DEBUG if global_options[:verbose]
         rescue KeyError
           raise(ArgumentError,
