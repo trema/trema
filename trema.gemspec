@@ -36,8 +36,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'coveralls', '~> 0.8.10'
   gem.add_development_dependency 'cucumber', '~> 2.3.2'
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'reek', '~> 3.10.0'
+  gem.add_development_dependency 'reek', '~> 3.10.2'
   gem.add_development_dependency 'rspec', '~> 3.4.0'
   gem.add_development_dependency 'rspec-given', '~> 3.8.0'
-  gem.add_development_dependency 'rubocop', '~> 0.37.0'
+  gem.add_development_dependency 'rubocop', '~> 0.37.2'
 end
