@@ -1,6 +1,9 @@
 # Changelog
 
 ## develop (unreleased)
+
+
+## 0.10.0 (2/17/2015)
 ### New features
 * [#418](https://github.com/trema/trema/pull/418): Ruby 2.3.0 support
 * [#419](https://github.com/trema/trema/pull/419): Add trema reset_stats command
