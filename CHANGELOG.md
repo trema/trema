@@ -3,6 +3,11 @@
 ## develop (unreleased)
 
 
+## 0.10.1 (2/29/2015)
+### Bugs fixed
+* [#424](https://github.com/trema/trema/issues/424): Remove the unnecessary dependency to rake
+
+
 ## 0.10.0 (2/17/2015)
 ### New features
 * [#418](https://github.com/trema/trema/pull/418): Ruby 2.3.0 support
