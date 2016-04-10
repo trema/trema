@@ -23,7 +23,10 @@ module Trema
       load @args.first
       port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
       @controller =
-        Controller.create(port_number, options.fetch(:logging_level))
+        Controller.create(port_number, options.fetch(:logging_level),
+                          options.fetch(:ctl_privkey),
+                          options.fetch(:ctl_cert),
+                          options.fetch(:ca_certs))
 
       trap_signals
       create_pid_file

@@ -5,6 +5,7 @@ require 'socket'
 require 'trema/command'
 require 'trema/logger'
 require 'trema/monkey_patch/integer'
+require 'openssl'
 
 module Trema
   class NoControllerDefined < StandardError; end
@@ -108,6 +109,7 @@ module Trema
     end
 
     include Pio
+    include OpenSSL
 
     SWITCH = {} # rubocop:disable MutableConstant
     DEFAULT_TCP_PORT = 6653
@@ -131,20 +133,45 @@ module Trema
 
     # @private
     def self.create(port_number = DEFAULT_TCP_PORT,
-                    logging_level = ::Logger::INFO)
+                    logging_level = ::Logger::INFO,
+                    ctl_privkey = nil, ctl_cert = nil, ca_certs = nil)
       unless @controller_klass
         raise NoControllerDefined, 'No controller class is defined.'
       end
-      @controller_klass.new(port_number, logging_level)
+      @controller_klass.new(port_number, logging_level, ctl_privkey, ctl_cert,
+                            ca_certs)
     end
 
     # @private
     def initialize(port_number = DEFAULT_TCP_PORT,
-                   logging_level = ::Logger::INFO)
+                   logging_level = ::Logger::INFO,
+                   ctl_privkey = nil, ctl_cert = nil, ca_certs = nil)
       @port_number = port_number
       @threads = []
       @logger = Logger.new(name)
       @logger.level = logging_level
+      @ctl_privkey = ctl_privkey
+      @ctl_cert = ctl_cert
+      @ca_certs = ca_certs
+    end
+
+    # @private
+    # Return if SSL required
+    def ssl_required
+      !(@ctl_privkey.nil? || @ctl_cert.nil? || @ca_certs.nil?)
+    end
+
+    # @private
+    # Get TCP/SSL server socket
+    def open_socket
+      socket = TCPServer.open('<any>', @port_number)
+      return socket unless ssl_required
+
+      ctx = SSL::SSLContext.new(:TLSv1_server)
+      ctx.cert = X509::Certificate.new(File.read(@ctl_cert))
+      ctx.key = PKey::RSA.new(File.read(@ctl_privkey))
+      ctx.ca_file = @ca_certs
+      SSL::SSLServer.new(socket, ctx)
     end
 
     # @private
@@ -153,7 +180,9 @@ module Trema
     # command.
     def run(args)
       maybe_send_handler :start, args
-      socket = TCPServer.open('<any>', @port_number)
+
+      socket = open_socket
+
       start_timers
       loop { start_switch_thread(socket.accept) }
     end
