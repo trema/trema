@@ -163,7 +163,7 @@ module Trema
     end
 
     def running?
-      FileTest.exists? pid_file
+      FileTest.exist? pid_file
     end
 
     def name
