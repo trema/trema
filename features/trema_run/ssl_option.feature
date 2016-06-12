@@ -1,6 +1,6 @@
 Feature: SSL option
   Before run this script, setup a SSL enabled openflow switch by using
-  certificates under the certs directory.
+  certificates under the spec/fixtures/certs directory.
   ex)
     This is an open-vswitch example.
     $ sudo ovs-vsctl set-ssl certs/sc-privkey.pem certs/sc-cert.pem certs/cacert.pem
