@@ -65,6 +65,7 @@ https://github.com/trema/trema/contributors
 License
 -------
 
-Trema is released under the GNU General Public License version 2.0:
+Trema is released under the GNU General Public License version 2.0 or MIT License:
 
 * http://www.gnu.org/licenses/gpl-2.0.html
+* http://www.opensource.org/licenses/MIT
