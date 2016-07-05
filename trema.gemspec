@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.0.0'
 
-  gem.license = 'GPL3'
+  gem.licenses = %w(GPLv2 MIT)
 
   gem.authors = ['Yasuhito Takamiya']
   gem.email = ['yasuhito@gmail.com']
