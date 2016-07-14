@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.test_files = `git ls-files -- {spec,features}/*`.split("\n")
 
   gem.add_dependency 'bundler', '>= 1.11.2', '< 2.0'
-  gem.add_dependency 'gli', '~> 2.13.4'
+  gem.add_dependency 'gli', '~> 2.14.0'
   gem.add_dependency 'phut', '~> 0.7.7'
   gem.add_dependency 'pio', '~> 0.30.0'
 
