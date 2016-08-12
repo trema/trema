@@ -276,7 +276,6 @@ module Trema
       case e
       when OptionParser::ParseError,
            Trema::NoControllerDefined,
-           Phut::OpenVswitch::AlreadyRunning,
            GLI::UnknownCommandArgument,
            ArgumentError
         true
