@@ -55,7 +55,7 @@ Feature: start
     Then the exit status should not be 0
     And the output should contain:
       """
-      error: Open vSwitch (dpid = 2748) is already running!
+      Phut::OpenVswitch::AlreadyRunning: Open vSwitch (dpid = 2748) is already running!
       """
 
   @sudo @wip

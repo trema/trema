@@ -1,4 +1,4 @@
-Feature: logging
+Feature: Log file naming
   Background:
     Given I set the environment variables to:
       | variable         | value |
@@ -7,34 +7,30 @@ Feature: logging
       | TREMA_SOCKET_DIR | .     |
 
   @sudo
-  Scenario: controller, vhost and vswitch creates log files
-    Given a file named "hello.rb" with:
-      """
-      class Hello < Trema::Controller
-        def start(_args)
-          logger.info 'Konnichi Wa'
-        end
-      end
-      """
+  Scenario: controller and vhost creates its log file
+    Given I use a fixture named "event_logger"
     And a file named "trema.conf" with:
       """
       vswitch { datapath_id 0xabc }
       vhost { ip '192.168.0.1' }
       link '0xabc', '192.168.0.1'
       """
-    When I successfully run `trema run hello.rb -c trema.conf -d`
-    And sleep 5
+    When I run `trema run event_logger.rb -c trema.conf` interactively
+    And I stop the command if stderr contains:
+      """
+      EventLogger#start (args = [])
+      """
     Then the following files should exist:
-      | Hello.log              |
-      | vhost.192.168.0.1.log  |
-    And the file "Hello.log" should contain "Konnichi Wa"
+      | EventLogger.log       |
+      | vhost.192.168.0.1.log |
+    And the file "EventLogger.log" should contain:
+      """
+      EventLogger#start (args = [])
+      """
 
   @sudo
   Scenario: aliasing vhost changes its log file name
-    Given a file named "null_controller.rb" with:
-      """
-      class NullController < Trema::Controller; end
-      """
+    Given I use a fixture named "event_logger"
     And a file named "trema.conf" with:
       """
       vswitch { datapath_id 0xabc }
@@ -42,11 +38,14 @@ Feature: logging
       vhost('host1') { ip '192.168.0.1' }
       link '0xabc', 'host1'
       """
-    When I successfully run `trema run null_controller.rb -c trema.conf -d`
-    And sleep 5
+    When I run `trema run event_logger.rb -c trema.conf` interactively
+    And I stop the command if stderr contains:
+      """
+      EventLogger#start (args = [])
+      """
     Then the following files should exist:
-      | NullController.log     |
-      | vhost.host1.log        |
+      | EventLogger.log |
+      | vhost.host1.log |
 
   @sudo
   Scenario: run multiple controllers, and each have its own log file
@@ -60,13 +59,16 @@ Feature: logging
 
       class ParentController < Trema::Controller
         def start(args)
-          ChildController.new.start(args)
           logger.info 'I am parent controller'
+          ChildController.new.start(args)
         end
       end
       """
-    When I successfully run `trema run two_controllers.rb -d`
-    And sleep 3
+    When I run `trema run two_controllers.rb` interactively
+    And I stop the command if stderr contains:
+      """
+      I am parent controller
+      """
     Then the following files should exist:
       | ParentController.log |
       | ChildController.log  |

@@ -5,29 +5,38 @@ Feature: -l (--logging_level) option
       | TREMA_LOG_DIR    | .     |
       | TREMA_PID_DIR    | .     |
       | TREMA_SOCKET_DIR | .     |
-    And a file named "hello.rb" with:
+    And a file named "logger_controller.rb" with:
       """ruby
-      class Hello < Trema::Controller
+      class LoggerController < Trema::Controller
         def start(_args)
-          logger.debug 'Konnichi Wa'
+          logger.debug 'debug message'
+          logger.info 'info message'
+          logger.warn 'warn message'
+          logger.error 'error message'
+          logger.fatal 'fatal message'
+          logger.unknown 'unknown message'
         end
       end
       """
 
   @sudo
   Scenario: the default logging level
-    When I trema run "hello.rb"
-    And the file "Hello.log" should not contain "DEBUG -- : Konnichi Wa"
+    When I successfully trema run "logger_controller.rb" with args "-d"
+    And the file "LoggerController.log" should not contain "DEBUG -- : debug message"
+    And the file "LoggerController.log" should contain "INFO -- : info message"
+    And the file "LoggerController.log" should contain "WARN -- : warn message"
+    And the file "LoggerController.log" should contain "ERROR -- : error message"
+    And the file "LoggerController.log" should contain "FATAL -- : fatal message"
+    And the file "LoggerController.log" should contain "ANY -- : unknown message"
 
   @sudo
   Scenario: --logging_level debug
-    When I run `trema run hello.rb --logging_level debug -d`
-    And sleep 3
-    And the file "Hello.log" should contain "DEBUG -- : Konnichi Wa"
+    When I successfully trema run "logger_controller.rb" with args "--logging_level debug -d"
+    And the file "LoggerController.log" should contain "DEBUG -- : debug message"
 
   @sudo
   Scenario: "Invalid log level" error
-    When I run `trema run hello.rb --logging_level hoge -d`
+    When I trema run "logger_controller.rb" with args "--logging_level hoge"
     Then the exit status should not be 0
     And the stderr should contain:
       """

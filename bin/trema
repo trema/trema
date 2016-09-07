@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+$LOAD_PATH.unshift File.join(__dir__, '..', 'lib')
 
+require 'rubygems'
+require 'bundler/setup'
+
+require 'active_support/core_ext/object/try'
 require 'drb/drb'
 require 'gli'
 require 'phut'
@@ -9,6 +13,8 @@ require 'trema'
 
 # OpenFlow controller framework.
 module Trema
+  Trema.logger = Trema::Logger.new('trema')
+
   # trema command.
   # rubocop:disable ModuleLength
   module App
@@ -50,22 +56,11 @@ module Trema
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
         Pio::OpenFlow.switch_version('OpenFlow13') if options[:openflow13]
-        begin
-          options[:logging_level] =
-            { debug: ::Logger::DEBUG,
-              info: ::Logger::INFO,
-              warn: ::Logger::WARN,
-              error: ::Logger::ERROR,
-              fatal: ::Logger::FATAL,
-              unknown: ::Logger::UNKNOWN
-            }.fetch(options[:logging_level].to_sym)
-          options[:logging_level] = ::Logger::DEBUG if global_options[:verbose]
-        rescue KeyError
-          raise(ArgumentError,
-                "Invalid log level: #{options[:logging_level]}")
-        end
+        options[:logging_level] = :debug if global_options[:verbose]
         require 'trema/switch'
-        Trema::Command.new.run(args, global_options.merge(options))
+        Trema.logger.level = options[:logging_level]
+        @command = Trema::Command.new
+        @command.run(args, global_options.merge(options))
       end
     end
 
@@ -272,19 +267,17 @@ module Trema
 
     default_command :help
 
-    on_error do |e|
-      case e
-      when OptionParser::ParseError,
-           Trema::NoControllerDefined,
-           GLI::UnknownCommandArgument,
-           ArgumentError
-        true
-      when Interrupt
-        exit false
+    on_error do |exception|
+      if /^GLI::/=~ exception.class.to_s
+        # do not show backtrace
+        Trema.logger.error "error: #{exception.message}"
       else
         # show backtrace
-        raise e
+        logger = @command.try(:controller).try(:logger) || Trema.logger
+        logger.error "#{exception.class}: #{exception.message}"
+        exception.backtrace.each { |each| logger.error "\t" + each }
       end
+      false
     end
 
     exit run(ARGV)

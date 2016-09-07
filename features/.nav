@@ -1,5 +1,6 @@
 - trema_run (trema run command):
   - run.feature (basic usage)
+  - show_backtrace_on_exception.feature
   - conf_option.feature
   - daemonize_option.feature
   - openflow13_option.feature
@@ -41,7 +42,7 @@
   - unknown.feature
 
 - api (controller API):
-  - logging.feature
+  - log_file_naming.feature
   - send_flow_mod_add.feature
 
 - handlers:

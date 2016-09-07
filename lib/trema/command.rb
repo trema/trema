@@ -19,11 +19,13 @@ module Trema
     def run(args, options)
       @args = args
       @daemon = options[:daemonize]
-      $LOAD_PATH.unshift File.expand_path(File.dirname(@args.first))
-      load @args.first
+      ruby_file = @args.first
+      $LOAD_PATH.unshift File.expand_path(File.dirname(ruby_file))
+      Object.module_eval IO.read(ruby_file), ruby_file
       port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
-      @controller =
-        Controller.create(port_number, options.fetch(:logging_level))
+      @controller = Controller.create(ruby_file,
+                                      port_number,
+                                      options.fetch(:logging_level))
 
       trap_signals
       create_pid_file
@@ -90,11 +92,11 @@ module Trema
     def start_phut(config_file)
       return unless config_file
       system 'sudo -v'
-      @phut = Phut::Parser.new(@controller.logger).parse(config_file)
+      @phut = Phut::Parser.new(Trema.logger).parse(config_file)
       @phut_run_thread = Thread.start { @phut.run }
       @phut_run_thread.join
       Thread.start { start_sudo_credential_update }
-    rescue ScriptError, NameError
+    rescue ScriptError, NameError, Errno::ENOENT
       killall
       raise $ERROR_INFO
     rescue StandardError
@@ -150,7 +152,7 @@ module Trema
     # rubocop:enable MethodLength
 
     def create_pid_file
-      raise "#{name} is already running." if running?
+      raise "#{name} is already running (#{pid_file})." if running?
       update_pid_file
     end
 

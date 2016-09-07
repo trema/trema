@@ -1,4 +1,5 @@
 require 'pio'
+require 'trema/logger'
 
 module Trema
   # OpenFlow switch.

@@ -1,14 +1,22 @@
+require 'active_support/core_ext/module/attribute_accessors'
+require 'logger'
 require 'phut'
 
+# Base module
 module Trema
+  mattr_accessor :logger
+
   # The default logger.
   class Logger
+    LOGGING_LEVELS = { debug: ::Logger::DEBUG,
+                       info: ::Logger::INFO,
+                       warn: ::Logger::WARN,
+                       error: ::Logger::ERROR,
+                       fatal: ::Logger::FATAL,
+                       unknown: ::Logger::UNKNOWN }.freeze
+
     def initialize(name)
       @name = name
-      @logger = {}.tap do |list|
-        list[:file] = create_file_logger
-        list[:stdout] = create_stdout_logger
-      end
     end
 
     def unknown(message)
@@ -36,18 +44,35 @@ module Trema
     end
 
     def level=(level)
-      @logger.values.each { |each| each.__send__ :level=, level }
+      new_level = if level.is_a?(Symbol) || level.is_a?(String)
+                    LOGGING_LEVELS.fetch(level.to_sym)
+                  else
+                    level
+                  end
+      @logger ||= create_logger
+      @logger.values.each { |each| each.__send__ :level=, new_level }
+    rescue KeyError
+      raise(ArgumentError, "Invalid log level: #{level}")
     end
 
     def level
+      @logger ||= create_logger
       @logger[:file].level
     end
 
     private
 
     def output(message_type, message)
+      @logger ||= create_logger
       @logger.values.each { |each| each.__send__ message_type, message }
       message
+    end
+
+    def create_logger
+      {}.tap do |list|
+        list[:file] = create_file_logger
+        list[:stderr] = create_stderr_logger
+      end
     end
 
     def create_file_logger
@@ -56,9 +81,8 @@ module Trema
       end
     end
 
-    def create_stdout_logger
-      $stdout.sync = true
-      ::Logger.new($stdout).tap do |logger|
+    def create_stderr_logger
+      ::Logger.new($stderr).tap do |logger|
         logger.formatter = proc { |_sev, _dtm, _name, msg| msg + "\n" }
         logger.level = ::Logger::INFO
       end

@@ -1,4 +1,4 @@
-require 'logger'
+require 'active_support/core_ext/module/delegation'
 require 'phut'
 require 'pio'
 require 'socket'
@@ -130,10 +130,12 @@ module Trema
     end
 
     # @private
-    def self.create(port_number = DEFAULT_TCP_PORT,
-                    logging_level = ::Logger::INFO)
+    def self.create(ruby_file,
+                    port_number = DEFAULT_TCP_PORT,
+                    logging_level = :info)
       unless @controller_klass
-        raise NoControllerDefined, 'No controller class is defined.'
+        raise(NoControllerDefined,
+              "#{ruby_file}: No controller class is defined")
       end
       @controller_klass.new(port_number, logging_level)
     end

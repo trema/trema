@@ -19,7 +19,7 @@ Feature: -S (--socket_dir) option
       """ruby
       vswitch('of_switch') { datapath_id 0xabc }
       """
-    And I successfully run `trema run flow_mod_controller.rb -c trema.conf -S . -d`
+    And I successfully trema run "flow_mod_controller.rb" with args "-c trema.conf -S . -d"
   
   @sudo
   Scenario: -S option
