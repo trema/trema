@@ -141,8 +141,7 @@ module Trema
     end
 
     # @private
-    def initialize(port_number = DEFAULT_TCP_PORT,
-                   logging_level = ::Logger::INFO)
+    def initialize(port_number = DEFAULT_TCP_PORT, logging_level = :info)
       @port_number = port_number
       @threads = []
       @logger = Logger.new(name)

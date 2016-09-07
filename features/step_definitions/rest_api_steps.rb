@@ -12,17 +12,13 @@ begin
     cd('.') { get path }
   end
 
-  # rubocop:disable LineLength
   Given(/^I send a POST request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
     cd('.') { post path, Object.instance_eval(body) }
   end
-  # rubocop:enable LineLength
 
-  # rubocop:disable LineLength
   Given(/^I send a DELETE request for "([^\"]*)" with body "([^\"]*)"$/) do |path, body|
     cd('.') { delete path, Object.instance_eval(body) }
   end
-  # rubocop:enable LineLength
 
   Then(/^the response should be "([^\"]*)"$/) do |status|
     expect(last_response.status).to eq(status.to_i)

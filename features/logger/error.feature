@@ -1,4 +1,4 @@
-Feature: Trema::Controller#logger.error
+Feature: logger#error
   Background:
     Given I set the environment variables to:
       | variable         | value |
@@ -17,31 +17,34 @@ Feature: Trema::Controller#logger.error
   @sudo
   Scenario: the default logging level
     When I trema run "hello.rb" interactively
-    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "ERROR -- : Konnichi Wa"
 
   @sudo
   Scenario: --logging_level error
-    When I run `trema run hello.rb --logging_level error` interactively
-    And sleep 2
+    When I trema run "hello.rb" with args "--logging_level error" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "ERROR -- : Konnichi Wa"
 
   @sudo
+  Scenario: --logging_level fatal
+    When I trema run "hello.rb" with args "--logging_level fatal" interactively
+    And I trema killall "Hello"
+    Then the output should not contain "Konnichi Wa"
+    And the file "Hello.log" should not contain "WARN -- : Konnichi Wa"
+
+  @sudo
   Scenario: -v
-    When I run `trema -v run hello.rb` interactively
-    And sleep 2
+    When I trema "-v" run "hello.rb" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "ERROR -- : Konnichi Wa"
 
   @sudo
   Scenario: --verbose
-    When I run `trema --verbose run hello.rb` interactively
-    And sleep 2
+    When I trema "--verbose" run "hello.rb" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "ERROR -- : Konnichi Wa"

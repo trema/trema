@@ -1,3 +1,7 @@
+Metrics/LineLength:
+  Exclude:
+    - '*_steps.rb'
+
 Style/StringLiterals:
   EnforcedStyle: single_quotes
 

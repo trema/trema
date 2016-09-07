@@ -1,4 +1,4 @@
-Feature: Trema::Controller#logger.fatal
+Feature: logger#fatal
   Background:
     Given I set the environment variables to:
       | variable         | value |
@@ -17,31 +17,34 @@ Feature: Trema::Controller#logger.fatal
   @sudo
   Scenario: the default logging level
     When I trema run "hello.rb" interactively
-    And sleep 2
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "FATAL -- : Konnichi Wa"
 
   @sudo
   Scenario: --logging_level fatal
-    When I run `trema run hello.rb --logging_level fatal` interactively
-    And sleep 2
+    When I trema run "hello.rb" with args "--logging_level fatal" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "FATAL -- : Konnichi Wa"
 
   @sudo
+  Scenario: --logging_level unknown
+    When I trema run "hello.rb" with args "--logging_level unknown" interactively
+    And I trema killall "Hello"
+    Then the output should not contain "Konnichi Wa"
+    And the file "Hello.log" should not contain "FATAL -- : Konnichi Wa"
+
+  @sudo
   Scenario: -v
-    When I run `trema -v run hello.rb` interactively
-    And sleep 2
+    When I trema "-v" run "hello.rb" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "FATAL -- : Konnichi Wa"
 
   @sudo
   Scenario: --verbose
-    When I run `trema --verbose run hello.rb` interactively
-    And sleep 2
+    When I trema "--verbose" run "hello.rb" interactively
     And I trema killall "Hello"
     Then the output should contain "Konnichi Wa"
     And the file "Hello.log" should contain "FATAL -- : Konnichi Wa"

@@ -44,13 +44,10 @@ module Trema
     end
 
     def level=(level)
-      new_level = if level.is_a?(Symbol) || level.is_a?(String)
-                    LOGGING_LEVELS.fetch(level.to_sym)
-                  else
-                    level
-                  end
       @logger ||= create_logger
-      @logger.values.each { |each| each.__send__ :level=, new_level }
+      @logger.values.each do |each|
+        each.__send__ :level=, LOGGING_LEVELS.fetch(level.to_sym)
+      end
     rescue KeyError
       raise(ArgumentError, "Invalid log level: #{level}")
     end
