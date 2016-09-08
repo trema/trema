@@ -39,7 +39,7 @@ module Trema
       c.switch :openflow13, default_value: false
 
       c.desc 'Overrides the default openflow channel port'
-      c.flag [:p, :port]
+      c.flag [:p, :port], default_value: Controller::DEFAULT_TCP_PORT
 
       c.desc 'Set logging level'
       c.flag [:l, :logging_level], default_value: :info
@@ -55,9 +55,9 @@ module Trema
         Phut.pid_dir = options[:pid_dir]
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
+
         Pio::OpenFlow.switch_version('OpenFlow13') if options[:openflow13]
         options[:logging_level] = :debug if global_options[:verbose]
-        require 'trema/switch'
         Trema.logger.level = options[:logging_level]
         @command = Trema::Command.new
         @command.run(args, global_options.merge(options))

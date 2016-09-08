@@ -14,31 +14,25 @@ module Trema
 
     attr_reader :controller
 
-    # rubocop:disable AbcSize
     # rubocop:disable MethodLength
     def run(args, options)
       @args = args
-      @daemon = options[:daemonize]
-      ruby_file = @args.first
-      $LOAD_PATH.unshift File.expand_path(File.dirname(ruby_file))
-      Object.module_eval IO.read(ruby_file), ruby_file
-      port_number = (options[:port] || Controller::DEFAULT_TCP_PORT).to_i
-      @controller = Controller.create(ruby_file,
-                                      port_number,
-                                      options.fetch(:logging_level))
+      @options = options
 
+      create_controller
       trap_signals
       create_pid_file
-      start_phut(options[:conf])
+      start_phut
 
-      if options[:daemonize]
+      if @options[:daemonize]
         run_as_daemon { start_controller_and_drb_threads }
       else
         start_controller_and_drb_threads
       end
+    rescue NoControllerDefined => e
+      raise e, "#{ruby_file}: #{e.message}"
     end
     # rubocop:enable MethodLength
-    # rubocop:enable AbcSize
 
     def kill(name)
       @phut.fetch(name).stop
@@ -60,9 +54,9 @@ module Trema
       @controller_thread.kill if @controller_thread
       @phut_run_thread.kill if @phut_run_thread
       @phut.stop if @phut
-      FileUtils.rm pid_file if FileTest.exists?(pid_file)
+      FileUtils.rm pid_file if FileTest.exist?(pid_file)
       DRb.stop_service
-      exit 0 if @daemon
+      exit 0 if @options[:daemonize]
     end
     # rubocop:enable CyclomaticComplexity
 
@@ -88,11 +82,39 @@ module Trema
 
     private
 
+    def create_controller
+      $LOAD_PATH.unshift File.expand_path(File.dirname(ruby_file))
+      Object.module_eval IO.read(ruby_file), ruby_file
+      @controller = Controller.create(@options.fetch(:port).to_i,
+                                      @options.fetch(:logging_level))
+    end
+
+    def ruby_file
+      @args.first
+    end
+
     # rubocop:disable MethodLength
-    def start_phut(config_file)
-      return unless config_file
+    def trap_signals
+      @killall_thread = Thread.start do
+        loop do
+          if @stop
+            killall
+            break
+          end
+          sleep 1
+        end
+      end
+      @killall_thread.abort_on_exception = true
+      Signal.trap(:TERM) { stop }
+      Signal.trap(:INT) { stop }
+    end
+    # rubocop:enable MethodLength
+
+    # rubocop:disable MethodLength
+    def start_phut
+      return unless @options[:conf]
       system 'sudo -v'
-      @phut = Phut::Parser.new(Trema.logger).parse(config_file)
+      @phut = Phut::Parser.new(Trema.logger).parse(@options[:conf])
       @phut_run_thread = Thread.start { @phut.run }
       @phut_run_thread.join
       Thread.start { start_sudo_credential_update }
@@ -134,23 +156,6 @@ module Trema
       @stop = true
     end
 
-    # rubocop:disable MethodLength
-    def trap_signals
-      @killall_thread = Thread.start do
-        loop do
-          if @stop
-            killall
-            break
-          end
-          sleep 1
-        end
-      end
-      @killall_thread.abort_on_exception = true
-      Signal.trap(:TERM) { stop }
-      Signal.trap(:INT) { stop }
-    end
-    # rubocop:enable MethodLength
-
     def create_pid_file
       raise "#{name} is already running (#{pid_file})." if running?
       update_pid_file
@@ -165,7 +170,7 @@ module Trema
     end
 
     def running?
-      FileTest.exists? pid_file
+      FileTest.exist? pid_file
     end
 
     def name
