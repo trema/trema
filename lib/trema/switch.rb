@@ -21,9 +21,8 @@ module Trema
       exchange_messages message_to_send: Hello, message_to_receive: Hello
       exchange_messages(message_to_send: Echo::Request,
                         message_to_receive: Echo::Reply)
-      @features_reply =
-        exchange_features_messages(message_to_send: Features::Request,
-                                   message_to_receive: Features::Reply)
+      @features_reply = exchange_messages(message_to_send: Features::Request,
+                                          message_to_receive: Features::Reply)
       self
     end
 
