@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'trema/monkey_patch/integer/base_conversions'
 require 'trema/monkey_patch/integer/durations'
 

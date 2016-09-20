@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_support/core_ext/module/delegation'
 require 'phut'
 require 'pio'
@@ -169,9 +170,9 @@ module Trema
     def send_flow_mod_add(datapath_id, options)
       flow_mod =
         case Pio::OpenFlow.version
-        when 'OpenFlow10'
+        when :OpenFlow10
           FlowMod.new(FlowModAddOption.new(options).to_hash)
-        when 'OpenFlow13'
+        when :OpenFlow13
           FlowMod.new(FlowModAdd13Option.new(options).to_hash)
         else
           raise "Unsupported OpenFlow version: #{Pio::OpenFlow.version}"

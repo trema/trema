@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'trema/controller'
 require 'trema/dirs'
 require 'trema/drb'

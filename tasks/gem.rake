@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 begin
   unless Dir.glob(File.join(__dir__, '../*.gemspec')).empty?
     require 'bundler/gem_tasks'

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 $LOAD_PATH.unshift File.join(__dir__, '..', 'lib')
 
 require 'rubygems'
@@ -56,7 +57,7 @@ module Trema
         Phut.log_dir = options[:log_dir]
         Phut.socket_dir = options[:socket_dir]
 
-        Pio::OpenFlow.switch_version('OpenFlow13') if options[:openflow13]
+        Pio::OpenFlow.version = :OpenFlow13 if options[:openflow13]
         options[:logging_level] = :debug if global_options[:verbose]
         Trema.logger.level = options[:logging_level]
         @command = Trema::Command.new

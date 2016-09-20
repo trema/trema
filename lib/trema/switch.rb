@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'pio'
 require 'trema/logger'
 
@@ -17,9 +18,12 @@ module Trema
     end
 
     def init
-      exchange_hello_messages
-      exchange_echo_messages
-      exchange_features_messages
+      exchange_messages message_to_send: Hello, message_to_receive: Hello
+      exchange_messages(message_to_send: Echo::Request,
+                        message_to_receive: Echo::Reply)
+      @features_reply =
+        exchange_features_messages(message_to_send: Features::Request,
+                                   message_to_receive: Features::Reply)
       self
     end
 
@@ -39,19 +43,9 @@ module Trema
 
     private
 
-    def exchange_hello_messages
-      write Hello.new
-      expect_receiving Hello
-    end
-
-    def exchange_echo_messages
-      write Echo::Request.new
-      expect_receiving Echo::Reply
-    end
-
-    def exchange_features_messages
-      write Features::Request.new
-      @features_reply = expect_receiving(Features::Reply)
+    def exchange_messages(message_to_send:, message_to_receive:)
+      write message_to_send.new
+      expect_receiving message_to_receive
     end
 
     # rubocop:disable MethodLength
@@ -77,7 +71,7 @@ module Trema
 
     def read_openflow_binary
       header_binary = drain(OPENFLOW_HEADER_LENGTH)
-      header = OpenFlowHeaderParser.read(header_binary)
+      header = OpenFlow::Header.read(header_binary)
       body_binary = drain(header.message_length - OPENFLOW_HEADER_LENGTH)
       raise if (header_binary + body_binary).length != header.message_length
       header_binary + body_binary

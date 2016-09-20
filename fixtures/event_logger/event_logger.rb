@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # logs Trema events
 class EventLogger < Trema::Controller
   def start(args)

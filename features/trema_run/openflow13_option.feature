@@ -16,7 +16,7 @@ Feature: --openflow13 option
         end
 
         def echo_reply(dpid, message)
-          logger.info "ofp_version = #{message.ofp_version}"
+          logger.info "ofp_version = #{message.version}"
         end
       end
       """
