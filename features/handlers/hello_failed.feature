@@ -20,7 +20,7 @@ Feature: hello_failed handler
       vswitch { datapath_id 0xabc }
       """
 
-  @sudo
+  @sudo @wip
   Scenario: invoke hello_failed handler
     Given I use OpenFlow 1.0
     And a file named "version_mismatch.rb" with:
@@ -40,7 +40,7 @@ Feature: hello_failed handler
     When I trema run "hello_fails.rb" with the configuration "trema.conf"
     Then the file "HelloFails.log" should contain "Hello failed."
 
-  @sudo
+  @sudo @wip
   Scenario: invoke hello_failed handler (OpenFlow 1.3)
     Given I use OpenFlow 1.3
     And a file named "version_mismatch.rb" with:

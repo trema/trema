@@ -191,6 +191,7 @@ module Trema
     end
 
     def send_message(datapath_id, message)
+      Trema.logger.debug "Sending #{message.inspect}"
       SWITCH.fetch(datapath_id).write message
     rescue KeyError, Errno::ECONNRESET, Errno::EPIPE
       logger.debug "Switch #{datapath_id} is disconnected."
@@ -291,6 +292,7 @@ module Trema
         logger.debug "Switch #{datapath_id} is disconnected."
       end
 
+      Trema.logger.debug "Received #{message.inspect}"
       case message
       when Echo::Request
         maybe_send_handler :echo_request, datapath_id, message
