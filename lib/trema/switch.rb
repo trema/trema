@@ -33,6 +33,7 @@ module Trema
     alias dpid datapath_id
 
     def write(message)
+      Trema.logger.debug "Sending #{message.inspect}"
       @socket.write message.to_binary
     end
 
@@ -51,6 +52,7 @@ module Trema
     def expect_receiving(expected_message_klass)
       loop do
         message = read
+        Trema.logger.debug "Received #{message}"
         case message
         when expected_message_klass
           return message
