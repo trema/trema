@@ -115,7 +115,8 @@ module Trema
     def start_phut
       return unless @options[:conf]
       system 'sudo -v'
-      @phut = Phut::Parser.new(@options[:conf]).parse
+      @phut = Phut::Parser.new(@options[:conf])
+      @phut.parse
       @phut_run_thread = Thread.start { @phut.run }
       @phut_run_thread.join
       Thread.start { start_sudo_credential_update }
