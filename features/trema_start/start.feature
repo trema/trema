@@ -29,22 +29,23 @@ Feature: start
       link '0xabc', 'host1'
       """
     And I successfully run `trema run switch_ready_controller.rb -c trema.conf -d`
+    And sleep 10
 
   @sudo
   Scenario: stop and start a switch
     Given I successfully run `trema stop 0xabc`
     And sleep 3
     When I successfully run `trema start 0xabc`
-    And sleep 10
+    And sleep 3
     Then the file "SwitchReadyController.log" should contain:
       """
       Switch 0xabc connected again.
       """
 
-  @sudo
+  @sudo @wip
   Scenario: stop and start host_name
     Given I successfully run `trema stop host1`
-    And sleep 3
+    And sleep 10
     When I successfully run `trema start host1`
     And sleep 10
     Then the file named "vhost.host1.pid" should exist
@@ -55,7 +56,7 @@ Feature: start
     Then the exit status should not be 0
     And the output should contain:
       """
-      Phut::OpenVswitch::AlreadyRunning: Open vSwitch (dpid = 2748) is already running!
+      An Open vSwitch #<Vswitch name: "0xabc", dpid: 0xabc, openflow_version: 1.0, tcp_port: 6653> is already running
       """
 
   @sudo @wip
@@ -73,5 +74,5 @@ Feature: start
     Then the exit status should not be 0
     And the output should contain:
       """
-      "NO_SUCH_NAME" does not exist.
+      "NO_SUCH_NAME" does not exist
       """

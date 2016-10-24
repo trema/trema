@@ -26,6 +26,24 @@ module Trema
     vhosts.map { |each| DRbObject.new_with_uri("drbunix:#{each}") }
   end
 
+  def self.vswitch(socket_dir)
+    trema_processes(socket_dir).map do |trema|
+      trema.try(:vswitch)
+    end.compact
+  end
+
+  def self.vhost(socket_dir)
+    trema_processes(socket_dir).map do |trema|
+      trema.try(:vhost)
+    end.compact
+  end
+
+  def self.vlink(socket_dir)
+    trema_processes(socket_dir).map do |trema|
+      trema.try(:vlink)
+    end.compact
+  end
+
   def self.fetch(name, socket_dir)
     trema_processes(socket_dir).each do |trema|
       begin

@@ -72,7 +72,10 @@ module Trema
       c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
-        puts Trema.fetch(args.first, options.fetch(:socket_dir)).dump_flows
+        vswitch = Trema.vswitch(options[:socket_dir]).map do |each|
+          each.find_by(name: args[0])
+        end.compact
+        vswitch.each { |each| puts each.dump_flows }
       end
     end
 
@@ -195,7 +198,17 @@ module Trema
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 1
-        Trema.fetch(args[0], options[:socket_dir]).stop
+
+        vswitch = Trema.vswitch(options[:socket_dir]).map do |each|
+          each.find_by(name: args[0])
+        end.compact
+        vhost = Trema.vhost(options[:socket_dir]).map do |each|
+          each.find_by(name: args[0])
+        end.compact
+
+        raise %("#{args[0]}" does not exist) if (vswitch + vhost).empty?
+        vswitch.each(&:stop)
+        vhost.each(&:kill)
       end
     end
 
@@ -207,7 +220,11 @@ module Trema
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 2
-        Trema.fetch(args, options[:socket_dir]).stop
+
+        vlink = Trema.vlink(options[:socket_dir]).map do |each|
+          each.find(args)
+        end
+        vlink.each(&:destroy)
       end
     end
 
@@ -219,7 +236,18 @@ module Trema
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 1
-        Trema.fetch(args[0], options[:socket_dir]).run
+
+        vswitch = Trema.vswitch(options[:socket_dir]).map do |each|
+          each.find_by(name: args[0])
+        end.compact
+        vhost = Trema.vhost(options[:socket_dir]).map do |each|
+          each.find_by(name: args[0])
+        end.compact
+
+        raise %("#{args[0]}" does not exist) if (vswitch + vhost).empty?
+
+        vswitch.each { |each| each.run(Controller::DEFAULT_TCP_PORT) }
+        vhost.each(&:run)
       end
     end
 

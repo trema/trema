@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require 'English'
+require 'phut'
+require 'phut/vswitch'
 
 module Trema
   # trema command
@@ -35,50 +37,47 @@ module Trema
     end
     # rubocop:enable MethodLength
 
-    def kill(name)
-      @phut.fetch(name).stop
-    end
-
-    def delete_link(endpoint1, endpoint2)
-      target = @phut.fetch([endpoint1, endpoint2])
-      begin
-        target.stop
-      rescue
-        true
-      end
-    end
-
-    # rubocop:disable CyclomaticComplexity
+    # rubocop:disable MethodLength
+    # rubocop:disable AbcSize
     def killall
       @controller.logger.debug 'Shutting down...' if @controller
       @controller.stop
       @controller_thread.kill if @controller_thread
       @phut_run_thread.kill if @phut_run_thread
-      @phut.stop if @phut
+      Phut::Vswitch.destroy_all
+      Phut::Vhost.destroy_all
+      Phut::Netns.destroy_all
+      Phut::Link.destroy_all
       FileUtils.rm pid_file if FileTest.exist?(pid_file)
       DRb.stop_service
       exit 0 if @options[:daemonize]
     end
-    # rubocop:enable CyclomaticComplexity
-
-    def up(name)
-      @phut.fetch(name).run
-    end
+    # rubocop:enable MethodLength
+    # rubocop:enable AbcSize
 
     def port_up(switch_name, port)
-      switch = @phut.fetch(switch_name)
-      switch.bring_port_up(port)
+      Phut::Vswitch.find_by(name: switch_name).bring_port_up(port)
     end
 
     def port_down(switch_name, port)
-      switch = @phut.fetch(switch_name)
-      switch.bring_port_down(port)
+      Phut::Vswitch.find_by(name: switch_name).bring_port_down(port)
     end
 
+    def vswitch
+      Phut::Vswitch
+    end
+
+    def vhost
+      Phut::Vhost
+    end
+
+    def vlink
+      Phut::Link
+    end
+
+    # FIXME
     def fetch(name)
-      @phut.fetch(name)
-    rescue KeyError
-      raise "Host not found: #{name}"
+      Phut::Vswitch.find_by(name: name) || Phut::Vhost.find_by(name: name)
     end
 
     private
@@ -115,9 +114,8 @@ module Trema
     def start_phut
       return unless @options[:conf]
       system 'sudo -v'
-      @phut = Phut::Parser.new(@options[:conf])
-      @phut.parse
-      @phut_run_thread = Thread.start { @phut.run }
+      @phut_run_thread =
+        Thread.start { Phut::Parser.new(@options[:conf]).parse }
       @phut_run_thread.join
       Thread.start { start_sudo_credential_update }
     rescue ScriptError, NameError, Errno::ENOENT

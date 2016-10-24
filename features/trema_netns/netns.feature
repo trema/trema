@@ -48,8 +48,9 @@ Feature: netns
     Then the stdout should contain "<message>"
     Examples:
       | command                                   | message                            |
-      | trema netns host1 ip add show host1       | 192.168.1.2                        |
       | trema netns host1 -- ping -c1 192.168.1.3 | 1 packets transmitted, 1 received, |
+      | trema netns host2 -- ping -c1 192.168.1.2 | 1 packets transmitted, 1 received, |
       | trema netns host1 "ping -c1 192.168.1.3"  | 1 packets transmitted, 1 received, |
       | trema netns host1 "ip addr show lo"       | 127.0.0.1                          |
       | trema netns host1 ls $PWD                 | simple_hub.conf                    |
+

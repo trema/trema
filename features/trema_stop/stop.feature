@@ -46,5 +46,5 @@ Feature: stop
     Then the exit status should not be 0
     And the output should contain:
     """
-    "NO_SUCH_NAME" does not exist.
+    "NO_SUCH_NAME" does not exist
     """
