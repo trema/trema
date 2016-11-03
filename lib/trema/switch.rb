@@ -37,6 +37,10 @@ module Trema
       @socket.write message.to_binary
     end
 
+    def write_binary(binary)
+      @socket.write binary
+    end
+
     def read
       OpenFlow.read read_openflow_binary
     end

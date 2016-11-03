@@ -197,6 +197,12 @@ module Trema
       logger.debug "Switch #{datapath_id} is disconnected."
     end
 
+    def send_message_binary(datapath_id, binary)
+      SWITCH.fetch(datapath_id).write_binary binary
+    rescue KeyError, Errno::ECONNRESET, Errno::EPIPE
+      logger.debug "Switch #{datapath_id} is disconnected."
+    end
+
     # @!endgroup
 
     # @!group Handlers
