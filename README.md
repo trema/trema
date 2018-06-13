@@ -1,7 +1,7 @@
 Welcome to Trema
 ================
 
-[![Build Status](http://img.shields.io/travis/trema/trema/develop.svg?style=flat)][travis]
+[![Build Status](https://travis-ci.org/nickkaranatsios/trema.svg?branch=master)](https://travis-ci.org/nickkaranatsios/trema)
 [![Code Climate](http://img.shields.io/codeclimate/github/trema/trema.svg?style=flat)][codeclimate]
 [![Coverage Status](http://img.shields.io/codeclimate/coverage/github/trema/trema.svg?style=flat)][codeclimate]
 [![Dependency Status](http://img.shields.io/gemnasium/trema/trema.svg?style=flat)][gemnasium]
