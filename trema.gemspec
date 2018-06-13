@@ -28,7 +28,7 @@ Gem::Specification.new do |gem|
 
   # Docs
   gem.add_development_dependency 'relish', '~> 0.7.1'
-  gem.add_development_dependency 'yard', '~> 0.8.7.6'
+  gem.add_development_dependency 'yard', '~> 0.9.11'
 
   # Test
   gem.add_development_dependency 'aruba', '~> 0.13.0'
@@ -39,5 +39,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'reek', '~> 3.10.2'
   gem.add_development_dependency 'rspec', '~> 3.4.0'
   gem.add_development_dependency 'rspec-given', '~> 3.8.0'
-  gem.add_development_dependency 'rubocop', '~> 0.37.2'
+  gem.add_development_dependency 'rubocop', '~> 0.57.1'
 end

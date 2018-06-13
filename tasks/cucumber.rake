@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 begin
   require 'cucumber/rake/task'
   Cucumber::Rake::Task.new
@@ -7,9 +8,9 @@ begin
   end
 rescue LoadError
   task :cucumber do
-    $stderr.puts 'Cucumber is disabled'
+    warn 'Cucumber is disabled'
   end
   task 'cucumber:travis' do
-    $stderr.puts 'Cucumber is disabled'
+    warn 'Cucumber is disabled'
   end
 end

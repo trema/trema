@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+
 $LOAD_PATH.unshift File.join(__dir__, '..', 'lib')
 
 require 'rubygems'
@@ -27,30 +28,31 @@ module Trema
     version Trema::VERSION
 
     desc 'Be verbose'
-    switch [:v, :verbose], negatable: false
+    switch %i[v verbose], negatable: false
 
     desc 'Runs a trema application'
     arg_name 'controller'
+    # rubocop:disable BlockLength
     command :run do |c|
       c.desc 'Runs as a daemon'
-      c.switch [:d, :daemonize], negatable: false
+      c.switch %i[d daemonize], negatable: false
       c.desc 'Specifies emulated network configuration'
-      c.flag [:c, :conf]
+      c.flag %i[c conf]
       c.desc 'Use OpenFlow1.3'
       c.switch :openflow13, default_value: false
 
       c.desc 'Overrides the default openflow channel port'
-      c.flag [:p, :port], default_value: Controller::DEFAULT_TCP_PORT
+      c.flag %i[p port], default_value: Controller::DEFAULT_TCP_PORT
 
       c.desc 'Set logging level'
-      c.flag [:l, :logging_level], default_value: :info
+      c.flag %i[l logging_level], default_value: :info
 
       c.desc 'Location to put pid files'
-      c.flag [:P, :pid_dir], default_value: Trema::DEFAULT_PID_DIR
+      c.flag %i[P pid_dir], default_value: Trema::DEFAULT_PID_DIR
       c.desc 'Location to put log files'
-      c.flag [:L, :log_dir], default_value: Trema::DEFAULT_LOG_DIR
+      c.flag %i[L log_dir], default_value: Trema::DEFAULT_LOG_DIR
       c.desc 'Location to put socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |global_options, options, args|
         Phut.pid_dir = options[:pid_dir]
@@ -64,12 +66,13 @@ module Trema
         @command.run(args, global_options.merge(options))
       end
     end
+    # rubocop:enable BlockLength
 
     desc 'Print all flow entries'
     arg_name 'switch'
     command :dump_flows do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         vswitch = Trema.vswitch(options[:socket_dir]).map do |each|
@@ -82,14 +85,14 @@ module Trema
     desc 'Sends UDP packets to destination host'
     command :send_packets do |c|
       c.desc 'host that sends packets'
-      c.flag [:s, :source]
+      c.flag %i[s source]
       c.desc 'host that receives packets'
-      c.flag [:d, :dest]
+      c.flag %i[d dest]
       c.desc 'number of packets to send'
-      c.flag [:n, :npackets], default_value: 1
+      c.flag %i[n npackets], default_value: 1
 
       c.desc 'Location to put socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
         raise '--source option is mandatory' if options[:source].nil?
@@ -103,9 +106,10 @@ module Trema
 
     desc 'Shows stats of packets'
     arg_name 'host'
+    # rubocop:disable BlockLength
     command :show_stats do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         help_now!('host is required') if args.empty?
@@ -135,11 +139,12 @@ module Trema
         end
       end
     end
+    # rubocop:enable BlockLength
 
     desc 'Reset stats of packets'
     command :reset_stats do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
         Trema.vhosts(options[:socket_dir]).each(&:reset_stats)
@@ -149,21 +154,19 @@ module Trema
     desc "Brings a switch's specified port up"
     command :port_up do |c|
       c.desc 'switch name'
-      c.flag [:s, :switch]
+      c.flag %i[s switch]
       c.desc 'port'
-      c.flag [:p, :port]
+      c.flag %i[p port]
       c.desc 'Location to put socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
         raise '--switch option is mandatory' if options[:switch].nil?
         raise '--port option is mandatory' if options[:port].nil?
         Trema.trema_processes(options[:socket_dir]).each do |trema|
-          begin
-            trema.port_up(options[:switch], options[:port].to_i)
-          rescue
-            next
-          end
+          trema.port_up(options[:switch], options[:port].to_i)
+        rescue RuntimeError
+          next
         end
       end
     end
@@ -171,21 +174,19 @@ module Trema
     desc "Brings a switch's specified port down"
     command :port_down do |c|
       c.desc 'switch name'
-      c.flag [:s, :switch]
+      c.flag %i[s switch]
       c.desc 'port'
-      c.flag [:p, :port]
+      c.flag %i[p port]
       c.desc 'Location to put socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, _args|
         raise '--switch option is mandatory' if options[:switch].nil?
         raise '--port option is mandatory' if options[:port].nil?
         Trema.trema_processes(options[:socket_dir]).each do |trema|
-          begin
-            trema.port_down(options[:switch], options[:port].to_i)
-          rescue
-            next
-          end
+          trema.port_down(options[:switch], options[:port].to_i)
+        rescue RuntimeError
+          next
         end
       end
     end
@@ -194,7 +195,7 @@ module Trema
     arg_name 'name'
     command :stop do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 1
@@ -216,7 +217,7 @@ module Trema
     arg_name 'endpoint1 endpoint2'
     command :delete_link do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 2
@@ -232,7 +233,7 @@ module Trema
     arg_name 'name'
     command :start do |c|
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         help_now! if args.size != 1
@@ -257,16 +258,14 @@ module Trema
       c.desc 'Kill all known trema processes'
       c.switch :all, default_value: false, negatable: false
       c.desc 'Location to find socket files'
-      c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+      c.flag %i[S socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
 
       c.action do |_global_options, options, args|
         if options[:all]
           Trema.trema_processes(options[:socket_dir]).each do |each|
-            begin
-              each.killall
-            rescue DRb::DRbConnError
-              true # OK (trema process exitted).
-            end
+            each.killall
+          rescue DRb::DRbConnError
+            true # OK (trema process exitted).
           end
         else
           help_now! if args.size != 1
@@ -297,7 +296,7 @@ module Trema
     default_command :help
 
     on_error do |exception|
-      if /^GLI::/=~ exception.class.to_s
+      if exception.class.to_s.match?(/^GLI::/)
         # do not show backtrace
         Trema.logger.error "error: #{exception.message}"
       else

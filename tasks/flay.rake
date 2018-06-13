@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 begin
   require 'rake/tasklib'
   require 'flay'
@@ -11,6 +12,6 @@ begin
   end
 rescue LoadError
   task :flay do
-    $stderr.puts 'Flay is disabled'
+    warn 'Flay is disabled'
   end
 end

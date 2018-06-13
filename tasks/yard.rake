@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 begin
   require 'yard'
   YARD::Rake::YardocTask.new do |t|
@@ -7,6 +8,6 @@ begin
   end
 rescue LoadError
   task :yard do
-    $stderr.puts 'YARD is disabled'
+    warn 'YARD is disabled'
   end
 end
